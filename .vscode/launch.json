@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:Unfold}",
+            "name": "Debug Unfold",
+            "target": "Unfold",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug Unfold"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:Unfold}",
+            "name": "Release Unfold",
+            "target": "Unfold",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release Unfold"
+        }
+    ]
+}
