@@ -1,6 +1,6 @@
 # Unfold
 
-A tiny paid macOS menu bar app that reminds you to stretch after long stretches
+A tiny free macOS menu bar app that reminds you to stretch after long stretches
 of Mac use, with a character (starting with Cat) that shows up to remind you.
 
 ## Status
@@ -25,10 +25,10 @@ swift run
 # Proper menu bar agent with a real bundle (notifications work)
 swift build -c release
 ./Scripts/make-app-bundle.sh release
-open build/Unfold.app
+open "build/Spine Keepet.app"
 ```
 
-To stop the bundled app: use **Quit Unfold** from its menu.
+To stop the bundled app: use **Quit Spine Keepet** from its menu.
 
 ## Project layout
 
@@ -56,7 +56,7 @@ Sources/Unfold/
     packages, copied into the app's resource bundle at build time
   Support/        Constants, Strings, TimeFormatting
 Scripts/
-  make-app-bundle.sh — wraps the binary + resource bundle into Unfold.app
+  make-app-bundle.sh — wraps the binary + resource bundle into "Spine Keepet.app"
   generate-placeholder-spritesheet.swift — regenerates the test cat sheet
 ```
 

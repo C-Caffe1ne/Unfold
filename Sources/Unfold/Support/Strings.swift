@@ -4,7 +4,7 @@ import Foundation
 /// localisation table later without touching the views.
 enum Strings {
 
-    static let appName = "Unfold"
+    static let appName = "Spine Keepet"
 
     enum Menu {
         static let nextStretch = "Next stretch"
@@ -16,7 +16,7 @@ enum Strings {
         static let stretchInterval = "Stretch Interval"
         static let custom = "Custom…"
         static let settings = "Settings…"
-        static let quit = "Quit Unfold"
+        static let quit = "Quit Spine Keepet"
     }
 
     enum Notification {
@@ -25,7 +25,7 @@ enum Strings {
     }
 
     enum Settings {
-        static let windowTitle = "Unfold Settings"
+        static let windowTitle = "Spine Keepet Settings"
 
         static let stretchSectionTitle = "Stretch Reminder"
         static let remindMeEvery = "Remind me every"
@@ -38,7 +38,7 @@ enum Strings {
         static let pauseWhenAway = "Pause when I'm away for"
 
         static let generalSectionTitle = "General"
-        static let launchAtLogin = "Launch Unfold at login"
+        static let launchAtLogin = "Launch Spine Keepet at login"
         static let launchAtLoginNeedsApproval = "Approval may be required in System Settings."
         static let launchAtLoginNotFound = "Launch at Login isn't available for this build."
 

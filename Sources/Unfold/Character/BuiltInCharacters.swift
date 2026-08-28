@@ -18,7 +18,7 @@ enum BuiltInCharacters {
     /// so the app always has *something* to show rather than crashing.
     static let emergencyFallback = Character(
         id: "fallback",
-        name: "Unfold",
+        name: "Spine Keepet",
         thumbnailSymbolName: "pawprint.fill",
         spriteSheet: SpriteSheetDefinition(fileName: "", columns: 1, rows: 1, frameWidth: 1, frameHeight: 1),
         animations: [:],
