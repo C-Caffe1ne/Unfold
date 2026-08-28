@@ -8,6 +8,7 @@ enum Strings {
 
     enum Menu {
         static let nextStretch = "Next stretch"
+        static let pausedWhileAway = "Paused while you're away"
         static let pause = "Pause"
         static let resume = "Resume"
         static let paused = "Paused"
@@ -25,8 +26,31 @@ enum Strings {
 
     enum Settings {
         static let windowTitle = "Unfold Settings"
-        static let intervalSectionTitle = "Stretch interval"
-        static let placeholder = "More settings — including launch at login — will live here in a future update."
+
+        static let stretchSectionTitle = "Stretch Reminder"
+        static let remindMeEvery = "Remind me every"
+        static let customIntervalLabel = "Custom interval"
+        static func customIntervalRangeHint(_ range: ClosedRange<Int>) -> String {
+            "\(range.lowerBound)–\(range.upperBound) minutes"
+        }
+
+        static let activitySectionTitle = "Activity"
+        static let pauseWhenAway = "Pause when I'm away for"
+
+        static let generalSectionTitle = "General"
+        static let launchAtLogin = "Launch Unfold at login"
+        static let launchAtLoginNeedsApproval = "Approval may be required in System Settings."
+        static let launchAtLoginNotFound = "Launch at Login isn't available for this build."
+
+        static let notificationsSectionTitle = "Notifications"
+        static let systemNotifications = "System notifications"
+        static let notificationsEnabled = "Enabled"
+        static let notificationsDisabled = "Disabled in System Settings"
+        static let notificationsNotDetermined = "Not requested yet"
+
+        static let characterSectionTitle = "Character"
+        static let characterPickerLabel = "Character"
+        static let defaultCharacterLabel = "Default"
     }
 
     enum CustomPrompt {

@@ -29,12 +29,22 @@ final class CharacterManager: ObservableObject {
            let match = characters.first(where: { $0.id == savedID }) {
             self.current = match
         } else {
-            self.current = characters.first ?? BuiltInCharacters.emergencyFallback
+            let fallback = characters.first ?? BuiltInCharacters.emergencyFallback
+            self.current = fallback
+            if settings.selectedCharacterID != nil {
+                // The saved id no longer matches anything (e.g. an imported
+                // character's package was removed). Heal the stored value
+                // so this doesn't need to re-resolve the fallback on every
+                // future launch.
+                NSLog("Unfold: selectedCharacterID \"\(settings.selectedCharacterID ?? "")\" not found — falling back to \"\(fallback.id)\"")
+                settings.selectedCharacterID = fallback.id
+            }
         }
     }
 
     func select(_ character: Character) {
         current = character
         settings.selectedCharacterID = character.id
+        NSLog("Unfold: selected character \"\(character.id)\" — used from the next stretch reminder onward")
     }
 }

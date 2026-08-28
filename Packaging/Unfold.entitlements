@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!--
+    App Sandbox, required for Mac App Store distribution. Deliberately
+    the ONLY entitlement here: audited current functionality (UserDefaults,
+    bundled resource loading, CGEventSource idle-time queries, NSWindow
+    overlay, UNUserNotificationCenter local notifications, SMAppService
+    login-item registration) needs no additional sandbox exception —
+    no network client, no file access outside the app's own container,
+    no hardware/personal-data entitlements. Add an entitlement here only
+    when a specific feature actually needs it.
+    -->
+    <key>com.apple.security.app-sandbox</key><true/>
+</dict>
+</plist>

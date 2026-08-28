@@ -14,17 +14,31 @@ enum Constants {
     /// target `Date`, so a delayed tick never drifts.
     static let displayTickInterval: TimeInterval = 1
 
-    /// After this many seconds without keyboard/mouse input, the countdown
-    /// freezes so that time spent away from the Mac does not count.
-    static let idleThreshold: TimeInterval = 60
+    /// Default "away" threshold, in minutes, before the countdown freezes —
+    /// used only to seed `SettingsStore` on first launch. From then on the
+    /// live value is user-editable in Settings and read fresh on every
+    /// check (see `SystemActivityMonitor`'s `idleThresholdProvider`), not
+    /// copied once at startup.
+    ///
+    /// Product policy: the gap between the last input and this threshold
+    /// still counts as active usage (the user could plausibly still be
+    /// reading the screen); only time *beyond* the threshold is excluded.
+    /// A returning user resumes accruing active time immediately.
+    static let defaultIdleThresholdMinutes = 5
+
+    /// Selectable "pause when I'm away for" presets in Settings, in minutes.
+    static let idleThresholdPresetMinutes = [1, 3, 5, 10, 15]
 
     /// Interval used on the very first launch, before the user picks one.
     static let defaultStretchIntervalMinutes = 60
 
-    /// Selectable presets shown in the menu, in minutes. "Custom" is separate.
+    /// Selectable presets shown in the menu and Settings, in minutes.
+    /// "Custom" is separate.
     static let presetIntervalMinutes = [30, 45, 60, 90, 120]
 
-    /// Allowed bounds for a custom interval, in minutes.
+    /// Allowed bounds for a custom interval, in minutes. Shared by the menu
+    /// bar's Custom… prompt and the Settings window so there's one answer
+    /// to "what's a valid interval," not two.
     static let customIntervalRange = 5...240
 
     /// Size of the stretch-reminder overlay panel. Recommended range for the

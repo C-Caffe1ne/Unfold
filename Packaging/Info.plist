@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key><string>Unfold</string>
+    <key>CFBundleDisplayName</key><string>Unfold</string>
+
+    <!--
+    BLOCKER — human action required before Mac App Store submission:
+    this must become the real reverse-DNS identifier registered to your
+    Apple Developer account and matching the app record you create in
+    App Store Connect. "com.unfold.app" is a development placeholder.
+    -->
+    <key>CFBundleIdentifier</key><string>com.unfold.app</string>
+
+    <key>CFBundleExecutable</key><string>Unfold</string>
+    <key>CFBundlePackageType</key><string>APPL</string>
+    <key>CFBundleShortVersionString</key><string>1.0</string>
+    <key>CFBundleVersion</key><string>1</string>
+    <key>LSMinimumSystemVersion</key><string>13.0</string>
+    <key>LSUIElement</key><true/>
+    <key>NSHumanReadableCopyright</key><string>© 2026 Unfold. All rights reserved.</string>
+
+    <!--
+    No custom/proprietary encryption is used anywhere in the app (see the
+    privacy/network audit — Unfold makes no network requests at all), so
+    this avoids the export-compliance question App Store Connect would
+    otherwise ask on every submission.
+    -->
+    <key>ITSAppUsesNonExemptEncryption</key><false/>
+
+    <!--
+    Reasonable default category — confirm this matches your actual App
+    Store Connect listing; harmless to change later, not tied to any
+    external account the way the bundle identifier is.
+    -->
+    <key>LSApplicationCategoryType</key><string>public.app-category.utilities</string>
+</dict>
+</plist>

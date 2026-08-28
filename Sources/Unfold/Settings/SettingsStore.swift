@@ -10,7 +10,7 @@ final class SettingsStore: ObservableObject {
 
     private enum Key {
         static let stretchInterval = "stretchInterval"
-        static let launchAtLogin = "launchAtLogin"
+        static let idleThresholdMinutes = "idleThresholdMinutes"
         static let selectedCharacterID = "selectedCharacterID"
     }
 
@@ -23,12 +23,20 @@ final class SettingsStore: ObservableObject {
         }
     }
 
-    /// Reserved for a future "launch at login" toggle. Persisted now so the
-    /// UI can bind to it, but not yet registered with the system.
-    @Published var launchAtLogin: Bool {
+    /// How many minutes of no keyboard/mouse input before the countdown
+    /// pauses. Read live by `SystemActivityMonitor` — never copied once at
+    /// startup — so a change here takes effect on the very next idle check.
+    @Published var idleThresholdMinutes: Int {
         didSet {
-            defaults.set(launchAtLogin, forKey: Key.launchAtLogin)
+            defaults.set(idleThresholdMinutes, forKey: Key.idleThresholdMinutes)
         }
+    }
+
+    /// `idleThresholdMinutes` as a `TimeInterval`, for callers that want
+    /// seconds (e.g. `ActivityMonitoring` providers) without doing the
+    /// `* 60` at every call site.
+    var idleThresholdDuration: TimeInterval {
+        TimeInterval(idleThresholdMinutes * 60)
     }
 
     /// `id` of the character shown in the stretch overlay. `nil` means "use
@@ -49,7 +57,9 @@ final class SettingsStore: ObservableObject {
             self.stretchInterval = .default
         }
 
-        self.launchAtLogin = defaults.bool(forKey: Key.launchAtLogin)
+        let storedIdleMinutes = defaults.object(forKey: Key.idleThresholdMinutes) as? Int
+        self.idleThresholdMinutes = storedIdleMinutes ?? Constants.defaultIdleThresholdMinutes
+
         self.selectedCharacterID = defaults.string(forKey: Key.selectedCharacterID)
     }
 }

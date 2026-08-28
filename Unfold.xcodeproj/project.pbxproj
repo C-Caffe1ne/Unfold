@@ -1,0 +1,274 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C4F75EEF05C44D61B6C07575 /* Entry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ED06B0046AC4974B28AFF22 /* Entry.swift */; };
+		A338D5AF24E04D8297075625 /* UnfoldKit in Frameworks */ = {isa = PBXBuildFile; productRef = 00B77FFDFEDE4234B7CCA881 /* UnfoldKit */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0ED06B0046AC4974B28AFF22 /* Entry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Entry.swift; sourceTree = "<group>"; };
+		541C4A5CCFE84A3197B45483 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		07B141C786D5447DAB2352B4 /* Unfold.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Unfold.entitlements; sourceTree = "<group>"; };
+		DDD0282437974770ADE760BE /* Unfold.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Unfold.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		3437BDB14E4A4486BF4A8768 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A338D5AF24E04D8297075625 /* UnfoldKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		7690305A73DA425D8521006C = {
+			isa = PBXGroup;
+			children = (
+				DC931B38846C42B1B55D1173 /* AppTarget */,
+				30C3CDA7B9DF41C68FE77BBB /* Packaging */,
+				F32CD0838CBE418CBC286AFD /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		DC931B38846C42B1B55D1173 /* AppTarget */ = {
+			isa = PBXGroup;
+			children = (
+				0ED06B0046AC4974B28AFF22 /* Entry.swift */,
+			);
+			path = AppTarget;
+			sourceTree = "<group>";
+		};
+		30C3CDA7B9DF41C68FE77BBB /* Packaging */ = {
+			isa = PBXGroup;
+			children = (
+				541C4A5CCFE84A3197B45483 /* Info.plist */,
+				07B141C786D5447DAB2352B4 /* Unfold.entitlements */,
+			);
+			path = Packaging;
+			sourceTree = "<group>";
+		};
+		F32CD0838CBE418CBC286AFD /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				DDD0282437974770ADE760BE /* Unfold.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		B616C9A7B0BE42DDA2CB45E3 /* UnfoldApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EE26FF0F20FC4386B70E2698 /* Build configuration list for PBXNativeTarget "UnfoldApp" */;
+			buildPhases = (
+				B642EAC89F2A4BBEBB808066 /* Sources */,
+				3437BDB14E4A4486BF4A8768 /* Frameworks */,
+				866E9D17E85F42339BE5B9AE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = UnfoldApp;
+			packageProductDependencies = (
+				00B77FFDFEDE4234B7CCA881 /* UnfoldKit */,
+			);
+			productName = Unfold;
+			productReference = DDD0282437974770ADE760BE /* Unfold.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		03AC9A19F56E4DA2A09697AE /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1620;
+				LastUpgradeCheck = 1620;
+				TargetAttributes = {
+					B616C9A7B0BE42DDA2CB45E3 = {
+						CreatedOnToolsVersion = 16.2;
+					};
+				};
+			};
+			buildConfigurationList = 688A2D390B9042E38367CCFE /* Build configuration list for PBXProject "Unfold" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 7690305A73DA425D8521006C;
+			packageReferences = (
+				ED578B8552084D70814F1563 /* XCLocalSwiftPackageReference "." */,
+			);
+			productRefGroup = F32CD0838CBE418CBC286AFD /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B616C9A7B0BE42DDA2CB45E3 /* UnfoldApp */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		866E9D17E85F42339BE5B9AE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B642EAC89F2A4BBEBB808066 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C4F75EEF05C44D61B6C07575 /* Entry.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		BE341B06361B4458B14D4379 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		D2F7287E9D0541F1876D6416 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		568734907E9642F18C9F5FA8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Packaging/Unfold.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Packaging/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.unfold.app;
+				PRODUCT_MODULE_NAME = UnfoldApp;
+				PRODUCT_NAME = Unfold;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		E7F28A9F833E42DCB1178E50 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Packaging/Unfold.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Packaging/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.unfold.app;
+				PRODUCT_MODULE_NAME = UnfoldApp;
+				PRODUCT_NAME = Unfold;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		688A2D390B9042E38367CCFE /* Build configuration list for PBXProject "Unfold" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BE341B06361B4458B14D4379 /* Debug */,
+				D2F7287E9D0541F1876D6416 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EE26FF0F20FC4386B70E2698 /* Build configuration list for PBXNativeTarget "UnfoldApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				568734907E9642F18C9F5FA8 /* Debug */,
+				E7F28A9F833E42DCB1178E50 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		ED578B8552084D70814F1563 /* XCLocalSwiftPackageReference "." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = .;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		00B77FFDFEDE4234B7CCA881 /* UnfoldKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ED578B8552084D70814F1563 /* XCLocalSwiftPackageReference "." */;
+			productName = UnfoldKit;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 03AC9A19F56E4DA2A09697AE /* Project object */;
+}

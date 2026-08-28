@@ -13,6 +13,12 @@ final class StatusItemController {
     private let timer: StretchTimer
     private let settings: SettingsStore
     private let onOpenSettings: () -> Void
+    /// Only ever invoked from the `#if DEBUG`-only menu items below, so
+    /// these closures have no effect — and are never surfaced in any menu —
+    /// in a release build.
+    private let onDebugTriggerStretch: () -> Void
+    private let onDebugSimulateIdle: () -> Void
+    private let onDebugSimulateActive: () -> Void
 
     private var cancellables = Set<AnyCancellable>()
 
@@ -24,11 +30,17 @@ final class StatusItemController {
     init(
         timer: StretchTimer,
         settings: SettingsStore,
-        onOpenSettings: @escaping () -> Void
+        onOpenSettings: @escaping () -> Void,
+        onDebugTriggerStretch: @escaping () -> Void,
+        onDebugSimulateIdle: @escaping () -> Void,
+        onDebugSimulateActive: @escaping () -> Void
     ) {
         self.timer = timer
         self.settings = settings
         self.onOpenSettings = onOpenSettings
+        self.onDebugTriggerStretch = onDebugTriggerStretch
+        self.onDebugSimulateIdle = onDebugSimulateIdle
+        self.onDebugSimulateActive = onDebugSimulateActive
         self.statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
         configureButton()
@@ -78,6 +90,37 @@ final class StatusItemController {
         intervalItem.submenu = buildIntervalSubmenu()
         menu.addItem(intervalItem)
         menu.addItem(.separator())
+
+        #if DEBUG
+        let debugTriggerItem = NSMenuItem(
+            title: "Trigger Stretch Reminder (Debug)",
+            action: #selector(debugTriggerStretch),
+            keyEquivalent: "t"
+        )
+        debugTriggerItem.keyEquivalentModifierMask = [.command, .shift]
+        debugTriggerItem.target = self
+        menu.addItem(debugTriggerItem)
+
+        let simulateIdleItem = NSMenuItem(
+            title: "Simulate Idle (Debug)",
+            action: #selector(debugSimulateIdle),
+            keyEquivalent: "i"
+        )
+        simulateIdleItem.keyEquivalentModifierMask = [.command, .shift]
+        simulateIdleItem.target = self
+        menu.addItem(simulateIdleItem)
+
+        let simulateActiveItem = NSMenuItem(
+            title: "Simulate Active (Debug)",
+            action: #selector(debugSimulateActive),
+            keyEquivalent: "a"
+        )
+        simulateActiveItem.keyEquivalentModifierMask = [.command, .shift]
+        simulateActiveItem.target = self
+        menu.addItem(simulateActiveItem)
+
+        menu.addItem(.separator())
+        #endif
 
         let settingsItem = NSMenuItem(
             title: Strings.Menu.settings,
@@ -130,9 +173,9 @@ final class StatusItemController {
 
     private func observeState() {
         timer.$timeRemaining
-            .combineLatest(timer.$state)
+            .combineLatest(timer.$state, timer.$isIdlePaused)
             .receive(on: RunLoop.main)
-            .sink { [weak self] _, _ in self?.refresh() }
+            .sink { [weak self] _, _, _ in self?.refresh() }
             .store(in: &cancellables)
 
         settings.$stretchInterval
@@ -143,6 +186,13 @@ final class StatusItemController {
 
     private func refresh() {
         switch timer.state {
+        case .running where timer.isIdlePaused:
+            // Automatic idle pause — distinct from the user's own Pause, and
+            // never overrides it (that case is handled by `.paused` below,
+            // which always wins regardless of idle state).
+            nextStretchItem.title =
+                "\(Strings.Menu.pausedWhileAway): \(TimeFormatting.menuLabel(for: timer.timeRemaining))"
+            pauseItem.title = Strings.Menu.pause
         case .running:
             nextStretchItem.title =
                 "\(Strings.Menu.nextStretch): \(TimeFormatting.menuLabel(for: timer.timeRemaining))"
@@ -185,6 +235,20 @@ final class StatusItemController {
         settings.stretchInterval = .preset(minutes: sender.tag)
         timer.reset()
     }
+
+    #if DEBUG
+    @objc private func debugTriggerStretch() {
+        onDebugTriggerStretch()
+    }
+
+    @objc private func debugSimulateIdle() {
+        onDebugSimulateIdle()
+    }
+
+    @objc private func debugSimulateActive() {
+        onDebugSimulateActive()
+    }
+    #endif
 
     @objc private func promptCustomInterval() {
         let range = Constants.customIntervalRange

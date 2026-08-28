@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 /// Generic sprite-sheet animation renderer. Displays whatever frame
@@ -25,7 +26,13 @@ struct SpriteAnimationView: View {
                 Color.clear
             }
         }
-        .onAppear { animator.play() }
+        .onAppear {
+            // Respect "Reduce Motion": the animator has already rendered its
+            // first frame in `init`, so simply not starting playback leaves
+            // a static pose on screen instead of playing the full clip.
+            guard !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion else { return }
+            animator.play()
+        }
         .onDisappear { animator.stop() }
     }
 }

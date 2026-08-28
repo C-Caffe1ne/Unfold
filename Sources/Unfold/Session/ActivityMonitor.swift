@@ -12,9 +12,20 @@ protocol ActivityMonitoring {
 }
 
 /// Idle detection based on the time since the last HID input event.
-struct SystemActivityMonitor: ActivityMonitoring {
+///
+/// A reference type (not a struct) so `AppDelegate` can hold the same
+/// instance handed to `StretchTimer` and, in a DEBUG build, wrap it for
+/// on-demand idle simulation without the timer needing to know about that.
+final class SystemActivityMonitor: ActivityMonitoring {
 
-    var idleThreshold: TimeInterval = Constants.idleThreshold
+    /// Read fresh on every `isUserIdle` check rather than cached once at
+    /// init, so a threshold change in Settings takes effect on the very
+    /// next check — no restart, no explicit "push the new value in" step.
+    private let idleThresholdProvider: () -> TimeInterval
+
+    init(idleThresholdProvider: @escaping () -> TimeInterval = { TimeInterval(Constants.defaultIdleThresholdMinutes * 60) }) {
+        self.idleThresholdProvider = idleThresholdProvider
+    }
 
     /// Input event types that count as "the user is here".
     private let inputEventTypes: [CGEventType] = [
@@ -33,6 +44,27 @@ struct SystemActivityMonitor: ActivityMonitoring {
     }
 
     var isUserIdle: Bool {
-        secondsSinceLastInput >= idleThreshold
+        secondsSinceLastInput >= idleThresholdProvider()
     }
 }
+
+#if DEBUG
+/// Wraps a real `ActivityMonitoring` with a debug-only override so idle
+/// state can be flipped instantly from the "Simulate Idle" / "Simulate
+/// Active" (Debug) menu items instead of waiting out the real threshold.
+/// `forcedIdle == nil` (the default) defers to the wrapped monitor's real
+/// reading. Compiled out of release builds entirely — release always talks
+/// to a plain `SystemActivityMonitor` with no override surface at all.
+final class DebugOverridableActivityMonitor: ActivityMonitoring {
+    private let wrapped: ActivityMonitoring
+    var forcedIdle: Bool?
+
+    init(wrapping wrapped: ActivityMonitoring) {
+        self.wrapped = wrapped
+    }
+
+    var isUserIdle: Bool {
+        forcedIdle ?? wrapped.isUserIdle
+    }
+}
+#endif

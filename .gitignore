@@ -1,5 +1,10 @@
 .build/
 build/
 .swiftpm/
-*.xcodeproj
 .DS_Store
+
+# Unfold.xcodeproj itself IS tracked (needed for the Mac App Store archive
+# pipeline) — only per-user Xcode state is ignored.
+Unfold.xcodeproj/xcuserdata/
+Unfold.xcodeproj/project.xcworkspace/xcuserdata/
+DerivedData/

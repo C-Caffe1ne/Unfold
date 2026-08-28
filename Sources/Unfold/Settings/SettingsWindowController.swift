@@ -8,10 +8,14 @@ import SwiftUI
 final class SettingsWindowController {
 
     private let settings: SettingsStore
+    private let timer: StretchTimer
+    private let characterManager: CharacterManager
     private var window: NSWindow?
 
-    init(settings: SettingsStore) {
+    init(settings: SettingsStore, timer: StretchTimer, characterManager: CharacterManager) {
         self.settings = settings
+        self.timer = timer
+        self.characterManager = characterManager
     }
 
     func show() {
@@ -20,9 +24,19 @@ final class SettingsWindowController {
             return
         }
 
-        let hosting = NSHostingController(rootView: SettingsView(settings: settings))
+        let view = SettingsView(
+            settings: settings,
+            characterManager: characterManager,
+            // Changing the interval starts a fresh full-length countdown
+            // from now, the same policy the menu bar's own interval picker
+            // already uses — never an immediate reminder just because the
+            // setting changed.
+            onIntervalChanged: { [weak timer] in timer?.reset() }
+        )
+        let hosting = NSHostingController(rootView: view)
         let window = NSWindow(contentViewController: hosting)
         window.title = Strings.Settings.windowTitle
+        // A small utility settings window, not a resizable app window.
         window.styleMask = [.titled, .closable]
         window.isReleasedWhenClosed = false
         window.center()

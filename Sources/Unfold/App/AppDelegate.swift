@@ -17,7 +17,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         let settings = SettingsStore()
         let notifications = NotificationManager()
-        let settingsWindow = SettingsWindowController(settings: settings)
 
         let characterManager = CharacterManager(
             repository: CompositeCharacterRepository(),
@@ -30,8 +29,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             characterManager: characterManager
         )
 
+        // DEBUG builds wrap the real system idle reading so it can be
+        // overridden instantly from the "Simulate Idle"/"Simulate Active"
+        // menu; a release build talks to the plain system monitor with no
+        // override surface at all. Either way, the threshold itself is read
+        // fresh from Settings on every check, never copied once at startup.
+        #if DEBUG
+        let debugActivityMonitor = DebugOverridableActivityMonitor(
+            wrapping: SystemActivityMonitor(idleThresholdProvider: { settings.idleThresholdDuration })
+        )
+        let activityMonitor: ActivityMonitoring = debugActivityMonitor
+        #else
+        let activityMonitor: ActivityMonitoring = SystemActivityMonitor(
+            idleThresholdProvider: { settings.idleThresholdDuration }
+        )
+        #endif
+
         let timer = StretchTimer(
-            intervalProvider: { settings.stretchInterval.duration }
+            intervalProvider: { settings.stretchInterval.duration },
+            activityMonitor: activityMonitor
         )
         // Timer only ever hands out a StretchEvent — the coordinator decides
         // what that means (notification + character overlay).
@@ -39,10 +55,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             coordinator?.handle(event)
         }
 
+        let settingsWindow = SettingsWindowController(
+            settings: settings,
+            timer: timer,
+            characterManager: characterManager
+        )
+
         let statusItemController = StatusItemController(
             timer: timer,
             settings: settings,
-            onOpenSettings: { [weak settingsWindow] in settingsWindow?.show() }
+            onOpenSettings: { [weak settingsWindow] in settingsWindow?.show() },
+            onDebugTriggerStretch: { [weak coordinator] in
+                // Bypasses StretchTimer entirely so the timer's own countdown
+                // and cycle logic are untouched by debug testing — exactly
+                // the same StretchEvent -> StretchCoordinator path a real
+                // timer expiry takes. Only reachable via the #if DEBUG menu
+                // item in StatusItemController — never wired to any UI in a
+                // release build.
+                coordinator?.handle(StretchEvent(occurredAt: Date()))
+            },
+            onDebugSimulateIdle: {
+                #if DEBUG
+                debugActivityMonitor.forcedIdle = true
+                #endif
+            },
+            onDebugSimulateActive: {
+                #if DEBUG
+                debugActivityMonitor.forcedIdle = false
+                #endif
+            }
         )
 
         self.settings = settings

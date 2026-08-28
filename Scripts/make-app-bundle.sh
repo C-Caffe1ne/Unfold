@@ -28,35 +28,30 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BIN" "$APP/Contents/MacOS/Unfold"
 
 # Character packages (sprite sheets, character.json, ...) live in the SwiftPM
-# resource bundle. Bundle.module looks for it next to the executable *and*
-# under Bundle.main.resourceURL, so Contents/Resources is the right place
-# inside a real .app.
+# resource bundle. SwiftPM's generated `Bundle.module` accessor looks for it
+# at `Bundle.main.bundleURL` + the bundle name — for a macOS .app, that's
+# the bundle's TOP level (sibling to Contents/), not Contents/Resources.
+# (Verified directly: Contents/Resources placement only ever worked before
+# because the accessor's fallback silently hit a *hardcoded dev-machine
+# absolute .build/ path instead — which broke the moment the app ran
+# sandboxed or from a different machine/directory. See the release-
+# readiness report for how this was found.)
 if [ -d "$RESOURCE_BUNDLE" ]; then
-    cp -R "$RESOURCE_BUNDLE" "$APP/Contents/Resources/"
+    cp -R "$RESOURCE_BUNDLE" "$APP/"
 else
     echo "warning: resource bundle not found at $RESOURCE_BUNDLE (characters will fail to load)" >&2
 fi
 
-cat > "$APP/Contents/Info.plist" <<'PLIST'
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>CFBundleName</key><string>Unfold</string>
-    <key>CFBundleDisplayName</key><string>Unfold</string>
-    <key>CFBundleIdentifier</key><string>com.unfold.app</string>
-    <key>CFBundleExecutable</key><string>Unfold</string>
-    <key>CFBundlePackageType</key><string>APPL</string>
-    <key>CFBundleShortVersionString</key><string>0.1.0</string>
-    <key>CFBundleVersion</key><string>1</string>
-    <key>LSMinimumSystemVersion</key><string>13.0</string>
-    <key>LSUIElement</key><true/>
-</dict>
-</plist>
-PLIST
+cp "$ROOT/Packaging/Info.plist" "$APP/Contents/Info.plist"
 
-# Ad-hoc signature; enough for local runs and for notification delivery.
-codesign --force --sign - "$APP" >/dev/null 2>&1 || true
+# Ad-hoc signature with the real App Sandbox entitlement applied, so local
+# runs actually exercise the sandboxed code paths (UserDefaults, bundle
+# resource loading, CGEventSource, notifications, SMAppService) rather than
+# only ever being tested unsandboxed. This is still not a substitute for
+# signing with a real Developer ID / App Store distribution certificate —
+# see the release-readiness report for what still needs a real signing
+# identity to verify.
+codesign --force --sign - --entitlements "$ROOT/Packaging/Unfold.entitlements" "$APP" >/dev/null 2>&1 || true
 
 echo "built $APP"
 echo "run:  open \"$APP\"   (or)   \"$APP/Contents/MacOS/Unfold\""
