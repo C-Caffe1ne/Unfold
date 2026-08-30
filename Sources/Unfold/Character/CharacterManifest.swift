@@ -17,16 +17,19 @@ import Foundation
 ///   },
 ///   "animations": {
 ///     "idle": { "frames": [0,1,2,3,4,5,6,7], "fps": 7, "loop": true },
-///     "stretch": { "frames": [8,9,10,11,12,13,14,15,16,17,18,19], "fps": 11, "loop": false }
+///     "stretch": { "gif": "stretch.gif", "loop": false }
 ///   }
 /// }
 /// ```
 ///
 /// An animation's `frames` list is not tied to one row — it can walk across
-/// row boundaries (as `stretch` does above: 8 frames finish row 1, the
-/// remaining 4 start row 2). `CharacterPackageLoader` is the only thing that
-/// reads this type; it turns a validated manifest into the `Character`
-/// domain model the rest of the app uses.
+/// row boundaries (e.g. an 8-frame clip on a narrower sheet naturally spans
+/// two rows). An animation is sourced from the shared sprite sheet
+/// (`frames`+`fps`) *or* from its own GIF file (`gif`) — never both;
+/// `CharacterPackageLoader` picks based on which fields are present.
+/// `CharacterPackageLoader` is the only thing that reads this type; it
+/// turns a validated manifest into the `Character` domain model the rest of
+/// the app uses.
 struct CharacterManifest: Codable, Equatable {
     let id: String
     let name: String
@@ -53,8 +56,21 @@ struct CharacterManifest: Codable, Equatable {
 
     struct AnimationDTO: Codable, Equatable {
         /// Frame indices, in playback order. May span multiple rows.
-        let frames: [Int]
-        let fps: Double
+        /// Sprite-sheet-sourced animations only — `nil` when `gif` is set.
+        let frames: [Int]?
+        let fps: Double?
+
+        /// File name of a GIF (relative to this character's own package,
+        /// same rules as `spriteSheet.file`) to source this animation from
+        /// instead of the sprite sheet. When present, `frames`/`fps` are
+        /// ignored by `CharacterPackageLoader` — the GIF's own frames and
+        /// per-frame durations are used instead.
+        let gif: String?
+
+        /// Authoritative regardless of source: for a GIF-sourced animation
+        /// this *overrides* whatever loop metadata is baked into the GIF
+        /// file itself, rather than trusting the file. See
+        /// `CharacterAnimationView.makeAnimator`.
         let loop: Bool
     }
 }

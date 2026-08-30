@@ -81,20 +81,9 @@ enum CharacterPackageLoader {
 
         let validFrameRange = 0..<(sheet.columns * sheet.rows)
 
-        var animations: [AnimationKey: SpriteAnimationDefinition] = [:]
+        var animations: [AnimationKey: AnimationSource] = [:]
         for (rawKey, dto) in manifest.animations {
-            guard
-                !dto.frames.isEmpty,
-                dto.fps > 0,
-                dto.frames.allSatisfy({ validFrameRange.contains($0) })
-            else {
-                throw ValidationError.invalidAnimation(key: rawKey)
-            }
-            animations[AnimationKey(rawKey)] = SpriteAnimationDefinition(
-                frames: dto.frames,
-                fps: dto.fps,
-                loop: dto.loop
-            )
+            animations[AnimationKey(rawKey)] = try makeAnimationSource(rawKey: rawKey, dto: dto, validFrameRange: validFrameRange)
         }
 
         return Character(
@@ -111,5 +100,30 @@ enum CharacterPackageLoader {
             animations: animations,
             source: source
         )
+    }
+
+    /// A `gif` field takes precedence over `frames`/`fps` when a manifest
+    /// entry carries both — a malformed manifest fails predictably on the
+    /// GIF path rather than silently picking one ambiguously.
+    private static func makeAnimationSource(
+        rawKey: String,
+        dto: CharacterManifest.AnimationDTO,
+        validFrameRange: Range<Int>
+    ) throws -> AnimationSource {
+        if let gifFileName = dto.gif {
+            guard !gifFileName.isEmpty else {
+                throw ValidationError.invalidAnimation(key: rawKey)
+            }
+            return .gif(fileName: gifFileName, loop: dto.loop)
+        }
+
+        guard
+            let frames = dto.frames, !frames.isEmpty,
+            let fps = dto.fps, fps > 0,
+            frames.allSatisfy({ validFrameRange.contains($0) })
+        else {
+            throw ValidationError.invalidAnimation(key: rawKey)
+        }
+        return .spriteSheet(SpriteAnimationDefinition(frames: frames, fps: fps, loop: dto.loop))
     }
 }

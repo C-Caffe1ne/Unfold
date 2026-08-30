@@ -29,6 +29,11 @@ let package = Package(
             name: "UnfoldCLI",
             dependencies: ["Unfold"],
             path: "Sources/UnfoldCLI"
+        ),
+        .testTarget(
+            name: "UnfoldTests",
+            dependencies: ["Unfold"],
+            path: "Tests/UnfoldTests"
         )
     ]
 )

@@ -13,6 +13,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var coordinator: StretchCoordinator?
     private var statusItemController: StatusItemController?
     private var settingsWindow: SettingsWindowController?
+    #if DEBUG
+    private var debugGIFPreview: DebugGIFPreviewWindowController?
+    #endif
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         let settings = SettingsStore()
@@ -61,6 +64,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             characterManager: characterManager
         )
 
+        #if DEBUG
+        let debugGIFPreview = DebugGIFPreviewWindowController()
+        #endif
+
         let statusItemController = StatusItemController(
             timer: timer,
             settings: settings,
@@ -83,6 +90,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 #if DEBUG
                 debugActivityMonitor.forcedIdle = false
                 #endif
+            },
+            onDebugPreviewGIF: {
+                // Only reachable via the #if DEBUG menu item in
+                // StatusItemController — the closure itself is passed
+                // unconditionally to keep StatusItemController's init
+                // signature independent of build configuration, same as
+                // the other onDebug* closures above.
+                #if DEBUG
+                debugGIFPreview.show()
+                #endif
             }
         )
 
@@ -94,6 +111,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.settingsWindow = settingsWindow
         self.timer = timer
         self.statusItemController = statusItemController
+        #if DEBUG
+        self.debugGIFPreview = debugGIFPreview
+        #endif
 
         notifications.requestAuthorization()
         timer.start()

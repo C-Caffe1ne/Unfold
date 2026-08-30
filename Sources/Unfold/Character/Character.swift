@@ -17,13 +17,25 @@ struct Character: Identifiable, Equatable {
 
     /// Animations this character supports, keyed by `AnimationKey`. A
     /// character does not have to implement every built-in key.
-    let animations: [AnimationKey: SpriteAnimationDefinition]
+    let animations: [AnimationKey: AnimationSource]
 
     let source: CharacterSource
 
-    func animation(for key: AnimationKey) -> SpriteAnimationDefinition? {
+    func animation(for key: AnimationKey) -> AnimationSource? {
         animations[key]
     }
+}
+
+/// Where one animation's frames come from. `CharacterAnimationView` is the
+/// only place that branches on this — everything downstream of it
+/// (`AnimationClip`, `SpriteAnimator`) stays format-agnostic either way.
+enum AnimationSource: Equatable {
+    case spriteSheet(SpriteAnimationDefinition)
+    /// `fileName` is resolved the same way `spriteSheet.file` is (package-
+    /// relative, via `CharacterAssetLoader.resolveFileURL`). `loop` is the
+    /// manifest's own value — it always overrides whatever loop metadata
+    /// the GIF file itself carries; see `CharacterManifest.AnimationDTO`.
+    case gif(fileName: String, loop: Bool)
 }
 
 /// Where a character definition came from. Kept out of Timer/UI decision

@@ -19,6 +19,7 @@ final class StatusItemController {
     private let onDebugTriggerStretch: () -> Void
     private let onDebugSimulateIdle: () -> Void
     private let onDebugSimulateActive: () -> Void
+    private let onDebugPreviewGIF: () -> Void
 
     private var cancellables = Set<AnyCancellable>()
 
@@ -33,7 +34,8 @@ final class StatusItemController {
         onOpenSettings: @escaping () -> Void,
         onDebugTriggerStretch: @escaping () -> Void,
         onDebugSimulateIdle: @escaping () -> Void,
-        onDebugSimulateActive: @escaping () -> Void
+        onDebugSimulateActive: @escaping () -> Void,
+        onDebugPreviewGIF: @escaping () -> Void
     ) {
         self.timer = timer
         self.settings = settings
@@ -41,6 +43,7 @@ final class StatusItemController {
         self.onDebugTriggerStretch = onDebugTriggerStretch
         self.onDebugSimulateIdle = onDebugSimulateIdle
         self.onDebugSimulateActive = onDebugSimulateActive
+        self.onDebugPreviewGIF = onDebugPreviewGIF
         self.statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
         configureButton()
@@ -118,6 +121,14 @@ final class StatusItemController {
         simulateActiveItem.keyEquivalentModifierMask = [.command, .shift]
         simulateActiveItem.target = self
         menu.addItem(simulateActiveItem)
+
+        let previewGIFItem = NSMenuItem(
+            title: "Preview GIF Animation… (Debug)",
+            action: #selector(debugPreviewGIF),
+            keyEquivalent: ""
+        )
+        previewGIFItem.target = self
+        menu.addItem(previewGIFItem)
 
         menu.addItem(.separator())
         #endif
@@ -247,6 +258,10 @@ final class StatusItemController {
 
     @objc private func debugSimulateActive() {
         onDebugSimulateActive()
+    }
+
+    @objc private func debugPreviewGIF() {
+        onDebugPreviewGIF()
     }
     #endif
 
