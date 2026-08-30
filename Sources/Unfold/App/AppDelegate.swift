@@ -11,6 +11,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var characterManager: CharacterManager?
     private var overlay: OverlayController?
     private var coordinator: StretchCoordinator?
+    private var desktopPet: DesktopPetWindowController?
     private var statusItemController: StatusItemController?
     private var settingsWindow: SettingsWindowController?
     #if DEBUG
@@ -31,6 +32,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             overlay: overlay,
             characterManager: characterManager
         )
+
+        // Desktop Pet (Phase 1): shows the currently selected character's
+        // idle animation for the whole time the app runs, independent of
+        // the Stretch Reminder overlay above. Reads `characterManager.current`
+        // once at launch — Phase 1 doesn't track live character switches.
+        let desktopPet = DesktopPetWindowController(character: characterManager.current)
+        desktopPet.show()
 
         // DEBUG builds wrap the real system idle reading so it can be
         // overridden instantly from the "Simulate Idle"/"Simulate Active"
@@ -108,6 +116,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.characterManager = characterManager
         self.overlay = overlay
         self.coordinator = coordinator
+        self.desktopPet = desktopPet
         self.settingsWindow = settingsWindow
         self.timer = timer
         self.statusItemController = statusItemController

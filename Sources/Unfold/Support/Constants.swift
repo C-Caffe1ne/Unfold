@@ -56,6 +56,11 @@ enum Constants {
     /// `SpriteAnimator.isFinished`) to bring back a timed auto-dismiss.
     static let overlayAutoDismissDelay: TimeInterval? = nil
 
+    /// Gap kept between the Desktop Pet window and the screen's right/bottom
+    /// `visibleFrame` edges, so it doesn't sit flush against the edge (or
+    /// over the Dock — `visibleFrame` already excludes that).
+    static let desktopPetScreenMargin: CGFloat = 24
+
     /// Top-level folder, inside the app's resource bundle, that holds one
     /// subdirectory per built-in character package. Mirrors
     /// `Sources/Unfold/Resources/Characters` — see the `resources:` entry
