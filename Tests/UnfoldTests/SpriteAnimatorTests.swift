@@ -149,4 +149,46 @@ final class SpriteAnimatorTests: XCTestCase {
 
         animator.stop()
     }
+
+    // MARK: - onFinished completion callback (Desktop Pet Phase 2)
+
+    func test_onFinished_isCalledExactlyOnce_whenNonLoopingClipFinishes() {
+        let clip = AnimationClip(frames: [frame(.red), frame(.green)], loop: false)
+        let animator = SpriteAnimator(clip: clip)
+
+        var callCount = 0
+        animator.onFinished = { callCount += 1 }
+
+        animator.advance() // -> green, not finished yet
+        XCTAssertEqual(callCount, 0)
+
+        animator.advance() // -> finishes, holding green
+        XCTAssertEqual(callCount, 1)
+
+        animator.advance() // already finished: must not fire again
+        XCTAssertEqual(callCount, 1)
+    }
+
+    func test_onFinished_isNotCalled_forLoopingClip() {
+        let clip = AnimationClip(frames: [frame(.red), frame(.green)], loop: true)
+        let animator = SpriteAnimator(clip: clip)
+
+        var callCount = 0
+        animator.onFinished = { callCount += 1 }
+
+        animator.advance()
+        animator.advance() // wraps back to red
+        animator.advance()
+
+        XCTAssertEqual(callCount, 0)
+    }
+
+    func test_onFinished_defaultsToNil_existingConsumersAreUnaffected() {
+        let clip = AnimationClip(frames: [frame(.red)], loop: false)
+        let animator = SpriteAnimator(clip: clip)
+
+        XCTAssertNil(animator.onFinished)
+        animator.advance() // must not crash with no callback set
+        XCTAssertTrue(animator.isFinished)
+    }
 }

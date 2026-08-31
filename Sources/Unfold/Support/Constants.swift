@@ -56,10 +56,36 @@ enum Constants {
     /// `SpriteAnimator.isFinished`) to bring back a timed auto-dismiss.
     static let overlayAutoDismissDelay: TimeInterval? = nil
 
+    /// Longest mouseDown→mouseUp duration on the Desktop Pet that still
+    /// counts as a "click" rather than a long press. At or under this reads
+    /// as `.click`; anything longer reads as `.pointerUp`.
+    static let petClickThreshold: TimeInterval = 0.22
+
+    /// Cursor movement (in points, global screen coordinates) from
+    /// mouseDown before a press is treated as a drag rather than a
+    /// click/long-press candidate.
+    static let petDragThreshold: CGFloat = 5
+
     /// Gap kept between the Desktop Pet window and the screen's right/bottom
     /// `visibleFrame` edges, so it doesn't sit flush against the edge (or
     /// over the Dock — `visibleFrame` already excludes that).
     static let desktopPetScreenMargin: CGFloat = 24
+
+    /// Minimum alpha (0...255) a Desktop Pet pixel needs to count as
+    /// "visible" for click-through hit-testing. `default-cat`'s real
+    /// spritesheet is measured to be ~98.5% hard alpha (0 or 255), but does
+    /// have a real anti-aliased edge band — this sits at the spec's
+    /// recommended `alpha >= 0.1` (0.1 * 255 ≈ 25.5, rounded up to 26), so
+    /// faint edge-antialiasing pixels read as transparent (pass-through)
+    /// rather than part of the hit area.
+    static let petHitTestAlphaThreshold: UInt8 = 26
+
+    /// Extra radius (in display points, converted to source-image pixels by
+    /// the current aspect-fit scale) searched around the cursor's mapped
+    /// pixel before giving up on a hit — makes thin extremities (tail, ear
+    /// tips) easier to grab without pixel-perfect precision, while staying
+    /// far short of turning the hit area back into a rectangle.
+    static let petHitTestPaddingPoints: CGFloat = 2
 
     /// Top-level folder, inside the app's resource bundle, that holds one
     /// subdirectory per built-in character package. Mirrors

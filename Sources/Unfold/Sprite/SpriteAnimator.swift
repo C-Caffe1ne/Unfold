@@ -27,6 +27,16 @@ final class SpriteAnimator: ObservableObject {
     @Published private(set) var currentFrame: CGImage?
     @Published private(set) var isFinished = false
 
+    /// Called exactly once, synchronously, the moment `isFinished` becomes
+    /// `true` — right after a non-looping clip renders its last frame.
+    /// Generic on purpose, not an interaction-specific hack: every existing
+    /// consumer (Stretch overlay, GIF- and sprite-sheet-backed clips alike)
+    /// is unaffected since this defaults to `nil` — Desktop Pet interaction
+    /// (Phase 2) is simply the first caller to actually set it, to know
+    /// when a `.click`/`.pointerUp` reaction has finished playing without
+    /// polling `isFinished` on a timer of its own.
+    var onFinished: (() -> Void)?
+
     private let clip: AnimationClip
     private var frameOffset = 0
     private var ticker: Timer?
@@ -89,6 +99,7 @@ final class SpriteAnimator: ObservableObject {
                 renderCurrentFrame()
                 stop()
                 isFinished = true
+                onFinished?()
                 return
             }
             frameOffset = 0
