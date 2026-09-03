@@ -1487,7 +1487,12 @@ Expected: 3개 테스트 전부 PASS
     func reloadCatalog() {
         let characters = repository.characters()
         availableCharacters = characters
-        if !characters.contains(where: { $0.id == current.id }) {
+        if let refreshedCurrent = characters.first(where: { $0.id == current.id }) {
+            // Editing preserves the id but replaces the package contents.
+            // Keep the selection and refresh the actual Character value so
+            // its name, assets, and animation definitions update immediately.
+            current = refreshedCurrent
+        } else {
             current = Self.resolveCurrent(from: characters, settings: settings)
         }
     }
@@ -1510,6 +1515,14 @@ Expected: 3개 테스트 전부 PASS
         return fallback
     }
 ```
+
+같은 테스트 파일 아래에 `reloadCatalog()`의 동일-id 갱신 회귀 테스트를 추가한다.
+저장/편집은 id를 보존하므로 목록에 id가 여전히 있다는 사실만 확인해서는 안 된다.
+변경 전/후 캐릭터의 `name`을 다르게 만들고, reload 뒤 `current.name`과
+`availableCharacters.first?.name`이 모두 새 값인지 단언한다. 테스트용
+`MutableCharacterRepository`는 `CharacterRepository`를 따르는 작은 클래스여야
+하며, `SettingsStore`에는 테스트 전용 `UserDefaults(suiteName:)`을 주입하고
+테스트 종료 시 해당 persistent domain을 제거한다.
 
 - [ ] **Step 6: 라이브러리를 조립 지점에서 한 번만 만든다**
 
