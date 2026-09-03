@@ -14,16 +14,30 @@ struct BuiltInCharacterRepository: CharacterRepository {
     }
 }
 
-/// Characters the user has added themselves (`.unfoldcharacter` packages).
+/// Characters the user created in the built-in editor, one package
+/// directory each under `CharacterLibrary`.
 ///
-/// This is a placeholder: it returns an empty list today. When character
-/// import ships, this type gains the logic to scan a characters directory
-/// for `.unfoldcharacter` packages and call
-/// `CharacterPackageLoader.loadImported(packageDirectory:)` for each —
-/// without any change to `CharacterManager` or the UI that reads from it.
+/// A package that fails to load is skipped with a log line rather than
+/// propagated: one bad directory costs the user that character, not the
+/// whole list. Built-in characters take the same approach
+/// (`CharacterPackageLoader.loadBuiltIn` returns `nil` on failure).
 struct ImportedCharacterRepository: CharacterRepository {
+
+    private let library: CharacterLibrary
+
+    init(library: CharacterLibrary = .makeDefault()) {
+        self.library = library
+    }
+
     func characters() -> [Character] {
-        []
+        library.packageDirectories().compactMap { directory in
+            do {
+                return try CharacterPackageLoader.loadImported(packageDirectory: directory)
+            } catch {
+                NSLog("Unfold: skipping unreadable character package at \(directory.lastPathComponent) — \(error)")
+                return nil
+            }
+        }
     }
 }
 
