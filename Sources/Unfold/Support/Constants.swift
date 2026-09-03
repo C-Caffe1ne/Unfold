@@ -93,4 +93,14 @@ enum Constants {
     /// in Package.swift (SwiftPM copies that directory to the bundle root
     /// under its own name, dropping the `Resources/` prefix).
     static let builtInCharactersResourceSubdirectory = "Characters"
+
+    /// Folder name for this app inside Application Support. In the sandbox,
+    /// it maps into the app's own container, so no file-access entitlement
+    /// is needed.
+    static let applicationSupportFolderName = "Unfold"
+
+    /// Folder that holds one directory per user-created character package.
+    /// Uses the same layout as `builtInCharactersResourceSubdirectory`
+    /// (`<id>/character.json` + assets), so the same loader reads both.
+    static let userCharactersFolderName = "Characters"
 }
