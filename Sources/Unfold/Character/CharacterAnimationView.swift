@@ -42,7 +42,7 @@ struct CharacterAnimationView: View {
     /// same reasoning `SpriteAnimator.advance()` was made internal for.
     @MainActor
     static func makeAnimator(character: Character, key: AnimationKey) -> SpriteAnimator? {
-        guard let source = character.animation(for: key) else { return nil }
+        guard let source = character.resolvedAnimation(for: key) else { return nil }
 
         switch source {
         case .spriteSheet(let definition):

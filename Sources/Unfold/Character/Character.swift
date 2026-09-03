@@ -56,6 +56,18 @@ struct Character: Identifiable, Equatable {
     func animation(for key: AnimationKey) -> AnimationSource? {
         animations[key]
     }
+
+    /// What to actually play for `key`, falling back to `.idle` when this
+    /// character doesn't define it. A character is only ever *required* to
+    /// have an idle loop; every other moment degrades to that rather than
+    /// to a generic symbol.
+    ///
+    /// Kept separate from `animation(for:)` — that one stays an exact
+    /// lookup, so "does this character define a stretch clip?" still has a
+    /// truthful answer.
+    func resolvedAnimation(for key: AnimationKey) -> AnimationSource? {
+        animations[key] ?? animations[.idle]
+    }
 }
 
 /// Where one animation's frames come from. `CharacterAnimationView` is the
