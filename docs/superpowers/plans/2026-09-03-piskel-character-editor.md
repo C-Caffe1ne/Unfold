@@ -1251,9 +1251,18 @@ enum CharacterPackageWriter {
         }
 
         if FileManager.default.fileExists(atPath: finalDirectory.path) {
-            try FileManager.default.removeItem(at: finalDirectory)
+            // `removeItem` followed by `moveItem` creates a failure window in
+            // which the user's previous character is already gone. Foundation's
+            // same-volume replacement swaps the staged directory into place as
+            // one filesystem operation and consumes `staging` on success.
+            _ = try FileManager.default.replaceItemAt(
+                finalDirectory,
+                withItemAt: staging,
+                backupItemName: nil
+            )
+        } else {
+            try FileManager.default.moveItem(at: staging, to: finalDirectory)
         }
-        try FileManager.default.moveItem(at: staging, to: finalDirectory)
 
         return try CharacterPackageLoader.loadImported(packageDirectory: finalDirectory)
     }
@@ -1297,6 +1306,12 @@ enum CharacterPackageWriter {
 > `String?`이라 그래도 컴파일이 통과한다. 그래서 방어는 주석이 아니라 아래
 > 테스트가 한다: 두 값을 서로 구별되게(`"pawprint.fill"` vs `"pixel"`) 두고
 > 로더 왕복 후 **각각 독립적으로** 단언한다.
+
+> **덮어쓰기는 기존 패키지를 먼저 지우면 안 된다.** `removeItem` 후 `moveItem`은
+> 두 번째 호출이 실패할 경우 이전 캐릭터를 잃는다. macOS에서 디렉터리에 대한
+> `FileManager.replaceItemAt` 동작을 실제로 확인했으며, 같은 볼륨의 스테이징
+> 디렉터리를 기존 패키지와 교체하는 경로를 사용한다. 새 패키지는 대상이 없으므로
+> 기존처럼 `moveItem`을 사용한다.
 
 - [ ] **Step 5: 테스트가 통과하는지 확인한다**
 
