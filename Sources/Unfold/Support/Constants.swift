@@ -103,4 +103,17 @@ enum Constants {
     /// Uses the same layout as `builtInCharactersResourceSubdirectory`
     /// (`<id>/character.json` + assets), so the same loader reads both.
     static let userCharactersFolderName = "Characters"
+
+    /// How many frames a user-drawn animation may have. 24 frames at the
+    /// editor's default 12fps is a two-second loop — long enough for an
+    /// idle animation, short enough that the sprite sheet stays small.
+    static let editorFrameCountRange = 1...24
+
+    /// Longest side, in pixels, of a user-drawn frame. Well under Piskel's
+    /// own 1024 limit: past this the art stops reading as pixel art at
+    /// `characterDisplaySize`, and the sheet stops being cheap to decode.
+    static let editorCanvasSideRange = 1...128
+
+    /// Canvas the editor seeds a brand-new character with.
+    static let editorDefaultCanvasSide = 64
 }
