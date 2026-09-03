@@ -6,8 +6,16 @@ import ImageIO
 /// The editor is a vendored web app running in a `WKWebView`: correct by
 /// construction is not something this app can assume about it. So nothing
 /// here is trusted — bounds are re-checked, and the geometry the message
-/// *claims* is verified against the PNG that actually decoded. A payload
-/// that exists is a payload that's safe to write.
+/// *claims* is verified against the PNG that actually decoded. What that
+/// buys is a guarantee about shape, not content: a payload that exists
+/// decoded to an image whose dimensions match what the message declared,
+/// and isn't missing its closing chunk. It is not a guarantee that the
+/// pixels are exactly what the user drew — a full content check isn't
+/// cheap to make watertight (see `decodedPixelSize`'s note). What makes
+/// that an acceptable boundary is that validation and playback decode the
+/// same bytes through the same `ImageIO` path (this type and
+/// `SpriteSheetImage`), so nothing accepted here can render differently
+/// than it validated.
 struct EditorSavePayload: Equatable {
 
     enum DecodingError: Error, CustomStringConvertible {
@@ -20,6 +28,7 @@ struct EditorSavePayload: Equatable {
         case sheetTooLarge(bytes: Int)
         case notBase64
         case undecodablePNG
+        case truncatedPNG
         case geometryMismatch(declared: String, actual: String)
         case emptySource
 
@@ -43,6 +52,8 @@ struct EditorSavePayload: Equatable {
                 return "the sprite sheet's data URL is not valid base64"
             case .undecodablePNG:
                 return "the sprite sheet could not be decoded as a PNG"
+            case .truncatedPNG:
+                return "the sprite sheet's PNG data looks truncated (no IEND chunk found)"
             case .geometryMismatch(let declared, let actual):
                 return "the editor declared a \(declared) sheet but sent a \(actual) image"
             case .emptySource:
@@ -63,6 +74,18 @@ struct EditorSavePayload: Equatable {
     let characterID: String?
 
     private static let pngDataURLPrefix = "data:image/png;base64,"
+
+    /// The 12 bytes every complete PNG stream ends with: a zero-length
+    /// chunk (4 bytes), the ASCII chunk type `IEND` (4 bytes), and its
+    /// CRC-32 (4 bytes) — constant because a zero-length chunk always
+    /// hashes to the same checksum. A stream cut short during transfer or
+    /// encoding simply doesn't contain this sequence.
+    ///
+    /// Searched for, not compared against the tail with equality: some
+    /// encoders append bytes after `IEND` (trailing metadata, padding),
+    /// and a legitimate sheet from an unusual encoder shouldn't be
+    /// rejected just because `IEND` isn't the very last thing in the file.
+    private static let pngEndChunk = Data([0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82])
 
     private struct Wire: Decodable {
         let type: String
@@ -115,6 +138,16 @@ struct EditorSavePayload: Equatable {
 
         let expectedWidth = wire.width * wire.frameCount
         let (actualWidth, actualHeight) = try decodedPixelSize(of: sheetData)
+
+        // A full decode already rejects most truncation (see
+        // `decodedPixelSize`), but not all of it — a stream cut off partway
+        // through its compressed pixel data can still decode to a
+        // full-sized image if enough of the deflate stream survived. The
+        // `IEND` check is the reliable backstop for exactly that case.
+        guard sheetData.range(of: pngEndChunk, options: .backwards) != nil else {
+            throw DecodingError.truncatedPNG
+        }
+
         guard actualWidth == expectedWidth, actualHeight == wire.height else {
             throw DecodingError.geometryMismatch(
                 declared: "\(expectedWidth)x\(wire.height)px",
@@ -134,13 +167,18 @@ struct EditorSavePayload: Equatable {
     }
 
     /// Fully decodes the PNG and reads pixel size off the resulting
-    /// `CGImage` — not just the header — so a structurally-valid IHDR with
-    /// truncated or corrupt pixel data is caught here, at save time, rather
-    /// than surfacing later as a silent failure in `SpriteSheetImage.init?`.
-    /// The largest sheet this app accepts is 3072×128px, so a full decode
-    /// stays cheap. Goes through `CGImageSource` rather than `NSImage`,
-    /// whose reported size is display-scale dependent (the same reason
-    /// `SpriteSheetImage` goes through `CGImageSource`).
+    /// `CGImage` — not just the header — because a header-only read can't
+    /// tell a complete file from one that stops partway through the pixel
+    /// data. This catches most truncation, but a probe during development
+    /// found it isn't exhaustive: a fixture PNG cut to half its byte length
+    /// still decoded to a full-sized `CGImage` (ImageIO's decoder tolerates
+    /// more missing compressed data than that would suggest). The `IEND`
+    /// check in `decode(from:)` is what closes that specific gap; this
+    /// function's guarantee is narrower — the bytes decode to *some* image,
+    /// and its pixel dimensions are what `decode(from:)` checks against the
+    /// declared geometry. Goes through `CGImageSource` rather than
+    /// `NSImage`, whose reported size is display-scale dependent (the same
+    /// reason `SpriteSheetImage` goes through `CGImageSource`).
     private static func decodedPixelSize(of data: Data) throws -> (Int, Int) {
         guard
             let source = CGImageSourceCreateWithData(data as CFData, nil),

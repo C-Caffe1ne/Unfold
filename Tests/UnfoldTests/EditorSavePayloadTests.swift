@@ -152,20 +152,37 @@ final class EditorSavePayloadTests: XCTestCase {
         XCTAssertThrowsError(try EditorSavePayload.decode(from: makeJSON(sheetPNG: huge)))
     }
 
-    /// A valid PNG header with the pixel data truncated. The old
-    /// header-only check accepted this and let a broken sprite sheet reach
-    /// disk, where it failed silently at display time instead.
+    /// A valid PNG header with the pixel data truncated so severely that
+    /// `ImageIO` can't produce a `CGImage` from it at all — caught by the
+    /// full-decode step in `decodedPixelSize`, before the `IEND` check ever
+    /// runs.
     ///
     /// ImageIO's PNG decoder turns out to be lenient about truncation: a
     /// solid-color 256x64 test PNG here is ~568 bytes, and cutting it down
-    /// to *half* that (284 bytes) still decodes a full 256x64 image —
-    /// confirmed by probing the cutoff directly, ImageIO only gives up
-    /// somewhere around the 20% mark (~120 bytes) for this fixture. A fixed
-    /// 40-byte prefix — comfortably below that boundary, leaving only the
-    /// PNG signature and part of the IHDR chunk — reliably fails to decode.
+    /// to *half* that (284 bytes) still decodes a full 256x64 image — see
+    /// `test_decode_truncatedPNGWithoutIEND_isRejected` below, which is
+    /// exactly that case. Probing the cutoff directly found ImageIO only
+    /// gives up somewhere around the 20% mark (~120 bytes) for this
+    /// fixture. This test uses a fixed 40-byte prefix — comfortably below
+    /// that boundary, leaving only the PNG signature and part of the IHDR
+    /// chunk — which reliably fails to decode.
     func test_decode_truncatedPNG_isRejected() {
         let valid = TestPNG.data(width: 256, height: 64)
         let truncated = valid.prefix(40)
+        let url = "data:image/png;base64," + truncated.base64EncodedString()
+        XCTAssertThrowsError(try EditorSavePayload.decode(from: makeJSON(sheetPNG: url)))
+    }
+
+    /// The case the header/decode checks alone let through: half the byte
+    /// length of a valid PNG, which `CGImageSourceCreateImageAtIndex` still
+    /// decodes to a full-sized, geometry-matching image (see the comment
+    /// above) — so a decode-only check would have accepted this payload.
+    /// It's missing its `IEND` chunk (truncated at 284 of 568 bytes, well
+    /// before where `IEND` lives), so the `IEND` guard is what has to catch
+    /// it.
+    func test_decode_truncatedPNGWithoutIEND_isRejected() {
+        let valid = TestPNG.data(width: 256, height: 64)
+        let truncated = valid.prefix(valid.count / 2)
         let url = "data:image/png;base64," + truncated.base64EncodedString()
         XCTAssertThrowsError(try EditorSavePayload.decode(from: makeJSON(sheetPNG: url)))
     }
