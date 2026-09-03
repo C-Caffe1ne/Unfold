@@ -224,7 +224,9 @@ struct CharacterLibrary {
     /// Production location: `Application Support/Unfold/Characters` inside
     /// the app's own sandbox container.
     static func makeDefault() -> CharacterLibrary {
-        let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        guard let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
+            preconditionFailure("macOS always reports an Application Support directory for the user domain")
+        }
         return CharacterLibrary(
             rootDirectory: base
                 .appendingPathComponent(Constants.applicationSupportFolderName, isDirectory: true)
@@ -236,11 +238,18 @@ struct CharacterLibrary {
     /// stable order between launches. A missing root is not an error — it
     /// simply means the user hasn't made a character yet.
     func packageDirectories() -> [URL] {
-        guard let entries = try? FileManager.default.contentsOfDirectory(
-            at: rootDirectory,
-            includingPropertiesForKeys: [.isDirectoryKey],
-            options: [.skipsHiddenFiles]
-        ) else {
+        let entries: [URL]
+        do {
+            entries = try FileManager.default.contentsOfDirectory(
+                at: rootDirectory,
+                includingPropertiesForKeys: [.isDirectoryKey],
+                options: [.skipsHiddenFiles]
+            )
+        } catch CocoaError.fileReadNoSuchFile {
+            // The user hasn't saved a character yet. Not a problem.
+            return []
+        } catch {
+            NSLog("Unfold: could not read the character library at \(rootDirectory.path) — \(error)")
             return []
         }
 
@@ -267,21 +276,31 @@ struct CharacterLibrary {
         try FileManager.default.removeItem(at: directory)
     }
 
-    /// One path segment, no traversal, no separators.
+    /// One path segment: ASCII letters, digits, `-`, and `_` only.
+    ///
+    /// An allowlist rather than a denylist on purpose. Ids reach this from
+    /// the editor web view, and excluding known-bad strings kept letting
+    /// things through — an embedded NUL, for one, which Foundation
+    /// truncates a path component at, collapsing `appendingPathComponent`
+    /// back onto the library root itself.
     static func isSafeID(_ id: String) -> Bool {
-        !id.isEmpty
-            && id != "."
-            && id != ".."
-            && !id.contains("/")
-            && !id.hasPrefix(".")
+        guard !id.isEmpty, id.utf8.count <= 128 else { return false }
+        return id.allSatisfy { $0.isASCII && ($0.isLetter || $0.isNumber || $0 == "-" || $0 == "_") }
     }
 }
 ```
 
+> 이 검증기는 라이브러리 전체를 지키는 경계다. `""` / `"."` / `".."` / `"a/b"`
+> 같은 뻔한 입력뿐 아니라 **임베디드 NUL(`"\u{0}"`)** 도 반드시 막아야 한다 —
+> Foundation은 경로 컴포넌트를 NUL에서 잘라내므로, 통과시키면
+> `packageDirectory(id:)`가 하위 디렉터리가 아니라 **루트 자체**를 돌려주고
+> Task 5의 저장 경로가 사용자의 캐릭터를 전부 지운다. 공백만 있는 id,
+> 128바이트 초과, 백슬래시·제어문자에 대한 회귀 테스트도 함께 둔다.
+
 - [ ] **Step 5: 테스트가 통과하는지 확인한다**
 
 Run: `swift test --filter CharacterLibraryTests`
-Expected: 8개 테스트 전부 PASS
+Expected: 명시된 테스트 + 아래 회귀 테스트가 전부 PASS
 
 - [ ] **Step 6: 커밋한다**
 
