@@ -10,7 +10,7 @@ struct DesktopPetView: View {
 
     var body: some View {
         ZStack(alignment: .top) {
-            SpriteAnimationView(animator: controller.animator)
+            SpriteAnimationView(animator: controller.animator, interpolation: controller.renderStyle.interpolation)
 
             #if DEBUG
             // Dev-only visual confirmation of state transitions — see the

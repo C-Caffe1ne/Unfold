@@ -98,6 +98,7 @@ enum CharacterPackageLoader {
                 frameHeight: sheet.frameHeight
             ),
             animations: animations,
+            renderStyle: RenderStyle(rawValue: manifest.renderStyle ?? "") ?? .smooth,
             source: source
         )
     }

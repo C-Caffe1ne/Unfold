@@ -24,7 +24,7 @@ struct CharacterAnimationView: View {
     var body: some View {
         Group {
             if let animator {
-                SpriteAnimationView(animator: animator)
+                SpriteAnimationView(animator: animator, interpolation: character.renderStyle.interpolation)
             } else {
                 Image(systemName: character.thumbnailSymbolName)
                     .font(.system(size: 64))
@@ -65,6 +65,17 @@ struct CharacterAnimationView: View {
             // is baked into the GIF file itself — see `AnimationSource.gif`.
             let clip = AnimationClip(frames: decoded.frames, loop: loop)
             return SpriteAnimator(clip: clip)
+        }
+    }
+}
+
+extension RenderStyle {
+    /// Pixel art must not be interpolated — `.none` is what keeps a 64px
+    /// frame crisp when it's drawn at `Constants.characterDisplaySize`.
+    var interpolation: Image.Interpolation {
+        switch self {
+        case .pixel: return .none
+        case .smooth: return .medium
         }
     }
 }

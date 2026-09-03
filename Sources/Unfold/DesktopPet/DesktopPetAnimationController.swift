@@ -17,6 +17,10 @@ final class DesktopPetAnimationController: ObservableObject {
 
     @Published private(set) var animator: SpriteAnimator
 
+    /// Handed to `DesktopPetView` so the pet renders with the same
+    /// interpolation the overlay uses for this character.
+    let renderStyle: RenderStyle
+
     var interactionState: PetInteractionState { stateMachine.state }
 
     /// Phase 3: read by `DesktopPetWindowController` *before* calling
@@ -47,6 +51,7 @@ final class DesktopPetAnimationController: ObservableObject {
             return nil
         }
 
+        renderStyle = character.renderStyle
         idleAnimator = SpriteAnimator(clip: idleClip)
         reactionClip = AnimationClip(frames: idleClip.frames, loop: false)
         animator = idleAnimator

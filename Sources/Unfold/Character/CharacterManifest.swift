@@ -42,6 +42,10 @@ struct CharacterManifest: Codable, Equatable {
     /// when absent.
     let thumbnailSymbol: String?
 
+    /// `"pixel"` or `"smooth"`. Absent or unrecognised means `"smooth"` —
+    /// an older build reading a newer package still shows the character.
+    let renderStyle: String?
+
     struct SpriteSheetDTO: Codable, Equatable {
         let file: String
         let columns: Int
