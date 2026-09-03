@@ -1083,7 +1083,11 @@ final class CharacterPackageWriterTests: XCTestCase {
         let character = try CharacterPackageWriter.write(payload: payload, name: "Mari", into: library)
 
         XCTAssertEqual(character.name, "Mari")
+        // 이 두 줄이 함께 있어야 의미가 있다: `thumbnailSymbol`과 `renderStyle`은
+        // 매니페스트에서 둘 다 `String?`이라 서로 바꿔 써도 컴파일이 통과한다.
+        // 값이 서로 구별되므로 스왑은 여기서 즉시 실패한다.
         XCTAssertEqual(character.renderStyle, .pixel)
+        XCTAssertEqual(character.thumbnailSymbolName, "pawprint.fill")
         XCTAssertEqual(character.spriteSheet.columns, 4)
         XCTAssertEqual(character.spriteSheet.rows, 1)
         XCTAssertEqual(character.spriteSheet.frameWidth, 64)
@@ -1287,12 +1291,12 @@ enum CharacterPackageWriter {
 }
 ```
 
-> **`CharacterManifest`의 필드 순서에 주의한다.** Task 2 이후 선언 순서는
-> `id` / `name` / `version` / `spriteSheet` / `animations` / `thumbnailSymbol` /
-> `renderStyle` 이고, 멤버와이즈 `init`의 인자 순서도 이와 같아야 한다. 특히
-> 마지막 두 개가 **둘 다 `String?`** 이라 서로 바꿔 넣어도 컴파일이 통과한다 —
-> 반드시 레이블을 붙여 호출하고(위 코드처럼), 컴파일 오류가 나면
-> `CharacterManifest.swift`의 실제 선언 순서를 확인해 맞춘다.
+> **`thumbnailSymbol`과 `renderStyle`을 서로 바꿔 넣는 실수는 컴파일러가 못 잡는다.**
+> Swift의 합성 멤버와이즈 `init`은 인자 레이블을 강제하므로 위치가 밀려 들어갈
+> 일은 없다. 위험한 건 *올바른 레이블에 잘못된 값*을 넘기는 경우다 — 둘 다
+> `String?`이라 그래도 컴파일이 통과한다. 그래서 방어는 주석이 아니라 아래
+> 테스트가 한다: 두 값을 서로 구별되게(`"pawprint.fill"` vs `"pixel"`) 두고
+> 로더 왕복 후 **각각 독립적으로** 단언한다.
 
 - [ ] **Step 5: 테스트가 통과하는지 확인한다**
 
