@@ -6,6 +6,12 @@ import XCTest
 /// what it held before. There is no third outcome.
 final class CharacterPackageWriterTests: XCTestCase {
 
+    private enum InjectedError: Error {
+        case validationFailed
+    }
+
+    private let packageFileNames = ["character.json", "spritesheet.png", "source.piskel"]
+
     private var root: URL!
     private var library: CharacterLibrary!
 
@@ -38,6 +44,26 @@ final class CharacterPackageWriterTests: XCTestCase {
         """)
     }
 
+    private func packageContents(at directory: URL) throws -> [String: Data] {
+        try Dictionary(uniqueKeysWithValues: packageFileNames.map { fileName in
+            (fileName, try Data(contentsOf: directory.appendingPathComponent(fileName)))
+        })
+    }
+
+    private func stagingEntries() throws -> [String] {
+        try FileManager.default.contentsOfDirectory(atPath: root.path)
+            .filter { $0.hasPrefix(".staging-") }
+    }
+
+    private func assertSelfValidationFailure(_ error: Error, file: StaticString = #filePath, line: UInt = #line) {
+        guard let writeError = error as? CharacterPackageWriter.WriteError else {
+            return XCTFail("expected WriteError, got \(error)", file: file, line: line)
+        }
+        guard case .selfValidationFailed = writeError else {
+            return XCTFail("expected selfValidationFailed, got \(writeError)", file: file, line: line)
+        }
+    }
+
     // MARK: - Round trip
 
     func test_write_producesPackageTheLoaderCanRead() throws {
@@ -64,6 +90,7 @@ final class CharacterPackageWriterTests: XCTestCase {
         // Re-reading through the public loader path proves the package is
         // genuinely well-formed, not just that `write` returned something.
         let directory = try XCTUnwrap(library.packageDirectory(id: character.id))
+        XCTAssertEqual(character.source, .imported(packageURL: directory))
         let reloaded = try CharacterPackageLoader.loadImported(packageDirectory: directory)
         XCTAssertEqual(reloaded.id, character.id)
     }
@@ -107,11 +134,48 @@ final class CharacterPackageWriterTests: XCTestCase {
         XCTAssertEqual(library.packageDirectories(), [])
     }
 
-    /// A failed write must not leave a staging directory lying around for
-    /// the repository to trip over on the next launch.
-    func test_write_failure_leavesNoStagingDirectory() throws {
-        XCTAssertThrowsError(try CharacterPackageWriter.write(payload: try makePayload(), name: "", into: library))
-        let entries = (try? FileManager.default.contentsOfDirectory(atPath: root.path)) ?? []
-        XCTAssertEqual(entries, [], "expected an empty library root, found \(entries)")
+    func test_write_newCharacterValidationFailure_removesStagingDirectory() throws {
+        XCTAssertThrowsError(
+            try CharacterPackageWriter.write(
+                payload: try makePayload(),
+                name: "Mari",
+                into: library,
+                validatePackage: { staging in
+                    let names = Set(try FileManager.default.contentsOfDirectory(atPath: staging.path))
+                    XCTAssertEqual(names, Set(self.packageFileNames))
+                    throw InjectedError.validationFailed
+                }
+            )
+        ) { error in
+            self.assertSelfValidationFailure(error)
+        }
+
+        XCTAssertEqual(library.packageDirectories(), [])
+        XCTAssertEqual(try stagingEntries(), [])
+    }
+
+    func test_write_overwriteValidationFailure_preservesExistingPackageAndRemovesStaging() throws {
+        let first = try CharacterPackageWriter.write(payload: try makePayload(), name: "Mari", into: library)
+        let directory = try XCTUnwrap(library.packageDirectory(id: first.id))
+        let originalContents = try packageContents(at: directory)
+
+        XCTAssertThrowsError(
+            try CharacterPackageWriter.write(
+                payload: try makePayload(frameCount: 2, characterID: first.id),
+                name: "Mari v2",
+                into: library,
+                validatePackage: { staging in
+                    let names = Set(try FileManager.default.contentsOfDirectory(atPath: staging.path))
+                    XCTAssertEqual(names, Set(self.packageFileNames))
+                    throw InjectedError.validationFailed
+                }
+            )
+        ) { error in
+            self.assertSelfValidationFailure(error)
+        }
+
+        XCTAssertTrue(FileManager.default.fileExists(atPath: directory.path))
+        XCTAssertEqual(try packageContents(at: directory), originalContents)
+        XCTAssertEqual(try stagingEntries(), [])
     }
 }

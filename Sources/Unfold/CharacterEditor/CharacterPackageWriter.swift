@@ -33,7 +33,12 @@ enum CharacterPackageWriter {
     /// Returns the character as loaded back from its final location, so the
     /// caller works with exactly what the rest of the app will see.
     @discardableResult
-    static func write(payload: EditorSavePayload, name: String, into library: CharacterLibrary) throws -> Character {
+    static func write(
+        payload: EditorSavePayload,
+        name: String,
+        into library: CharacterLibrary,
+        validatePackage: (URL) throws -> Character = CharacterPackageLoader.loadImported(packageDirectory:)
+    ) throws -> Character {
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedName.isEmpty else { throw WriteError.blankName }
 
@@ -59,8 +64,9 @@ enum CharacterPackageWriter {
         try makeManifestData(payload: payload, name: trimmedName, id: id)
             .write(to: staging.appendingPathComponent(Constants.characterManifestFileName))
 
+        let stagedCharacter: Character
         do {
-            _ = try CharacterPackageLoader.loadImported(packageDirectory: staging)
+            stagedCharacter = try validatePackage(staging)
         } catch {
             throw WriteError.selfValidationFailed(String(describing: error))
         }
@@ -79,7 +85,23 @@ enum CharacterPackageWriter {
             try FileManager.default.moveItem(at: staging, to: finalDirectory)
         }
 
-        return try CharacterPackageLoader.loadImported(packageDirectory: finalDirectory)
+        // Nothing after installation may throw: otherwise the caller could
+        // receive failure after the library has already changed. The staged
+        // package was loaded from the same bytes immediately above; only its
+        // package URL changes when the directory is installed.
+        return relocated(stagedCharacter, to: finalDirectory)
+    }
+
+    private static func relocated(_ character: Character, to packageDirectory: URL) -> Character {
+        Character(
+            id: character.id,
+            name: character.name,
+            thumbnailSymbolName: character.thumbnailSymbolName,
+            spriteSheet: character.spriteSheet,
+            animations: character.animations,
+            renderStyle: character.renderStyle,
+            source: .imported(packageURL: packageDirectory)
+        )
     }
 
     /// One row, `frameCount` columns -- the sheet's frame order is Piskel's
