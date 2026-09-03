@@ -1287,7 +1287,12 @@ enum CharacterPackageWriter {
 }
 ```
 
-> `CharacterManifest`의 멤버와이즈 `init` 인자 순서는 프로퍼티 선언 순서와 같아야 한다. Task 2에서 `renderStyle`을 `thumbnailSymbol` **아래**에 추가했으므로 위 순서가 맞다. 컴파일 오류가 나면 `CharacterManifest.swift`의 선언 순서를 확인하고 호출부를 맞춘다.
+> **`CharacterManifest`의 필드 순서에 주의한다.** Task 2 이후 선언 순서는
+> `id` / `name` / `version` / `spriteSheet` / `animations` / `thumbnailSymbol` /
+> `renderStyle` 이고, 멤버와이즈 `init`의 인자 순서도 이와 같아야 한다. 특히
+> 마지막 두 개가 **둘 다 `String?`** 이라 서로 바꿔 넣어도 컴파일이 통과한다 —
+> 반드시 레이블을 붙여 호출하고(위 코드처럼), 컴파일 오류가 나면
+> `CharacterManifest.swift`의 실제 선언 순서를 확인해 맞춘다.
 
 - [ ] **Step 5: 테스트가 통과하는지 확인한다**
 
