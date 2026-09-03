@@ -98,9 +98,24 @@ enum CharacterPackageLoader {
                 frameHeight: sheet.frameHeight
             ),
             animations: animations,
-            renderStyle: RenderStyle(rawValue: manifest.renderStyle ?? "") ?? .smooth,
+            renderStyle: makeRenderStyle(from: manifest.renderStyle),
             source: source
         )
+    }
+
+    /// A manifest that names a style this build doesn't know still loads —
+    /// an older build must never refuse a newer package outright. It's
+    /// worth a log line though: unlike an absent field (every package
+    /// written before render styles existed, which stays silent), an
+    /// unrecognised value is either a corrupted manifest or a format this
+    /// build is behind on.
+    private static func makeRenderStyle(from raw: String?) -> RenderStyle {
+        guard let raw else { return .smooth }
+        guard let style = RenderStyle(rawValue: raw) else {
+            NSLog("Unfold: unknown renderStyle \"\(raw)\" — falling back to .smooth")
+            return .smooth
+        }
+        return style
     }
 
     /// A `gif` field takes precedence over `frames`/`fps` when a manifest

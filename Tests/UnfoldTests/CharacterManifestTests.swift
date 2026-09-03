@@ -74,7 +74,10 @@ final class CharacterManifestTests: XCTestCase {
     }
 
     /// An unknown value must not fail loading — an older build reading a
-    /// newer package should still show the character, just smoothed.
+    /// newer package should still show the character, just smoothed. This
+    /// fallback is deliberate and non-fatal (`CharacterPackageLoader.
+    /// makeRenderStyle(from:)` logs the anomaly instead); nobody should
+    /// later "fix" it into a thrown error.
     func test_loadImported_unknownRenderStyle_fallsBackToSmooth() throws {
         let dir = try Self.writeTempManifest("""
         {
