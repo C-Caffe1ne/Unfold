@@ -1,3 +1,4 @@
+import ImageIO
 import XCTest
 @testable import Unfold
 
@@ -180,11 +181,30 @@ final class EditorSavePayloadTests: XCTestCase {
     /// It's missing its `IEND` chunk (truncated at 284 of 568 bytes, well
     /// before where `IEND` lives), so the `IEND` guard is what has to catch
     /// it.
-    func test_decode_truncatedPNGWithoutIEND_isRejected() {
+    func test_decode_truncatedPNGWithoutIEND_isRejected() throws {
         let valid = TestPNG.data(width: 256, height: 64)
-        let truncated = valid.prefix(valid.count / 2)
+        let truncated = Data(valid.prefix(valid.count / 2))
+        let source = try XCTUnwrap(CGImageSourceCreateWithData(truncated as CFData, nil))
+        let image = try XCTUnwrap(CGImageSourceCreateImageAtIndex(source, 0, nil))
+        XCTAssertEqual(image.width, 256)
+        XCTAssertEqual(image.height, 64)
+
+        let pngEndChunk = Data([
+            0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82
+        ])
+        XCTAssertNil(truncated.range(of: pngEndChunk))
+
         let url = "data:image/png;base64," + truncated.base64EncodedString()
-        XCTAssertThrowsError(try EditorSavePayload.decode(from: makeJSON(sheetPNG: url)))
+        XCTAssertThrowsError(try EditorSavePayload.decode(from: makeJSON(sheetPNG: url))) { error in
+            guard let decodingError = error as? EditorSavePayload.DecodingError else {
+                XCTFail("Expected EditorSavePayload.DecodingError.truncatedPNG, got \(error)")
+                return
+            }
+            guard case .truncatedPNG = decodingError else {
+                XCTFail("Expected truncatedPNG, got \(decodingError)")
+                return
+            }
+        }
     }
 
     // MARK: - Message shape
@@ -201,4 +221,3 @@ final class EditorSavePayloadTests: XCTestCase {
         XCTAssertThrowsError(try EditorSavePayload.decode(from: makeJSON(piskelJSON: "")))
     }
 }
-
