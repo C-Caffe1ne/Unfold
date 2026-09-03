@@ -26,7 +26,11 @@ final class OverlayController {
         // V1 default is manual-dismiss-only (Constants.overlayAutoDismissDelay
         // is nil). Setting a delay there — or scheduling this from
         // `SpriteAnimator.isFinished` instead of on presentation — is the
-        // extension point for a future timed auto-dismiss.
+        // extension point for a future timed auto-dismiss. Note: a character
+        // that doesn't define its own `.stretch` clip resolves to the looping
+        // `.idle` clip (see `Character.resolvedAnimation`), and a looping
+        // animator never sets `isFinished` — driving dismissal off it would
+        // hang for those characters.
         if let delay = Constants.overlayAutoDismissDelay {
             autoDismissTask = Task { [weak self] in
                 try? await Task.sleep(for: .seconds(delay))
