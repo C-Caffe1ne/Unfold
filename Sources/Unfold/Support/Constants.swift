@@ -116,4 +116,17 @@ enum Constants {
 
     /// Canvas the editor seeds a brand-new character with.
     static let editorDefaultCanvasSide = 64
+
+    /// Frames per second a user-drawn animation may declare. Mirrors the
+    /// editor's own FPS slider, which is `min="0" max="24"` — 0 is excluded
+    /// because a zero-fps clip has no meaning and would divide by zero
+    /// downstream.
+    static let editorFPSRange = 1.0...24.0
+
+    /// Ceiling on the base64 sprite-sheet string the editor may send. The
+    /// largest sheet this app accepts is 128×128px × 24 frames of pixel
+    /// art, which is tens of KB as PNG — 8MB is far above any legitimate
+    /// value while still bounding what a malformed or hostile message can
+    /// make this process allocate.
+    static let editorMaxSheetDataURLBytes = 8 * 1024 * 1024
 }

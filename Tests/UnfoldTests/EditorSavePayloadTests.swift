@@ -85,6 +85,10 @@ final class EditorSavePayloadTests: XCTestCase {
         XCTAssertThrowsError(try EditorSavePayload.decode(from: makeJSON(width: 129, height: 128, frameCount: 1)))
     }
 
+    func test_decode_oversizedHeight_isRejected() {
+        XCTAssertThrowsError(try EditorSavePayload.decode(from: makeJSON(width: 128, height: 129, frameCount: 1)))
+    }
+
     func test_decode_zeroCanvas_isRejected() {
         XCTAssertThrowsError(try EditorSavePayload.decode(from: makeJSON(width: 0, height: 64, frameCount: 1)))
     }
@@ -97,6 +101,21 @@ final class EditorSavePayloadTests: XCTestCase {
 
     func test_decode_zeroFPS_isRejected() {
         XCTAssertThrowsError(try EditorSavePayload.decode(from: makeJSON(fps: "0")))
+    }
+
+    func test_decode_maximumFPS_isAccepted() throws {
+        let payload = try EditorSavePayload.decode(from: makeJSON(fps: "24"))
+        XCTAssertEqual(payload.fps, 24)
+    }
+
+    func test_decode_excessiveFPS_isRejected() {
+        XCTAssertThrowsError(try EditorSavePayload.decode(from: makeJSON(fps: "25")))
+    }
+
+    /// A runaway value must not reach `SpriteAnimationDefinition`, where
+    /// `1 / fps` would become a near-zero timer interval.
+    func test_decode_absurdFPS_isRejected() {
+        XCTAssertThrowsError(try EditorSavePayload.decode(from: makeJSON(fps: "1e300")))
     }
 
     // MARK: - Sheet data
@@ -118,6 +137,37 @@ final class EditorSavePayloadTests: XCTestCase {
     func test_decode_pngSmallerThanDeclaredGrid_isRejected() {
         let tooSmall = TestPNG.dataURL(width: 64, height: 64)   // declared: 4 × 64 wide
         XCTAssertThrowsError(try EditorSavePayload.decode(from: makeJSON(sheetPNG: tooSmall)))
+    }
+
+    func test_decode_pngLargerThanDeclaredGrid_isRejected() {
+        let tooBig = TestPNG.dataURL(width: 512, height: 64)   // declared: 4 × 64 = 256 wide
+        XCTAssertThrowsError(try EditorSavePayload.decode(from: makeJSON(sheetPNG: tooBig)))
+    }
+
+    /// The geometry check would reject this eventually, but only after the
+    /// whole string had been materialised and decoded. The size guard has
+    /// to run first.
+    func test_decode_oversizedSheetString_isRejected() {
+        let huge = "data:image/png;base64," + String(repeating: "A", count: Constants.editorMaxSheetDataURLBytes + 1)
+        XCTAssertThrowsError(try EditorSavePayload.decode(from: makeJSON(sheetPNG: huge)))
+    }
+
+    /// A valid PNG header with the pixel data truncated. The old
+    /// header-only check accepted this and let a broken sprite sheet reach
+    /// disk, where it failed silently at display time instead.
+    ///
+    /// ImageIO's PNG decoder turns out to be lenient about truncation: a
+    /// solid-color 256x64 test PNG here is ~568 bytes, and cutting it down
+    /// to *half* that (284 bytes) still decodes a full 256x64 image —
+    /// confirmed by probing the cutoff directly, ImageIO only gives up
+    /// somewhere around the 20% mark (~120 bytes) for this fixture. A fixed
+    /// 40-byte prefix — comfortably below that boundary, leaving only the
+    /// PNG signature and part of the IHDR chunk — reliably fails to decode.
+    func test_decode_truncatedPNG_isRejected() {
+        let valid = TestPNG.data(width: 256, height: 64)
+        let truncated = valid.prefix(40)
+        let url = "data:image/png;base64," + truncated.base64EncodedString()
+        XCTAssertThrowsError(try EditorSavePayload.decode(from: makeJSON(sheetPNG: url)))
     }
 
     // MARK: - Message shape

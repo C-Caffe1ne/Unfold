@@ -17,6 +17,7 @@ struct EditorSavePayload: Equatable {
         case canvasSizeOutOfRange(width: Int, height: Int)
         case invalidFPS(Double)
         case notAPNGDataURL
+        case sheetTooLarge(bytes: Int)
         case notBase64
         case undecodablePNG
         case geometryMismatch(declared: String, actual: String)
@@ -33,9 +34,11 @@ struct EditorSavePayload: Equatable {
             case .canvasSizeOutOfRange(let width, let height):
                 return "canvas \(width)x\(height)px is outside the allowed \(Constants.editorCanvasSideRange)px per side"
             case .invalidFPS(let fps):
-                return "fps must be a finite positive number, got \(fps)"
+                return "fps \(fps) is outside the allowed \(Constants.editorFPSRange)"
             case .notAPNGDataURL:
                 return "the sprite sheet is not a PNG data URL"
+            case .sheetTooLarge(let bytes):
+                return "sprite sheet data is \(bytes) bytes, over the \(Constants.editorMaxSheetDataURLBytes)-byte limit"
             case .notBase64:
                 return "the sprite sheet's data URL is not valid base64"
             case .undecodablePNG:
@@ -92,7 +95,7 @@ struct EditorSavePayload: Equatable {
         else {
             throw DecodingError.canvasSizeOutOfRange(width: wire.width, height: wire.height)
         }
-        guard wire.fps.isFinite, wire.fps > 0 else {
+        guard wire.fps.isFinite, Constants.editorFPSRange.contains(wire.fps) else {
             throw DecodingError.invalidFPS(wire.fps)
         }
         guard !wire.piskelJSON.isEmpty else {
@@ -101,6 +104,9 @@ struct EditorSavePayload: Equatable {
         guard wire.sheetPNG.hasPrefix(pngDataURLPrefix) else {
             throw DecodingError.notAPNGDataURL
         }
+        guard wire.sheetPNG.utf8.count <= Constants.editorMaxSheetDataURLBytes else {
+            throw DecodingError.sheetTooLarge(bytes: wire.sheetPNG.utf8.count)
+        }
 
         let base64 = String(wire.sheetPNG.dropFirst(pngDataURLPrefix.count))
         guard let sheetData = Data(base64Encoded: base64) else {
@@ -108,7 +114,7 @@ struct EditorSavePayload: Equatable {
         }
 
         let expectedWidth = wire.width * wire.frameCount
-        let (actualWidth, actualHeight) = try pixelSize(of: sheetData)
+        let (actualWidth, actualHeight) = try decodedPixelSize(of: sheetData)
         guard actualWidth == expectedWidth, actualHeight == wire.height else {
             throw DecodingError.geometryMismatch(
                 declared: "\(expectedWidth)x\(wire.height)px",
@@ -127,18 +133,21 @@ struct EditorSavePayload: Equatable {
         )
     }
 
-    /// Reads the PNG header only — no full decode, and no `NSImage`, whose
-    /// size is display-scale dependent (the same reason `SpriteSheetImage`
-    /// goes through `CGImageSource`).
-    private static func pixelSize(of data: Data) throws -> (Int, Int) {
+    /// Fully decodes the PNG and reads pixel size off the resulting
+    /// `CGImage` — not just the header — so a structurally-valid IHDR with
+    /// truncated or corrupt pixel data is caught here, at save time, rather
+    /// than surfacing later as a silent failure in `SpriteSheetImage.init?`.
+    /// The largest sheet this app accepts is 3072×128px, so a full decode
+    /// stays cheap. Goes through `CGImageSource` rather than `NSImage`,
+    /// whose reported size is display-scale dependent (the same reason
+    /// `SpriteSheetImage` goes through `CGImageSource`).
+    private static func decodedPixelSize(of data: Data) throws -> (Int, Int) {
         guard
             let source = CGImageSourceCreateWithData(data as CFData, nil),
-            let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
-            let width = properties[kCGImagePropertyPixelWidth] as? Int,
-            let height = properties[kCGImagePropertyPixelHeight] as? Int
+            let image = CGImageSourceCreateImageAtIndex(source, 0, nil)
         else {
             throw DecodingError.undecodablePNG
         }
-        return (width, height)
+        return (image.width, image.height)
     }
 }
