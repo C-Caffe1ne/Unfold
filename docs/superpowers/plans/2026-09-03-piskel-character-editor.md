@@ -1619,10 +1619,9 @@ git commit -m "feat: load user-created character packages from the library"
 - [ ] **Step 1: Piskel을 빌드한다**
 
 ```bash
-cd /tmp
-rm -rf piskel-src
-git clone https://github.com/piskelapp/piskel.git piskel-src
-cd piskel-src
+PISKEL_BUILD_DIR="$(mktemp -d /tmp/unfold-piskel.XXXXXX)"
+git clone https://github.com/piskelapp/piskel.git "$PISKEL_BUILD_DIR/piskel-src"
+cd "$PISKEL_BUILD_DIR/piskel-src"
 git rev-parse HEAD          # 이 SHA를 적어둔다
 npm ci
 npm run build
@@ -1636,8 +1635,8 @@ ls dest/prod                # index.html, js/, css/, img/ 가 보여야 한다
 ```bash
 cd /Users/hwanghyeonseong/Documents/GitHub/Unfold
 mkdir -p Sources/Unfold/Resources/Editor/piskel
-cp -R /tmp/piskel-src/dest/prod/. Sources/Unfold/Resources/Editor/piskel/
-cp /tmp/piskel-src/LICENSE Sources/Unfold/Resources/Editor/LICENSE-piskel.txt
+cp -R "$PISKEL_BUILD_DIR/piskel-src/dest/prod/." Sources/Unfold/Resources/Editor/piskel/
+cp "$PISKEL_BUILD_DIR/piskel-src/LICENSE" Sources/Unfold/Resources/Editor/LICENSE-piskel.txt
 ls Sources/Unfold/Resources/Editor/piskel/index.html   # 존재해야 한다
 ```
 
