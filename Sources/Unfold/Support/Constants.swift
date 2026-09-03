@@ -117,6 +117,18 @@ enum Constants {
     /// Canvas the editor seeds a brand-new character with.
     static let editorDefaultCanvasSide = 64
 
+    /// File names inside a user-created character package. These are
+    /// constants, never values that came from the editor -- which is why a
+    /// saved package can't be made to reference a path of the web side's
+    /// choosing.
+    static let characterManifestFileName = "character.json"
+    static let characterSpriteSheetFileName = "spritesheet.png"
+    static let characterEditorSourceFileName = "source.piskel"
+
+    /// SF Symbol given to every user-created character until the thumbnail
+    /// renders a real frame.
+    static let userCharacterThumbnailSymbol = "pawprint.fill"
+
     /// Frames per second a user-drawn animation may declare. Mirrors the
     /// editor's own FPS slider, which is `min="0" max="24"` — 0 is excluded
     /// because a zero-fps clip has no meaning and would divide by zero
