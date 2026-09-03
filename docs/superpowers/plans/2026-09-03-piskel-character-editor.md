@@ -1218,7 +1218,12 @@ enum CharacterPackageWriter {
     /// Returns the character as loaded back from its final location, so the
     /// caller works with exactly what the rest of the app will see.
     @discardableResult
-    static func write(payload: EditorSavePayload, name: String, into library: CharacterLibrary) throws -> Character {
+    static func write(
+        payload: EditorSavePayload,
+        name: String,
+        into library: CharacterLibrary,
+        validatePackage: (URL) throws -> Character = CharacterPackageLoader.loadImported(packageDirectory:)
+    ) throws -> Character {
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedName.isEmpty else { throw WriteError.blankName }
 
@@ -1244,8 +1249,9 @@ enum CharacterPackageWriter {
         try makeManifestData(payload: payload, name: trimmedName, id: id)
             .write(to: staging.appendingPathComponent(Constants.characterManifestFileName))
 
+        let stagedCharacter: Character
         do {
-            _ = try CharacterPackageLoader.loadImported(packageDirectory: staging)
+            stagedCharacter = try validatePackage(staging)
         } catch {
             throw WriteError.selfValidationFailed(String(describing: error))
         }
@@ -1264,7 +1270,23 @@ enum CharacterPackageWriter {
             try FileManager.default.moveItem(at: staging, to: finalDirectory)
         }
 
-        return try CharacterPackageLoader.loadImported(packageDirectory: finalDirectory)
+        // Nothing after installation may throw: otherwise the caller could
+        // receive failure after the library has already changed. The staged
+        // package was loaded from the same bytes immediately above; only its
+        // package URL changes when the directory is installed.
+        return relocated(stagedCharacter, to: finalDirectory)
+    }
+
+    private static func relocated(_ character: Character, to packageDirectory: URL) -> Character {
+        Character(
+            id: character.id,
+            name: character.name,
+            thumbnailSymbolName: character.thumbnailSymbolName,
+            spriteSheet: character.spriteSheet,
+            animations: character.animations,
+            renderStyle: character.renderStyle,
+            source: .imported(packageURL: packageDirectory)
+        )
     }
 
     /// One row, `frameCount` columns — the sheet's frame order is Piskel's
@@ -1312,6 +1334,13 @@ enum CharacterPackageWriter {
 > `FileManager.replaceItemAt` 동작을 실제로 확인했으며, 같은 볼륨의 스테이징
 > 디렉터리를 기존 패키지와 교체하는 경로를 사용한다. 새 패키지는 대상이 없으므로
 > 기존처럼 `moveItem`을 사용한다.
+
+> `validatePackage`는 테스트 전용 실패 주입점이기도 하다. 스테이징 파일을 모두 쓴
+> 뒤 검증에서 실패하도록 만들어 `defer`가 숨은 스테이징 디렉터리를 지우는지,
+> 기존 패키지 덮어쓰기 시 이전 3개 파일이 바이트 단위로 그대로 남는지 테스트한다.
+> 설치 뒤에는 실패 주입점을 두지 않는다: 설치 이후 실행되는 코드는 순수한
+> `Character` 값 복사뿐이며, 이 설계의 목적 자체가 커밋 이후의 throwing 경로를
+> 없애는 것이다.
 
 - [ ] **Step 5: 테스트가 통과하는지 확인한다**
 
