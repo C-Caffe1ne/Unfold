@@ -6,6 +6,7 @@ import AppKit
 final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private var settings: SettingsStore?
+    private var characterLibrary: CharacterLibrary?
     private var timer: StretchTimer?
     private var notifications: NotificationManager?
     private var characterManager: CharacterManager?
@@ -22,8 +23,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let settings = SettingsStore()
         let notifications = NotificationManager()
 
+        // One library instance, shared by the repository that reads
+        // packages and (later) the editor that writes them — so there is
+        // exactly one answer to "where do user characters live".
+        let characterLibrary = CharacterLibrary.makeDefault()
         let characterManager = CharacterManager(
-            repository: CompositeCharacterRepository(),
+            repository: CompositeCharacterRepository(repositories: [
+                BuiltInCharacterRepository(),
+                ImportedCharacterRepository(library: characterLibrary)
+            ]),
             settings: settings
         )
         let overlay = OverlayController()
@@ -112,6 +120,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
 
         self.settings = settings
+        self.characterLibrary = characterLibrary
         self.notifications = notifications
         self.characterManager = characterManager
         self.overlay = overlay
