@@ -132,7 +132,12 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .frame(width: 460, height: 420)
+        // Tall enough for the worst-case layout — the Stretch Reminder
+        // section expanded to show the custom-interval field and its range
+        // hint, plus the Character section's Create/Edit/Delete row. The
+        // window isn't resizable, so it has to fit the fully-expanded form
+        // without scrolling.
+        .frame(width: 460, height: 672)
         .onAppear {
             launchAtLoginEnabled = LaunchAtLogin.isEnabled
             refreshNotificationStatus()
