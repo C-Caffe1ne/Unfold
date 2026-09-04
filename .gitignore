@@ -8,3 +8,4 @@ build/
 Unfold.xcodeproj/xcuserdata/
 Unfold.xcodeproj/project.xcworkspace/xcuserdata/
 DerivedData/
+.worktrees/
