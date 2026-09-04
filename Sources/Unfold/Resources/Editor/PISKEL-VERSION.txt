@@ -8,3 +8,9 @@ All of Unfold's customization lives in ../unfold-bridge.js and
 ../unfold-bridge.css instead, injected at runtime via WKUserScript.
 Updating Piskel means re-running the commands above and replacing the
 entire piskel/ directory — there are no patches to reapply.
+
+Piskel's own build embeds a wall-clock timestamp in the packaged JS/CSS
+filenames, so even a rebuild of this exact commit would produce
+differently-named files — a future diff across Piskel versions will
+always show these as fully replaced, not incrementally changed.
+Expected, given the update model above.
