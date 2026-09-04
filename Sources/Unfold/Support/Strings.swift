@@ -67,4 +67,23 @@ enum Strings {
         static let body = "Take a moment to stretch."
         static let dismiss = "Dismiss"
     }
+
+    enum Editor {
+        static let windowTitle = "Character Editor"
+        static let saveButton = "Save to Spine Keepet"
+
+        static let namePromptTitle = "Name your character"
+        static let namePromptMessage = "This is the name you'll see in the character list."
+        static let namePromptPlaceholder = "Mochi"
+        static let namePromptConfirm = "Save"
+        static let namePromptCancel = "Cancel"
+
+        static let unavailableTitle = "The character editor couldn't start"
+        static let unavailableMessage = "Its files are missing from this build of Spine Keepet."
+        static let unavailableDismiss = "OK"
+
+        static func saveFailed(_ reason: String) -> String {
+            "Couldn't save: \(reason)"
+        }
+    }
 }
