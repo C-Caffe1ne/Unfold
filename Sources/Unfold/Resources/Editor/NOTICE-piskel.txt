@@ -1,0 +1,8 @@
+This application bundles Piskel, an open source pixel art editor.
+
+Piskel
+Copyright the Piskel authors
+https://github.com/piskelapp/piskel
+
+Licensed under the Apache License, Version 2.0. A copy of the license is
+included as LICENSE-piskel.txt. Piskel is bundled unmodified.
