@@ -51,6 +51,15 @@ enum Strings {
         static let characterSectionTitle = "Character"
         static let characterPickerLabel = "Character"
         static let defaultCharacterLabel = "Default"
+        static let createCharacter = "Create Character…"
+        static let editCharacter = "Edit…"
+        static let deleteCharacter = "Delete"
+        static let deleteConfirmTitle = "Delete this character?"
+        static func deleteConfirmMessage(_ name: String) -> String {
+            "\"\(name)\" will be removed from your Mac. This can't be undone."
+        }
+        static let deleteConfirm = "Delete"
+        static let deleteCancel = "Cancel"
     }
 
     enum CustomPrompt {

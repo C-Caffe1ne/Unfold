@@ -14,6 +14,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var coordinator: StretchCoordinator?
     private var desktopPet: DesktopPetWindowController?
     private var statusItemController: StatusItemController?
+    private var characterEditor: CharacterEditorWindowController?
     private var settingsWindow: SettingsWindowController?
     #if DEBUG
     private var debugGIFPreview: DebugGIFPreviewWindowController?
@@ -74,10 +75,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             coordinator?.handle(event)
         }
 
+        // Saving a character has to move the Settings picker immediately —
+        // that's the whole point of `reloadCatalog`, and it's why the
+        // editor is handed a callback rather than a reference to the
+        // manager.
+        let characterEditor = CharacterEditorWindowController(
+            library: characterLibrary,
+            onCharacterSaved: { [weak characterManager] character in
+                characterManager?.reloadCatalog()
+                characterManager?.select(character)
+            }
+        )
+
         let settingsWindow = SettingsWindowController(
             settings: settings,
             timer: timer,
-            characterManager: characterManager
+            characterManager: characterManager,
+            editor: characterEditor,
+            library: characterLibrary
         )
 
         #if DEBUG
@@ -126,6 +141,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.overlay = overlay
         self.coordinator = coordinator
         self.desktopPet = desktopPet
+        self.characterEditor = characterEditor
         self.settingsWindow = settingsWindow
         self.timer = timer
         self.statusItemController = statusItemController

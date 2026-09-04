@@ -10,15 +10,28 @@ struct SettingsView: View {
     @ObservedObject var settings: SettingsStore
     @ObservedObject var characterManager: CharacterManager
     let onIntervalChanged: () -> Void
+    let onCreateCharacter: () -> Void
+    let onEditCharacter: (Character) -> Void
+    let onDeleteCharacter: (Character) -> Void
 
     @State private var customIntervalText: String
     @State private var launchAtLoginEnabled = LaunchAtLogin.isEnabled
     @State private var notificationStatus: UNAuthorizationStatus = .notDetermined
 
-    init(settings: SettingsStore, characterManager: CharacterManager, onIntervalChanged: @escaping () -> Void) {
+    init(
+        settings: SettingsStore,
+        characterManager: CharacterManager,
+        onIntervalChanged: @escaping () -> Void,
+        onCreateCharacter: @escaping () -> Void,
+        onEditCharacter: @escaping (Character) -> Void,
+        onDeleteCharacter: @escaping (Character) -> Void
+    ) {
         self.settings = settings
         self.characterManager = characterManager
         self.onIntervalChanged = onIntervalChanged
+        self.onCreateCharacter = onCreateCharacter
+        self.onEditCharacter = onEditCharacter
+        self.onDeleteCharacter = onDeleteCharacter
         _customIntervalText = State(initialValue: String(settings.stretchInterval.minutes))
     }
 
@@ -101,10 +114,21 @@ struct SettingsView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                // Future extension point: an "Import Character…" action
-                // belongs here once import actually works. A disabled
-                // placeholder button would just confuse users in the
-                // meantime, so this section intentionally has none yet.
+
+                HStack {
+                    Button(Strings.Settings.createCharacter, action: onCreateCharacter)
+                    Spacer()
+                    // Only user-made characters can be edited or deleted —
+                    // the bundled ones aren't the user's to change.
+                    if isCurrentCharacterUserMade {
+                        Button(Strings.Settings.editCharacter) {
+                            onEditCharacter(characterManager.current)
+                        }
+                        Button(Strings.Settings.deleteCharacter, role: .destructive) {
+                            onDeleteCharacter(characterManager.current)
+                        }
+                    }
+                }
             }
         }
         .formStyle(.grouped)
@@ -159,6 +183,11 @@ struct SettingsView: View {
 
     private var isCurrentCharacterDefault: Bool {
         characterManager.current.id == characterManager.availableCharacters.first?.id
+    }
+
+    private var isCurrentCharacterUserMade: Bool {
+        if case .imported = characterManager.current.source { return true }
+        return false
     }
 
     // MARK: - Launch at login
