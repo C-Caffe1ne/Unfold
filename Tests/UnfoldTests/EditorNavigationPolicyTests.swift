@@ -46,4 +46,28 @@ final class EditorNavigationPolicyTests: XCTestCase {
     func test_rejects_nilURL() {
         XCTAssertFalse(EditorNavigationPolicy.allows(url: nil, editorDirectory: editorDirectory))
     }
+
+    /// The exact same traversal as `test_rejects_traversalOutOfTheEditorDirectory`,
+    /// spelled with percent-encoded dots. `.standardized` collapses `..` in a
+    /// URL's *encoded* string form — `%2e%2e` isn't literal `..` yet at that
+    /// point, so it has nothing to collapse. Only `.path` decodes it back
+    /// into `..`, and by then the check has already run. This is the classic
+    /// path-traversal-filter bypass: encode what the filter looks for, let
+    /// something downstream decode it after the filter already said yes.
+    func test_rejects_percentEncodedTraversal() {
+        let encoded = URL(string: "file:///Apps/Unfold.app/Resources/Editor/%2e%2e/%2e%2e/etc/passwd")!
+        XCTAssertFalse(EditorNavigationPolicy.allows(url: encoded, editorDirectory: editorDirectory))
+    }
+
+    func test_rejects_singlePercentEncodedTraversalSegment() {
+        let encoded = URL(string: "file:///Apps/Unfold.app/Resources/Editor/%2e%2e/passwd")!
+        XCTAssertFalse(EditorNavigationPolicy.allows(url: encoded, editorDirectory: editorDirectory))
+    }
+
+    /// Mixing a plain `..` with an encoded one — makes sure the fix isn't
+    /// accidentally only handling the case where every segment is encoded.
+    func test_rejects_mixedPlainAndEncodedTraversal() {
+        let mixed = URL(string: "file:///Apps/Unfold.app/Resources/Editor/../%2e%2e/etc/passwd")!
+        XCTAssertFalse(EditorNavigationPolicy.allows(url: mixed, editorDirectory: editorDirectory))
+    }
 }
