@@ -89,7 +89,7 @@ Editor/
 - Modify: `Sources/Unfold/Support/Constants.swift`
 - Test: `Tests/UnfoldTests/CharacterLibraryTests.swift`
 
-- [ ] **Step 1: 실패하는 테스트를 쓴다**
+- [x] **Step 1: 실패하는 테스트를 쓴다**
 
 `Tests/UnfoldTests/CharacterLibraryTests.swift`:
 
@@ -167,12 +167,12 @@ final class CharacterLibraryTests: XCTestCase {
 }
 ```
 
-- [ ] **Step 2: 실패를 확인한다**
+- [x] **Step 2: 실패를 확인한다**
 
 Run: `swift test --filter CharacterLibraryTests`
 Expected: 컴파일 실패 — `cannot find 'CharacterLibrary' in scope`
 
-- [ ] **Step 3: Constants에 디렉터리 이름을 추가한다**
+- [x] **Step 3: Constants에 디렉터리 이름을 추가한다**
 
 `Sources/Unfold/Support/Constants.swift`의 `builtInCharactersResourceSubdirectory` 바로 아래에 추가:
 
@@ -187,7 +187,7 @@ Expected: 컴파일 실패 — `cannot find 'CharacterLibrary' in scope`
     static let userCharactersFolderName = "Characters"
 ```
 
-- [ ] **Step 4: CharacterLibrary를 구현한다**
+- [x] **Step 4: CharacterLibrary를 구현한다**
 
 `Sources/Unfold/CharacterEditor/CharacterLibrary.swift`:
 
@@ -297,12 +297,12 @@ struct CharacterLibrary {
 > Task 5의 저장 경로가 사용자의 캐릭터를 전부 지운다. 공백만 있는 id,
 > 128바이트 초과, 백슬래시·제어문자에 대한 회귀 테스트도 함께 둔다.
 
-- [ ] **Step 5: 테스트가 통과하는지 확인한다**
+- [x] **Step 5: 테스트가 통과하는지 확인한다**
 
 Run: `swift test --filter CharacterLibraryTests`
 Expected: 명시된 테스트 + 아래 회귀 테스트가 전부 PASS
 
-- [ ] **Step 6: 커밋한다**
+- [x] **Step 6: 커밋한다**
 
 ```bash
 git add Sources/Unfold/CharacterEditor/CharacterLibrary.swift \
@@ -324,7 +324,7 @@ git commit -m "feat: add CharacterLibrary for user-created character packages"
 - Modify: `Sources/Unfold/DesktopPet/DesktopPetView.swift`
 - Test: `Tests/UnfoldTests/CharacterManifestTests.swift`
 
-- [ ] **Step 1: 실패하는 테스트를 쓴다**
+- [x] **Step 1: 실패하는 테스트를 쓴다**
 
 `Tests/UnfoldTests/CharacterManifestTests.swift` 파일 **끝**에 다음 테스트를 추가한다 (기존 테스트는 건드리지 않는다). 이 파일에는 이미 `import XCTest` / `@testable import Unfold`가 있으므로 다시 쓰지 않는다. 클래스 마지막 `}` 앞에 붙인다:
 
@@ -386,12 +386,12 @@ git commit -m "feat: add CharacterLibrary for user-created character packages"
     }
 ```
 
-- [ ] **Step 2: 실패를 확인한다**
+- [x] **Step 2: 실패를 확인한다**
 
 Run: `swift test --filter CharacterManifestTests`
 Expected: 컴파일 실패 — `value of type 'Character' has no member 'renderStyle'`
 
-- [ ] **Step 3: 도메인 모델에 RenderStyle을 추가한다**
+- [x] **Step 3: 도메인 모델에 RenderStyle을 추가한다**
 
 `Sources/Unfold/Character/Character.swift`의 `struct Character` **위**에 타입을 추가한다:
 
@@ -437,7 +437,7 @@ enum RenderStyle: String, Equatable {
     }
 ```
 
-- [ ] **Step 4: 매니페스트에 필드를 추가한다**
+- [x] **Step 4: 매니페스트에 필드를 추가한다**
 
 `Sources/Unfold/Character/CharacterManifest.swift`의 `thumbnailSymbol` 선언 아래에 추가:
 
@@ -447,7 +447,7 @@ enum RenderStyle: String, Equatable {
     let renderStyle: String?
 ```
 
-- [ ] **Step 5: 로더가 값을 전달하게 한다**
+- [x] **Step 5: 로더가 값을 전달하게 한다**
 
 `Sources/Unfold/Character/CharacterPackageLoader.swift`의 `makeCharacter`에서 `Character(...)`를 만드는 부분의 `animations: animations,` 다음 줄에 추가:
 
@@ -455,7 +455,7 @@ enum RenderStyle: String, Equatable {
             renderStyle: RenderStyle(rawValue: manifest.renderStyle ?? "") ?? .smooth,
 ```
 
-- [ ] **Step 6: 렌더 경로 두 곳이 이 값을 쓰게 한다**
+- [x] **Step 6: 렌더 경로 두 곳이 이 값을 쓰게 한다**
 
 `Sources/Unfold/Character/CharacterAnimationView.swift`의 `if let animator {` 블록 안을 다음으로 바꾼다:
 
@@ -498,12 +498,12 @@ extension RenderStyle {
             SpriteAnimationView(animator: controller.animator, interpolation: controller.renderStyle.interpolation)
 ```
 
-- [ ] **Step 7: 테스트가 통과하는지 확인한다**
+- [x] **Step 7: 테스트가 통과하는지 확인한다**
 
 Run: `swift test`
 Expected: 신규 3개 포함 전부 PASS (기존 테스트는 하나도 깨지지 않아야 한다)
 
-- [ ] **Step 8: 커밋한다**
+- [x] **Step 8: 커밋한다**
 
 ```bash
 git add Sources/Unfold/Character/Character.swift \
@@ -527,7 +527,7 @@ git commit -m "feat: per-character RenderStyle so pixel art renders unsmoothed"
 
 사용자 캐릭터는 `idle` 하나만 갖는다. 지금 `StretchOverlayView`는 `.stretch`를 요청하고, 없으면 `makeAnimator`가 `nil`을 돌려줘 정적 SF Symbol이 뜬다 — 이 앱의 핵심 순간에 사용자가 만든 캐릭터가 안 나온다는 뜻이다.
 
-- [ ] **Step 1: 실패하는 테스트를 쓴다**
+- [x] **Step 1: 실패하는 테스트를 쓴다**
 
 `Tests/UnfoldTests/CharacterAnimationFallbackTests.swift`:
 
@@ -585,12 +585,12 @@ final class CharacterAnimationFallbackTests: XCTestCase {
 }
 ```
 
-- [ ] **Step 2: 실패를 확인한다**
+- [x] **Step 2: 실패를 확인한다**
 
 Run: `swift test --filter CharacterAnimationFallbackTests`
 Expected: 컴파일 실패 — `value of type 'Character' has no member 'resolvedAnimation'`
 
-- [ ] **Step 3: 폴백을 도메인 모델에 구현한다**
+- [x] **Step 3: 폴백을 도메인 모델에 구현한다**
 
 `Sources/Unfold/Character/Character.swift`의 `func animation(for:)` **아래**에 추가:
 
@@ -608,7 +608,7 @@ Expected: 컴파일 실패 — `value of type 'Character' has no member 'resolve
     }
 ```
 
-- [ ] **Step 4: 뷰가 폴백을 쓰게 한다**
+- [x] **Step 4: 뷰가 폴백을 쓰게 한다**
 
 `Sources/Unfold/Character/CharacterAnimationView.swift`의 `makeAnimator` 첫 줄을 바꾼다:
 
@@ -616,12 +616,12 @@ Expected: 컴파일 실패 — `value of type 'Character' has no member 'resolve
         guard let source = character.resolvedAnimation(for: key) else { return nil }
 ```
 
-- [ ] **Step 5: 테스트가 통과하는지 확인한다**
+- [x] **Step 5: 테스트가 통과하는지 확인한다**
 
 Run: `swift test`
 Expected: 전부 PASS
 
-- [ ] **Step 6: 커밋한다**
+- [x] **Step 6: 커밋한다**
 
 ```bash
 git add Sources/Unfold/Character/Character.swift \
@@ -634,13 +634,19 @@ git commit -m "feat: fall back to the idle clip when a character lacks the reque
 
 ### Task 4: EditorSavePayload — 웹에서 온 값을 하나도 믿지 않는다
 
+> ✅ 완료. **아래 코드 블록은 최초 버전이며 리뷰를 거치며 더 엄격해졌다 —
+> 실제 소스가 근거다.** fps 상한(`editorFPSRange`), 페이로드 크기 상한
+> (`editorMaxSheetDataURLBytes`), PNG 헤더만이 아닌 전체 디코드, IEND
+> 청크 검사가 추가됐다. 자세한 경위는
+> `2026-09-03-piskel-character-editor-STATUS.md`의 "Task 4" 절 참고.
+
 **Files:**
 - Create: `Sources/Unfold/CharacterEditor/EditorSavePayload.swift`
 - Create: `Tests/UnfoldTests/Support/TestPNG.swift`
 - Modify: `Sources/Unfold/Support/Constants.swift`
 - Test: `Tests/UnfoldTests/EditorSavePayloadTests.swift`
 
-- [ ] **Step 1: 테스트용 PNG 헬퍼를 만든다**
+- [x] **Step 1: 테스트용 PNG 헬퍼를 만든다**
 
 `Tests/UnfoldTests/Support/TestPNG.swift`:
 
@@ -689,7 +695,7 @@ enum TestPNG {
 }
 ```
 
-- [ ] **Step 2: 실패하는 테스트를 쓴다**
+- [x] **Step 2: 실패하는 테스트를 쓴다**
 
 `Tests/UnfoldTests/EditorSavePayloadTests.swift`:
 
@@ -832,12 +838,12 @@ final class EditorSavePayloadTests: XCTestCase {
 }
 ```
 
-- [ ] **Step 3: 실패를 확인한다**
+- [x] **Step 3: 실패를 확인한다**
 
 Run: `swift test --filter EditorSavePayloadTests`
 Expected: 컴파일 실패 — `cannot find 'EditorSavePayload' in scope`
 
-- [ ] **Step 4: Constants에 한계값을 추가한다**
+- [x] **Step 4: Constants에 한계값을 추가한다**
 
 `Sources/Unfold/Support/Constants.swift`의 `userCharactersFolderName` 아래에 추가:
 
@@ -856,7 +862,7 @@ Expected: 컴파일 실패 — `cannot find 'EditorSavePayload' in scope`
     static let editorDefaultCanvasSide = 64
 ```
 
-- [ ] **Step 5: EditorSavePayload를 구현한다**
+- [x] **Step 5: EditorSavePayload를 구현한다**
 
 `Sources/Unfold/CharacterEditor/EditorSavePayload.swift`:
 
@@ -1007,12 +1013,12 @@ struct EditorSavePayload: Equatable {
 }
 ```
 
-- [ ] **Step 6: 테스트가 통과하는지 확인한다**
+- [x] **Step 6: 테스트가 통과하는지 확인한다**
 
 Run: `swift test --filter EditorSavePayloadTests`
 Expected: 17개 테스트 전부 PASS
 
-- [ ] **Step 7: 커밋한다**
+- [x] **Step 7: 커밋한다**
 
 ```bash
 git add Sources/Unfold/CharacterEditor/EditorSavePayload.swift \
@@ -1031,7 +1037,7 @@ git commit -m "feat: validate editor save payloads before anything touches disk"
 - Modify: `Sources/Unfold/Support/Constants.swift`
 - Test: `Tests/UnfoldTests/CharacterPackageWriterTests.swift`
 
-- [ ] **Step 1: 실패하는 테스트를 쓴다**
+- [x] **Step 1: 실패하는 테스트를 쓴다**
 
 `Tests/UnfoldTests/CharacterPackageWriterTests.swift`:
 
@@ -1155,12 +1161,12 @@ final class CharacterPackageWriterTests: XCTestCase {
 }
 ```
 
-- [ ] **Step 2: 실패를 확인한다**
+- [x] **Step 2: 실패를 확인한다**
 
 Run: `swift test --filter CharacterPackageWriterTests`
 Expected: 컴파일 실패 — `cannot find 'CharacterPackageWriter' in scope`
 
-- [ ] **Step 3: Constants에 패키지 파일 이름을 추가한다**
+- [x] **Step 3: Constants에 패키지 파일 이름을 추가한다**
 
 `Sources/Unfold/Support/Constants.swift`의 `editorDefaultCanvasSide` 아래에 추가:
 
@@ -1178,7 +1184,7 @@ Expected: 컴파일 실패 — `cannot find 'CharacterPackageWriter' in scope`
     static let userCharacterThumbnailSymbol = "pawprint.fill"
 ```
 
-- [ ] **Step 4: CharacterPackageWriter를 구현한다**
+- [x] **Step 4: CharacterPackageWriter를 구현한다**
 
 `Sources/Unfold/CharacterEditor/CharacterPackageWriter.swift`:
 
@@ -1342,12 +1348,12 @@ enum CharacterPackageWriter {
 > `Character` 값 복사뿐이며, 이 설계의 목적 자체가 커밋 이후의 throwing 경로를
 > 없애는 것이다.
 
-- [ ] **Step 5: 테스트가 통과하는지 확인한다**
+- [x] **Step 5: 테스트가 통과하는지 확인한다**
 
 Run: `swift test --filter CharacterPackageWriterTests`
 Expected: 7개 테스트 전부 PASS
 
-- [ ] **Step 6: 커밋한다**
+- [x] **Step 6: 커밋한다**
 
 ```bash
 git add Sources/Unfold/CharacterEditor/CharacterPackageWriter.swift \
@@ -1366,7 +1372,7 @@ git commit -m "feat: write character packages atomically with loader self-valida
 - Modify: `Sources/Unfold/App/AppDelegate.swift`
 - Test: `Tests/UnfoldTests/ImportedCharacterRepositoryTests.swift`
 
-- [ ] **Step 1: 실패하는 테스트를 쓴다**
+- [x] **Step 1: 실패하는 테스트를 쓴다**
 
 `Tests/UnfoldTests/ImportedCharacterRepositoryTests.swift`:
 
@@ -1432,12 +1438,12 @@ final class ImportedCharacterRepositoryTests: XCTestCase {
 }
 ```
 
-- [ ] **Step 2: 실패를 확인한다**
+- [x] **Step 2: 실패를 확인한다**
 
 Run: `swift test --filter ImportedCharacterRepositoryTests`
 Expected: 컴파일 실패 — `extra argument 'library' in call`
 
-- [ ] **Step 3: 리포지토리를 구현한다**
+- [x] **Step 3: 리포지토리를 구현한다**
 
 `Sources/Unfold/Character/CharacterRepository.swift`의 `struct ImportedCharacterRepository` 전체(주석 포함)를 다음으로 교체한다:
 
@@ -1470,12 +1476,12 @@ struct ImportedCharacterRepository: CharacterRepository {
 }
 ```
 
-- [ ] **Step 4: 테스트가 통과하는지 확인한다**
+- [x] **Step 4: 테스트가 통과하는지 확인한다**
 
 Run: `swift test --filter ImportedCharacterRepositoryTests`
 Expected: 3개 테스트 전부 PASS
 
-- [ ] **Step 5: CharacterManager가 목록을 다시 읽을 수 있게 한다**
+- [x] **Step 5: CharacterManager가 목록을 다시 읽을 수 있게 한다**
 
 `Sources/Unfold/Character/CharacterManager.swift`에서 `@Published private(set) var current: Character` 아래에 추가:
 
@@ -1553,7 +1559,7 @@ Expected: 3개 테스트 전부 PASS
 하며, `SettingsStore`에는 테스트 전용 `UserDefaults(suiteName:)`을 주입하고
 테스트 종료 시 해당 persistent domain을 제거한다.
 
-- [ ] **Step 6: 라이브러리를 조립 지점에서 한 번만 만든다**
+- [x] **Step 6: 라이브러리를 조립 지점에서 한 번만 만든다**
 
 `Sources/Unfold/App/AppDelegate.swift`의 프로퍼티 목록에서 `private var settings: SettingsStore?` 아래에 추가:
 
@@ -1583,7 +1589,7 @@ Expected: 3개 테스트 전부 PASS
         self.characterLibrary = characterLibrary
 ```
 
-- [ ] **Step 7: 전체 테스트와 빌드를 확인한다**
+- [x] **Step 7: 전체 테스트와 빌드를 확인한다**
 
 Run: `swift test`
 Expected: 전부 PASS
@@ -1591,7 +1597,7 @@ Expected: 전부 PASS
 Run: `swift build`
 Expected: 경고 없이 성공
 
-- [ ] **Step 8: 커밋한다**
+- [x] **Step 8: 커밋한다**
 
 ```bash
 git add Sources/Unfold/Character/CharacterRepository.swift \
@@ -1607,6 +1613,12 @@ git commit -m "feat: load user-created character packages from the library"
 
 ### Task 7: Piskel 벤더링 — 빌드 산출물을 리소스로 넣는다
 
+> ✅ 완료. **`NOTICE-piskel.txt` 템플릿(Step 3)은 최초 버전이다.** 실제
+> 파일은 Piskel이 번들한 9개 서드파티 라이브러리(jQuery, JSZip, Spectrum,
+> gif.js, bootstrap-tooltip.js 등)를 추가로 열거하고, 소스맵 파일도
+> 제거돼 있다. 경위는 `2026-09-03-piskel-character-editor-STATUS.md`의
+> "Task 7" 절 참고.
+
 **Files:**
 - Create: `Sources/Unfold/Resources/Editor/piskel/` (벤더링)
 - Create: `Sources/Unfold/Resources/Editor/PISKEL-VERSION.txt`
@@ -1616,7 +1628,7 @@ git commit -m "feat: load user-created character packages from the library"
 
 이 태스크에는 단위 테스트가 없다 — 결과물이 "번들 안에 파일이 있는가"이고, 그건 Task 9의 창이 실제로 뜨는지로 검증된다.
 
-- [ ] **Step 1: Piskel을 빌드한다**
+- [x] **Step 1: Piskel을 빌드한다**
 
 ```bash
 PISKEL_BUILD_DIR="$(mktemp -d /tmp/unfold-piskel.XXXXXX)"
@@ -1630,7 +1642,7 @@ ls dest/prod                # index.html, js/, css/, img/ 가 보여야 한다
 
 `npm ci`가 실패하면 `npm install`을 쓴다. `dest/prod/index.html`이 없으면 다음 단계로 넘어가지 말고 빌드 로그를 확인한다.
 
-- [ ] **Step 2: 산출물을 리소스로 복사한다**
+- [x] **Step 2: 산출물을 리소스로 복사한다**
 
 ```bash
 cd /Users/hwanghyeonseong/Documents/GitHub/Unfold
@@ -1640,7 +1652,7 @@ cp "$PISKEL_BUILD_DIR/piskel-src/LICENSE" Sources/Unfold/Resources/Editor/LICENS
 ls Sources/Unfold/Resources/Editor/piskel/index.html   # 존재해야 한다
 ```
 
-- [ ] **Step 3: 출처를 기록한다**
+- [x] **Step 3: 출처를 기록한다**
 
 `Sources/Unfold/Resources/Editor/PISKEL-VERSION.txt` (SHA는 Step 1에서 적어둔 값으로 바꾼다):
 
@@ -1669,7 +1681,7 @@ Licensed under the Apache License, Version 2.0. A copy of the license is
 included as LICENSE-piskel.txt. Piskel is bundled unmodified.
 ```
 
-- [ ] **Step 4: SwiftPM 리소스로 등록한다**
+- [x] **Step 4: SwiftPM 리소스로 등록한다**
 
 `Package.swift`의 `Unfold` 타깃 `resources:` 배열을 다음으로 바꾼다:
 
@@ -1680,7 +1692,7 @@ included as LICENSE-piskel.txt. Piskel is bundled unmodified.
             ]
 ```
 
-- [ ] **Step 5: 번들에 실제로 들어갔는지 확인한다**
+- [x] **Step 5: 번들에 실제로 들어갔는지 확인한다**
 
 ```bash
 swift build
@@ -1689,7 +1701,7 @@ ls .build/debug/Unfold_Unfold.bundle/Editor/piskel/index.html
 
 Expected: 경로가 출력된다 (`No such file` 이면 `.copy` 경로를 다시 확인한다)
 
-- [ ] **Step 6: 커밋한다**
+- [x] **Step 6: 커밋한다**
 
 Piskel 산출물은 파일 수가 많다. 한 커밋으로 묶어 나중에 갱신할 때 통째로 교체하기 쉽게 한다.
 
@@ -1702,11 +1714,20 @@ git commit -m "chore: vendor Piskel build output as an app resource (Apache-2.0,
 
 ### Task 8: EditorNavigationPolicy — 원격 코드가 들어올 문을 없앤다
 
+> ⚠️ 완료했지만 **아래 Step 3의 `allows` 구현은 취약하다 — 그대로 쓰지
+>말 것.** `url.standardized.path`는 퍼센트 인코딩된 경로 순회
+> (`%2e%2e/%2e%2e/etc/passwd`)를 걸러내지 못한다. 실제 소스는
+> `URL(fileURLWithPath: url.path).standardizedFileURL.path`로 고쳐져
+> 있다. 이 함수는 아직 `WKNavigationDelegate`에 배선되지 않았다 —
+> Task 9에서 배선할 때 검사에 쓰는 URL과 실제 로드에 쓰는 URL이 같은
+> 디코딩 경로를 타야 한다. 경위는
+> `2026-09-03-piskel-character-editor-STATUS.md`의 "Task 8" 절 참고.
+
 **Files:**
 - Create: `Sources/Unfold/CharacterEditor/EditorNavigationPolicy.swift`
 - Test: `Tests/UnfoldTests/EditorNavigationPolicyTests.swift`
 
-- [ ] **Step 1: 실패하는 테스트를 쓴다**
+- [x] **Step 1: 실패하는 테스트를 쓴다**
 
 `Tests/UnfoldTests/EditorNavigationPolicyTests.swift`:
 
@@ -1762,12 +1783,12 @@ final class EditorNavigationPolicyTests: XCTestCase {
 }
 ```
 
-- [ ] **Step 2: 실패를 확인한다**
+- [x] **Step 2: 실패를 확인한다**
 
 Run: `swift test --filter EditorNavigationPolicyTests`
 Expected: 컴파일 실패 — `cannot find 'EditorNavigationPolicy' in scope`
 
-- [ ] **Step 3: 정책을 구현한다**
+- [x] **Step 3: 정책을 구현한다**
 
 `Sources/Unfold/CharacterEditor/EditorNavigationPolicy.swift`:
 
@@ -1802,12 +1823,12 @@ enum EditorNavigationPolicy {
 }
 ```
 
-- [ ] **Step 4: 테스트가 통과하는지 확인한다**
+- [x] **Step 4: 테스트가 통과하는지 확인한다**
 
 Run: `swift test --filter EditorNavigationPolicyTests`
 Expected: 7개 테스트 전부 PASS
 
-- [ ] **Step 5: 커밋한다**
+- [x] **Step 5: 커밋한다**
 
 ```bash
 git add Sources/Unfold/CharacterEditor/EditorNavigationPolicy.swift \
