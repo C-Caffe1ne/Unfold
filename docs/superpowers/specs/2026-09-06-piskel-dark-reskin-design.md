@@ -113,7 +113,7 @@ Piskel 은 `:root { --highlight-color: gold }` 를 이미 정의하고 일부 �
 | --- | --- | --- |
 | 일반 버튼/입력 | `.button`, `.textfield` | `var(--u-radius-control)` (기존 2px) |
 | 주요 액션 버튼 | `.button-primary`, `#unfold-save-button`, 다이얼로그 confirm/cancel | `var(--u-radius-pill)` |
-| 패널류 | `.drawer-content`, `.dialog-content`, sticky 섹션 배경(§5), 하단 프레임 컨테이너 | `var(--u-radius-panel)` |
+| 패널류 | `.drawer-content`, `.dialog-content`, sticky 섹션 배경(§5), 왼쪽 프레임 컬럼 (`#preview-list-wrapper`) | `var(--u-radius-panel)` |
 | 프레임 타일 / 툴 아이콘 | `.preview-tile` 계열, `.tool-icon` | `var(--u-radius-control)` |
 
 `.size-picker-option` 같은 작은 정사각 토글은 pill 로 만들면 뭉개지므로
@@ -125,10 +125,11 @@ Piskel sticky 섹션은 `position: fixed` + `max-width`/`width`/`left`/`right` �
 레이아웃이 계산된다. **위치·크기 속성은 건드리지 않는다.** 시각 껍데기만 입힌다.
 
 ```css
-.left-sticky-section,
-.right-sticky-section,
+#tool-section.left-sticky-section,
+#application-action-section.right-sticky-section,
 .drawer-content,
-/* 하단 프레임 리스트 컨테이너 (실제 클래스는 구현 시 DOM에서 확인) */ {
+#preview-list-wrapper.preview-list-wrapper,   /* 왼쪽 프레임 컬럼 (하단 아님) */
+#animated-preview-container.preview-container {
   background: var(--u-panel-bg);
   border-radius: var(--u-radius-panel);
   box-shadow: var(--u-shadow);
