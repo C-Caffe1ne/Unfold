@@ -224,3 +224,17 @@ a, a:visited,
 }
 
 #dialog-container-wrapper { backdrop-filter: blur(2px); }
+
+/* ============================================================================
+ * Unfold tool-rail consolidation — drop the left rail, stack everything on the
+ * right (tools cluster top, preferences/resize cluster bottom). CSS only.
+ * Selectors target Piskel commit a6b9c02. See
+ * docs/superpowers/specs/2026-09-06-piskel-tool-rail-consolidation-design.md
+ * ==========================================================================*/
+
+/* Left rail is gone: reclaim its 100px, reserve the right rail's ~124px
+ * (right:12 + width:100 + 12 breathing). */
+.column-wrapper {
+  left: 0 !important;
+  right: 124px !important;
+}
