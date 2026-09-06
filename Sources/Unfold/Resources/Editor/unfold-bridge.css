@@ -53,3 +53,30 @@
   color: #fff;
   font: 400 12px/1.4 -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
 }
+
+/* ============================================================================
+ * Unfold reskin — dark theme, #357867 accent, large radius, floating panels.
+ * Selectors target Piskel commit a6b9c02. Vendored piskel/ is untouched.
+ * See docs/superpowers/specs/2026-09-06-piskel-dark-reskin-design.md
+ * ==========================================================================*/
+
+:root {
+  --u-accent:        #357867;                       /* fills / active states  */
+  --u-accent-fg:     #5fae9c;                       /* text / icons / hairlines on dark */
+  --u-panel-bg:      #1c1c1e;                       /* floating panel surface */
+  --u-page-bg:       #0f0f10;                       /* shows through panel gaps */
+  --u-control-bg:    #2a2a2d;                       /* inactive controls / chips */
+  --u-radius-panel:   20px;
+  --u-radius-control: 12px;
+  --u-radius-pill:    999px;
+  --u-shadow:         0 10px 30px rgba(0, 0, 0, 0.45);
+  --u-shadow-modal:   0 24px 60px rgba(0, 0, 0, 0.55);
+  --u-gap:            12px;
+
+  /* Piskel defines this on html,body and uses var(--highlight-color) in some
+   * rules — remapping it here recolors those for free. */
+  --highlight-color: var(--u-accent) !important;
+}
+
+/* Bottom layer visible between the floating panels added in Task 4. */
+html, body { background: var(--u-page-bg) !important; }
