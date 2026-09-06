@@ -227,6 +227,12 @@ struct SettingsView: View {
     }
 
     private func refreshNotificationStatus() {
+        // `UNUserNotificationCenter.current()` throws
+        // NSInternalInconsistencyException ("bundleProxyForCurrentProcess is
+        // nil") when there is no app bundle — i.e. a bare `swift run`. Mirror
+        // `NotificationManager.isAvailable` and skip; `notificationStatus`
+        // stays `.notDetermined` and the label falls back accordingly.
+        guard Bundle.main.bundleIdentifier != nil else { return }
         UNUserNotificationCenter.current().getNotificationSettings { settings in
             DispatchQueue.main.async {
                 notificationStatus = settings.authorizationStatus
