@@ -1,45 +1,73 @@
 # Handoff — Piskel editor reskin + tool-rail consolidation
 
-## Follow-up: UI consistency pass (2026-09-06)
+> **Read this first.** Everything below the `---` was written at commit
+> `8cf5239` and parts of it are now wrong. This section is the current state.
 
-This section supersedes the CSS-only and zoom-slack statements below. The original
-handoff is retained as history. This follow-up is uncommitted and has not been pushed.
+## Current state (2026-09-06, HEAD `e63082b`)
 
-- Reserved a 64px top area so Save no longer covers pen sizes. Frame column,
-  drawing area, preview and tool rail share a top baseline and 12px outer gaps.
-- Unified preview, layers, transforms, palettes, settings and dialogs with dark
-  surfaces, 20px panel corners, compact controls and teal selection states.
-  Save, FPS, frame selection, pen size, resize anchors and layer indicators now
-  use the same accent. Color data and color-picker gradients remain unchanged.
-- Aligned the 112px two-column tool rail, side-by-side foreground/background
-  swatches, swap button, and bottom settings row. Small windows scroll tools and
-  inspector panels independently. Palette dialogs keep actions visible with an
-  internally scrollable color area.
-- `unfold-bridge.js` now adapts `drawingController.getAvailableWidth_` and
-  `getAvailableHeight_` to the `.main-column` flex slot. This removes the old
-  double-rail width reservation. It also sets the renderer's zoomed-out background
-  and points tooltips left. These private APIs must be checked on re-vendoring.
-- Runtime checks exposed an existing save error: `renderFrameAt` returns a
-  canvas, but the bridge passed it into `FrameUtils.toImage`, which expects a
-  Piskel Frame. The bridge now draws the returned canvas directly into the sheet.
-- Vendored Piskel, Swift source, native save validation and dependencies are unchanged.
+### The `a3f5f2d` "UI consistency pass" was reverted
 
-Validation:
+`a3f5f2d` moved `#main-wrapper` / `.column-wrapper` insets, restyled every
+inspector panel, and — the fatal part — monkey-patched Piskel's private
+`drawingController.getAvailableWidth_` / `getAvailableHeight_` to measure the
+`.main-column` flex slot. That box resolves to 0 during window occlusion and
+reflow, which collapsed the canvas. Each attempt to repair it produced a new
+rendering regression (occlusion flicker → permanent collapse → erase/draw
+visibility toggle), so `04c8af0` restored `unfold-bridge.css` to its `72c156a`
+content and stripped the JS additions.
 
-- `swift test`: 267 tests, 0 failures. `swift build -c release`: passed.
-- JS syntax and `git diff --check`: passed.
-- Real packaged Piskel in isolated Chrome: pen drawing, frame addition, layer
-  addition, save payload (64x64, two frames, two layers), save-button recovery,
-  preferences/resize drawers, palette modal at 1100x760 and 900x600, and tooltips.
-- At 800x560 and 1440x900, renderer width equals the CSS slot (307px and 947px);
-  tool rail remains above the settings row.
-- Separate WKWebView using the application's document-start/end injection order:
-  rendered at 1100x760; renderer and slot both 601px (native scrollbar metrics).
-  Snapshot: `.superpowers/qa/piskel-consistency/webkit.png` (gitignored).
-- The standalone WKWebView initially shows Piskel's existing unsupported-browser
-  notice; dismissed for the screenshot. No browser-support policy was changed.
-- Native Save/Open panels and writing an actual character package were not
-  exercised. The save-payload test used a mocked native message receiver.
+**Do not reintroduce a `getAvailableWidth_` override.** Vendor's version
+measures `#main-wrapper`, a fixed-inset element that always has a real size.
+It over-reserves roughly one rail width in the consolidated layout, so the
+canvas fits with more margin than strictly necessary — that is cosmetic and
+deliberately accepted.
+
+One piece of `a3f5f2d` was kept because it fixed a real save bug:
+`buildSheetDataURL` passes `renderFrameAt`'s return value straight to
+`drawImage`. It returns a canvas, not a `Frame`, so the old
+`FrameUtils.toImage(frame, 1)` call was wrong.
+
+### Bridge workarounds for two vendor Piskel rendering bugs (`e63082b`)
+
+Single-click erase used to blank the whole sprite until the next edit while
+drag-erase was fine. Root-caused with a scripted harness driving synthetic
+mouse events in the real WKWebView (0/10 rounds passing before, 10/10 after):
+
+1. `FrameUtils.drawToCanvas` reuses module-global scratch objects keyed only by
+   sprite size, shared by every renderer in the same animation frame. A deferred
+   compositing `drawImage` can pick up a later renderer's content — and the tool
+   overlay is fully transparent right after an erase.
+2. `CachedFrameRenderer.render` stores its cache key *before* painting, so a
+   paint that doesn't land leaves the renderer believing the frame is on screen.
+
+`unfold-bridge.js` now forces a 1x1 readback after each `drawToCanvas` and
+clears the cache key on entry to every render. Both are in
+`installSharedScratchFlush()` / `installRenderCacheInvalidation()` and must be
+re-checked on re-vendor.
+
+### Other changes since `8cf5239`
+
+- `036dab5` — `SettingsView.refreshNotificationStatus` now guards on
+  `Bundle.main.bundleIdentifier`. `UNUserNotificationCenter.current()` throws
+  when there is no app bundle, so `swift run` crashed on opening Settings.
+- `9cbe14c` — `whenPiskelReady` polls with a ~10s cap and surfaces a banner
+  instead of looping forever; missing `unfold-bridge.css`/`.js` is logged; a
+  non-string save message re-enables the save button instead of wedging it.
+- A `#if DEBUG` **"Open Character Editor (Debug)"** status-menu item opens the
+  editor without going through the Settings window. Added purely as dev tooling
+  for the investigation above — safe to delete.
+
+### Open, not done
+
+- `unfold-bridge.css` carries ~200 `!important` declarations. Necessary to beat
+  vendor rules, but new rules now have to join the arms race. A theme-only
+  rewrite (colours/radius/shadow, no `position`/`display`/layout overrides) is
+  the standing recommendation if editor styling is revisited.
+- Cosmetic review leftovers: redundant `#preview-list-scroller { height: 100% }`,
+  the `JSONSerialization([x])…[0]` string-embedding helper repeated three times
+  in `CharacterEditorWindowController`, no length cap on the character name, no
+  `prefers-reduced-motion` handling.
+- Branch `major` is 6 commits ahead of `origin/major` and unpushed.
 
 ---
 
