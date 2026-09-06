@@ -149,3 +149,28 @@ a, a:visited,
 .palettes-list-secondary-color:before {
   background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20height%3D%2215%22%20width%3D%2215%22%3E%3Cpath%20stroke%3D%22%23357867%22%20stroke-width%3D%222%22%20d%3D%22M3%2013h10V3z%22/%3E%3C/svg%3E") !important;
 }
+
+/* --- radius --- */
+.button,
+.textfield,
+.textfield-small { border-radius: var(--u-radius-control) !important; }
+
+/* Pill on the primary actions only. */
+.button-primary,
+#unfold-save-button,
+.dialog-content .button { border-radius: var(--u-radius-pill) !important; }
+
+/* Panels. .drawer-content also drops its one-sided 4px corners + old shadow. */
+.drawer-content,
+.dialog-content,
+#dialog-container { border-radius: var(--u-radius-panel) !important; }
+
+/* Frame thumbnails and tool buttons. */
+.preview-tile,
+.tool-icon,
+.add-frame-action { border-radius: var(--u-radius-control) !important; }
+
+/* The animated-preview panel in the right column has a one-sided radius. */
+#animated-preview-container.preview-container {
+  border-radius: var(--u-radius-panel) !important;
+}
