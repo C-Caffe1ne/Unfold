@@ -208,3 +208,19 @@ a, a:visited,
 /* Square icon-only toggles must stay boxy, not pill (would smear the sprite). */
 .size-picker-option,
 .pen-size-option { border-radius: var(--u-radius-control) !important; }
+
+/* --- modals --- */
+#dialog-container {
+  background: var(--u-panel-bg) !important;
+  border: 1px solid var(--u-accent) !important;
+  border-radius: var(--u-radius-panel) !important;
+  box-shadow: var(--u-shadow-modal) !important;
+}
+.dialog-content { background: var(--u-panel-bg) !important; }
+
+.dialog-close {
+  background: var(--u-control-bg) !important;
+  border-radius: var(--u-radius-pill) !important;
+}
+
+#dialog-container-wrapper { backdrop-filter: blur(2px); }
