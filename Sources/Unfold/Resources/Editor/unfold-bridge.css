@@ -195,3 +195,16 @@ a, a:visited,
 .right-sticky-section .tool-icon.has-expanded-drawer {
   background-color: var(--u-control-bg) !important;
 }
+
+/* --- pills --- */
+.button-primary,
+#unfold-save-button,
+.dialog-content .button {
+  border-radius: var(--u-radius-pill) !important;
+  height: auto !important;
+  padding: 10px 22px !important;
+}
+
+/* Square icon-only toggles must stay boxy, not pill (would smear the sprite). */
+.size-picker-option,
+.pen-size-option { border-radius: var(--u-radius-control) !important; }
