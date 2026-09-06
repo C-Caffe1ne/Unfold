@@ -297,10 +297,13 @@ a, a:visited,
   display: block !important;
 }
 
-/* While a drawer is open, restore full height so the 550px drawer content lays
- * out on-screen. Vendor's .right-sticky-section.expanded { right: 280px } still
- * does the reveal slide; transition: all 200ms animates the height change too. */
+/* While a drawer is open: slide left to reveal the 280px drawer, and restore
+ * full height so its 550px content lays out on-screen. The base rule above sets
+ * right: 12px !important on every state, which would otherwise suppress the
+ * vendor's own .right-sticky-section.expanded { right: 280px } (no !important),
+ * so re-assert the slide here. */
 #application-action-section.right-sticky-section.expanded {
+  right: 280px !important;
   top: 12px !important;
   bottom: 12px !important;
 }

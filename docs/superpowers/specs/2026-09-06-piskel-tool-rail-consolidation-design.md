@@ -128,8 +128,11 @@ preferences → resize. 프레임 타임라인은 왼쪽에 남는다. 캔버스
 }
 ```
 
-`.expanded` 는 `right: 280px`(리스킨/벤더 규칙) 로 계속 슬라이드되어 드로어가
-드러난다. `transition: all 200ms` 덕에 하단→전체높이 전환도 애니메이션된다.
+위 base 규칙의 `right: 12px !important` 가 모든 상태에서 매칭되어 벤더의
+`.right-sticky-section.expanded { right: 280px }`(no !important)를 덮어버린다.
+그래서 `.expanded` 규칙에서 `right: 280px !important` 로 슬라이드를 다시 명시한다.
+`transition: all 200ms`(벤더)로 `right` 이동은 애니메이션되지만 `top: auto` ↔
+`12px` 전환은 브라우저가 보간하지 않아 높이는 점프한다.
 
 ## 4. 통일감
 
