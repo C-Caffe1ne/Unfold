@@ -280,3 +280,27 @@ a, a:visited,
   width: 0 !important;
   height: 0 !important;
 }
+
+/* --- preferences/resize cluster: bottom-right, same width as the tools rail --- */
+#application-action-section.right-sticky-section {
+  right: 12px !important;
+  top: auto !important;
+  bottom: 12px !important;
+  margin: 0 !important;                        /* cancel reskin margin: var(--u-gap) */
+  width: 100px !important;
+}
+#application-action-section .sticky-section-wrap {
+  display: block !important;
+  height: auto !important;
+}
+#application-action-section .vertical-centerer {
+  display: block !important;
+}
+
+/* While a drawer is open, restore full height so the 550px drawer content lays
+ * out on-screen. Vendor's .right-sticky-section.expanded { right: 280px } still
+ * does the reveal slide; transition: all 200ms animates the height change too. */
+#application-action-section.right-sticky-section.expanded {
+  top: 12px !important;
+  bottom: 12px !important;
+}
