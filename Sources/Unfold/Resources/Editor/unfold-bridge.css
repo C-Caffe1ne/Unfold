@@ -293,15 +293,29 @@ a, a:visited,
   width: 100px !important;
 }
 
-/* While a drawer is open: slide left to reveal the 280px drawer, and restore
- * full height so its 550px content lays out on-screen. The base rule above sets
- * right: 12px !important on every state, which would otherwise suppress the
- * vendor's own .right-sticky-section.expanded { right: 280px } (no !important),
- * so re-assert the slide here. */
+/* While a drawer is open: the icon strip stays exactly where it is (re-assert the
+ * collapsed anchor so the vendor's own .right-sticky-section.expanded {right:280px}
+ * can't slide it). Only the drawer panel appears — see the .drawer-content rule
+ * below, which lifts it out with position:fixed so it never moves the section. */
 #application-action-section.right-sticky-section.expanded {
-  right: 280px !important;
+  right: 12px !important;
+  top: auto !important;
+  bottom: 12px !important;
+}
+
+/* The drawer content becomes a standalone floating panel just left of the rails,
+ * independent of the icon strip. (While collapsed it is display:none via the
+ * :not(.expanded) rule above, so this only applies when open.) */
+#application-action-section.right-sticky-section.expanded .drawer-content {
+  position: fixed !important;
+  right: 128px !important;
   top: 12px !important;
   bottom: 12px !important;
+  width: 280px !important;
+  height: auto !important;
+  max-height: none !important;
+  margin: 0 !important;
+  overflow-y: auto !important;
 }
 
 /* The drawer content is always in the DOM at a fixed 550px height. In the vendor
@@ -318,4 +332,22 @@ a, a:visited,
 #main-wrapper:has(#application-action-section.expanded) #tool-section.left-sticky-section {
   opacity: 0.3 !important;
   pointer-events: none !important;
+}
+
+/* --- palette: stack the two color pickers + swap button as a centered column.
+ * Vendor floats .palette-wrapper and hard-offsets .swap-colors-button (top:50px,
+ * left:6px) for its own layout; neutralize both for the vertical rail. */
+#tool-section .palette-wrapper {
+  float: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+#tool-section .swap-colors-button {
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  margin: 2px auto 0 !important;
+  opacity: 0.7 !important;
 }
