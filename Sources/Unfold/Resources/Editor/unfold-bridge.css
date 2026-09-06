@@ -238,3 +238,43 @@ a, a:visited,
   left: 0 !important;
   right: 124px !important;
 }
+
+/* --- tools cluster: top-right, content height, internal scroll if tall --- */
+#tool-section.left-sticky-section {
+  left: auto !important;
+  right: 12px !important;
+  top: 12px !important;
+  bottom: auto !important;
+  margin: 0 !important;                        /* cancel reskin margin: var(--u-gap) */
+  max-width: none !important;
+  width: 100px !important;
+  max-height: calc(100vh - 24px) !important;
+  overflow-y: auto !important;
+}
+
+/* Vendor uses table/table-cell for full-height vertical centering; switch to
+ * normal block flow so children stack top-down. */
+#tool-section .sticky-section-wrap {
+  display: block !important;
+  height: auto !important;
+}
+#tool-section .vertical-centerer {
+  display: block !important;
+}
+
+/* Drawing tools: vendor floats .tool-icon left inside a 100px box. Replace the
+ * float with a centered wrap grid. */
+#tools-container.tools-wrapper {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+#tool-section .tool-icon {
+  float: none !important;
+}
+
+/* Hide the scrollbar when the rail overflows (keep the dark look). */
+#tool-section::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+}
