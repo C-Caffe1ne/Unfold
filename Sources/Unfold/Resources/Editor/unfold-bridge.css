@@ -262,12 +262,14 @@ a, a:visited,
   display: block !important;
 }
 
-/* Drawing tools: vendor floats .tool-icon left inside a 100px box. Replace the
- * float with a centered wrap grid. */
+/* Vendor floats the tools-wrapper and its .tool-icon children (and the palette
+ * swatches). Drop every float so the rail is one top-down block: the tools grid
+ * wraps centered, the palette swatches stack. */
 #tools-container.tools-wrapper {
   display: flex !important;
   flex-wrap: wrap !important;
   justify-content: center !important;
+  float: none !important;
 }
 #tool-section .tool-icon {
   float: none !important;
