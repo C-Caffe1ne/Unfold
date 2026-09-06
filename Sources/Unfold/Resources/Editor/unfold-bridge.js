@@ -170,28 +170,23 @@
   };
 
   whenPiskelReady(function () {
-    /* The consolidated rail occupies one side, whereas Piskel's default sizing
-     * subtracts two rails. Measure the CSS flex slot for both zoom-to-fit and
-     * renderer dimensions. Keep this adapter with the injected theme, not vendor
-     * code. Re-measuring on every call also follows native window resizes. */
-    const drawing = pskl.app.drawingController;
-    const workspace = document.querySelector(".main-column");
-    if (drawing && workspace) {
-      drawing.getAvailableWidth_ = function () {
-        return Math.max(1, workspace.clientWidth);
-      };
-      drawing.getAvailableHeight_ = function () {
-        return Math.max(1, workspace.clientHeight);
-      };
-    }
-    if (window.Constants) {
-      window.Constants.ZOOMED_OUT_BACKGROUND_COLOR = "#171719";
-    }
-    /* The tool rail now sits against the right edge. Bootstrap reads these
-     * attributes when its delegated tooltip is first opened. */
+    /* The consolidated tool rail sits against the right edge, so the delegated
+     * tooltips should open toward the workspace (left) rather than off-screen. */
     document.querySelectorAll('#tool-section [rel="tooltip"]').forEach(function (tool) {
       tool.setAttribute("data-placement", "left");
     });
+
+    /* Note: do NOT override pskl.app.drawingController.getAvailableWidth_/
+     * getAvailableHeight_. A previous attempt measured `.main-column`'s
+     * clientWidth/clientHeight to reclaim a little canvas width, but that box
+     * momentarily reports 0 during native window occlusion / Space switches /
+     * reflow. Piskel's ResizeObserver on #main-wrapper then runs relayout_()
+     * with a 1x1 display size, FrameRenderer clamps the zoom to
+     * min(w,h)/10 = 0.1, and the drawing renders invisibly until the next
+     * relayout restores it — the "pixels vanish then come back" flicker.
+     * The vendor methods measure #main-wrapper (a fixed-inset element that
+     * always has a real size) and are robust; keep them. */
+
     var init = window.__unfoldInit || {};
     var json = init.piskelJSON || blankPiskelJSON(init.canvasSide || 64);
 
