@@ -72,6 +72,9 @@
   --u-shadow:         0 10px 30px rgba(0, 0, 0, 0.45);
   --u-shadow-modal:   0 24px 60px rgba(0, 0, 0, 0.55);
   --u-gap:            12px;
+  --u-workspace-top:  64px;
+  --u-rail-width:     112px;
+  --u-border:         #343438;
 
   /* Piskel defines this on html,body and uses var(--highlight-color) in some
    * rules — remapping it here recolors those for free. */
@@ -79,7 +82,11 @@
 }
 
 /* Bottom layer visible between the floating panels added in Task 4. */
-html, body { background: var(--u-page-bg) !important; }
+html, body {
+  --highlight-color: var(--u-accent-fg) !important;
+  background: var(--u-page-bg) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+}
 
 /* --- accent: text / hairline (lighter tint for contrast on near-black) --- */
 .highlight,
@@ -201,8 +208,8 @@ a, a:visited,
 #unfold-save-button,
 .dialog-content .button {
   border-radius: var(--u-radius-pill) !important;
-  height: auto !important;
-  padding: 10px 22px !important;
+  height: 30px !important;
+  padding: 0 12px !important;
 }
 
 /* Square icon-only toggles must stay boxy, not pill (would smear the sprite). */
@@ -227,28 +234,64 @@ a, a:visited,
 
 /* ============================================================================
  * Unfold tool-rail consolidation — drop the left rail, stack everything on the
- * right (tools cluster top, preferences/resize cluster bottom). CSS only.
+ * right (tools cluster top, preferences/resize cluster bottom). The bridge JS
+ * measures the flex canvas slot and points tooltips into the workspace.
  * Selectors target Piskel commit a6b9c02. See
  * docs/superpowers/specs/2026-09-06-piskel-tool-rail-consolidation-design.md
  * ==========================================================================*/
 
-/* Left rail is gone: reclaim its 100px, reserve the right rail's ~124px
- * (right:12 + width:100 + 12 breathing). */
+/* Reserve the shared rail plus one gap inside the inset workspace. */
 .column-wrapper {
   left: 0 !important;
-  right: 124px !important;
+  right: calc(var(--u-rail-width) + var(--u-gap)) !important;
 }
+
+#main-wrapper {
+  top: var(--u-workspace-top) !important;
+  right: var(--u-gap) !important;
+  bottom: var(--u-gap) !important;
+  left: var(--u-gap) !important;
+  margin: 0 !important;
+}
+
+.left-column { padding-right: var(--u-gap) !important; }
+.main-column { flex: 1; min-width: 0; }
+.right-column { padding-left: var(--u-gap) !important; }
+
+#preview-list-wrapper.preview-list-wrapper,
+#animated-preview-container.preview-container {
+  margin: 0 !important;
+}
+#preview-list-wrapper.preview-list-wrapper {
+  box-sizing: border-box;
+  padding: 8px 4px 8px 8px;
+}
+#preview-list-scroller { height: 100%; }
+#drawing-canvas-container { border-radius: var(--u-radius-panel); overflow: hidden; }
+
+#unfold-save-button {
+  top: 12px;
+  height: 36px !important;
+  padding: 0 18px !important;
+  background: var(--u-accent) !important;
+}
+#unfold-save-button:hover { background: #408b78 !important; }
+#unfold-save-button:disabled { opacity: .45; }
+#unfold-error { top: 52px; }
+.cheatsheet-link { top: 20px !important; bottom: auto !important; left: 16px !important; }
 
 /* --- tools cluster: top-right, content height, internal scroll if tall --- */
 #tool-section.left-sticky-section {
   left: auto !important;
   right: 12px !important;
-  top: 12px !important;
+  top: var(--u-workspace-top) !important;
   bottom: auto !important;
   margin: 0 !important;                        /* cancel reskin margin: var(--u-gap) */
   max-width: none !important;
-  width: 100px !important;
-  max-height: calc(100vh - 108px) !important;   /* reserve the bottom settings-icon band */
+  width: var(--u-rail-width) !important;
+  box-sizing: border-box;
+  padding: 8px;
+  max-height: calc(100vh - 152px) !important;
   overflow-y: auto !important;
 }
 
@@ -266,13 +309,17 @@ a, a:visited,
  * swatches). Drop every float so the rail is one top-down block: the tools grid
  * wraps centered, the palette swatches stack. */
 #tools-container.tools-wrapper {
-  display: flex !important;
-  flex-wrap: wrap !important;
+  display: grid !important;
+  grid-template-columns: repeat(2, 46px);
+  gap: 4px;
   justify-content: center !important;
   float: none !important;
+  margin: 0 !important;
+  width: auto !important;
 }
 #tool-section .tool-icon {
   float: none !important;
+  margin: 0 !important;
 }
 
 /* Hide the scrollbar when the rail overflows (keep the dark look). */
@@ -281,16 +328,36 @@ a, a:visited,
   height: 0 !important;
 }
 
-/* --- preferences/resize cluster: bottom-right, same width as the tools rail.
- * Keep the vendor table/table-cell layout so the drawer still works; the
- * :not(.expanded) rule below hides the 550px drawer cell while collapsed so
- * the section shrink-wraps to the icons. */
+/* Settings use the same two-column rhythm, in DOM reading order. The drawer
+ * is fixed outside this row; hiding its empty wrapper lets the row shrink-wrap. */
 #application-action-section.right-sticky-section {
   right: 12px !important;
   top: auto !important;
   bottom: 12px !important;
   margin: 0 !important;                        /* cancel reskin margin: var(--u-gap) */
-  width: 100px !important;
+  width: var(--u-rail-width) !important;
+  box-sizing: border-box;
+  padding: 8px;
+}
+
+#application-action-section .sticky-section-wrap,
+#application-action-section .vertical-centerer {
+  display: block !important;
+  height: auto !important;
+}
+#application-action-section .vertical-centerer:not(.drawer) {
+  display: flex !important;
+  gap: 4px;
+}
+#application-action-section .tool-icon {
+  float: none !important;
+  flex-shrink: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+#application-action-section .tool-icon.has-expanded-drawer {
+  box-shadow: inset 0 0 0 2px var(--u-accent-fg);
 }
 
 /* While a drawer is open: the icon strip stays exactly where it is (re-assert the
@@ -308,8 +375,8 @@ a, a:visited,
  * :not(.expanded) rule above, so this only applies when open.) */
 #application-action-section.right-sticky-section.expanded .drawer-content {
   position: fixed !important;
-  right: 128px !important;
-  top: 12px !important;
+  right: 136px !important;
+  top: var(--u-workspace-top) !important;
   bottom: 12px !important;
   width: 280px !important;
   height: auto !important;
@@ -327,26 +394,33 @@ a, a:visited,
   display: none !important;
 }
 
-/* --- palette: stack the two color pickers + swap button as a centered column.
+/* --- palette: two aligned color pickers with the swap button underneath.
  * Vendor floats .palette-wrapper and hard-offsets .swap-colors-button (top:50px,
  * left:6px) for its own layout; neutralize both for the vertical rail. */
 #tool-section .palette-wrapper {
   float: none !important;
   display: flex !important;
-  flex-direction: column !important;
+  flex-direction: row !important;
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: center !important;
   gap: 4px !important;
+  width: auto !important;
+  margin: 10px 0 0 !important;
+  padding-top: 10px;
+  border-top: 1px solid var(--u-border);
 }
 /* Vendor .tool-color-picker:nth-child(2) hard-offsets the second swatch
  * (margin-top:25px, margin-left:-20px) off-center; flatten it. */
 #tool-section .palette-wrapper .tool-color-picker:nth-child(2) {
-  margin: 1px !important;
+  margin: 0 !important;
 }
 /* Vendor pushes the swatch inputs down (.tool-color-picker input top:10px,
  * .secondary-color-picker top:18px) leaving them uneven; zero them. */
 #tool-section .palette-wrapper .tool-color-picker input,
 #tool-section .palette-wrapper .secondary-color-picker {
   top: 0 !important;
+  margin-left: 0 !important;
 }
 #tool-section .swap-colors-button {
   position: static !important;
@@ -358,4 +432,125 @@ a, a:visited,
 /* Keep the 0.7 above (beats vendor's 0.3) but let the vendor hover brighten. */
 #tool-section .swap-colors-button:hover {
   opacity: 1 !important;
+}
+
+/* Shared panel and control rhythm. Preserve the sprite sheets' 46px boxes. */
+.toolbox-container {
+  margin-top: var(--u-gap) !important;
+  border: 0 !important;
+  border-radius: var(--u-radius-panel) !important;
+  background: var(--u-panel-bg);
+  box-shadow: var(--u-shadow);
+}
+.toolbox-title {
+  background: transparent !important;
+  padding: 12px !important;
+  font-size: 12px !important;
+  font-weight: 600;
+  color: #d7dad9;
+}
+.toolbox-buttons { border: 0 !important; padding: 0 4px 4px; }
+.toolbox-buttons .button {
+  height: 28px;
+  border: 0 !important;
+  border-radius: 8px !important;
+  background: var(--u-control-bg) !important;
+}
+.button[disabled], .button[disabled]:hover {
+  background: var(--u-control-bg) !important;
+  color: #717177 !important;
+  opacity: .5;
+}
+.textfield {
+  background: var(--u-control-bg) !important;
+  border-color: var(--u-border) !important;
+  color: #eee !important;
+  border-radius: 8px !important;
+}
+.textfield:focus { border-color: var(--u-accent-fg) !important; }
+.tool-icon { background-color: var(--u-control-bg) !important; }
+.tool-icon:hover { background-color: #3a3a3e !important; }
+.tool-icon.selected { background-color: #254b42 !important; }
+.tool-icon.selected:before { border-width: 2px !important; border-radius: inherit; }
+.pen-size-container { display: flex; justify-content: center; gap: 4px; margin: 0 0 10px !important; }
+.pen-size-option { border-radius: 5px !important; margin: 0 !important; }
+.layer-item { border-top: 0; min-height: 28px; line-height: 28px; }
+.current-layer-item, .current-layer-item:hover { background: #254b42 !important; }
+.current-layer-item,
+.layers-toggle-preview-enabled, .layers-toggle-preview-enabled:hover,
+.preview-toggle-onion-skin-enabled, .preview-toggle-onion-skin-enabled:hover,
+.preview-contextual-action-enabled, .preview-contextual-action:hover,
+.preview-drop-down .size-button-selected,
+.show-more .transformations-show-more-link {
+  color: var(--u-accent-fg) !important;
+}
+.preview-contextual-action-enabled, .preview-contextual-action:hover,
+.preview-drop-down .size-button-selected, .open-popup-preview-button:hover,
+.preview-tile.selected, .preview-tile-drop-proxy, .add-frame-action:hover,
+.minimap-crop-frame { border-color: var(--u-accent-fg) !important; }
+.preview-tile.selected:after { border-left-color: var(--u-accent-fg) !important; }
+.preview-tile .tile-overlay.tile-count.toggled {
+  background: var(--u-accent) !important; color: #fff !important;
+}
+.tile-view { border-radius: 9px; overflow: hidden; }
+.preview-tile { border-color: var(--u-border); }
+.add-frame-action { background: var(--u-control-bg); border-color: var(--u-border); color: #ccc; }
+.range-fps { -webkit-appearance: none; appearance: none; background: transparent; }
+.range-fps::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: var(--u-border); }
+.range-fps::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px; height: 14px; margin-top: -5px;
+  border: 0; border-radius: 50%; background: var(--u-accent-fg);
+}
+input[type="checkbox"], input[type="range"] { accent-color: var(--u-accent-fg); }
+.size-picker-option.selected, .anchor-option.selected,
+.tab-item.selected, .sp-palette .sp-thumb-el.sp-thumb-active {
+  border-color: var(--u-accent-fg) !important;
+}
+.size-picker-option.selected:before, .anchor-option.selected:before {
+  background-color: var(--u-accent-fg) !important;
+}
+.anchor-option[data-neighbor="bottom"]:before { border-top-color: var(--u-accent-fg) !important; }
+.anchor-option[data-neighbor="left"]:before { border-right-color: var(--u-accent-fg) !important; }
+.anchor-option[data-neighbor="top"]:before { border-bottom-color: var(--u-accent-fg) !important; }
+.anchor-option[data-neighbor="right"]:before { border-left-color: var(--u-accent-fg) !important; }
+.layer-item-opacity, .tab-item.selected, .tab-item:hover { color: var(--u-accent-fg) !important; }
+.sp-palette .sp-thumb-el.sp-thumb-active { box-shadow: 0 0 0 1px var(--u-accent-fg) !important; }
+.icon-common-keyboard-gold, .icon-minimap-grid-gold,
+.icon-minimap-popup-preview-arrow-gold { filter: grayscale(1) brightness(1.6); }
+.transformations-container .tools-wrapper { margin: 0 4px 4px; }
+.cursor-coordinates { font-size: 11px; color: #939c99 !important; }
+.settings-title { border-bottom-color: var(--u-border); font-size: 13px; }
+.dialog-head { background: var(--u-panel-bg) !important; font-size: 16px; border-bottom: 1px solid var(--u-border); }
+.dialog-content { border-radius: 0 !important; }
+.colors-container { background: var(--u-control-bg); border: 1px solid var(--u-border); border-radius: 12px; overflow: hidden; }
+.color-picker-container { background: var(--u-panel-bg); }
+.create-palette-new-color, .create-palette-color { border-radius: 8px; }
+.create-palette-actions { height: 46px; padding: 8px 12px; }
+.create-palette-actions button { height: 30px; padding: 0 12px; background: var(--u-control-bg); color: #eee; border: 0; border-radius: var(--u-radius-pill); }
+.dialog-close { top: 8px; width: 28px; height: 28px; line-height: 28px; text-align: center; }
+.cheatsheet-actions { background: var(--u-panel-bg) !important; border-top: 1px solid var(--u-border); }
+.sp-container { background: var(--u-panel-bg) !important; border: 1px solid var(--u-border) !important; border-radius: 12px; box-shadow: var(--u-shadow-modal); }
+.tab-list:after { background-color: var(--u-accent-fg) !important; }
+button:focus-visible, select:focus-visible, input:focus-visible {
+  outline: 2px solid var(--u-accent-fg) !important; outline-offset: 2px;
+}
+/* Compact windows keep the complete panel stack and tool list scrollable. */
+@media (max-height: 700px) {
+  .right-column { overflow-y: auto; overflow-x: hidden; }
+  .right-column .toolbox-container { flex-shrink: 0; }
+  .cursor-coordinates { position: static; padding-top: 12px; }
+}
+@media (max-width: 1000px), (max-height: 650px) {
+  #dialog-container-wrapper { padding: 24px !important; }
+  #dialog-container { max-width: 100% !important; max-height: 100% !important; }
+  #dialog-container.create-palette {
+    top: 12px !important;
+    margin-top: 0 !important;
+    height: calc(100% - 24px) !important;
+    max-height: 600px !important;
+  }
+  .create-palette .colors-container { height: auto; bottom: 52px; overflow-y: auto; }
+  .create-palette .color-picker-container { min-height: 460px; }
+  .create-palette .colors-list { min-height: 460px; }
 }

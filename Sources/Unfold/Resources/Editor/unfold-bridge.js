@@ -3,12 +3,11 @@
  *
  * Piskel 소스는 한 줄도 고치지 않는다. 이 파일이 WKUserScript로 주입되어
  * 저장 버튼을 달고, 프레임을 한 장의 스프라이트 시트로 합성해 네이티브로
- * 넘긴다. 의존하는 Piskel 전역은 아래 여섯 가지뿐이고, 벤더링된 빌드가
- * 고정돼 있으므로 이 표면은 변하지 않는다:
+ * 넘긴다. 저장에 의존하는 Piskel API는 아래와 같고, 벤더링된 빌드가
+ * 고정돼 있다. 재벤더링 시 다음 표면과 아래 레이아웃 어댑터를 확인한다:
  *
  *   pskl.app.piskelController.getFrameCount / renderFrameAt /
  *     getWidth / getHeight / getFPS / serialize / setPiskel
- *   pskl.utils.FrameUtils.toImage
  *   pskl.utils.serialization.Deserializer.deserialize
  */
 (function () {
@@ -44,8 +43,9 @@
     var context = canvas.getContext("2d");
 
     for (var i = 0; i < frameCount; i++) {
+      /* renderFrameAt already returns a canvas with the layers composited. */
       var frame = controller.renderFrameAt(i, true);
-      context.drawImage(pskl.utils.FrameUtils.toImage(frame, 1), i * width, 0);
+      context.drawImage(frame, i * width, 0);
     }
     return canvas.toDataURL("image/png");
   }
@@ -170,6 +170,28 @@
   };
 
   whenPiskelReady(function () {
+    /* The consolidated rail occupies one side, whereas Piskel's default sizing
+     * subtracts two rails. Measure the CSS flex slot for both zoom-to-fit and
+     * renderer dimensions. Keep this adapter with the injected theme, not vendor
+     * code. Re-measuring on every call also follows native window resizes. */
+    const drawing = pskl.app.drawingController;
+    const workspace = document.querySelector(".main-column");
+    if (drawing && workspace) {
+      drawing.getAvailableWidth_ = function () {
+        return Math.max(1, workspace.clientWidth);
+      };
+      drawing.getAvailableHeight_ = function () {
+        return Math.max(1, workspace.clientHeight);
+      };
+    }
+    if (window.Constants) {
+      window.Constants.ZOOMED_OUT_BACKGROUND_COLOR = "#171719";
+    }
+    /* The tool rail now sits against the right edge. Bootstrap reads these
+     * attributes when its delegated tooltip is first opened. */
+    document.querySelectorAll('#tool-section [rel="tooltip"]').forEach(function (tool) {
+      tool.setAttribute("data-placement", "left");
+    });
     var init = window.__unfoldInit || {};
     var json = init.piskelJSON || blankPiskelJSON(init.canvasSide || 64);
 

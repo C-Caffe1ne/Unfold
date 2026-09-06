@@ -1,5 +1,48 @@
 # Handoff — Piskel editor reskin + tool-rail consolidation
 
+## Follow-up: UI consistency pass (2026-09-06)
+
+This section supersedes the CSS-only and zoom-slack statements below. The original
+handoff is retained as history. This follow-up is uncommitted and has not been pushed.
+
+- Reserved a 64px top area so Save no longer covers pen sizes. Frame column,
+  drawing area, preview and tool rail share a top baseline and 12px outer gaps.
+- Unified preview, layers, transforms, palettes, settings and dialogs with dark
+  surfaces, 20px panel corners, compact controls and teal selection states.
+  Save, FPS, frame selection, pen size, resize anchors and layer indicators now
+  use the same accent. Color data and color-picker gradients remain unchanged.
+- Aligned the 112px two-column tool rail, side-by-side foreground/background
+  swatches, swap button, and bottom settings row. Small windows scroll tools and
+  inspector panels independently. Palette dialogs keep actions visible with an
+  internally scrollable color area.
+- `unfold-bridge.js` now adapts `drawingController.getAvailableWidth_` and
+  `getAvailableHeight_` to the `.main-column` flex slot. This removes the old
+  double-rail width reservation. It also sets the renderer's zoomed-out background
+  and points tooltips left. These private APIs must be checked on re-vendoring.
+- Runtime checks exposed an existing save error: `renderFrameAt` returns a
+  canvas, but the bridge passed it into `FrameUtils.toImage`, which expects a
+  Piskel Frame. The bridge now draws the returned canvas directly into the sheet.
+- Vendored Piskel, Swift source, native save validation and dependencies are unchanged.
+
+Validation:
+
+- `swift test`: 267 tests, 0 failures. `swift build -c release`: passed.
+- JS syntax and `git diff --check`: passed.
+- Real packaged Piskel in isolated Chrome: pen drawing, frame addition, layer
+  addition, save payload (64x64, two frames, two layers), save-button recovery,
+  preferences/resize drawers, palette modal at 1100x760 and 900x600, and tooltips.
+- At 800x560 and 1440x900, renderer width equals the CSS slot (307px and 947px);
+  tool rail remains above the settings row.
+- Separate WKWebView using the application's document-start/end injection order:
+  rendered at 1100x760; renderer and slot both 601px (native scrollbar metrics).
+  Snapshot: `.superpowers/qa/piskel-consistency/webkit.png` (gitignored).
+- The standalone WKWebView initially shows Piskel's existing unsupported-browser
+  notice; dismissed for the screenshot. No browser-support policy was changed.
+- Native Save/Open panels and writing an actual character package were not
+  exercised. The save-payload test used a mocked native message receiver.
+
+---
+
 Date: 2026-09-06
 Branch: `major` (NOT pushed — 22 commits ahead of `origin/major`)
 HEAD at handoff: `72c156a`
