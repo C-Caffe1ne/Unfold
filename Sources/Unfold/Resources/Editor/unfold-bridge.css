@@ -344,10 +344,25 @@ a, a:visited,
   align-items: center !important;
   gap: 4px !important;
 }
+/* Vendor .tool-color-picker:nth-child(2) hard-offsets the second swatch
+ * (margin-top:25px, margin-left:-20px) off-center; flatten it. */
+#tool-section .palette-wrapper .tool-color-picker:nth-child(2) {
+  margin: 1px !important;
+}
+/* Vendor pushes the swatch inputs down (.tool-color-picker input top:10px,
+ * .secondary-color-picker top:18px) leaving them uneven; zero them. */
+#tool-section .palette-wrapper .tool-color-picker input,
+#tool-section .palette-wrapper .secondary-color-picker {
+  top: 0 !important;
+}
 #tool-section .swap-colors-button {
   position: static !important;
   top: auto !important;
   left: auto !important;
   margin: 2px auto 0 !important;
   opacity: 0.7 !important;
+}
+/* Keep the 0.7 above (beats vendor's 0.3) but let the vendor hover brighten. */
+#tool-section .swap-colors-button:hover {
+  opacity: 1 !important;
 }
