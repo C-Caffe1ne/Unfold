@@ -327,13 +327,6 @@ a, a:visited,
   display: none !important;
 }
 
-/* A settings drawer covers the tool cluster's column while open; fade it so the
- * overlap reads as intentional rather than broken. */
-#main-wrapper:has(#application-action-section.expanded) #tool-section.left-sticky-section {
-  opacity: 0.3 !important;
-  pointer-events: none !important;
-}
-
 /* --- palette: stack the two color pickers + swap button as a centered column.
  * Vendor floats .palette-wrapper and hard-offsets .swap-colors-button (top:50px,
  * left:6px) for its own layout; neutralize both for the vertical rail. */
