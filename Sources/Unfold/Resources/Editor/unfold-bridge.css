@@ -174,3 +174,24 @@ a, a:visited,
 #animated-preview-container.preview-container {
   border-radius: var(--u-radius-panel) !important;
 }
+
+/* --- floating panels --- */
+#tool-section.left-sticky-section,
+#application-action-section.right-sticky-section,
+.drawer-content,
+#preview-list-wrapper.preview-list-wrapper,
+#animated-preview-container.preview-container {
+  background: var(--u-panel-bg) !important;
+  border-radius: var(--u-radius-panel) !important;
+  box-shadow: var(--u-shadow) !important;
+  margin: var(--u-gap) !important;
+}
+
+/* .drawer-content ships an inner shadow + 550px fixed height + dark grey bg;
+ * keep the height, override the look. */
+.drawer-content { background-color: var(--u-panel-bg) !important; }
+
+/* The expanded-drawer tab keeps its own darker fill so it reads as attached. */
+.right-sticky-section .tool-icon.has-expanded-drawer {
+  background-color: var(--u-control-bg) !important;
+}
