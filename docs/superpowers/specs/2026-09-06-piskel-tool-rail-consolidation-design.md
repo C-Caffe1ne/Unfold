@@ -120,9 +120,12 @@ preferences → resize. 프레임 타임라인은 왼쪽에 남는다. 캔버스
 #application-action-section .sticky-section-wrap { display: block !important; height: auto !important; }
 #application-action-section .vertical-centerer   { display: block !important; }
 
-/* 드로어가 열릴 때만 전체 높이로 복원 — 550px 드로어가 화면 밖으로
- * 나가지 않도록. 리스킨 CSS의 .right-sticky-section.expanded 규칙과 공존. */
+/* 드로어가 열릴 때: 왼쪽으로 슬라이드해 280px 드로어를 드러내고, 전체 높이로
+ * 복원해 550px 내용이 화면 안에 들어오게. 위 base 규칙의 right: 12px !important
+ * 가 벤더의 .right-sticky-section.expanded { right: 280px }(no !important)를
+ * 덮으므로 슬라이드를 여기서 다시 명시한다. */
 #application-action-section.right-sticky-section.expanded {
+  right: 280px !important;
   top: 12px !important;
   bottom: 12px !important;
 }
