@@ -170,44 +170,6 @@
   };
 
   whenPiskelReady(function () {
-    /* The consolidated tool rail sits against the right edge, so the delegated
-     * tooltips should open toward the workspace (left) rather than off-screen. */
-    document.querySelectorAll('#tool-section [rel="tooltip"]').forEach(function (tool) {
-      tool.setAttribute("data-placement", "left");
-    });
-
-    /* Canvas sizing.
-     *
-     * Piskel's vendor getAvailableWidth_ subtracts #tool-section AND
-     * #application-action-section as if the two rails sit side by side. The
-     * Unfold consolidation stacks them into a single right-edge rail
-     * (var(--u-rail-width) = 112px), so the vendor value is one rail too small
-     * and the canvas renders collapsed (Piskel then paints the "zoomed out"
-     * #A0A0A0 fill). Add one rail back.
-     *
-     * Do NOT rebuild this from `.main-column` measurements: that box is
-     * `flex:1; min-width:0` and momentarily resolves to 0 during window
-     * occlusion / Space switches / reflow. Piskel's ResizeObserver on
-     * #main-wrapper then runs relayout_() with a ~1px display size, FrameRenderer
-     * clamps the zoom, and the drawing flickers out until the next relayout.
-     * Deriving from the vendor value (rooted in #main-wrapper, a fixed-inset
-     * element that always has a real size) plus a floor clamp avoids both the
-     * collapse and the flicker. getAvailableHeight_ is left untouched — vendor
-     * already measures #main-wrapper directly and needs no correction. */
-    var drawing = pskl.app.drawingController;
-    if (drawing && typeof drawing.getAvailableWidth_ === "function") {
-      var RAIL_WIDTH = 112;
-      var vendorAvailableWidth = drawing.getAvailableWidth_.bind(drawing);
-      drawing.getAvailableWidth_ = function () {
-        var w = vendorAvailableWidth() + RAIL_WIDTH;
-        return w > 80 ? w : 600;
-      };
-    }
-
-    if (window.Constants) {
-      window.Constants.ZOOMED_OUT_BACKGROUND_COLOR = "#171719";
-    }
-
     var init = window.__unfoldInit || {};
     var json = init.piskelJSON || blankPiskelJSON(init.canvasSide || 64);
 
