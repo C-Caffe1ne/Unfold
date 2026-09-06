@@ -248,7 +248,7 @@ a, a:visited,
   margin: 0 !important;                        /* cancel reskin margin: var(--u-gap) */
   max-width: none !important;
   width: 100px !important;
-  max-height: calc(100vh - 24px) !important;
+  max-height: calc(100vh - 132px) !important;   /* reserve the bottom settings band */
   overflow-y: auto !important;
 }
 
@@ -281,20 +281,17 @@ a, a:visited,
   height: 0 !important;
 }
 
-/* --- preferences/resize cluster: bottom-right, same width as the tools rail --- */
+/* --- preferences/resize cluster: bottom-right, same width as the tools rail.
+ * Keep the vendor table/table-cell layout (the drawer lives in an off-canvas
+ * table-cell). overflow:hidden clips that cell while collapsed; the .expanded
+ * rule below flips it back to visible and slides the section left to reveal it. */
 #application-action-section.right-sticky-section {
   right: 12px !important;
   top: auto !important;
   bottom: 12px !important;
   margin: 0 !important;                        /* cancel reskin margin: var(--u-gap) */
   width: 100px !important;
-}
-#application-action-section .sticky-section-wrap {
-  display: block !important;
-  height: auto !important;
-}
-#application-action-section .vertical-centerer {
-  display: block !important;
+  overflow: hidden !important;
 }
 
 /* While a drawer is open: slide left to reveal the 280px drawer, and restore
@@ -306,4 +303,12 @@ a, a:visited,
   right: 280px !important;
   top: 12px !important;
   bottom: 12px !important;
+  overflow: visible !important;
+}
+
+/* A settings drawer covers the tool cluster's column while open; fade it so the
+ * overlap reads as intentional rather than broken. */
+#main-wrapper:has(#application-action-section.expanded) #tool-section.left-sticky-section {
+  opacity: 0.3 !important;
+  pointer-events: none !important;
 }
