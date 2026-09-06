@@ -248,7 +248,7 @@ a, a:visited,
   margin: 0 !important;                        /* cancel reskin margin: var(--u-gap) */
   max-width: none !important;
   width: 100px !important;
-  max-height: calc(100vh - 132px) !important;   /* reserve the bottom settings band */
+  max-height: calc(100vh - 108px) !important;   /* reserve the bottom settings-icon band */
   overflow-y: auto !important;
 }
 
@@ -282,16 +282,15 @@ a, a:visited,
 }
 
 /* --- preferences/resize cluster: bottom-right, same width as the tools rail.
- * Keep the vendor table/table-cell layout (the drawer lives in an off-canvas
- * table-cell). overflow:hidden clips that cell while collapsed; the .expanded
- * rule below flips it back to visible and slides the section left to reveal it. */
+ * Keep the vendor table/table-cell layout so the drawer still works; the
+ * :not(.expanded) rule below hides the 550px drawer cell while collapsed so
+ * the section shrink-wraps to the icons. */
 #application-action-section.right-sticky-section {
   right: 12px !important;
   top: auto !important;
   bottom: 12px !important;
   margin: 0 !important;                        /* cancel reskin margin: var(--u-gap) */
   width: 100px !important;
-  overflow: hidden !important;
 }
 
 /* While a drawer is open: slide left to reveal the 280px drawer, and restore
@@ -303,7 +302,15 @@ a, a:visited,
   right: 280px !important;
   top: 12px !important;
   bottom: 12px !important;
-  overflow: visible !important;
+}
+
+/* The drawer content is always in the DOM at a fixed 550px height. In the vendor
+ * layout its table-cell overflows off the right edge; our bottom-anchored,
+ * content-height section would otherwise be stretched to 550px by it, floating
+ * the icons mid-screen. Hide it while collapsed so the section shrink-wraps to
+ * the icons and truly sits at the bottom. .expanded reveals it again. */
+#application-action-section.right-sticky-section:not(.expanded) .drawer {
+  display: none !important;
 }
 
 /* A settings drawer covers the tool cluster's column while open; fade it so the

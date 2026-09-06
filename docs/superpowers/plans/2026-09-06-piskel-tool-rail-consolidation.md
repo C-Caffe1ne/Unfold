@@ -237,6 +237,8 @@ If Step 3 showed no collision, skip this step and note it in the completion repo
 
 - [ ] **Step 5: Quit the test app** — **Quit Spine Keepet** from its menu bar item.
 
+**Deviation (verification-driven):** Task 3's `#application-action-section .sticky-section-wrap { display: block }` and `.vertical-centerer { display: block }` overrides broke the drawer (the always-present 550px `.drawer-content` fell into block flow, covering the tools). They were removed; the vendor table layout is kept and `#application-action-section.right-sticky-section:not(.expanded) .drawer { display: none }` hides the drawer cell while collapsed instead. Spec §3's code block still shows the old approach — treat this plan's Task 4 as the source of truth.
+
 ---
 
 ## Self-Review
