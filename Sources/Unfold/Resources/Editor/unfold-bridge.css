@@ -80,3 +80,72 @@
 
 /* Bottom layer visible between the floating panels added in Task 4. */
 html, body { background: var(--u-page-bg) !important; }
+
+/* --- accent: text / hairline (lighter tint for contrast on near-black) --- */
+.highlight,
+a, a:visited,
+.tooltip-shortcut,
+.cursor-coordinates,
+.settings-title,
+.local-piskel-list-head,
+.cheatsheet-link,
+.cheatsheet-shortcut-editable .cheatsheet-key,
+.create-palette-new-color,
+.import-image-file-name,
+.import-meta-label,
+.import-resize-option :checked + span,
+.insert-mode-option :checked + span,
+.import-resize-warning,
+.dialog-performance-info-body sup,
+#current-user-agent {
+  color: var(--u-accent-fg) !important;
+}
+
+.textfield:focus,
+.cheatsheet-shortcut-editable .cheatsheet-key,
+.browse-backups .browse-backups-disclaimer .backups-icon,
+.create-palette-color:hover,
+.create-palette-new-color {
+  border-color: var(--u-accent-fg) !important;
+}
+
+.button:hover { color: var(--u-accent-fg) !important; }
+
+/* --- accent: fills / active borders --- */
+.button-primary {
+  background-color: var(--u-accent) !important;
+  color: #fff !important;
+}
+.button-primary:hover {
+  background-color: var(--u-accent-fg) !important;
+  color: #fff !important;
+}
+
+.tool-icon.selected:before,
+.background-picker.selected,
+.grid-colors-item.selected,
+.create-palette-color.selected {
+  border-color: var(--u-accent) !important;
+}
+
+.right-sticky-section .tool-icon.has-expanded-drawer {
+  border-left-color: var(--u-accent) !important;
+}
+
+.import-info { border-right-color: var(--u-accent) !important; }
+
+.cheatsheet-actions { background-color: var(--u-accent) !important; }
+
+.dialog-head {
+  background: var(--u-accent) !important;
+  color: #fff !important;
+}
+
+/* Primary/secondary palette color markers are inline SVGs with stroke="gold".
+ * Re-point them at the same paths drawn with #357867 (%23357867). */
+.palettes-list-primary-color:before {
+  background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20height%3D%2215%22%20width%3D%2215%22%3E%3Cpath%20stroke%3D%22%23357867%22%20stroke-width%3D%222%22%20d%3D%22M1%203v10h10z%22/%3E%3C/svg%3E") !important;
+}
+.palettes-list-secondary-color:before {
+  background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20height%3D%2215%22%20width%3D%2215%22%3E%3Cpath%20stroke%3D%22%23357867%22%20stroke-width%3D%222%22%20d%3D%22M3%2013h10V3z%22/%3E%3C/svg%3E") !important;
+}
