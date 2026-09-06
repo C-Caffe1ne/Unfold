@@ -187,7 +187,96 @@
     }
   };
 
+  /* Piskel's CachedFrameRenderer marks itself clean *before* it paints:
+   *
+   *   render(frame) {
+   *     var key = [...zoom, offset, size, frame.getHash()].join("-");
+   *     if (this.serializedFrame != key) { this.serializedFrame = key; ...paint... }
+   *   }
+   *
+   * When that paint doesn't land on the display canvas, the cache still
+   * believes the frame is on screen, so every later animation-frame render
+   * skips — the sprite stays blank until an edit changes the frame hash again.
+   *
+   * A single-click erase is exactly one hash change, so it falls straight into
+   * the trap: the drawing vanishes and only reappears on the next edit. A drag
+   * changes the hash every frame, which is why dragging always looked fine.
+   *
+   * Clearing the key on the way into every render makes that state
+   * unreachable: a paint that didn't land is simply retried next frame.
+   */
+  function installRenderCacheInvalidation() {
+    var drawing = pskl.app.drawingController;
+    if (!drawing) { return; }
+
+    var renderers = [drawing.renderer];
+    var composite = drawing.compositeRenderer;
+    if (composite && composite.renderers) {
+      renderers = renderers.concat(composite.renderers);
+    }
+
+    renderers.forEach(function (renderer) {
+      if (!renderer || typeof renderer.serializedFrame !== "string" ||
+          typeof renderer.render !== "function" || renderer.__unfoldUncached) {
+        return;
+      }
+      var original = renderer.render;
+      renderer.render = function () {
+        /* Clearing the key on the way in means the "already painted" branch is
+         * never taken, so a paint that failed to land is always retried on the
+         * next animation frame. The drawing surface is one 64x64-ish sprite and
+         * Piskel already repaints it on every model change mid-drag, so the
+         * extra work is small next to a permanently blank canvas. */
+        this.serializedFrame = "";
+        return original.apply(this, arguments);
+      };
+      renderer.__unfoldUncached = true;
+    });
+  }
+
+  /* Piskel's FrameUtils.drawToCanvas reuses two module-global scratch objects
+   * keyed only by sprite size ("64-64"): an ImageData and an offscreen canvas.
+   * It fills them with the frame, then composites the offscreen canvas onto the
+   * target with drawImage.
+   *
+   * Every renderer that runs in the same animation frame — the drawing surface,
+   * the tool overlay, the layer previews — shares those scratch objects. When
+   * WebKit defers the drawImage, a later renderer can refill the shared canvas
+   * before the earlier draw is flushed, and the first target ends up with the
+   * later renderer's content. After a single-click erase the overlay frame is
+   * completely transparent, so the drawing surface inherits "nothing" and the
+   * sprite disappears until the next edit repaints it.
+   *
+   * Reading a pixel back forces the queued work to flush before the shared
+   * scratch canvas can be reused. One 1x1 read per blit on a sprite-sized canvas
+   * is cheap next to the bug it prevents. */
+  function installSharedScratchFlush() {
+    var frameUtils = pskl.utils && pskl.utils.FrameUtils;
+    if (!frameUtils || typeof frameUtils.drawToCanvas !== "function" ||
+        frameUtils.__unfoldFlushed) {
+      return;
+    }
+    var original = frameUtils.drawToCanvas;
+    frameUtils.drawToCanvas = function (frame, canvas) {
+      var result = original.apply(this, arguments);
+      try {
+        if (canvas && canvas.width > 0 && canvas.height > 0) {
+          canvas.getContext("2d").getImageData(0, 0, 1, 1);
+        }
+      } catch (error) { /* tainted or zero-sized canvas: nothing to flush */ }
+      return result;
+    };
+    frameUtils.__unfoldFlushed = true;
+  }
+
   whenPiskelReady(function () {
+    try { installSharedScratchFlush(); } catch (error) {
+      window.console.error("Unfold: could not install the scratch-canvas flush", error);
+    }
+    try { installRenderCacheInvalidation(); } catch (error) {
+      window.console.error("Unfold: could not install the render-cache workaround", error);
+    }
+
     var init = window.__unfoldInit || {};
     var json = init.piskelJSON || blankPiskelJSON(init.canvasSide || 64);
 

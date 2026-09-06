@@ -20,6 +20,7 @@ final class StatusItemController {
     private let onDebugSimulateIdle: () -> Void
     private let onDebugSimulateActive: () -> Void
     private let onDebugPreviewGIF: () -> Void
+    private let onDebugOpenEditor: () -> Void
 
     private var cancellables = Set<AnyCancellable>()
 
@@ -35,7 +36,8 @@ final class StatusItemController {
         onDebugTriggerStretch: @escaping () -> Void,
         onDebugSimulateIdle: @escaping () -> Void,
         onDebugSimulateActive: @escaping () -> Void,
-        onDebugPreviewGIF: @escaping () -> Void
+        onDebugPreviewGIF: @escaping () -> Void,
+        onDebugOpenEditor: @escaping () -> Void
     ) {
         self.timer = timer
         self.settings = settings
@@ -44,6 +46,7 @@ final class StatusItemController {
         self.onDebugSimulateIdle = onDebugSimulateIdle
         self.onDebugSimulateActive = onDebugSimulateActive
         self.onDebugPreviewGIF = onDebugPreviewGIF
+        self.onDebugOpenEditor = onDebugOpenEditor
         self.statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
         configureButton()
@@ -129,6 +132,14 @@ final class StatusItemController {
         )
         previewGIFItem.target = self
         menu.addItem(previewGIFItem)
+
+        let openEditorItem = NSMenuItem(
+            title: "Open Character Editor (Debug)",
+            action: #selector(debugOpenEditor),
+            keyEquivalent: ""
+        )
+        openEditorItem.target = self
+        menu.addItem(openEditorItem)
 
         menu.addItem(.separator())
         #endif
@@ -262,6 +273,10 @@ final class StatusItemController {
 
     @objc private func debugPreviewGIF() {
         onDebugPreviewGIF()
+    }
+
+    @objc private func debugOpenEditor() {
+        onDebugOpenEditor()
     }
     #endif
 

@@ -131,6 +131,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 #if DEBUG
                 debugGIFPreview.show()
                 #endif
+            },
+            onDebugOpenEditor: { [weak characterEditor] in
+                // Same rationale as the other onDebug* closures: only
+                // reachable from the #if DEBUG menu item. Opens the Piskel
+                // editor straight from the menu bar so the editor can be
+                // driven without going through the Settings window.
+                #if DEBUG
+                characterEditor?.createNewCharacter()
+                #endif
             }
         )
 
