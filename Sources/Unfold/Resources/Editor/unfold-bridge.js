@@ -17,13 +17,26 @@
   var ERROR_ID = "unfold-error";
 
   /* Piskel은 DOM ready 이후에 스스로를 초기화한다. 주입 시점이 그보다
-   * 이를 수 있으므로 컨트롤러가 생길 때까지 기다린다. */
+   * 이를 수 있으므로 컨트롤러가 생길 때까지 기다린다. 다만 Piskel이
+   * 아예 부팅에 실패하면(자체 unsupported-browser 경로 등) 무한 폴링에
+   * 빠지므로, 상한을 두고 그 지점에서 사용자에게 알린다. */
+  var PISKEL_READY_MAX_ATTEMPTS = 100; // 100 * 100ms ≈ 10s
+
   function whenPiskelReady(callback) {
-    if (window.pskl && pskl.app && pskl.app.piskelController && pskl.utils) {
-      callback();
-      return;
-    }
-    window.setTimeout(function () { whenPiskelReady(callback); }, 100);
+    var attempts = 0;
+    (function poll() {
+      if (window.pskl && pskl.app && pskl.app.piskelController && pskl.utils) {
+        callback();
+        return;
+      }
+      attempts += 1;
+      if (attempts >= PISKEL_READY_MAX_ATTEMPTS) {
+        window.console.error("Unfold: Piskel did not finish loading");
+        showError("The editor didn't finish loading. Close this window and open it again.");
+        return;
+      }
+      window.setTimeout(poll, 100);
+    })();
   }
 
   function post(message) {
@@ -141,6 +154,17 @@
     if (existing) { existing.remove(); }
   }
 
+  /* Replace any current banner with one showing `message`. An empty/blank
+   * message just clears — callers use that to mean "nothing to report". */
+  function showError(message) {
+    clearError();
+    if (!message) { return; }
+    var banner = document.createElement("div");
+    banner.id = ERROR_ID;
+    banner.textContent = message;
+    document.body.appendChild(banner);
+  }
+
   function installButton(label) {
     var button = document.createElement("button");
     button.id = SAVE_BUTTON_ID;
@@ -156,16 +180,10 @@
     saveFailed: function (message) {
       var button = document.getElementById(SAVE_BUTTON_ID);
       if (button) { button.disabled = false; }
-      clearError();
 
       /* An empty message means "the user just cancelled" — re-enable the
        * button, but don't flash an empty red banner. */
-      if (!message) { return; }
-
-      var banner = document.createElement("div");
-      banner.id = ERROR_ID;
-      banner.textContent = message;
-      document.body.appendChild(banner);
+      showError(message);
     }
   };
 

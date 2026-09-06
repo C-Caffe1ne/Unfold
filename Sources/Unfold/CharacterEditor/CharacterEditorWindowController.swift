@@ -175,6 +175,10 @@ final class CharacterEditorWindowController: NSObject {
                 injectionTime: .atDocumentEnd,
                 forMainFrameOnly: true
             ))
+        } else {
+            // Piskel still loads, just unstyled. Worth a line so a broken
+            // bundle isn't a silent mystery.
+            NSLog("Unfold: unfold-bridge.css missing — the editor will load with Piskel's own styling")
         }
         if let js = Self.resourceText("unfold-bridge", "js", in: editorDirectory) {
             controller.addUserScript(WKUserScript(
@@ -182,6 +186,11 @@ final class CharacterEditorWindowController: NSObject {
                 injectionTime: .atDocumentEnd,
                 forMainFrameOnly: true
             ))
+        } else {
+            // Without the bridge there is no save button and no way to get a
+            // drawing back out — the editor is a dead end. Still opens (the
+            // window is already committed by here), but say why.
+            NSLog("Unfold: unfold-bridge.js missing — the editor cannot save")
         }
 
         // `WKUserContentController` retains its handler, so the proxy holds
@@ -241,7 +250,11 @@ final class CharacterEditorWindowController: NSObject {
 
     fileprivate func handle(messageBody: Any) {
         guard let json = messageBody as? String else {
+            // The bridge always posts a JSON string; anything else means the
+            // web side is in an unexpected state. `save()` already disabled
+            // the button, so recover it rather than leaving a dead editor.
             NSLog("Unfold: editor sent a non-string message")
+            reportSaveFailure("the editor sent an unreadable message")
             return
         }
 
