@@ -12,3 +12,10 @@ DerivedData/
 
 # superpowers brainstorming visual companion
 .superpowers/
+
+# Cross-platform C# app
+**/bin/
+**/obj/
+.tools/
+artifacts/
+TestResults/

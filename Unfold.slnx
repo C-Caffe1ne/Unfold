@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Unfold.Core/Unfold.Core.csproj" />
+    <Project Path="src/Unfold.Desktop/Unfold.Desktop.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="Tests/Unfold.Tests/Unfold.Tests.csproj" />
+  </Folder>
+</Solution>
