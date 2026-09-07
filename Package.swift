@@ -21,9 +21,9 @@ let package = Package(
         .target(
             name: "Unfold",
             path: "Sources/Unfold",
+            exclude: ["Resources/Editor"],
             resources: [
-                .copy("Resources/Characters"),
-                .copy("Resources/Editor")
+                .copy("Resources/Characters")
             ]
         ),
         .executableTarget(

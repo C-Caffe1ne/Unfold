@@ -20,6 +20,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var debugGIFPreview: DebugGIFPreviewWindowController?
     #endif
 
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        characterEditor?.canTerminate() == false ? .terminateCancel : .terminateNow
+    }
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         let settings = SettingsStore()
         let notifications = NotificationManager()
@@ -134,7 +138,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             },
             onDebugOpenEditor: { [weak characterEditor] in
                 // Same rationale as the other onDebug* closures: only
-                // reachable from the #if DEBUG menu item. Opens the Piskel
+                // reachable from the #if DEBUG menu item. Opens the native
                 // editor straight from the menu bar so the editor can be
                 // driven without going through the Settings window.
                 #if DEBUG

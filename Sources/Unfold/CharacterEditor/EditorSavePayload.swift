@@ -1,12 +1,10 @@
 import Foundation
 import ImageIO
 
-/// One "save" message from the editor bridge, decoded and validated.
+/// Validated save data shared by the native pixel editor and legacy bridge.
 ///
-/// The editor is a vendored web app running in a `WKWebView`: correct by
-/// construction is not something this app can assume about it. So nothing
-/// here is trusted — bounds are re-checked, and the geometry the message
-/// *claims* is verified against the PNG that actually decoded. What that
+/// Bounds are re-checked, and the declared geometry is verified against
+/// the PNG that actually decoded. What that
 /// buys is a guarantee about shape, not content: a payload that exists
 /// decoded to an image whose dimensions match what the message declared,
 /// and isn't missing its closing chunk. It is not a guarantee that the
