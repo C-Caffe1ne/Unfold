@@ -25,10 +25,16 @@ enum EditorDocumentOrigin: Equatable {
         case askForDestination
     }
 
+    /// The guard is `preservesDocument`, not `canWrite`. A format we can
+    /// write but that cannot hold everything the document has — PNG
+    /// composites the layers, GIF drops partial alpha — is an export
+    /// destination, never a save destination. Routing it here rather than
+    /// leaving the distinction to the caller is what stops Save from
+    /// quietly reporting a flattened file as the document's home.
     var saveAction: SaveAction {
         switch self {
         case .character(let id, _): return .writeLibraryPackage(id: id)
-        case .file(let url, let format) where format.canWrite: return .writeFile(url, format)
+        case .file(let url, let format) where format.preservesDocument: return .writeFile(url, format)
         case .unsaved, .file: return .askForDestination
         }
     }

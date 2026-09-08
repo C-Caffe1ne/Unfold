@@ -9,9 +9,17 @@ final class EditorDocumentOriginTests: XCTestCase {
         XCTAssertFalse(EditorDocumentOrigin.unsaved.canSaveInPlace)
     }
 
-    func test_fileOrigin_canSaveInPlace_whenTheFormatIsWritable() {
+    func test_fileOrigin_canSaveInPlace_whenTheFormatPreservesTheDocument() {
         XCTAssertTrue(EditorDocumentOrigin.file(url, .unfoldSource).canSaveInPlace)
-        XCTAssertTrue(EditorDocumentOrigin.file(url, .png).canSaveInPlace)
+    }
+
+    /// PNG and GIF can be written, but neither can hold what the document
+    /// has — PNG composites the layers, GIF drops partial alpha. Writing one
+    /// is an export, so Save must ask for a destination rather than treat
+    /// the file it came from as the document's home.
+    func test_fileOrigin_cannotSaveInPlace_whenTheFormatWouldFlattenTheDocument() {
+        XCTAssertFalse(EditorDocumentOrigin.file(url, .png).canSaveInPlace)
+        XCTAssertFalse(EditorDocumentOrigin.file(url, .gif).canSaveInPlace)
     }
 
     /// A document opened from a JPEG has nowhere to save back to: writing
@@ -44,8 +52,18 @@ final class EditorDocumentOriginTests: XCTestCase {
 
     // MARK: what a plain Save does — the three origins
 
-    func test_saveAction_writesTheFile_forAWritableFileOrigin() {
-        XCTAssertEqual(EditorDocumentOrigin.file(url, .png).saveAction, .writeFile(url, .png))
+    func test_saveAction_writesTheFile_forADocumentPreservingFileOrigin() {
+        XCTAssertEqual(EditorDocumentOrigin.file(url, .unfoldSource).saveAction,
+                       .writeFile(url, .unfoldSource))
+    }
+
+    /// Save must never write a flattened PNG in place and report it as a
+    /// save. This is the invariant the controller used to have to remember
+    /// at each call site; routing it here is what makes forgetting it
+    /// impossible.
+    func test_saveAction_asksForADestination_whenTheOriginFormatWouldFlattenTheDocument() {
+        XCTAssertEqual(EditorDocumentOrigin.file(url, .png).saveAction, .askForDestination)
+        XCTAssertEqual(EditorDocumentOrigin.file(url, .gif).saveAction, .askForDestination)
     }
 
     func test_saveAction_writesTheLibraryPackage_forACharacterOrigin() throws {
