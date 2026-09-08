@@ -60,7 +60,7 @@ enum CharacterPackageWriter {
 
         try FileManager.default.createDirectory(at: staging, withIntermediateDirectories: true)
         try payload.sheetPNGData.write(to: staging.appendingPathComponent(Constants.characterSpriteSheetFileName))
-        try Data(payload.piskelJSON.utf8).write(to: staging.appendingPathComponent(Constants.characterEditorSourceFileName))
+        try Data(payload.sourceJSON.utf8).write(to: staging.appendingPathComponent(Constants.characterEditorSourceFileName))
         try makeManifestData(payload: payload, name: trimmedName, id: id)
             .write(to: staging.appendingPathComponent(Constants.characterManifestFileName))
 

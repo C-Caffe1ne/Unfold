@@ -39,7 +39,7 @@ final class CharacterPackageWriterTests: XCTestCase {
           "width": \(side), "height": \(side),
           "fps": \(fps), "frameCount": \(frameCount),
           "sheetPNG": "\(png)",
-          "piskelJSON": "{\\\"modelVersion\\\":2}"
+          "sourceJSON": "{\\\"modelVersion\\\":2}"
         }
         """)
     }

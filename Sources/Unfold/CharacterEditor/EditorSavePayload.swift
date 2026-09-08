@@ -55,7 +55,7 @@ struct EditorSavePayload: Equatable {
             case .geometryMismatch(let declared, let actual):
                 return "the editor declared a \(declared) sheet but sent a \(actual) image"
             case .emptySource:
-                return "the editor sent an empty .piskel document"
+                return "the editor produced an empty source document"
             }
         }
     }
@@ -65,7 +65,7 @@ struct EditorSavePayload: Equatable {
     let fps: Double
     let frameCount: Int
     let sheetPNGData: Data
-    let piskelJSON: String
+    let sourceJSON: String
 
     /// Set when the user is re-saving a character they opened for editing;
     /// `nil` for a brand-new one. Decides overwrite vs. create.
@@ -92,7 +92,7 @@ struct EditorSavePayload: Equatable {
         let fps: Double
         let frameCount: Int
         let sheetPNG: String
-        let piskelJSON: String
+        let sourceJSON: String
         let characterID: String?
     }
 
@@ -119,7 +119,7 @@ struct EditorSavePayload: Equatable {
         guard wire.fps.isFinite, Constants.editorFPSRange.contains(wire.fps) else {
             throw DecodingError.invalidFPS(wire.fps)
         }
-        guard !wire.piskelJSON.isEmpty else {
+        guard !wire.sourceJSON.isEmpty else {
             throw DecodingError.emptySource
         }
         guard wire.sheetPNG.hasPrefix(pngDataURLPrefix) else {
@@ -159,7 +159,7 @@ struct EditorSavePayload: Equatable {
             fps: wire.fps,
             frameCount: wire.frameCount,
             sheetPNGData: sheetData,
-            piskelJSON: wire.piskelJSON,
+            sourceJSON: wire.sourceJSON,
             characterID: wire.characterID
         )
     }

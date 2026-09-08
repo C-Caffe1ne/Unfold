@@ -14,7 +14,7 @@ final class EditorSavePayloadTests: XCTestCase {
         fps: String = "12",
         frameCount: Int = 4,
         sheetPNG: String? = nil,
-        piskelJSON: String = "{\\\"modelVersion\\\":2}",
+        sourceJSON: String = "{\\\"modelVersion\\\":2}",
         characterID: String? = nil,
         type: String = "save"
     ) -> String {
@@ -33,7 +33,7 @@ final class EditorSavePayloadTests: XCTestCase {
           "width": \(width), "height": \(height),
           "fps": \(fps), "frameCount": \(frameCount),
           "sheetPNG": "\(png)",
-          "piskelJSON": "\(piskelJSON)"
+          "sourceJSON": "\(sourceJSON)"
         }
         """
     }
@@ -217,7 +217,7 @@ final class EditorSavePayloadTests: XCTestCase {
         XCTAssertThrowsError(try EditorSavePayload.decode(from: "not json at all"))
     }
 
-    func test_decode_emptyPiskelJSON_isRejected() {
-        XCTAssertThrowsError(try EditorSavePayload.decode(from: makeJSON(piskelJSON: "")))
+    func test_decode_emptySourceJSON_isRejected() {
+        XCTAssertThrowsError(try EditorSavePayload.decode(from: makeJSON(sourceJSON: "")))
     }
 }

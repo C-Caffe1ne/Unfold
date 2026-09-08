@@ -141,7 +141,7 @@ enum PixelDocumentCodec {
         let source = try encode(document)
         var wire: [String: Any] = ["type": "save", "width": document.width, "height": document.height,
             "fps": document.fps, "frameCount": document.frameCount, "sheetPNG": prefix + png.base64EncodedString(),
-            "piskelJSON": String(decoding: source, as: UTF8.self)]
+            "sourceJSON": String(decoding: source, as: UTF8.self)]
         wire["characterID"] = characterID
         // Use the same geometry/size validation as existing package saves.
         let wireData = try JSONSerialization.data(withJSONObject: wire)
