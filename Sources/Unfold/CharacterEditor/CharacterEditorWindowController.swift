@@ -1,7 +1,6 @@
 import AppKit
 import Combine
 import SwiftUI
-import UniformTypeIdentifiers
 
 /// One native editing session. File import, session replacement, and closing
 /// all pass through the same unsaved-work gate. Saving uses the existing
@@ -12,8 +11,7 @@ final class CharacterEditorWindowController: NSObject, NSWindowDelegate {
     private let onCharacterSaved: (Character) -> Void
     private var window: NSWindow?
     private var model: PixelEditorModel?
-    private var editingCharacterID: String?
-    private var editingRevision: EditorPackageRevision?
+    private var origin: EditorDocumentOrigin = .unsaved
     private var observation: AnyCancellable?
     private var isSaving = false
 
@@ -31,11 +29,11 @@ final class CharacterEditorWindowController: NSObject, NSWindowDelegate {
 
     func createNewCharacter() {
         guard mayReplaceSession() else { return }
-        open(document: PixelDocument(), characterID: nil)
+        open(document: PixelDocument(), origin: .unsaved)
     }
 
     func edit(character: Character) {
-        if window != nil, editingCharacterID == character.id {
+        if window != nil, origin.characterID == character.id {
             NSApp.activate(ignoringOtherApps: true)
             window?.makeKeyAndOrderFront(nil)
             return
@@ -53,21 +51,20 @@ final class CharacterEditorWindowController: NSObject, NSWindowDelegate {
             }
             document.name = character.name
             guard mayReplaceSession() else { return }
-            open(document: document, characterID: character.id, revision: revision)
+            open(document: document, origin: .character(id: character.id, revision: revision))
         } catch { present(error: error) }
     }
 
-    private func open(document: PixelDocument, characterID: String?, revision: EditorPackageRevision? = nil) {
+    private func open(document: PixelDocument, origin: EditorDocumentOrigin) {
         teardown()
         let model = PixelEditorModel(document: document)
         self.model = model
-        editingCharacterID = characterID
-        editingRevision = revision
+        self.origin = origin
         let view = PixelEditorView(model: model,
+            saveToLibrary: { [weak self] in _ = self?.saveToLibrary() },
+            openDocument: { [weak self] in self?.openDocument() },
             save: { [weak self] in _ = self?.save() },
-            importDocument: { [weak self] in self?.importDocument() },
-            exportDocument: { [weak self] in self?.export(piskel: true) },
-            exportPNG: { [weak self] in self?.export(piskel: false) })
+            saveAs: { [weak self] in self?.saveAs() })
         let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1120, height: 780),
             styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = "\(document.name) — Pixel Editor"
@@ -107,8 +104,7 @@ final class CharacterEditorWindowController: NSObject, NSWindowDelegate {
         window?.contentView = nil
         window = nil
         model = nil
-        editingCharacterID = nil
-        editingRevision = nil
+        origin = .unsaved
     }
 
     /// Returns false on cancelled prompts and failed saves, leaving the
@@ -124,37 +120,39 @@ final class CharacterEditorWindowController: NSObject, NSWindowDelegate {
         alert.addButton(withTitle: "Cancel")
         alert.addButton(withTitle: "Discard Changes")
         switch alert.runModal() {
-        case .alertFirstButtonReturn: return save()
+        case .alertFirstButtonReturn: return saveToLibrary()
         case .alertThirdButtonReturn: return true
         default: return false
         }
     }
 
     @discardableResult
-    private func save() -> Bool {
+    private func saveToLibrary() -> Bool {
         guard let model, !isSaving else { return false }
         model.endStroke()
         isSaving = true
         defer { isSaving = false }
         let name: String
-        if editingCharacterID == nil {
+        if origin.characterID == nil {
             guard let entered = promptForName(defaultName: model.document.name) else { return false }
             name = entered
         } else { name = model.document.name }
         do {
             var document = model.document
             document.name = name
-            let payload = try PixelDocumentCodec.savePayload(document, characterID: editingCharacterID)
-            if let id = editingCharacterID {
-                guard let expected = editingRevision, let directory = library.packageDirectory(id: id),
+            let payload = try PixelDocumentCodec.savePayload(document, characterID: origin.characterID)
+            if case .character(let id, let expected) = origin {
+                guard let directory = library.packageDirectory(id: id),
                       let current = try? EditorPackageRevision.read(at: directory), current == expected else {
-                    throw PixelDocumentCodec.Failure.invalid("This character was changed or deleted outside this editor. Export your Piskel file to keep this work, then reopen the character. The library has not been overwritten.")
+                    throw PixelDocumentCodec.Failure.invalid("This character was changed or deleted outside this editor. Save your work to a file first, then reopen the character. The library has not been overwritten.")
                 }
             }
             let character = try CharacterPackageWriter.write(payload: payload, name: name, into: library)
             // Subsequent saves update the same package rather than duplicating it.
-            editingCharacterID = character.id
-            editingRevision = library.packageDirectory(id: character.id).flatMap { try? EditorPackageRevision.read(at: $0) }
+            if let directory = library.packageDirectory(id: character.id),
+               let revision = try? EditorPackageRevision.read(at: directory) {
+                origin = .character(id: character.id, revision: revision)
+            }
             model.change { $0.name = name }
             model.markSaved()
             window?.title = "\(name) — Pixel Editor"
@@ -186,38 +184,86 @@ final class CharacterEditorWindowController: NSObject, NSWindowDelegate {
         return value
     }
 
-    private func importDocument() {
+    /// Writes back to wherever the document came from. Falls through to
+    /// Save As when there is no writable destination yet.
+    @discardableResult
+    private func save() -> Bool {
+        guard let model else { return false }
+        model.endStroke()
+        switch origin.saveAction {
+        case .writeLibraryPackage:
+            return saveToLibrary()
+        case .writeFile(let url, let format):
+            do {
+                try write(model.document, to: url, format: format)
+                model.markSaved()
+                return true
+            } catch {
+                present(error: error)
+                return false
+            }
+        case .askForDestination:
+            saveAs()
+            return false
+        }
+    }
+
+    private func saveAs() {
+        guard let model else { return }
+        model.endStroke()
+        let panel = NSSavePanel()
+        panel.allowedContentTypes = EditorFileFormat.writable.map(\.utType)
+        panel.nameFieldStringValue = "\(model.document.name).\(EditorFileFormat.unfoldSource.fileExtension)"
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        let format = EditorFileFormat.matching(fileExtension: url.pathExtension) ?? .unfoldSource
+        guard format.canWrite else {
+            present(error: PixelDocumentCodec.Failure.invalid("\(format.displayName) files cannot be written."))
+            return
+        }
+        do {
+            try write(model.document, to: url, format: format)
+            origin = .file(url, format)
+            model.markSaved()
+            window?.title = "\(model.document.name) — Pixel Editor"
+        } catch { present(error: error) }
+    }
+
+    /// Single write path for every file format, so Save and Save As cannot
+    /// drift apart.
+    private func write(_ document: PixelDocument, to url: URL, format: EditorFileFormat) throws {
+        let data: Data
+        switch format {
+        case .unfoldSource: data = try PixelDocumentCodec.encode(document)
+        case .png: data = try PixelDocumentCodec.sheetPNG(document)
+        case .gif: throw PixelDocumentCodec.Failure.invalid("GIF export is not implemented yet.")
+        case .jpeg: throw PixelDocumentCodec.Failure.invalid("JPEG files cannot be written.")
+        }
+        try data.write(to: url, options: .atomic)
+    }
+
+    private func openDocument() {
         let panel = NSOpenPanel()
-        panel.allowedContentTypes = [.png, UTType(filenameExtension: "piskel") ?? .data]
+        panel.allowedContentTypes = EditorFileFormat.readable.map(\.utType)
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
         guard panel.runModal() == .OK, let url = panel.url else { return }
         do {
+            let format = EditorFileFormat.matching(fileExtension: url.pathExtension) ?? .unfoldSource
             let document: PixelDocument
-            if url.pathExtension.lowercased() == "png" {
+            switch format {
+            case .unfoldSource:
+                document = try PixelDocumentCodec.load(from: url)
+            case .png, .jpeg:
                 let size = try url.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0
-                guard size <= Constants.editorMaxSheetDataURLBytes else { throw PixelDocumentCodec.Failure.invalid("The PNG is too large.") }
+                guard size <= Constants.editorMaxSheetDataURLBytes else {
+                    throw PixelDocumentCodec.Failure.invalid("The image is too large.")
+                }
                 document = try PixelDocumentCodec.importPNG(Data(contentsOf: url))
-            } else { document = try PixelDocumentCodec.load(from: url) }
+            case .gif:
+                throw PixelDocumentCodec.Failure.invalid("Opening GIF files is not supported yet.")
+            }
             guard mayReplaceSession() else { return }
-            // Imported files always start a new package; never inherit an ID
-            // from the document that happened to be open before import.
-            open(document: document, characterID: nil)
-        } catch { present(error: error) }
-    }
-
-    private func export(piskel: Bool) {
-        guard let model else { return }
-        model.endStroke()
-        let panel = NSSavePanel()
-        panel.allowedContentTypes = piskel ? [UTType(filenameExtension: "piskel") ?? .data] : [.png]
-        panel.nameFieldStringValue = piskel ? "character.piskel" : "spritesheet.png"
-        guard panel.runModal() == .OK, let url = panel.url else { return }
-        do {
-            let data: Data
-            if piskel { data = try PixelDocumentCodec.encode(model.document) }
-            else { data = try PixelDocumentCodec.sheetPNG(model.document) }
-            try data.write(to: url, options: .atomic)
+            open(document: document, origin: .file(url, format))
         } catch { present(error: error) }
     }
 

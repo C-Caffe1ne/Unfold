@@ -4,10 +4,10 @@ import SwiftUI
 @MainActor
 struct PixelEditorView: View {
     @ObservedObject var model: PixelEditorModel
+    let saveToLibrary: () -> Void
+    let openDocument: () -> Void
     let save: () -> Void
-    let importDocument: () -> Void
-    let exportDocument: () -> Void
-    let exportPNG: () -> Void
+    let saveAs: () -> Void
     @State private var resizeWidth = 64
     @State private var resizeHeight = 64
     @State private var showResize = false
@@ -53,9 +53,13 @@ struct PixelEditorView: View {
             Button(action: model.redo) { Image(systemName: "arrow.uturn.forward") }
                 .help("Redo (⇧⌘Z)").keyboardShortcut("z", modifiers: [.command, .shift]).disabled(!model.canRedo)
             Menu("File") {
-                Button("Open Piskel or PNG…", action: importDocument)
-                Button("Export Piskel…", action: exportDocument)
-                Button("Export PNG Sprite Sheet…", action: exportPNG)
+                Button("Open…", action: openDocument).keyboardShortcut("o")
+                Divider()
+                Button("Save", action: save)
+                Button("Save As…", action: saveAs)
+                    .keyboardShortcut("s", modifiers: [.command, .shift])
+                Divider()
+                Button(Strings.Editor.saveButton, action: saveToLibrary)
             }.frame(width: 70)
             Button("Canvas Size…") {
                 resizeWidth = model.document.width
@@ -63,7 +67,7 @@ struct PixelEditorView: View {
                 showResize = true
             }
             Spacer()
-            Button(Strings.Editor.saveButton, action: save)
+            Button("Save", action: save)
                 .keyboardShortcut("s").buttonStyle(.borderedProminent).tint(.orange)
         }.padding(12)
     }
