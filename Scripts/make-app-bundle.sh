@@ -55,14 +55,26 @@ cp "$ROOT/Packaging/Info.plist" "$APP/Contents/Info.plist"
 # straight from Unfold.xcodeproj/project.pbxproj (the actual single source
 # of truth) so both pipelines end up with the same identifier without
 # duplicating it here.
+#
+# The macro appears in more than CFBundleIdentifier: the exported UTI for
+# the .unf document type is derived from it too, and it is nested inside
+# arrays where `plutil -replace` cannot reach by key path. Substituting
+# the literal text everywhere in the file covers every occurrence,
+# present and future. An unresolved macro here is not cosmetic — Launch
+# Services will happily register a UTI literally named
+# "$(product_bundle_identifier).unf".
 PBXPROJ="$ROOT/Unfold.xcodeproj/project.pbxproj"
 if [ -f "$PBXPROJ" ]; then
     BUNDLE_ID="$(grep -m1 'PRODUCT_BUNDLE_IDENTIFIER' "$PBXPROJ" | sed -E 's/.*= *([^;]+);.*/\1/' | tr -d ' ')"
     if [ -n "$BUNDLE_ID" ]; then
-        plutil -replace CFBundleIdentifier -string "$BUNDLE_ID" "$APP/Contents/Info.plist"
+        sed -i '' "s/\\\$(PRODUCT_BUNDLE_IDENTIFIER)/$BUNDLE_ID/g" "$APP/Contents/Info.plist"
+        plutil -lint "$APP/Contents/Info.plist" >/dev/null
     else
         echo "warning: could not read PRODUCT_BUNDLE_IDENTIFIER from $PBXPROJ — Info.plist may contain an unresolved \$(PRODUCT_BUNDLE_IDENTIFIER) placeholder" >&2
     fi
+fi
+if grep -q 'PRODUCT_BUNDLE_IDENTIFIER' "$APP/Contents/Info.plist"; then
+    echo "warning: Info.plist still contains an unresolved \$(PRODUCT_BUNDLE_IDENTIFIER); the .unf document type will not register correctly" >&2
 fi
 
 # Ad-hoc signature with the real App Sandbox entitlement applied, so local

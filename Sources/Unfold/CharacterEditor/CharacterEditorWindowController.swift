@@ -45,7 +45,10 @@ final class CharacterEditorWindowController: NSObject, NSWindowDelegate {
             // Decode before touching the current session. Never substitute a
             // blank canvas for a missing or damaged source of an existing ID.
             let revision = try EditorPackageRevision.read(at: directory)
-            var document = try PixelDocumentCodec.load(from: directory.appendingPathComponent(Constants.characterEditorSourceFileName))
+            guard let sourceURL = EditorPackageRevision.sourceFile(in: directory) else {
+                throw PixelDocumentCodec.Failure.invalid("This character does not have an editable source in your library.")
+            }
+            var document = try PixelDocumentCodec.load(from: sourceURL)
             guard revision == (try EditorPackageRevision.read(at: directory)) else {
                 throw PixelDocumentCodec.Failure.invalid("This character changed while opening. Open it again.")
             }

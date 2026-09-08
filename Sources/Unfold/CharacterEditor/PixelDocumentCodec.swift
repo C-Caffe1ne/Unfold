@@ -3,8 +3,12 @@ import CoreGraphics
 import ImageIO
 import UniformTypeIdentifiers
 
-/// The native editor retains the existing source.piskel/package contract.
-/// Invalid sources are rejected before a session or an existing package changes.
+/// Reads and writes the editor's own document. The file is named
+/// `source.unf` (falling back to the legacy `source.piskel` on read — see
+/// `EditorPackageRevision.sourceFile(in:)`), but the bytes are still the
+/// Piskel v2 JSON schema underneath; that is what keeps packages written by
+/// earlier versions of the app compatible. Invalid sources are rejected
+/// before a session or an existing package changes.
 enum PixelDocumentCodec {
     enum Failure: Error, LocalizedError {
         case invalid(String)
@@ -17,7 +21,14 @@ enum PixelDocumentCodec {
 
     private struct Source: Codable {
         var modelVersion: Int
-        var piskel: Sprite
+        var sprite: Sprite
+
+        enum CodingKeys: String, CodingKey {
+            case modelVersion
+            // The on-disk key is still Piskel's. Only the Swift name changed;
+            // renaming the key would strand every package already written.
+            case sprite = "piskel"
+        }
     }
     private struct Sprite: Codable {
         var name: String?
@@ -50,8 +61,8 @@ enum PixelDocumentCodec {
     static func decode(_ data: Data) throws -> PixelDocument {
         guard data.count <= maximumSourceBytes else { throw Failure.invalid("The source file is too large.") }
         let source = try JSONDecoder().decode(Source.self, from: data)
-        let sprite = source.piskel
-        guard source.modelVersion == 2 else { throw Failure.invalid("Only Piskel model version 2 is supported. Export this document with a current Piskel editor first.") }
+        let sprite = source.sprite
+        guard source.modelVersion == 2 else { throw Failure.invalid("Only document version 2 is supported.") }
         guard Constants.editorCanvasSideRange.contains(sprite.width), Constants.editorCanvasSideRange.contains(sprite.height),
               (1...PixelDocument.maximumLayers).contains(sprite.layers.count) else {
             throw Failure.invalid("Use a canvas from 1–128 pixels and 1–16 layers.")
@@ -59,7 +70,7 @@ enum PixelDocumentCodec {
         let fps = sprite.fps ?? 12
         guard fps.isFinite, Constants.editorFPSRange.contains(fps) else { throw Failure.invalid("Animation speed must be 1–24 FPS.") }
         // Hidden timeline frames are not equivalent to transparent frames. Do not silently flatten them.
-        guard sprite.hiddenFrames?.isEmpty != false else { throw Failure.invalid("Unhide timeline frames in Piskel before opening this document.") }
+        guard sprite.hiddenFrames?.isEmpty != false else { throw Failure.invalid("Unhide timeline frames before opening this document.") }
         var document = PixelDocument(width: sprite.width, height: sprite.height)
         document.name = sprite.name ?? "Unfold Character"
         document.description = sprite.description ?? ""
@@ -90,7 +101,7 @@ enum PixelDocumentCodec {
                       chunk.layout.allSatisfy({ $0.count == rows }), chunk.base64PNG.hasPrefix(prefix),
                       chunk.base64PNG.utf8.count <= Constants.editorMaxSheetDataURLBytes,
                       let png = Data(base64Encoded: String(chunk.base64PNG.dropFirst(prefix.count))) else {
-                    throw Failure.invalid("Invalid Piskel chunk layout or PNG.")
+                    throw Failure.invalid("Invalid chunk layout or PNG.")
                 }
                 let (pixels, width, _) = try decodePNG(png, expectedWidth: sprite.width * columns, expectedHeight: sprite.height * rows)
                 for x in 0..<columns {
@@ -123,7 +134,7 @@ enum PixelDocumentCodec {
             let data = try encoder.encode(Layer(name: layer.name, opacity: layer.opacity, frameCount: document.frameCount, chunks: [chunk]))
             return String(decoding: data, as: UTF8.self)
         }
-        let source = Source(modelVersion: 2, piskel: Sprite(name: document.name, description: document.description,
+        let source = Source(modelVersion: 2, sprite: Sprite(name: document.name, description: document.description,
             fps: document.fps, width: document.width, height: document.height, layers: layers))
         let result = try encoder.encode(source)
         guard result.count <= maximumSourceBytes else { throw Failure.invalid("The source file is too large.") }

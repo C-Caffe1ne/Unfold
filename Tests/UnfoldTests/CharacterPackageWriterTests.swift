@@ -10,7 +10,7 @@ final class CharacterPackageWriterTests: XCTestCase {
         case validationFailed
     }
 
-    private let packageFileNames = ["character.json", "spritesheet.png", "source.piskel"]
+    private let packageFileNames = ["character.json", "spritesheet.png", Constants.characterEditorSourceFileName]
 
     private var root: URL!
     private var library: CharacterLibrary!
@@ -99,7 +99,7 @@ final class CharacterPackageWriterTests: XCTestCase {
         let character = try CharacterPackageWriter.write(payload: try makePayload(), name: "Mari", into: library)
         let directory = try XCTUnwrap(library.packageDirectory(id: character.id))
         let names = Set(try FileManager.default.contentsOfDirectory(atPath: directory.path))
-        XCTAssertEqual(names, ["character.json", "spritesheet.png", "source.piskel"])
+        XCTAssertEqual(names, ["character.json", "spritesheet.png", Constants.characterEditorSourceFileName])
     }
 
     func test_write_newCharacter_getsUserPrefixedID() throws {

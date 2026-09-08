@@ -23,13 +23,20 @@ final class EditorFileFormatTests: XCTestCase {
     func test_matching_isCaseInsensitive_andTreatsJPGAsJPEG() {
         XCTAssertEqual(EditorFileFormat.matching(fileExtension: "JPG"), .jpeg)
         XCTAssertEqual(EditorFileFormat.matching(fileExtension: "jpeg"), .jpeg)
-        XCTAssertEqual(EditorFileFormat.matching(fileExtension: "PISKEL"), .unfoldSource)
+        XCTAssertEqual(EditorFileFormat.matching(fileExtension: "UNF"), .unfoldSource)
         XCTAssertEqual(EditorFileFormat.matching(fileExtension: "png"), .png)
     }
 
     func test_matching_returnsNil_forAnUnknownExtension() {
         XCTAssertNil(EditorFileFormat.matching(fileExtension: "bmp"))
         XCTAssertNil(EditorFileFormat.matching(fileExtension: ""))
+    }
+
+    /// `.piskel` was the document extension before the app had its own; the
+    /// interop type was deliberately withdrawn, so it must not resolve to
+    /// anything any more.
+    func test_matching_returnsNil_forTheWithdrawnPiskelExtension() {
+        XCTAssertNil(EditorFileFormat.matching(fileExtension: "piskel"))
     }
 
     func test_everyFormatHasANonEmptyExtensionAndDisplayName() {

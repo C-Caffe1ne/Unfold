@@ -245,8 +245,11 @@ import UniformTypeIdentifiers
 /// only "what is this format called, and may we read or write it".
 enum EditorFileFormat: String, CaseIterable, Equatable {
     /// The editor's own document: layers, frames and per-layer opacity all
-    /// survive a round trip. Shares the `.piskel` extension and JSON schema
-    /// with the Piskel app, which is what makes those files interoperable.
+    /// survive a round trip. This is the app's own format, with its own
+    /// `.unf` extension — the bytes underneath are still the Piskel v2 JSON
+    /// schema, which is what keeps packages written by earlier versions
+    /// (saved as `.piskel`) readable, but that is an implementation detail
+    /// invisible to the user.
     case unfoldSource
     /// A horizontal sprite sheet, one row of `frameCount` frames.
     case png
@@ -258,7 +261,7 @@ enum EditorFileFormat: String, CaseIterable, Equatable {
     /// Extension used when saving. Import also accepts `jpg` — see `matching`.
     var fileExtension: String {
         switch self {
-        case .unfoldSource: return "piskel"
+        case .unfoldSource: return "unf"
         case .png: return "png"
         case .gif: return "gif"
         case .jpeg: return "jpeg"
@@ -267,7 +270,7 @@ enum EditorFileFormat: String, CaseIterable, Equatable {
 
     var displayName: String {
         switch self {
-        case .unfoldSource: return "Pixel Source"
+        case .unfoldSource: return "Unfold Document"
         case .png: return "PNG Sprite Sheet"
         case .gif: return "Animated GIF"
         case .jpeg: return "JPEG Image"
@@ -288,12 +291,12 @@ enum EditorFileFormat: String, CaseIterable, Equatable {
         }
     }
 
-    /// `.piskel` is not a registered system type, so this falls back to a
+    /// `.unf` is not a registered system type, so this falls back to a
     /// dynamic UTI. That is enough for an open/save panel to filter on the
     /// extension, which is all this is used for.
     var utType: UTType {
         switch self {
-        case .unfoldSource: return UTType(filenameExtension: "piskel") ?? .data
+        case .unfoldSource: return UTType(filenameExtension: "unf") ?? .data
         case .png: return .png
         case .gif: return .gif
         case .jpeg: return .jpeg
@@ -1333,7 +1336,7 @@ enum RasterImageDecoder {
 
     /// Identifies a raster format from its leading bytes, so a mislabelled
     /// file opens as what it actually is. Returns nil for anything that is
-    /// not a raster import format — a `.piskel` document, most obviously.
+    /// not a raster import format — a `.unf` document, most obviously.
     static func detectFormat(_ data: Data) -> EditorFileFormat? {
         if data.count >= 8, data.prefix(8) == Data([137, 80, 78, 71, 13, 10, 26, 10]) { return .png }
         if data.count >= 2, data.prefix(2) == Data([0xFF, 0xD8]) { return .jpeg }
@@ -1437,7 +1440,7 @@ swift test --filter RasterImageDecoderTests 2>&1 | tail -10
 swift test 2>&1 | tail -3
 ```
 
-기대: 전부 `0 failures`. `PixelDocumentCodec.decodePNG` 는 아직 그대로 남아 있고 `.piskel` 내부 청크 디코딩에 계속 쓰인다 — 이 태스크에서는 제거하지 않는다.
+기대: 전부 `0 failures`. `PixelDocumentCodec.decodePNG` 는 아직 그대로 남아 있고 `.unf` 문서 내부의 Piskel 스키마 청크 디코딩에 계속 쓰인다 — 이 태스크에서는 제거하지 않는다.
 
 - [ ] **Step 5: 커밋**
 
@@ -2355,7 +2358,7 @@ transparency rounds to fully opaque."
 grep -rn "iskel" --include="*.swift" Sources/ Tests/
 ```
 
-기대: `.piskel` 확장자, `source.piskel` 파일명, JSON `piskel` 키, 그리고 그 셋을 설명하는 주석만 남는다. 이들은 설계상 유지 대상이다. UI 문구나 Swift 식별자에 남아 있으면 고친다.
+기대: `source.piskel` 파일명(레거시 읽기 폴백)과 JSON `piskel` 키, 그리고 그 둘을 설명하는 주석만 남는다. `.piskel` 확장자 자체는 더 이상 유지 대상이 아니다 — 사용자 대상 확장자는 `.unf` 이고, `.piskel` 은 열기/저장 패널과 `EditorFileFormat.matching(fileExtension:)` 에서 완전히 제거됐다. UI 문구나 Swift 식별자에 `.piskel` 확장자나 "Piskel"이라는 이름이 남아 있으면 고친다.
 
 - [ ] **파급 검토: 512px 문서를 끝까지 통과시킨다**
 

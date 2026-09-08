@@ -122,7 +122,7 @@ enum EditorDocumentOrigin: Equatable {
 
 ```swift
 enum EditorFileFormat: CaseIterable {
-    case unfoldSource   // .piskel — 레이어·프레임 전부 보존
+    case unfoldSource   // .unf — 레이어·프레임 전부 보존
     case png            // 가로 스프라이트시트
     case gif            // 애니메이션 (쓰기 전용, 이번 범위)
     case jpeg           // 읽기 전용
@@ -136,10 +136,10 @@ enum EditorFileFormat: CaseIterable {
 
 ```
 File ▸  New
-        Open…                ⌘O    .piskel .png .jpg .jpeg
+        Open…                ⌘O    .unf .png .jpg .jpeg
         ──────────────
         Save                 ⌘S
-        Save As…             ⇧⌘S   .piskel / .png / .gif
+        Save As…             ⇧⌘S   .unf / .png / .gif
         ──────────────
         Save to Spine Keepet
 ```
@@ -242,8 +242,10 @@ copy-on-write 때문에 스냅샷들이 변경되지 않은 프레임 버퍼를 
 
 유지하는 것:
 
-- **`source.piskel` 파일명** — 기존 사용자 라이브러리 호환. 디코더가 확장자를 보지
-  않으므로 나중에 바꾸더라도 파서 수정은 필요 없다.
+- **`source.piskel` → `source.unf`** — 에디터의 문서 확장자가 자체 `.unf`
+  로 바뀌면서 패키지 내부 소스 파일명도 함께 바뀐다. 기존 사용자 라이브러리
+  호환을 위해 읽기는 옛 `source.piskel` 로 폴백하되, 쓰기는 항상 새 이름만
+  쓴다. 디코더가 확장자를 보지 않으므로 파서 수정은 필요 없다.
 - **JSON `piskel` 키와 `modelVersion: 2`** — 실제 Piskel 파일 포맷의 와이어
   형식이다. 바꾸면 상호운용이 깨진다. Swift 쪽 식별자만 `CodingKeys` 로 매핑한다.
 
@@ -327,6 +329,6 @@ copy-on-write 때문에 스냅샷들이 변경되지 않은 프레임 버퍼를 
 
 - 기존 캐릭터 패키지는 그대로 열린다. 캔버스 범위가 넓어지는 방향이라 기존
   128px 이하 문서가 배제되지 않는다
-- `source.piskel` 파일명과 JSON 스키마가 유지되므로 라이브러리 마이그레이션이
-  필요 없다
+- 패키지 내부 소스 파일명은 `source.unf` 로 바뀌지만 읽기가 옛 `source.piskel`
+  로 폴백하고 JSON 스키마도 그대로이므로 라이브러리 마이그레이션이 필요 없다
 - 예외: 한 변이 8px 미만인 문서. 실제 존재 가능성은 낮다

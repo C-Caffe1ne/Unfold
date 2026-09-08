@@ -48,7 +48,7 @@ final class PixelDocumentCodecTests: XCTestCase {
         let library = CharacterLibrary(rootDirectory: root)
         let character = try CharacterPackageWriter.write(payload: payload, name: doc.name, into: library)
         let directory = try XCTUnwrap(library.packageDirectory(id: character.id))
-        let reopened = try PixelDocumentCodec.load(from: directory.appendingPathComponent("source.piskel"))
+        let reopened = try PixelDocumentCodec.load(from: directory.appendingPathComponent(Constants.characterEditorSourceFileName))
         XCTAssertEqual(reopened, doc)
         XCTAssertEqual(character.spriteSheet.columns, doc.frameCount)
     }

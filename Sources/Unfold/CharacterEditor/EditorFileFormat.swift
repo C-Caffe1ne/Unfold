@@ -9,8 +9,11 @@ import UniformTypeIdentifiers
 /// only "what is this format called, and may we read or write it".
 enum EditorFileFormat: String, CaseIterable, Equatable {
     /// The editor's own document: layers, frames and per-layer opacity all
-    /// survive a round trip. Shares the `.piskel` extension and JSON schema
-    /// with the Piskel app, which is what makes those files interoperable.
+    /// survive a round trip. This is the app's own format, with its own
+    /// `.unf` extension — the bytes underneath are still the Piskel v2 JSON
+    /// schema, which is what keeps packages written by earlier versions
+    /// (saved as `.piskel`) readable, but that is an implementation detail
+    /// invisible to the user.
     case unfoldSource
     /// A horizontal sprite sheet, one row of `frameCount` frames.
     case png
@@ -22,7 +25,7 @@ enum EditorFileFormat: String, CaseIterable, Equatable {
     /// Extension used when saving. Import also accepts `jpg` — see `matching`.
     var fileExtension: String {
         switch self {
-        case .unfoldSource: return "piskel"
+        case .unfoldSource: return "unf"
         case .png: return "png"
         case .gif: return "gif"
         case .jpeg: return "jpeg"
@@ -31,7 +34,7 @@ enum EditorFileFormat: String, CaseIterable, Equatable {
 
     var displayName: String {
         switch self {
-        case .unfoldSource: return "Pixel Source"
+        case .unfoldSource: return "Unfold Document"
         case .png: return "PNG Sprite Sheet"
         case .gif: return "Animated GIF"
         case .jpeg: return "JPEG Image"
@@ -52,12 +55,12 @@ enum EditorFileFormat: String, CaseIterable, Equatable {
         }
     }
 
-    /// `.piskel` is not a registered system type, so this falls back to a
+    /// `.unf` is not a registered system type, so this falls back to a
     /// dynamic UTI. That is enough for an open/save panel to filter on the
     /// extension, which is all this is used for.
     var utType: UTType {
         switch self {
-        case .unfoldSource: return UTType(filenameExtension: "piskel") ?? .data
+        case .unfoldSource: return UTType(filenameExtension: "unf") ?? .data
         case .png: return .png
         case .gif: return .gif
         case .jpeg: return .jpeg

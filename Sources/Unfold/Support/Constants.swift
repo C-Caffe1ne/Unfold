@@ -123,7 +123,12 @@ enum Constants {
     /// choosing.
     static let characterManifestFileName = "character.json"
     static let characterSpriteSheetFileName = "spritesheet.png"
-    static let characterEditorSourceFileName = "source.piskel"
+    static let characterEditorSourceFileName = "source.unf"
+
+    /// What the editor called its source file before the app had its own
+    /// extension. Packages written by earlier versions still contain this,
+    /// so every read falls back to it; nothing writes it any more.
+    static let legacyCharacterEditorSourceFileName = "source.piskel"
 
     /// SF Symbol given to every user-created character until the thumbnail
     /// renders a real frame.
