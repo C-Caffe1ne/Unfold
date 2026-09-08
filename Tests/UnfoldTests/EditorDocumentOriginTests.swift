@@ -6,7 +6,7 @@ final class EditorDocumentOriginTests: XCTestCase {
     private let url = URL(fileURLWithPath: "/tmp/character.piskel")
 
     func test_newDocument_cannotSaveInPlace_soSaveMustAskForADestination() {
-        XCTAssertFalse(EditorDocumentOrigin.none.canSaveInPlace)
+        XCTAssertFalse(EditorDocumentOrigin.unsaved.canSaveInPlace)
     }
 
     func test_fileOrigin_canSaveInPlace_whenTheFormatIsWritable() {
@@ -28,7 +28,7 @@ final class EditorDocumentOriginTests: XCTestCase {
 
     func test_fileURL_isOnlySetForFileOrigins() throws {
         XCTAssertEqual(EditorDocumentOrigin.file(url, .png).fileURL, url)
-        XCTAssertNil(EditorDocumentOrigin.none.fileURL)
+        XCTAssertNil(EditorDocumentOrigin.unsaved.fileURL)
         let directory = try makePackage()
         let revision = try EditorPackageRevision.read(at: directory)
         XCTAssertNil(EditorDocumentOrigin.character(id: "user-1", revision: revision).fileURL)
@@ -39,7 +39,7 @@ final class EditorDocumentOriginTests: XCTestCase {
         let revision = try EditorPackageRevision.read(at: directory)
         XCTAssertEqual(EditorDocumentOrigin.character(id: "user-1", revision: revision).characterID, "user-1")
         XCTAssertNil(EditorDocumentOrigin.file(url, .png).characterID)
-        XCTAssertNil(EditorDocumentOrigin.none.characterID)
+        XCTAssertNil(EditorDocumentOrigin.unsaved.characterID)
     }
 
     // MARK: what a plain Save does — the three origins
@@ -56,7 +56,7 @@ final class EditorDocumentOriginTests: XCTestCase {
     }
 
     func test_saveAction_asksForADestination_forANewDocument() {
-        XCTAssertEqual(EditorDocumentOrigin.none.saveAction, .askForDestination)
+        XCTAssertEqual(EditorDocumentOrigin.unsaved.saveAction, .askForDestination)
     }
 
     /// A JPEG import has a file, but not one that can be written back.

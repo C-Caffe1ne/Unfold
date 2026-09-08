@@ -351,7 +351,7 @@ final class EditorDocumentOriginTests: XCTestCase {
     private let url = URL(fileURLWithPath: "/tmp/character.piskel")
 
     func test_newDocument_cannotSaveInPlace_soSaveMustAskForADestination() {
-        XCTAssertFalse(EditorDocumentOrigin.none.canSaveInPlace)
+        XCTAssertFalse(EditorDocumentOrigin.unsaved.canSaveInPlace)
     }
 
     func test_fileOrigin_canSaveInPlace_whenTheFormatIsWritable() {
@@ -373,7 +373,7 @@ final class EditorDocumentOriginTests: XCTestCase {
 
     func test_fileURL_isOnlySetForFileOrigins() throws {
         XCTAssertEqual(EditorDocumentOrigin.file(url, .png).fileURL, url)
-        XCTAssertNil(EditorDocumentOrigin.none.fileURL)
+        XCTAssertNil(EditorDocumentOrigin.unsaved.fileURL)
         let directory = try makePackage()
         let revision = try EditorPackageRevision.read(at: directory)
         XCTAssertNil(EditorDocumentOrigin.character(id: "user-1", revision: revision).fileURL)
@@ -384,7 +384,7 @@ final class EditorDocumentOriginTests: XCTestCase {
         let revision = try EditorPackageRevision.read(at: directory)
         XCTAssertEqual(EditorDocumentOrigin.character(id: "user-1", revision: revision).characterID, "user-1")
         XCTAssertNil(EditorDocumentOrigin.file(url, .png).characterID)
-        XCTAssertNil(EditorDocumentOrigin.none.characterID)
+        XCTAssertNil(EditorDocumentOrigin.unsaved.characterID)
     }
 
     // MARK: what a plain Save does — the three origins
@@ -401,7 +401,7 @@ final class EditorDocumentOriginTests: XCTestCase {
     }
 
     func test_saveAction_asksForADestination_forANewDocument() {
-        XCTAssertEqual(EditorDocumentOrigin.none.saveAction, .askForDestination)
+        XCTAssertEqual(EditorDocumentOrigin.unsaved.saveAction, .askForDestination)
     }
 
     /// A JPEG import has a file, but not one that can be written back.
@@ -449,7 +449,7 @@ import Foundation
 /// about each other.
 enum EditorDocumentOrigin: Equatable {
     /// A brand-new document that has never been written anywhere.
-    case none
+    case unsaved
     case file(URL, EditorFileFormat)
     case character(id: String, revision: EditorPackageRevision)
 
@@ -465,7 +465,7 @@ enum EditorDocumentOrigin: Equatable {
         switch self {
         case .character(let id, _): return .writeLibraryPackage(id: id)
         case .file(let url, let format) where format.canWrite: return .writeFile(url, format)
-        case .none, .file: return .askForDestination
+        case .unsaved, .file: return .askForDestination
         }
     }
 
@@ -591,7 +591,7 @@ app the schema came from."
 `CharacterEditorWindowController.swift:15-16` 의 두 줄을 하나로 바꾼다.
 
 ```swift
-    private var origin: EditorDocumentOrigin = .none
+    private var origin: EditorDocumentOrigin = .unsaved
 ```
 
 - [ ] **Step 2: `open` 시그니처 변경**
@@ -636,7 +636,7 @@ app the schema came from."
 ```swift
     func createNewCharacter() {
         guard mayReplaceSession() else { return }
-        open(document: PixelDocument(), origin: .none)
+        open(document: PixelDocument(), origin: .unsaved)
     }
 ```
 
@@ -656,7 +656,7 @@ app the schema came from."
 `teardown` 의 두 줄을 하나로:
 
 ```swift
-        origin = .none
+        origin = .unsaved
 ```
 
 - [ ] **Step 4: `save` 를 `saveToLibrary` 로 개명하고 출처를 쓰게 한다**
@@ -1909,7 +1909,7 @@ struct ImportOptionsView: View {
                 guard self.mayReplaceSession() else { return }
                 // A raster import always starts a new document: its file is
                 // not a source the editor can save layers and frames back to.
-                self.open(document: document, origin: format.canWrite ? .file(url, format) : .none)
+                self.open(document: document, origin: format.canWrite ? .file(url, format) : .unsaved)
             } catch { self.present(error: error) }
         }
         let view = ImportOptionsView(

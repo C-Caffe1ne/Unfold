@@ -9,7 +9,7 @@ import Foundation
 /// about each other.
 enum EditorDocumentOrigin: Equatable {
     /// A brand-new document that has never been written anywhere.
-    case none
+    case unsaved
     case file(URL, EditorFileFormat)
     case character(id: String, revision: EditorPackageRevision)
 
@@ -25,7 +25,7 @@ enum EditorDocumentOrigin: Equatable {
         switch self {
         case .character(let id, _): return .writeLibraryPackage(id: id)
         case .file(let url, let format) where format.canWrite: return .writeFile(url, format)
-        case .none, .file: return .askForDestination
+        case .unsaved, .file: return .askForDestination
         }
     }
 

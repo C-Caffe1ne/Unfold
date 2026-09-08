@@ -102,14 +102,14 @@ D를 먼저 하는 이유는 `EditorFileFormat` 이 나머지의 접합면이기
 
 ```swift
 enum EditorDocumentOrigin: Equatable {
-    case none                                         // 새 문서
+    case unsaved  // 새 문서
     case file(URL, EditorFileFormat)                  // 열기로 온 문서
     case character(id: String, EditorPackageRevision) // 라이브러리에서 온 문서
 }
 ```
 
 - **Save (⌘S)** — 출처에 되쓴다. `.file` 이면 그 경로에 원자적 덮어쓰기,
-  `.character` 면 기존 라이브러리 저장 경로, `.none` 이면 Save As로 폴백한다.
+  `.character` 면 기존 라이브러리 저장 경로, `.unsaved` 이면 Save As로 폴백한다.
   출처 포맷이 쓰기 불가(JPEG)여도 Save As로 폴백한다.
 - **Save As (⇧⌘S)** — 경로와 포맷을 고르고 출처를 `.file` 로 갱신한다.
 - **Save to Spine Keepet** — 라이브러리 패키지를 쓴다. 기존 로직 그대로.
