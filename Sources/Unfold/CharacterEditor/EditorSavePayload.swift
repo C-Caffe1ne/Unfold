@@ -1,7 +1,13 @@
 import Foundation
 import ImageIO
 
-/// Validated save data shared by the native pixel editor and legacy bridge.
+/// Validated save data on the way into a character package.
+///
+/// This was once the boundary between a Piskel web view and the Swift
+/// host, which is why it validates a JSON message rather than a struct.
+/// The web view is gone and `PixelDocumentCodec.savePayload` is now the
+/// only producer, but the checks are worth keeping: they are what stands
+/// between a malformed document and an overwritten character package.
 ///
 /// Bounds are re-checked, and the declared geometry is verified against
 /// the PNG that actually decoded. What that
