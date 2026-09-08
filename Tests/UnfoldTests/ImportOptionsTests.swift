@@ -84,6 +84,18 @@ final class ImportOptionsTests: XCTestCase {
         XCTAssertThrowsError(try ImportOptions.apply(.crop(CGRect(x: 400, y: 0, width: 256, height: 64)), to: image(width: 512, height: 64)))
     }
 
+    /// A rect that is both off the image and larger than the canvas cap
+    /// should complain about the image first — that is the mistake the user
+    /// actually made, and fixing only the size would just surface the second
+    /// error on the next attempt.
+    func test_crop_reportsTheImageBoundsBeforeTheCanvasCap() {
+        XCTAssertThrowsError(
+            try ImportOptions.apply(.crop(CGRect(x: 1000, y: 0, width: 600, height: 600)),
+                                    to: image(width: 512, height: 512))) { error in
+            XCTAssertTrue("\(error)".contains("outside the image"), "got: \(error)")
+        }
+    }
+
     func test_single_rejectsAnImageBeyondTheCanvasCap() {
         XCTAssertThrowsError(try ImportOptions.apply(.single, to: image(width: 1920, height: 1080)))
     }
@@ -103,5 +115,31 @@ final class ImportOptionsTests: XCTestCase {
         XCTAssertThrowsError(
             try ImportOptions.apply(.split(frameWidth: 512, frameHeight: 512),
                                     to: image(width: 512 * 24, height: 512 * 2)))
+    }
+
+    /// `.split` reads left-to-right within a row, then top-to-bottom. A grid
+    /// sheet is a normal way pixel art is shared, and nothing else in this
+    /// suite pins the ordering — the round-trip test only exercises the
+    /// single row that `sheetPNG` writes.
+    func test_split_readsAGridRowMajor() throws {
+        let cell = 8
+        let columns = 3, rows = 2
+        var pixels = Array(repeating: UInt32(0), count: cell * columns * cell * rows)
+        // Stamp each cell's top-left pixel with its expected frame index.
+        for row in 0..<rows {
+            for column in 0..<columns {
+                let index = row * columns + column
+                pixels[(row * cell) * (cell * columns) + column * cell] = UInt32(index + 1) << 24 | 0xFF
+            }
+        }
+        let source = RasterImageDecoder.Image(pixels: pixels, width: cell * columns, height: cell * rows)
+
+        let document = try ImportOptions.apply(.split(frameWidth: cell, frameHeight: cell), to: source)
+
+        XCTAssertEqual(document.frameCount, columns * rows)
+        for index in 0..<(columns * rows) {
+            XCTAssertEqual(document.layers[0].frames[index].pixels[0], UInt32(index + 1) << 24 | 0xFF,
+                           "frame \(index) came from the wrong cell")
+        }
     }
 }

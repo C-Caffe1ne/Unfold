@@ -16,6 +16,19 @@ enum RasterImageDecoder {
         let pixels: [UInt32]
         let width: Int
         let height: Int
+
+        /// The three fields are only meaningful together. Nothing in this
+        /// module should be able to hand a consumer a buffer whose length
+        /// disagrees with the geometry beside it — a mismatch surfaces later
+        /// as an out-of-bounds read during drawing or compositing, far from
+        /// wherever it was introduced.
+        init(pixels: [UInt32], width: Int, height: Int) {
+            precondition(pixels.count == width * height,
+                         "\(width)x\(height) needs \(width * height) pixels, got \(pixels.count)")
+            self.pixels = pixels
+            self.width = width
+            self.height = height
+        }
     }
 
     /// The 12 bytes every complete PNG stream ends with: a zero-length chunk,

@@ -63,11 +63,16 @@ enum ImportOptions: Equatable {
         case .crop(let rect):
             let x = Int(rect.origin.x), y = Int(rect.origin.y)
             let width = Int(rect.width), height = Int(rect.height)
-            try check(width: width, height: height, frames: 1)
+            // Checked against the source before the destination: a rect that
+            // does not overlap the image has no pixels to extract, which is
+            // the more fundamental problem than whether the result would fit
+            // the canvas — and mirrors .split checking divisibility (against
+            // the source) before frame count (against the destination).
             guard x >= 0, y >= 0,
                   x + width <= image.width, y + height <= image.height else {
                 throw PixelDocumentCodec.Failure.invalid("That crop region lies outside the image.")
             }
+            try check(width: width, height: height, frames: 1)
             return document(width: width, height: height,
                             frames: [region(of: image, x: x, y: y, width: width, height: height)])
 
