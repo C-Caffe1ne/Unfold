@@ -923,25 +923,55 @@ menu no longer names the app the file schema came from."
     /// Ceiling on a document's total pixel storage
     /// (`width × height × frameCount × layers × 4` bytes).
     ///
-    /// The side bound alone is not enough. At 512px a frame-layer costs 1 MB,
-    /// so 24 frames × 16 layers would be 384 MB and undo would collapse to a
-    /// single step against the history budget. 64 MB excludes nothing that is
-    /// legal today — the previous maximum, 128px × 24 × 16, is 24 MB.
-    static let editorMaxDocumentBytes = 64 * 1024 * 1024
+    /// The side bound alone is not enough: at 512px a single frame-layer
+    /// costs 1 MB, so 24 frames × 16 layers would be 384 MB. But 512px only
+    /// exists so a large imported image can be cropped down rather than
+    /// rejected outright — the character is ultimately drawn at
+    /// `characterDisplaySize` (192pt), so nobody legitimately needs to
+    /// *animate* a full 512×512 canvas across 24 frames and 16 layers. This
+    /// constrains the product instead, which keeps `editorMaxSheetDataURLBytes`
+    /// and `PixelDocumentCodec.maximumSourceBytes` sane.
+    ///
+    /// 24 MiB is exactly the old maximum: 128×128 × 24 × 16 × 4 =
+    /// 25,165,824 bytes = 24 × 1024 × 1024. `exceedsByteCeiling` uses `>`,
+    /// not `>=`, so every document that was legal before this constant
+    /// existed is still legal, sitting exactly on the boundary.
+    static let editorMaxDocumentBytes = 24 * 1024 * 1024
 ```
 
-- [ ] **Step 2: 스프라이트 시트 상한 주석 갱신**
+> **후기(구현 중 정정):** 처음엔 64MB로 뒀었다. 384MB를 막으면서 기존 최대치
+> 24MB를 넉넉히 포함하는 값이라 합리적으로 보였지만, Task 8 검증 단계에서
+> 512px·24프레임 문서를 노이즈(비압축) 픽셀로 채워 실측하니 `sheetPNG` 가 약
+> 20.8MB, `encode()` 결과가 약 55.5MB로 나와 각각 `editorMaxSheetDataURLBytes`
+> (8MB)와 `maximumSourceBytes`(48MB)를 넘었다. 세 상수가 서로 안 맞았다.
+> 결정: 총량 상한을 64MB가 아니라 **24MB**로 내려 곱을 제약하고(위 코드가 그
+> 최종값이다), 시트 상한을 32MB로 올린다(Step 2). 소스 상한 48MB는 그대로 둔다.
 
-`editorMaxSheetDataURLBytes` 의 주석이 128×128을 근거로 들고 있으므로 고친다. 값은 유지한다 — 512px 시트도 픽셀아트라면 압축이 잘 되고, 넘으면 저장 시 오류로 잡힌다.
+- [ ] **Step 2: 스프라이트 시트 상한을 문서 총량 상한에서 유도**
+
+`editorMaxSheetDataURLBytes` 를 8MB에서 32MB로 올리고, 주석도 128×128 근거 대신
+`editorMaxDocumentBytes` 에서 유도되도록 다시 쓴다. 시트는 레이어를 합성해 만든
+단일 이미지이므로, 최악의 경우(레이어 1장이 총량 예산을 전부 쓰는 경우) 원시
+크기가 `editorMaxDocumentBytes` 와 같다. 비압축에 가까운 아트(디더링, 노이즈,
+그라데이션)는 PNG로도 그 크기 그대로 나오므로, 24MB에 약 30% 여유를 더해 32MB로
+잡는다.
 
 ```swift
-    /// Ceiling on the base64 sprite-sheet string a save may carry. The largest
-    /// sheet this app accepts is 512×512px × 24 frames of pixel art, which
-    /// stays small as PNG because pixel art compresses well — 8MB is far
-    /// above any legitimate value while still bounding what a malformed
-    /// document can make this process allocate.
-    static let editorMaxSheetDataURLBytes = 8 * 1024 * 1024
+    /// Ceiling on the base64 sprite-sheet string the editor may send.
+    ///
+    /// Derived from `editorMaxDocumentBytes`, not independent of it: a sheet
+    /// is the document's frames *composited* down to a single layer, so its
+    /// raw (uncompressed) size is at most `editorMaxDocumentBytes` — worst
+    /// case, a single-layer document spends its whole budget on that one
+    /// layer's pixels. Incompressible art (dithering, noise, gradients)
+    /// PNG-encodes close to that raw size, so this constant is
+    /// `editorMaxDocumentBytes` plus roughly a 30% margin, rounded up.
+    static let editorMaxSheetDataURLBytes = 32 * 1024 * 1024
 ```
+
+`PixelDocumentCodec.maximumSourceBytes`(48MB)는 그대로 둔다. 소스는 레이어당
+PNG 한 장을 base64로 담으므로 24MB 픽셀이 4/3배 부풀어 약 32MB, JSON 오버헤드를
+더해도 48MB 안에 여유가 있다.
 
 - [ ] **Step 3: 빌드와 테스트**
 

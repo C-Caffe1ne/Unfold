@@ -247,8 +247,8 @@ struct PixelEditorView: View {
     private var resizeSheet: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Canvas Size").font(.headline)
-            Stepper("Width: \(resizeWidth) px", value: $resizeWidth, in: 1...128)
-            Stepper("Height: \(resizeHeight) px", value: $resizeHeight, in: 1...128)
+            Stepper("Width: \(resizeWidth) px", value: $resizeWidth, in: Constants.editorCanvasSideRange)
+            Stepper("Height: \(resizeHeight) px", value: $resizeHeight, in: Constants.editorCanvasSideRange)
             Text("Pixels stay at their original size, anchored to the top-left. Shrinking crops every frame and layer; Undo restores them.")
                 .font(.callout).foregroundStyle(.secondary)
             HStack {

@@ -16,6 +16,10 @@ enum PixelDocumentCodec {
             switch self { case .invalid(let reason): return reason }
         }
     }
+    /// A source file carries one base64 PNG sheet per layer, not a single
+    /// composited one: at `Constants.editorMaxDocumentBytes`, that's up to
+    /// ~24MB of raw pixels inflated 4/3 by base64, plus JSON overhead — call
+    /// it ~32MB against this 48MB ceiling, which leaves real margin.
     static let maximumSourceBytes = 48 * 1024 * 1024
     private static let prefix = "data:image/png;base64,"
 
@@ -65,26 +69,42 @@ enum PixelDocumentCodec {
         guard source.modelVersion == 2 else { throw Failure.invalid("Only document version 2 is supported.") }
         guard Constants.editorCanvasSideRange.contains(sprite.width), Constants.editorCanvasSideRange.contains(sprite.height),
               (1...PixelDocument.maximumLayers).contains(sprite.layers.count) else {
-            throw Failure.invalid("Use a canvas from 1–128 pixels and 1–16 layers.")
+            let side = Constants.editorCanvasSideRange
+            throw Failure.invalid("Use a canvas from \(side.lowerBound)–\(side.upperBound) pixels and 1–\(PixelDocument.maximumLayers) layers.")
         }
         let fps = sprite.fps ?? 12
         guard fps.isFinite, Constants.editorFPSRange.contains(fps) else { throw Failure.invalid("Animation speed must be 1–24 FPS.") }
         // Hidden timeline frames are not equivalent to transparent frames. Do not silently flatten them.
         guard sprite.hiddenFrames?.isEmpty != false else { throw Failure.invalid("Unhide timeline frames before opening this document.") }
+
+        // Decode every layer's metadata (name, opacity, frame count, chunk
+        // descriptors) before building any frame buffers. This is cheap --
+        // it parses strings already held in `data`, which `maximumSourceBytes`
+        // already bounds -- unlike the frames array below, which allocates
+        // width×height×frameCount pixels per layer. Every layer is required
+        // to declare the same frame count, so the first layer's is enough to
+        // know the document's total pixel storage up front, and reject an
+        // over-large one before that allocation runs.
+        let decodedLayers = try sprite.layers.map { try JSONDecoder().decode(Layer.self, from: Data($0.utf8)) }
+        let frameCount = decodedLayers[0].frameCount
+        guard Constants.editorFrameCountRange.contains(frameCount),
+              decodedLayers.allSatisfy({ $0.frameCount == frameCount }) else {
+            throw Failure.invalid("Layers must have the same 1–24 frames and a valid opacity.")
+        }
+        guard sprite.width * sprite.height * frameCount * decodedLayers.count * 4 <= Constants.editorMaxDocumentBytes else {
+            throw Failure.invalid("This document is too large to open.")
+        }
+
         var document = PixelDocument(width: sprite.width, height: sprite.height)
         document.name = sprite.name ?? "Unfold Character"
         document.description = sprite.description ?? ""
         document.fps = fps
         var layers: [PixelLayer] = []
-        var expectedCount: Int?
-        for string in sprite.layers {
-            let layer = try JSONDecoder().decode(Layer.self, from: Data(string.utf8))
+        for layer in decodedLayers {
             let opacity = layer.opacity ?? 1
-            guard Constants.editorFrameCountRange.contains(layer.frameCount), opacity.isFinite, (0...1).contains(opacity),
-                  expectedCount == nil || expectedCount == layer.frameCount else {
+            guard opacity.isFinite, (0...1).contains(opacity) else {
                 throw Failure.invalid("Layers must have the same 1–24 frames and a valid opacity.")
             }
-            expectedCount = layer.frameCount
             let chunks: [Chunk]
             if let stored = layer.chunks { chunks = stored }
             else if let png = layer.base64PNG {
@@ -161,8 +181,17 @@ enum PixelDocumentCodec {
 
     static func importPNG(_ data: Data) throws -> PixelDocument {
         let (pixels, width, height) = try decodePNG(data)
+        // `PixelDocument`'s initialiser clamps to `editorCanvasSideRange`, so
+        // a PNG under the minimum side (nothing stops decodePNG from
+        // accepting one) comes back with a document whose geometry differs
+        // from the decoded buffer's. Copy pixel-by-pixel, anchored
+        // top-left like `resize`, instead of assuming the sizes still match.
         var document = PixelDocument(width: width, height: height)
-        document.layers[0].frames[0].pixels = pixels
+        for y in 0..<min(height, document.height) {
+            for x in 0..<min(width, document.width) {
+                document.layers[0].frames[0].pixels[y * document.width + x] = pixels[y * width + x]
+            }
+        }
         return document
     }
 
@@ -213,12 +242,13 @@ enum PixelDocumentCodec {
               let height = properties[kCGImagePropertyPixelHeight] as? Int,
               width > 0, height > 0,
               width == (expectedWidth ?? width), height == (expectedHeight ?? height),
-              width <= (expectedWidth ?? 128), height <= (expectedHeight ?? 128),
+              width <= (expectedWidth ?? Constants.editorCanvasSideRange.upperBound),
+              height <= (expectedHeight ?? Constants.editorCanvasSideRange.upperBound),
               CGImageSourceGetStatus(source) == .statusComplete,
               let image = CGImageSourceCreateImageAtIndex(source, 0, nil),
               image.width == width, image.height == height,
               CGImageSourceGetStatusAtIndex(source, 0) == .statusComplete else {
-            throw Failure.invalid("Use a complete PNG with the expected dimensions (imports: 1–128 pixels per side).")
+            throw Failure.invalid("Use a complete PNG with the expected dimensions (imports: \(Constants.editorCanvasSideRange.lowerBound)–\(Constants.editorCanvasSideRange.upperBound) pixels per side).")
         }
         // Preserve straight-alpha samples when ImageIO exposes RGBA directly.
         // A trip through an 8-bit premultiplied CGContext would otherwise

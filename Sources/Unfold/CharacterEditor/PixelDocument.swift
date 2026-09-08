@@ -48,10 +48,18 @@ struct PixelDocument: Equatable {
     var layers: [PixelLayer]
     var frameCount: Int { layers[0].frames.count }
     var byteCount: Int { width * height * frameCount * layers.count * 4 }
+    var exceedsByteCeiling: Bool { byteCount > Constants.editorMaxDocumentBytes }
+
+    /// Bytes this document would occupy with the given geometry, without
+    /// building it — so a growth can be refused before it allocates.
+    private func projectedBytes(width: Int, height: Int, frames: Int, layers: Int) -> Int {
+        width * height * frames * layers * 4
+    }
 
     init(width: Int = Constants.editorDefaultCanvasSide, height: Int = Constants.editorDefaultCanvasSide) {
-        self.width = min(max(width, 1), Constants.editorCanvasSideRange.upperBound)
-        self.height = min(max(height, 1), Constants.editorCanvasSideRange.upperBound)
+        let range = Constants.editorCanvasSideRange
+        self.width = min(max(width, range.lowerBound), range.upperBound)
+        self.height = min(max(height, range.lowerBound), range.upperBound)
         layers = [PixelLayer(name: "Layer 1", frames: [PixelFrame(width: self.width, height: self.height)])]
     }
 
@@ -175,7 +183,10 @@ struct PixelDocument: Equatable {
     }
 
     mutating func resize(width newWidth: Int, height newHeight: Int) {
-        guard Constants.editorCanvasSideRange.contains(newWidth), Constants.editorCanvasSideRange.contains(newHeight) else { return }
+        guard Constants.editorCanvasSideRange.contains(newWidth),
+              Constants.editorCanvasSideRange.contains(newHeight),
+              projectedBytes(width: newWidth, height: newHeight,
+                             frames: frameCount, layers: layers.count) <= Constants.editorMaxDocumentBytes else { return }
         for l in layers.indices {
             for f in 0..<frameCount {
                 var resized = PixelFrame(width: newWidth, height: newHeight)
@@ -192,7 +203,9 @@ struct PixelDocument: Equatable {
     }
 
     mutating func insertFrame(after index: Int, duplicate: Bool) {
-        guard frameCount < Constants.editorFrameCountRange.upperBound, (0..<frameCount).contains(index) else { return }
+        guard frameCount < Constants.editorFrameCountRange.upperBound, (0..<frameCount).contains(index),
+              projectedBytes(width: width, height: height,
+                             frames: frameCount + 1, layers: layers.count) <= Constants.editorMaxDocumentBytes else { return }
         for l in layers.indices {
             let newFrame = duplicate ? layers[l].frames[index] : PixelFrame(width: width, height: height)
             layers[l].frames.insert(newFrame, at: index + 1)

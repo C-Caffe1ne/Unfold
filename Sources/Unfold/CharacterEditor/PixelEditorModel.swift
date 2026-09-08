@@ -158,7 +158,9 @@ final class PixelEditorModel: ObservableObject {
     }
 
     func addLayer() {
-        guard document.layers.count < PixelDocument.maximumLayers else { return }
+        guard document.layers.count < PixelDocument.maximumLayers,
+              document.byteCount + document.width * document.height * document.frameCount * 4
+                <= Constants.editorMaxDocumentBytes else { return }
         change { doc in
             doc.layers.append(PixelLayer(name: "Layer \(doc.layers.count + 1)",
                 frames: Array(repeating: PixelFrame(width: doc.width, height: doc.height), count: doc.frameCount)))

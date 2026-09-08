@@ -78,16 +78,19 @@ final class EditorSavePayloadTests: XCTestCase {
     // MARK: - Canvas size bounds
 
     func test_decode_maximumCanvas_isAccepted() throws {
-        let payload = try EditorSavePayload.decode(from: makeJSON(width: 128, height: 128, frameCount: 1))
-        XCTAssertEqual(payload.width, 128)
+        let side = Constants.editorCanvasSideRange.upperBound
+        let payload = try EditorSavePayload.decode(from: makeJSON(width: side, height: side, frameCount: 1))
+        XCTAssertEqual(payload.width, side)
     }
 
     func test_decode_oversizedCanvas_isRejected() {
-        XCTAssertThrowsError(try EditorSavePayload.decode(from: makeJSON(width: 129, height: 128, frameCount: 1)))
+        let side = Constants.editorCanvasSideRange.upperBound
+        XCTAssertThrowsError(try EditorSavePayload.decode(from: makeJSON(width: side + 1, height: side, frameCount: 1)))
     }
 
     func test_decode_oversizedHeight_isRejected() {
-        XCTAssertThrowsError(try EditorSavePayload.decode(from: makeJSON(width: 128, height: 129, frameCount: 1)))
+        let side = Constants.editorCanvasSideRange.upperBound
+        XCTAssertThrowsError(try EditorSavePayload.decode(from: makeJSON(width: side, height: side + 1, frameCount: 1)))
     }
 
     func test_decode_zeroCanvas_isRejected() {

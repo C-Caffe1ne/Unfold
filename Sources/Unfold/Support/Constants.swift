@@ -109,10 +109,28 @@ enum Constants {
     /// idle animation, short enough that the sprite sheet stays small.
     static let editorFrameCountRange = 1...24
 
-    /// Longest side, in pixels, of a user-drawn frame. Well under Piskel's
-    /// own 1024 limit: past this the art stops reading as pixel art at
-    /// `characterDisplaySize`, and the sheet stops being cheap to decode.
-    static let editorCanvasSideRange = 1...128
+    /// Longest side, in pixels, of a user-drawn frame. The lower bound keeps
+    /// a canvas big enough to draw on; the upper bound is what the import
+    /// dialog crops or splits down to.
+    static let editorCanvasSideRange = 8...512
+
+    /// Ceiling on a document's total pixel storage
+    /// (`width × height × frameCount × layers × 4` bytes).
+    ///
+    /// The side bound alone is not enough: at 512px a single frame-layer
+    /// costs 1 MB, so 24 frames × 16 layers would be 384 MB. But 512px only
+    /// exists so a large imported image can be cropped down rather than
+    /// rejected outright — the character is ultimately drawn at
+    /// `characterDisplaySize` (192pt), so nobody legitimately needs to
+    /// *animate* a full 512×512 canvas across 24 frames and 16 layers. This
+    /// constrains the product instead, which keeps `editorMaxSheetDataURLBytes`
+    /// and `PixelDocumentCodec.maximumSourceBytes` sane.
+    ///
+    /// 24 MiB is exactly the old maximum: 128×128 × 24 × 16 × 4 =
+    /// 25,165,824 bytes = 24 × 1024 × 1024. `exceedsByteCeiling` uses `>`,
+    /// not `>=`, so every document that was legal before this constant
+    /// existed is still legal, sitting exactly on the boundary.
+    static let editorMaxDocumentBytes = 24 * 1024 * 1024
 
     /// Canvas the editor seeds a brand-new character with.
     static let editorDefaultCanvasSide = 64
@@ -140,10 +158,14 @@ enum Constants {
     /// downstream.
     static let editorFPSRange = 1.0...24.0
 
-    /// Ceiling on the base64 sprite-sheet string the editor may send. The
-    /// largest sheet this app accepts is 128×128px × 24 frames of pixel
-    /// art, which is tens of KB as PNG — 8MB is far above any legitimate
-    /// value while still bounding what a malformed or hostile message can
-    /// make this process allocate.
-    static let editorMaxSheetDataURLBytes = 8 * 1024 * 1024
+    /// Ceiling on the base64 sprite-sheet string the editor may send.
+    ///
+    /// Derived from `editorMaxDocumentBytes`, not independent of it: a sheet
+    /// is the document's frames *composited* down to a single layer, so its
+    /// raw (uncompressed) size is at most `editorMaxDocumentBytes` — worst
+    /// case, a single-layer document spends its whole budget on that one
+    /// layer's pixels. Incompressible art (dithering, noise, gradients)
+    /// PNG-encodes close to that raw size, so this constant is
+    /// `editorMaxDocumentBytes` plus roughly a 30% margin, rounded up.
+    static let editorMaxSheetDataURLBytes = 32 * 1024 * 1024
 }

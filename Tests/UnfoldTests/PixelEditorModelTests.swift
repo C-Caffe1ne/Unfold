@@ -39,7 +39,7 @@ final class PixelEditorModelTests: XCTestCase {
     }
 
     func testNewEditAfterUndoInvalidatesRedoAndSavePointTracksContent() {
-        let model = PixelEditorModel(document: PixelDocument(width: 4, height: 4))
+        let model = PixelEditorModel(document: PixelDocument(width: 8, height: 8))
         model.beginStroke(at: PixelPoint(x: 0, y: 0))
         model.endStroke()
         model.markSaved()
@@ -53,7 +53,7 @@ final class PixelEditorModelTests: XCTestCase {
     }
 
     func testUndoOfAddingSelectedLayerAndFrameClampsSelection() {
-        let model = PixelEditorModel(document: PixelDocument(width: 4, height: 4))
+        let model = PixelEditorModel(document: PixelDocument(width: 8, height: 8))
         model.addLayer()
         model.addFrame(duplicate: true)
         model.undo()
@@ -99,5 +99,15 @@ final class PixelEditorModelTests: XCTestCase {
         while model.canUndo { model.undo(); depth += 1 }
         XCTAssertGreaterThan(depth, 16, "the minimum depth is a floor, not a ceiling")
         XCTAssertLessThanOrEqual(depth, 100, "the hard step cap still applies")
+    }
+
+    func test_addLayer_stopsAtTheByteCeiling() {
+        var document = PixelDocument(width: 512, height: 512)
+        while document.frameCount < 24 { document.insertFrame(after: document.frameCount - 1, duplicate: false) }
+        let model = PixelEditorModel(document: document)
+        for _ in 0..<PixelDocument.maximumLayers { model.addLayer() }
+        XCTAssertLessThanOrEqual(model.document.byteCount, Constants.editorMaxDocumentBytes)
+        XCTAssertLessThan(model.document.layers.count, PixelDocument.maximumLayers,
+                          "the ceiling should bite before the layer cap does at this size")
     }
 }
