@@ -209,9 +209,10 @@ final class CharacterEditorWindowController: NSObject, NSWindowDelegate {
         }
     }
 
-    /// Returns true only after a successful write, so the close-on-save path
-    /// in `mayReplaceSession` can tell a completed Save As from a cancelled
-    /// panel or a failed write.
+    /// Returns true only when the write leaves the *document* saved, not
+    /// merely when a file was written. `mayReplaceSession` reads this return
+    /// value to decide whether the session is safe to discard — an export to
+    /// a lossy format writes a file but must not answer that question yes.
     @discardableResult
     private func saveAs() -> Bool {
         guard let model else { return false }
@@ -230,11 +231,13 @@ final class CharacterEditorWindowController: NSObject, NSWindowDelegate {
             // An export leaves the document where it was: still attached to
             // its own origin, still unsaved, because the file that was just
             // written cannot be reopened as this document.
-            if format.preservesDocument {
-                origin = .file(url, format)
-                model.markSaved()
-                window?.title = "\(model.document.name) — Pixel Editor"
+            guard format.preservesDocument else {
+                present(exportedWithoutSaving: format)
+                return false
             }
+            origin = .file(url, format)
+            model.markSaved()
+            window?.title = "\(model.document.name) — Pixel Editor"
             return true
         } catch {
             present(error: error)
@@ -289,6 +292,19 @@ final class CharacterEditorWindowController: NSObject, NSWindowDelegate {
         alert.alertStyle = .warning
         alert.messageText = "Pixel Editor"
         alert.informativeText = (error as? LocalizedError)?.errorDescription ?? String(describing: error)
+        alert.addButton(withTitle: "OK")
+        NSApp.activate(ignoringOtherApps: true)
+        alert.runModal()
+    }
+
+    /// Says plainly that a file was written but the document is still
+    /// unsaved. Without this, a Save As to an export format during the
+    /// close prompt would either lose the document or refuse to close with
+    /// no explanation.
+    private func present(exportedWithoutSaving format: EditorFileFormat) {
+        let alert = NSAlert()
+        alert.messageText = "Exported, but not saved"
+        alert.informativeText = "\(format.displayName) cannot store this document's layers and frames, so your work is still unsaved. Save a \(EditorFileFormat.unfoldSource.displayName) file to keep them."
         alert.addButton(withTitle: "OK")
         NSApp.activate(ignoringOtherApps: true)
         alert.runModal()
