@@ -2,8 +2,8 @@
 
 The character editor now opens a SwiftUI window with an AppKit drawing surface.
 It does not instantiate a WKWebView, inject JavaScript, run Piskel timers, or load
-web resources. The vendored Piskel files and notices remain in the repository
-for reference; `Package.swift` excludes `Resources/Editor` from the app target.
+web resources. The vendored Piskel runtime and its notices have been removed from
+the repository; nothing in `Package.swift` needs to exclude it anymore.
 
 ## Editing
 
