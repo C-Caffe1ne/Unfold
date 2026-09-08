@@ -62,4 +62,42 @@ final class PixelEditorModelTests: XCTestCase {
         XCTAssertEqual(model.selectedLayer, 0)
         XCTAssertEqual(model.document.layers.count, 1)
     }
+
+    /// A maximal document used to overrun the history budget with two
+    /// snapshots, leaving exactly one undo step no matter how many edits
+    /// the user made.
+    func test_undoKeepsAMinimumDepth_onALargeDocument() {
+        var document = PixelDocument(width: 128, height: 128)
+        while document.frameCount < 24 { document.insertFrame(after: document.frameCount - 1, duplicate: false) }
+        while document.layers.count < PixelDocument.maximumLayers {
+            document.layers.append(PixelLayer(name: "L", frames: Array(repeating: PixelFrame(width: 128, height: 128), count: document.frameCount)))
+        }
+        let model = PixelEditorModel(document: document)
+
+        for i in 0..<5 {
+            model.beginStroke(at: PixelPoint(x: i, y: 0))
+            model.endStroke()
+        }
+
+        var depth = 0
+        while model.canUndo { model.undo(); depth += 1 }
+        XCTAssertEqual(depth, 5, "five edits should leave five undo steps")
+    }
+
+    /// The hard step cap still applies once the minimum depth is satisfied.
+    /// Each stroke uses a different colour so it genuinely changes the
+    /// document — `endStroke` only records history when something changed,
+    /// so repainting a pixel its existing colour would silently not count.
+    func test_undoStillTrims_beyondTheMinimumDepth() {
+        let model = PixelEditorModel(document: PixelDocument(width: 8, height: 8))
+        for i in 0..<120 {
+            model.color = UInt32(i + 1) << 24 | 0xFF
+            model.beginStroke(at: PixelPoint(x: i % 8, y: (i / 8) % 8))
+            model.endStroke()
+        }
+        var depth = 0
+        while model.canUndo { model.undo(); depth += 1 }
+        XCTAssertGreaterThan(depth, 16, "the minimum depth is a floor, not a ceiling")
+        XCTAssertLessThanOrEqual(depth, 100, "the hard step cap still applies")
+    }
 }

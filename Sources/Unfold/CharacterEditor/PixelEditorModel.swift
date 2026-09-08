@@ -26,7 +26,13 @@ final class PixelEditorModel: ObservableObject {
     private var strokeFrame = 0
     private var strokeColor: UInt32 = 0
     private var strokeBrush = 1
-    private let historyBudget = 32 * 1024 * 1024
+    /// Snapshots are whole documents, but Swift's copy-on-write means the
+    /// unchanged frame buffers are shared between them — a stroke only
+    /// unshares the one frame it touched. `byteCount` is therefore a large
+    /// overestimate of what history actually costs, which is why a minimum
+    /// depth is guaranteed before the budget is allowed to trim anything.
+    private let historyBudget = 128 * 1024 * 1024
+    private let minimumHistoryDepth = 16
 
     var isDirty: Bool { document != savedDocument }
 
@@ -58,7 +64,7 @@ final class PixelEditorModel: ObservableObject {
 
     private func trim(_ stack: inout [PixelDocument]) {
         var bytes = stack.reduce(0) { $0 + $1.byteCount }
-        while stack.count > 1 && (bytes > historyBudget || stack.count > 100) {
+        while stack.count > minimumHistoryDepth && (bytes > historyBudget || stack.count > 100) {
             bytes -= stack.removeFirst().byteCount
         }
     }
