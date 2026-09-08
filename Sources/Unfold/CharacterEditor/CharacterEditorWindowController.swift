@@ -120,7 +120,7 @@ final class CharacterEditorWindowController: NSObject, NSWindowDelegate {
         alert.addButton(withTitle: "Cancel")
         alert.addButton(withTitle: "Discard Changes")
         switch alert.runModal() {
-        case .alertFirstButtonReturn: return saveToLibrary()
+        case .alertFirstButtonReturn: return save()
         case .alertThirdButtonReturn: return true
         default: return false
         }
@@ -142,17 +142,19 @@ final class CharacterEditorWindowController: NSObject, NSWindowDelegate {
             document.name = name
             let payload = try PixelDocumentCodec.savePayload(document, characterID: origin.characterID)
             if case .character(let id, let expected) = origin {
-                guard let directory = library.packageDirectory(id: id),
+                guard let expected, let directory = library.packageDirectory(id: id),
                       let current = try? EditorPackageRevision.read(at: directory), current == expected else {
                     throw PixelDocumentCodec.Failure.invalid("This character was changed or deleted outside this editor. Save your work to a file first, then reopen the character. The library has not been overwritten.")
                 }
             }
             let character = try CharacterPackageWriter.write(payload: payload, name: name, into: library)
-            // Subsequent saves update the same package rather than duplicating it.
-            if let directory = library.packageDirectory(id: character.id),
-               let revision = try? EditorPackageRevision.read(at: directory) {
-                origin = .character(id: character.id, revision: revision)
-            }
+            // Subsequent saves update the same package rather than duplicating
+            // it. Always set the id, even if re-reading the revision fails
+            // right after the write — a nil revision makes the next save
+            // refuse to overwrite instead of silently starting a second
+            // package under a fresh id.
+            origin = .character(id: character.id,
+                revision: library.packageDirectory(id: character.id).flatMap { try? EditorPackageRevision.read(at: $0) })
             model.change { $0.name = name }
             model.markSaved()
             window?.title = "\(name) — Pixel Editor"
@@ -203,29 +205,41 @@ final class CharacterEditorWindowController: NSObject, NSWindowDelegate {
                 return false
             }
         case .askForDestination:
-            saveAs()
-            return false
+            return saveAs()
         }
     }
 
-    private func saveAs() {
-        guard let model else { return }
+    /// Returns true only after a successful write, so the close-on-save path
+    /// in `mayReplaceSession` can tell a completed Save As from a cancelled
+    /// panel or a failed write.
+    @discardableResult
+    private func saveAs() -> Bool {
+        guard let model else { return false }
         model.endStroke()
         let panel = NSSavePanel()
         panel.allowedContentTypes = EditorFileFormat.writable.map(\.utType)
         panel.nameFieldStringValue = "\(model.document.name).\(EditorFileFormat.unfoldSource.fileExtension)"
-        guard panel.runModal() == .OK, let url = panel.url else { return }
+        guard panel.runModal() == .OK, let url = panel.url else { return false }
         let format = EditorFileFormat.matching(fileExtension: url.pathExtension) ?? .unfoldSource
         guard format.canWrite else {
             present(error: PixelDocumentCodec.Failure.invalid("\(format.displayName) files cannot be written."))
-            return
+            return false
         }
         do {
             try write(model.document, to: url, format: format)
-            origin = .file(url, format)
-            model.markSaved()
-            window?.title = "\(model.document.name) — Pixel Editor"
-        } catch { present(error: error) }
+            // An export leaves the document where it was: still attached to
+            // its own origin, still unsaved, because the file that was just
+            // written cannot be reopened as this document.
+            if format.preservesDocument {
+                origin = .file(url, format)
+                model.markSaved()
+                window?.title = "\(model.document.name) — Pixel Editor"
+            }
+            return true
+        } catch {
+            present(error: error)
+            return false
+        }
     }
 
     /// Single write path for every file format, so Save and Save As cannot
@@ -263,7 +277,10 @@ final class CharacterEditorWindowController: NSObject, NSWindowDelegate {
                 throw PixelDocumentCodec.Failure.invalid("Opening GIF files is not supported yet.")
             }
             guard mayReplaceSession() else { return }
-            open(document: document, origin: .file(url, format))
+            // A raster import (PNG/JPEG) is not something the document can be
+            // saved back to — the source file cannot represent layers or
+            // multiple frames, so the session starts unattached.
+            open(document: document, origin: format.preservesDocument ? .file(url, format) : .unsaved)
         } catch { present(error: error) }
     }
 

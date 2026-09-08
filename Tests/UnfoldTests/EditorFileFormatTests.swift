@@ -38,4 +38,14 @@ final class EditorFileFormatTests: XCTestCase {
             XCTAssertFalse(format.displayName.isEmpty, "\(format)")
         }
     }
+
+    /// Only the editor's own format round-trips the full document (layers,
+    /// frames, per-layer opacity). Writing PNG, GIF, or JPEG is an export —
+    /// the in-memory document must not be considered saved afterward.
+    func test_onlyUnfoldSource_preservesTheDocument() {
+        XCTAssertTrue(EditorFileFormat.unfoldSource.preservesDocument)
+        XCTAssertFalse(EditorFileFormat.png.preservesDocument)
+        XCTAssertFalse(EditorFileFormat.gif.preservesDocument)
+        XCTAssertFalse(EditorFileFormat.jpeg.preservesDocument)
+    }
 }

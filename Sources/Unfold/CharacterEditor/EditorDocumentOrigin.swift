@@ -11,7 +11,11 @@ enum EditorDocumentOrigin: Equatable {
     /// A brand-new document that has never been written anywhere.
     case unsaved
     case file(URL, EditorFileFormat)
-    case character(id: String, revision: EditorPackageRevision)
+    /// `revision` is nil when the id is known but the on-disk revision
+    /// could not be confirmed after a write (e.g. a read failure right
+    /// after saving). A nil revision must make the next save refuse to
+    /// overwrite rather than silently duplicate the package.
+    case character(id: String, revision: EditorPackageRevision?)
 
     /// What a plain Save has to do. Kept here rather than in the window
     /// controller so the three cases are testable without a window.

@@ -64,6 +64,12 @@ enum EditorFileFormat: String, CaseIterable, Equatable {
         }
     }
 
+    /// True when writing this format stores everything the document holds,
+    /// so the file can be reopened as the same document. PNG composites the
+    /// layers into one image and GIF drops partial alpha, so writing either
+    /// is an export — the document still lives only in memory.
+    var preservesDocument: Bool { self == .unfoldSource }
+
     static var readable: [EditorFileFormat] { allCases.filter(\.canRead) }
     static var writable: [EditorFileFormat] { allCases.filter(\.canWrite) }
 

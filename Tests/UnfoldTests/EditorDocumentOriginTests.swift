@@ -64,6 +64,15 @@ final class EditorDocumentOriginTests: XCTestCase {
         XCTAssertEqual(EditorDocumentOrigin.file(url, .jpeg).saveAction, .askForDestination)
     }
 
+    /// The id is enough to route Save to the library package even when the
+    /// revision could not be confirmed after a write. Routing still says
+    /// "write the package" — it is `saveToLibrary`'s job to refuse the
+    /// overwrite when the revision is unknown, not the router's.
+    func test_saveAction_writesTheLibraryPackage_evenWhenTheRevisionIsUnknown() {
+        XCTAssertEqual(EditorDocumentOrigin.character(id: "user-1", revision: nil).saveAction,
+                       .writeLibraryPackage(id: "user-1"))
+    }
+
     /// `EditorPackageRevision.read` needs all three package files present.
     private func makePackage() throws -> URL {
         let directory = FileManager.default.temporaryDirectory
