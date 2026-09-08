@@ -1,0 +1,41 @@
+import XCTest
+import UniformTypeIdentifiers
+@testable import Unfold
+
+final class EditorFileFormatTests: XCTestCase {
+
+    func test_readableFormats_excludeGIF_whichImportIsDeferredFor() {
+        XCTAssertFalse(EditorFileFormat.readable.contains(.gif))
+        XCTAssertTrue(EditorFileFormat.readable.contains(.unfoldSource))
+        XCTAssertTrue(EditorFileFormat.readable.contains(.png))
+        XCTAssertTrue(EditorFileFormat.readable.contains(.jpeg))
+    }
+
+    /// JPEG has no alpha channel and is lossy: exporting pixel art to it
+    /// would fill transparent pixels black and blur pixel edges.
+    func test_writableFormats_excludeJPEG() {
+        XCTAssertFalse(EditorFileFormat.writable.contains(.jpeg))
+        XCTAssertTrue(EditorFileFormat.writable.contains(.unfoldSource))
+        XCTAssertTrue(EditorFileFormat.writable.contains(.png))
+        XCTAssertTrue(EditorFileFormat.writable.contains(.gif))
+    }
+
+    func test_matching_isCaseInsensitive_andTreatsJPGAsJPEG() {
+        XCTAssertEqual(EditorFileFormat.matching(fileExtension: "JPG"), .jpeg)
+        XCTAssertEqual(EditorFileFormat.matching(fileExtension: "jpeg"), .jpeg)
+        XCTAssertEqual(EditorFileFormat.matching(fileExtension: "PISKEL"), .unfoldSource)
+        XCTAssertEqual(EditorFileFormat.matching(fileExtension: "png"), .png)
+    }
+
+    func test_matching_returnsNil_forAnUnknownExtension() {
+        XCTAssertNil(EditorFileFormat.matching(fileExtension: "bmp"))
+        XCTAssertNil(EditorFileFormat.matching(fileExtension: ""))
+    }
+
+    func test_everyFormatHasANonEmptyExtensionAndDisplayName() {
+        for format in EditorFileFormat.allCases {
+            XCTAssertFalse(format.fileExtension.isEmpty, "\(format)")
+            XCTAssertFalse(format.displayName.isEmpty, "\(format)")
+        }
+    }
+}
