@@ -268,25 +268,73 @@ final class CharacterEditorWindowController: NSObject, NSWindowDelegate {
         panel.canChooseDirectories = false
         guard panel.runModal() == .OK, let url = panel.url else { return }
         do {
-            let format = EditorFileFormat.matching(fileExtension: url.pathExtension) ?? .unfoldSource
-            let document: PixelDocument
-            switch format {
-            case .unfoldSource:
-                document = try PixelDocumentCodec.load(from: url)
-            case .png, .jpeg:
-                let size = try url.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0
-                guard size <= Constants.editorMaxSheetDataURLBytes else {
-                    throw PixelDocumentCodec.Failure.invalid("The image is too large.")
-                }
-                document = try PixelDocumentCodec.importPNG(Data(contentsOf: url))
-            case .gif:
-                throw PixelDocumentCodec.Failure.invalid("Opening GIF files is not supported yet.")
+            // The file's bytes decide what it is; the extension only decided
+            // whether the panel would offer it. A JPEG named .png still opens.
+            let size = try url.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0
+            guard size <= PixelDocumentCodec.maximumSourceBytes else {
+                throw PixelDocumentCodec.Failure.invalid("The file is too large.")
             }
+            let data = try Data(contentsOf: url)
+            guard let format = RasterImageDecoder.detectFormat(data) else {
+                // Not a raster image, so it must be a source document.
+                let document = try PixelDocumentCodec.decode(data)
+                guard mayReplaceSession() else { return }
+                open(document: document, origin: .file(url, .unfoldSource))
+                return
+            }
+            let image = try RasterImageDecoder.decode(data, format: format)
+            let suggestion = ImportOptions.suggestion(width: image.width, height: image.height)
+            if suggestion == .single {
+                let document = try ImportOptions.apply(.single, to: image)
+                guard mayReplaceSession() else { return }
+                open(document: document, origin: .unsaved)
+                return
+            }
+            presentImportOptions(for: image, suggestion: suggestion)
+        } catch { present(error: error) }
+    }
+
+    /// A raster import always starts an unattached session: the PNG or JPEG
+    /// it came from cannot hold layers or frames, so it is not somewhere the
+    /// document could be saved back to.
+    private func presentImportOptions(for image: RasterImageDecoder.Image, suggestion: ImportOptions) {
+        let sheet = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 380, height: 460),
+            styleMask: [.titled], backing: .buffered, defer: false)
+        // The buttons only record the answer and end the session. Acting on it
+        // has to wait until `runModal` has returned: applying an import can
+        // reach `mayReplaceSession`, which runs an alert modally, and starting
+        // a nested modal session immediately after `stopModal` can consume the
+        // stop that was meant for this one.
+        var chosen: ImportOptions?
+        let dismiss: (ImportOptions?) -> Void = { options in
+            chosen = options
+            NSApp.stopModal()
+        }
+        // The dialog still reports and edits the image's real dimensions; only
+        // what it draws is reduced.
+        let preview = image.thumbnail(maxSide: 512)
+        let view = ImportOptionsView(
+            imageWidth: image.width, imageHeight: image.height,
+            preview: PixelDocumentCodec.image(preview.pixels, width: preview.width, height: preview.height),
+            suggestion: suggestion,
+            confirm: { dismiss($0) }, cancel: { dismiss(nil) })
+        sheet.contentView = NSHostingView(rootView: view)
+        sheet.center()
+        NSApp.runModal(for: sheet)
+
+        sheet.orderOut(nil)
+        // Also breaks a retain cycle: the hosting view holds the SwiftUI
+        // closures, which capture `sheet`, so the window and the imported
+        // image it previews would otherwise never deallocate.
+        sheet.contentView = nil
+
+        // Cancelling leaves the current session exactly as it was — nothing
+        // has been mutated at this point, and `mayReplaceSession` has not run.
+        guard let chosen else { return }
+        do {
+            let document = try ImportOptions.apply(chosen, to: image)
             guard mayReplaceSession() else { return }
-            // A raster import (PNG/JPEG) is not something the document can be
-            // saved back to — the source file cannot represent layers or
-            // multiple frames, so the session starts unattached.
-            open(document: document, origin: format.preservesDocument ? .file(url, format) : .unsaved)
+            open(document: document, origin: .unsaved)
         } catch { present(error: error) }
     }
 

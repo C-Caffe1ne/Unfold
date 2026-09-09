@@ -29,6 +29,29 @@ enum RasterImageDecoder {
             self.width = width
             self.height = height
         }
+
+        /// A nearest-neighbour subsample, for previewing an import before the
+        /// user has decided what to keep.
+        ///
+        /// Rendering the full image instead would mean expanding every pixel
+        /// to four bytes — up to `editorMaxImportPixels × 4`, or 64 MB — on
+        /// the main thread, to draw a thumbnail a couple of hundred points
+        /// wide. Nearest-neighbour rather than a smooth filter because the
+        /// subject is pixel art often enough for hard edges to matter.
+        func thumbnail(maxSide: Int) -> Image {
+            let longest = max(width, height)
+            guard maxSide > 0, longest > maxSide else { return self }
+            let scaledWidth = max(1, width * maxSide / longest)
+            let scaledHeight = max(1, height * maxSide / longest)
+            var scaled = Array(repeating: UInt32(0), count: scaledWidth * scaledHeight)
+            for y in 0..<scaledHeight {
+                let sourceY = min(height - 1, y * height / scaledHeight)
+                for x in 0..<scaledWidth {
+                    scaled[y * scaledWidth + x] = pixels[sourceY * width + min(width - 1, x * width / scaledWidth)]
+                }
+            }
+            return Image(pixels: scaled, width: scaledWidth, height: scaledHeight)
+        }
     }
 
     /// The 12 bytes every complete PNG stream ends with: a zero-length chunk,
@@ -46,9 +69,13 @@ enum RasterImageDecoder {
         return nil
     }
 
-    static func decode(_ data: Data, format: EditorFileFormat, maximumSide: Int) throws -> Image {
+    /// Decodes an image for import. The bound is a pixel budget, not a canvas
+    /// size: an import is allowed to be far larger than any canvas, because
+    /// deciding what to keep — crop, split, scale — happens afterwards. A
+    /// canvas-sized bound here would make cropping a photo impossible.
+    static func decode(_ data: Data, format: EditorFileFormat) throws -> Image {
         guard data.count <= Constants.editorMaxSheetDataURLBytes else {
-            throw PixelDocumentCodec.Failure.invalid("The image is too large.")
+            throw PixelDocumentCodec.Failure.invalid("The image file is too large.")
         }
         try verify(data, format: format)
 
@@ -57,15 +84,21 @@ enum RasterImageDecoder {
               let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
               let width = properties[kCGImagePropertyPixelWidth] as? Int,
               let height = properties[kCGImagePropertyPixelHeight] as? Int,
-              width > 0, height > 0,
-              width <= maximumSide * Constants.editorFrameCountRange.upperBound,
-              height <= maximumSide,
-              CGImageSourceGetStatus(source) == .statusComplete,
+              width > 0, height > 0 else {
+            throw PixelDocumentCodec.Failure.invalid("That file is not a readable \(format.displayName).")
+        }
+        // Checked against the header before decoding, so a compressed bomb is
+        // refused on its declared dimensions rather than after it expands.
+        guard width <= Constants.editorMaxImportSide, height <= Constants.editorMaxImportSide,
+              width * height <= Constants.editorMaxImportPixels else {
+            throw PixelDocumentCodec.Failure.invalid(
+                "That image is \(width)×\(height) px, which is too large to import.")
+        }
+        guard CGImageSourceGetStatus(source) == .statusComplete,
               let image = CGImageSourceCreateImageAtIndex(source, 0, nil),
               image.width == width, image.height == height,
               CGImageSourceGetStatusAtIndex(source, 0) == .statusComplete else {
-            throw PixelDocumentCodec.Failure.invalid(
-                "Use a complete \(format.displayName) no more than \(maximumSide) pixels tall.")
+            throw PixelDocumentCodec.Failure.invalid("Use a complete \(format.displayName).")
         }
         return Image(pixels: try pixels(of: image, width: width, height: height), width: width, height: height)
     }

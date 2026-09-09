@@ -168,4 +168,25 @@ enum Constants {
     /// PNG-encodes close to that raw size, so this constant is
     /// `editorMaxDocumentBytes` plus roughly a 30% margin, rounded up.
     static let editorMaxSheetDataURLBytes = 32 * 1024 * 1024
+
+    /// How many pixels an image may have to be *imported*, before the import
+    /// dialog crops, splits or scales it down to a canvas.
+    ///
+    /// Deliberately far above `editorCanvasSideRange` and unrelated to it: an
+    /// image only has to fit a canvas *after* the user decides what to do
+    /// with it, so bounding the import by the canvas would make cropping a
+    /// photo impossible — the thing cropping exists for. This bounds the
+    /// transient decode instead, which is what a decompression bomb would
+    /// abuse: a few hundred KB of highly-compressible PNG can expand to
+    /// hundreds of MB. At 4 bytes per pixel this allows a 64 MB decode,
+    /// which covers a 5K screenshot or a 12-megapixel photo and refuses the
+    /// sizes that only appear in an attack.
+    static let editorMaxImportPixels = 16 * 1024 * 1024
+
+    /// Longest side an imported image may have. The pixel budget above is
+    /// the real bound; this only stops a pathological strip (one pixel tall,
+    /// sixteen million wide) that satisfies the budget but nothing sane
+    /// produces. Must stay above the widest legal sprite sheet, which is
+    /// `editorCanvasSideRange.upperBound × editorFrameCountRange.upperBound`.
+    static let editorMaxImportSide = 16384
 }

@@ -55,7 +55,7 @@ final class ImportOptionsTests: XCTestCase {
         original.layers[0].frames[3].pixels[10] = 0xABCDEF12
 
         let sheet = try PixelDocumentCodec.sheetPNG(original)
-        let decoded = try RasterImageDecoder.decode(sheet, format: .png, maximumSide: Constants.editorCanvasSideRange.upperBound)
+        let decoded = try RasterImageDecoder.decode(sheet, format: .png)
         let reopened = try ImportOptions.apply(.split(frameWidth: 64, frameHeight: 64), to: decoded)
 
         XCTAssertEqual(reopened.frameCount, 8)
