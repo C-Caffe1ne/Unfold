@@ -101,6 +101,16 @@ final class EditorWriteWarningTests: XCTestCase {
         XCTAssertTrue(warning.contains("6"), warning)
     }
 
+    /// The quietest of the PNG losses and the only one with no trace in the
+    /// file: `ImportOptions` rebuilds the frames from the image but starts a
+    /// fresh document, so the speed it plays at is the default rather than
+    /// the one that was authored. Nothing reopens wrong enough to notice.
+    func test_png_saysTheFrameRateIsNotStored_whenThereIsMoreThanOneFrame() throws {
+        let document = makeDocument(frames: 6)
+        let warning = try XCTUnwrap(EditorWriteWarning.text(for: document, format: .png))
+        XCTAssertTrue(warning.lowercased().contains("frame rate"), warning)
+    }
+
     /// One frame and one layer is the shape a PNG already is, so the write
     /// changes nothing structural and there is nothing to say.
     func test_png_returnsNil_forASingleFrameOnASingleLayer() {

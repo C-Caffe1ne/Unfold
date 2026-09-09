@@ -43,14 +43,24 @@ enum EditorWriteWarning {
 
     /// PNG holds exactly one image, so everything the document arranges
     /// *around* a single image — the timeline and the layer stack — has to be
-    /// resolved on the way out. Neither loss is visible in the resulting
-    /// picture, which is what makes it worth saying: the file looks right and
-    /// only turns out to be a dead end when it is opened again and comes back
-    /// as one flat, wide, still image.
+    /// resolved on the way out. Neither loss shows in the resulting picture,
+    /// which is what makes them worth saying: the file looks right, and only
+    /// the reopening tells the user what it cost.
+    ///
+    /// The timeline is the delicate half, and the honest word for what
+    /// happens to it is "reconstructed". Reopening a sheet does usually get
+    /// the frames back — `ImportOptions.suggestion` spots a horizontal strip
+    /// and offers to split it — but it is reading the proportions of an
+    /// image, not a timeline stored in the file, and the guess it makes
+    /// assumes square frames. Saying the animation is lost would be false;
+    /// saying nothing would leave the user expecting the file to remember.
+    /// The frame rate genuinely is gone: nothing in a PNG can carry it, so
+    /// what reopens runs at whatever speed a fresh document starts at.
     private static func pngSentences(for document: PixelDocument) -> [String] {
         var sentences: [String] = []
         if document.frameCount > 1 {
-            sentences.append("The \(document.frameCount) frames will be written side by side as one horizontal sprite sheet, so the file reopens as a single wide image rather than an animation.")
+            sentences.append("The \(document.frameCount) frames will be written side by side as one horizontal sprite sheet, and reopening the file asks how to slice the image back into frames rather than reading the timeline from it.")
+            sentences.append("A PNG stores no frame rate, so a reopened sheet plays at the editor's default speed rather than this document's.")
         }
         if document.layers.count > 1 {
             sentences.append("The \(document.layers.count) layers will be flattened into one image.")
