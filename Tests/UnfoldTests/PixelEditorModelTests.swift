@@ -131,20 +131,118 @@ final class PixelEditorModelTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(8 * model.zoom, 128, "an 8px canvas should not open thumbnail-sized")
     }
 
-    func test_zoomingInDoublesThePercentage() {
-        let model = PixelEditorModel(document: PixelDocument(width: 64, height: 64))
-        let base = model.zoom
-        model.zoomIn()
-        XCTAssertEqual(model.zoom, base * 2)
-        XCTAssertEqual(model.zoomPercent, 200)
+    /// Dragging a cel offsets one layer against the others, so every other
+    /// layer has to come out of it untouched — and the frame count with it,
+    /// since the columns stay shared.
+    func test_movingACelReordersOnlyItsOwnLayer() {
+        let model = PixelEditorModel(document: PixelDocument(width: 4, height: 4))
+        model.addFrame(duplicate: false)
+        model.addFrame(duplicate: false)
+        model.addLayer()
+        XCTAssertEqual(model.document.frameCount, 3)
+        XCTAssertEqual(model.document.layers.count, 2)
+        model.change { doc in
+            for layer in doc.layers.indices {
+                for frame in 0..<doc.frameCount {
+                    doc.layers[layer].frames[frame].pixels[0] = UInt32(layer * 10 + frame + 1) << 24 | 255
+                }
+            }
+        }
+        func marks(_ layer: Int) -> [UInt32] {
+            (0..<model.document.frameCount).map { model.document.layers[layer].frames[$0].pixels[0] >> 24 }
+        }
+        let untouched = marks(1)
+
+        model.moveCel(layer: 0, from: 0, to: 2)
+
+        XCTAssertEqual(marks(0), [2, 3, 1], "the cel should land at the end of its own layer")
+        XCTAssertEqual(marks(1), untouched, "the other layer must not move")
+        XCTAssertEqual(model.document.frameCount, 3, "moving a cel must not change the frame count")
+        XCTAssertEqual(model.selectedFrame, 2)
+        XCTAssertTrue(model.canUndo)
     }
 
-    func test_zoomingOutHalvesThePercentage() {
+    func test_aLockedLayerRefusesACelMove() {
+        let model = PixelEditorModel(document: PixelDocument(width: 4, height: 4))
+        model.addFrame(duplicate: false)
+        model.toggleLayerLock(0)
+        let before = model.document
+        model.moveCel(layer: 0, from: 0, to: 1)
+        XCTAssertEqual(model.document, before)
+    }
+
+    /// Doubling overshot: one press took a fitted canvas straight to twice
+    /// the window, with nothing usable in between. A 64px canvas opens at a
+    /// scale of 8, whose fifth rounds to a two-point step — 25% a press,
+    /// which is the closest whole-point approximation of the 20% asked for.
+    func test_zoomingInStepsUpByAFifthOfTheOpeningScale() {
         let model = PixelEditorModel(document: PixelDocument(width: 64, height: 64))
-        let base = model.zoom
+        XCTAssertEqual(model.zoom, 8)
+        model.zoomIn()
+        XCTAssertEqual(model.zoom, 10)
+        XCTAssertEqual(model.zoomPercent, 125)
+    }
+
+    func test_zoomingOutStepsDownByAFifthOfTheOpeningScale() {
+        let model = PixelEditorModel(document: PixelDocument(width: 64, height: 64))
         model.zoomOut()
-        XCTAssertEqual(model.zoom, base / 2)
-        XCTAssertEqual(model.zoomPercent, 50)
+        XCTAssertEqual(model.zoom, 6)
+        XCTAssertEqual(model.zoomPercent, 75)
+    }
+
+    /// A typed percentage lands on the nearest drawable scale, and the label
+    /// is rewritten to whatever that turned out to be.
+    func test_typedZoomSnapsToTheNearestReachableScale() {
+        let model = PixelEditorModel(document: PixelDocument(width: 64, height: 64))
+        // 137% of a scale of 8 is 10.96, nearer the level at 10 than the one
+        // at 12, so the field is rewritten to the 125% it actually landed on.
+        model.setZoomPercent(137)
+        XCTAssertEqual(model.zoom, 10)
+        XCTAssertEqual(model.zoomPercent, 125)
+
+        model.setZoomPercent(100)
+        XCTAssertEqual(model.zoom, 8)
+        XCTAssertEqual(model.zoomPercent, 100)
+
+        model.setZoomPercent(100_000)
+        XCTAssertEqual(model.zoom, PixelEditorModel.maximumZoom)
+        model.setZoomPercent(1)
+        XCTAssertGreaterThanOrEqual(model.zoom, 1)
+    }
+
+    /// A scale must be a whole number of points per pixel, so at a small
+    /// opening scale two neighbouring percentages round together. Those
+    /// duplicates have to be dropped, or a press moves the label and nothing
+    /// else — worst at 512px, which opens at one point per pixel.
+    func test_everyZoomLevelChangesTheScale() {
+        for side in [8, 16, 24, 32, 64, 128, 256, 512] {
+            let model = PixelEditorModel(document: PixelDocument(width: side, height: side))
+            while model.canZoomOut { model.zoomOut() }
+            var seen = [model.zoom]
+            while model.canZoomIn {
+                model.zoomIn()
+                seen.append(model.zoom)
+            }
+            XCTAssertGreaterThan(seen.count, 1, "side \(side) should offer more than one zoom level")
+            XCTAssertEqual(seen, seen.sorted(), "side \(side) is not ascending: \(seen)")
+            XCTAssertEqual(Set(seen).count, seen.count, "side \(side) repeats a scale: \(seen)")
+            XCTAssertTrue(seen.allSatisfy { (1...PixelEditorModel.maximumZoom).contains($0) },
+                          "side \(side) left the renderable range: \(seen)")
+        }
+    }
+
+    /// Levels are laid out from the opening scale outwards in whole-point
+    /// steps, so nothing between the ends is skipped and the opening scale is
+    /// always one of them.
+    func test_zoomLevelsAreEvenlySpacedAroundTheOpeningScale() {
+        XCTAssertEqual(Array(PixelEditorModel.zoomLevels(base: 8).prefix(6)), [2, 4, 6, 8, 10, 12])
+        XCTAssertEqual(PixelEditorModel.zoomLevels(base: 24).prefix(5).map { $0 }, [4, 9, 14, 19, 24])
+        // One point per pixel is the floor, so a document that opens there
+        // cannot zoom out at all.
+        XCTAssertEqual(PixelEditorModel.zoomLevels(base: 1).first, 1)
+        for base in 1...PixelEditorModel.maximumZoom {
+            XCTAssertTrue(PixelEditorModel.zoomLevels(base: base).contains(base), "base \(base)")
+        }
     }
 
     func test_zoomIsClampedToTheRenderableRange() {
@@ -189,5 +287,45 @@ final class PixelEditorModelTests: XCTestCase {
             XCTAssertEqual(model.zoom, opening, "side \(side): could not return to the opening scale")
             XCTAssertEqual(model.zoomPercent, 100, "side \(side): back at the opening scale but not 100%")
         }
+    }
+
+    /// Builds a palette of known greys through the editor's own import, so
+    /// these tests need no back door into the document.
+    private func model(palette greys: [Int]) -> PixelEditorModel {
+        let model = PixelEditorModel(document: PixelDocument(width: 8, height: 8))
+        let body = greys.map { "\($0) \($0) \($0)" }.joined(separator: "\n")
+        try? model.importGPL("GIMP Palette\nName: Test\n" + body)
+        return model
+    }
+
+    private func rgb(_ grey: Int) -> UInt32 {
+        UInt32(grey) << 24 | UInt32(grey) << 16 | UInt32(grey) << 8 | 255
+    }
+
+    func test_deletingSeveralSwatchesAtOnceRemovesExactlyThoseChosen() {
+        let model = model(palette: [17, 34, 51, 68])
+        model.removePaletteColors(at: [0, 2])
+        XCTAssertEqual(model.document.palette, [rgb(34), rgb(68)])
+    }
+
+    func test_deletingEverySwatchLeavesTheFirstOneBehind() {
+        let model = model(palette: [17, 34, 51])
+        model.removePaletteColors(at: [0, 1, 2])
+        XCTAssertEqual(model.document.palette, [rgb(17)],
+            "a palette must never be emptied; the lowest chosen swatch survives")
+    }
+
+    func test_deletingSwatchesIgnoresIndicesThePaletteDoesNotHave() {
+        let model = model(palette: [17, 34])
+        model.removePaletteColors(at: [1, 9])
+        XCTAssertEqual(model.document.palette, [rgb(17)])
+    }
+
+    func test_deletingNoSwatchesIsNotADocumentChange() {
+        let model = PixelEditorModel(document: PixelDocument(width: 8, height: 8))
+        let before = model.document.palette
+        model.removePaletteColors(at: [])
+        XCTAssertEqual(model.document.palette, before)
+        XCTAssertFalse(model.canUndo)
     }
 }

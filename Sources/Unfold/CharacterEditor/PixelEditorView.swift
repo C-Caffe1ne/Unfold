@@ -13,7 +13,9 @@ struct PixelEditorView: View {
     @State private var showResize = false
     @State private var confirmCrop = false
     @State private var paletteError: String?
-    @State private var paletteIndex: Int?
+    @State private var paletteSelection: Set<Int> = []
+    @State private var zoomField = ""
+    @State private var hoveredTool: PixelTool?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -44,6 +46,8 @@ struct PixelEditorView: View {
         .frame(minWidth: 900, minHeight: 620)
         .sheet(isPresented: $showResize) { resizeSheet }
         .alert("Palette import failed", isPresented: Binding(get: { paletteError != nil }, set: { if !$0 { paletteError = nil } })) { Button("OK") { paletteError = nil } } message: { Text(paletteError ?? "") }
+        .onAppear { zoomField = "\(model.zoomPercent)" }
+        .onChange(of: model.zoomPercent) { zoomField = "\($0)" }
         .task(id: model.isPlaying) {
             while model.isPlaying && !Task.isCancelled {
                 model.tickPlayback(at: Date().timeIntervalSinceReferenceDate)
@@ -58,60 +62,112 @@ struct PixelEditorView: View {
             Text("Pixel Editor").font(.headline)
             Divider().frame(height: 22)
             Button(action: model.undo) { Image(systemName: "arrow.uturn.backward") }
-                .help("Undo (⌘Z)").keyboardShortcut("z").disabled(!model.canUndo)
+                .pixelTooltip(PixelHelp.text("Undo", key: "⌘Z", "Steps back one whole stroke or document change."))
+                .keyboardShortcut("z").disabled(!model.canUndo)
             Button(action: model.redo) { Image(systemName: "arrow.uturn.forward") }
-                .help("Redo (⇧⌘Z)").keyboardShortcut("z", modifiers: [.command, .shift]).disabled(!model.canRedo)
+                .pixelTooltip(PixelHelp.text("Redo", key: "⇧⌘Z", "Replays the change Undo took back."))
+                .keyboardShortcut("z", modifiers: [.command, .shift]).disabled(!model.canRedo)
             Menu("File") {
                 Button("Open…", action: openDocument).keyboardShortcut("o")
+                    .help(PixelHelp.text("Open", key: "⌘O", "Opens a .unf document, a PNG or a JPEG."))
                 Divider()
                 Button("Save", action: save)
+                    .help(PixelHelp.text("Save", key: "⌘S", "Writes the document back to its own file."))
                 Button("Save As…", action: saveAs)
                     .keyboardShortcut("s", modifiers: [.command, .shift])
+                    .help(PixelHelp.text("Save As", key: "⇧⌘S", "Writes a copy as .unf, a PNG sprite sheet or an animated GIF."))
                 Divider()
                 Button(Strings.Editor.saveButton, action: saveToLibrary)
+                    .help(PixelHelp.text(Strings.Editor.saveButton, "Stores the drawing in the character library with its playback order and per-frame timing."))
             }.frame(width: 70)
+            .pixelTooltip(PixelHelp.text("File", "Open, save, export a copy, or store the drawing in the character library."))
             Button("Canvas Size…") {
                 resizeWidth = model.document.width
                 resizeHeight = model.document.height
                 showResize = true
             }
+            .pixelTooltip(PixelHelp.text("Canvas Size", "Resizes every frame and layer, anchored to the top-left. Shrinking crops, and Undo restores."))
             Spacer()
             Button("Save", action: save)
                 .keyboardShortcut("s").buttonStyle(.borderedProminent).tint(.orange)
+                .pixelTooltip(PixelHelp.text("Save", key: "⌘S", "Writes the document back to its own file."))
         }.padding(12)
     }
 
+    /// Two columns rather than one: fifteen tools in a single file ran past
+    /// the bottom of a short window, putting the last of them behind a scroll.
+    ///
+    /// The palette and the foreground/background pair sit here rather than in
+    /// the inspector, so everything one stroke is made of — the tool, the
+    /// colour, the swatch it came from — is reachable without crossing the
+    /// window. The colour pair is outside the scroll view: it is what the
+    /// canvas is painting with, and it should not be able to scroll away.
     private var tools: some View {
-        ScrollView {
-        VStack(spacing: 8) {
-            ForEach(PixelTool.allCases) { tool in
-                Button { model.tool = tool } label: {
-                    Image(systemName: tool.symbol)
-                        .font(.system(size: 18))
-                        .frame(width: 38, height: 34)
-                        .background(model.tool == tool ? Color.orange.opacity(0.25) : Color.clear)
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
-                }.buttonStyle(.plain).help(tool.title + (tool.shortcutLabel.map { " (" + $0 + ")" } ?? "")).accessibilityLabel(tool.title)
+        VStack(spacing: 0) {
+            ScrollView {
+                VStack(spacing: 8) {
+                    LazyVGrid(columns: Array(repeating: GridItem(.fixed(38), spacing: 6), count: 2), spacing: 6) {
+                        ForEach(PixelTool.allCases) { tool in
+                            Button { model.tool = tool } label: {
+                                Image(systemName: tool.symbol)
+                                    .font(.system(size: 17))
+                                    .foregroundStyle(model.tool == tool ? Color.orange : Color.primary)
+                                    .frame(width: 38, height: 32)
+                                    .background(RoundedRectangle(cornerRadius: 6).fill(toolBackground(tool)))
+                                    .overlay(RoundedRectangle(cornerRadius: 6)
+                                        .strokeBorder(hoveredTool == tool ? Color.orange.opacity(0.55) : .clear))
+                                    // The glyph leaves most of the cell transparent;
+                                    // without this, hovering between strokes of the
+                                    // icon would not count as hovering the tool.
+                                    .contentShape(RoundedRectangle(cornerRadius: 6))
+                            }.buttonStyle(.plain)
+                                .onHover { inside in
+                                    if inside { hoveredTool = tool }
+                                    else if hoveredTool == tool { hoveredTool = nil }
+                                }
+                                .animation(.easeOut(duration: 0.12), value: hoveredTool)
+                                .pixelTooltip(tool.help).accessibilityLabel(tool.title)
+                        }
+                    }
+                    Divider()
+                    PixelPaletteView(model: model, selection: $paletteSelection, importError: $paletteError)
+                }.padding(10)
             }
             Divider()
-            ColorPicker("Color", selection: Binding(get: { color(model.color) }, set: { model.color = rgba($0) }), supportsOpacity: true)
-                .labelsHidden().help("Drawing color")
-            Spacer()
-        }.padding(10)
-        }.frame(width: 62)
+            PixelColorSwatches(model: model).padding(10)
+        }.frame(width: 130)
+    }
+
+    /// The armed tool keeps its own colour whether or not it is hovered, so
+    /// the highlight never leaves which tool is selected in doubt.
+    private func toolBackground(_ tool: PixelTool) -> Color {
+        if model.tool == tool { return .orange.opacity(0.25) }
+        return hoveredTool == tool ? Color.primary.opacity(0.12) : .clear
     }
 
     private var canvas: some View {
         VStack(spacing: 0) {
             HStack {
                 Toggle("Grid", isOn: $model.showGrid)
+                    .pixelTooltip(PixelHelp.text("Grid", "Overlays a one-pixel grid once the canvas is zoomed in far enough to show it."))
                 Toggle("Onion Skin", isOn: $model.onionSkin)
+                    .pixelTooltip(PixelHelp.text("Onion Skin", "Shows the previous frame faintly behind the one being drawn."))
+                Toggle("Pixel-perfect", isOn: $model.pixelPerfect)
+                    .pixelTooltip(PixelHelp.text("Pixel-perfect pencil", "Drops the middle pixel of a corner before a diagonal step, so a freehand line has no double-thick bends. One-pixel brush only."))
+                Stepper("Brush: \(model.brushSize) px", value: $model.brushSize, in: 1...8)
+                    .pixelTooltip(PixelHelp.text("Brush Size", "Width in pixels of the pencil, eraser, shapes, spray and brightness stamps."))
                 Spacer()
                 Button(action: model.zoomOut) { Image(systemName: "minus.magnifyingglass") }
-                    .disabled(!model.canZoomOut).help("Zoom out")
-                Text("\(model.zoomPercent)%").monospacedDigit().frame(width: 55)
+                    .disabled(!model.canZoomOut)
+                    .pixelTooltip(PixelHelp.text("Zoom Out", key: "⌘ scroll down", "Steps down one zoom level. Zoom resamples nothing."))
+                TextField("Zoom", text: $zoomField)
+                    .frame(width: 46).multilineTextAlignment(.trailing).monospacedDigit()
+                    .pixelTooltip(PixelHelp.text("Zoom", key: "Return", "Type a percentage; it snaps to the nearest whole pixel scale."))
+                    .onSubmit(applyTypedZoom)
+                Text("%")
                 Button(action: model.zoomIn) { Image(systemName: "plus.magnifyingglass") }
-                    .disabled(!model.canZoomIn).help("Zoom in")
+                    .disabled(!model.canZoomIn)
+                    .pixelTooltip(PixelHelp.text("Zoom In", key: "⌘ scroll up", "Steps up one zoom level. Zoom resamples nothing."))
             }.font(.caption).toggleStyle(.checkbox).padding(10)
             GeometryReader { geometry in
                 ScrollView([.horizontal, .vertical]) {
@@ -137,27 +193,29 @@ struct PixelEditorView: View {
                     Button { model.togglePlayback(at: Date().timeIntervalSinceReferenceDate) } label: {
                         Label(model.isPlaying ? "Pause" : "Play", systemImage: model.isPlaying ? "pause.fill" : "play.fill")
                     }
+                    .pixelTooltip(PixelHelp.text(model.isPlaying ? "Pause" : "Play", key: "Return",
+                        "Runs the frames in the playback order, each for its own duration."))
                     Spacer()
                     Text("\(Int(model.document.fps)) FPS").monospacedDigit()
                 }
                 Slider(value: Binding(get: { model.document.fps }, set: { value in model.change { $0.fps = value } }), in: 1...24, step: 1)
                     .accessibilityLabel("Animation speed")
+                    .pixelTooltip(PixelHelp.text("Frame Rate", "Frames per second for every frame that has no duration of its own."))
                 PixelPlaybackControls(model: model)
                 Divider()
-                ColorPicker("Foreground", selection: Binding(get: { color(model.color) }, set: { model.color = rgba($0) }))
-                ColorPicker("Background", selection: Binding(get: { color(model.backgroundColor) }, set: { model.backgroundColor = rgba($0) }))
                 Toggle("Mirror X", isOn: $model.symmetryX)
+                    .pixelTooltip(PixelHelp.text("Mirror X", "Also stamps every brush, shape and fill mirrored across the vertical centre line."))
                 Toggle("Mirror Y", isOn: $model.symmetryY)
-                Toggle("Pixel-perfect pencil", isOn: $model.pixelPerfect)
+                    .pixelTooltip(PixelHelp.text("Mirror Y", "Also stamps every brush, shape and fill mirrored across the horizontal centre line."))
                 Toggle("Darken brightness brush", isOn: $model.darken)
-                Stepper("Brush: \(model.brushSize) px", value: $model.brushSize, in: 1...8)
-                palette
+                    .pixelTooltip(PixelHelp.text("Darken brightness brush", "Turns the brightness tool from lightening to darkening."))
                 HStack {
                     Button { model.flip(horizontal: true) } label: { Image(systemName: "arrow.left.and.right.righttriangle.left.righttriangle.right") }
-                        .help("Flip current layer frame horizontally")
+                        .pixelTooltip(PixelHelp.text("Flip Horizontally", "Mirrors the selected layer's current cel left to right. Nothing else moves."))
                     Button { model.flip(horizontal: false) } label: { Image(systemName: "arrow.up.and.down.righttriangle.up.righttriangle.down") }
-                        .help("Flip current layer frame vertically")
-                    Button("Clear", action: model.clearFrame).help("Clear current layer frame (undoable)")
+                        .pixelTooltip(PixelHelp.text("Flip Vertically", "Mirrors the selected layer's current cel top to bottom. Nothing else moves."))
+                    Button("Clear", action: model.clearFrame)
+                        .pixelTooltip(PixelHelp.text("Clear", "Empties the selected layer's current cel. Undo restores it."))
                 }
                 Divider()
                 layers
@@ -165,77 +223,14 @@ struct PixelEditorView: View {
         }.frame(width: 212)
     }
 
-    private var palette: some View {
-        VStack(alignment: .leading) {
-            Text("PALETTE").font(.caption.weight(.semibold))
-            LazyVGrid(columns: Array(repeating: GridItem(.fixed(24)), count: 6), spacing: 6) {
-                ForEach(model.document.palette.indices, id: \.self) { index in
-                    Button { paletteIndex = index; model.color = model.document.palette[index] } label: {
-                        Rectangle().fill(color(model.document.palette[index])).frame(width: 24, height: 24)
-                            .border(paletteIndex == index ? Color.orange : Color.secondary)
-                    }.buttonStyle(.plain).help(String(format: "#%08X", model.document.palette[index]))
-                }
-            }
-            HStack {
-                Button("Add") { model.addPaletteColor(model.color) }
-                Button("Update") { if let i = paletteIndex { model.updatePaletteColor(at: i, color: model.color) } }.disabled(paletteIndex == nil)
-            }
-            HStack {
-                Button("Delete") { if let i = paletteIndex { model.removePaletteColor(at: i); paletteIndex = nil } }.disabled(paletteIndex == nil)
-                Button("←") { moveSwatch(-1) }.help("Move swatch earlier")
-                Button("→") { moveSwatch(1) }.help("Move swatch later")
-            }
-            Button("Import GPL…", action: importPalette)
-        }
-    }
-
-    private func moveSwatch(_ delta: Int) {
-        guard let index = paletteIndex, model.document.palette.indices.contains(index + delta) else { return }
-        model.movePaletteColor(from: index, to: index + delta)
-        paletteIndex = index + delta
-    }
-
-    private func importPalette() {
-        let panel = NSOpenPanel()
-        panel.allowsMultipleSelection = false
-        panel.canChooseDirectories = false
-        panel.title = "Import GIMP Palette (.gpl)"
-        guard panel.runModal() == .OK, let url = panel.url else { return }
-        do {
-            let handle = try FileHandle(forReadingFrom: url)
-            defer { try? handle.close() }
-            let data = try handle.read(upToCount: 1_048_577) ?? Data()
-            guard data.count <= 1_048_576, let text = String(data: data, encoding: .utf8) else {
-                paletteError = "Choose a UTF-8 GPL file no larger than 1 MiB."
-                return
-            }
-            try model.importGPL(text)
-            paletteIndex = nil
-        } catch { paletteError = error.localizedDescription }
-    }
-
     private var layers: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text("LAYERS").font(.caption.weight(.semibold)).foregroundStyle(.secondary)
-                Spacer()
-                Button(action: model.addLayer) { Image(systemName: "plus") }.help("Add layer")
-                    .disabled(model.document.layers.count >= PixelDocument.maximumLayers)
-                Button(action: model.deleteLayer) { Image(systemName: "trash") }.help("Delete layer")
-                    .disabled(model.document.layers.count <= 1)
-            }
-            HStack {
-                Text("Opacity").font(.caption)
-                Spacer()
-                Text("\(Int(model.document.layers[model.selectedLayer].opacity * 100))%").font(.caption.monospacedDigit())
-            }
-            Slider(value: Binding(get: { model.document.layers[model.selectedLayer].opacity }, set: { value in
-                let index = model.selectedLayer
-                model.change { $0.layers[index].opacity = value }
-            }), in: 0...1, step: 0.05).accessibilityLabel("Layer opacity")
+            Text("LAYERS").font(.caption.weight(.semibold)).foregroundStyle(.secondary)
             HStack {
                 Button("Raise") { model.moveLayer(by: 1) }.disabled(model.selectedLayer == model.document.layers.count - 1)
+                    .pixelTooltip(PixelHelp.text("Raise Layer", "Moves the selected layer one place up the stack, in front of its neighbour."))
                 Button("Lower") { model.moveLayer(by: -1) }.disabled(model.selectedLayer == 0)
+                    .pixelTooltip(PixelHelp.text("Lower Layer", "Moves the selected layer one place down the stack, behind its neighbour."))
             }
         }
     }
@@ -262,6 +257,15 @@ struct PixelEditorView: View {
             }
     }
 
+    /// Rewrites the field from the model afterwards, so a rejected or snapped
+    /// entry never leaves a number on screen the canvas is not drawing at.
+    private func applyTypedZoom() {
+        if let typed = Int(zoomField.filter(\.isNumber)), typed > 0 {
+            model.setZoomPercent(typed)
+        }
+        zoomField = "\(model.zoomPercent)"
+    }
+
     private func applyResize() {
         model.change { $0.resize(width: resizeWidth, height: resizeHeight) }
         showResize = false
@@ -276,16 +280,4 @@ struct PixelEditorView: View {
             }
         }.clipShape(RoundedRectangle(cornerRadius: 4))
     }
-
-    private func color(_ rgba: UInt32) -> Color {
-        Color(.sRGB, red: Double((rgba >> 24) & 255) / 255, green: Double((rgba >> 16) & 255) / 255,
-              blue: Double((rgba >> 8) & 255) / 255, opacity: Double(rgba & 255) / 255)
-    }
-
-    private func rgba(_ color: Color) -> UInt32 {
-        guard let rgb = NSColor(color).usingColorSpace(.sRGB) else { return model.color }
-        func byte(_ value: CGFloat) -> UInt32 { UInt32((min(max(value, 0), 1) * 255).rounded()) }
-        return byte(rgb.redComponent) << 24 | byte(rgb.greenComponent) << 16 | byte(rgb.blueComponent) << 8 | byte(rgb.alphaComponent)
-    }
 }
-

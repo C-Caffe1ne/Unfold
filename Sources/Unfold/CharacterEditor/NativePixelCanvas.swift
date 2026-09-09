@@ -147,6 +147,15 @@ final class PixelCanvasView: NSView {
     override func otherMouseDragged(with event: NSEvent) { continuePan(event) }
     override func otherMouseUp(with event: NSEvent) { endPan() }
 
+    /// Claims keyboard focus on arrival, but only when the window has none of
+    /// its own — a field that already holds it keeps it, so typing a zoom
+    /// percentage still behaves like any other text field.
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        guard let window, window.firstResponder === window else { return }
+        window.makeFirstResponder(self)
+    }
+
     override func resignFirstResponder() -> Bool {
         model.endStroke()
         endPan()
@@ -208,7 +217,8 @@ final class PixelCanvasView: NSView {
     override func keyDown(with event: NSEvent) {
         let flags = event.modifierFlags
         if flags.contains(.command) {
-            switch event.charactersIgnoringModifiers?.lowercased() ?? "" {
+            switch PixelTool.shortcutLetter(characters: event.charactersIgnoringModifiers,
+                                            keyCode: event.keyCode) ?? "" {
             case "z":
                 if flags.contains(.shift) { model.redo() } else { model.undo() }
             case "a": model.selectAll()
@@ -235,7 +245,8 @@ final class PixelCanvasView: NSView {
             return
         default: break
         }
-        if let tool = PixelTool.shortcut(event.charactersIgnoringModifiers ?? "", shift: flags.contains(.shift)) {
+        if let tool = PixelTool.shortcut(characters: event.charactersIgnoringModifiers,
+                                         keyCode: event.keyCode, shift: flags.contains(.shift)) {
             model.endStroke()
             model.tool = tool
             window?.invalidateCursorRects(for: self)

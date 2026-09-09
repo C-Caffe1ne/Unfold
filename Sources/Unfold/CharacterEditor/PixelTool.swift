@@ -50,6 +50,38 @@ enum PixelTool: String, CaseIterable, Identifiable {
         case .gradient: return "⇧G"
         }
     }
+    /// The Latin letter a key press stands for, whatever the character it
+    /// produced.
+    ///
+    /// `charactersIgnoringModifiers` ignores modifiers, not input methods.
+    /// With 2-set Korean armed the `e` key reports "ㄷ", so every tool
+    /// shortcut stopped matching and the editor looked as though it had no
+    /// keyboard at all. The character is still tried first, so a Latin layout
+    /// that moves its letters keeps the shortcuts it has; the physical key is
+    /// only the fallback.
+    static func shortcutLetter(characters: String?, keyCode: UInt16) -> String? {
+        if let lowered = characters?.lowercased(), lowered.count == 1,
+            let scalar = lowered.unicodeScalars.first,
+            (Unicode.Scalar("a").value...Unicode.Scalar("z").value).contains(scalar.value) {
+            return lowered
+        }
+        return ansiLetters[keyCode]
+    }
+
+    /// The ANSI virtual key codes for the letters the editor binds. Korean,
+    /// Japanese and Pinyin input methods all sit on this physical layout, so
+    /// the code identifies the key even when the character cannot.
+    private static let ansiLetters: [UInt16: String] = [
+        0: "a", 2: "d", 4: "h", 5: "g", 6: "z", 9: "v", 11: "b",
+        12: "q", 13: "w", 14: "e", 32: "u", 34: "i", 37: "l", 46: "m",
+    ]
+
+    /// Resolves a key press to its tool, seeing through an input method.
+    static func shortcut(characters: String?, keyCode: UInt16, shift: Bool = false) -> PixelTool? {
+        guard let letter = shortcutLetter(characters: characters, keyCode: keyCode) else { return nil }
+        return shortcut(letter, shift: shift)
+    }
+
     static func shortcut(_ key: String, shift: Bool = false) -> PixelTool? {
         switch key.lowercased() {
         case "b": return shift ? .spray : .pencil

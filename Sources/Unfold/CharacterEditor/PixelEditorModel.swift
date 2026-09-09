@@ -28,15 +28,18 @@ final class PixelEditorModel: ObservableObject {
             && (0..<document.frameCount).contains(selectedFrame)
             && !document.layers[selectedLayer].isLocked
     }
-    /// Screen points per document pixel, derived from the step below.
-    var zoom: Int { scale(at: zoomStep) }
-    /// How many power-of-two steps from the scale the document opened at.
+    /// Screen points per document pixel.
+    var zoom: Int { zoomLevels.indices.contains(zoomIndex) ? zoomLevels[zoomIndex] : baseZoom }
+    /// Where in `zoomLevels` the viewport currently sits.
     ///
-    /// The step is the stored state, not the scale. Storing the scale meant
+    /// The index is the stored state, not the scale. Storing the scale meant
     /// clamping it at either end, and a clamped zoom-in followed by an
     /// unclamped zoom-out landed somewhere the user had never been — a 32×32
     /// canvas opened at 17, and in-then-out left it at 71%.
-    @Published private var zoomStep = 0
+    @Published private var zoomIndex = 0
+    /// Every scale the user can reach, ascending. Fixed once the document
+    /// opens, because `baseZoom` is.
+    private var zoomLevels: [Int] = []
     /// The scale this document opened at, shown to the user as 100%. A raw
     /// 1:1 pixel scale would render a 64×64 canvas at 64 points — accurate,
     /// and impossible to draw on.
@@ -71,7 +74,8 @@ final class PixelEditorModel: ObservableObject {
         self.document = document
         savedDocument = document
         baseZoom = Self.fittingZoom(width: document.width, height: document.height)
-        zoomStep = 0
+        zoomLevels = Self.zoomLevels(base: baseZoom)
+        zoomIndex = zoomLevels.firstIndex(of: baseZoom) ?? 0
     }
 
     /// Points the canvas should try to fit within when a document opens.
@@ -98,17 +102,64 @@ final class PixelEditorModel: ObservableObject {
         return max(1, min(maximumFittingZoom, fittingViewportSide / longest))
     }
 
-    private func scale(at step: Int) -> Int {
-        step >= 0 ? baseZoom << step : baseZoom >> (-step)
+    /// How far apart, in percent of the opening scale, two zoom levels sit.
+    /// Doubling and halving moved too far in one press: a canvas went from
+    /// filling the viewport to overflowing it with nothing usable between.
+    static let zoomStepPercent = 20
+
+    /// The reachable scales for an opening scale, ascending.
+    ///
+    /// A scale has to be a whole number of points per pixel, or the canvas
+    /// draws some pixels wider than others and the art shimmers. So the step
+    /// is whole points too: the nearest whole number to `zoomStepPercent` of
+    /// the opening scale, and never less than one point, which is as fine as
+    /// a canvas can go. Levels are laid out from the opening scale outwards,
+    /// so it is always one of them and 100% is always reachable.
+    ///
+    /// The step rounds, so the percentage between levels is only as close to
+    /// `zoomStepPercent` as whole points allow — a scale of 8 steps by 2, or
+    /// 25% at a time, because 20% of it is 1.6 points.
+    static func zoomLevels(base: Int) -> [Int] {
+        let base = max(1, min(base, maximumZoom))
+        let step = max(1, Int((Double(base) * Double(zoomStepPercent) / 100).rounded()))
+        var levels = [base]
+        var down = base - step
+        while down >= 1 {
+            levels.append(down)
+            down -= step
+        }
+        var up = base + step
+        while up <= maximumZoom {
+            levels.append(up)
+            up += step
+        }
+        return levels.sorted()
     }
 
-    /// Zoom as the user sees it: a multiple of the scale the document opened
-    /// at, so "100%" always means "how this document first looked".
-    var zoomPercent: Int { Int((100 * pow(2, Double(zoomStep))).rounded()) }
-    var canZoomIn: Bool { scale(at: zoomStep + 1) <= Self.maximumZoom }
-    var canZoomOut: Bool { scale(at: zoomStep - 1) >= 1 }
-    func zoomIn() { if canZoomIn { zoomStep += 1 } }
-    func zoomOut() { if canZoomOut { zoomStep -= 1 } }
+    /// Zoom as the user sees it: the current scale against the one the
+    /// document opened at, so "100%" always means "how this document first
+    /// looked". Read from the scale rather than the index, so the number
+    /// always describes what is actually on screen.
+    var zoomPercent: Int { Int((100 * Double(zoom) / Double(max(1, baseZoom))).rounded()) }
+    var canZoomIn: Bool { zoomIndex + 1 < zoomLevels.count }
+    var canZoomOut: Bool { zoomIndex > 0 }
+    func zoomIn() { if canZoomIn { zoomIndex += 1 } }
+    func zoomOut() { if canZoomOut { zoomIndex -= 1 } }
+
+    /// Jumps to the level nearest a typed percentage.
+    ///
+    /// It snaps rather than honouring the number exactly, because a scale has
+    /// to stay a whole number of points per pixel — 137% of a scale of 8 is
+    /// 10.96, and drawing some pixels 11 points wide and others 10 is what
+    /// makes pixel art shimmer. `zoomPercent` then reports where it landed.
+    func setZoomPercent(_ percent: Int) {
+        guard !zoomLevels.isEmpty else { return }
+        let wanted = Double(baseZoom) * Double(max(1, percent)) / 100
+        guard let nearest = zoomLevels.indices.min(by: {
+            abs(Double(zoomLevels[$0]) - wanted) < abs(Double(zoomLevels[$1]) - wanted)
+        }) else { return }
+        zoomIndex = nearest
+    }
 
     func markSaved() {
         savedDocument = document
@@ -433,6 +484,25 @@ extension PixelEditorModel {
         change { $0.moveFrame(from: from, to: to) }
         selectedFrame = to
     }
+    /// Reorders one layer's cels, leaving every other layer where it is.
+    ///
+    /// Frame count is untouched — the cel is lifted out and put back in the
+    /// same array — so the columns stay shared even though this layer's
+    /// drawing now runs against them offset. Refused on a locked layer, which
+    /// is what the lock is for.
+    func moveCel(layer: Int, from: Int, to: Int) {
+        guard document.layers.indices.contains(layer), !document.layers[layer].isLocked,
+            (0..<document.frameCount).contains(from), (0..<document.frameCount).contains(to),
+            from != to
+        else { return }
+        change {
+            let cel = $0.layers[layer].frames.remove(at: from)
+            $0.layers[layer].frames.insert(cel, at: to)
+        }
+        selectedLayer = layer
+        selectedFrame = to
+    }
+
     func moveLayer(from: Int, to: Int) {
         guard document.layers.indices.contains(from), document.layers.indices.contains(to),
             from != to
@@ -467,6 +537,19 @@ extension PixelEditorModel {
     func removePaletteColor(at index: Int) {
         guard document.palette.count > 1, document.palette.indices.contains(index) else { return }
         change { $0.palette.remove(at: index) }
+    }
+    /// Deletes a whole selection at once. A palette with nothing in it would
+    /// leave the editor with no swatch to draw from, so when the selection
+    /// covers every colour the lowest one is kept back.
+    func removePaletteColors(at indices: Set<Int>) {
+        var doomed = indices.filter { document.palette.indices.contains($0) }
+        if doomed.count == document.palette.count, let survivor = doomed.min() {
+            doomed.remove(survivor)
+        }
+        guard !doomed.isEmpty else { return }
+        change { document in
+            for index in doomed.sorted(by: >) { document.palette.remove(at: index) }
+        }
     }
     func movePaletteColor(from: Int, to: Int) {
         guard document.palette.indices.contains(from), document.palette.indices.contains(to),
