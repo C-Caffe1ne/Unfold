@@ -24,7 +24,7 @@ final class PixelDocumentCodecTests: XCTestCase {
         return doc
     }
 
-    func testPiskelRoundTripPreservesOrientationLayersAndFrames() throws {
+    func test_roundTripPreservesOrientationLayersAndFrames() throws {
         let doc = fixture()
         XCTAssertEqual(try PixelDocumentCodec.decode(PixelDocumentCodec.encode(doc)), doc)
     }

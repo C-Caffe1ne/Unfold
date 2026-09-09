@@ -3,7 +3,7 @@ import XCTest
 
 final class EditorDocumentOriginTests: XCTestCase {
 
-    private let url = URL(fileURLWithPath: "/tmp/character.piskel")
+    private let url = URL(fileURLWithPath: "/tmp/character.unf")
 
     func test_newDocument_cannotSaveInPlace_soSaveMustAskForADestination() {
         XCTAssertFalse(EditorDocumentOrigin.unsaved.canSaveInPlace)
