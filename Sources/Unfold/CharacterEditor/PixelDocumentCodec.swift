@@ -42,6 +42,7 @@ enum PixelDocumentCodec {
         var height: Int
         var layers: [String]
         var hiddenFrames: [Int]?
+        var unfold: EditorMetadata?
     }
     private struct Layer: Codable {
         var name: String
@@ -49,7 +50,18 @@ enum PixelDocumentCodec {
         var frameCount: Int
         var chunks: [Chunk]?
         var base64PNG: String?
+        var isVisible: Bool?
+        var isLocked: Bool?
     }
+    private struct EditorMetadata: Codable {
+        var version: Int = 1
+        var frameSettings: [PixelFrameSettings]
+        var playbackMode: PixelPlaybackMode
+        var playbackStart: Int
+        var playbackEnd: Int?
+        var palette: [UInt32]
+    }
+
     private struct Chunk: Codable {
         /// Piskel uses column-major layout[x][y], unlike our pixel buffer.
         var layout: [[Int]]
@@ -74,8 +86,6 @@ enum PixelDocumentCodec {
         }
         let fps = sprite.fps ?? 12
         guard fps.isFinite, Constants.editorFPSRange.contains(fps) else { throw Failure.invalid("Animation speed must be 1–24 FPS.") }
-        // Hidden timeline frames are not equivalent to transparent frames. Do not silently flatten them.
-        guard sprite.hiddenFrames?.isEmpty != false else { throw Failure.invalid("Unhide timeline frames before opening this document.") }
 
         // Decode every layer's metadata (name, opacity, frame count, chunk
         // descriptors) before building any frame buffers. This is cheap --
@@ -99,6 +109,29 @@ enum PixelDocumentCodec {
         document.name = sprite.name ?? "Unfold Character"
         document.description = sprite.description ?? ""
         document.fps = fps
+        // Validate extension metadata before allocating any layer pixels.
+        if let metadata = sprite.unfold {
+            guard metadata.version == 1,
+                  metadata.frameSettings.isEmpty || metadata.frameSettings.count == frameCount,
+                  metadata.frameSettings.allSatisfy({ $0.durationMS.map { PixelFrameSettings.durationRange.contains($0) } ?? true }),
+                  (0..<frameCount).contains(metadata.playbackStart),
+                  metadata.playbackEnd.map({ (metadata.playbackStart..<frameCount).contains($0) }) ?? true,
+                  (1...256).contains(metadata.palette.count) else {
+                throw Failure.invalid("Invalid frame timing, playback range or palette in the document.")
+            }
+            document.frameSettings = metadata.frameSettings
+            document.playbackMode = metadata.playbackMode
+            document.playbackStart = metadata.playbackStart
+            document.playbackEnd = metadata.playbackEnd
+            document.palette = metadata.palette
+        }
+        if let hidden = sprite.hiddenFrames, !hidden.isEmpty {
+            guard hidden.allSatisfy({ (0..<frameCount).contains($0) }), Set(hidden).count == hidden.count else {
+                throw Failure.invalid("Invalid hidden frame indices.")
+            }
+            if document.frameSettings.isEmpty { document.frameSettings = Array(repeating: PixelFrameSettings(), count: frameCount) }
+            for index in hidden { document.frameSettings[index].isVisible = false }
+        }
         var layers: [PixelLayer] = []
         for layer in decodedLayers {
             let opacity = layer.opacity ?? 1
@@ -139,7 +172,8 @@ enum PixelDocumentCodec {
                 }
             }
             guard seen.count == layer.frameCount else { throw Failure.invalid("The document is missing animation frames.") }
-            layers.append(PixelLayer(name: layer.name, opacity: opacity, frames: frames))
+            layers.append(PixelLayer(name: layer.name, opacity: opacity, frames: frames,
+                                     isVisible: layer.isVisible ?? true, isLocked: layer.isLocked ?? false))
         }
         document.layers = layers
         return document
@@ -151,11 +185,14 @@ enum PixelDocumentCodec {
             let sheet = sheetPixels(layer.frames, width: document.width, height: document.height)
             let png = try encodePNG(sheet, width: document.width * document.frameCount, height: document.height)
             let chunk = Chunk(layout: (0..<document.frameCount).map { [$0] }, base64PNG: prefix + png.base64EncodedString())
-            let data = try encoder.encode(Layer(name: layer.name, opacity: layer.opacity, frameCount: document.frameCount, chunks: [chunk]))
+            let data = try encoder.encode(Layer(name: layer.name, opacity: layer.opacity, frameCount: document.frameCount, chunks: [chunk],
+                                                isVisible: layer.isVisible, isLocked: layer.isLocked))
             return String(decoding: data, as: UTF8.self)
         }
         let source = Source(modelVersion: 2, sprite: Sprite(name: document.name, description: document.description,
-            fps: document.fps, width: document.width, height: document.height, layers: layers))
+            fps: document.fps, width: document.width, height: document.height, layers: layers,
+            unfold: EditorMetadata(frameSettings: document.frameSettings, playbackMode: document.playbackMode,
+                playbackStart: document.playbackStart, playbackEnd: document.playbackEnd, palette: document.palette)))
         let result = try encoder.encode(source)
         guard result.count <= maximumSourceBytes else { throw Failure.invalid("The source file is too large.") }
         return result
@@ -173,6 +210,11 @@ enum PixelDocumentCodec {
         var wire: [String: Any] = ["type": "save", "width": document.width, "height": document.height,
             "fps": document.fps, "frameCount": document.frameCount, "sheetPNG": prefix + png.base64EncodedString(),
             "sourceJSON": String(decoding: source, as: UTF8.self)]
+        let sequence = document.playbackSequence
+        guard !sequence.isEmpty else { throw Failure.invalid("Show at least one frame in the playback range before saving to the library.") }
+        wire["playbackFrames"] = sequence
+        wire["frameDurations"] = sequence.map { document.duration(at: $0) }
+        wire["loop"] = document.playbackMode != .once
         wire["characterID"] = characterID
         // Use the same geometry/size validation as existing package saves.
         let wireData = try JSONSerialization.data(withJSONObject: wire)

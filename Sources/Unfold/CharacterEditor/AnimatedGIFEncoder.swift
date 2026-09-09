@@ -52,17 +52,18 @@ enum AnimatedGIFEncoder {
     static let paletteCapacity = 254
 
     static func encode(_ document: PixelDocument) throws -> Data {
+        let sequence = document.playbackSequence
+        guard !sequence.isEmpty else { throw PixelDocumentCodec.Failure.invalid("Show at least one frame in the playback range before exporting GIF.") }
         let data = NSMutableData()
         guard let destination = CGImageDestinationCreateWithData(
-            data, UTType.gif.identifier as CFString, document.frameCount, nil) else {
+            data, UTType.gif.identifier as CFString, sequence.count, nil) else {
             throw PixelDocumentCodec.Failure.invalid("Could not create a GIF.")
         }
-        // A loop count of zero means "forever", not "do not loop". A GIF
-        // written without it plays once and stops, which is never what a
-        // character animation wants.
-        CGImageDestinationSetProperties(destination, [
-            kCGImagePropertyGIFDictionary: [kCGImagePropertyGIFLoopCount: 0] as [CFString: Any]
-        ] as [CFString: Any] as CFDictionary)
+        if document.playbackMode != .once {
+            CGImageDestinationSetProperties(destination, [
+                kCGImagePropertyGIFDictionary: [kCGImagePropertyGIFLoopCount: 0] as [CFString: Any]
+            ] as [CFString: Any] as CFDictionary)
+        }
 
         // GIF stores a delay in hundredths of a second, so the document's
         // frame rate is rounded on the way out: 12 fps writes 1/12 s and
@@ -72,15 +73,12 @@ enum AnimatedGIFEncoder {
         // key is set alongside the clamped one because some readers honour
         // only one of the two, and because the clamped key silently floors
         // very short delays to 0.1 s in several of them.
-        let delay = 1 / max(1, document.fps)
-        let frameProperties = [
-            kCGImagePropertyGIFDictionary: [
+        for index in sequence {
+            let delay = document.duration(at: index)
+            let frameProperties = [kCGImagePropertyGIFDictionary: [
                 kCGImagePropertyGIFUnclampedDelayTime: delay,
                 kCGImagePropertyGIFDelayTime: delay
-            ] as [CFString: Any]
-        ] as [CFString: Any] as CFDictionary
-
-        for index in 0..<document.frameCount {
+            ] as [CFString: Any]] as [CFString: Any] as CFDictionary
             let frame = document.compositedFrame(at: index)
             guard let image = PixelDocumentCodec.image(frame.pixels, width: document.width, height: document.height) else {
                 throw PixelDocumentCodec.Failure.invalid("Could not render frame \(index + 1) of the animation.")
@@ -108,7 +106,7 @@ enum AnimatedGIFEncoder {
         // across the whole document; a per-frame check would call a document
         // lossless right up to the point where it is not.
         var colours = Set<UInt32>()
-        for index in 0..<document.frameCount {
+        for index in Set(document.playbackSequence) {
             for pixel in document.compositedFrame(at: index).pixels {
                 let alpha = pixel & 255
                 // A hole is not a colour and spends no palette slot.

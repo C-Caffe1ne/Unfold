@@ -12,6 +12,8 @@ struct PixelEditorView: View {
     @State private var resizeHeight = 64
     @State private var showResize = false
     @State private var confirmCrop = false
+    @State private var paletteError: String?
+    @State private var paletteIndex: Int?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -41,6 +43,13 @@ struct PixelEditorView: View {
         .background(Color(nsColor: .windowBackgroundColor))
         .frame(minWidth: 900, minHeight: 620)
         .sheet(isPresented: $showResize) { resizeSheet }
+        .alert("Palette import failed", isPresented: Binding(get: { paletteError != nil }, set: { if !$0 { paletteError = nil } })) { Button("OK") { paletteError = nil } } message: { Text(paletteError ?? "") }
+        .task(id: model.isPlaying) {
+            while model.isPlaying && !Task.isCancelled {
+                model.tickPlayback(at: Date().timeIntervalSinceReferenceDate)
+                try? await Task.sleep(nanoseconds: 16_666_667)
+            }
+        }
     }
 
     private var toolbar: some View {
@@ -73,6 +82,7 @@ struct PixelEditorView: View {
     }
 
     private var tools: some View {
+        ScrollView {
         VStack(spacing: 8) {
             ForEach(PixelTool.allCases) { tool in
                 Button { model.tool = tool } label: {
@@ -81,13 +91,14 @@ struct PixelEditorView: View {
                         .frame(width: 38, height: 34)
                         .background(model.tool == tool ? Color.orange.opacity(0.25) : Color.clear)
                         .clipShape(RoundedRectangle(cornerRadius: 6))
-                }.buttonStyle(.plain).help(tool.title).accessibilityLabel(tool.title)
+                }.buttonStyle(.plain).help(tool.title + (tool.shortcutLabel.map { " (" + $0 + ")" } ?? "")).accessibilityLabel(tool.title)
             }
             Divider()
             ColorPicker("Color", selection: Binding(get: { color(model.color) }, set: { model.color = rgba($0) }), supportsOpacity: true)
                 .labelsHidden().help("Drawing color")
             Spacer()
-        }.padding(10).frame(width: 62)
+        }.padding(10)
+        }.frame(width: 62)
     }
 
     private var canvas: some View {
@@ -114,53 +125,16 @@ struct PixelEditorView: View {
     }
 
     private var timeline: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text("FRAMES").font(.caption.weight(.semibold)).foregroundStyle(.secondary)
-                Spacer()
-                Button { model.addFrame(duplicate: false) } label: { Image(systemName: "plus") }
-                    .help("Add blank frame").disabled(model.document.frameCount >= 24)
-                Button { model.addFrame(duplicate: true) } label: { Image(systemName: "plus.square.on.square") }
-                    .help("Duplicate frame").disabled(model.document.frameCount >= 24)
-                Button(action: model.deleteFrame) { Image(systemName: "trash") }
-                    .help("Delete frame").disabled(model.document.frameCount <= 1)
-                Button { model.moveFrame(by: -1) } label: { Image(systemName: "chevron.left") }
-                    .help("Move frame earlier").disabled(model.selectedFrame == 0)
-                Button { model.moveFrame(by: 1) } label: { Image(systemName: "chevron.right") }
-                    .help("Move frame later").disabled(model.selectedFrame == model.document.frameCount - 1)
-            }
-            ScrollView(.horizontal) {
-                HStack(spacing: 8) {
-                    ForEach(0..<model.document.frameCount, id: \.self) { index in
-                        Button {
-                            model.endStroke()
-                            model.selectedFrame = index
-                        } label: {
-                            VStack(spacing: 3) {
-                                thumbnail(frame: index).frame(width: 54, height: 54)
-                                Text("\(index + 1)").font(.caption2.monospacedDigit())
-                            }.padding(5)
-                                .background(model.selectedFrame == index ? Color.orange.opacity(0.25) : Color.secondary.opacity(0.08))
-                                .clipShape(RoundedRectangle(cornerRadius: 6))
-                        }.buttonStyle(.plain).accessibilityLabel("Frame \(index + 1)")
-                    }
-                }
-            }
-        }.padding(12).frame(height: 134)
+        PixelTimelineView(model: model).frame(height: 220)
     }
 
     private var inspector: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 Text("PREVIEW").font(.caption.weight(.semibold)).foregroundStyle(.secondary)
-                TimelineView(.animation(minimumInterval: 1 / model.document.fps, paused: !model.isPlaying)) { context in
-                    let frame = model.isPlaying
-                        ? Int(context.date.timeIntervalSinceReferenceDate * model.document.fps) % model.document.frameCount
-                        : model.selectedFrame
-                    thumbnail(frame: frame).frame(width: 180, height: 160)
-                }
+                thumbnail(frame: model.selectedFrame).frame(width: 180, height: 160)
                 HStack {
-                    Button { model.isPlaying.toggle() } label: {
+                    Button { model.togglePlayback(at: Date().timeIntervalSinceReferenceDate) } label: {
                         Label(model.isPlaying ? "Pause" : "Play", systemImage: model.isPlaying ? "pause.fill" : "play.fill")
                     }
                     Spacer()
@@ -168,7 +142,14 @@ struct PixelEditorView: View {
                 }
                 Slider(value: Binding(get: { model.document.fps }, set: { value in model.change { $0.fps = value } }), in: 1...24, step: 1)
                     .accessibilityLabel("Animation speed")
+                PixelPlaybackControls(model: model)
                 Divider()
+                ColorPicker("Foreground", selection: Binding(get: { color(model.color) }, set: { model.color = rgba($0) }))
+                ColorPicker("Background", selection: Binding(get: { color(model.backgroundColor) }, set: { model.backgroundColor = rgba($0) }))
+                Toggle("Mirror X", isOn: $model.symmetryX)
+                Toggle("Mirror Y", isOn: $model.symmetryY)
+                Toggle("Pixel-perfect pencil", isOn: $model.pixelPerfect)
+                Toggle("Darken brightness brush", isOn: $model.darken)
                 Stepper("Brush: \(model.brushSize) px", value: $model.brushSize, in: 1...8)
                 palette
                 HStack {
@@ -185,19 +166,52 @@ struct PixelEditorView: View {
     }
 
     private var palette: some View {
-        let colors: [UInt32] = [0x171923FF, 0xFFFFFFFF, 0x9195A3FF, 0xD74949FF, 0xF4B860FF, 0xF3E7A2FF,
-                                0x72B883FF, 0x4B8CBFFF, 0x8A6CBFFF, 0xE89FB6FF, 0x805E49FF, 0x00000000]
-        return LazyVGrid(columns: Array(repeating: GridItem(.fixed(24)), count: 6), spacing: 6) {
-            ForEach(colors, id: \.self) { value in
-                Button { model.color = value } label: {
-                    ZStack {
-                        Rectangle().fill(color(value))
-                        if value == 0 { Image(systemName: "slash.circle").foregroundStyle(.secondary) }
-                    }.frame(width: 24, height: 24)
-                        .overlay(RoundedRectangle(cornerRadius: 3).stroke(model.color == value ? Color.orange : Color.secondary, lineWidth: model.color == value ? 2 : 0.5))
-                }.buttonStyle(.plain).help(value == 0 ? "Transparent" : String(format: "#%08X", value))
+        VStack(alignment: .leading) {
+            Text("PALETTE").font(.caption.weight(.semibold))
+            LazyVGrid(columns: Array(repeating: GridItem(.fixed(24)), count: 6), spacing: 6) {
+                ForEach(model.document.palette.indices, id: \.self) { index in
+                    Button { paletteIndex = index; model.color = model.document.palette[index] } label: {
+                        Rectangle().fill(color(model.document.palette[index])).frame(width: 24, height: 24)
+                            .border(paletteIndex == index ? Color.orange : Color.secondary)
+                    }.buttonStyle(.plain).help(String(format: "#%08X", model.document.palette[index]))
+                }
             }
+            HStack {
+                Button("Add") { model.addPaletteColor(model.color) }
+                Button("Update") { if let i = paletteIndex { model.updatePaletteColor(at: i, color: model.color) } }.disabled(paletteIndex == nil)
+            }
+            HStack {
+                Button("Delete") { if let i = paletteIndex { model.removePaletteColor(at: i); paletteIndex = nil } }.disabled(paletteIndex == nil)
+                Button("←") { moveSwatch(-1) }.help("Move swatch earlier")
+                Button("→") { moveSwatch(1) }.help("Move swatch later")
+            }
+            Button("Import GPL…", action: importPalette)
         }
+    }
+
+    private func moveSwatch(_ delta: Int) {
+        guard let index = paletteIndex, model.document.palette.indices.contains(index + delta) else { return }
+        model.movePaletteColor(from: index, to: index + delta)
+        paletteIndex = index + delta
+    }
+
+    private func importPalette() {
+        let panel = NSOpenPanel()
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        panel.title = "Import GIMP Palette (.gpl)"
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        do {
+            let handle = try FileHandle(forReadingFrom: url)
+            defer { try? handle.close() }
+            let data = try handle.read(upToCount: 1_048_577) ?? Data()
+            guard data.count <= 1_048_576, let text = String(data: data, encoding: .utf8) else {
+                paletteError = "Choose a UTF-8 GPL file no larger than 1 MiB."
+                return
+            }
+            try model.importGPL(text)
+            paletteIndex = nil
+        } catch { paletteError = error.localizedDescription }
     }
 
     private var layers: some View {
@@ -210,24 +224,6 @@ struct PixelEditorView: View {
                 Button(action: model.deleteLayer) { Image(systemName: "trash") }.help("Delete layer")
                     .disabled(model.document.layers.count <= 1)
             }
-            ForEach(Array(model.document.layers.indices.reversed()), id: \.self) { index in
-                Button {
-                    model.endStroke()
-                    model.selectedLayer = index
-                } label: {
-                    HStack {
-                        Image(systemName: model.document.layers[index].opacity == 0 ? "eye.slash" : "square.3.layers.3d")
-                        Text(model.document.layers[index].name).lineLimit(1)
-                        Spacer()
-                    }.padding(8)
-                        .background(model.selectedLayer == index ? Color.orange.opacity(0.25) : Color.secondary.opacity(0.08))
-                        .clipShape(RoundedRectangle(cornerRadius: 5))
-                }.buttonStyle(.plain)
-            }
-            TextField("Layer name", text: Binding(get: { model.document.layers[model.selectedLayer].name }, set: { value in
-                let index = model.selectedLayer
-                model.change { $0.layers[index].name = value }
-            }))
             HStack {
                 Text("Opacity").font(.caption)
                 Spacer()
@@ -293,88 +289,3 @@ struct PixelEditorView: View {
     }
 }
 
-@MainActor
-private struct NativePixelCanvas: NSViewRepresentable {
-    @ObservedObject var model: PixelEditorModel
-    func makeNSView(context: Context) -> PixelCanvasView { PixelCanvasView(model: model) }
-    func updateNSView(_ view: PixelCanvasView, context: Context) { view.needsDisplay = true }
-}
-
-@MainActor
-private final class PixelCanvasView: NSView {
-    let model: PixelEditorModel
-    override var isFlipped: Bool { true }
-    override var acceptsFirstResponder: Bool { true }
-
-    init(model: PixelEditorModel) {
-        self.model = model
-        super.init(frame: .zero)
-        setAccessibilityElement(true)
-        setAccessibilityLabel("Pixel canvas. Pencil B, eraser E, fill F, eyedropper I, line L, rectangle R, ellipse O.")
-    }
-    required init?(coder: NSCoder) { return nil }
-
-    override func draw(_ dirtyRect: NSRect) {
-        let doc = model.document
-        let scale = CGFloat(model.zoom)
-        let clip = dirtyRect.intersection(bounds)
-        guard !clip.isEmpty else { return }
-        let minX = max(0, Int(clip.minX / scale)), maxX = min(doc.width, Int(ceil(clip.maxX / scale)))
-        let minY = max(0, Int(clip.minY / scale)), maxY = min(doc.height, Int(ceil(clip.maxY / scale)))
-        guard minX < maxX, minY < maxY else { return }
-        NSGraphicsContext.current?.shouldAntialias = false
-        for y in minY..<maxY {
-            for x in minX..<maxX {
-                NSColor(white: ((x / 4 + y / 4) % 2 == 0) ? 0.22 : 0.28, alpha: 1).setFill()
-                NSRect(x: CGFloat(x) * scale, y: CGFloat(y) * scale, width: scale, height: scale).fill()
-            }
-        }
-        func paint(_ frame: PixelFrame, opacity: CGFloat) {
-            for y in minY..<maxY {
-                for x in minX..<maxX {
-                    let pixel = frame.pixels[y * doc.width + x]
-                    guard pixel & 255 != 0 else { continue }
-                    NSColor(srgbRed: CGFloat((pixel >> 24) & 255) / 255, green: CGFloat((pixel >> 16) & 255) / 255,
-                        blue: CGFloat((pixel >> 8) & 255) / 255, alpha: CGFloat(pixel & 255) / 255 * opacity).setFill()
-                    NSRect(x: CGFloat(x) * scale, y: CGFloat(y) * scale, width: scale, height: scale).fill(using: .sourceOver)
-                }
-            }
-        }
-        if model.onionSkin && model.selectedFrame > 0 { paint(doc.compositedFrame(at: model.selectedFrame - 1), opacity: 0.25) }
-        paint(doc.compositedFrame(at: model.selectedFrame), opacity: 1)
-        if model.showGrid && model.zoom >= 6 {
-            NSColor(white: 0, alpha: 0.15).setFill()
-            for x in minX...maxX { NSRect(x: CGFloat(x) * scale, y: clip.minY, width: 1, height: clip.height).fill() }
-            for y in minY...maxY { NSRect(x: clip.minX, y: CGFloat(y) * scale, width: clip.width, height: 1).fill() }
-        }
-    }
-
-    private func point(_ event: NSEvent) -> PixelPoint {
-        let location = convert(event.locationInWindow, from: nil)
-        return PixelPoint(x: Int(floor(location.x / CGFloat(model.zoom))), y: Int(floor(location.y / CGFloat(model.zoom))))
-    }
-    override func mouseDown(with event: NSEvent) {
-        window?.makeFirstResponder(self)
-        model.beginStroke(at: point(event))
-    }
-    override func mouseDragged(with event: NSEvent) { model.continueStroke(at: point(event)) }
-    override func mouseUp(with event: NSEvent) { model.endStroke() }
-    override func resignFirstResponder() -> Bool { model.endStroke(); return super.resignFirstResponder() }
-    override func resetCursorRects() { addCursorRect(bounds, cursor: .crosshair) }
-    override func keyDown(with event: NSEvent) {
-        if event.modifierFlags.contains(.command) {
-            if event.charactersIgnoringModifiers?.lowercased() == "z" {
-                if event.modifierFlags.contains(.shift) { model.redo() } else { model.undo() }
-                return
-            }
-            super.keyDown(with: event)
-            return
-        }
-        let shortcuts: [String: PixelTool] = ["b": .pencil, "e": .eraser, "f": .fill, "i": .eyedropper,
-                                               "l": .line, "r": .rectangle, "o": .ellipse]
-        if let tool = shortcuts[event.charactersIgnoringModifiers?.lowercased() ?? ""] {
-            model.endStroke(); model.tool = tool
-        } else if event.charactersIgnoringModifiers == " " { model.isPlaying.toggle() }
-        else { super.keyDown(with: event) }
-    }
-}

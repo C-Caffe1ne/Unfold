@@ -15,6 +15,7 @@ struct SpriteAnimationDefinition: Equatable {
     let frames: [Int]
     let fps: Double
     let loop: Bool
+    var frameDurations: [TimeInterval]? = nil
 
     var frameDuration: TimeInterval {
         guard fps > 0 else { return .greatestFiniteMagnitude }

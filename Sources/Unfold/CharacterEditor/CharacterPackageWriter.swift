@@ -120,10 +120,11 @@ enum CharacterPackageWriter {
             ),
             animations: [
                 AnimationKey.idle.rawValue: CharacterManifest.AnimationDTO(
-                    frames: Array(0..<payload.frameCount),
+                    frames: payload.playbackFrames ?? Array(0..<payload.frameCount),
                     fps: payload.fps,
                     gif: nil,
-                    loop: true
+                    loop: payload.loop,
+                    frameDurations: payload.frameDurations
                 )
             ],
             thumbnailSymbol: Constants.userCharacterThumbnailSymbol,

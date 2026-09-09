@@ -35,6 +35,7 @@ struct EditorSavePayload: Equatable {
         case truncatedPNG
         case geometryMismatch(declared: String, actual: String)
         case emptySource
+        case invalidPlayback
 
         var description: String {
             switch self {
@@ -60,6 +61,8 @@ struct EditorSavePayload: Equatable {
                 return "the sprite sheet's PNG data looks truncated (no IEND chunk found)"
             case .geometryMismatch(let declared, let actual):
                 return "the editor declared a \(declared) sheet but sent a \(actual) image"
+            case .invalidPlayback:
+                return "invalid playback sequence or per-frame durations"
             case .emptySource:
                 return "the editor produced an empty source document"
             }
@@ -76,6 +79,9 @@ struct EditorSavePayload: Equatable {
     /// Set when the user is re-saving a character they opened for editing;
     /// `nil` for a brand-new one. Decides overwrite vs. create.
     let characterID: String?
+    var playbackFrames: [Int]? = nil
+    var frameDurations: [Double]? = nil
+    var loop: Bool = true
 
     private static let pngDataURLPrefix = "data:image/png;base64,"
 
@@ -100,6 +106,9 @@ struct EditorSavePayload: Equatable {
         let sheetPNG: String
         let sourceJSON: String
         let characterID: String?
+        let playbackFrames: [Int]?
+        let frameDurations: [Double]?
+        let loop: Bool?
     }
 
     static func decode(from json: String) throws -> EditorSavePayload {
@@ -124,6 +133,17 @@ struct EditorSavePayload: Equatable {
         }
         guard wire.fps.isFinite, Constants.editorFPSRange.contains(wire.fps) else {
             throw DecodingError.invalidFPS(wire.fps)
+        }
+        let frames = wire.playbackFrames ?? Array(0..<wire.frameCount)
+        guard !frames.isEmpty, frames.count <= Constants.editorFrameCountRange.upperBound * 2,
+              frames.allSatisfy({ (0..<wire.frameCount).contains($0) }) else {
+            throw DecodingError.invalidPlayback
+        }
+        if let durations = wire.frameDurations {
+            guard durations.count == frames.count,
+                  durations.allSatisfy({ $0.isFinite && (0.01...60).contains($0) }) else {
+                throw DecodingError.invalidPlayback
+            }
         }
         guard !wire.sourceJSON.isEmpty else {
             throw DecodingError.emptySource
@@ -166,7 +186,10 @@ struct EditorSavePayload: Equatable {
             frameCount: wire.frameCount,
             sheetPNGData: sheetData,
             sourceJSON: wire.sourceJSON,
-            characterID: wire.characterID
+            characterID: wire.characterID,
+            playbackFrames: wire.playbackFrames,
+            frameDurations: wire.frameDurations,
+            loop: wire.loop ?? true
         )
     }
 

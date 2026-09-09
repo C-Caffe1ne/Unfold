@@ -135,11 +135,18 @@ enum CharacterPackageLoader {
 
         guard
             let frames = dto.frames, !frames.isEmpty,
-            let fps = dto.fps, fps > 0,
+            let fps = dto.fps, fps.isFinite, fps > 0,
             frames.allSatisfy({ validFrameRange.contains($0) })
         else {
             throw ValidationError.invalidAnimation(key: rawKey)
         }
-        return .spriteSheet(SpriteAnimationDefinition(frames: frames, fps: fps, loop: dto.loop))
+        if let durations = dto.frameDurations {
+            guard durations.count == frames.count,
+                  durations.allSatisfy({ $0.isFinite && (0.01...60).contains($0) }) else {
+                throw ValidationError.invalidAnimation(key: rawKey)
+            }
+        }
+        return .spriteSheet(SpriteAnimationDefinition(frames: frames, fps: fps, loop: dto.loop,
+                                                       frameDurations: dto.frameDurations))
     }
 }

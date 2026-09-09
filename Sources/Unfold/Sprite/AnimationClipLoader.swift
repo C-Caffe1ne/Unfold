@@ -11,10 +11,13 @@ enum AnimationClipLoader {
 
     enum LoadError: Error, Equatable, CustomStringConvertible {
         case noFrames
+        case invalidDurations
         case invalidFrameIndex(Int)
 
         var description: String {
             switch self {
+            case .invalidDurations:
+                return "animation has invalid per-frame durations"
             case .noFrames:
                 return "animation defines no frames"
             case .invalidFrameIndex(let index):
@@ -23,20 +26,21 @@ enum AnimationClipLoader {
         }
     }
 
-    /// Every frame gets the animation's single `1 / fps` duration — this is
-    /// the exact timing sprite-sheet playback has always used, just
-    /// expressed per-frame instead of as one animation-wide interval, so
-    /// converting one of today's animations changes nothing about how it
-    /// plays.
+    /// Legacy clips inherit FPS; newer clips preserve each ordered frame hold.
     static func load(spriteSheet: SpriteSheetImage, animation: SpriteAnimationDefinition) throws -> AnimationClip {
         guard !animation.frames.isEmpty else { throw LoadError.noFrames }
 
-        let duration = animation.frameDuration
-        let frames = try animation.frames.map { index -> AnimationFrame in
+        if let durations = animation.frameDurations {
+            guard durations.count == animation.frames.count,
+                  durations.allSatisfy({ $0.isFinite && (0.01...60).contains($0) }) else {
+                throw LoadError.invalidDurations
+            }
+        }
+        let frames = try animation.frames.enumerated().map { offset, index -> AnimationFrame in
             guard let image = spriteSheet.frame(at: index) else {
                 throw LoadError.invalidFrameIndex(index)
             }
-            return AnimationFrame(image: image, duration: duration)
+            return AnimationFrame(image: image, duration: animation.frameDurations?[offset] ?? animation.frameDuration)
         }
 
         return AnimationClip(frames: frames, loop: animation.loop)

@@ -76,5 +76,7 @@ struct CharacterManifest: Codable, Equatable {
         /// file itself, rather than trusting the file. See
         /// `CharacterAnimationView.makeAnimator`.
         let loop: Bool
+        /// Seconds in playback order; absent in legacy fixed-FPS packages.
+        var frameDurations: [Double]? = nil
     }
 }
