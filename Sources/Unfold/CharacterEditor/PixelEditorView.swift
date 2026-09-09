@@ -96,11 +96,11 @@ struct PixelEditorView: View {
                 Toggle("Grid", isOn: $model.showGrid)
                 Toggle("Onion Skin", isOn: $model.onionSkin)
                 Spacer()
-                Button { model.zoom = max(1, model.zoom - 1) } label: { Image(systemName: "minus.magnifyingglass") }
-                    .disabled(model.zoom == 1).help("Zoom out")
-                Text("\(model.zoom * 100)%").monospacedDigit().frame(width: 55)
-                Button { model.zoom = min(24, model.zoom + 1) } label: { Image(systemName: "plus.magnifyingglass") }
-                    .disabled(model.zoom == 24).help("Zoom in")
+                Button(action: model.zoomOut) { Image(systemName: "minus.magnifyingglass") }
+                    .disabled(!model.canZoomOut).help("Zoom out")
+                Text("\(model.zoomPercent)%").monospacedDigit().frame(width: 55)
+                Button(action: model.zoomIn) { Image(systemName: "plus.magnifyingglass") }
+                    .disabled(!model.canZoomIn).help("Zoom in")
             }.font(.caption).toggleStyle(.checkbox).padding(10)
             GeometryReader { geometry in
                 ScrollView([.horizontal, .vertical]) {
