@@ -199,6 +199,14 @@ final class CharacterEditorWindowController: NSObject, NSWindowDelegate {
         case .writeLibraryPackage:
             return saveToLibrary()
         case .writeFile(let url, let format):
+            // Always passes today, and is not dead code. `saveAction` only
+            // ever yields `.writeFile` for a format whose `preservesDocument`
+            // is true, so `.unfoldSource` is the only format that reaches
+            // this line and its warning is always nil. The guard is here so
+            // that the day a second format becomes save-in-place, Save cannot
+            // quietly start making lossy writes unwarned while Save As still
+            // asks.
+            guard confirmLossyWrite(model.document, format: format) else { return false }
             do {
                 try write(model.document, to: url, format: format)
                 model.markSaved()
@@ -229,6 +237,7 @@ final class CharacterEditorWindowController: NSObject, NSWindowDelegate {
             present(error: PixelDocumentCodec.Failure.invalid("\(format.displayName) files cannot be written."))
             return false
         }
+        guard confirmLossyWrite(model.document, format: format) else { return false }
         do {
             try write(model.document, to: url, format: format)
             // An export leaves the document where it was: still attached to
@@ -248,6 +257,24 @@ final class CharacterEditorWindowController: NSObject, NSWindowDelegate {
         }
     }
 
+    /// Warns before a write that cannot carry everything the document holds.
+    /// Returns false when the user backs out.
+    ///
+    /// Both save paths ask this rather than the one that exports today,
+    /// because which formats are lossy is a property of the formats, not of
+    /// the command the user reached for.
+    private func confirmLossyWrite(_ document: PixelDocument, format: EditorFileFormat) -> Bool {
+        guard let warning = EditorWriteWarning.text(for: document, format: format) else { return true }
+        let alert = NSAlert()
+        alert.alertStyle = .warning
+        alert.messageText = "Save as \(format.displayName)?"
+        alert.informativeText = warning
+        alert.addButton(withTitle: "Save")
+        alert.addButton(withTitle: "Cancel")
+        NSApp.activate(ignoringOtherApps: true)
+        return alert.runModal() == .alertFirstButtonReturn
+    }
+
     /// Single write path for every file format, so Save and Save As cannot
     /// drift apart.
     private func write(_ document: PixelDocument, to url: URL, format: EditorFileFormat) throws {
@@ -255,7 +282,7 @@ final class CharacterEditorWindowController: NSObject, NSWindowDelegate {
         switch format {
         case .unfoldSource: data = try PixelDocumentCodec.encode(document)
         case .png: data = try PixelDocumentCodec.sheetPNG(document)
-        case .gif: throw PixelDocumentCodec.Failure.invalid("GIF export is not implemented yet.")
+        case .gif: data = try AnimatedGIFEncoder.encode(document)
         case .jpeg: throw PixelDocumentCodec.Failure.invalid("JPEG files cannot be written.")
         }
         try data.write(to: url, options: .atomic)
