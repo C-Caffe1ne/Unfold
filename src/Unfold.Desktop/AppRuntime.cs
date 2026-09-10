@@ -193,7 +193,7 @@ public sealed class AppRuntime : IDisposable
         var menu = new NativeMenu();
         trayStatus = new NativeMenuItem("Next stretch") { IsEnabled = false }; menu.Items.Add(trayStatus);
         void Item(string text, Action action) { var item = new NativeMenuItem(text); item.Click += (_, _) => action(); menu.Items.Add(item); }
-        Item("Settings", ShowSettings); Item("Pixel Editor", () => _ = OpenEditor());
+        Item("Settings", ShowSettings);
         trayPause = new NativeMenuItem("Pause"); trayPause.Click += (_, _) => TogglePause(); menu.Items.Add(trayPause);
         Item("Reset timer", Reset); Item("Stretch now", () => _ = ShowReminder());
         menu.Items.Add(new NativeMenuItemSeparator()); Item("Quit Unfold", () => _ = Quit());

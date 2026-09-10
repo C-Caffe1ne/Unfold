@@ -48,14 +48,15 @@ public sealed class SettingsWindow : Window
             try { await runtime.UpdateSettings(runtime.Settings with { SelectedCharacterId = selected.Manifest.Id }); }
             catch (Exception error) { await Ui.Error(this, error); }
         };
+        // Built but left out of the layout below: the MVP ships without the
+        // pixel editor entry points, and Refresh() still drives their state.
         edit = Ui.AsyncButton("Edit", () => runtime.OpenEditor(runtime.Selected));
         delete = Ui.AsyncButton("Delete", async () => { if (runtime.Selected is { } selected) await runtime.DeleteCharacter(selected); });
         var body = Ui.Column(Ui.Text("UNFOLD", 14, Ui.Accent), Ui.Text("Make room for a small break.", 26),
             new Border { Background = Ui.Panel, CornerRadius = new CornerRadius(12), Padding = new Thickness(20), Child = Ui.Column(
                 Ui.Text("NEXT STRETCH", 12), countdown, state, Ui.Row(pause, Ui.Button("Reset", runtime.Reset), Ui.AsyncButton("Stretch now", runtime.ShowReminder))) },
             Ui.Row(Ui.Column(Ui.Text("Remind me every (min)", 12), interval), Ui.Column(Ui.Text("Pause when away (min)", 12), idle)), apply,
-            new Separator(), Ui.Text("YOUR COMPANION", 12, Ui.Accent), Ui.Row(preview, Ui.Column(characters,
-                Ui.Row(Ui.AsyncButton("Create pixel art", () => runtime.OpenEditor()), edit, delete))),
+            new Separator(), Ui.Text("YOUR COMPANION", 12, Ui.Accent), Ui.Row(preview, Ui.Column(characters)),
             showPet, login, new Separator(), Ui.Row(Ui.Text("Closing this window keeps Unfold in the tray.", 12), Ui.AsyncButton("Quit", runtime.Quit)));
         Content = new ScrollViewer { Content = new Border { Padding = new Thickness(28), Child = body } };
         Closing += (_, e) => { e.Cancel = true; HideToTray(); };
