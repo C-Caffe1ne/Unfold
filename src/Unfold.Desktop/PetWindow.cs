@@ -73,8 +73,13 @@ public sealed class PetWindow : Window
     {
         try
         {
-            var selected = runtime.Selected; var current = ++generation;
-            var key = preferred ?? (selected?.Manifest.Animations.ContainsKey("click") == true ? "click" : "stretch");
+            var selected = runtime.Selected;
+            // Stretch belongs to reminders. A plain click reacts only when the character
+            // ships a click clip, and otherwise leaves the idle loop alone — so the early
+            // return has to happen before generation moves, or it would cancel a stretch.
+            var key = preferred ?? (selected?.Manifest.Animations.ContainsKey("click") == true ? "click" : null);
+            if (key is null) return;
+            var current = ++generation;
             var frames = await runtime.Clip(key); if (current != generation) return;
             animation.SetFrames(frames, false, selected?.Manifest.RenderStyle == "pixel");
             var duration = frames.Sum(f => f.Duration.TotalMilliseconds);
