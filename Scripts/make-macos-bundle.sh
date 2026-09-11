@@ -8,6 +8,8 @@ OUT="$ROOT/artifacts/$RID"
 dotnet publish "$ROOT/src/Unfold.Desktop/Unfold.Desktop.csproj" -c Release -r "$RID" \
   --self-contained true -p:PublishReadyToRun=true -o "$OUT"
 APP="$ROOT/artifacts/Unfold.app"
+# A stale bundle from an earlier run would leave unsigned Mach-O files behind.
+rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp -R "$OUT/." "$APP/Contents/MacOS/"
 cp "$ROOT/THIRD-PARTY-NOTICES.md" "$APP/Contents/Resources/"
@@ -28,6 +30,27 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <key>NSHighResolutionCapable</key><true/>
 </dict></plist>
 PLIST
-codesign --force --deep --sign - "$APP"
+# Ad hoc by default, so a local build needs no certificate. Export
+# UNFOLD_CODESIGN_IDENTITY="Developer ID Application: ..." to produce a release
+# bundle that notarization can accept.
+if [ -n "${UNFOLD_CODESIGN_IDENTITY:-}" ]; then
+  ENTITLEMENTS="$ROOT/Packaging/Unfold.Desktop.entitlements"
+  # Apple does not support --deep for Developer ID: sign the nested Mach-O files
+  # first, then the bundle. Entitlements belong to the main executable only.
+  while IFS= read -r -d '' binary; do
+    if [ "$binary" = "$APP/Contents/MacOS/Unfold" ]; then continue; fi
+    case "$(file -b "$binary")" in Mach-O*) ;; *) continue;; esac
+    codesign --force --options runtime --timestamp --sign "$UNFOLD_CODESIGN_IDENTITY" "$binary"
+  done < <(find "$APP/Contents/MacOS" -type f -print0)
+  codesign --force --options runtime --timestamp --entitlements "$ENTITLEMENTS" \
+    --sign "$UNFOLD_CODESIGN_IDENTITY" "$APP"
+  codesign --verify --strict --verbose=2 "$APP"
+else
+  codesign --force --deep --sign - "$APP"
+fi
 tar -czf "$ROOT/artifacts/Unfold-$RID.tar.gz" -C "$ROOT/artifacts" Unfold.app
+# notarytool takes .zip, .dmg or .pkg; ditto is the only zip that keeps the
+# signature and symlinks intact.
+rm -f "$ROOT/artifacts/Unfold-$RID.zip"
+ditto -c -k --keepParent "$APP" "$ROOT/artifacts/Unfold-$RID.zip"
 echo "$APP"

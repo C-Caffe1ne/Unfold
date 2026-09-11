@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!--
+    Direct-distribution entitlements for the C# / Avalonia app, used only when
+    Scripts/make-macos-bundle.sh signs with a Developer ID identity. The Swift
+    tree keeps its own sandboxed Packaging/Unfold.entitlements; the two are not
+    interchangeable. Sandboxing this app would break launch at login, which
+    writes ~/Library/LaunchAgents, and the osascript notification.
+
+    The .NET runtime JITs, so Hardened Runtime needs this one exception. Add
+    nothing else on suspicion: allow-unsigned-executable-memory and
+    disable-library-validation go in only if a signed run proves they are
+    required.
+    -->
+    <key>com.apple.security.cs.allow-jit</key>
+    <true/>
+</dict>
+</plist>
