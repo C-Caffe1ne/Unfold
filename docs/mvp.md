@@ -50,13 +50,13 @@ Every item below is implemented and verified in the C# runtime today.
 | Stretch timer | 5–240 min interval; countdown in the tray tooltip, tray menu and Settings. Pause / Resume, Reset, and **Stretch now**. |
 | Idle-aware pause | 1–60 min idle threshold; idle time does not accrue toward the next stretch. Sleep and dispatcher gaps are not counted as active use. |
 | Notifications | OS-level: Windows tray balloon (`Shell_NotifyIcon`), macOS `display notification` via `osascript`. Failure is logged and the in-app reminder still shows. |
-| Show / Hide pet | Settings checkbox, persisted in `settings.json`. |
+| Show / Hide pet | One setting with two entry points: the Settings checkbox and the tray item, which reads **Hide Pet** or **Show Pet** for the current state. Changing either updates the other, and the choice persists in `settings.json`. |
 | Launch at login | Opt-in per OS: Windows `Run` registry key, macOS `LaunchAgents` plist. Requires a published build. |
 
 Also user-visible in the MVP build, and intentionally kept: the tray menu
-(Settings / Pause / Reset timer / Stretch now / Quit), the pet's right-click menu
-(Settings / Stretch now), and the Settings character picker — which lists the built-in
-character plus any characters a user created before the editor was hidden.
+(Settings / Hide Pet / Pause / Reset timer / Stretch now / Quit), the pet's right-click
+menu (Settings / Stretch now), and the Settings character picker — which lists the
+built-in character plus any characters a user created before the editor was hidden.
 
 ## Not MVP
 
