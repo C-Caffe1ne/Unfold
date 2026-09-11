@@ -12,8 +12,7 @@ overwriting the first.
 - macOS version: 26.6.2 (build 25G83)
 - Device: Mac14,2 · arm64
 - Commit: `84c8405` — docs: document tray pet visibility controls
-- Stretch interval used:  (10 min for a first session — the point is to live the
-  Core Loop several times, not to judge whether the interval is right)
+- Stretch interval used: 10 min
 
 ## Pre-test rule
 
@@ -32,32 +31,32 @@ Timeline and keep working.
 
 ### Startup
 
-- [ ] app launches normally
-- [ ] pet appears correctly
-- [ ] saved position is restored
-- [ ] timer starts correctly
+- [x] app launches normally
+- [x] pet appears correctly
+- [x] saved position is restored
+- [x] timer starts correctly
 
 Notes:
 
 ### Pet
 
-- [ ] idle animation looks correct
+- [x] idle animation looks correct
 - [ ] pet can be dragged
 - [ ] pet does not interfere excessively with normal work
-- [ ] a plain left click plays nothing — Mochi has no `click` clip, so the `idle` loop
+- [x] a plain left click plays nothing — Mochi has no `click` clip, so the `idle` loop
       simply continues
-- [ ] no click ever starts the stretch clip
-- [ ] clicking the pet mid-stretch does not cut the stretch short
+- [x] no click ever starts the stretch clip
+- [x] clicking the pet mid-stretch does not cut the stretch short
 
 Notes:
 
 ### Hide / Show pet
 
-- [ ] tray menu reads **Hide Pet** while the pet is visible
-- [ ] tray **Hide Pet** hides it; the item then reads **Show Pet**
-- [ ] tray **Show Pet** brings it back in the same place
-- [ ] the Settings checkbox does the same thing
-- [ ] changing one updates the other immediately
+- [x] tray menu reads **Hide Pet** while the pet is visible
+- [x] tray **Hide Pet** hides it; the item then reads **Show Pet**
+- [x] tray **Show Pet** brings it back in the same place
+- [x] the Settings checkbox does the same thing
+- [x] changing one updates the other immediately
 - [ ] the choice survives a restart
 
 Notes:
@@ -75,22 +74,22 @@ Notes:
 
 ### Stretch Reminder
 
-- [ ] automatic timer fires
-- [ ] Reminder Window appears
-- [ ] visible pet plays stretch exactly once
-- [ ] pet returns to idle
+- [x] automatic timer fires
+- [x] Reminder Window appears
+- [x] visible pet plays stretch exactly once
+- [x] pet returns to idle
 - [ ] notification appears
 - [ ] repeated Stretch now while reminder is open does not restart pet animation
-- [ ] hidden pet does not animate when reminder fires
-- [ ] a hidden pet never reappears on its own
+- [x] hidden pet does not animate when reminder fires
+- [x] a hidden pet never reappears on its own
 
 Notes:
 
 ### Manual Stretch
 
-- [ ] tray **Stretch now**
-- [ ] Settings **Stretch now**
-- [ ] pet context menu **Stretch now**
+- [x] tray **Stretch now**
+- [x] Settings **Stretch now**
+- [x] pet context menu **Stretch now**
 
 All three call the same code path. Record whether they *feel* the same — window
 placement, focus, timing, whether the pet reacted, whether a notification appeared:
@@ -151,7 +150,8 @@ below.
 
 | Time | What happened | What I did | Feeling / friction | Category |
 |---|---|---|---|---|
-|  |  |  |  |  |
+| — | Started Unfold with the stretch interval set to 10 min | Worked as usual | | NOTE |
+| — | Every checklist item exercised this session passed | Recorded it, changed nothing | | NOTE |
 
 ## BLOCKER
 
@@ -189,17 +189,35 @@ Ideas that will not be built in the MVP. For example:
 
 ### What worked
 
+- Startup: the app launched, the pet appeared, and it came back where it was left.
+- The 10-minute interval applied and the timer ran from it.
+- The automatic reminder fired, the Reminder Window opened, and a visible pet played
+  `stretch` once and returned to `idle`.
+- A plain left click on Mochi started nothing — no click produced a stretch.
+- Clicking the pet mid-stretch did not cut the reaction short.
+- Tray **Hide Pet** / **Show Pet** worked, and the Settings checkbox stayed in step
+  with it in both directions.
+- With the pet hidden, a reminder did not bring it back.
+- Manual **Stretch now** behaved like the automatic reminder.
+- Every checklist item exercised this session passed.
+
 ### BLOCKER
+
+None.
 
 ### CORE UX
 
+None observed in this session.
+
 ### NICE
+
+None.
 
 ### Most important observation
 
 One sentence:
 
-> If I could change only one thing before shipping, it would be:
+> The core loop ran end to end, several times over, without a release-blocking issue.
 
 ## Final Rule
 
