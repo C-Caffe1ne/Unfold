@@ -27,7 +27,7 @@ How the loop is wired today, so nobody documents an intention as a feature:
 |---|---|
 | Timer fires | `StretchClock.Tick` → `AppRuntime.ShowReminder()`. **Stretch now** — in the tray menu, in Settings, and in the pet's right-click menu — calls the same method, so a manual stretch behaves exactly like an automatic one |
 | Pet stretches | `ShowReminder()` opens the reminder window on the character's `stretch` clip and asks a visible pet for the same clip through `PetWindow.React("stretch")`; both animate at once |
-| Pet reacts | Clicking the pet plays its `click` clip, falling back to `stretch` when the character has none (the built-in Mochi has none, so a click makes it stretch) |
+| Pet reacts | Clicking the pet plays its `click` clip once. `stretch` is reserved for reminders, so a character with no `click` clip keeps looping `idle` instead — the built-in Mochi has none, so a plain click leaves it idle |
 | Returns to idle | `PetWindow.React()` plays the clip once, then restores the `idle` loop when it ends |
 
 Two deliberate limits on the pet's reaction:
@@ -46,7 +46,7 @@ Every item below is implemented and verified in the C# runtime today.
 | Desktop pet | Frameless, always-on-top, transparent window; draggable and position-persistent. Click-through over transparent pixels is Windows-only; macOS is pending. |
 | Idle animation | The selected character's `idle` clip loops for as long as the pet is shown, apart from the one-shot reactions below. |
 | Stretch reminder | Centered reminder window playing the `stretch` clip, dismissed with **I'm refreshed**. |
-| Stretch animation | Built-in Mochi ships `stretch.gif`; used by the reminder window, by the pet's reaction to that reminder, and by the pet's click reaction. |
+| Stretch animation | Built-in Mochi ships `stretch.gif`; played by the reminder window and by the visible pet reacting to it, whether the reminder came from the timer or from **Stretch now**. A plain pet click never plays it. |
 | Stretch timer | 5–240 min interval; countdown in the tray tooltip, tray menu and Settings. Pause / Resume, Reset, and **Stretch now**. |
 | Idle-aware pause | 1–60 min idle threshold; idle time does not accrue toward the next stretch. Sleep and dispatcher gaps are not counted as active use. |
 | Notifications | OS-level: Windows tray balloon (`Shell_NotifyIcon`), macOS `display notification` via `osascript`. Failure is logged and the in-app reminder still shows. |
