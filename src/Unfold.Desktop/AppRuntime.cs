@@ -27,7 +27,8 @@ public sealed class AppRuntime : IDisposable
     private readonly Dictionary<string, Task<IReadOnlyList<AnimationFrame>>> clips = [];
     private readonly List<CharacterPackage> builtIns = [];
     private TrayIcon? tray;
-    private NativeMenuItem? trayStatus, trayPause, trayPet;
+    private NativeMenuItem? trayStatus, trayPause, trayPet, trayCharacters;
+    private IReadOnlyList<CharacterPackage>? trayCharacterList;
     private SettingsWindow? settingsWindow;
     private EditorWindow? editor;
     private PetWindow? pet;
@@ -67,6 +68,11 @@ public sealed class AppRuntime : IDisposable
                 if (!Directory.Exists(AppPaths.BuiltInRoot)) throw new DirectoryNotFoundException("Built-in character assets are missing.");
                 foreach (var directory in Directory.EnumerateDirectories(AppPaths.BuiltInRoot)) builtIns.Add(CharacterLibrary.LoadPackage(directory, true));
                 if (builtIns.Count == 0) throw new InvalidDataException("No built-in characters found.");
+                // Directory enumeration order is filesystem-defined; the picker needs the
+                // same order on every machine, with the default companion leading it.
+                builtIns.Sort((a, b) => a.Manifest.Id == AppSettings.DefaultCharacterId ? -1
+                    : b.Manifest.Id == AppSettings.DefaultCharacterId ? 1
+                    : string.CompareOrdinal(a.Manifest.Name, b.Manifest.Name));
             });
             await Reload(); BuildTray(); timer.Start(); Clock.Reset(monotonic.Elapsed);
             await UpdatePet();
@@ -89,8 +95,15 @@ public sealed class AppRuntime : IDisposable
         if (trayStatus is not null) trayStatus.Header = $"Next stretch: {remaining}";
         if (trayPause is not null) trayPause.Header = Clock.Paused ? "Resume" : "Pause";
         if (trayPet is not null) trayPet.Header = Settings.ShowPet ? "Hide Pet" : "Show Pet";
+        RefreshTrayCharacters();
         Changed?.Invoke();
     }
+    /// <summary>Swaps the companion. Selecting the character already on screen is a no-op
+    /// so repeated menu clicks never rewrite settings or reload the pet's clips.</summary>
+    public Task SelectCharacter(CharacterPackage character) =>
+        character.Manifest.Id == Settings.SelectedCharacterId
+            ? Task.CompletedTask
+            : UpdateSettings(Settings with { SelectedCharacterId = character.Manifest.Id });
     public void TogglePause() { Clock.TogglePause(monotonic.Elapsed); Changed?.Invoke(); }
     public void Reset() { Clock.Reset(monotonic.Elapsed); Changed?.Invoke(); }
     public void ShowSettings() { if (settingsWindow is null) return; settingsWindow.Show(); settingsWindow.ResumePreview(); settingsWindow.WindowState = WindowState.Normal; if (!DiagnosticMode) settingsWindow.Activate(); }
@@ -199,6 +212,7 @@ public sealed class AppRuntime : IDisposable
         trayStatus = new NativeMenuItem("Next stretch") { IsEnabled = false }; menu.Items.Add(trayStatus);
         void Item(string text, Action action) { var item = new NativeMenuItem(text); item.Click += (_, _) => action(); menu.Items.Add(item); }
         Item("Settings", ShowSettings);
+        trayCharacters = new NativeMenuItem("Character") { Menu = new NativeMenu() }; menu.Items.Add(trayCharacters);
         trayPet = new NativeMenuItem("Hide Pet"); menu.Items.Add(trayPet);
         trayPet.Click += async (_, _) => { try { await UpdateSettings(Settings with { ShowPet = !Settings.ShowPet }); } catch (Exception error) { AppPaths.Log(error); } };
         trayPause = new NativeMenuItem("Pause"); trayPause.Click += (_, _) => TogglePause(); menu.Items.Add(trayPause);
@@ -206,6 +220,28 @@ public sealed class AppRuntime : IDisposable
         menu.Items.Add(new NativeMenuItemSeparator()); Item("Quit Unfold", () => _ = Quit());
         tray.Menu = menu; tray.Clicked += (_, _) => ShowSettings();
         TrayIcon.SetIcons(Application.Current!, new TrayIcons { tray });
+        RefreshTrayCharacters();
+    }
+    /// <summary>Rebuilds the tray's character list only when the library itself changed;
+    /// the per-second tick just moves the check mark.</summary>
+    private void RefreshTrayCharacters()
+    {
+        if (trayCharacters?.Menu is not { } submenu) return;
+        if (!ReferenceEquals(trayCharacterList, Characters))
+        {
+            trayCharacterList = Characters; submenu.Items.Clear();
+            foreach (var character in Characters)
+            {
+                var item = new NativeMenuItem(character.Manifest.Name) { ToggleType = MenuItemToggleType.Radio };
+                var target = character;
+                item.Click += async (_, _) => { try { await SelectCharacter(target); } catch (Exception error) { AppPaths.Log(error); } };
+                submenu.Items.Add(item);
+            }
+        }
+        var selected = Selected;
+        for (var i = 0; i < submenu.Items.Count && i < Characters.Count; i++)
+            if (submenu.Items[i] is NativeMenuItem item) item.IsChecked = Characters[i] == selected;
+        trayCharacters.IsEnabled = Characters.Count > 1;
     }
     public async Task Quit()
     {

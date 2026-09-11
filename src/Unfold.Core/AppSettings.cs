@@ -4,9 +4,10 @@ namespace Unfold.Core;
 
 public sealed record AppSettings
 {
+    public const string DefaultCharacterId = "default-cat";
     public int IntervalMinutes { get; init; } = 60;
     public int IdleMinutes { get; init; } = 5;
-    public string SelectedCharacterId { get; init; } = "default-cat";
+    public string SelectedCharacterId { get; init; } = DefaultCharacterId;
     public bool ShowPet { get; init; } = true;
     public int? PetX { get; init; }
     public int? PetY { get; init; }

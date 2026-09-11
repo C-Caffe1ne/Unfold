@@ -1,0 +1,725 @@
+[
+  {
+    "id": "miso-tabby",
+    "name": "Miso",
+    "breed": "Ginger tabby",
+    "replacements": {
+      "1": 0,
+      "10": 11
+    },
+    "clips": {
+      "idle": {
+        "frames": 5,
+        "width": 384,
+        "height": 384,
+        "delays": [
+          1400,
+          850,
+          120,
+          600,
+          500
+        ],
+        "durationMs": 3470,
+        "loop": 0,
+        "bytes": 186653
+      },
+      "stretch": {
+        "frames": 7,
+        "width": 384,
+        "height": 384,
+        "delays": [
+          260,
+          240,
+          320,
+          900,
+          260,
+          240,
+          360
+        ],
+        "durationMs": 2580,
+        "loop": 1,
+        "bytes": 285825
+      },
+      "click": {
+        "frames": 5,
+        "width": 384,
+        "height": 384,
+        "delays": [
+          180,
+          300,
+          650,
+          350,
+          330
+        ],
+        "durationMs": 1810,
+        "loop": 1,
+        "bytes": 192285
+      }
+    },
+    "scale": 0.890282131661442,
+    "registration": [
+      {
+        "index": 0,
+        "sourceBounds": {
+          "left": 65,
+          "top": 28,
+          "right": 325,
+          "bottom": 346,
+          "width": 261,
+          "height": 319
+        },
+        "left": 88,
+        "top": 54,
+        "width": 239,
+        "height": 291
+      },
+      {
+        "index": 1,
+        "sourceBounds": {
+          "left": 34,
+          "top": 28,
+          "right": 292,
+          "bottom": 346,
+          "width": 259,
+          "height": 319
+        },
+        "left": 60,
+        "top": 54,
+        "width": 238,
+        "height": 291
+      },
+      {
+        "index": 2,
+        "sourceBounds": {
+          "left": 64,
+          "top": 28,
+          "right": 329,
+          "bottom": 346,
+          "width": 266,
+          "height": 319
+        },
+        "left": 87,
+        "top": 54,
+        "width": 244,
+        "height": 291
+      },
+      {
+        "index": 3,
+        "sourceBounds": {
+          "left": 77,
+          "top": 28,
+          "right": 329,
+          "bottom": 346,
+          "width": 253,
+          "height": 319
+        },
+        "left": 99,
+        "top": 54,
+        "width": 232,
+        "height": 291
+      },
+      {
+        "index": 4,
+        "sourceBounds": {
+          "left": 65,
+          "top": 28,
+          "right": 326,
+          "bottom": 346,
+          "width": 262,
+          "height": 319
+        },
+        "left": 88,
+        "top": 54,
+        "width": 240,
+        "height": 291
+      },
+      {
+        "index": 5,
+        "sourceBounds": {
+          "left": 12,
+          "top": 26,
+          "right": 335,
+          "bottom": 329,
+          "width": 324,
+          "height": 304
+        },
+        "left": 41,
+        "top": 68,
+        "width": 296,
+        "height": 278
+      },
+      {
+        "index": 6,
+        "sourceBounds": {
+          "left": 11,
+          "top": 12,
+          "right": 348,
+          "bottom": 339,
+          "width": 338,
+          "height": 328
+        },
+        "left": 40,
+        "top": 46,
+        "width": 308,
+        "height": 299
+      },
+      {
+        "index": 7,
+        "sourceBounds": {
+          "left": 12,
+          "top": 12,
+          "right": 348,
+          "bottom": 340,
+          "width": 337,
+          "height": 329
+        },
+        "left": 41,
+        "top": 46,
+        "width": 307,
+        "height": 300
+      },
+      {
+        "index": 8,
+        "sourceBounds": {
+          "left": 62,
+          "top": 28,
+          "right": 326,
+          "bottom": 345,
+          "width": 265,
+          "height": 318
+        },
+        "left": 85,
+        "top": 55,
+        "width": 243,
+        "height": 290
+      },
+      {
+        "index": 9,
+        "sourceBounds": {
+          "left": 43,
+          "top": 12,
+          "right": 332,
+          "bottom": 345,
+          "width": 290,
+          "height": 334
+        },
+        "left": 68,
+        "top": 41,
+        "width": 265,
+        "height": 304
+      },
+      {
+        "index": 10,
+        "sourceBounds": {
+          "left": 92,
+          "top": 14,
+          "right": 335,
+          "bottom": 344,
+          "width": 244,
+          "height": 331
+        },
+        "left": 112,
+        "top": 44,
+        "width": 224,
+        "height": 302
+      },
+      {
+        "index": 11,
+        "sourceBounds": {
+          "left": 79,
+          "top": 12,
+          "right": 325,
+          "bottom": 344,
+          "width": 247,
+          "height": 333
+        },
+        "left": 100,
+        "top": 42,
+        "width": 227,
+        "height": 304
+      }
+    ]
+  },
+  {
+    "id": "luna-blue",
+    "name": "Luna",
+    "breed": "Russian Blue",
+    "scale": 0.8765432098765432,
+    "registration": [
+      {
+        "index": 0,
+        "sourceBounds": {
+          "left": 69,
+          "top": 20,
+          "right": 315,
+          "bottom": 343,
+          "width": 247,
+          "height": 324
+        },
+        "left": 110,
+        "top": 54,
+        "width": 224,
+        "height": 291
+      },
+      {
+        "index": 1,
+        "sourceBounds": {
+          "left": 69,
+          "top": 20,
+          "right": 313,
+          "bottom": 343,
+          "width": 245,
+          "height": 324
+        },
+        "left": 110,
+        "top": 54,
+        "width": 222,
+        "height": 291
+      },
+      {
+        "index": 2,
+        "sourceBounds": {
+          "left": 68,
+          "top": 22,
+          "right": 306,
+          "bottom": 343,
+          "width": 239,
+          "height": 322
+        },
+        "left": 109,
+        "top": 56,
+        "width": 217,
+        "height": 289
+      },
+      {
+        "index": 3,
+        "sourceBounds": {
+          "left": 69,
+          "top": 20,
+          "right": 317,
+          "bottom": 343,
+          "width": 249,
+          "height": 324
+        },
+        "left": 110,
+        "top": 54,
+        "width": 225,
+        "height": 291
+      },
+      {
+        "index": 4,
+        "sourceBounds": {
+          "left": 68,
+          "top": 20,
+          "right": 315,
+          "bottom": 343,
+          "width": 248,
+          "height": 324
+        },
+        "left": 109,
+        "top": 54,
+        "width": 224,
+        "height": 291
+      },
+      {
+        "index": 5,
+        "sourceBounds": {
+          "left": 18,
+          "top": 15,
+          "right": 331,
+          "bottom": 342,
+          "width": 314,
+          "height": 328
+        },
+        "left": 65,
+        "top": 51,
+        "width": 282,
+        "height": 295
+      },
+      {
+        "index": 6,
+        "sourceBounds": {
+          "left": 17,
+          "top": 18,
+          "right": 345,
+          "bottom": 343,
+          "width": 329,
+          "height": 326
+        },
+        "left": 65,
+        "top": 53,
+        "width": 295,
+        "height": 293
+      },
+      {
+        "index": 7,
+        "sourceBounds": {
+          "left": 17,
+          "top": 18,
+          "right": 345,
+          "bottom": 343,
+          "width": 329,
+          "height": 326
+        },
+        "left": 65,
+        "top": 53,
+        "width": 295,
+        "height": 293
+      },
+      {
+        "index": 8,
+        "sourceBounds": {
+          "left": 68,
+          "top": 21,
+          "right": 315,
+          "bottom": 343,
+          "width": 248,
+          "height": 323
+        },
+        "left": 109,
+        "top": 55,
+        "width": 224,
+        "height": 290
+      },
+      {
+        "index": 9,
+        "sourceBounds": {
+          "left": 96,
+          "top": 13,
+          "right": 320,
+          "bottom": 344,
+          "width": 225,
+          "height": 332
+        },
+        "left": 134,
+        "top": 47,
+        "width": 204,
+        "height": 298
+      },
+      {
+        "index": 10,
+        "sourceBounds": {
+          "left": 80,
+          "top": 11,
+          "right": 319,
+          "bottom": 343,
+          "width": 240,
+          "height": 333
+        },
+        "left": 120,
+        "top": 47,
+        "width": 217,
+        "height": 299
+      },
+      {
+        "index": 11,
+        "sourceBounds": {
+          "left": 82,
+          "top": 10,
+          "right": 318,
+          "bottom": 343,
+          "width": 237,
+          "height": 334
+        },
+        "left": 122,
+        "top": 46,
+        "width": 215,
+        "height": 300
+      }
+    ],
+    "clips": {
+      "idle": {
+        "frames": 7,
+        "width": 384,
+        "height": 384,
+        "delays": [
+          900,
+          350,
+          650,
+          120,
+          550,
+          350,
+          550
+        ],
+        "durationMs": 3470,
+        "loop": 0,
+        "bytes": 262926
+      },
+      "stretch": {
+        "frames": 7,
+        "width": 384,
+        "height": 384,
+        "delays": [
+          260,
+          240,
+          320,
+          900,
+          260,
+          240,
+          360
+        ],
+        "durationMs": 2580,
+        "loop": 1,
+        "bytes": 290509
+      },
+      "click": {
+        "frames": 7,
+        "width": 384,
+        "height": 384,
+        "delays": [
+          180,
+          220,
+          180,
+          550,
+          180,
+          200,
+          300
+        ],
+        "durationMs": 1810,
+        "loop": 1,
+        "bytes": 267937
+      }
+    }
+  },
+  {
+    "id": "coco-siamese",
+    "name": "Coco",
+    "breed": "Siamese",
+    "scale": 0.8528528528528528,
+    "registration": [
+      {
+        "index": 0,
+        "sourceBounds": {
+          "left": 95,
+          "top": 17,
+          "right": 329,
+          "bottom": 349,
+          "width": 235,
+          "height": 333
+        },
+        "left": 121,
+        "top": 55,
+        "width": 207,
+        "height": 291
+      },
+      {
+        "index": 1,
+        "sourceBounds": {
+          "left": 93,
+          "top": 13,
+          "right": 336,
+          "bottom": 349,
+          "width": 244,
+          "height": 337
+        },
+        "left": 120,
+        "top": 51,
+        "width": 215,
+        "height": 294
+      },
+      {
+        "index": 2,
+        "sourceBounds": {
+          "left": 89,
+          "top": 18,
+          "right": 312,
+          "bottom": 349,
+          "width": 224,
+          "height": 332
+        },
+        "left": 116,
+        "top": 55,
+        "width": 198,
+        "height": 290
+      },
+      {
+        "index": 3,
+        "sourceBounds": {
+          "left": 73,
+          "top": 15,
+          "right": 309,
+          "bottom": 350,
+          "width": 237,
+          "height": 336
+        },
+        "left": 103,
+        "top": 52,
+        "width": 209,
+        "height": 293
+      },
+      {
+        "index": 4,
+        "sourceBounds": {
+          "left": 95,
+          "top": 18,
+          "right": 329,
+          "bottom": 348,
+          "width": 235,
+          "height": 331
+        },
+        "left": 121,
+        "top": 56,
+        "width": 207,
+        "height": 289
+      },
+      {
+        "index": 5,
+        "sourceBounds": {
+          "left": 9,
+          "top": 36,
+          "right": 332,
+          "bottom": 342,
+          "width": 324,
+          "height": 307
+        },
+        "left": 48,
+        "top": 77,
+        "width": 283,
+        "height": 269
+      },
+      {
+        "index": 6,
+        "sourceBounds": {
+          "left": 16,
+          "top": 11,
+          "right": 333,
+          "bottom": 342,
+          "width": 318,
+          "height": 332
+        },
+        "left": 54,
+        "top": 55,
+        "width": 278,
+        "height": 290
+      },
+      {
+        "index": 7,
+        "sourceBounds": {
+          "left": 15,
+          "top": 13,
+          "right": 329,
+          "bottom": 342,
+          "width": 315,
+          "height": 330
+        },
+        "left": 53,
+        "top": 57,
+        "width": 275,
+        "height": 288
+      },
+      {
+        "index": 8,
+        "sourceBounds": {
+          "left": 95,
+          "top": 18,
+          "right": 329,
+          "bottom": 348,
+          "width": 235,
+          "height": 331
+        },
+        "left": 121,
+        "top": 56,
+        "width": 207,
+        "height": 289
+      },
+      {
+        "index": 9,
+        "sourceBounds": {
+          "left": 32,
+          "top": 10,
+          "right": 320,
+          "bottom": 345,
+          "width": 289,
+          "height": 336
+        },
+        "left": 68,
+        "top": 52,
+        "width": 253,
+        "height": 293
+      },
+      {
+        "index": 10,
+        "sourceBounds": {
+          "left": 78,
+          "top": 9,
+          "right": 316,
+          "bottom": 347,
+          "width": 239,
+          "height": 339
+        },
+        "left": 107,
+        "top": 49,
+        "width": 211,
+        "height": 296
+      },
+      {
+        "index": 11,
+        "sourceBounds": {
+          "left": 73,
+          "top": 5,
+          "right": 309,
+          "bottom": 347,
+          "width": 237,
+          "height": 343
+        },
+        "left": 103,
+        "top": 46,
+        "width": 209,
+        "height": 299
+      }
+    ],
+    "clips": {
+      "idle": {
+        "frames": 7,
+        "width": 384,
+        "height": 384,
+        "delays": [
+          900,
+          350,
+          650,
+          120,
+          550,
+          350,
+          550
+        ],
+        "durationMs": 3470,
+        "loop": 0,
+        "bytes": 215275
+      },
+      "stretch": {
+        "frames": 7,
+        "width": 384,
+        "height": 384,
+        "delays": [
+          260,
+          240,
+          320,
+          900,
+          260,
+          240,
+          360
+        ],
+        "durationMs": 2580,
+        "loop": 1,
+        "bytes": 231563
+      },
+      "click": {
+        "frames": 7,
+        "width": 384,
+        "height": 384,
+        "delays": [
+          180,
+          220,
+          180,
+          550,
+          180,
+          200,
+          300
+        ],
+        "durationMs": 1810,
+        "loop": 1,
+        "bytes": 221873
+      }
+    }
+  }
+]

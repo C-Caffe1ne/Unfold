@@ -3,7 +3,9 @@ using System.Text.Json;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
+using Avalonia.VisualTree;
 using Unfold.Core;
 
 namespace Unfold.Desktop;
@@ -23,6 +25,7 @@ internal static class SmokeDiagnostics
             if (runtime.Characters.Count == 0 || runtime.ActivePet is null) throw new InvalidOperationException("Startup did not load the character/pet.");
             Capture(desktop.MainWindow!, Path.Combine(directory, "settings.png"));
             Capture(runtime.ActivePet, Path.Combine(directory, "pet.png"));
+            await ClickThroughCharacterPicker(runtime, desktop.MainWindow!);
             var doc = new PixelDocument(32, 32) { Name = "Smoke verification" };
             doc.Draw(PixelTool.Rectangle, new(5, 5), new(25, 25), 0xFFF4B860, 1, 0, 0);
             var saved = runtime.Library.Save(doc); await runtime.Reload();
@@ -37,7 +40,16 @@ internal static class SmokeDiagnostics
             await Task.Delay(150); Capture(runtime.ActiveReminder, Path.Combine(directory, "reminder.png"));
             runtime.ActiveReminder.Close(); editor.CloseAfterApproval();
             runtime.HideSettingsForDiagnostics();
-            await runtime.UpdateSettings(runtime.Settings with { SelectedCharacterId = "default-cat", ShowPet = true });
+            // Every bundled companion has to survive a live swap: the selection sticks,
+            // its idle clip decodes, and the pet stays on screen throughout.
+            foreach (var character in runtime.Characters.Where(c => c.IsBuiltIn))
+            {
+                await runtime.SelectCharacter(character);
+                if (runtime.Selected != character) throw new InvalidOperationException($"Swapping to {character.Manifest.Id} did not take effect.");
+                if ((await runtime.Clip("idle")).Count == 0) throw new InvalidOperationException($"{character.Manifest.Id} has no idle frames after the swap.");
+                if (runtime.ActivePet is null) throw new InvalidOperationException($"Swapping to {character.Manifest.Id} dropped the pet.");
+            }
+            await runtime.UpdateSettings(runtime.Settings with { SelectedCharacterId = AppSettings.DefaultCharacterId, ShowPet = true });
             await Task.Delay(1000);
             var process = Process.GetCurrentProcess(); var cpuBefore = process.TotalProcessorTime; var sample = Stopwatch.StartNew();
             await Task.Delay(2000); process.Refresh();
@@ -54,6 +66,19 @@ internal static class SmokeDiagnostics
             AtomicFile.Write(Path.Combine(directory, "smoke.json"), JsonSerializer.SerializeToUtf8Bytes(new { success = false, error = error.ToString() }, CharacterLibrary.JsonOptions));
             AppPaths.Log(error); runtime.Dispose(); desktop.Shutdown(1);
         }
+    }
+    /// <summary>Swapping is what the picker is for, so drive it the way a user does:
+    /// through the real card button, not through the settings record behind it.</summary>
+    private static async Task ClickThroughCharacterPicker(AppRuntime runtime, Window settings)
+    {
+        var cards = settings.GetVisualDescendants().OfType<Button>().Where(button => button.Tag is CharacterPackage).ToArray();
+        if (cards.Length != runtime.Characters.Count)
+            throw new InvalidOperationException($"The picker offers {cards.Length} of {runtime.Characters.Count} characters.");
+        if (cards.FirstOrDefault(button => !ReferenceEquals(button.Tag, runtime.Selected)) is not { } other) return;
+        var wanted = (CharacterPackage)other.Tag!;
+        other.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        for (var i = 0; i < 50 && runtime.Selected != wanted; i++) await Task.Delay(20);
+        if (runtime.Selected != wanted) throw new InvalidOperationException($"Clicking {wanted.Manifest.Name} in the picker did not swap the character.");
     }
     private static void Capture(Window window, string path)
     {

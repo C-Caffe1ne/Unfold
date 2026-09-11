@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>새로운 고양이 친구들 · Spine Keepet</title>
+  <style>
+    :root {
+      --color-ink: #263e36;
+      --color-muted: #66766e;
+      --color-accent: #357867;
+      --color-border: #dfe7e1;
+      --color-paper: #f6f7f2;
+      --preview-size: 192px;
+      --stage-a: #f5f8f5;
+      --stage-b: #eaf0ea;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--color-ink);
+      background: var(--color-paper);
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+      word-break: keep-all;
+    }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    button { font: inherit; cursor: pointer; }
+    button, a, summary { touch-action: manipulation; }
+    button:focus-visible, a:focus-visible, summary:focus-visible {
+      outline: 3px solid #276653;
+      outline-offset: 4px;
+    }
+    button:disabled { cursor: wait; }
+    [hidden] { display: none !important; }
+    .page-shell { max-width: 1400px; padding: 42px 36px 28px; margin: 0 auto; }
+    .brand { display: flex; align-items: center; gap: 10px; margin: 0 0 44px; font-size: 14px; font-weight: 650; }
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      color: #fff;
+      background: var(--color-accent);
+      border-radius: 11px;
+    }
+    .brand-mark svg { width: 23px; height: 23px; }
+    .intro { max-width: 660px; }
+    h1 { margin: 0 0 14px; font-size: clamp(30px, 4vw, 46px); font-weight: 750; letter-spacing: -1.8px; line-height: 1.2; }
+    .intro p { margin: 0; color: var(--color-muted); font-size: 16px; }
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin: 32px 0 22px;
+    }
+    .toolbar-note { margin: 0; color: var(--color-muted); font-size: 13px; }
+    .toolbar-controls { display: flex; flex-wrap: wrap; gap: 18px; }
+    .control { display: flex; align-items: center; gap: 9px; }
+    .control-label { color: var(--color-muted); font-size: 13px; }
+    .segmented {
+      display: flex;
+      gap: 3px;
+      padding: 4px;
+      background: #e9eee7;
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+    }
+    .segmented button {
+      min-height: 34px;
+      padding: 5px 12px;
+      color: #52665b;
+      background: transparent;
+      border: 0;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .segmented button[aria-pressed="true"] { color: var(--color-ink); background: #fff; box-shadow: 0 1px 4px #17352412; }
+    .segmented button:hover { color: var(--color-ink); background: #ffffff80; }
+    .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+    .cat-card { overflow: hidden; background: #fff; border: 1px solid var(--color-border); border-radius: 24px; box-shadow: 0 6px 22px #17352404; }
+    .card-header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 23px 24px 18px; }
+    h2 { margin: 0; font-size: 25px; letter-spacing: -0.7px; line-height: 1.2; }
+    .breed { margin: 0; color: var(--color-muted); font-size: 13px; }
+    .stage {
+      display: grid;
+      position: relative;
+      place-items: center;
+      min-height: 280px;
+      padding: 24px 12px;
+      margin: 0 12px;
+      background-color: var(--stage-a);
+      background-image: conic-gradient(var(--stage-b) 25%, transparent 0 50%, var(--stage-b) 0 75%, transparent 0);
+      background-size: 24px 24px;
+      border-radius: 17px;
+    }
+    .pet-image { display: block; width: var(--preview-size); height: auto; max-width: 100%; aspect-ratio: 1; object-fit: contain; }
+    .image-error { max-width: 230px; margin: 0; padding: 16px; color: var(--color-ink); background: #fff; border-radius: 10px; text-align: center; font-size: 13px; }
+    .card-body { padding: 20px 24px 23px; }
+    .state-selector { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; }
+    .state-selector button {
+      min-height: 42px;
+      padding: 8px 5px;
+      color: #566a5e;
+      background: #f4f6f2;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 650;
+    }
+    .state-selector button:hover { background: #e9f0e9; }
+    .state-selector button[aria-pressed="true"] { color: #fff; background: var(--color-accent); border-color: var(--color-accent); }
+    .state-description { min-height: 48px; margin: 17px 0 15px; color: var(--color-muted); font-size: 13px; line-height: 1.8; }
+    .playback-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .playback-mode { color: var(--color-muted); font-size: 12px; }
+    .replay-button { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 5px 0 5px 8px; color: var(--color-accent); background: none; border: 0; font-size: 13px; font-weight: 650; }
+    .replay-button:hover { text-decoration: underline; text-underline-offset: 4px; }
+    .replay-button svg { width: 15px; height: 15px; }
+    .downloads { padding-top: 15px; margin-top: 14px; border-top: 1px solid #edf0eb; }
+    .downloads summary { width: fit-content; color: var(--color-muted); font-size: 12px; cursor: pointer; }
+    .download-links { display: flex; flex-wrap: wrap; gap: 12px; padding-top: 12px; }
+    .download-links a { color: var(--color-accent); font-size: 12px; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+    .page-footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 24px; margin-top: 25px; color: var(--color-muted); font-size: 12px; }
+    .page-footer p { margin: 0; }
+    body[data-background="dark"] { --stage-a: #202d2c; --stage-b: #263735; }
+    body[data-scale="large"] { --preview-size: 384px; }
+    body[data-scale="large"] .stage { min-height: 432px; }
+    @media (max-width: 1120px) {
+      .page-shell { padding-right: 24px; padding-left: 24px; }
+      .cards { gap: 15px; }
+      .card-header { padding-right: 18px; padding-left: 18px; }
+      .card-body { padding-right: 16px; padding-left: 16px; }
+    }
+    @media (max-width: 860px) {
+      .cards { grid-template-columns: 1fr; max-width: 560px; margin: 0 auto; }
+      .toolbar { align-items: flex-start; flex-direction: column; }
+      .card-header { padding: 23px 24px 18px; }
+      .card-body { padding: 20px 24px 23px; }
+      .stage { min-height: 264px; }
+      .state-description { min-height: 0; }
+    }
+    @media (max-width: 460px) {
+      .page-shell { padding: 25px 16px; }
+      .brand { margin-bottom: 32px; }
+      .intro p { font-size: 14px; }
+      .toolbar-controls { gap: 12px; }
+      .control { gap: 7px; }
+      .segmented button { padding: 5px 10px; }
+      .card-body { padding-right: 18px; padding-left: 18px; }
+      body[data-scale="large"] .stage { min-height: 350px; }
+    }
+  </style>
+</head>
+<body data-background="light" data-scale="normal">
+  <div class="page-shell">
+    <header>
+      <p class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 10V4l5 3h4l5-3v6a7 7 0 1 1-14 0Z"/><path d="M8.5 12h.01M15.5 12h.01M11 15l1 1 1-1"/></svg>
+        </span>
+        Spine Keepet
+      </p>
+      <div class="intro">
+        <h1>새로운 고양이 친구들</h1>
+        <p>따뜻한 미소, 차분한 루나, 호기심 많은 코코.<br>세 친구의 일상과 스트레칭, 반가운 인사를 만나보세요.</p>
+      </div>
+    </header>
+
+    <main>
+      <div class="toolbar">
+        <p class="toolbar-note">동작을 고르고, 배경을 바꿔 투명한 가장자리까지 살펴보세요.</p>
+        <div class="toolbar-controls">
+          <div class="control">
+            <span class="control-label" id="background-label">배경</span>
+            <div class="segmented" role="group" aria-labelledby="background-label">
+              <button type="button" data-background="light" aria-pressed="true">밝게</button>
+              <button type="button" data-background="dark" aria-pressed="false">어둡게</button>
+            </div>
+          </div>
+          <div class="control">
+            <span class="control-label" id="scale-label">크기</span>
+            <div class="segmented" role="group" aria-labelledby="scale-label">
+              <button type="button" data-scale="normal" aria-pressed="true">192px</button>
+              <button type="button" data-scale="large" aria-pressed="false">384px</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <section class="cards" aria-label="고양이별 동작 미리보기">
+        <article class="cat-card" data-cat="miso-tabby" data-name="미소" data-state="stretch" aria-labelledby="miso-name">
+          <header class="card-header"><h2 id="miso-name">Miso <span lang="ko">미소</span></h2><p class="breed">치즈 태비</p></header>
+          <div class="stage">
+            <img class="pet-image" src="../../../Sources/Unfold/Resources/Characters/miso-tabby/stretch.gif" width="384" height="384" alt="미소가 앞발을 뻗어 스트레칭하는 모습">
+            <p class="image-error" role="status" hidden>이미지를 불러오지 못했어요. 다시 재생해 주세요.</p>
+          </div>
+          <div class="card-body">
+            <div class="state-selector" role="group" aria-label="미소의 동작">
+              <button type="button" data-state="idle" aria-pressed="false">기다리기</button>
+              <button type="button" data-state="stretch" aria-pressed="true">스트레칭</button>
+              <button type="button" data-state="click" aria-pressed="false">클릭 반응</button>
+            </div>
+            <p class="state-description" aria-live="polite">앞발을 길게 뻗고 등을 쭉 펴요.<br>스트레칭할 시간이 되면 함께 움직여요.</p>
+            <div class="playback-row"><span class="playback-mode">한 번 재생하고 제자리로</span><button class="replay-button" type="button" aria-label="미소의 선택한 동작 다시 재생"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 7a6 6 0 1 1-.2 5M4 2v5h5"/></svg>다시 재생</button></div>
+            <details class="downloads"><summary>GIF 다운로드</summary><div class="download-links"><a href="../../../Sources/Unfold/Resources/Characters/miso-tabby/idle.gif" download="miso-tabby-idle.gif">기다리기</a><a href="../../../Sources/Unfold/Resources/Characters/miso-tabby/stretch.gif" download="miso-tabby-stretch.gif">스트레칭</a><a href="../../../Sources/Unfold/Resources/Characters/miso-tabby/click.gif" download="miso-tabby-click.gif">클릭 반응</a></div></details>
+          </div>
+        </article>
+
+        <article class="cat-card" data-cat="luna-blue" data-name="루나" data-state="stretch" aria-labelledby="luna-name">
+          <header class="card-header"><h2 id="luna-name">Luna <span lang="ko">루나</span></h2><p class="breed">러시안 블루</p></header>
+          <div class="stage">
+            <img class="pet-image" src="../../../Sources/Unfold/Resources/Characters/luna-blue/stretch.gif" width="384" height="384" alt="루나가 앞발을 뻗어 스트레칭하는 모습">
+            <p class="image-error" role="status" hidden>이미지를 불러오지 못했어요. 다시 재생해 주세요.</p>
+          </div>
+          <div class="card-body">
+            <div class="state-selector" role="group" aria-label="루나의 동작">
+              <button type="button" data-state="idle" aria-pressed="false">기다리기</button>
+              <button type="button" data-state="stretch" aria-pressed="true">스트레칭</button>
+              <button type="button" data-state="click" aria-pressed="false">클릭 반응</button>
+            </div>
+            <p class="state-description" aria-live="polite">앞발을 길게 뻗고 등을 쭉 펴요.<br>스트레칭할 시간이 되면 함께 움직여요.</p>
+            <div class="playback-row"><span class="playback-mode">한 번 재생하고 제자리로</span><button class="replay-button" type="button" aria-label="루나의 선택한 동작 다시 재생"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 7a6 6 0 1 1-.2 5M4 2v5h5"/></svg>다시 재생</button></div>
+            <details class="downloads"><summary>GIF 다운로드</summary><div class="download-links"><a href="../../../Sources/Unfold/Resources/Characters/luna-blue/idle.gif" download="luna-blue-idle.gif">기다리기</a><a href="../../../Sources/Unfold/Resources/Characters/luna-blue/stretch.gif" download="luna-blue-stretch.gif">스트레칭</a><a href="../../../Sources/Unfold/Resources/Characters/luna-blue/click.gif" download="luna-blue-click.gif">클릭 반응</a></div></details>
+          </div>
+        </article>
+
+        <article class="cat-card" data-cat="coco-siamese" data-name="코코" data-state="stretch" aria-labelledby="coco-name">
+          <header class="card-header"><h2 id="coco-name">Coco <span lang="ko">코코</span></h2><p class="breed">샴</p></header>
+          <div class="stage">
+            <img class="pet-image" src="../../../Sources/Unfold/Resources/Characters/coco-siamese/stretch.gif" width="384" height="384" alt="코코가 앞발을 뻗어 스트레칭하는 모습">
+            <p class="image-error" role="status" hidden>이미지를 불러오지 못했어요. 다시 재생해 주세요.</p>
+          </div>
+          <div class="card-body">
+            <div class="state-selector" role="group" aria-label="코코의 동작">
+              <button type="button" data-state="idle" aria-pressed="false">기다리기</button>
+              <button type="button" data-state="stretch" aria-pressed="true">스트레칭</button>
+              <button type="button" data-state="click" aria-pressed="false">클릭 반응</button>
+            </div>
+            <p class="state-description" aria-live="polite">앞발을 길게 뻗고 등을 쭉 펴요.<br>스트레칭할 시간이 되면 함께 움직여요.</p>
+            <div class="playback-row"><span class="playback-mode">한 번 재생하고 제자리로</span><button class="replay-button" type="button" aria-label="코코의 선택한 동작 다시 재생"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 7a6 6 0 1 1-.2 5M4 2v5h5"/></svg>다시 재생</button></div>
+            <details class="downloads"><summary>GIF 다운로드</summary><div class="download-links"><a href="../../../Sources/Unfold/Resources/Characters/coco-siamese/idle.gif" download="coco-siamese-idle.gif">기다리기</a><a href="../../../Sources/Unfold/Resources/Characters/coco-siamese/stretch.gif" download="coco-siamese-stretch.gif">스트레칭</a><a href="../../../Sources/Unfold/Resources/Characters/coco-siamese/click.gif" download="coco-siamese-click.gif">클릭 반응</a></div></details>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="page-footer"><p>기다리기는 반복 재생됩니다. 스트레칭과 클릭 반응은 한 번씩 재생됩니다.</p><p>기본 크기 192 × 192px · 작은 화면에서는 화면 폭에 맞춰 표시됩니다.</p></footer>
+  </div>
+  <script>
+    "use strict";
+    const states = {
+      idle: {
+        description: "편안하게 앉아 눈을 깜빡이고 꼬리를 살짝 움직여요. 평소에는 이 모습으로 곁을 지켜요.",
+        alt: "가 편안하게 앉아 눈을 깜빡이고 꼬리를 움직이는 모습",
+        mode: "계속 반복 재생"
+      },
+      stretch: {
+        description: "앞발을 길게 뻗고 등을 쭉 펴요. 스트레칭할 시간이 되면 함께 움직여요.",
+        alt: "가 앞발을 뻗어 스트레칭하는 모습",
+        mode: "한 번 재생하고 제자리로"
+      },
+      click: {
+        description: "고개를 갸웃하고 앞발을 들어 인사해요. 고양이를 클릭했을 때 보여주는 반가운 반응이에요.",
+        alt: "가 고개를 갸웃하고 앞발을 들어 인사하는 모습",
+        mode: "한 번 재생하고 제자리로"
+      }
+    };
+    const cards = new Map();
+    const backgroundButtons = [...document.querySelectorAll("button[data-background]")];
+    const scaleButtons = [...document.querySelectorAll("button[data-scale]")];
+    let replayCount = 0;
+
+    function showImageError(event) {
+      const view = cards.get(event.currentTarget.closest(".cat-card"));
+      view.image.hidden = true;
+      view.error.hidden = false;
+    }
+
+    function showLoadedImage(event) {
+      const view = cards.get(event.currentTarget.closest(".cat-card"));
+      view.image.hidden = false;
+      view.error.hidden = true;
+    }
+
+    for (const card of document.querySelectorAll(".cat-card")) {
+      const image = card.querySelector(".pet-image");
+      cards.set(card, {
+        image,
+        error: card.querySelector(".image-error"),
+        buttons: [...card.querySelectorAll("button[data-state]")],
+        description: card.querySelector(".state-description"),
+        mode: card.querySelector(".playback-mode")
+      });
+      image.addEventListener("error", showImageError);
+      image.addEventListener("load", showLoadedImage);
+      if (image.complete && image.naturalWidth === 0) {
+        image.hidden = true;
+        cards.get(card).error.hidden = false;
+      }
+    }
+
+    function playState(card, state) {
+      const view = cards.get(card);
+      const details = states[state];
+      if (!view || !details) return;
+      card.dataset.state = state;
+      for (const button of view.buttons) button.setAttribute("aria-pressed", String(button.dataset.state === state));
+      view.description.textContent = details.description;
+      view.mode.textContent = details.mode;
+      view.image.alt = card.dataset.name + details.alt;
+      replayCount += 1;
+      // A new URL makes the browser restart a completed one-shot GIF.
+      view.image.src = `../../../Sources/Unfold/Resources/Characters/${card.dataset.cat}/${state}.gif?play=${Date.now()}-${replayCount}`;
+    }
+
+    function handleControlClick(event) {
+      const button = event.target.closest("button");
+      if (!button) return;
+      if (button.dataset.background) {
+        document.body.dataset.background = button.dataset.background;
+        for (const item of backgroundButtons) item.setAttribute("aria-pressed", String(item === button));
+        return;
+      }
+      if (button.dataset.scale) {
+        document.body.dataset.scale = button.dataset.scale;
+        for (const item of scaleButtons) item.setAttribute("aria-pressed", String(item === button));
+        return;
+      }
+      const card = button.closest(".cat-card");
+      if (!card) return;
+      if (button.dataset.state) playState(card, button.dataset.state);
+      else if (button.classList.contains("replay-button")) playState(card, card.dataset.state);
+    }
+
+    document.addEventListener("click", handleControlClick);
+  </script>
+</body>
+</html>

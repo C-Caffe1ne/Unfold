@@ -34,6 +34,8 @@ Windows ARM64 uses `-Runtime win-arm64`. On a Mac, run
 - Draggable desktop companion that idles on your desktop and stretches when you click it.
 - Stretch reminders with an animated character, plus Windows/macOS system notifications.
 - Tray timer with pause/reset, custom intervals, automatic idle pause and sleep-gap handling.
+- Four bundled cats — Mochi, Coco, Luna and Miso — swapped from the Settings picker,
+  the tray's **Character** menu, or a right-click on the pet itself.
 - Show/hide the pet and opt into launch at login, through Settings.
 - Animated PNG sprite sheets and GIF character clips.
 

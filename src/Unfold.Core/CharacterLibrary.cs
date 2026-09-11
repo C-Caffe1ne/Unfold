@@ -27,17 +27,20 @@ public sealed class CharacterPackage
         if (!Manifest.Animations.TryGetValue(key, out var definition)) definition = Manifest.Animations["idle"];
         if (definition.Gif is not null)
             return ImageCodec.DecodeGif(ImageCodec.ReadBounded(CharacterLibrary.AssetPath(DirectoryPath, definition.Gif)));
+        var duration = TimeSpan.FromSeconds(1 / definition.Fps!.Value);
+        return definition.Frames!.Select(index => new AnimationFrame(Frame(index), duration)).ToArray();
+    }
+    /// <summary>One cell of the sprite sheet. Cell 0 is the neutral pose every
+    /// character ships, so the picker can show a still portrait without decoding a clip.</summary>
+    public PixelImage Frame(int index)
+    {
         var sprite = Manifest.SpriteSheet; var image = Sheet;
-        var frames = new List<AnimationFrame>();
-        foreach (var index in definition.Frames!)
-        {
-            var pixels = new uint[sprite.FrameWidth * sprite.FrameHeight];
-            var x = index % sprite.Columns * sprite.FrameWidth; var y = index / sprite.Columns * sprite.FrameHeight;
-            for (var row = 0; row < sprite.FrameHeight; row++)
-                Array.Copy(image.Pixels, (y + row) * image.Width + x, pixels, row * sprite.FrameWidth, sprite.FrameWidth);
-            frames.Add(new(new(sprite.FrameWidth, sprite.FrameHeight, pixels), TimeSpan.FromSeconds(1 / definition.Fps!.Value)));
-        }
-        return frames;
+        if (index < 0 || index >= sprite.Columns * sprite.Rows) throw new ArgumentOutOfRangeException(nameof(index));
+        var pixels = new uint[sprite.FrameWidth * sprite.FrameHeight];
+        var x = index % sprite.Columns * sprite.FrameWidth; var y = index / sprite.Columns * sprite.FrameHeight;
+        for (var row = 0; row < sprite.FrameHeight; row++)
+            Array.Copy(image.Pixels, (y + row) * image.Width + x, pixels, row * sprite.FrameWidth, sprite.FrameWidth);
+        return new(sprite.FrameWidth, sprite.FrameHeight, pixels);
     }
 }
 

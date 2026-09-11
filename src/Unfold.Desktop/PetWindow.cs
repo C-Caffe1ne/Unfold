@@ -27,9 +27,13 @@ public sealed class PetWindow : Window
         Background = Brushes.Transparent; TransparencyLevelHint = [WindowTransparencyLevel.Transparent];
         ShowInTaskbar = false; Topmost = true; ShowActivated = false; Content = animation;
         var menu = new ContextMenu();
+        var swap = new MenuItem { Header = "Character" };
         var settings = new MenuItem { Header = "Settings" }; settings.Click += (_, _) => runtime.ShowSettings();
         var stretch = new MenuItem { Header = "Stretch now" }; stretch.Click += async (_, _) => await runtime.ShowReminder();
-        menu.Items.Add(settings); menu.Items.Add(stretch); ContextMenu = menu;
+        menu.Items.Add(swap); menu.Items.Add(settings); menu.Items.Add(stretch); ContextMenu = menu;
+        // Built on open so the list always matches the library without this window
+        // subscribing to runtime changes it would have to unsubscribe from.
+        menu.Opening += (_, _) => FillCharacters(swap);
         animation.PointerPressed += (_, e) =>
         {
             if (!e.GetCurrentPoint(animation).Properties.IsLeftButtonPressed || !animation.OpaqueAt(e.GetPosition(animation))) return;
@@ -60,6 +64,19 @@ public sealed class PetWindow : Window
             ClampPosition(); hitTimer.Start();
         };
         Closed += (_, _) => { hitTimer.Stop(); animation.Dispose(); };
+    }
+    private void FillCharacters(MenuItem swap)
+    {
+        swap.Items.Clear();
+        var selected = runtime.Selected;
+        foreach (var character in runtime.Characters)
+        {
+            var item = new MenuItem { Header = character.Manifest.Name, Icon = character == selected ? Ui.Text("●", 11, Ui.Accent) : null };
+            var target = character;
+            item.Click += async (_, _) => { try { await runtime.SelectCharacter(target); } catch (Exception error) { AppPaths.Log(error); } };
+            swap.Items.Add(item);
+        }
+        swap.IsEnabled = swap.Items.Count > 1;
     }
     public async Task SetCharacter()
     {

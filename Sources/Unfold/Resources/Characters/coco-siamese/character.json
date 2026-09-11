@@ -1,0 +1,27 @@
+{
+  "id": "coco-siamese",
+  "name": "Coco",
+  "version": 1,
+  "thumbnailSymbol": "cat.fill",
+  "spriteSheet": {
+    "file": "spritesheet.png",
+    "columns": 4,
+    "rows": 3,
+    "frameWidth": 384,
+    "frameHeight": 384
+  },
+  "animations": {
+    "idle": {
+      "gif": "idle.gif",
+      "loop": true
+    },
+    "stretch": {
+      "gif": "stretch.gif",
+      "loop": false
+    },
+    "click": {
+      "gif": "click.gif",
+      "loop": false
+    }
+  }
+}
