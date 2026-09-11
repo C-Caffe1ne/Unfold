@@ -13,6 +13,7 @@ public sealed class SettingsWindow : Window
     private readonly ComboBox characters = new() { MinWidth = 260, HorizontalAlignment = HorizontalAlignment.Stretch };
     private readonly AnimationView preview = new() { Width = 120, Height = 120 };
     private readonly Button edit, delete, pause;
+    private readonly CheckBox showPet;
     private CharacterPackage? previewCharacter;
     private bool updating;
     public SettingsWindow(AppRuntime runtime)
@@ -27,7 +28,7 @@ public sealed class SettingsWindow : Window
             try { await runtime.UpdateSettings(runtime.Settings with { IntervalMinutes = (int)(interval.Value ?? 60), IdleMinutes = (int)(idle.Value ?? 5) }); }
             catch (Exception error) { await Ui.Error(this, error); }
         });
-        var showPet = new CheckBox { Content = "Show desktop pet", IsChecked = runtime.Settings.ShowPet };
+        showPet = new CheckBox { Content = "Show desktop pet", IsChecked = runtime.Settings.ShowPet };
         showPet.IsCheckedChanged += async (_, _) =>
         {
             if (updating) return;
@@ -74,6 +75,7 @@ public sealed class SettingsWindow : Window
             countdown.Text = $"{(int)runtime.Clock.Remaining.TotalMinutes:00}:{runtime.Clock.Remaining.Seconds:00}";
             state.Text = runtime.ActivityError ?? (runtime.Clock.Paused ? "Paused by you" : runtime.Clock.IdlePaused ? "Paused while you're away" : "Counting active time");
             pause.Content = runtime.Clock.Paused ? "Resume" : "Pause";
+            showPet.IsChecked = runtime.Settings.ShowPet;
             if (!ReferenceEquals(characters.ItemsSource, runtime.Characters)) characters.ItemsSource = runtime.Characters;
             characters.SelectedItem = runtime.Selected;
             edit.IsEnabled = delete.IsEnabled = runtime.Selected is { IsBuiltIn: false };

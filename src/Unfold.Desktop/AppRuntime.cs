@@ -27,7 +27,7 @@ public sealed class AppRuntime : IDisposable
     private readonly Dictionary<string, Task<IReadOnlyList<AnimationFrame>>> clips = [];
     private readonly List<CharacterPackage> builtIns = [];
     private TrayIcon? tray;
-    private NativeMenuItem? trayStatus, trayPause;
+    private NativeMenuItem? trayStatus, trayPause, trayPet;
     private SettingsWindow? settingsWindow;
     private EditorWindow? editor;
     private PetWindow? pet;
@@ -88,6 +88,7 @@ public sealed class AppRuntime : IDisposable
         if (tray is not null) tray.ToolTipText = $"Unfold · {remaining}{(Clock.Paused ? " · paused" : Clock.IdlePaused ? " · away" : "")}";
         if (trayStatus is not null) trayStatus.Header = $"Next stretch: {remaining}";
         if (trayPause is not null) trayPause.Header = Clock.Paused ? "Resume" : "Pause";
+        if (trayPet is not null) trayPet.Header = Settings.ShowPet ? "Hide Pet" : "Show Pet";
         Changed?.Invoke();
     }
     public void TogglePause() { Clock.TogglePause(monotonic.Elapsed); Changed?.Invoke(); }
@@ -198,6 +199,8 @@ public sealed class AppRuntime : IDisposable
         trayStatus = new NativeMenuItem("Next stretch") { IsEnabled = false }; menu.Items.Add(trayStatus);
         void Item(string text, Action action) { var item = new NativeMenuItem(text); item.Click += (_, _) => action(); menu.Items.Add(item); }
         Item("Settings", ShowSettings);
+        trayPet = new NativeMenuItem("Hide Pet"); menu.Items.Add(trayPet);
+        trayPet.Click += async (_, _) => { try { await UpdateSettings(Settings with { ShowPet = !Settings.ShowPet }); } catch (Exception error) { AppPaths.Log(error); } };
         trayPause = new NativeMenuItem("Pause"); trayPause.Click += (_, _) => TogglePause(); menu.Items.Add(trayPause);
         Item("Reset timer", Reset); Item("Stretch now", () => _ = ShowReminder());
         menu.Items.Add(new NativeMenuItemSeparator()); Item("Quit Unfold", () => _ = Quit());
