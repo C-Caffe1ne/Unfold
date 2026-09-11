@@ -181,6 +181,10 @@ public sealed class AppRuntime : IDisposable
             window.Show(); if (!DiagnosticMode) { window.Activate(); NativeReminder.Show(window); }
         }
         catch (Exception error) { ShowSettings(); await Ui.Error(settingsWindow!, error); }
+        // Only the call that actually opened a reminder reaches here holding one, so a
+        // duplicate ShowReminder never restarts the stretch. Deliberately outside the
+        // try: React logs its own failures instead of raising a reminder error dialog.
+        if (reminder is not null && Settings.ShowPet && pet is { IsVisible: true }) _ = pet.React("stretch");
     }
     private void BuildTray()
     {

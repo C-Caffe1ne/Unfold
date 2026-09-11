@@ -69,12 +69,12 @@ public sealed class PetWindow : Window
         if (current != generation) return;
         character = selected; animation.SetFrames(frames, true, selected?.Manifest.RenderStyle == "pixel");
     }
-    private async Task React()
+    internal async Task React(string? preferred = null)
     {
         try
         {
             var selected = runtime.Selected; var current = ++generation;
-            var key = selected?.Manifest.Animations.ContainsKey("click") == true ? "click" : "stretch";
+            var key = preferred ?? (selected?.Manifest.Animations.ContainsKey("click") == true ? "click" : "stretch");
             var frames = await runtime.Clip(key); if (current != generation) return;
             animation.SetFrames(frames, false, selected?.Manifest.RenderStyle == "pixel");
             var duration = frames.Sum(f => f.Duration.TotalMilliseconds);
