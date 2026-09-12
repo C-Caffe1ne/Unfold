@@ -41,10 +41,16 @@ public sealed class AppRuntime : IDisposable
         Library = new(Path.Combine(AppPaths.DataRoot, "Characters"));
         Library.Warning += message => AppPaths.Log(new IOException(message));
         try { Settings = AppSettings.Load(settingsFile); }
-        catch (Exception ex) when (ex is IOException or System.Text.Json.JsonException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Text.Json.JsonException or InvalidDataException)
         {
             AppPaths.Log(ex); Settings = new();
-            if (File.Exists(settingsFile)) File.Copy(settingsFile, settingsFile + $".invalid-{DateTime.UtcNow:yyyyMMddHHmmss}", true);
+            // Preserve the invalid file for inspection, but a failure to copy it (locked,
+            // read-only, out of disk space) must not stop startup from recovering.
+            if (File.Exists(settingsFile))
+            {
+                try { File.Copy(settingsFile, settingsFile + $".invalid-{DateTime.UtcNow:yyyyMMddHHmmss}", true); }
+                catch (Exception copyError) when (copyError is IOException or UnauthorizedAccessException) { AppPaths.Log(copyError); }
+            }
         }
         Clock = new(TimeSpan.FromMinutes(Settings.IntervalMinutes));
         timer.Tick += (_, _) => Tick();
@@ -106,7 +112,8 @@ public sealed class AppRuntime : IDisposable
     public void SavePosition(Avalonia.PixelPoint position)
     {
         Settings = Settings with { PetX = position.X, PetY = position.Y };
-        try { Settings.Save(settingsFile); } catch (IOException error) { AppPaths.Log(error); }
+        try { Settings.Save(settingsFile); }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException) { AppPaths.Log(error); }
     }
     public Task<IReadOnlyList<AnimationFrame>> Clip(string key)
     {
@@ -120,8 +127,12 @@ public sealed class AppRuntime : IDisposable
     private async Task UpdatePet()
     {
         if (!Settings.ShowPet || Selected is null) { pet?.HidePet(); return; }
-        pet ??= new PetWindow(this);
-        await pet.SetCharacter(); pet.ShowPet();
+        var current = pet ??= new PetWindow(this);
+        await current.SetCharacter();
+        // A concurrent hide or quit can complete while SetCharacter() is in flight
+        // (Dispose() nulls pet, another UpdatePet() call flips ShowPet off): re-check
+        // both before resurrecting a pet nobody asked for anymore.
+        if (pet == current && Settings.ShowPet) current.ShowPet();
     }
     public async Task OpenEditor(CharacterPackage? character = null)
     {

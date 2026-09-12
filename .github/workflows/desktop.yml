@@ -27,6 +27,24 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: ./Scripts/publish-desktop.ps1 -Runtime win-x64
+      - name: Run packaged Windows smoke test
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $env:UNFOLD_DATA_DIR = Join-Path $env:RUNNER_TEMP ('unfold-smoke-' + [guid]::NewGuid().ToString('N'))
+          "UNFOLD_SMOKE_DIR=$env:UNFOLD_DATA_DIR" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          $process = Start-Process -FilePath './artifacts/win-x64/Unfold.exe' -ArgumentList '--smoke-test' -WindowStyle Hidden -PassThru
+          if (-not $process.WaitForExit(120000)) {
+            $process.Kill()
+            throw 'Smoke test did not exit within 120 seconds.'
+          }
+          $process.Refresh()
+          $resultPath = Join-Path $env:UNFOLD_DATA_DIR 'verification/smoke.json'
+          if (-not (Test-Path $resultPath)) { throw 'smoke.json was not produced.' }
+          $result = Get-Content -Raw $resultPath | ConvertFrom-Json
+          Write-Output "Smoke test exit code: $($process.ExitCode)"
+          Write-Output ($result | ConvertTo-Json)
+          if ($process.ExitCode -ne 0 -or -not $result.success) { throw 'Packaged smoke test reported failure.' }
       - name: Bundle macOS app
         if: runner.os == 'macOS'
         run: bash Scripts/make-macos-bundle.sh ${{ matrix.rid }}
@@ -36,3 +54,12 @@ jobs:
           path: |
             artifacts/Unfold-*.zip
             artifacts/Unfold-*.tar.gz
+      - name: Upload Windows smoke verification
+        if: always() && runner.os == 'Windows' && env.UNFOLD_SMOKE_DIR != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: Unfold-win-x64-smoke
+          path: |
+            ${{ env.UNFOLD_SMOKE_DIR }}/verification
+            ${{ env.UNFOLD_SMOKE_DIR }}/unfold.log
+          if-no-files-found: ignore

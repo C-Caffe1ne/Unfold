@@ -18,27 +18,36 @@ public sealed class AnimationView : Control, IDisposable
     private double totalMs;
     private bool loop;
     private int index;
+    // Whether playback is allowed to run: false while hidden (SetRunning(false))
+    // or after Dispose(). A clip swap while paused must not override this, or a
+    // stale async continuation (React/SetCharacter resolving after hide/close)
+    // would resurrect the timer on a view nobody can see.
+    private bool running = true;
+    private bool disposed;
     public event Action? Completed;
     public AnimationView()
     {
         RenderOptions.SetBitmapInterpolationMode(this, BitmapInterpolationMode.None);
         timer.Tick += (_, _) => Advance();
-        AttachedToVisualTree += (_, _) => { if (frames.Count > 1) { elapsed.Start(); timer.Start(); } };
+        AttachedToVisualTree += (_, _) => { if (running && frames.Count > 1) { elapsed.Start(); timer.Start(); } };
         DetachedFromVisualTree += (_, _) => { elapsed.Stop(); timer.Stop(); };
     }
     public void SetFrames(IReadOnlyList<AnimationFrame> clip, bool repeat, bool pixel = true)
     {
+        if (disposed) return;
         timer.Stop(); foreach (var bitmap in bitmaps) bitmap.Dispose();
         frames = clip; bitmaps = frames.Select(f => Ui.Bitmap(f.Image)).ToArray(); loop = repeat;
-        totalMs = frames.Sum(f => f.Duration.TotalMilliseconds); index = 0; elapsed.Restart();
+        totalMs = frames.Sum(f => f.Duration.TotalMilliseconds); index = 0;
         RenderOptions.SetBitmapInterpolationMode(this, pixel ? BitmapInterpolationMode.None : BitmapInterpolationMode.HighQuality);
         timer.Interval = frames.Count > 0 ? frames[0].Duration : TimeSpan.FromMilliseconds(100);
-        if (HasTopLevel() && frames.Count > 1) timer.Start();
+        if (running) { elapsed.Restart(); if (HasTopLevel() && frames.Count > 1) timer.Start(); } else elapsed.Reset();
         InvalidateVisual();
     }
     private bool HasTopLevel() => TopLevel.GetTopLevel(this) is not null;
-    public void SetRunning(bool running)
+    public void SetRunning(bool value)
     {
+        if (disposed) return;
+        running = value;
         if (running) { elapsed.Start(); if (frames.Count > 1) timer.Start(); }
         else { elapsed.Stop(); timer.Stop(); }
     }
@@ -71,5 +80,5 @@ public sealed class AnimationView : Control, IDisposable
         return false;
     }
     public override void Render(DrawingContext context) { base.Render(context); if (bitmaps.Length > 0) context.DrawImage(bitmaps[index], ImageRect()); }
-    public void Dispose() { timer.Stop(); foreach (var bitmap in bitmaps) bitmap.Dispose(); bitmaps = []; frames = []; }
+    public void Dispose() { disposed = true; running = false; timer.Stop(); foreach (var bitmap in bitmaps) bitmap.Dispose(); bitmaps = []; frames = []; }
 }

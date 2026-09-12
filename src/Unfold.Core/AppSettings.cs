@@ -14,9 +14,17 @@ public sealed record AppSettings
     {
         if (!File.Exists(path)) return new();
         var value = JsonSerializer.Deserialize<AppSettings>(ImageCodec.ReadBounded(path, 65536), CharacterLibrary.JsonOptions) ?? throw new InvalidDataException("Missing settings.");
-        if (value.IntervalMinutes is < 5 or > 240 || value.IdleMinutes is < 1 or > 60 || !CharacterLibrary.SafeId(value.SelectedCharacterId))
-            throw new InvalidDataException("Invalid settings values.");
+        Validate(value);
         return value;
     }
-    public void Save(string path) => AtomicFile.Write(path, JsonSerializer.SerializeToUtf8Bytes(this, CharacterLibrary.JsonOptions));
+    public void Save(string path)
+    {
+        Validate(this);
+        AtomicFile.Write(path, JsonSerializer.SerializeToUtf8Bytes(this, CharacterLibrary.JsonOptions));
+    }
+    private static void Validate(AppSettings value)
+    {
+        if (value.IntervalMinutes is < 5 or > 240 || value.IdleMinutes is < 1 or > 60 || !CharacterLibrary.SafeId(value.SelectedCharacterId))
+            throw new InvalidDataException("Invalid settings values.");
+    }
 }

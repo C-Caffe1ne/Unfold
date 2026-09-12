@@ -1,9 +1,15 @@
 # Unfold desktop — C# / .NET 10
 
-Unfold now has a C# desktop runtime for Windows and macOS. Avalonia draws the UI
-and pixel canvas; SkiaSharp decodes PNG/GIF assets. Swift and Piskel JavaScript are
-not needed to build or run this version. The original Swift project remains in
-the repository as a reference during migration.
+Unfold now has a C# desktop runtime for Windows and macOS. Avalonia draws the UI;
+SkiaSharp decodes PNG/GIF assets. Swift and Piskel JavaScript are not needed to
+build or run this version. The original Swift project remains in the repository
+as a reference.
+
+`publish-desktop.ps1` copies this file into the packaged app as `README.md`, so
+everything below describes what a person running the packaged build can actually
+reach. The pixel editor and character library management (create/edit/delete) are
+preserved in the source tree for internal reuse and tests, but this build has no
+UI entry point for them — nothing to click, nowhere to open them from.
 
 ## Windows
 
@@ -56,28 +62,37 @@ build is not evidence of tested macOS windowing, login, or notification behavior
 | --- | --- |
 | Reminders | 5–240 minute intervals; pause/resume/reset; monotonic elapsed time |
 | Activity | Windows `GetLastInputInfo`; macOS CoreGraphics idle time; suspend/dispatcher gaps excluded |
-| Tray | Settings, editor, timer controls, stretch now, quit, single-instance activation |
+| Tray | Settings, Hide/Show Pet, Pause/Resume, Reset timer, Stretch now, Quit, single-instance activation |
 | Notifications | Manual-dismiss reminder window; Windows shell balloon; macOS notification via system scripting |
 | Desktop pet | Sprite/GIF playback, click reaction, dragging, saved position, screen clamping |
 | Hit testing | Alpha-aware interaction; transparent-pixel click-through on Windows |
-| Library | Existing manifest + sprite sheet/GIF format, create/select/edit/delete |
-| Editor | 7 drawing tools, 1–8 px brushes, alpha colors, layers, frames, Undo/Redo, resize, flip, onion skin |
-| Files | Piskel v2 import/export, single PNG import, horizontal PNG sprite-sheet export |
+| Character picker | Settings lists the built-in character plus any user characters already in the library; selecting one switches the active pet/reminder clip |
 
 macOS desktop-pet window click-through is not implemented yet; alpha hit testing
 still rejects transparent pixels inside the app. OS notification delivery depends
 on system notification settings. The visible reminder window works independently.
-Selection/move tools and GIF import/export **inside the pixel editor** are not
-implemented; existing character GIF animations do play in the desktop app.
+
+### Preserved, not shipped
+
+The pixel editor (drawing tools, layers, frames, Piskel import/export) and
+character library management (create/edit/delete) have no UI entry point in
+this build — nothing in the tray or Settings opens them. The code and its
+manifest/sprite-sheet format are kept because `CharacterLibrary` also backs
+playback of existing characters, and because the internal `--smoke-test`
+diagnostic exercises the editor as a regression check. Existing character GIF
+animations still play back normally in the shipped app.
 
 ## Data and migration
 
 - Windows: `%LOCALAPPDATA%\Unfold\settings.json` and `Characters\`.
 - macOS: `~/Library/Application Support/Unfold/`.
 - For isolated testing, `UNFOLD_DATA_DIR` overrides the data directory.
-- Existing user artwork can be reopened with **Pixel Editor → Open → source.piskel**
-  and saved into the new library. Native Swift UserDefaults and sandboxed app
-  settings are not automatically copied. The old app's data is not deleted.
+- Piskel-format artwork can be read back into `CharacterLibrary` in code (the format
+  and loader are preserved), but there is no in-app UI path to do this in the
+  shipped build — the pixel editor is not exposed (see
+  [Preserved, not shipped](#preserved-not-shipped)). Native Swift UserDefaults and
+  sandboxed app settings are not automatically copied either way. The old app's
+  data is not deleted.
 - Built-in character files are shared from `Sources/Unfold/Resources/Characters`.
   There is a single source of truth for those assets, copied during build/publish.
 
@@ -126,4 +141,8 @@ actual login, or OS notification delivery; those need a manual desktop check.
 Tests include pixel algorithms, source/PNG round trips, real bundled GIF decoding,
 library overwrite/conflict/recovery, timer idle/sleep handling, and real Avalonia
 control input/layout through the headless platform. Verification images generated
-by the UI tests live in `artifacts/verification/`.
+by the UI tests live in `artifacts/verification/`. Neither the test suite nor the
+smoke test exercises macOS; treat macOS windowing, login, and notification
+delivery as unverified from a Windows machine. Current pass/fail counts and dated
+smoke-run evidence are tracked in the repository's `docs/release-checklist.md`
+and `docs/agent-reports/` (not packaged with the app), not here.
