@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
@@ -11,22 +12,43 @@ public sealed class SettingsWindow : Window
     private readonly AppRuntime runtime;
     private readonly TextBlock countdown = Ui.Text("60:00", 52, Ui.Accent), state = Ui.Text("Ready", 13);
     private readonly ComboBox characters = new() { MinWidth = 260, HorizontalAlignment = HorizontalAlignment.Stretch };
+    private readonly ComboBox routines = new() { HorizontalAlignment = HorizontalAlignment.Stretch };
+    private readonly TextBlock today = Ui.Text("No breaks yet today", 16);
+    private readonly TextBlock historyStatus = new() { FontSize = 12, TextWrapping = TextWrapping.Wrap, Foreground = Brushes.LightGray };
     private readonly AnimationView preview = new() { Width = 120, Height = 120 };
-    private readonly Button edit, delete, pause;
+    private readonly TimerControls timerControls;
     private readonly CheckBox showPet;
+    private readonly TextBlock activeProfile = Ui.Text("Custom reminder settings", 12, Ui.Accent);
+    private readonly NumericUpDown interval, idle;
+    private readonly TextBlock reminderSettingsStatus = new() { Text = "Interval changes are saved automatically.", FontSize = 12, TextWrapping = TextWrapping.Wrap, Foreground = Brushes.LightGray };
+    private int displayedInterval, displayedIdle;
+    private string displayedRoutine;
     private CharacterPackage? previewCharacter;
     private bool updating;
     public SettingsWindow(AppRuntime runtime)
     {
-        this.runtime = runtime; Title = "Unfold · Stretch & Create"; Width = 600; Height = 790; MinWidth = 550; MinHeight = 600;
+        this.runtime = runtime; Title = "Unfold · Stretch Reminder"; Width = 600; Height = 850; MinWidth = 550; MinHeight = 600;
         Background = Ui.Background;
-        var interval = new NumericUpDown { Minimum = 5, Maximum = 240, Value = runtime.Settings.IntervalMinutes, Increment = 5, Width = 130, FormatString = "0" };
-        var idle = new NumericUpDown { Minimum = 1, Maximum = 60, Value = runtime.Settings.IdleMinutes, Increment = 1, Width = 130, FormatString = "0" };
-        pause = Ui.Button("Pause", runtime.TogglePause);
+        interval = new NumericUpDown { Name = "ReminderInterval", Minimum = 5, Maximum = 240, Value = runtime.Settings.IntervalMinutes, Increment = 5, Width = 130, FormatString = "0" };
+        idle = new NumericUpDown { Name = "ReminderIdle", Minimum = 1, Maximum = 60, Value = runtime.Settings.IdleMinutes, Increment = 1, Width = 130, FormatString = "0" };
+        displayedInterval = runtime.Settings.IntervalMinutes; displayedIdle = runtime.Settings.IdleMinutes; displayedRoutine = runtime.Settings.BreakRoutineId;
+        routines.ItemsSource = runtime.Routines;
+        routines.SelectedItem = runtime.Routines.FirstOrDefault(item => item.Id == runtime.Settings.BreakRoutineId);
+        timerControls = new(runtime.TogglePause, runtime.Stop, runtime.Reset);
+        AutomationProperties.SetName(interval, "Remind me every, in minutes");
+        AutomationProperties.SetName(idle, "Pause when away, in minutes");
+        interval.ValueChanged += async (_, _) =>
+        {
+            if (updating || interval.Value is not decimal minutes || minutes is < 5 or > 240 || decimal.Truncate(minutes) != minutes ||
+                minutes == runtime.Settings.IntervalMinutes) return;
+            await SaveReminderSettings((int)minutes, runtime.Settings.IdleMinutes, runtime.Settings.BreakRoutineId);
+        };
         var apply = Ui.AsyncButton("Apply reminder settings", async () =>
         {
-            try { await runtime.UpdateSettings(runtime.Settings with { IntervalMinutes = (int)(interval.Value ?? 60), IdleMinutes = (int)(idle.Value ?? 5) }); }
-            catch (Exception error) { await Ui.Error(this, error); }
+            if (interval.Value is not decimal minutes || minutes is < 5 or > 240 || decimal.Truncate(minutes) != minutes ||
+                idle.Value is not decimal away || away is < 1 or > 60 || decimal.Truncate(away) != away)
+            { reminderSettingsStatus.Text = "Enter whole minutes: interval 5–240, away threshold 1–60."; reminderSettingsStatus.Foreground = Brushes.LightSalmon; return; }
+            await SaveReminderSettings((int)minutes, (int)away, (routines.SelectedItem as BreakRoutine)?.Id ?? BreakRoutines.DefaultId);
         });
         showPet = new CheckBox { Content = "Show desktop pet", IsChecked = runtime.Settings.ShowPet };
         showPet.IsCheckedChanged += async (_, _) =>
@@ -49,14 +71,25 @@ public sealed class SettingsWindow : Window
             try { await runtime.UpdateSettings(runtime.Settings with { SelectedCharacterId = selected.Manifest.Id }); }
             catch (Exception error) { await Ui.Error(this, error); }
         };
-        // Built but left out of the layout below: the MVP ships without the
-        // pixel editor entry points, and Refresh() still drives their state.
-        edit = Ui.AsyncButton("Edit", () => runtime.OpenEditor(runtime.Selected));
-        delete = Ui.AsyncButton("Delete", async () => { if (runtime.Selected is { } selected) await runtime.DeleteCharacter(selected); });
         var body = Ui.Column(Ui.Text("UNFOLD", 14, Ui.Accent), Ui.Text("Make room for a small break.", 26),
             new Border { Background = Ui.Panel, CornerRadius = new CornerRadius(12), Padding = new Thickness(20), Child = Ui.Column(
-                Ui.Text("NEXT STRETCH", 12), countdown, state, Ui.Row(pause, Ui.Button("Reset", runtime.Reset), Ui.AsyncButton("Stretch now", runtime.ShowReminder))) },
-            Ui.Row(Ui.Column(Ui.Text("Remind me every (min)", 12), interval), Ui.Column(Ui.Text("Pause when away (min)", 12), idle)), apply,
+                Ui.Text("NEXT STRETCH", 12), countdown, state, timerControls) },
+            Ui.Row(Ui.Column(Ui.Text("Remind me every (min)", 12), interval), Ui.Column(Ui.Text("Pause when away (min)", 12), idle)),
+            reminderSettingsStatus,
+            activeProfile, Ui.Text("YOUR BREAK", 12, Ui.Accent), routines, Ui.Row(apply, Ui.AsyncButton("Edit my routine", async () =>
+            {
+                var dialog = new RoutineEditorWindow(runtime.Settings.CustomRoutine, routine => runtime.UpdateSettings(runtime.Settings.SaveRoutine(routine)));
+                await dialog.ShowDialog(this);
+            })),
+            Ui.AsyncButton("My routines & work profiles", async () =>
+            {
+                var dialog = new PersonalizationWindow(() => runtime.Settings, runtime.UpdateSettings); await dialog.ShowDialog(this);
+            }),
+            new Border { Background = Ui.Panel, CornerRadius = new CornerRadius(12), Padding = new Thickness(16), Child = Ui.Column(
+                Ui.Text("MOMENTS FOR YOURSELF", 12, Ui.Accent), today, historyStatus, Ui.AsyncButton("Review & export", async () =>
+                {
+                    var dialog = new BreakReviewWindow(runtime.BreakHistory.Review, () => runtime.BreakHistoryError); await dialog.ShowDialog(this);
+                })) },
             new Separator(), Ui.Text("YOUR COMPANION", 12, Ui.Accent), Ui.Row(preview, Ui.Column(characters)),
             showPet, login, new Separator(), Ui.Row(Ui.Text("Closing this window keeps Unfold in the tray.", 12), Ui.AsyncButton("Quit", runtime.Quit)));
         Content = new ScrollViewer { Content = new Border { Padding = new Thickness(28), Child = body } };
@@ -67,27 +100,62 @@ public sealed class SettingsWindow : Window
     }
     public void HideToTray() { Hide(); preview.SetRunning(false); }
     public void ResumePreview() => preview.SetRunning(true);
+    private async Task SaveReminderSettings(int minutes, int away, string routineId)
+    {
+        try
+        {
+            await runtime.UpdateSettings(runtime.Settings.ApplyReminder(minutes, away, routineId));
+            reminderSettingsStatus.Foreground = Brushes.LightGray; reminderSettingsStatus.Text = "Reminder settings saved.";
+        }
+        catch (Exception error) when (error is ArgumentException or IOException or UnauthorizedAccessException)
+        { AppPaths.Log(error); reminderSettingsStatus.Foreground = Brushes.LightSalmon; reminderSettingsStatus.Text = "Could not save reminder settings. Please try Apply again."; }
+    }
     private async void Refresh()
     {
         if (updating) return; updating = true;
+        CharacterPackage? loadPreview = null;
         try
         {
             countdown.Text = $"{(int)runtime.Clock.Remaining.TotalMinutes:00}:{runtime.Clock.Remaining.Seconds:00}";
-            state.Text = runtime.ActivityError ?? (runtime.Clock.Paused ? "Paused by you" : runtime.Clock.IdlePaused ? "Paused while you're away" : "Counting active time");
-            pause.Content = runtime.Clock.Paused ? "Resume" : "Pause";
+            state.Text = runtime.ActivityError ?? (runtime.ActiveReminder is not null ? "A break is open · work timer on hold" :
+                runtime.Clock.Stopped ? "Stopped · press play to start" : runtime.Clock.Paused ? "Paused · press play to continue" : runtime.Clock.IdlePaused ? "Paused while you're away" : "Counting active time");
+            var summary = runtime.BreakHistory.ForDay(DateTimeOffset.Now);
+            today.Text = summary.Count == 0 ? "No breaks yet today. Start with one small moment." :
+                $"Today · {summary.Count} {(summary.Count == 1 ? "break" : "breaks")} · {summary.Seconds / 60}m {summary.Seconds % 60}s";
+            today.TextWrapping = TextWrapping.Wrap;
+            historyStatus.Text = runtime.BreakHistoryError ?? "Breaks you confirm are saved only on this device.";
+            timerControls.Refresh(runtime.Clock);
             showPet.IsChecked = runtime.Settings.ShowPet;
+            activeProfile.Text = runtime.Settings.WorkProfiles.FirstOrDefault(profile => profile.Id == runtime.Settings.ActiveProfileId) is { } active
+                ? $"Work profile · {active.Name}" : "Custom reminder settings";
+            activeProfile.TextWrapping = TextWrapping.Wrap;
+            if (displayedInterval != runtime.Settings.IntervalMinutes) interval.Value = displayedInterval = runtime.Settings.IntervalMinutes;
+            if (displayedIdle != runtime.Settings.IdleMinutes) idle.Value = displayedIdle = runtime.Settings.IdleMinutes;
+            if (!ReferenceEquals(routines.ItemsSource, runtime.Routines))
+            {
+                var draft = (routines.SelectedItem as BreakRoutine)?.Id;
+                routines.ItemsSource = runtime.Routines;
+                var id = displayedRoutine == runtime.Settings.BreakRoutineId ? draft : runtime.Settings.BreakRoutineId;
+                routines.SelectedItem = runtime.Routines.FirstOrDefault(item => item.Id == id) ?? runtime.Routines.First(item => item.Id == runtime.Settings.BreakRoutineId);
+                displayedRoutine = runtime.Settings.BreakRoutineId;
+            }
             if (!ReferenceEquals(characters.ItemsSource, runtime.Characters)) characters.ItemsSource = runtime.Characters;
             characters.SelectedItem = runtime.Selected;
-            edit.IsEnabled = delete.IsEnabled = runtime.Selected is { IsBuiltIn: false };
             if (runtime.Selected is { } selected && previewCharacter != selected)
             {
-                previewCharacter = selected;
-                var frames = await runtime.Clip("idle");
-                if (runtime.Selected == selected) preview.SetFrames(frames, true, selected.Manifest.RenderStyle == "pixel");
-                if (!IsVisible) preview.SetRunning(false);
+                previewCharacter = selected; loadPreview = selected;
             }
         }
         catch (Exception error) { AppPaths.Log(error); state.Text = error.Message; }
         finally { updating = false; }
+        if (loadPreview is null) return;
+        try
+        {
+            var frames = await runtime.Clip("idle");
+            if (runtime.Selected == loadPreview && previewCharacter == loadPreview)
+                preview.SetFrames(frames, true, loadPreview.Manifest.RenderStyle == "pixel");
+            if (!IsVisible) preview.SetRunning(false);
+        }
+        catch (Exception error) { AppPaths.Log(error); state.Text = error.Message; }
     }
 }

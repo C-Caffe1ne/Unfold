@@ -27,7 +27,10 @@ public sealed class CharacterPackage
         if (!Manifest.Animations.TryGetValue(key, out var definition)) definition = Manifest.Animations["idle"];
         if (definition.Gif is not null)
             return ImageCodec.DecodeGif(ImageCodec.ReadBounded(CharacterLibrary.AssetPath(DirectoryPath, definition.Gif)));
-        var sprite = Manifest.SpriteSheet; var image = Sheet;
+        var sprite = Manifest.SpriteSheet;
+        if ((long)sprite.FrameWidth * sprite.FrameHeight * definition.Frames!.Length * 4 > ImageCodec.MaxDecodedAnimationBytes)
+            throw new InvalidDataException("Decoded sprite animation exceeds the animation budget.");
+        var image = Sheet;
         var frames = new List<AnimationFrame>();
         foreach (var index in definition.Frames!)
         {

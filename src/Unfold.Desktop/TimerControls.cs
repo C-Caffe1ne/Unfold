@@ -1,0 +1,40 @@
+using Avalonia;
+using Avalonia.Automation;
+using Avalonia.Controls;
+using Avalonia.Layout;
+using Avalonia.Media;
+using Unfold.Core;
+
+namespace Unfold.Desktop;
+
+public sealed class TimerControls : StackPanel
+{
+    private static readonly Geometry PauseIcon = Geometry.Parse("M 6,4 H 10 V 20 H 6 Z M 14,4 H 18 V 20 H 14 Z");
+    private static readonly Geometry PlayIcon = Geometry.Parse("M 7,4 L 21,12 L 7,20 Z");
+    private static readonly Geometry StopIcon = Geometry.Parse("M 5,5 H 19 V 19 H 5 Z");
+    private static readonly Geometry ResetIcon = Geometry.Parse("M 12,4 A 8,8 0 1 1 4,12 H 6 A 6,6 0 1 0 12,6 H 8 V 9 L 3,5 L 8,1 V 4 Z");
+    private readonly Button toggle;
+    private string? currentLabel;
+    public TimerControls(Action togglePause, Action stop, Action reset)
+    {
+        Orientation = Orientation.Horizontal; Spacing = 8;
+        toggle = IconButton("TimerToggle", "Pause timer", PauseIcon, togglePause);
+        Children.Add(toggle); Children.Add(IconButton("TimerStop", "Stop timer", StopIcon, stop));
+        Children.Add(IconButton("TimerReset", "Reset timer", ResetIcon, reset));
+    }
+    public void Refresh(StretchClock clock)
+    {
+        var label = clock.Stopped ? "Start timer" : clock.Paused ? "Resume timer" : "Pause timer";
+        if (label == currentLabel) return;
+        currentLabel = label; ((PathIcon)toggle.Content!).Data = clock.Paused ? PlayIcon : PauseIcon;
+        AutomationProperties.SetName(toggle, label); ToolTip.SetTip(toggle, label);
+    }
+    private static Button IconButton(string name, string label, Geometry icon, Action action)
+    {
+        var button = new Button { Name = name, Width = 44, Height = 44, Padding = new Thickness(12),
+            HorizontalContentAlignment = HorizontalAlignment.Center, VerticalContentAlignment = VerticalAlignment.Center,
+            Content = new PathIcon { Width = 20, Height = 20, Data = icon, Foreground = Brushes.White } };
+        AutomationProperties.SetName(button, label); ToolTip.SetTip(button, label); ToolTip.SetShowDelay(button, 500);
+        button.Click += (_, _) => action(); return button;
+    }
+}

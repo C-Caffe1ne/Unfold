@@ -28,8 +28,7 @@ public sealed class PetWindow : Window
         ShowInTaskbar = false; Topmost = true; ShowActivated = false; Content = animation;
         var menu = new ContextMenu();
         var settings = new MenuItem { Header = "Settings" }; settings.Click += (_, _) => runtime.ShowSettings();
-        var stretch = new MenuItem { Header = "Stretch now" }; stretch.Click += async (_, _) => await runtime.ShowReminder();
-        menu.Items.Add(settings); menu.Items.Add(stretch); ContextMenu = menu;
+        menu.Items.Add(settings); ContextMenu = menu;
         animation.PointerPressed += (_, e) =>
         {
             if (!e.GetCurrentPoint(animation).Properties.IsLeftButtonPressed || !animation.OpaqueAt(e.GetPosition(animation))) return;
@@ -78,7 +77,7 @@ public sealed class PetWindow : Window
             // ships a click clip, and otherwise leaves the idle loop alone — so the early
             // return has to happen before generation moves, or it would cancel a stretch.
             var key = preferred ?? (selected?.Manifest.Animations.ContainsKey("click") == true ? "click" : null);
-            if (key is null) return;
+            if (key is null || selected?.Manifest.Animations.ContainsKey(key) != true) return;
             var current = ++generation;
             var frames = await runtime.Clip(key); if (current != generation) return;
             animation.SetFrames(frames, false, selected?.Manifest.RenderStyle == "pixel");
@@ -89,8 +88,8 @@ public sealed class PetWindow : Window
         catch (Exception error) { AppPaths.Log(error); }
     }
     public void ShowPet() { Show(); hitTimer.Start(); animation.SetRunning(true); }
-    public void HidePet() { Hide(); hitTimer.Stop(); animation.SetRunning(false); }
-    public void ClosePet() { hitTimer.Stop(); Close(); }
+    public void HidePet() { generation++; character = null; Hide(); hitTimer.Stop(); animation.SetRunning(false); }
+    public void ClosePet() { generation++; hitTimer.Stop(); Close(); }
     private void ClampPosition()
     {
         var screen = Screens.ScreenFromWindow(this) ?? Screens.Primary; if (screen is null) return;

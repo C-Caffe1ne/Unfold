@@ -170,7 +170,7 @@ public class ClockTests
     }
     [Fact] public void PausedIdleAndSleepGapsDoNotCount()
     {
-        var clock = new StretchClock(TimeSpan.FromMinutes(5)); clock.Reset(TimeSpan.Zero);
+        var clock = new StretchClock(TimeSpan.FromMinutes(5)); clock.Start(TimeSpan.Zero);
         clock.Tick(TimeSpan.FromSeconds(1), TimeSpan.FromMinutes(10), TimeSpan.FromMinutes(5)); Assert.Equal(TimeSpan.FromMinutes(5), clock.Remaining);
         clock.TogglePause(TimeSpan.FromSeconds(1)); clock.Tick(TimeSpan.FromSeconds(2), TimeSpan.Zero, TimeSpan.FromMinutes(5)); Assert.Equal(TimeSpan.FromMinutes(5), clock.Remaining);
         clock.TogglePause(TimeSpan.FromSeconds(2)); clock.Tick(TimeSpan.FromHours(1), TimeSpan.Zero, TimeSpan.FromMinutes(5)); Assert.Equal(TimeSpan.FromMinutes(5), clock.Remaining);
@@ -178,7 +178,7 @@ public class ClockTests
     }
     [Fact] public void IdleThresholdCrossingOnlyExcludesExcessTime()
     {
-        var clock = new StretchClock(TimeSpan.FromMinutes(5)); clock.Reset(TimeSpan.Zero);
+        var clock = new StretchClock(TimeSpan.FromMinutes(5)); clock.Start(TimeSpan.Zero);
         clock.Tick(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(300.4), TimeSpan.FromMinutes(5));
         Assert.Equal(TimeSpan.FromSeconds(299.4), clock.Remaining);
     }

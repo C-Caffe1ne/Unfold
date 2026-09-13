@@ -1,0 +1,56 @@
+{
+  "characters": [
+    {
+      "id": "default-cat",
+      "clips": [
+        {
+          "key": "idle",
+          "frames": 8,
+          "durationMs": 1142.8567999999998,
+          "width": 384,
+          "height": 384,
+          "decodedBytes": 4718592,
+          "transparentFrames": 8,
+          "emptyFrames": 0
+        },
+        {
+          "key": "stretch",
+          "frames": 18,
+          "durationMs": 4000,
+          "width": 480,
+          "height": 480,
+          "decodedBytes": 16588800,
+          "transparentFrames": 0,
+          "emptyFrames": 0
+        }
+      ],
+      "files": [
+        {
+          "path": "character.json",
+          "bytes": 420,
+          "sha256": "77e29d650f2067b59c7f2893f20e97d99b84c0481dc7ed9aa06e1037f2fc3d59"
+        },
+        {
+          "path": "spritesheet.png",
+          "bytes": 1512707,
+          "sha256": "cda8672b9ecd93898f0185d8a1ab53f4b17556618375cf1b162ac90435be9e66"
+        },
+        {
+          "path": "stretch.gif",
+          "bytes": 303398,
+          "sha256": "e6aab6ca2c3dcb8e7ebb9bea0d37ee25bf49841a91ca535f529726f11ac0c90c"
+        }
+      ],
+      "errors": [],
+      "warnings": [
+        "stretch: some frames have no fully transparent pixels; inspect the background.",
+        "stretch: frame size differs from the sprite grid; check alignment and apparent size.",
+        "Optional attention reaction is not supplied; the pet leaves its current animation unchanged.",
+        "Optional celebrate reaction is not supplied; the pet leaves its current animation unchanged.",
+        "Optional click reaction is not supplied; the pet leaves its current animation unchanged."
+      ]
+    }
+  ],
+  "errors": [],
+  "success": true
+}

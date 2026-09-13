@@ -12,7 +12,7 @@
     <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.2" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="../../Sources/Unfold/Resources/Characters/**/*">
+    <Content Include="../../Assets/Characters/**/*">
       <Link>Assets/Characters/%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

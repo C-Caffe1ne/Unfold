@@ -1,0 +1,19 @@
+{
+  "success": true,
+  "startupMs": 1351.4372,
+  "totalMs": 6442.2179,
+  "workingSetBytes": 233455616,
+  "managedBytes": 71734616,
+  "oneCoreCpuPercent": 35.83102879589051,
+  "characters": 2,
+  "imageFiles": 12,
+  "completedBreaks": 1,
+  "simulatedSessionTiming": true,
+  "savedCustomRoutines": 2,
+  "workProfiles": 1,
+  "exportedBreaks": 1,
+  "simulatedExportDestination": true,
+  "idleSeconds": 1.2583699,
+  "os": "Unix 26.6.2",
+  "framework": "10.0.12"
+}

@@ -5,6 +5,9 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 RID="${1:-osx-arm64}"
 case "$RID" in osx-arm64|osx-x64) ;; *) echo "Use osx-arm64 or osx-x64" >&2; exit 1;; esac
 OUT="$ROOT/artifacts/$RID"
+# A deleted or renamed pet must not survive in the next published bundle.
+if [ -L "$OUT" ]; then echo "Refusing linked publish directory: $OUT" >&2; exit 1; fi
+rm -rf "$OUT"
 dotnet publish "$ROOT/src/Unfold.Desktop/Unfold.Desktop.csproj" -c Release -r "$RID" \
   --self-contained true -p:PublishReadyToRun=true -o "$OUT"
 APP="$ROOT/artifacts/Unfold.app"

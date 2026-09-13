@@ -1,70 +1,89 @@
 # Unfold
 
-A tiny desktop companion that reminds you to move while you work.
+A small desktop companion that reminds you to stretch while you work.
 
-Written in **C# / .NET 10 with Avalonia** for Windows and macOS: a tray timer, an
-animated desktop pet that stretches with you, and idle-aware reminders. See
-[MVP scope](docs/mvp.md) for what ships and what does not.
+Unfold runs in the Windows tray or macOS menu bar. A timer counts active computer
+use, pauses while you are away, and invites you to a short break with Mochi the cat.
+Choose a routine, start when ready, or snooze for five minutes. Mochi stretches
+when you start. Confirming the finished routine saves a local completion record.
 
-## Run on Windows
+## Run
 
-Extract `artifacts/Unfold-win-x64.zip` and launch `win-x64/Unfold.exe`, keeping the
-whole folder together. The portable build includes .NET. Use the tray icon to
-open Settings; **Quit** exits the app.
+For development, install .NET SDK 10 and run:
 
-For development (requires .NET SDK 10):
-
-```powershell
-dotnet restore Unfold.slnx
-dotnet test Unfold.slnx -c Release
+```sh
+dotnet restore Unfold.slnx --locked-mode
 dotnet run --project src/Unfold.Desktop
 ```
 
-Build the portable app:
+For a Windows portable build, extract the entire `Unfold-win-x64.zip` archive and
+launch `win-x64/Unfold.exe`. Keep the adjacent files and `Assets` folder together;
+the published build includes .NET.
+
+Closing Settings keeps Unfold running. Use **Quit Unfold** in the tray menu to exit.
+
+## Features
+
+- Desktop Mochi with idle animation, dragging, saved position, and Show/Hide controls.
+- Automatic stretch reminders. Mochi has no click animation, so a plain
+  click leaves its current animation alone.
+- Three timed pause routines (20, 60, or 90 seconds), snooze, skip, and explicit completion.
+- A library of up to 20 personal routines with your own prompts and timings.
+- Up to 10 work profiles combining a routine, reminder interval, and away threshold; apply them manually.
+- Today's confirmed breaks, seven-day reviews, and local CSV export.
+- A 5–240 minute timer with immediately saved interval changes and icon controls for Pause/Resume, Stop, and Reset.
+- Reset restores the configured interval and waits for Play; Stop clears the current countdown to 00:00.
+- An in-app reminder window and Windows/macOS system notification adapters.
+- Opt-in launch at login; configure it from the published app in its final location.
+
+Transparent-pixel click-through is implemented only for Windows. Actual OS behavior
+and distribution readiness are tracked separately from automated tests in the
+[verification guide](docs/verification.md).
+
+The pixel editor is retained for diagnostics and regression tests. It has no
+user-facing entry point in this MVP. See [MVP scope](docs/mvp.md) for the full boundary.
+The personalization demo has no payment or entitlement checks. See the
+[routine, profile, and review guide](docs/personalization.md) for usage and compatibility.
+
+## Build and verify
+
+```sh
+dotnet test Unfold.slnx -c Release
+```
+
+Build a self-contained Windows portable app in PowerShell:
 
 ```powershell
 ./Scripts/publish-desktop.ps1 -Runtime win-x64
 ```
 
-Windows ARM64 uses `-Runtime win-arm64`. On a Mac, run
-`bash Scripts/make-macos-bundle.sh osx-arm64` (or `osx-x64` for Intel).
+Build a macOS application bundle on a Mac:
 
-## Features
+```sh
+bash Scripts/make-macos-bundle.sh osx-arm64
+```
 
-- Draggable desktop companion that idles on your desktop and stretches when you click it.
-- Stretch reminders with an animated character, plus Windows/macOS system notifications.
-- Tray timer with pause/reset, custom intervals, automatic idle pause and sleep-gap handling.
-- Show/hide the pet and opt into launch at login, through Settings.
-- Animated PNG sprite sheets and GIF character clips.
-
-Windows has transparent-pixel pet click-through; that OS-level behavior is still
-pending on macOS.
-
-### Not in this release
-
-The repository also contains a pixel editor and character library used to author the
-built-in characters. Its user-facing entry points are disabled in the MVP build — the
-code is preserved, not shipped. Details in [MVP scope](docs/mvp.md).
+The default macOS bundle is signed ad hoc for local testing. The script supports
+Developer ID signing but does not perform notarization. Installation, data paths,
+and platform limits are documented in the [cross-platform guide](docs/cross-platform.md).
 
 ## Project layout
 
 ```text
-src/Unfold.Core/          Pixel model, codecs, library, settings, timer
-src/Unfold.Desktop/       Avalonia UI, tray, native platform adapters
-Tests/Unfold.Tests/       C# regression and UI tests
-Scripts/                 Run/publish/bundle scripts
-Sources/Unfold/Resources/Characters/
-                         Shared built-in character assets
-Sources/, Package.swift, Unfold.xcodeproj/
-                         Preserved legacy Swift implementation
+src/Unfold.Core/       Timer, settings, image codecs, character library, pixel model
+src/Unfold.Desktop/    Avalonia UI, runtime, platform adapters, diagnostics
+Tests/Unfold.Tests/    C# core, codec, library, and headless UI tests
+Assets/Characters/    Built-in character packages copied into the application
+Scripts/              C# run, publish, and macOS bundle scripts
+Packaging/            macOS direct-distribution entitlements
+docs/                 Current guides, verification records, reference, and archive
+Art/Characters/      Authoring/provenance ledger, excluded from app bundles
 ```
 
-The C# build does not use Swift, WebKit, or the vendored Piskel runtime, though it
-does link in the shared character assets under `Sources/Unfold/Resources/Characters/`.
-Original Swift settings and sandbox data are preserved; they are not automatically
-migrated.
+The runtime uses C#/.NET 10, Avalonia, and SkiaSharp. Swift/Xcode and the Piskel web
+runtime are not part of this checkout. Historical implementations and plans are
+described in the [archive index](docs/archive/README.md).
 
-See [MVP scope](docs/mvp.md) for what this release ships. The [cross-platform
-guide](docs/cross-platform.md) covers data locations, packaging, performance choices,
-verification and platform limits, and the old build instructions are preserved in the
-[legacy Swift README](docs/legacy-swift.md).
+Start with the [documentation index](docs/README.md) before changing product scope
+or following an old plan. Third-party component notices are in
+[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).

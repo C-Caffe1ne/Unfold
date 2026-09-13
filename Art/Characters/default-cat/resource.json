@@ -1,0 +1,17 @@
+{
+  "id": "default-cat",
+  "contentVersion": "1.0.0",
+  "releaseStatus": "existing-prototype",
+  "runtimeDirectory": "Assets/Characters/default-cat",
+  "sourceStatus": "authoring-originals-not-verified",
+  "sourceFiles": [],
+  "creator": null,
+  "rightsStatus": "needs-documentation",
+  "rightsEvidence": [],
+  "qualityFindings": [
+    "idle: 384x384; stretch: 480x480. Review scale and foot alignment.",
+    "stretch: 18 decoded frames, none with a fully transparent pixel. Rework from an RGBA source before a premium release.",
+    "attention, celebrate and click clips are not supplied."
+  ],
+  "notes": "Existing Mochi exports retained byte-for-byte. Confirm original authoring files and distribution rights before selling this resource. This ledger is not a runtime manifest or a purchase entitlement."
+}

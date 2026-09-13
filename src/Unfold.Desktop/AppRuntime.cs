@@ -17,11 +17,16 @@ public sealed class AppRuntime : IDisposable
     public event Action? Changed;
     public string? ActivityError { get; private set; }
     public bool DiagnosticMode { get; private set; }
+    public BreakHistory BreakHistory { get; private set; }
+    public IReadOnlyList<BreakRoutine> Routines { get; private set; }
+    public string? BreakHistoryError { get; private set; }
     internal EditorWindow? ActiveEditor => editor;
     internal Window? ActiveReminder => reminder;
+    internal BreakReminderWindow? ActiveBreakReminder => reminder;
     internal PetWindow? ActivePet => pet;
     private readonly IClassicDesktopStyleApplicationLifetime desktop;
     private readonly string settingsFile = Path.Combine(AppPaths.DataRoot, "settings.json");
+    private readonly string historyFile = Path.Combine(AppPaths.DataRoot, "break-history.json");
     private readonly Stopwatch monotonic = Stopwatch.StartNew();
     private readonly DispatcherTimer timer = new() { Interval = TimeSpan.FromSeconds(1) };
     private readonly Dictionary<string, Task<IReadOnlyList<AnimationFrame>>> clips = [];
@@ -31,9 +36,11 @@ public sealed class AppRuntime : IDisposable
     private SettingsWindow? settingsWindow;
     private EditorWindow? editor;
     private PetWindow? pet;
-    private Window? reminder;
+    private BreakReminderWindow? reminder;
     private bool quitting;
     private bool quitPending, openingEditor;
+    private bool openingReminder, historyWritable = true;
+    private int reminderGeneration;
     private SingleInstance? instanceActivation;
     public AppRuntime(IClassicDesktopStyleApplicationLifetime desktop)
     {
@@ -41,12 +48,19 @@ public sealed class AppRuntime : IDisposable
         Library = new(Path.Combine(AppPaths.DataRoot, "Characters"));
         Library.Warning += message => AppPaths.Log(new IOException(message));
         try { Settings = AppSettings.Load(settingsFile); }
-        catch (Exception ex) when (ex is IOException or System.Text.Json.JsonException)
+        catch (Exception ex) when (ex is IOException or InvalidDataException or System.Text.Json.JsonException)
         {
             AppPaths.Log(ex); Settings = new();
             if (File.Exists(settingsFile)) File.Copy(settingsFile, settingsFile + $".invalid-{DateTime.UtcNow:yyyyMMddHHmmss}", true);
         }
+        Routines = BreakRoutines.ForSettings(Settings);
         Clock = new(TimeSpan.FromMinutes(Settings.IntervalMinutes));
+        try { BreakHistory = BreakHistory.Load(historyFile); }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException or System.Text.Json.JsonException)
+        {
+            AppPaths.Log(error); BreakHistory = new(); historyWritable = false;
+            BreakHistoryError = "History could not be opened. New breaks are kept for this session only.";
+        }
         timer.Tick += (_, _) => Tick();
         desktop.ShutdownRequested += async (_, e) =>
         {
@@ -68,7 +82,7 @@ public sealed class AppRuntime : IDisposable
                 foreach (var directory in Directory.EnumerateDirectories(AppPaths.BuiltInRoot)) builtIns.Add(CharacterLibrary.LoadPackage(directory, true));
                 if (builtIns.Count == 0) throw new InvalidDataException("No built-in characters found.");
             });
-            await Reload(); BuildTray(); timer.Start(); Clock.Reset(monotonic.Elapsed);
+            await Reload(); BuildTray(); timer.Start(); Clock.Start(monotonic.Elapsed);
             await UpdatePet();
             if (!background) ShowSettings();
         }
@@ -83,22 +97,29 @@ public sealed class AppRuntime : IDisposable
         TimeSpan idle;
         try { idle = PlatformServices.IdleTime(); ActivityError = null; }
         catch (Exception error) { idle = TimeSpan.FromDays(1); if (ActivityError != error.Message) AppPaths.Log(error); ActivityError = error.Message; }
-        if (Clock.Tick(monotonic.Elapsed, idle, TimeSpan.FromMinutes(Settings.IdleMinutes))) _ = ShowReminder();
+        if (Clock.Tick(monotonic.Elapsed, idle, TimeSpan.FromMinutes(Settings.IdleMinutes), reminder is not null || openingReminder)) _ = ShowReminder();
         var remaining = $"{(int)Clock.Remaining.TotalMinutes:00}:{Clock.Remaining.Seconds:00}";
-        if (tray is not null) tray.ToolTipText = $"Unfold · {remaining}{(Clock.Paused ? " · paused" : Clock.IdlePaused ? " · away" : "")}";
+        if (tray is not null) tray.ToolTipText = $"Unfold · {remaining}{(Clock.Stopped ? " · stopped" : Clock.Paused ? " · paused" : Clock.IdlePaused ? " · away" : "")}";
         if (trayStatus is not null) trayStatus.Header = $"Next stretch: {remaining}";
-        if (trayPause is not null) trayPause.Header = Clock.Paused ? "Resume" : "Pause";
+        if (trayPause is not null) trayPause.Header = Clock.Stopped ? "Start" : Clock.Paused ? "Resume" : "Pause";
         if (trayPet is not null) trayPet.Header = Settings.ShowPet ? "Hide Pet" : "Show Pet";
         Changed?.Invoke();
     }
     public void TogglePause() { Clock.TogglePause(monotonic.Elapsed); Changed?.Invoke(); }
-    public void Reset() { Clock.Reset(monotonic.Elapsed); Changed?.Invoke(); }
+    public void Stop() { CancelReminder(); Clock.Stop(monotonic.Elapsed); Changed?.Invoke(); }
+    public void Reset() { CancelReminder(); Clock.Reset(monotonic.Elapsed); Changed?.Invoke(); }
+    private void CancelReminder() { reminderGeneration++; reminder?.Close(); }
     public void ShowSettings() { if (settingsWindow is null) return; settingsWindow.Show(); settingsWindow.ResumePreview(); settingsWindow.WindowState = WindowState.Normal; if (!DiagnosticMode) settingsWindow.Activate(); }
     internal void HideSettingsForDiagnostics() => settingsWindow?.HideToTray();
     public async Task UpdateSettings(AppSettings value)
     {
+        value = value.ValidatePersonalization();
         value.Save(settingsFile); var changedCharacter = value.SelectedCharacterId != Settings.SelectedCharacterId;
-        if (value.IntervalMinutes != Settings.IntervalMinutes) Clock.SetInterval(TimeSpan.FromMinutes(value.IntervalMinutes));
+        if (value.IntervalMinutes != Settings.IntervalMinutes || (value.ActiveProfileId is not null && value.ActiveProfileId != Settings.ActiveProfileId))
+        {
+            Clock.SetInterval(TimeSpan.FromMinutes(value.IntervalMinutes)); Clock.ScheduleAfterBreak(monotonic.Elapsed);
+        }
+        Routines = BreakRoutines.ForSettings(value);
         Settings = value;
         if (changedCharacter) clips.Clear();
         await UpdatePet(); Changed?.Invoke();
@@ -108,10 +129,11 @@ public sealed class AppRuntime : IDisposable
         Settings = Settings with { PetX = position.X, PetY = position.Y };
         try { Settings.Save(settingsFile); } catch (IOException error) { AppPaths.Log(error); }
     }
-    public Task<IReadOnlyList<AnimationFrame>> Clip(string key)
+    public Task<IReadOnlyList<AnimationFrame>> Clip(string key) => Clip(Selected, key);
+    private Task<IReadOnlyList<AnimationFrame>> Clip(CharacterPackage? selected, string key)
     {
-        if (Selected is not { } selected) return Task.FromResult<IReadOnlyList<AnimationFrame>>([]);
-        var cacheKey = $"{selected.Manifest.Id}:{key}";
+        if (selected is null) return Task.FromResult<IReadOnlyList<AnimationFrame>>([]);
+        var cacheKey = $"{selected.DirectoryPath}:{key}";
         if (clips.TryGetValue(cacheKey, out var cached)) return cached;
         // Sharing the in-flight task prevents the pet and settings preview
         // from decoding/uploading the same source independently on startup.
@@ -121,6 +143,7 @@ public sealed class AppRuntime : IDisposable
     {
         if (!Settings.ShowPet || Selected is null) { pet?.HidePet(); return; }
         pet ??= new PetWindow(this);
+        if (DiagnosticMode) PrepareDiagnosticWindow(pet);
         await pet.SetCharacter(); pet.ShowPet();
     }
     public async Task OpenEditor(CharacterPackage? character = null)
@@ -158,34 +181,59 @@ public sealed class AppRuntime : IDisposable
         try { await Reload(); await UpdateSettings(Settings with { SelectedCharacterId = character.Manifest.Id }); }
         catch (Exception error) { if (editor is not null) await Ui.Error(editor, error); else AppPaths.Log(error); }
     }
-    public async Task DeleteCharacter(CharacterPackage character)
-    {
-        if (character.IsBuiltIn || settingsWindow is null) return;
-        if (await Ui.Confirm(settingsWindow, "Delete character?", $"Delete {character.Manifest.Name} from your library?", "Delete", "Cancel") != 0) return;
-        try { await Task.Run(() => Library.Delete(character.Manifest.Id)); await Reload(); await UpdateSettings(Settings with { SelectedCharacterId = Characters[0].Manifest.Id }); }
-        catch (Exception error) { await Ui.Error(settingsWindow, error); }
-    }
     public async Task ShowReminder()
     {
-        if (reminder is not null) { reminder.Activate(); return; }
+        if (reminder is not null) { if (!DiagnosticMode) reminder.Activate(); return; }
+        if (openingReminder || quitting) return;
+        openingReminder = true;
+        var generation = reminderGeneration;
         try
         {
-            var animation = new AnimationView { Width = 240, Height = 240 };
-            var selected = Selected; var clip = await Clip("stretch");
-            if (reminder is not null) { animation.Dispose(); return; }
-            animation.SetFrames(clip, selected?.Manifest.Animations.GetValueOrDefault("stretch")?.Loop ?? true, selected?.Manifest.RenderStyle == "pixel");
-            var window = new Window { Title = "Time to stretch · Unfold", Width = 390, Height = 435, CanResize = false, Topmost = true, Background = Ui.Background, WindowStartupLocation = WindowStartupLocation.CenterScreen };
+            var selected = Selected;
+            if (selected is null) return;
+            var routine = Routines.FirstOrDefault(item => item.Id == Settings.BreakRoutineId) ?? BreakRoutines.All[0];
+            var profile = Settings.WorkProfiles.FirstOrDefault(item => item.Id == Settings.ActiveProfileId);
+            var frames = await Clip(selected, "idle");
+            if (quitting || generation != reminderGeneration) return;
+            var session = new BreakSession(routine, selected.Manifest.Id, profile);
+            var window = new BreakReminderWindow(session, selected.Manifest.Name, frames, selected.Manifest.RenderStyle == "pixel");
             if (DiagnosticMode) PrepareDiagnosticWindow(window);
-            window.Content = new Border { Padding = new Thickness(24), Child = Ui.Column(Ui.Text("A little room to breathe.", 22, Ui.Accent), animation,
-                Ui.Text("Stand up, stretch, and rest your eyes.", 14), Ui.Button("I'm refreshed", () => window.Close())) };
-            reminder = window; window.Closed += (_, _) => { animation.Dispose(); if (reminder == window) reminder = null; };
+            reminder = window;
+            window.Started += () => ReactToBreak(session, "stretch");
+            window.Finished += result =>
+            {
+                if (reminder == window) reminder = null;
+                if (!quitting) FinishBreak(result);
+            };
             window.Show(); if (!DiagnosticMode) { window.Activate(); NativeReminder.Show(window); }
+            ReactToBreak(session, "attention");
+            Changed?.Invoke();
         }
-        catch (Exception error) { ShowSettings(); await Ui.Error(settingsWindow!, error); }
-        // Only the call that actually opened a reminder reaches here holding one, so a
-        // duplicate ShowReminder never restarts the stretch. Deliberately outside the
-        // try: React logs its own failures instead of raising a reminder error dialog.
-        if (reminder is not null && Settings.ShowPet && pet is { IsVisible: true }) _ = pet.React("stretch");
+        catch (Exception error) { if (quitting || generation != reminderGeneration) return; if (DiagnosticMode) throw; ShowSettings(); await Ui.Error(settingsWindow!, error); }
+        finally { openingReminder = false; }
+    }
+    private void ReactToBreak(BreakSession session, string animation)
+    {
+        if (Selected?.Manifest.Id == session.CharacterId && Settings.ShowPet && pet is { IsVisible: true }) _ = pet.React(animation);
+    }
+    private void FinishBreak(BreakSession session)
+    {
+        if (session.State == BreakSessionState.Completed)
+        {
+            Clock.ScheduleAfterBreak(monotonic.Elapsed);
+            if (BreakHistory.Add(session, DateTimeOffset.Now) && historyWritable)
+            {
+                try { BreakHistory.Save(historyFile); BreakHistoryError = null; }
+                catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+                {
+                    AppPaths.Log(error); BreakHistoryError = "Your break is counted, but history could not be saved.";
+                }
+            }
+            ReactToBreak(session, "celebrate");
+        }
+        else if (session.State == BreakSessionState.Snoozed) Clock.ScheduleAfterBreak(monotonic.Elapsed, TimeSpan.FromMinutes(5));
+        else Clock.Tick(monotonic.Elapsed, TimeSpan.Zero, TimeSpan.FromMinutes(Settings.IdleMinutes), true);
+        Changed?.Invoke();
     }
     private void BuildTray()
     {
@@ -202,7 +250,7 @@ public sealed class AppRuntime : IDisposable
         trayPet = new NativeMenuItem("Hide Pet"); menu.Items.Add(trayPet);
         trayPet.Click += async (_, _) => { try { await UpdateSettings(Settings with { ShowPet = !Settings.ShowPet }); } catch (Exception error) { AppPaths.Log(error); } };
         trayPause = new NativeMenuItem("Pause"); trayPause.Click += (_, _) => TogglePause(); menu.Items.Add(trayPause);
-        Item("Reset timer", Reset); Item("Stretch now", () => _ = ShowReminder());
+        Item("Stop timer", Stop); Item("Reset timer", Reset);
         menu.Items.Add(new NativeMenuItemSeparator()); Item("Quit Unfold", () => _ = Quit());
         tray.Menu = menu; tray.Clicked += (_, _) => ShowSettings();
         TrayIcon.SetIcons(Application.Current!, new TrayIcons { tray });
@@ -221,6 +269,9 @@ public sealed class AppRuntime : IDisposable
     public void Dispose() { timer.Stop(); instanceActivation?.Dispose(); instanceActivation = null; tray?.Dispose(); tray = null; pet?.ClosePet(); pet = null; reminder?.Close(); }
     internal static void PrepareDiagnosticWindow(Window window)
     {
+        // macOS can constrain an off-screen window down to 1x1 without explicit minimums.
+        if (double.IsFinite(window.Width)) window.MinWidth = window.Width;
+        if (double.IsFinite(window.Height)) window.MinHeight = window.Height;
         window.WindowStartupLocation = WindowStartupLocation.Manual; window.Position = new(-32000, -32000);
         window.ShowInTaskbar = false; window.ShowActivated = false;
     }

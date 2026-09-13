@@ -8,6 +8,7 @@ public sealed record AnimationFrame(PixelImage Image, TimeSpan Duration);
 public static class ImageCodec
 {
     public const int MaxFileBytes = 32 * 1024 * 1024;
+    public const long MaxDecodedAnimationBytes = 128 * 1024 * 1024;
     public static unsafe PixelImage DecodePng(byte[] bytes, int maxWidth = 4096, int maxHeight = 4096, int maxPixels = 16 * 1024 * 1024)
     {
         if (bytes.Length > MaxFileBytes || bytes.Length < 20 || !bytes.AsSpan(0, 8).SequenceEqual(new byte[] { 137, 80, 78, 71, 13, 10, 26, 10 }) ||
@@ -42,7 +43,7 @@ public static class ImageCodec
         using var codec = SKCodec.Create(data) ?? throw new InvalidDataException("Cannot decode the GIF.");
         if (codec.EncodedFormat != SKEncodedImageFormat.Gif) throw new InvalidDataException("Expected a GIF.");
         var info = codec.Info; var count = Math.Max(1, codec.FrameCount);
-        if (info.Width is < 1 or > 2048 || info.Height is < 1 or > 2048 || count > 512 || (long)info.Width * info.Height * count * 4 > 128 * 1024 * 1024)
+        if (info.Width is < 1 or > 2048 || info.Height is < 1 or > 2048 || count > 512 || (long)info.Width * info.Height * count * 4 > MaxDecodedAnimationBytes)
             throw new InvalidDataException("Decoded GIF exceeds the animation budget.");
         var frames = new List<AnimationFrame>(count);
         var metadata = codec.FrameInfo;

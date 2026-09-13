@@ -1,0 +1,16 @@
+[
+  {
+    "showPet": true,
+    "warmupSeconds": 5,
+    "sampleSeconds": 10.012656083,
+    "oneCoreCpuPercent": 6.691531142646158,
+    "workingSetBytes": 118276096
+  },
+  {
+    "showPet": false,
+    "warmupSeconds": 5,
+    "sampleSeconds": 10.012580790999998,
+    "oneCoreCpuPercent": 1.4981152525114259,
+    "workingSetBytes": 110329856
+  }
+]

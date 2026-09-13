@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "startupMs": 1872.1538,
+  "totalMs": 6139.9292,
+  "workingSetBytes": 204324864,
+  "managedBytes": 63046576,
+  "oneCoreCpuPercent": 67.1171609998851,
+  "characters": 2,
+  "imageFiles": 7,
+  "completedBreaks": 1,
+  "simulatedSessionTiming": true,
+  "idleSeconds": 0.0391045,
+  "os": "Unix 26.6.2",
+  "framework": "10.0.12"
+}

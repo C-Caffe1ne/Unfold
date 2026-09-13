@@ -1,359 +1,124 @@
-# Unfold Windows Dogfooding Log
+# Windows Cat MVP 실기 체크리스트
 
-Windows-only verification of the Cat MVP. The macOS record lives in
-[dogfooding-log.md](dogfooding-log.md) and is a separate document on purpose — a
-Windows build is not evidence of tested macOS behavior, and the reverse is equally
-true.
+현재 MVP의 실제 Windows 동작을 기록하는 양식이다. **아직 실행 결과가 기입되지 않았다.**
+자동 테스트와 다른 OS의 결과를 여기에 옮기지 않는다. 새 세션은 이 양식을 참고해
+`docs/validation/YYYY-MM-DD-windows.md`처럼 기록을 만들고, 아래 환경 정보를 채운다.
+본문을 복사했다면 상대 링크도 새 파일 위치에 맞게 조정한다.
+제품 범위는 [MVP 문서](mvp.md), 검증 수준은 [검증 안내](verification.md)를 따른다.
 
-Fill this in **while** using the app, not afterwards from memory. One session per copy
-of this file; if you run a second session, append a new `## Session` block rather than
-overwriting the first.
+## 실행 환경
 
-**Why this session exists:** the Garden pivot reuses every Windows code path listed
-below unchanged — transparent window, click-through, tray, idle detection, position
-persistence, launch at login. Anything broken here stays broken after the pivot. This
-session runs against the **cat** so that the plant is designed against measured
-behavior rather than assumptions.
+- 날짜 / 시작·종료 시각:
+- 브랜치 / 커밋 / 로컬 변경 여부:
+- Windows 버전 / 아키텍처:
+- 배포 파일과 생성 방법:
+- CPU / GPU:
+- 모니터 수 / 각 모니터 배율:
+- 방해금지 / Focus Assist 상태:
+- 스트레칭 간격 / 유휴 기준:
+- 격리 데이터 디렉터리:
 
-## Session
+게시된 앱과 새 테스트 프로필을 사용한다. 처음에는 지원 범위의 최소 설정인
+스트레칭 간격 5분·유휴 기준 1분으로 자동 경로를 확인할 수 있다. idle 검증은
+원격 데스크톱을 사용하지 않고 실제 입력 장치로 진행한다.
 
-- Date:
-- Start:
-- End:
-- Windows version / build:
-- CPU:
-- GPU:
-- Monitor count:
-- Monitor scale:
-- Focus Assist / Do Not Disturb:
-- Commit: `dc77ab9` (`release/mvp`)
-- Build:
-- Stretch interval:
-- Pause when away:
+## 실행·종료
 
-Record the scale for **every** monitor, not just the primary one, and record the Focus
-Assist state **before** section G rather than after — the notification result cannot be
-interpreted without it.
+- [ ] 전체 압축을 풀고 `Unfold.exe`가 실행된다.
+- [ ] 콘솔 창 없이 펫과 트레이가 나타난다.
+- [ ] Settings가 열리고, X로 닫으면 트레이에서 계속 실행된다.
+- [ ] 다시 실행하면 중복 펫 없이 Settings가 열린다.
+- [ ] Quit Unfold 후 프로세스·펫·트레이가 모두 사라진다.
+- [ ] `unfold.log`에 시작·종료 실패가 없다.
 
-The stretch interval accepts 5–240 minutes and the idle threshold 1–60 minutes. Their
-minimums are the useful settings here: an automatic reminder costs at least five
-minutes of wall clock, and idle pause needs at least a minute of untouched keyboard.
+## 화면과 입력
 
-## Pre-test rule
+- [ ] 브라우저·에디터·터미널 위에서 투명 배경과 펫 크기가 정상이다.
+- [ ] 투명 영역을 클릭하면 아래 앱에 입력이 전달된다.
+- [ ] 불투명 영역은 펫에 입력이 전달되고 드래그된다.
+- [ ] 드래그를 끝낸 뒤에도 투명 영역 클릭 통과가 유지된다.
+- [ ] 우클릭 메뉴의 Settings가 동작하고 Stretch now 항목은 없다.
+- [ ] Mochi를 짧게 클릭해도 stretch가 시작되지 않는다. 기본 Mochi에는 click 클립이 없다.
+- [ ] Win+D, 잠금·해제, 창 전환 후 펫이 정상적으로 보인다.
+- [ ] 밝은 배경·어두운 배경에서 이미지 가장자리와 클릭 영역이 자연스럽다.
 
-During this session:
+## 배율·모니터
 
-- Do not fix issues while testing.
-- Do not implement new ideas.
-- Record first, decide later.
-- NICE ideas are not MVP work.
-- Every observation goes to the Timeline, then gets classified BLOCKER / CORE UX / NICE.
+- [ ] 현재 배율에서 이미지와 클릭 영역이 일치한다.
+- [ ] 다른 배율을 시험했다면 값과 재시작 여부를 기록했다.
+- [ ] 다른 모니터로 드래그할 수 있다.
+- [ ] 재시작하면 위치가 복원된다.
+- [ ] 서로 다른 배율의 모니터에서도 클릭 위치가 일치한다.
+- [ ] 모니터를 분리해도 펫이 화면 밖에 남지 않는다.
+- [ ] 시험한 전체화면 앱에서 펫 표시·입력이 의도와 맞는다.
 
-**Garden work does not start until this session records zero BLOCKERs.**
+시험할 장비가 없는 항목은 미검증으로 남긴다. 소스에 관련 코드가 있다는 사실만으로
+체크하지 않는다. 모니터 분리와 실행 중 배율 변경의 복구는 특히 실제 확인이 필요하다.
 
-## Test Scenarios
+## 타이머·휴식
 
-Tick what held true. Leave a box empty when it was not exercised — an empty box means
-"not verified", never "probably fine". When something fails, do not debug it: write the
-time in the Timeline and keep working.
+- [ ] 트레이와 Settings의 카운트다운이 일치한다.
+- [ ] 간격을 변경하면 별도 Apply 없이 저장·반영되고 재실행 후에도 유지된다.
+- [ ] 일시정지·재생 아이콘은 남은 시간을 보존하며 멈추고 다시 진행한다.
+- [ ] Stop은 00:00에서 대기하고, Reset은 설정 간격으로 되돌린 뒤 대기한다.
+- [ ] 정지 상태에서 간격을 바꿔도 자동 시작하지 않고 Play를 눌러야 시작한다.
+- [ ] 유휴 기준 이상 입력하지 않으면 away 표시와 함께 카운트다운이 멈춘다.
+- [ ] 입력을 재개하면 카운트다운이 다시 진행된다.
+- [ ] sleep/wake 동안 경과한 시간이 작업 시간에 더해지지 않는다.
+- [ ] 자동 타이머가 휴식 창을 연다.
+- [ ] 보이는 펫이 stretch를 한 번 재생하고 idle로 돌아온다.
+- [ ] 스트레칭 중 Mochi 클릭이 해당 반응을 끊지 않는다.
+- [ ] 휴식 창이 열린 동안 작업 타이머가 보류되고 중복 휴식 창이 열리지 않는다.
+- [ ] Settings·트레이·펫 메뉴에 Stretch now가 없다.
+- [ ] 휴식 창이 열릴 때나 열린 뒤 Stop/Reset을 누르면 완료 기록 없이 창이 닫힌다.
+- [ ] I'm refreshed가 창을 닫는다.
+- [ ] 방해금지 상태와 실제 OS 알림 전달 여부를 함께 기록했다.
 
-### A. Basic Run
+## 표시 설정·로그인
 
-- [ ] published `Unfold.exe` launches
-- [ ] no console window appears
-- [ ] the pet appears
-- [ ] the tray icon appears in the notification area
-- [ ] the tray tooltip shows a counting-down `Unfold · MM:SS`
-- [ ] Settings opens
-- [ ] closing Settings with **X** hides it and the app keeps running
-- [ ] **Quit Unfold** ends the process completely (confirm in Task Manager)
-- [ ] both the pet and the tray icon disappear on quit
-- [ ] `%LOCALAPPDATA%\Unfold\unfold.log` holds no fatal error
+- [ ] 트레이와 Settings의 Show/Hide 상태가 일치한다.
+- [ ] 숨긴 상태에서 알림이 발생해도 펫이 다시 나타나지 않는다.
+- [ ] Show Pet으로 다시 표시되고 위치가 유지된다.
+- [ ] 재시작 후 표시 설정이 유지된다.
+- [ ] 최종 설치 위치에서 Launch at login을 켜고 등록된 경로가 일치한다.
+- [ ] 실제 로그아웃·로그인 후 트레이와 펫만 나타나고 Settings는 열리지 않는다.
+- [ ] Launch at login을 끈 뒤 등록이 해제된다.
 
-Notes:
-
-### B. Transparent / Topmost
-
-- [ ] the background around the pet is transparent
-- [ ] no black or white rectangle behind the pet
-- [ ] the pet stays above other windows
-- [ ] correct over a browser
-- [ ] correct over an editor
-- [ ] correct over a terminal
-- [ ] `Win+D` and back leaves the pet correct
-- [ ] lock screen and back leaves the pet correct
-- [ ] OPTIONAL — behavior over a fullscreen app:
-
-Notes:
-
-### C. Click-through
-
-The Windows-only code path, and the one with no execution record at all. Put a text
-editor underneath the pet so a stray click is visible as a caret.
-
-- [ ] clicking a **transparent** area reaches the app underneath
-- [ ] clicking the **drawn** area hits the pet
-- [ ] the drawn area can be dragged
-- [ ] click-through recovers after a drag ends
-- [ ] crossing the transparent/drawn boundary — is the transition lag noticeable?
-- [ ] right-click opens the pet menu (Settings / Stretch now)
-
-Notes:
-
-### D. DPI
-
-- Current scale: ____%
-
-- [ ] size is correct at the current scale
-- [ ] the image is sharp at the current scale
-- [ ] the clickable area matches the drawing at the current scale
-
-Test other scales only if the machine allows it, and **restart Unfold after each
-change** — the app declares no DPI awareness of its own and relies on the framework
-default, so behavior across a live scale change is unverified. Write `NOT TESTED` for
-any scale not exercised.
-
-- 100%:
-- 125%:
-- 150%:
-
-Notes:
-
-### E. Multi-monitor
-
-If there is only one monitor, write `NOT TESTED` here and skip the section.
-
-- [ ] the pet can be dragged to another monitor
-- [ ] Quit and restart restores it to the same monitor and position
-- [ ] with **different scales** per monitor, the clickable area still matches the drawing
-- [ ] disconnecting a monitor does not strand the pet off-screen
-
-Notes:
-
-### F. Idle Detection
-
-Do not run this over Remote Desktop — the underlying idle query reports differently in
-a remote session.
-
-- [ ] the countdown advances while you work
-- [ ] after **1+ minute** with no keyboard or mouse input at all
-- [ ] the tray tooltip shows `· away`
-- [ ] the countdown stops
-- [ ] resuming input resumes the countdown immediately
-- [ ] Settings shows `Paused while you're away`
-- [ ] sleep / wake does not consume the countdown
-
-Notes:
-
-### G. Notifications
-
-- Focus Assist / Do Not Disturb state at the start of this section:
-
-- [ ] a Windows notification appears when the reminder fires
-- [ ] the in-app reminder window appears
-- [ ] both together — is that too much at once?
-- [ ] behavior with Focus Assist **ON**:
-
-A suppressed notification is the designed outcome, not a failure: the in-app reminder
-is meant to stand on its own. Record which signal reached you first.
-
-Notes:
-
-### H. Stretch
-
-- [ ] the automatic reminder fires
-- [ ] the reminder window opens
-- [ ] a visible pet plays `stretch` exactly once
-- [ ] the pet returns to `idle`
-- [ ] **I'm refreshed** closes the reminder
-- [ ] tray **Stretch now**
-- [ ] Settings **Stretch now**
-- [ ] pet context menu **Stretch now**
-- [ ] repeating **Stretch now** while the reminder is open does not restart the animation
-- [ ] did the reminder steal focus from what you were doing?
-
-All three manual entry points call the same code path as the timer. Record whether they
-*feel* the same — placement, focus, timing, whether the pet reacted.
-
-Notes:
-
-### I. Hide / Show
-
-- [ ] tray **Hide Pet** hides the pet
-- [ ] the tray item then reads **Show Pet**
-- [ ] tray **Show Pet** brings it back in the same place
-- [ ] the Settings checkbox stays in step in both directions
-- [ ] a reminder still works while the pet is hidden
-- [ ] a hidden pet never reappears on its own
-- [ ] the hidden state survives a restart
-
-Notes:
-
-### J. Launch at Login
-
-Run this against the **published exe**. It is blocked by design while running through
-`dotnet run`.
+레지스트리 값만 확인한 경우와 실제 로그인 실행을 구분한다:
 
 ```powershell
 Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run' -Name Unfold
 ```
 
-- [ ] ON → the `Unfold` value is created under HKCU `Run`
-- [ ] the value points at the actual exe path in use
-- [ ] the value includes `--background`
-- [ ] OFF → the value is removed (the command above now errors)
-- [ ] after restarting Unfold, the Settings checkbox matches the registry state
+## 배포와 장시간 사용
 
-The registry check alone proves the code path and takes under a minute. Actual
-autostart needs a **sign out and sign back in**, not a full reboot.
+- [ ] 실제 다운로드 받은 배포물에서 설치·실행 경고와 서명 상태를 기록했다.
+- [ ] 60–90분 동안 앱이 응답하고 펫이 사라지거나 중복되거나 멈추지 않는다.
+- [ ] 시작·종료 시 CPU/메모리와 팬 소음을 기록했다.
+- [ ] 알림이 집중을 방해했는지, 펫·휴식 창·OS 알림이 중복되어 느껴졌는지 기록했다.
+- [ ] 알림을 알아차렸는지, 실제로 스트레칭했는지 기록했다.
+- [ ] 다음 날에도 앱을 켜 두고 싶은지 기록했다.
 
-- [ ] OPTIONAL — signed out and back in; Unfold started with tray and pet only, no
-      Settings window (this is what `--background` should produce)
+로컬에서 만든 실행 파일과 실제 다운로드 파일의 신뢰 검증은 다르다. 이번 세션에
+시험하지 않은 서명·설치 경로를 배포 준비 완료로 표시하지 않는다.
 
-Recorded registry value:
+## 관찰 기록
 
-Notes:
+| 시각 | 관찰 사실 | 실행한 행동 | 영향 | 분류 |
+|---|---|---|---|---|
+| | | | | |
 
-### K. Garden Asset Design Observation
+- **BLOCKER**: 실행·종료 실패, 필수 알림 실패, 입력을 심하게 막음, 펫 소실·정지 등 핵심 사용 불가.
+- **CORE UX**: 동작은 하지만 타이밍·집중 방해·드래그·표시 때문에 핵심 경험이 약해짐.
+- **NICE**: 관찰한 문제 해결에 필수적이지 않은 새 기능·외형 제안.
 
-The point of running this session against the cat. These answers become the input to
-the plant's silhouette — measure, do not estimate.
+## 세션 결과
 
-Reference values, fixed in the current build:
+- 확인한 동작:
+- 재현된 BLOCKER:
+- CORE UX:
+- 미검증 항목과 이유:
+- 다음 확인 사항:
 
-| | |
-|---|---|
-| Pet window | 192 × 192 DIP (192 px at 100%, 288 px at 150%) |
-| Source frame | 384 × 384, scaled to fit the window |
-| Hit test | pixels with alpha ≥ 26 only |
-| Hit tolerance | about 4 source px ≈ 2 DIP around any opaque pixel |
-| Click vs. drag | under 5 px of movement **and** under 0.22 s |
-
-- [ ] how much of the 192 × 192 area does the cat actually fill? (attach a screenshot)
-- [ ] can you grab **thin parts** — tail, ear tip, whiskers — and drag from them?
-- [ ] what does clicking a **semi-transparent edge** feel like — caught, or dropped?
-- [ ] where do you *instinctively* aim when you want to drag it?
-- [ ] Mochi has no `click` clip, so a plain click does nothing. Calm, or dead?
-- [ ] does click-through over transparent pixels feel natural, or does the pet feel
-      like it is not really there?
-- [ ] edge quality against a **light** background:
-- [ ] edge quality against a **dark** background:
-- [ ] would a plant need an opaque pot to be draggable at all?
-
-**Could you reliably grab thin parts of the character?**
-
-> YES / NO —
-
-If **NO**: the Garden prototype should use an **opaque pot as the primary hit area**.
-A thin sprout stem drawn with soft edges would fall below the alpha ≥ 26 threshold and
-become click-through, leaving the plant impossible to grab or move.
-
-Notes:
-
-### L. Long Run — OPTIONAL / Tier 2
-
-Not required to clear the Garden gate. Run it in the background during normal work
-rather than as a dedicated sitting.
-
-- [ ] the app stays responsive for 60–90 minutes
-- [ ] no growing CPU
-- [ ] no fan noise
-- Memory at start:
-- Memory at end:
-- [ ] the pet never vanishes
-- [ ] the pet never duplicates
-- [ ] the animation never freezes
-- [ ] I was still willing to keep it running at the end
-
-Notes:
-
-## Timeline
-
-Add a row whenever something happens or something bothers you. Leave this empty until
-the session actually runs.
-
-| Time | Observation | Category |
-|---|---|---|
-| | | |
-
-## BLOCKER
-
-Ship-stopping on Windows. **Any one of these blocks the start of Garden work until it
-is fixed:**
-
-- `Unfold.exe` fails to launch
-- immediate crash
-- the pet does not appear
-- the tray icon does not appear
-- the transparent background fails (a black or white rectangle behind the pet)
-- click-through does not work at all
-- the automatic reminder never fires
-- noticeable constant CPU usage
-- the pet vanishes, freezes, or duplicates
-- the process survives **Quit Unfold**
-
-## CORE UX
-
-The app works, but the core experience is weakened. For example:
-
-- the reminder steals focus at a bad moment
-- the notification and the reminder window feel redundant
-- the stretch reaction is too subtle to notice
-- the pet is distracting during focused work
-- the clickable area is hard to hit
-
-## NICE
-
-Ideas that will not be built now. For example:
-
-- more characters
-- themes
-- a snooze action
-- extra customization
-
-## SAFE TO DEFER
-
-Observe and record only. Do **not** act on these in this cycle:
-
-- SmartScreen warnings
-- code signing
-- an installer
-- DPI changes applied while the app is running
-- fullscreen game behavior
-- the tray icon ending up in the hidden overflow area
-- notification and reminder feeling redundant (record as CORE UX, revisit at Garden)
-- focus stealing (record as CORE UX, revisit at Garden)
-- any macOS issue
-
-On SmartScreen specifically: a locally built exe carries no Mark-of-the-Web, so it will
-**not** trigger the warning a real downloader sees. Running it here is not evidence
-about distribution. Reproducing that needs the zip delivered over the web to another
-machine, and it is out of scope for this session.
-
-## Session Summary
-
-Write this after the session, not during it.
-
-### What worked
-
-### BLOCKER
-
-### CORE UX
-
-### NICE
-
-### Most important observation
-
-One sentence:
-
->
-
-## Final Rule
-
-After the session:
-
-- Do not implement NICE items.
-- Rank BLOCKER first. **Garden work starts only when the BLOCKER list is empty.**
-- Then rank CORE UX by impact on the Core Loop.
-- Carry section K's answer into the plant's silhouette design before any asset is drawn.
-- Do not add features without observed evidence.
+관찰·가설·재현 결과를 구분한다. 체크리스트 완료가 새 기능이나 Garden 전환을 자동
+승인하지 않는다. 후속 수정은 사용자 요청과 현재 MVP 범위에 맞춰 정한다.

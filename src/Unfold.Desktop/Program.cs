@@ -1,4 +1,6 @@
 using Avalonia;
+using System.Text.Json;
+using Unfold.Core;
 
 namespace Unfold.Desktop;
 
@@ -7,6 +9,13 @@ internal static class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        if (args.Length > 0 && args[0] == "--validate-characters")
+        {
+            if (args.Length > 2) { Console.Error.WriteLine("Usage: --validate-characters [directory]"); return 2; }
+            var report = CharacterAssetAudit.Inspect(args.Length == 2 ? args[1] : AppPaths.BuiltInRoot);
+            Console.WriteLine(JsonSerializer.Serialize(report, CharacterLibrary.JsonOptions));
+            return report.Success ? 0 : 1;
+        }
         if (args.Contains("--smoke-test") && string.IsNullOrEmpty(Environment.GetEnvironmentVariable("UNFOLD_DATA_DIR")))
             Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", Path.Combine(Path.GetTempPath(), "Unfold-smoke-" + Guid.NewGuid().ToString("N")));
         var root = AppPaths.DataRoot;

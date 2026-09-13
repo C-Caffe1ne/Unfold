@@ -18,7 +18,6 @@ public sealed class AnimationView : Control, IDisposable
     private double totalMs;
     private bool loop;
     private int index;
-    public event Action? Completed;
     public AnimationView()
     {
         RenderOptions.SetBitmapInterpolationMode(this, BitmapInterpolationMode.None);
@@ -46,7 +45,7 @@ public sealed class AnimationView : Control, IDisposable
     {
         if (frames.Count == 0 || totalMs <= 0) return;
         var ms = elapsed.Elapsed.TotalMilliseconds;
-        if (!loop && ms >= totalMs) { index = frames.Count - 1; timer.Stop(); InvalidateVisual(); Completed?.Invoke(); return; }
+        if (!loop && ms >= totalMs) { index = frames.Count - 1; timer.Stop(); InvalidateVisual(); return; }
         ms %= totalMs; var next = 0;
         while (next < frames.Count - 1 && ms >= frames[next].Duration.TotalMilliseconds) ms -= frames[next++].Duration.TotalMilliseconds;
         timer.Interval = TimeSpan.FromMilliseconds(Math.Max(5, frames[next].Duration.TotalMilliseconds - ms));

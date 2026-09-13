@@ -1,122 +1,88 @@
-# Unfold MVP
+# Unfold MVP scope
 
 ## Product
 
-A tiny desktop companion that reminds you to move while you work.
+A small desktop companion that reminds you to stretch while you work.
 
-한국어 설명:
-일하다 몸을 잊었을 때, 먼저 기지개를 켜는 작은 데스크탑 동료.
+Mochi와 잠깐 쉬고, 내 리듬으로 돌아오는 작은 데스크톱 동료.
 
-The MVP ships the **C# / Avalonia** runtime (`src/Unfold.Core`, `src/Unfold.Desktop`)
-on Windows and macOS. The Swift tree is legacy — see [Scope boundaries](#scope-boundaries).
+This document defines the current **Cat MVP with break sessions and a personalization demo** on `release/mvp`.
+The application is the C#/.NET 10 and Avalonia solution. The 2026-09-13 product
+development request extends the reminder into a guided pause with local completion
+records. [Product direction](product-direction.md) and [development plan](development-plan.md)
+describe the paid-value hypotheses. No payment flow or store is implemented.
 
-## Core Loop
+## Core loop and implemented behavior
 
+```text
+Active computer use → break invitation → start a chosen routine
+→ visible Mochi stretches once → timed steps → user confirms completion
+→ local record + next work interval
 ```
-Work
-→ stretch timer fires
-→ pet reacts and stretches
-→ user notices
-→ user stretches
-→ pet returns to idle
-```
 
-How the loop is wired today, so nobody documents an intention as a feature:
+Whether the user notices, physically stretches, and keeps using the app must be
+observed. Those outcomes are not established by a passing build or animation test.
 
-| Step | Where it happens |
+| Area | Current behavior |
 |---|---|
-| Timer fires | `StretchClock.Tick` → `AppRuntime.ShowReminder()`. **Stretch now** — in the tray menu, in Settings, and in the pet's right-click menu — calls the same method, so a manual stretch behaves exactly like an automatic one |
-| Pet stretches | `ShowReminder()` opens the reminder window on the character's `stretch` clip and asks a visible pet for the same clip through `PetWindow.React("stretch")`; both animate at once |
-| Pet reacts | Clicking the pet plays its `click` clip once. `stretch` is reserved for reminders, so a character with no `click` clip keeps looping `idle` instead — the built-in Mochi has none, so a plain click leaves it idle |
-| Returns to idle | `PetWindow.React()` plays the clip once, then restores the `idle` loop when it ends |
+| Timer | 5–240 minutes; valid whole-minute interval changes immediately save and update the countdown. Settings has labelled, keyboard-accessible icon buttons for Pause/Resume, Stop, and Reset. Idle threshold and routine selection still use Apply reminder settings. |
+| Timer controls | Pause keeps the remaining time. Stop clears the current countdown to 00:00. Reset restores the configured interval and pauses. Play resumes a paused countdown or starts a full interval after Stop. Stop/Reset dismiss an open or pending invitation without adding a completion. |
+| Activity | Idle threshold of 1–60 minutes. Idle time and large dispatcher/sleep gaps do not accrue work time. |
+| Reminder | A centered invitation with **Start**, **In 5 minutes**, and **Skip this break**. Starting runs the selected timed routine; **I'm refreshed** becomes available when it reaches the end. OS notification delivery is attempted independently. |
+| Routines | Small reset (60 seconds), Look away (20 seconds), and Room to move (90 seconds). The routine and companion are captured when the invitation opens. They are gentle prompts, not measured exercise or medical advice. |
+| Routine library | Edit and save up to 20 custom routines with 1–3 prompts, 1–300 seconds per prompt and a maximum of 600 seconds total. The original personal slot is preserved alongside 19 additional routines. Saving selects the routine for future invitations; an already-open session keeps its original steps. Built-ins cannot be edited or removed. Profile references must be changed before deleting a routine. |
+| Work profiles | Save up to 10 named combinations of routine, reminder interval, and away threshold. Apply manually. A different profile or interval loads a new work interval while preserving Pause; a stopped countdown remains at 00:00 until Play or Reset. An open session retains its original routine/profile context. No automatic schedule or meeting detection is included. |
+| Manual reminder | Stretch now has been removed from Settings, the tray menu, and the pet menu. Normal invitations come from the automatic timer. The shared reminder method remains available to internal diagnostics. |
+| Scheduling | Work time is held while an invitation/session is open. Confirmed completion starts a full work interval; snooze schedules five active minutes. Both preserve manual Pause. Skip/close keeps the remaining interval and records no completion. |
+| Duplicate reminder | An already-open reminder is activated; it keeps the same session and does not restart the pet reaction. Concurrent opening requests are coalesced. |
+| Completion history | Only explicit confirmation after the countdown adds a local record. Settings shows today's count and planned routine time. Sleep/stalled UI gaps do not complete a session. History is bounded to 2,000 entries; adding a record removes entries older than 90 days. |
+| Review/export | Seven-day daily counts and planned time, previous-period navigation, and CSV export of the displayed period. New records retain their original routine/profile names. Old records still load; dates follow the completion's recorded local day. |
+| Desktop pet | Frameless, topmost, draggable, position-persistent, and optionally hidden. Windows has OS-level transparent-pixel click-through; macOS does not. |
+| Mochi animation | Eight idle frames plus `stretch.gif`. A plain click has no reaction because Mochi has no `click` clip. Starting a break makes a visible pet stretch once, then return to idle. |
+| Optional reactions | Packages may supply `attention` on invitation, `celebrate` on confirmed completion, and `click`. Missing event clips leave the pet unchanged. Current Mochi does not supply these three. |
+| Hidden pet | Stays hidden and does not react to reminders; the reminder window still opens. |
+| Character picker | Lists bundled Mochi and valid characters already in the user's local library. |
+| Launch at login | Opt-in Windows registry/macOS LaunchAgent integration. Test it from a published app in its final location. |
 
-Two deliberate limits on the pet's reaction:
-
-- A hidden pet stays silent. With **Show pet** off, the reminder still appears and the
-  pet is not asked to animate.
-- A reminder that is already open is only re-activated, so firing **Stretch now** again
-  does not restart a stretch the pet is already playing.
-
-## MVP Features
-
-Every item below is implemented and verified in the C# runtime today.
-
-| Feature | Notes |
-|---|---|
-| Desktop pet | Frameless, always-on-top, transparent window; draggable and position-persistent. Click-through over transparent pixels is Windows-only; macOS is pending. |
-| Idle animation | The selected character's `idle` clip loops for as long as the pet is shown, apart from the one-shot reactions below. |
-| Stretch reminder | Centered reminder window playing the `stretch` clip, dismissed with **I'm refreshed**. |
-| Stretch animation | Built-in Mochi ships `stretch.gif`; played by the reminder window and by the visible pet reacting to it, whether the reminder came from the timer or from **Stretch now**. A plain pet click never plays it. |
-| Stretch timer | 5–240 min interval; countdown in the tray tooltip, tray menu and Settings. Pause / Resume, Reset, and **Stretch now**. |
-| Idle-aware pause | 1–60 min idle threshold; idle time does not accrue toward the next stretch. Sleep and dispatcher gaps are not counted as active use. |
-| Notifications | OS-level: Windows tray balloon (`Shell_NotifyIcon`), macOS `display notification` via `osascript`. Failure is logged and the in-app reminder still shows. |
-| Show / Hide pet | One setting with two entry points: the Settings checkbox and the tray item, which reads **Hide Pet** or **Show Pet** for the current state. Changing either updates the other, and the choice persists in `settings.json`. |
-| Launch at login | Opt-in per OS: Windows `Run` registry key, macOS `LaunchAgents` plist. Requires a published build. |
-
-Also user-visible in the MVP build, and intentionally kept: the tray menu
-(Settings / Hide Pet / Pause / Reset timer / Stretch now / Quit), the pet's right-click
-menu (Settings / Stretch now), and the Settings character picker — which lists the
-built-in character plus any characters a user created before the editor was hidden.
-
-## Not MVP
-
-- Pixel editor
-- Character creator
-- Character editing
-- AI chat
-- Cloud sync
-- Accounts
-- Achievements
-- XP
-- Store
-- Multiplayer
-- Coding-agent integrations
-- General-purpose pixel-art tooling
-
-### Checked and deliberately excluded
-
-- **Snooze** — not implemented. The reminder window has one action, **I'm refreshed**,
-  which closes it. There is no snooze button, setting, or delayed re-fire. Do not
-  document it as existing.
-
-## Product Rules
-
-Before implementing any new feature, ask:
-
-1. Is this required to ship the current MVP?
-2. Has a real user requested it?
-
-If both answers are No, do not implement it.
-
-Further principles:
-
-- Development is a validation tool, not validation itself.
-- Prefer shipping and observing over expanding scope.
-- Do not improve the Pixel Editor during the MVP cycle.
-- Do not change the product's technology stack before first market validation unless
-  a release-blocking technical problem requires it.
+These are implementation descriptions, not blanket OS verification claims. See
+[verification](verification.md) for commands, recorded results, and untested behavior.
 
 ## Scope boundaries
 
-For anyone — human or agent — working inside the MVP cycle:
+The MVP has no user-facing pixel editor, character creation/editing/deletion,
+scheduled profile switching, meeting/full-screen detection, clinical exercise
+library, accounts, cloud sync, AI chat, achievements, XP, shop, multiplayer, or
+coding-agent integration. The routine library, manually applied work profiles and weekly review/export
+are implemented as a second-stage demo. This build has no payment locks. The proposed Free/Plus
+commercial boundary remains a hypothesis. [Personalization guide](personalization.md)
 
-- **The Pixel Editor code stays.** Its user-facing entry points are hidden (tray item
-  and the Settings Create / Edit / Delete buttons), but `AppRuntime.OpenEditor`,
-  `EditorWindow`, `PixelCanvas`, `EditorSession` and the Piskel codec are intact and
-  still covered by tests and the `--smoke-test` run. Removing them breaks the build
-  and the smoke test.
-- **`CharacterLibrary` is not editor-only.** Character playback reads the library, so
-  it must keep working regardless of what happens to the editor UI.
-- **`Sources/Unfold/Resources/Characters/**` is a live build input**, not legacy. The
-  C# project links those files in as `Assets/Characters` — the built-in Mochi comes
-  from there. The rest of the Swift tree is preserved reference and is not built by
-  the MVP.
-- **The pre-MVP state is preserved** on the `archive/editor-heavy` branch. Nothing has
-  to be deleted to keep the MVP small.
+The C# editor, pixel model, and Piskel codec remain because regression tests and
+`--smoke-test` exercise authoring/save/reopen behavior. They are not advertised as
+MVP features. Settings does not construct hidden Edit/Delete buttons.
 
-## Related documents
+`CharacterLibrary` and the image codecs are runtime dependencies: the app uses
+them to discover and play character packages, including existing user artwork.
+Removing editor entry points must not remove those packages or their loading path.
 
-- [Cross-platform guide](cross-platform.md) — data locations, packaging, performance, platform limits
-- [Legacy Swift README](legacy-swift.md) — the preserved macOS implementation
-- [Native pixel editor](native-pixel-editor.md) — describes the **Swift** editor, not
-  the C# one that ships (hidden) in this build
+`Assets/Characters/` is the live source of bundled assets. The C# project copies it
+to `Assets/Characters/` under build and publish output. The retired Swift source,
+tests, Xcode project, and Swift-only build workflow are recoverable from Git history;
+see the [archive index](archive/README.md).
+
+Resource production, provenance, clip contracts, and the read-only asset audit are
+defined in [pet resources](pet-resources.md). Existing Mochi exports retain their
+bytes; the audit flags its stretch transparency/canvas mismatch and missing optional
+reactions. Runtime compatibility is not a premium-art quality approval.
+
+## Change rules
+
+- Follow the user's current task and keep changes within its scope.
+- Prioritize release blockers and observed problems in the core loop.
+- Add features when required by the approved scope or supported by user evidence.
+- Do not expand the editor, add more characters, or change the technology stack as
+  incidental MVP work.
+- Distinguish code inspection, automated verification, OS observations, and product
+  demand. Record unperformed checks as unverified.
+- Archived plans and experiment-specific instructions do not authorize new work.
+
+Document roles and conflict handling are defined in the [documentation index](README.md).

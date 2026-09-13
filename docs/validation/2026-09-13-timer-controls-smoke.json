@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "startupMs": 1905.5852,
+  "totalMs": 9907.5369,
+  "workingSetBytes": 234569728,
+  "managedBytes": 78528392,
+  "oneCoreCpuPercent": 58.758280218092075,
+  "characters": 2,
+  "imageFiles": 14,
+  "completedBreaks": 1,
+  "simulatedSessionTiming": true,
+  "savedCustomRoutines": 2,
+  "workProfiles": 1,
+  "exportedBreaks": 1,
+  "simulatedExportDestination": true,
+  "timerResetWaitSeconds": 1.2,
+  "timerStopWaitSeconds": 1.2,
+  "timerControlsVerified": true,
+  "resetWhileOpening": true,
+  "idleSeconds": 2.0042128,
+  "os": "Unix 26.6.2",
+  "framework": "10.0.12"
+}
