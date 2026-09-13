@@ -48,10 +48,20 @@ public sealed class AppRuntime : IDisposable
         Library = new(Path.Combine(AppPaths.DataRoot, "Characters"));
         Library.Warning += message => AppPaths.Log(new IOException(message));
         try { Settings = AppSettings.Load(settingsFile); }
+<<<<<<< HEAD
         catch (Exception ex) when (ex is IOException or InvalidDataException or System.Text.Json.JsonException)
+=======
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Text.Json.JsonException or InvalidDataException)
+>>>>>>> 6da89eee87644cab6f3ff27383b181423a636163
         {
             AppPaths.Log(ex); Settings = new();
-            if (File.Exists(settingsFile)) File.Copy(settingsFile, settingsFile + $".invalid-{DateTime.UtcNow:yyyyMMddHHmmss}", true);
+            // Preserve the invalid file for inspection, but a failure to copy it (locked,
+            // read-only, out of disk space) must not stop startup from recovering.
+            if (File.Exists(settingsFile))
+            {
+                try { File.Copy(settingsFile, settingsFile + $".invalid-{DateTime.UtcNow:yyyyMMddHHmmss}", true); }
+                catch (Exception copyError) when (copyError is IOException or UnauthorizedAccessException) { AppPaths.Log(copyError); }
+            }
         }
         Routines = BreakRoutines.ForSettings(Settings);
         Clock = new(TimeSpan.FromMinutes(Settings.IntervalMinutes));
@@ -127,7 +137,8 @@ public sealed class AppRuntime : IDisposable
     public void SavePosition(Avalonia.PixelPoint position)
     {
         Settings = Settings with { PetX = position.X, PetY = position.Y };
-        try { Settings.Save(settingsFile); } catch (IOException error) { AppPaths.Log(error); }
+        try { Settings.Save(settingsFile); }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException) { AppPaths.Log(error); }
     }
     public Task<IReadOnlyList<AnimationFrame>> Clip(string key) => Clip(Selected, key);
     private Task<IReadOnlyList<AnimationFrame>> Clip(CharacterPackage? selected, string key)
@@ -142,9 +153,18 @@ public sealed class AppRuntime : IDisposable
     private async Task UpdatePet()
     {
         if (!Settings.ShowPet || Selected is null) { pet?.HidePet(); return; }
+<<<<<<< HEAD
         pet ??= new PetWindow(this);
         if (DiagnosticMode) PrepareDiagnosticWindow(pet);
         await pet.SetCharacter(); pet.ShowPet();
+=======
+        var current = pet ??= new PetWindow(this);
+        await current.SetCharacter();
+        // A concurrent hide or quit can complete while SetCharacter() is in flight
+        // (Dispose() nulls pet, another UpdatePet() call flips ShowPet off): re-check
+        // both before resurrecting a pet nobody asked for anymore.
+        if (pet == current && Settings.ShowPet) current.ShowPet();
+>>>>>>> 6da89eee87644cab6f3ff27383b181423a636163
     }
     public async Task OpenEditor(CharacterPackage? character = null)
     {
