@@ -9,6 +9,13 @@ internal static class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        if (args.Length > 0 && args[0] == "--pack-character")
+        {
+            if (args.Length != 4) { Console.Error.WriteLine("Usage: --pack-character <character-directory> <content-version> <new-output.unfoldpet>"); return 2; }
+            try { CharacterPack.Create(args[1], args[2], args[3]); Console.WriteLine("Pet pack created: " + Path.GetFullPath(args[3])); return 0; }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException or JsonException or ArgumentException)
+            { Console.Error.WriteLine(error.Message); return 1; }
+        }
         if (args.Length > 0 && args[0] == "--validate-characters")
         {
             if (args.Length > 2) { Console.Error.WriteLine("Usage: --validate-characters [directory]"); return 2; }

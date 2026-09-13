@@ -18,21 +18,20 @@ public sealed class AnimationView : Control, IDisposable
     private double totalMs;
     private bool loop;
     private int index;
-<<<<<<< HEAD
-=======
     // Whether playback is allowed to run: false while hidden (SetRunning(false))
     // or after Dispose(). A clip swap while paused must not override this, or a
     // stale async continuation (React/SetCharacter resolving after hide/close)
     // would resurrect the timer on a view nobody can see.
     private bool running = true;
     private bool disposed;
+    private bool completed;
     public event Action? Completed;
->>>>>>> 6da89eee87644cab6f3ff27383b181423a636163
+    private bool NeedsTimer => frames.Count > 0 && !completed && (!loop || frames.Count > 1);
     public AnimationView()
     {
         RenderOptions.SetBitmapInterpolationMode(this, BitmapInterpolationMode.None);
         timer.Tick += (_, _) => Advance();
-        AttachedToVisualTree += (_, _) => { if (running && frames.Count > 1) { elapsed.Start(); timer.Start(); } };
+        AttachedToVisualTree += (_, _) => { if (running && NeedsTimer) { elapsed.Start(); timer.Start(); } };
         DetachedFromVisualTree += (_, _) => { elapsed.Stop(); timer.Stop(); };
     }
     public void SetFrames(IReadOnlyList<AnimationFrame> clip, bool repeat, bool pixel = true)
@@ -40,10 +39,10 @@ public sealed class AnimationView : Control, IDisposable
         if (disposed) return;
         timer.Stop(); foreach (var bitmap in bitmaps) bitmap.Dispose();
         frames = clip; bitmaps = frames.Select(f => Ui.Bitmap(f.Image)).ToArray(); loop = repeat;
-        totalMs = frames.Sum(f => f.Duration.TotalMilliseconds); index = 0;
+        totalMs = frames.Sum(f => f.Duration.TotalMilliseconds); index = 0; completed = false;
         RenderOptions.SetBitmapInterpolationMode(this, pixel ? BitmapInterpolationMode.None : BitmapInterpolationMode.HighQuality);
         timer.Interval = frames.Count > 0 ? frames[0].Duration : TimeSpan.FromMilliseconds(100);
-        if (running) { elapsed.Restart(); if (HasTopLevel() && frames.Count > 1) timer.Start(); } else elapsed.Reset();
+        if (running) { elapsed.Restart(); if (HasTopLevel() && NeedsTimer) timer.Start(); } else elapsed.Reset();
         InvalidateVisual();
     }
     private bool HasTopLevel() => TopLevel.GetTopLevel(this) is not null;
@@ -51,14 +50,19 @@ public sealed class AnimationView : Control, IDisposable
     {
         if (disposed) return;
         running = value;
-        if (running) { elapsed.Start(); if (frames.Count > 1) timer.Start(); }
+        if (running && NeedsTimer && HasTopLevel()) { elapsed.Start(); timer.Start(); }
         else { elapsed.Stop(); timer.Stop(); }
     }
     private void Advance()
     {
         if (frames.Count == 0 || totalMs <= 0) return;
         var ms = elapsed.Elapsed.TotalMilliseconds;
-        if (!loop && ms >= totalMs) { index = frames.Count - 1; timer.Stop(); InvalidateVisual(); return; }
+        if (!loop && ms >= totalMs)
+        {
+            index = frames.Count - 1; timer.Stop(); elapsed.Stop(); InvalidateVisual();
+            if (!completed) { completed = true; Completed?.Invoke(); }
+            return;
+        }
         ms %= totalMs; var next = 0;
         while (next < frames.Count - 1 && ms >= frames[next].Duration.TotalMilliseconds) ms -= frames[next++].Duration.TotalMilliseconds;
         timer.Interval = TimeSpan.FromMilliseconds(Math.Max(5, frames[next].Duration.TotalMilliseconds - ms));

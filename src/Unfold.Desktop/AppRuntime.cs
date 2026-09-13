@@ -45,14 +45,11 @@ public sealed class AppRuntime : IDisposable
     public AppRuntime(IClassicDesktopStyleApplicationLifetime desktop)
     {
         this.desktop = desktop;
-        Library = new(Path.Combine(AppPaths.DataRoot, "Characters"));
+        Library = new(Path.Combine(AppPaths.DataRoot, "Characters"), Directory.Exists(AppPaths.BuiltInRoot)
+            ? Directory.EnumerateDirectories(AppPaths.BuiltInRoot).Select(path => Path.GetFileName(path)) : ["default-cat"]);
         Library.Warning += message => AppPaths.Log(new IOException(message));
         try { Settings = AppSettings.Load(settingsFile); }
-<<<<<<< HEAD
-        catch (Exception ex) when (ex is IOException or InvalidDataException or System.Text.Json.JsonException)
-=======
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Text.Json.JsonException or InvalidDataException)
->>>>>>> 6da89eee87644cab6f3ff27383b181423a636163
         {
             AppPaths.Log(ex); Settings = new();
             // Preserve the invalid file for inspection, but a failure to copy it (locked,
@@ -101,6 +98,10 @@ public sealed class AppRuntime : IDisposable
     public async Task Reload()
     {
         var users = await Task.Run(() => Library.List()); Characters = builtIns.Concat(users).ToArray(); clips.Clear(); Changed?.Invoke();
+    }
+    public async Task SelectInstalledCharacter(CharacterPackage character)
+    {
+        await Reload(); await UpdateSettings(Settings with { SelectedCharacterId = character.Manifest.Id });
     }
     private void Tick()
     {
@@ -153,18 +154,13 @@ public sealed class AppRuntime : IDisposable
     private async Task UpdatePet()
     {
         if (!Settings.ShowPet || Selected is null) { pet?.HidePet(); return; }
-<<<<<<< HEAD
-        pet ??= new PetWindow(this);
-        if (DiagnosticMode) PrepareDiagnosticWindow(pet);
-        await pet.SetCharacter(); pet.ShowPet();
-=======
         var current = pet ??= new PetWindow(this);
+        if (DiagnosticMode) PrepareDiagnosticWindow(current);
         await current.SetCharacter();
         // A concurrent hide or quit can complete while SetCharacter() is in flight
         // (Dispose() nulls pet, another UpdatePet() call flips ShowPet off): re-check
         // both before resurrecting a pet nobody asked for anymore.
         if (pet == current && Settings.ShowPet) current.ShowPet();
->>>>>>> 6da89eee87644cab6f3ff27383b181423a636163
     }
     public async Task OpenEditor(CharacterPackage? character = null)
     {

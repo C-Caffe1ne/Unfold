@@ -31,6 +31,7 @@ Closing Settings keeps Unfold running. Use **Quit Unfold** in the tray menu to e
 - A library of up to 20 personal routines with your own prompts and timings.
 - Up to 10 work profiles combining a routine, reminder interval, and away threshold; apply them manually.
 - Today's confirmed breaks, seven-day reviews, and local CSV export.
+- Local pet packs: preview animations, install, update, and reinstall from a saved `.unfoldpet` file.
 - A 5–240 minute timer with immediately saved interval changes and icon controls for Pause/Resume, Stop, and Reset.
 - Reset restores the configured interval and waits for Play; Stop clears the current countdown to 00:00.
 - An in-app reminder window and Windows/macOS system notification adapters.
@@ -44,6 +45,7 @@ The pixel editor is retained for diagnostics and regression tests. It has no
 user-facing entry point in this MVP. See [MVP scope](docs/mvp.md) for the full boundary.
 The personalization demo has no payment or entitlement checks. See the
 [routine, profile, and review guide](docs/personalization.md) for usage and compatibility.
+The [pet pack guide](docs/pet-packs.md) explains local installation and recovery. No store or purchase recovery is included.
 
 ## Build and verify
 

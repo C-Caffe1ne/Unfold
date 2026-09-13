@@ -56,8 +56,8 @@ public class SettingsUiTests
     // reproduce a real decode failure. A GIF-backed "idle" animation has no such cache -
     // LoadAnimation re-reads and re-decodes the GIF file on every call - so this builds
     // one by hand to get a load failure that is genuinely tied to the file's contents.
-    private static readonly byte[] SampleGif = File.ReadAllBytes(Path.GetFullPath(
-        Path.Combine(AppContext.BaseDirectory, "../../../../../Sources/Unfold/Resources/Characters/default-cat/stretch.gif")));
+    private static readonly byte[] SampleGif = File.ReadAllBytes(
+        Path.Combine(AppContext.BaseDirectory, "Assets", "Characters", "default-cat", "stretch.gif"));
 
     private static async Task<CharacterPackage> AddGifCharacter(AppRuntime runtime, string name)
     {
@@ -99,6 +99,23 @@ public class SettingsUiTests
 
     private static readonly Point Center = new(60, 60);
 
+    // Replacing a read-only file is allowed on Unix. A directory at the destination
+    // makes AtomicFile.Write fail on both platforms without changing permissions.
+    private static IDisposable BlockSettingsSave(string file)
+    {
+        File.Move(file, file + ".saved"); Directory.CreateDirectory(file);
+        return new RestoreSettings(file);
+    }
+    private sealed class RestoreSettings(string file) : IDisposable
+    {
+        private bool restored;
+        public void Dispose()
+        {
+            if (restored) return;
+            Directory.Delete(file); File.Move(file + ".saved", file); restored = true;
+        }
+    }
+
     [AvaloniaFact]
     public void TitleDoesNotAdvertiseTheHiddenCharacterCreator()
     {
@@ -112,20 +129,20 @@ public class SettingsUiTests
     {
         using var fixture = new Fixture(); var runtime = fixture.Runtime;
         await AddCharacter(runtime, "Rex", opaque: false);
-        await runtime.UpdateSettings(runtime.Settings); // ensure settings.json exists before we lock it
+        await runtime.UpdateSettings(runtime.Settings);
         var window = new SettingsWindow(runtime); window.Show(); Dispatcher.UIThread.RunJobs();
         var showPet = Control<CheckBox>(window, c => Equals(c.Content, "Show desktop pet"));
         Assert.True(showPet.IsChecked);
 
         var settingsFile = Path.Combine(AppPaths.DataRoot, "settings.json");
-        File.SetAttributes(settingsFile, FileAttributes.ReadOnly);
+        using var blockedSave = BlockSettingsSave(settingsFile);
         try
         {
             showPet.IsChecked = false;
             (await Dialog(window)).Close();
             await Settle();
         }
-        finally { File.SetAttributes(settingsFile, FileAttributes.Normal); }
+        finally { blockedSave.Dispose(); }
 
         Assert.True(showPet.IsChecked);
         Assert.True(runtime.Settings.ShowPet);
@@ -144,18 +161,18 @@ public class SettingsUiTests
         var second = runtime.Characters.Single(c => c.Manifest.Id == secondId);
         await runtime.UpdateSettings(runtime.Settings with { SelectedCharacterId = first.Manifest.Id });
         var window = new SettingsWindow(runtime); window.Show(); Dispatcher.UIThread.RunJobs();
-        var characters = Control<ComboBox>(window, _ => true);
+        var characters = Control<ComboBox>(window, combo => combo.Name == "CharacterPicker");
         Assert.Equal(first, characters.SelectedItem);
 
         var settingsFile = Path.Combine(AppPaths.DataRoot, "settings.json");
-        File.SetAttributes(settingsFile, FileAttributes.ReadOnly);
+        using var blockedSave = BlockSettingsSave(settingsFile);
         try
         {
             characters.SelectedItem = second;
             (await Dialog(window)).Close();
             await Settle();
         }
-        finally { File.SetAttributes(settingsFile, FileAttributes.Normal); }
+        finally { blockedSave.Dispose(); }
 
         Assert.Equal(first, characters.SelectedItem);
         Assert.Equal(first.Manifest.Id, runtime.Settings.SelectedCharacterId);

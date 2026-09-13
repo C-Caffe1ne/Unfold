@@ -36,7 +36,7 @@ public static class CharacterAssetAudit
         if (characters.Count == 0) errors.Add("No character packages found.");
         return new(characters, errors);
     }
-    private static CharacterAudit InspectPackage(string directory)
+    public static CharacterAudit InspectPackage(string directory)
     {
         var clips = new List<CharacterClipAudit>(); var files = new List<CharacterFileAudit>();
         var errors = new List<string>(); var warnings = new List<string>();

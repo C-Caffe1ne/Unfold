@@ -126,6 +126,7 @@ internal static class SmokeDiagnostics
             Press(settings, "TimerReset"); await pendingReminder;
             if (runtime.ActiveReminder is not null || !runtime.Clock.Paused) throw new InvalidOperationException("A reminder survived Reset.");
             editor.CloseAfterApproval();
+            await VerifyPetPacks(runtime, saved, directory);
             runtime.HideSettingsForDiagnostics();
             await runtime.UpdateSettings(runtime.Settings with { SelectedCharacterId = "default-cat", ShowPet = true });
             await Task.Delay(1000);
@@ -139,6 +140,7 @@ internal static class SmokeDiagnostics
                 savedCustomRoutines = runtime.Settings.AdditionalRoutines.Count + (runtime.Settings.CustomRoutine is null ? 0 : 1),
                 workProfiles = runtime.Settings.WorkProfiles.Count, exportedBreaks = 1, simulatedExportDestination = true,
                 timerResetWaitSeconds = 1.2, timerStopWaitSeconds = 1.2, timerControlsVerified = true, resetWhileOpening,
+                petPackInstallUpdateRepairVerified = true, simulatedPackPicker = true,
                 idleSeconds = PlatformServices.IdleTime().TotalSeconds, os = Environment.OSVersion.ToString(), framework = Environment.Version.ToString() };
             AtomicFile.Write(Path.Combine(directory, "smoke.json"), JsonSerializer.SerializeToUtf8Bytes(report, CharacterLibrary.JsonOptions));
             await runtime.Quit();
@@ -148,6 +150,52 @@ internal static class SmokeDiagnostics
             AtomicFile.Write(Path.Combine(directory, "smoke.json"), JsonSerializer.SerializeToUtf8Bytes(new { success = false, error = error.ToString() }, CharacterLibrary.JsonOptions));
             AppPaths.Log(error); runtime.Dispose(); desktop.Shutdown(1);
         }
+    }
+    private static async Task VerifyPetPacks(AppRuntime runtime, CharacterPackage fixture, string directory)
+    {
+        var source = Path.Combine(AppPaths.DataRoot, "pack-source", "diagnostic-pack"); Directory.CreateDirectory(source);
+        File.Copy(Path.Combine(fixture.DirectoryPath, "spritesheet.png"), Path.Combine(source, "spritesheet.png"));
+        var manifest = fixture.Manifest with { Id = "diagnostic-pack", Name = "Diagnostic companion", Animations = new(fixture.Manifest.Animations) };
+        foreach (var key in new[] { "attention", "stretch", "celebrate", "click" }) manifest.Animations[key] = new([0], 8, Loop: false);
+        AtomicFile.Write(Path.Combine(source, "character.json"), JsonSerializer.SerializeToUtf8Bytes(manifest, CharacterLibrary.JsonOptions));
+        var first = Path.Combine(AppPaths.DataRoot, "diagnostic-v1.unfoldpet");
+        var second = Path.Combine(AppPaths.DataRoot, "diagnostic-v2.unfoldpet");
+        await Task.Run(() => { CharacterPack.Create(source, "1.0.0", first); CharacterPack.Create(source, "1.1.0", second); });
+        var selectedFile = first;
+        var window = new PetPackWindow(runtime.Library, runtime.SelectInstalledCharacter, () => Task.FromResult<string?>(selectedFile));
+        AppRuntime.PrepareDiagnosticWindow(window); window.Show();
+        Button InstallButton() => window.GetVisualDescendants().OfType<Button>().Single(button => button.Name == "InstallPetPack");
+        try
+        {
+            Press(window, "OpenPetPack"); await Until(() => InstallButton().IsEnabled);
+            if (runtime.Characters.Any(character => character.Manifest.Id == manifest.Id)) throw new InvalidOperationException("Preview installed a companion without confirmation.");
+            Capture(window, Path.Combine(directory, "pack-preview.png"));
+            Press(window, "InstallPetPack"); await Until(() => Equals(InstallButton().Content, "Installed"));
+            if (runtime.Selected?.Manifest.Id != manifest.Id) throw new InvalidOperationException("Installed companion was not selected.");
+            Capture(window, Path.Combine(directory, "pack-installed.png"));
+            selectedFile = second; Press(window, "OpenPetPack"); await Until(() => InstallButton().IsEnabled);
+            if (!Equals(InstallButton().Content, "Update")) throw new InvalidOperationException("New pack version was not recognized.");
+            Capture(window, Path.Combine(directory, "pack-update.png"));
+            Press(window, "InstallPetPack"); await Until(() => Equals(InstallButton().Content, "Installed"));
+            var sheet = Path.Combine(runtime.Library.PackagePath(manifest.Id), "spritesheet.png"); File.WriteAllText(sheet, "diagnostic corruption");
+            Press(window, "OpenPetPack"); await Until(() => InstallButton().IsEnabled);
+            if (!Equals(InstallButton().Content, "Reinstall")) throw new InvalidOperationException("Repair was not offered for the installed version.");
+            Capture(window, Path.Combine(directory, "pack-reinstall.png"));
+            Press(window, "InstallPetPack"); await Until(() => Equals(InstallButton().Content, "Installed"));
+            if (!File.ReadAllBytes(sheet).SequenceEqual(File.ReadAllBytes(Path.Combine(source, "spritesheet.png"))))
+                throw new InvalidOperationException("Reinstall did not restore the companion's image.");
+            selectedFile = Path.Combine(AppPaths.DataRoot, "broken.unfoldpet"); File.WriteAllText(selectedFile, "not a zip");
+            Press(window, "OpenPetPack"); await Until(() => window.GetVisualDescendants().OfType<Button>().Single(button => button.Name == "OpenPetPack").IsEnabled);
+            if (InstallButton().IsEnabled || !runtime.Clock.Paused) throw new InvalidOperationException("Invalid pack remained installable or installation resumed the timer.");
+            Capture(window, Path.Combine(directory, "pack-error.png"));
+            _ = CharacterLibrary.LoadPackage(runtime.Library.PackagePath(manifest.Id)).LoadAnimation("idle");
+        }
+        finally { window.Close(); }
+    }
+    private static async Task Until(Func<bool> ready)
+    {
+        for (var attempt = 0; attempt < 400 && !ready(); attempt++) await Task.Delay(25);
+        if (!ready()) throw new TimeoutException("Pet pack diagnostic did not finish.");
     }
     private static void Press(Window window, string label)
     {

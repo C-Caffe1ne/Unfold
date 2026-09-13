@@ -44,12 +44,17 @@ public sealed class CharacterPackage
     }
 }
 
-public sealed class CharacterLibrary
+public sealed partial class CharacterLibrary
 {
     public static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web) { WriteIndented = true, MaxDepth = 32 };
     public string Root { get; }
     public event Action<string>? Warning;
-    public CharacterLibrary(string root) { Root = Path.GetFullPath(root); Directory.CreateDirectory(Root); }
+    private readonly HashSet<string> protectedIds;
+    public CharacterLibrary(string root, IEnumerable<string>? protectedIds = null)
+    {
+        Root = Path.GetFullPath(root); Directory.CreateDirectory(Root);
+        this.protectedIds = new(protectedIds ?? [], StringComparer.OrdinalIgnoreCase);
+    }
     public static bool SafeId(string? id) => id is { Length: > 0 and <= 128 } && id.All(c => char.IsAsciiLetterOrDigit(c) || c is '-' or '_');
     public string PackagePath(string id) => SafeId(id) ? Path.Combine(Root, id) : throw new InvalidDataException("Invalid character ID.");
     public static string AssetPath(string directory, string relative)
@@ -99,7 +104,8 @@ public sealed class CharacterLibrary
         {
             var id = Path.GetFileName(directory); if (!SafeId(id)) continue;
             try { var item = LoadPackage(directory); if (item.Manifest.Id != id) throw new InvalidDataException("Package ID differs from directory."); results.Add(item); }
-            catch (Exception ex) when (ex is IOException or JsonException or ArgumentException) { Warning?.Invoke($"Skipped {id}: {ex.Message}"); }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException or JsonException or ArgumentException)
+            { Warning?.Invoke($"Skipped {id}: {ex.Message}"); }
         }
         return results;
     }

@@ -89,4 +89,20 @@ public class AnimationLifecycleTests
         }
         Assert.True(completed);
     }
+
+    [AvaloniaFact]
+    public async Task SingleFrameOneShotCompletesOnceAndDoesNotRestartAfterResume()
+    {
+        var view = new AnimationView(); using var host = Host(view);
+        var completed = 0; view.Completed += () => completed++;
+        view.SetFrames(Clip(1, TimeSpan.FromMilliseconds(20)), false);
+        for (var i = 0; i < 50 && completed == 0; i++)
+        {
+            await Task.Delay(20, TestContext.Current.CancellationToken); Dispatcher.UIThread.RunJobs();
+        }
+        Assert.Equal(1, completed); Assert.False(TimerEnabled(view));
+        view.SetRunning(false); view.SetRunning(true); Dispatcher.UIThread.RunJobs();
+        Assert.Equal(1, completed); Assert.False(TimerEnabled(view));
+        view.SetFrames(Clip(), true); Assert.True(TimerEnabled(view));
+    }
 }

@@ -13,6 +13,8 @@
 | [개발 계획](development-plan.md) | 구현 단계, 완료 조건과 후속 범위 |
 | [루틴·프로필·회고 사용 안내](personalization.md) | 여러 루틴, 수동 업무 프로필, 주간 회고/CSV와 기존 데이터 호환 |
 | [펫 리소스 관리](pet-resources.md) | 제작 원장, 런타임 계약, 품질 기준과 검사 명령 |
+| [로컬 펫 팩 설치](pet-packs.md) | 미리보기·설치·업데이트·재설치, ZIP/버전/해시 계약과 복구 |
+| [펫 팩 기반 검증](validation/2026-09-13-pet-packs.md) | 병합 충돌 복구, 설치 회귀 테스트와 macOS 진단 |
 | [플랫폼 안내](cross-platform.md) | 설치, 데이터 위치, C# 빌드·패키징, OS 제약. Windows 배포물에도 포함된다. |
 | [검증 안내](verification.md) | 자동 검사 명령, 검증 수준, 실제 OS 확인 범위와 기록 |
 | [휴식 기능 1차 검증](validation/2026-09-13-companion-stage1.md) | 루틴·완료 기록·펫 검사 구현, 56개 테스트와 macOS 진단 결과·한계 |
@@ -43,5 +45,6 @@
 변경하지 않았다. 이전 소스 조회 방법은 [보관 자료](archive/README.md)에 있다.
 
 C#에서 연결되지 않은 Edit/Delete 버튼과 삭제 처리, 사용하지 않는
-`StretchClock.ResumeFromSleep`, 구독자가 없는 `AnimationView.Completed`를 제거했다.
+`StretchClock.ResumeFromSleep`를 제거했다. 당시 제거했던 `AnimationView.Completed`는
+이후 병합된 재생 회귀 테스트와 펫 팩 반응 미리보기에서 사용하므로 복구했다.
 캐릭터 로딩·저장 호환성과 진단용 에디터는 기존 호출 경로와 테스트가 사용하므로 유지한다.

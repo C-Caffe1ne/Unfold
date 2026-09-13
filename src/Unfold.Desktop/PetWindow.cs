@@ -88,16 +88,8 @@ public sealed class PetWindow : Window
         catch (Exception error) { AppPaths.Log(error); }
     }
     public void ShowPet() { Show(); hitTimer.Start(); animation.SetRunning(true); }
-<<<<<<< HEAD
     public void HidePet() { generation++; character = null; Hide(); hitTimer.Stop(); animation.SetRunning(false); }
     public void ClosePet() { generation++; hitTimer.Stop(); Close(); }
-=======
-    public void HidePet() { Hide(); hitTimer.Stop(); animation.SetRunning(false); }
-    // Bumping generation stops a React()/SetCharacter() awaiting a clip load from calling
-    // back into the AnimationView once it is disposed (Closed below), which would otherwise
-    // resurrect playback on a closed pet.
-    public void ClosePet() { ++generation; hitTimer.Stop(); Close(); }
->>>>>>> 6da89eee87644cab6f3ff27383b181423a636163
     private void ClampPosition()
     {
         var screen = Screens.ScreenFromWindow(this) ?? Screens.Primary; if (screen is null) return;

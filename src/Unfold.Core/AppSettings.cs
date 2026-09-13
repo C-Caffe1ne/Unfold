@@ -18,10 +18,8 @@ public sealed partial record AppSettings
     public static AppSettings Load(string path)
     {
         if (!File.Exists(path)) return new();
-<<<<<<< HEAD
         var value = JsonSerializer.Deserialize<AppSettings>(ImageCodec.ReadBounded(path, 256 * 1024), CharacterLibrary.JsonOptions) ?? throw new InvalidDataException("Missing settings.");
-        if (value.IntervalMinutes is < 5 or > 240 || value.IdleMinutes is < 1 or > 60 || !CharacterLibrary.SafeId(value.SelectedCharacterId))
-            throw new InvalidDataException("Invalid settings values.");
+        Validate(value);
         if (value.CustomRoutine is { } custom)
         {
             try
@@ -39,10 +37,6 @@ public sealed partial record AppSettings
         if (value.ActiveProfileId is { } active && !value.WorkProfiles.Any(profile => profile.Id == active &&
             profile.IntervalMinutes == value.IntervalMinutes && profile.IdleMinutes == value.IdleMinutes && profile.RoutineId == value.BreakRoutineId))
             value = value with { ActiveProfileId = null };
-=======
-        var value = JsonSerializer.Deserialize<AppSettings>(ImageCodec.ReadBounded(path, 65536), CharacterLibrary.JsonOptions) ?? throw new InvalidDataException("Missing settings.");
-        Validate(value);
->>>>>>> 6da89eee87644cab6f3ff27383b181423a636163
         return value;
     }
     public void Save(string path)

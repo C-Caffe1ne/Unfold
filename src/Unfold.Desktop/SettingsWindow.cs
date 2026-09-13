@@ -11,7 +11,7 @@ public sealed class SettingsWindow : Window
 {
     private readonly AppRuntime runtime;
     private readonly TextBlock countdown = Ui.Text("60:00", 52, Ui.Accent), state = Ui.Text("Ready", 13);
-    private readonly ComboBox characters = new() { MinWidth = 260, HorizontalAlignment = HorizontalAlignment.Stretch };
+    private readonly ComboBox characters = new() { Name = "CharacterPicker", MinWidth = 260, HorizontalAlignment = HorizontalAlignment.Stretch };
     private readonly ComboBox routines = new() { HorizontalAlignment = HorizontalAlignment.Stretch };
     private readonly TextBlock today = Ui.Text("No breaks yet today", 16);
     private readonly TextBlock historyStatus = new() { FontSize = 12, TextWrapping = TextWrapping.Wrap, Foreground = Brushes.LightGray };
@@ -27,11 +27,7 @@ public sealed class SettingsWindow : Window
     private bool updating;
     public SettingsWindow(AppRuntime runtime)
     {
-<<<<<<< HEAD
         this.runtime = runtime; Title = "Unfold · Stretch Reminder"; Width = 600; Height = 850; MinWidth = 550; MinHeight = 600;
-=======
-        this.runtime = runtime; Title = "Unfold · Settings"; Width = 600; Height = 790; MinWidth = 550; MinHeight = 600;
->>>>>>> 6da89eee87644cab6f3ff27383b181423a636163
         Background = Ui.Background;
         interval = new NumericUpDown { Name = "ReminderInterval", Minimum = 5, Maximum = 240, Value = runtime.Settings.IntervalMinutes, Increment = 5, Width = 130, FormatString = "0" };
         idle = new NumericUpDown { Name = "ReminderIdle", Minimum = 1, Maximum = 60, Value = runtime.Settings.IdleMinutes, Increment = 1, Width = 130, FormatString = "0" };
@@ -108,6 +104,10 @@ public sealed class SettingsWindow : Window
                     var dialog = new BreakReviewWindow(runtime.BreakHistory.Review, () => runtime.BreakHistoryError); await dialog.ShowDialog(this);
                 })) },
             new Separator(), Ui.Text("YOUR COMPANION", 12, Ui.Accent), Ui.Row(preview, Ui.Column(characters)),
+            Ui.AsyncButton("Install pet pack…", async () =>
+            {
+                var dialog = new PetPackWindow(runtime.Library, runtime.SelectInstalledCharacter); await dialog.ShowDialog(this);
+            }),
             showPet, login, new Separator(), Ui.Row(Ui.Text("Closing this window keeps Unfold in the tray.", 12), Ui.AsyncButton("Quit", runtime.Quit)));
         Content = new ScrollViewer { Content = new Border { Padding = new Thickness(28), Child = body } };
         Closing += (_, e) => { e.Cancel = true; HideToTray(); };
@@ -129,18 +129,8 @@ public sealed class SettingsWindow : Window
     }
     private async void Refresh()
     {
-<<<<<<< HEAD
         if (updating) return; updating = true;
         CharacterPackage? loadPreview = null;
-=======
-        // `updating` only needs to span the synchronous block below, which suppresses the
-        // checkbox/combobox handlers while we set control values programmatically. Holding
-        // it across the await that follows used to make Refresh drop any Changed event that
-        // arrived while a clip was loading — including the once-a-second clock tick — so
-        // the countdown/status/checkbox/combobox sync below could silently go stale for as
-        // long as a preview clip was in flight.
-        updating = true;
->>>>>>> 6da89eee87644cab6f3ff27383b181423a636163
         try
         {
             countdown.Text = $"{(int)runtime.Clock.Remaining.TotalMinutes:00}:{runtime.Clock.Remaining.Seconds:00}";
@@ -168,7 +158,6 @@ public sealed class SettingsWindow : Window
             }
             if (!ReferenceEquals(characters.ItemsSource, runtime.Characters)) characters.ItemsSource = runtime.Characters;
             characters.SelectedItem = runtime.Selected;
-<<<<<<< HEAD
             if (runtime.Selected is { } selected && previewCharacter != selected)
             {
                 previewCharacter = selected; loadPreview = selected;
@@ -184,33 +173,6 @@ public sealed class SettingsWindow : Window
                 preview.SetFrames(frames, true, loadPreview.Manifest.RenderStyle == "pixel");
             if (!IsVisible) preview.SetRunning(false);
         }
-        catch (Exception error) { AppPaths.Log(error); state.Text = error.Message; }
-=======
-            edit.IsEnabled = delete.IsEnabled = runtime.Selected is { IsBuiltIn: false };
-        }
-        catch (Exception error) { AppPaths.Log(error); state.Text = error.Message; }
-        finally { updating = false; }
-        if (runtime.Selected is not { } selected || previewCharacter == selected) return;
-        // Latched immediately (not after the await): AppRuntime.Clip() caches a failed
-        // decode forever for a given character+key, so retrying the same still-selected
-        // identity on every subsequent Changed event (e.g. the clock tick, once a second)
-        // could never succeed anyway and would only re-log the same stale error endlessly.
-        // A character that actually gets fixed and reloaded arrives here as a new
-        // CharacterPackage instance (Reload()/SavedCharacter() always construct fresh
-        // ones), which compares unequal and is retried normally.
-        previewCharacter = selected;
-        try
-        {
-            var frames = await runtime.Clip("idle");
-            // The selection may have moved on again while this clip was loading; only the
-            // load that still matches the current selection is allowed to land.
-            if (runtime.Selected != selected) return;
-            preview.SetFrames(frames, true, selected.Manifest.RenderStyle == "pixel");
-            if (!IsVisible) preview.SetRunning(false);
-        }
-        // Kept out of the block above: a failed clip load must not stomp the countdown
-        // status text that block just set (the original bug shared one catch for both).
         catch (Exception error) { AppPaths.Log(error); }
->>>>>>> 6da89eee87644cab6f3ff27383b181423a636163
     }
 }

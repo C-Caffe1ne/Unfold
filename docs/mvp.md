@@ -42,6 +42,7 @@ observed. Those outcomes are not established by a passing build or animation tes
 | Optional reactions | Packages may supply `attention` on invitation, `celebrate` on confirmed completion, and `click`. Missing event clips leave the pet unchanged. Current Mochi does not supply these three. |
 | Hidden pet | Stays hidden and does not react to reminders; the reminder window still opens. |
 | Character picker | Lists bundled Mochi and valid characters already in the user's local library. |
+| Pet packs | Open a local .unfoldpet file, inspect animations/version, then install, update, or reinstall. Built-in and user-authored IDs are protected. Invalid packs and changed installed files are rejected before replacement. No purchase recovery or remote download. [Pack guide](pet-packs.md) |
 | Launch at login | Opt-in Windows registry/macOS LaunchAgent integration. Test it from a published app in its final location. |
 
 These are implementation descriptions, not blanket OS verification claims. See
