@@ -25,11 +25,13 @@ observed. Those outcomes are not established by a passing build or animation tes
 
 | Area | Current behavior |
 |---|---|
-| Timer | 5–240 minutes; valid whole-minute interval changes immediately save and update the countdown. Settings has labelled, keyboard-accessible icon buttons for Pause/Resume, Stop, and Reset. Idle threshold and routine selection still use Apply reminder settings. |
+| Language | Korean throughout the normal settings, break, personalization, review, pet-pack and tray flows. User names and saved history retain their original text. [Language scope](localization.md) |
+| Settings layout | A sidebar of shortcuts, a large companion preview and visible timer, and a scrollable column for reminder settings, routines and today's record. Default size 1120×800, minimum 860×680; resizing preserves unsaved input. [Dashboard guide](settings-ui.md) |
+| Timer | 5–240 minutes; valid whole-minute interval changes immediately save and update the countdown. Settings has labelled, keyboard-accessible icon buttons for Pause/Resume, Stop, and Reset. Idle threshold and routine selection still use **알림 설정 적용**. |
 | Timer controls | Pause keeps the remaining time. Stop clears the current countdown to 00:00. Reset restores the configured interval and pauses. Play resumes a paused countdown or starts a full interval after Stop. Stop/Reset dismiss an open or pending invitation without adding a completion. |
 | Activity | Idle threshold of 1–60 minutes. Idle time and large dispatcher/sleep gaps do not accrue work time. |
-| Reminder | A centered invitation with **Start**, **In 5 minutes**, and **Skip this break**. Starting runs the selected timed routine; **I'm refreshed** becomes available when it reaches the end. OS notification delivery is attempted independently. |
-| Routines | Small reset (60 seconds), Look away (20 seconds), and Room to move (90 seconds). The routine and companion are captured when the invitation opens. They are gentle prompts, not measured exercise or medical advice. |
+| Reminder | A centered invitation with **휴식 시작**, **5분 뒤에**, and **이번 휴식 건너뛰기**. Starting runs the selected timed routine; **잘 쉬었어요** becomes available when it reaches the end. OS notification delivery is attempted independently. |
+| Routines | 잠깐의 여유 (60 seconds), 눈 쉬어 주기 (20 seconds), and 몸 풀어 주기 (90 seconds). The routine and companion are captured when the invitation opens. They are gentle prompts, not measured exercise or medical advice. |
 | Routine library | Edit and save up to 20 custom routines with 1–3 prompts, 1–300 seconds per prompt and a maximum of 600 seconds total. The original personal slot is preserved alongside 19 additional routines. Saving selects the routine for future invitations; an already-open session keeps its original steps. Built-ins cannot be edited or removed. Profile references must be changed before deleting a routine. |
 | Work profiles | Save up to 10 named combinations of routine, reminder interval, and away threshold. Apply manually. A different profile or interval loads a new work interval while preserving Pause; a stopped countdown remains at 00:00 until Play or Reset. An open session retains its original routine/profile context. No automatic schedule or meeting detection is included. |
 | Manual reminder | Stretch now has been removed from Settings, the tray menu, and the pet menu. Normal invitations come from the automatic timer. The shared reminder method remains available to internal diagnostics. |
@@ -42,7 +44,7 @@ observed. Those outcomes are not established by a passing build or animation tes
 | Optional reactions | Packages may supply `attention` on invitation, `celebrate` on confirmed completion, and `click`. Missing event clips leave the pet unchanged. Current Mochi does not supply these three. |
 | Hidden pet | Stays hidden and does not react to reminders; the reminder window still opens. |
 | Character picker | Lists bundled Mochi and valid characters already in the user's local library. |
-| Pet packs | Open a local .unfoldpet file, inspect animations/version, then install, update, or reinstall. Built-in and user-authored IDs are protected. Invalid packs and changed installed files are rejected before replacement. No purchase recovery or remote download. [Pack guide](pet-packs.md) |
+| Pet packs | Open a local .unfoldpet file, inspect animations/version with light/dark backgrounds, 100–200% preview size, Pause/Resume and Replay, then install, update, or reinstall. Built-in and user-authored IDs are protected. Invalid packs and changed installed files are rejected before replacement. No purchase recovery or remote download. [Pack guide](pet-packs.md) |
 | Launch at login | Opt-in Windows registry/macOS LaunchAgent integration. Test it from a published app in its final location. |
 
 These are implementation descriptions, not blanket OS verification claims. See
@@ -74,6 +76,9 @@ Resource production, provenance, clip contracts, and the read-only asset audit a
 defined in [pet resources](pet-resources.md). Existing Mochi exports retain their
 bytes; the audit flags its stretch transparency/canvas mismatch and missing optional
 reactions. Runtime compatibility is not a premium-art quality approval.
+The separately installable [Bori 0.1.0 candidate](../Art/Characters/bori-rabbit/README.md)
+supplies all five reactions. It is excluded from bundled assets and still needs final
+art and commercial-rights review.
 
 ## Change rules
 

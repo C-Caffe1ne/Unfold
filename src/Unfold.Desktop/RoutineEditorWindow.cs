@@ -11,29 +11,27 @@ public sealed class RoutineEditorWindow : Window
 {
     public RoutineEditorWindow(BreakRoutine? existing, Func<BreakRoutine, Task> save, string? routineId = null)
     {
-        Title = "Make your own break · Unfold"; Width = 500; Height = 640; CanResize = false;
+        Title = "내 휴식 만들기 · Unfold"; Width = 500; Height = 700; CanResize = false;
         Background = Ui.Background; WindowStartupLocation = WindowStartupLocation.CenterOwner;
         var routine = existing ?? BreakRoutines.All[0];
         var id = existing?.Id ?? routineId ?? BreakRoutines.CustomId;
-        var name = new TextBox { Name = "RoutineName", Text = existing?.Name ?? "My reset", MaxLength = 60 };
-        AutomationProperties.SetName(name, "Routine name");
+        var name = new TextBox { Name = "RoutineName", Text = existing?.Name ?? "나만의 휴식", MaxLength = 60 };
+        AutomationProperties.SetName(name, "루틴 이름");
         var instructions = new TextBox[3]; var durations = new NumericUpDown[3];
-        var body = Ui.Column(Ui.Text("A break that fits you.", 24, Ui.Accent),
-            Ui.Text("Give yourself up to three simple prompts.", 14), Ui.Text("NAME", 12), name);
+        var body = Ui.Column(Ui.Field("루틴 이름", name));
         for (var index = 0; index < 3; index++)
         {
             var step = routine.Steps.ElementAtOrDefault(index);
-            instructions[index] = new TextBox { Name = $"Step{index + 1}", Text = step?.Instruction ?? "", MaxLength = 180, PlaceholderText = "Leave blank to omit this step" };
+            instructions[index] = new TextBox { Name = $"Step{index + 1}", Text = step?.Instruction ?? "", MaxLength = 180, PlaceholderText = "비워 두면 이 단계는 제외돼요" };
             durations[index] = new NumericUpDown { Name = $"Seconds{index + 1}", Minimum = 1, Maximum = 300, Value = step?.Seconds ?? 20,
                 Increment = 5, FormatString = "0", Width = 125 };
-            AutomationProperties.SetName(instructions[index], $"Step {index + 1} prompt");
-            AutomationProperties.SetName(durations[index], $"Step {index + 1} seconds");
-            body.Children.Add(Ui.Column(Ui.Row(Ui.Text($"STEP {index + 1}", 12), durations[index], Ui.Text("seconds", 12)), instructions[index]));
+            AutomationProperties.SetName(instructions[index], $"{index + 1}단계 안내");
+            AutomationProperties.SetName(durations[index], $"{index + 1}단계 시간, 초 단위");
+            body.Children.Add(Ui.Card(Ui.Column(Ui.Row(Ui.Caption($"{index + 1}단계"), durations[index], Ui.Caption("초")), instructions[index])));
         }
-        var error = new TextBlock { Foreground = Brushes.LightSalmon, TextWrapping = TextWrapping.Wrap, IsVisible = false };
-        body.Children.Add(error);
-        var cancel = Ui.Button("Cancel", Close); cancel.IsCancel = true;
-        var saveButton = Ui.AsyncButton("Save my routine", async () =>
+        var error = new TextBlock { Name = "RoutineError", Foreground = DesignSystem.Error, TextWrapping = TextWrapping.Wrap, IsVisible = false };
+        var cancel = Ui.Button("취소", Close); cancel.IsCancel = true;
+        var saveButton = Ui.AsyncButton("내 루틴 저장", async () =>
         {
             try
             {
@@ -44,14 +42,13 @@ public sealed class RoutineEditorWindow : Window
             }
             catch (Exception exception) when (exception is ArgumentException or IOException or UnauthorizedAccessException)
             {
-                error.Text = exception is ArgumentException ? exception.Message : "Could not save your routine. Please try again.";
+                error.Text = exception is ArgumentException ? exception.Message : "루틴을 저장하지 못했어요. 다시 시도해 주세요.";
                 error.IsVisible = true;
             }
         });
-        saveButton.IsDefault = true;
-        var actions = Ui.Row(cancel, saveButton);
-        actions.HorizontalAlignment = HorizontalAlignment.Right; body.Children.Add(actions);
-        Content = new ScrollViewer { Content = new Border { Padding = new Thickness(24), Child = body } };
+        saveButton.IsDefault = true; Ui.Primary(saveButton); Ui.Quiet(cancel);
+        Content = Ui.Page(this, "나에게 맞는 휴식을 만들어요.", "간단한 안내를 최대 3단계로 적어 보세요.",
+            body, Ui.Column(error, Ui.Actions(cancel, saveButton)), "내 루틴");
         Opened += (_, _) => { name.Focus(); name.SelectAll(); };
     }
 }

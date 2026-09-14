@@ -27,7 +27,7 @@ internal static class NativeReminder
             if (OperatingSystem.IsWindows() && owner.TryGetPlatformHandle()?.Handle is nint hwnd)
             {
                 var data = new NotifyData { Size = (uint)Marshal.SizeOf<NotifyData>(), Window = hwnd, Id = 17, Flags = 2 | 4 | 16,
-                    Icon = LoadIcon(0, 32516), Tip = "Unfold", Title = "Time to stretch", Info = "Stand up, stretch, and rest your eyes.", InfoFlags = 1, Timeout = 10000 };
+                    Icon = LoadIcon(0, 32516), Tip = "Unfold", Title = "잠깐 쉬어 갈 시간이에요", Info = "몸을 가볍게 움직이고 눈도 쉬어 주세요.", InfoFlags = 1, Timeout = 10000 };
                 if (Shell_NotifyIconW(0, ref data))
                 {
                     var cleanup = new DispatcherTimer { Interval = TimeSpan.FromSeconds(12) };
@@ -38,7 +38,7 @@ internal static class NativeReminder
             else if (OperatingSystem.IsMacOS())
             {
                 var start = new ProcessStartInfo("/usr/bin/osascript") { UseShellExecute = false, CreateNoWindow = true };
-                start.ArgumentList.Add("-e"); start.ArgumentList.Add("display notification \"Stand up, stretch, and rest your eyes.\" with title \"Unfold\"");
+                start.ArgumentList.Add("-e"); start.ArgumentList.Add("display notification \"몸을 가볍게 움직이고 눈도 쉬어 주세요.\" with title \"Unfold\"");
                 using var process = Process.Start(start);
             }
         }

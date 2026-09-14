@@ -4,13 +4,13 @@ public sealed record BreakStep(string Instruction, int Seconds);
 public sealed record BreakRoutine(string Id, string Name, IReadOnlyList<BreakStep> Steps)
 {
     public int DurationSeconds => Steps.Sum(step => step.Seconds);
-    public override string ToString() => $"{Name} · {DurationSeconds}s";
+    public override string ToString() => $"{Name} · {DurationSeconds}초";
     public void Validate()
     {
         if (!CharacterLibrary.SafeId(Id) || string.IsNullOrWhiteSpace(Name) || Name.Length > 60 || Steps is null ||
             Steps.Count is < 1 or > 12 || Steps.Any(step => step is null || step.Seconds is < 1 or > 300 ||
                 string.IsNullOrWhiteSpace(step.Instruction) || step.Instruction.Length > 180) || DurationSeconds > 600)
-            throw new ArgumentException("Use a name, 1–12 short steps, and a total time of at most 10 minutes.");
+            throw new ArgumentException("이름과 단계별 안내를 입력해 주세요. 각 단계는 1~300초, 전체 시간은 10분 이내여야 해요.");
     }
 }
 
@@ -20,21 +20,21 @@ public static class BreakRoutines
     public const string CustomId = "my-routine";
     public static IReadOnlyList<BreakRoutine> All { get; } = Array.AsReadOnly(new[]
     {
-        new BreakRoutine(DefaultId, "Small reset", Array.AsReadOnly(new[]
+        new BreakRoutine(DefaultId, "잠깐의 여유", Array.AsReadOnly(new[]
         {
-            new BreakStep("Let go of the mouse and relax your shoulders.", 20),
-            new BreakStep("Look away from the screen and take an easy breath.", 20),
-            new BreakStep("Move gently in a way that feels comfortable.", 20)
+            new BreakStep("마우스에서 손을 떼고 어깨의 힘을 풀어 보세요.", 20),
+            new BreakStep("화면에서 눈을 떼고 편안하게 숨을 쉬어 보세요.", 20),
+            new BreakStep("편안한 범위에서 몸을 가볍게 움직여 보세요.", 20)
         })),
-        new BreakRoutine("look-away", "Look away", Array.AsReadOnly(new[]
+        new BreakRoutine("look-away", "눈 쉬어 주기", Array.AsReadOnly(new[]
         {
-            new BreakStep("Let your eyes wander away from the screen.", 20)
+            new BreakStep("화면에서 벗어나 다른 곳을 바라보세요.", 20)
         })),
-        new BreakRoutine("room-to-move", "Room to move", Array.AsReadOnly(new[]
+        new BreakRoutine("room-to-move", "몸 풀어 주기", Array.AsReadOnly(new[]
         {
-            new BreakStep("Set your work aside for a moment.", 30),
-            new BreakStep("Stand up or change position if that feels comfortable.", 30),
-            new BreakStep("Take your time before returning to work.", 30)
+            new BreakStep("하던 일을 잠시 내려놓아 보세요.", 30),
+            new BreakStep("편하다면 일어나거나 자세를 바꿔 보세요.", 30),
+            new BreakStep("충분히 쉬고 천천히 작업으로 돌아가세요.", 30)
         }))
     });
     public static BreakRoutine? Find(string id) => All.FirstOrDefault(routine => routine.Id == id);

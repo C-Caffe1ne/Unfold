@@ -97,9 +97,9 @@ public class TimerControlTests
             Assert.True(position.Y >= 0 && position.Y + button.Bounds.Height <= scope.Window.ClientSize.Height);
         }
         Press(scope.Window, "TimerToggle"); Assert.True(scope.Runtime.Clock.Paused);
-        Assert.Equal("Resume timer", AutomationProperties.GetName(Button(scope.Window, "TimerToggle")));
+        Assert.Equal("타이머 계속", AutomationProperties.GetName(Button(scope.Window, "TimerToggle")));
         Press(scope.Window, "TimerStop"); Assert.True(scope.Runtime.Clock.Stopped);
-        Assert.Equal("Start timer", AutomationProperties.GetName(Button(scope.Window, "TimerToggle")));
+        Assert.Equal("타이머 시작", AutomationProperties.GetName(Button(scope.Window, "TimerToggle")));
         var play = Button(scope.Window, "TimerToggle"); play.Focus();
         scope.Window.KeyPress(Key.Space, RawInputModifiers.None, PhysicalKey.Space, " ");
         scope.Window.KeyRelease(Key.Space, RawInputModifiers.None, PhysicalKey.Space, " ");

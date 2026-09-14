@@ -11,7 +11,7 @@ namespace Unfold.Tests;
 public class RoutineEditorTests
 {
     private static T Control<T>(Window window, string name) where T : Control => window.GetVisualDescendants().OfType<T>().Single(control => control.Name == name);
-    private static void Save(Window window) => window.GetVisualDescendants().OfType<Button>().Single(button => Equals(button.Content, "Save my routine"))
+    private static void Save(Window window) => window.GetVisualDescendants().OfType<Button>().Single(button => Equals(button.Content, "내 루틴 저장"))
         .RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
     [AvaloniaFact]
     public void EditorSavesNamedStepsThroughTheSettingsContract()
@@ -38,7 +38,7 @@ public class RoutineEditorTests
         window.Show(); Dispatcher.UIThread.RunJobs(); Control<TextBox>(window, "RoutineName").Text = " ";
         Save(window);
         Assert.False(saved); Assert.True(window.IsVisible);
-        Assert.Contains(window.GetVisualDescendants().OfType<TextBlock>(), text => text.IsVisible && text.Text?.StartsWith("Use a name") == true);
+        Assert.Contains(window.GetVisualDescendants().OfType<TextBlock>(), text => text.IsVisible && text.Text?.StartsWith("이름") == true);
         window.Close();
     }
 }

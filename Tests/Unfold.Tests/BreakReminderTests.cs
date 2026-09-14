@@ -23,20 +23,20 @@ public class BreakReminderTests
         var window = Window(session, () => now); var started = 0; var finished = 0;
         window.Started += () => started++; window.Finished += _ => finished++;
         window.Show(); Dispatcher.UIThread.RunJobs();
-        Click(Button(window, "Start 20-second break"));
+        Click(Button(window, "20초 휴식 시작"));
         Assert.Equal(1, started); Assert.Equal(BreakSessionState.InProgress, session.State);
-        Assert.False(Button(window, "Take your time…").IsEnabled);
+        Assert.False(Button(window, "천천히 쉬어 가세요…").IsEnabled);
         now = TimeSpan.FromSeconds(10); window.RefreshProgress();
         now = TimeSpan.FromSeconds(20); window.RefreshProgress();
         Assert.Equal(0, finished); Assert.Equal(BreakSessionState.AwaitingConfirmation, session.State);
-        Click(Button(window, "I'm refreshed"));
+        Click(Button(window, "잘 쉬었어요"));
         Assert.Equal(1, finished); Assert.Equal(BreakSessionState.Completed, session.State);
     }
     [AvaloniaFact]
     public void SnoozeAndWindowCloseRemainDistinctOutcomes()
     {
         var session = new BreakSession(BreakRoutines.All[0], "default-cat"); var window = Window(session, () => TimeSpan.Zero);
-        window.Show(); Dispatcher.UIThread.RunJobs(); Click(Button(window, "In 5 minutes"));
+        window.Show(); Dispatcher.UIThread.RunJobs(); Click(Button(window, "5분 뒤에"));
         Assert.Equal(BreakSessionState.Snoozed, session.State);
         var second = new BreakSession(BreakRoutines.All[0], "default-cat"); var other = Window(second, () => TimeSpan.Zero);
         other.Show(); other.Close(); Assert.Equal(BreakSessionState.Skipped, second.State);

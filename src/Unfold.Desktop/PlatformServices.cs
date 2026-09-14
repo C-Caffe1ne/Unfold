@@ -17,16 +17,16 @@ public static class PlatformServices
         if (OperatingSystem.IsWindows())
         {
             var input = new LastInput { Size = (uint)Marshal.SizeOf<LastInput>() };
-            if (!GetLastInputInfo(ref input)) throw new IOException("Windows idle-time query failed.");
+            if (!GetLastInputInfo(ref input)) throw new IOException("자리 비움 상태를 확인하지 못해 타이머를 일시정지했어요.");
             return TimeSpan.FromMilliseconds(unchecked((uint)Environment.TickCount - input.Time));
         }
         if (OperatingSystem.IsMacOS())
         {
             var seconds = CGEventSourceSecondsSinceLastEventType(0, uint.MaxValue);
-            if (!double.IsFinite(seconds) || seconds < 0) throw new IOException("macOS idle-time query failed.");
+            if (!double.IsFinite(seconds) || seconds < 0) throw new IOException("자리 비움 상태를 확인하지 못해 타이머를 일시정지했어요.");
             return TimeSpan.FromSeconds(Math.Min(seconds, TimeSpan.MaxValue.TotalSeconds / 2));
         }
-        throw new PlatformNotSupportedException("Automatic idle pause is supported on Windows and macOS.");
+        throw new PlatformNotSupportedException("자리 비움 자동 일시정지는 Windows와 macOS에서 사용할 수 있어요.");
     }
 
     private static string LaunchAgent => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Library", "LaunchAgents", "app.unfold.desktop.plist");
@@ -41,9 +41,9 @@ public static class PlatformServices
     }
     public static void SetStartAtLogin(bool enabled)
     {
-        var exe = Environment.ProcessPath ?? throw new IOException("Cannot locate the app executable.");
+        var exe = Environment.ProcessPath ?? throw new IOException("Unfold 실행 파일을 찾지 못했어요. 앱 설치 위치를 확인해 주세요.");
         if (Path.GetFileNameWithoutExtension(exe).Equals("dotnet", StringComparison.OrdinalIgnoreCase))
-            throw new IOException("Publish Unfold before enabling launch at login.");
+            throw new IOException("설치된 Unfold 앱에서 로그인 시 자동 실행을 설정해 주세요.");
         if (OperatingSystem.IsWindows())
         {
             using var key = Registry.CurrentUser.CreateSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run");
@@ -64,6 +64,6 @@ public static class PlatformServices
             }
             else if (File.Exists(LaunchAgent)) File.Delete(LaunchAgent);
         }
-        else throw new PlatformNotSupportedException("Launch at login is supported on Windows and macOS.");
+        else throw new PlatformNotSupportedException("로그인 시 자동 실행은 Windows와 macOS에서 사용할 수 있어요.");
     }
 }

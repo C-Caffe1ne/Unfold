@@ -15,7 +15,7 @@ public sealed class BreakReminderWindow : Window
     public event Action? Started;
     public event Action<BreakSession>? Finished;
     private readonly AnimationView animation = new() { Width = 168, Height = 168, HorizontalAlignment = HorizontalAlignment.Center };
-    private readonly TextBlock instruction = new() { TextWrapping = TextWrapping.Wrap, FontSize = 16, MinHeight = 46, Foreground = Brushes.White, TextAlignment = TextAlignment.Center };
+    private readonly TextBlock instruction = new() { TextWrapping = TextWrapping.Wrap, FontSize = 16, MinHeight = 46, Foreground = DesignSystem.Cream, TextAlignment = TextAlignment.Center };
     private readonly TextBlock countdown = Ui.Text("", 32, Ui.Accent);
     private readonly ProgressBar progress = new() { Height = 6 };
     private readonly Button primary;
@@ -27,7 +27,7 @@ public sealed class BreakReminderWindow : Window
     {
         Session = session;
         var stopwatch = Stopwatch.StartNew(); now = monotonicTime ?? (() => stopwatch.Elapsed);
-        Title = "A small break · Unfold"; Width = 440; Height = 565; CanResize = false;
+        Title = "잠깐의 휴식 · Unfold"; Width = 440; Height = 565; CanResize = false;
         Topmost = true; Background = Ui.Background; WindowStartupLocation = WindowStartupLocation.CenterScreen;
         animation.SetFrames(idleFrames, true, pixel);
         countdown.HorizontalAlignment = HorizontalAlignment.Center;
@@ -42,15 +42,14 @@ public sealed class BreakReminderWindow : Window
         });
         primary.HorizontalAlignment = HorizontalAlignment.Stretch; primary.HorizontalContentAlignment = HorizontalAlignment.Center;
         primary.IsDefault = true;
-        var snooze = Ui.Button("In 5 minutes", () => { if (Session.Snooze()) Close(); });
-        var skip = Ui.Button("Skip this break", () => { if (Session.Skip()) Close(); });
+        var snooze = Ui.Button("5분 뒤에", () => { if (Session.Snooze()) Close(); });
+        var skip = Ui.Button("이번 휴식 건너뛰기", () => { if (Session.Skip()) Close(); });
         var secondary = Ui.Row(snooze, skip); secondary.HorizontalAlignment = HorizontalAlignment.Center;
-        var title = Ui.Text(session.Routine.Name, 26); title.TextAlignment = TextAlignment.Center;
-        title.TextWrapping = TextWrapping.Wrap;
-        var subtitle = Ui.Text($"{session.Routine.DurationSeconds} seconds with {companionName}", 14);
-        subtitle.TextWrapping = TextWrapping.Wrap; subtitle.TextAlignment = TextAlignment.Center;
-        var body = Ui.Column(title, subtitle, animation, instruction, countdown, progress, primary, secondary);
-        Content = new ScrollViewer { Content = new Border { Padding = new Thickness(28, 22), Child = body } };
+        Ui.Primary(primary); Ui.Quiet(skip);
+        var body = Ui.Column(animation, instruction, countdown, progress);
+        body.Spacing = 10;
+        Content = Ui.Page(this, session.Routine.Name, $"{companionName}와 함께 {session.Routine.DurationSeconds}초 휴식",
+            body, Ui.Column(primary, secondary), "잠깐의 여유", inset: 16);
         timer.Tick += (_, _) => RefreshProgress();
         Opened += (_, _) => timer.Start();
         KeyDown += (_, e) => { if (e.Key == Key.Escape) { Session.Skip(); Close(); e.Handled = true; } };
@@ -67,16 +66,16 @@ public sealed class BreakReminderWindow : Window
         progress.Value = Session.Elapsed.TotalSeconds;
         instruction.Text = Session.State switch
         {
-            BreakSessionState.Ready => "Your work can wait for a small moment.",
-            BreakSessionState.AwaitingConfirmation => "Ready to return? Keep the pause as long as you need.",
+            BreakSessionState.Ready => "하던 일은 잠깐 내려놓아도 괜찮아요.",
+            BreakSessionState.AwaitingConfirmation => "돌아갈 준비가 됐나요? 필요하면 조금 더 쉬어도 좋아요.",
             _ => Session.CurrentStep.Instruction
         };
         primary.IsEnabled = Session.State is BreakSessionState.Ready or BreakSessionState.AwaitingConfirmation;
         primary.Content = Session.State switch
         {
-            BreakSessionState.Ready => $"Start {Session.Routine.DurationSeconds}-second break",
-            BreakSessionState.AwaitingConfirmation => "I'm refreshed",
-            _ => "Take your time…"
+            BreakSessionState.Ready => $"{Session.Routine.DurationSeconds}초 휴식 시작",
+            BreakSessionState.AwaitingConfirmation => "잘 쉬었어요",
+            _ => "천천히 쉬어 가세요…"
         };
     }
 }

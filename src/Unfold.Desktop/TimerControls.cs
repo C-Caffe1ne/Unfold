@@ -18,22 +18,22 @@ public sealed class TimerControls : StackPanel
     public TimerControls(Action togglePause, Action stop, Action reset)
     {
         Orientation = Orientation.Horizontal; Spacing = 8;
-        toggle = IconButton("TimerToggle", "Pause timer", PauseIcon, togglePause);
-        Children.Add(toggle); Children.Add(IconButton("TimerStop", "Stop timer", StopIcon, stop));
-        Children.Add(IconButton("TimerReset", "Reset timer", ResetIcon, reset));
+        toggle = IconButton("TimerToggle", "타이머 일시정지", PauseIcon, togglePause);
+        Children.Add(toggle); Children.Add(IconButton("TimerStop", "타이머 정지", StopIcon, stop));
+        Children.Add(IconButton("TimerReset", "타이머 초기화", ResetIcon, reset));
     }
     public void Refresh(StretchClock clock)
     {
-        var label = clock.Stopped ? "Start timer" : clock.Paused ? "Resume timer" : "Pause timer";
+        var label = clock.Stopped ? "타이머 시작" : clock.Paused ? "타이머 계속" : "타이머 일시정지";
         if (label == currentLabel) return;
         currentLabel = label; ((PathIcon)toggle.Content!).Data = clock.Paused ? PlayIcon : PauseIcon;
         AutomationProperties.SetName(toggle, label); ToolTip.SetTip(toggle, label);
     }
     private static Button IconButton(string name, string label, Geometry icon, Action action)
     {
-        var button = new Button { Name = name, Width = 44, Height = 44, Padding = new Thickness(12),
+        var button = new Button { Name = name, Classes = { "unfold-action" }, Width = 44, Height = 44, Padding = new Thickness(10),
             HorizontalContentAlignment = HorizontalAlignment.Center, VerticalContentAlignment = VerticalAlignment.Center,
-            Content = new PathIcon { Width = 20, Height = 20, Data = icon, Foreground = Brushes.White } };
+            Content = new PathIcon { Width = 20, Height = 20, Data = icon, Foreground = DesignSystem.Cream } };
         AutomationProperties.SetName(button, label); ToolTip.SetTip(button, label); ToolTip.SetShowDelay(button, 500);
         button.Click += (_, _) => action(); return button;
     }

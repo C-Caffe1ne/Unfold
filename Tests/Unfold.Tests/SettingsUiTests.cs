@@ -131,7 +131,7 @@ public class SettingsUiTests
         await AddCharacter(runtime, "Rex", opaque: false);
         await runtime.UpdateSettings(runtime.Settings);
         var window = new SettingsWindow(runtime); window.Show(); Dispatcher.UIThread.RunJobs();
-        var showPet = Control<CheckBox>(window, c => Equals(c.Content, "Show desktop pet"));
+        var showPet = Control<CheckBox>(window, c => Equals(c.Content, "바탕화면에 펫 표시"));
         Assert.True(showPet.IsChecked);
 
         var settingsFile = Path.Combine(AppPaths.DataRoot, "settings.json");

@@ -9,7 +9,7 @@ Extract the entire `Unfold-win-x64.zip` and launch `win-x64/Unfold.exe`. Keep th
 executable, DLLs, and `Assets` directory together. The local portable build is unsigned.
 
 Closing Settings hides it to the tray. Run the app again or use the tray menu to
-open Settings. **Quit Unfold** exits the process. The app uses one instance per data
+open Settings. **Unfold 종료** exits the process. The app uses one instance per data
 directory.
 
 Launch at login is optional. Move the published app to its final folder before
@@ -20,7 +20,7 @@ the new location. A checked setting does not prove an actual login launch worked
 ## macOS installation
 
 Place `Unfold.app` in its final location and open it. Settings closes to the menu
-bar; **Quit Unfold** exits. Login launch uses
+bar; **Unfold 종료** exits. Login launch uses
 `~/Library/LaunchAgents/app.unfold.desktop.plist` and starts the app with
 `--background`, keeping Settings hidden.
 
@@ -31,9 +31,9 @@ notarization or staple a ticket.
 
 ## Visible controls
 
-- Tray/menu bar: countdown, Settings, Hide Pet/Show Pet, Start/Pause/Resume, Stop timer,
-  Reset timer, Quit Unfold.
-- Pet right-click menu: Settings.
+- Tray/menu bar: countdown, 설정, 펫 숨기기/펫 표시, 시작/일시정지/계속, 타이머 정지,
+  타이머 초기화, Unfold 종료.
+- Pet right-click menu: 설정.
 - Settings: timer interval, idle threshold, character selection, pet visibility,
   launch at login, routine selection, **Edit my routine**, **My routines & work profiles**,
   **Review & export**, **Install pet pack…**, today's confirmed breaks, and timer controls.
@@ -97,6 +97,9 @@ normal UI entry point in the MVP. Legacy Swift preferences and sandbox data are
 neither migrated nor deleted automatically.
 
 **Install pet pack…** opens a local `.unfoldpet` file for preview before installation.
+Preview controls offer light/dark backgrounds, 100–200% display size, Pause/Resume,
+and Replay. Display size affects this preview only. Completed reactions return to
+resting while keeping the selection available for replay.
 The dialog offers Install for a new ID, Update for a newer content version, or Reinstall
 for the same version. Reinstall restores damaged/missing runtime images from a saved pack.
 Built-in companions and existing user-authored IDs cannot be replaced. Invalid archives,

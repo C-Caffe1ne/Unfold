@@ -20,7 +20,7 @@ For a Windows portable build, extract the entire `Unfold-win-x64.zip` archive an
 launch `win-x64/Unfold.exe`. Keep the adjacent files and `Assets` folder together;
 the published build includes .NET.
 
-Closing Settings keeps Unfold running. Use **Quit Unfold** in the tray menu to exit.
+Closing Settings keeps Unfold running. Use **Unfold 종료** in the tray menu to exit.
 
 ## Features
 
@@ -89,3 +89,5 @@ described in the [archive index](docs/archive/README.md).
 Start with the [documentation index](docs/README.md) before changing product scope
 or following an old plan. Third-party component notices are in
 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+
+The normal app UI is in Korean. See the [Korean UI guide](docs/localization.md) for scope and data compatibility.

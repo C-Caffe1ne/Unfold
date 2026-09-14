@@ -7,57 +7,60 @@ using Unfold.Core;
 
 namespace Unfold.Desktop;
 
-public sealed class SettingsWindow : Window
+public sealed partial class SettingsWindow : Window
 {
     private readonly AppRuntime runtime;
-    private readonly TextBlock countdown = Ui.Text("60:00", 52, Ui.Accent), state = Ui.Text("Ready", 13);
-    private readonly ComboBox characters = new() { Name = "CharacterPicker", MinWidth = 260, HorizontalAlignment = HorizontalAlignment.Stretch };
-    private readonly ComboBox routines = new() { HorizontalAlignment = HorizontalAlignment.Stretch };
-    private readonly TextBlock today = Ui.Text("No breaks yet today", 16);
-    private readonly TextBlock historyStatus = new() { FontSize = 12, TextWrapping = TextWrapping.Wrap, Foreground = Brushes.LightGray };
-    private readonly AnimationView preview = new() { Width = 120, Height = 120 };
+    private readonly TextBlock countdown = Ui.Text("60:00", 52, Ui.Accent), state = Ui.Text("준비", 13);
+    private readonly ComboBox characters = new() { Name = "CharacterPicker", MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch };
+    private readonly ComboBox routines = new() { Name = "RoutinePicker", HorizontalAlignment = HorizontalAlignment.Stretch };
+    private readonly TextBlock today = Ui.Text("오늘은 아직 휴식 기록이 없어요", 16);
+    private readonly TextBlock historyStatus = new() { FontSize = 12, TextWrapping = TextWrapping.Wrap, Foreground = DesignSystem.Muted };
+    private readonly AnimationView preview = new() { Name = "CompanionPreview", Width = 240, Height = 240 };
     private readonly TimerControls timerControls;
     private readonly CheckBox showPet;
-    private readonly TextBlock activeProfile = Ui.Text("Custom reminder settings", 12, Ui.Accent);
+    private readonly TextBlock activeProfile = Ui.Text("직접 설정한 알림", 12, Ui.Accent);
     private readonly NumericUpDown interval, idle;
-    private readonly TextBlock reminderSettingsStatus = new() { Text = "Interval changes are saved automatically.", FontSize = 12, TextWrapping = TextWrapping.Wrap, Foreground = Brushes.LightGray };
+    private readonly TextBlock reminderSettingsStatus = new() { Text = "알림 간격은 변경하면 자동으로 저장돼요.", FontSize = 12, TextWrapping = TextWrapping.Wrap, Foreground = DesignSystem.Muted };
     private int displayedInterval, displayedIdle;
     private string displayedRoutine;
     private CharacterPackage? previewCharacter;
     private bool updating;
     public SettingsWindow(AppRuntime runtime)
     {
-        this.runtime = runtime; Title = "Unfold · Stretch Reminder"; Width = 600; Height = 850; MinWidth = 550; MinHeight = 600;
+        this.runtime = runtime; Title = "Unfold · 휴식 알림"; Width = 1120; Height = 800; MinWidth = 860; MinHeight = 680;
         Background = Ui.Background;
-        interval = new NumericUpDown { Name = "ReminderInterval", Minimum = 5, Maximum = 240, Value = runtime.Settings.IntervalMinutes, Increment = 5, Width = 130, FormatString = "0" };
-        idle = new NumericUpDown { Name = "ReminderIdle", Minimum = 1, Maximum = 60, Value = runtime.Settings.IdleMinutes, Increment = 1, Width = 130, FormatString = "0" };
+        interval = new NumericUpDown { Name = "ReminderInterval", Minimum = 5, Maximum = 240, Value = runtime.Settings.IntervalMinutes, Increment = 5, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch, FormatString = "0" };
+        idle = new NumericUpDown { Name = "ReminderIdle", Minimum = 1, Maximum = 60, Value = runtime.Settings.IdleMinutes, Increment = 1, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch, FormatString = "0" };
         displayedInterval = runtime.Settings.IntervalMinutes; displayedIdle = runtime.Settings.IdleMinutes; displayedRoutine = runtime.Settings.BreakRoutineId;
         routines.ItemsSource = runtime.Routines;
         routines.SelectedItem = runtime.Routines.FirstOrDefault(item => item.Id == runtime.Settings.BreakRoutineId);
         timerControls = new(runtime.TogglePause, runtime.Stop, runtime.Reset);
-        AutomationProperties.SetName(interval, "Remind me every, in minutes");
-        AutomationProperties.SetName(idle, "Pause when away, in minutes");
+        AutomationProperties.SetName(interval, "휴식 알림 간격, 분 단위");
+        AutomationProperties.SetName(idle, "자리 비움 시 일시정지 기준, 분 단위");
+        AutomationProperties.SetName(routines, "휴식 루틴");
+        AutomationProperties.SetName(characters, "함께할 펫");
+        state.TextWrapping = TextWrapping.Wrap;
         interval.ValueChanged += async (_, _) =>
         {
             if (updating || interval.Value is not decimal minutes || minutes is < 5 or > 240 || decimal.Truncate(minutes) != minutes ||
                 minutes == runtime.Settings.IntervalMinutes) return;
             await SaveReminderSettings((int)minutes, runtime.Settings.IdleMinutes, runtime.Settings.BreakRoutineId);
         };
-        var apply = Ui.AsyncButton("Apply reminder settings", async () =>
+        var apply = Ui.AsyncButton("알림 설정 적용", async () =>
         {
             if (interval.Value is not decimal minutes || minutes is < 5 or > 240 || decimal.Truncate(minutes) != minutes ||
                 idle.Value is not decimal away || away is < 1 or > 60 || decimal.Truncate(away) != away)
-            { reminderSettingsStatus.Text = "Enter whole minutes: interval 5–240, away threshold 1–60."; reminderSettingsStatus.Foreground = Brushes.LightSalmon; return; }
+            { reminderSettingsStatus.Text = "분 단위의 정수를 입력해 주세요. 알림 간격은 5~240분, 자리 비움 기준은 1~60분이에요."; reminderSettingsStatus.Foreground = DesignSystem.Error; return; }
             await SaveReminderSettings((int)minutes, (int)away, (routines.SelectedItem as BreakRoutine)?.Id ?? BreakRoutines.DefaultId);
         });
-        showPet = new CheckBox { Content = "Show desktop pet", IsChecked = runtime.Settings.ShowPet };
+        showPet = new CheckBox { Content = "바탕화면에 펫 표시", IsChecked = runtime.Settings.ShowPet };
         showPet.IsCheckedChanged += async (_, _) =>
         {
             if (updating) return;
             try { await runtime.UpdateSettings(runtime.Settings with { ShowPet = showPet.IsChecked == true }); }
             catch (Exception error) { updating = true; showPet.IsChecked = runtime.Settings.ShowPet; updating = false; await Ui.Error(this, error); }
         };
-        var login = new CheckBox { Content = "Launch at login" };
+        var login = new CheckBox { Content = "로그인 시 자동 실행" };
         try { login.IsChecked = PlatformServices.StartsAtLogin(); } catch (Exception error) { AppPaths.Log(error); }
         login.IsCheckedChanged += async (_, _) =>
         {
@@ -84,32 +87,7 @@ public sealed class SettingsWindow : Window
             try { await runtime.UpdateSettings(runtime.Settings with { SelectedCharacterId = selected.Manifest.Id }); }
             catch (Exception error) { updating = true; characters.SelectedItem = runtime.Selected; updating = false; await Ui.Error(this, error); }
         };
-        var body = Ui.Column(Ui.Text("UNFOLD", 14, Ui.Accent), Ui.Text("Make room for a small break.", 26),
-            new Border { Background = Ui.Panel, CornerRadius = new CornerRadius(12), Padding = new Thickness(20), Child = Ui.Column(
-                Ui.Text("NEXT STRETCH", 12), countdown, state, timerControls) },
-            Ui.Row(Ui.Column(Ui.Text("Remind me every (min)", 12), interval), Ui.Column(Ui.Text("Pause when away (min)", 12), idle)),
-            reminderSettingsStatus,
-            activeProfile, Ui.Text("YOUR BREAK", 12, Ui.Accent), routines, Ui.Row(apply, Ui.AsyncButton("Edit my routine", async () =>
-            {
-                var dialog = new RoutineEditorWindow(runtime.Settings.CustomRoutine, routine => runtime.UpdateSettings(runtime.Settings.SaveRoutine(routine)));
-                await dialog.ShowDialog(this);
-            })),
-            Ui.AsyncButton("My routines & work profiles", async () =>
-            {
-                var dialog = new PersonalizationWindow(() => runtime.Settings, runtime.UpdateSettings); await dialog.ShowDialog(this);
-            }),
-            new Border { Background = Ui.Panel, CornerRadius = new CornerRadius(12), Padding = new Thickness(16), Child = Ui.Column(
-                Ui.Text("MOMENTS FOR YOURSELF", 12, Ui.Accent), today, historyStatus, Ui.AsyncButton("Review & export", async () =>
-                {
-                    var dialog = new BreakReviewWindow(runtime.BreakHistory.Review, () => runtime.BreakHistoryError); await dialog.ShowDialog(this);
-                })) },
-            new Separator(), Ui.Text("YOUR COMPANION", 12, Ui.Accent), Ui.Row(preview, Ui.Column(characters)),
-            Ui.AsyncButton("Install pet pack…", async () =>
-            {
-                var dialog = new PetPackWindow(runtime.Library, runtime.SelectInstalledCharacter); await dialog.ShowDialog(this);
-            }),
-            showPet, login, new Separator(), Ui.Row(Ui.Text("Closing this window keeps Unfold in the tray.", 12), Ui.AsyncButton("Quit", runtime.Quit)));
-        Content = new ScrollViewer { Content = new Border { Padding = new Thickness(28), Child = body } };
+        Content = BuildDashboard(apply, login);
         Closing += (_, e) => { e.Cancel = true; HideToTray(); };
         Opened += (_, _) => preview.SetRunning(true);
         runtime.Changed += Refresh; Closed += (_, _) => { runtime.Changed -= Refresh; preview.Dispose(); };
@@ -122,10 +100,10 @@ public sealed class SettingsWindow : Window
         try
         {
             await runtime.UpdateSettings(runtime.Settings.ApplyReminder(minutes, away, routineId));
-            reminderSettingsStatus.Foreground = Brushes.LightGray; reminderSettingsStatus.Text = "Reminder settings saved.";
+            reminderSettingsStatus.Foreground = DesignSystem.Muted; reminderSettingsStatus.Text = "알림 설정을 저장했어요.";
         }
         catch (Exception error) when (error is ArgumentException or IOException or UnauthorizedAccessException)
-        { AppPaths.Log(error); reminderSettingsStatus.Foreground = Brushes.LightSalmon; reminderSettingsStatus.Text = "Could not save reminder settings. Please try Apply again."; }
+        { AppPaths.Log(error); reminderSettingsStatus.Foreground = DesignSystem.Error; reminderSettingsStatus.Text = "알림 설정을 저장하지 못했어요. 다시 적용해 주세요."; }
     }
     private async void Refresh()
     {
@@ -134,17 +112,20 @@ public sealed class SettingsWindow : Window
         try
         {
             countdown.Text = $"{(int)runtime.Clock.Remaining.TotalMinutes:00}:{runtime.Clock.Remaining.Seconds:00}";
-            state.Text = runtime.ActivityError ?? (runtime.ActiveReminder is not null ? "A break is open · work timer on hold" :
-                runtime.Clock.Stopped ? "Stopped · press play to start" : runtime.Clock.Paused ? "Paused · press play to continue" : runtime.Clock.IdlePaused ? "Paused while you're away" : "Counting active time");
+            state.Text = runtime.ActivityError ?? (runtime.ActiveReminder is not null ? "휴식 중 · 작업 타이머 대기" :
+                runtime.Clock.Stopped ? "정지됨 · 시작 버튼을 눌러 주세요" : runtime.Clock.Paused ? "일시정지 · 계속 버튼을 눌러 주세요" : runtime.Clock.IdlePaused ? "자리 비움으로 일시정지" : "작업 시간을 세고 있어요");
             var summary = runtime.BreakHistory.ForDay(DateTimeOffset.Now);
-            today.Text = summary.Count == 0 ? "No breaks yet today. Start with one small moment." :
-                $"Today · {summary.Count} {(summary.Count == 1 ? "break" : "breaks")} · {summary.Seconds / 60}m {summary.Seconds % 60}s";
+            today.Text = summary.Count == 0 ? "첫 휴식은 언제든 괜찮아요." :
+                $"오늘 {summary.Seconds / 60}분 {summary.Seconds % 60}초의 여유를 만들었어요.";
             today.TextWrapping = TextWrapping.Wrap;
-            historyStatus.Text = runtime.BreakHistoryError ?? "Breaks you confirm are saved only on this device.";
+            companionName.Text = runtime.Selected?.Manifest.Name ?? "함께할 펫을 선택해 주세요";
+            todayCount.Text = summary.Count.ToString();
+            intervalHint.Text = $"{runtime.Settings.IntervalMinutes}분 간격";
+            historyStatus.Text = runtime.BreakHistoryError ?? "완료한 휴식은 이 기기에만 저장돼요.";
             timerControls.Refresh(runtime.Clock);
             showPet.IsChecked = runtime.Settings.ShowPet;
             activeProfile.Text = runtime.Settings.WorkProfiles.FirstOrDefault(profile => profile.Id == runtime.Settings.ActiveProfileId) is { } active
-                ? $"Work profile · {active.Name}" : "Custom reminder settings";
+                ? $"업무 프로필 · {active.Name}" : "직접 설정한 알림";
             activeProfile.TextWrapping = TextWrapping.Wrap;
             if (displayedInterval != runtime.Settings.IntervalMinutes) interval.Value = displayedInterval = runtime.Settings.IntervalMinutes;
             if (displayedIdle != runtime.Settings.IdleMinutes) idle.Value = displayedIdle = runtime.Settings.IdleMinutes;
@@ -163,7 +144,7 @@ public sealed class SettingsWindow : Window
                 previewCharacter = selected; loadPreview = selected;
             }
         }
-        catch (Exception error) { AppPaths.Log(error); state.Text = error.Message; }
+        catch (Exception error) { AppPaths.Log(error); state.Text = Ui.ErrorText(error); }
         finally { updating = false; }
         if (loadPreview is null) return;
         try

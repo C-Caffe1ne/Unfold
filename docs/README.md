@@ -10,11 +10,21 @@
 | [MVP 범위](mvp.md) | 제품 목적, 구현된 동작, 제외 범위, 변경 원칙 |
 | [방향 및 BM 초안](business-model.md) | 현재 Cat MVP의 포지셔닝과 조건부 수익 가설, 검증 순서 |
 | [제품 방향](product-direction.md) | 초기 고객, 경쟁 판단, 무료·Plus·펫 팩의 가치 제안 |
+| [UI 한글화](localization.md) | 한국어 적용 범위, 표시 용어, 기존 데이터 보존과 검증 한계 |
+| [UI 한글화 검증](validation/2026-09-14-korean-ui.md) | 127개 테스트, macOS 게시 앱 진단과 한글 화면 캡처 |
+| [디자인 시스템](design-system.md) | 공통 시각 토큰, 페이지·버튼·입력 규칙과 중첩 창 적용 범위 |
+| [디자인 시스템 검증](validation/2026-09-14-design-system.md) | 135개 테스트, 최종 변경 영역 13개 재검사와 macOS 화면 24장 |
+| [입력 필드 상태 검증](validation/2026-09-14-input-fields.md) | 호버·포커스 강조 제거, 숫자 왼쪽 정렬과 화살표 모서리, 전체 136개 테스트 |
+| [설정 대시보드](settings-ui.md) | 참고 이미지 기반 카드 배치, 바로가기와 창 크기 대응 |
+| [설정 대시보드 검증](validation/2026-09-14-settings-dashboard.md) | 130개 테스트, 기본·최소 크기 캡처와 설정 회귀 검증 |
 | [개발 계획](development-plan.md) | 구현 단계, 완료 조건과 후속 범위 |
 | [루틴·프로필·회고 사용 안내](personalization.md) | 여러 루틴, 수동 업무 프로필, 주간 회고/CSV와 기존 데이터 호환 |
 | [펫 리소스 관리](pet-resources.md) | 제작 원장, 런타임 계약, 품질 기준과 검사 명령 |
 | [로컬 펫 팩 설치](pet-packs.md) | 미리보기·설치·업데이트·재설치, ZIP/버전/해시 계약과 복구 |
 | [펫 팩 기반 검증](validation/2026-09-13-pet-packs.md) | 병합 충돌 복구, 설치 회귀 테스트와 macOS 진단 |
+| [보리 아트 후보](../Art/Characters/bori-rabbit/README.md) | 원본·프롬프트·반응 5종·별도 설치 팩과 남은 아트 검수 |
+| [보리 제작·재생 검증](validation/2026-09-14-bori-candidate.md) | 119개 테스트, macOS 실제 시간 기반 재생과 검증 한계 |
+| [설치 전 미리보기 검증](validation/2026-09-14-pet-pack-preview.md) | 배경·크기·Pause/Replay, 122개 테스트와 2배 렌더링 캡처 |
 | [플랫폼 안내](cross-platform.md) | 설치, 데이터 위치, C# 빌드·패키징, OS 제약. Windows 배포물에도 포함된다. |
 | [검증 안내](verification.md) | 자동 검사 명령, 검증 수준, 실제 OS 확인 범위와 기록 |
 | [휴식 기능 1차 검증](validation/2026-09-13-companion-stage1.md) | 루틴·완료 기록·펫 검사 구현, 56개 테스트와 macOS 진단 결과·한계 |

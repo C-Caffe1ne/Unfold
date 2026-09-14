@@ -7,6 +7,7 @@
 | 위치 | 내용 | 원칙 |
 |---|---|---|
 | `Art/Characters/<id>/` | 제작 원장 `resource.json`, 향후 원본 `.aseprite`·작업용 PNG·제작 지시와 검수 기록 | 재편집할 수 있는 원본을 보존. 앱 번들 제외 |
+| `Art/Characters/<id>/runtime/<id>/` | 별도 설치 후보의 manifest와 실행 PNG/GIF | `.unfoldpet`으로 내보내는 입력. 기본 번들에 자동 추가하지 않음 |
 | `Assets/Characters/<id>/` | 런타임 `character.json`, 참조하는 PNG/GIF | 실행에 필요한 완성 산출물. 현재 프로젝트가 빌드·게시 시 복사하는 위치 |
 | 사용자 데이터의 `Characters/<id>/` | 기존 사용자 패키지 | 하위 호환 유지. 진단이나 번들 갱신으로 덮어쓰지 않음 |
 | 이후 판매 카탈로그/구매 기록 | 상품 가격·콘텐츠 버전·구매 권한 | 렌더링 manifest와 분리. 현재 미구현 |
@@ -20,6 +21,12 @@ ID는 한번 배포하면 유지한다. manifest의 `version: 1`은 파일 형�
 상태를 남긴다. 생성형 도구를 썼다면 원본 결과·입력 참조의 출처·수정 내용을 남긴다.
 Mochi 원장은 확인된 기존 실행 파일만 가리키며, 원본 제작 파일과 권리 증빙은
 미확인으로 기록한다. 이 상태를 유료 팩 출시 승인으로 사용하지 않는다.
+
+[보리 0.1.0](../Art/Characters/bori-rabbit/README.md)은 생성 원본 PNG·최종 프롬프트·
+SHA-256을 보존한 별도 설치 후보다. `releaseStatus: art-candidate`,
+`rightsStatus: commercial-review-pending`으로 관리한다. 생성 경로를 기록한 것은
+상업적 권리 승인과 다르다. 256px 원본, alpha 1의 가장자리 잔여, 연속 재생·고DPI
+미검수 항목도 [제작 원장](../Art/Characters/bori-rabbit/resource.json)에 남긴다.
 
 ## 런타임 계약과 상태
 
@@ -82,6 +89,11 @@ Unfold.exe --validate-characters <character-directory>
 밝고 어두운 바탕, 100%·고DPI, 클릭 영역, 시작·완료·반복·숨김·캐릭터 전환을
 검수하고 프레임별 alpha와 원본 권리 기록을 확인한다. 크기가 다른 기존 Mochi
 리소스의 경고도 숨기지 않고 개선 원장으로 관리한다.
+
+`--review-pet-pack <file.unfoldpet>`은 새 격리 프로필에서 설치와 실제 시간 기반 재생을
+검사하고 밝고 어두운 배경의 캡처를 만든다. off-screen 창과 코드로 실행한 버튼 이벤트를
+사용한다. [실행 방법과 한계](verification.md#펫-팩-재생-진단),
+[보리의 측정 결과](validation/2026-09-14-bori-candidate.md)를 참고한다.
 
 팩은 검증된 contentVersion과 파일 해시 목록으로 고정해 배포한다.
 [로컬 팩 설치기](pet-packs.md)는 미리보기 → staging 검증 → backup을 통한 교체·복구를

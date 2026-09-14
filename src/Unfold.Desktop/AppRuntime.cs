@@ -66,7 +66,7 @@ public sealed class AppRuntime : IDisposable
         catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException or System.Text.Json.JsonException)
         {
             AppPaths.Log(error); BreakHistory = new(); historyWritable = false;
-            BreakHistoryError = "History could not be opened. New breaks are kept for this session only.";
+            BreakHistoryError = "기록을 열지 못했어요. 새 휴식은 앱을 종료할 때까지만 보관돼요.";
         }
         timer.Tick += (_, _) => Tick();
         desktop.ShutdownRequested += async (_, e) =>
@@ -85,9 +85,9 @@ public sealed class AppRuntime : IDisposable
         {
             await Task.Run(() =>
             {
-                if (!Directory.Exists(AppPaths.BuiltInRoot)) throw new DirectoryNotFoundException("Built-in character assets are missing.");
+                if (!Directory.Exists(AppPaths.BuiltInRoot)) throw new DirectoryNotFoundException("기본 펫 파일이 없어요. Unfold를 다시 설치해 주세요.");
                 foreach (var directory in Directory.EnumerateDirectories(AppPaths.BuiltInRoot)) builtIns.Add(CharacterLibrary.LoadPackage(directory, true));
-                if (builtIns.Count == 0) throw new InvalidDataException("No built-in characters found.");
+                if (builtIns.Count == 0) throw new InvalidDataException("기본 펫을 찾지 못했어요. Unfold를 다시 설치해 주세요.");
             });
             await Reload(); BuildTray(); timer.Start(); Clock.Start(monotonic.Elapsed);
             await UpdatePet();
@@ -110,10 +110,10 @@ public sealed class AppRuntime : IDisposable
         catch (Exception error) { idle = TimeSpan.FromDays(1); if (ActivityError != error.Message) AppPaths.Log(error); ActivityError = error.Message; }
         if (Clock.Tick(monotonic.Elapsed, idle, TimeSpan.FromMinutes(Settings.IdleMinutes), reminder is not null || openingReminder)) _ = ShowReminder();
         var remaining = $"{(int)Clock.Remaining.TotalMinutes:00}:{Clock.Remaining.Seconds:00}";
-        if (tray is not null) tray.ToolTipText = $"Unfold · {remaining}{(Clock.Stopped ? " · stopped" : Clock.Paused ? " · paused" : Clock.IdlePaused ? " · away" : "")}";
-        if (trayStatus is not null) trayStatus.Header = $"Next stretch: {remaining}";
-        if (trayPause is not null) trayPause.Header = Clock.Stopped ? "Start" : Clock.Paused ? "Resume" : "Pause";
-        if (trayPet is not null) trayPet.Header = Settings.ShowPet ? "Hide Pet" : "Show Pet";
+        if (tray is not null) tray.ToolTipText = $"Unfold · {remaining}{(Clock.Stopped ? " · 정지" : Clock.Paused ? " · 일시정지" : Clock.IdlePaused ? " · 자리 비움" : "")}";
+        if (trayStatus is not null) trayStatus.Header = $"다음 휴식: {remaining}";
+        if (trayPause is not null) trayPause.Header = Clock.Stopped ? "시작" : Clock.Paused ? "계속" : "일시정지";
+        if (trayPet is not null) trayPet.Header = Settings.ShowPet ? "펫 숨기기" : "펫 표시";
         Changed?.Invoke();
     }
     public void TogglePause() { Clock.TogglePause(monotonic.Elapsed); Changed?.Invoke(); }
@@ -242,7 +242,7 @@ public sealed class AppRuntime : IDisposable
                 try { BreakHistory.Save(historyFile); BreakHistoryError = null; }
                 catch (Exception error) when (error is IOException or UnauthorizedAccessException)
                 {
-                    AppPaths.Log(error); BreakHistoryError = "Your break is counted, but history could not be saved.";
+                    AppPaths.Log(error); BreakHistoryError = "이번 휴식을 집계했지만 기록 파일에 저장하지 못했어요.";
                 }
             }
             ReactToBreak(session, "celebrate");
@@ -260,14 +260,14 @@ public sealed class AppRuntime : IDisposable
         using var icon = Ui.Bitmap(new(32, 32, pixels));
         tray = new TrayIcon { Icon = new WindowIcon(icon), ToolTipText = "Unfold", IsVisible = true };
         var menu = new NativeMenu();
-        trayStatus = new NativeMenuItem("Next stretch") { IsEnabled = false }; menu.Items.Add(trayStatus);
+        trayStatus = new NativeMenuItem("다음 휴식") { IsEnabled = false }; menu.Items.Add(trayStatus);
         void Item(string text, Action action) { var item = new NativeMenuItem(text); item.Click += (_, _) => action(); menu.Items.Add(item); }
-        Item("Settings", ShowSettings);
-        trayPet = new NativeMenuItem("Hide Pet"); menu.Items.Add(trayPet);
+        Item("설정", ShowSettings);
+        trayPet = new NativeMenuItem("펫 숨기기"); menu.Items.Add(trayPet);
         trayPet.Click += async (_, _) => { try { await UpdateSettings(Settings with { ShowPet = !Settings.ShowPet }); } catch (Exception error) { AppPaths.Log(error); } };
-        trayPause = new NativeMenuItem("Pause"); trayPause.Click += (_, _) => TogglePause(); menu.Items.Add(trayPause);
-        Item("Stop timer", Stop); Item("Reset timer", Reset);
-        menu.Items.Add(new NativeMenuItemSeparator()); Item("Quit Unfold", () => _ = Quit());
+        trayPause = new NativeMenuItem("일시정지"); trayPause.Click += (_, _) => TogglePause(); menu.Items.Add(trayPause);
+        Item("타이머 정지", Stop); Item("타이머 초기화", Reset);
+        menu.Items.Add(new NativeMenuItemSeparator()); Item("Unfold 종료", () => _ = Quit());
         tray.Menu = menu; tray.Clicked += (_, _) => ShowSettings();
         TrayIcon.SetIcons(Application.Current!, new TrayIcons { tray });
     }

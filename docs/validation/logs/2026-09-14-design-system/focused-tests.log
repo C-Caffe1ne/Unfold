@@ -1,0 +1,7 @@
+  Unfold.Core -> /Users/hwanghyeonseong/Documents/GitHub/Unfold/src/Unfold.Core/bin/Release/net10.0/Unfold.Core.dll
+  Unfold.Desktop -> /Users/hwanghyeonseong/Documents/GitHub/Unfold/src/Unfold.Desktop/bin/Release/net10.0/Unfold.dll
+  Unfold.Tests -> /Users/hwanghyeonseong/Documents/GitHub/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll
+/Users/hwanghyeonseong/Documents/GitHub/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll(.NETCoreApp,Version=v10.0)에 대한 테스트 실행
+지정된 패턴과 일치한 총 테스트 파일 수는 1개입니다.
+
+통과!  - 실패:     0, 통과:    13, 건너뜀:     0, 전체:    13, 기간: 3 s - Unfold.Tests.dll (net10.0)

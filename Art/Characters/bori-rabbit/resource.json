@@ -1,0 +1,29 @@
+{
+  "id": "bori-rabbit",
+  "contentVersion": "0.1.0",
+  "releaseStatus": "art-candidate",
+  "runtimeDirectory": "Art/Characters/bori-rabbit/runtime/bori-rabbit",
+  "sourceStatus": "generated-png-original-preserved",
+  "sourceFiles": [
+    "Art/Characters/bori-rabbit/source/bori-atlas-v1.png"
+  ],
+  "sourceSha256": "5558e3b0dff14addf559c083d5e0247cb32e08c5a2741e156cab23eb8a759623",
+  "creator": null,
+  "createdWith": {
+    "tool": "image_gen",
+    "mode": "built-in",
+    "date": "2026-09-14",
+    "referenceImages": [],
+    "promptRecord": "Art/Characters/bori-rabbit/generation.md"
+  },
+  "rightsStatus": "commercial-review-pending",
+  "rightsEvidence": [],
+  "qualityFindings": [
+    "24 original cells, 256x256 RGBA; five event clips use the original atlas without pixel changes.",
+    "Visible baseline at alpha >=26 is y=241..242; all four event clips begin/end with idle frame 0.",
+    "No opaque background. Some cell edges contain alpha=1 residue; inspect on light/dark backgrounds.",
+    "Source canvas is 256px rather than the preferred 384px; high-DPI art approval remains pending.",
+    "No layered Aseprite source, commercial-rights approval or human full-playback approval is claimed."
+  ],
+  "notes": "Installable local art candidate, excluded from built-in assets. Generated source and prompt are provenance records, not purchase entitlements or legal rights confirmation."
+}

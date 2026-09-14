@@ -50,7 +50,7 @@ public class EditorLifecycleTests
         session.BeginStroke(new(1, 1)); session.EndStroke();
         doc.Name = "Outside change"; library.Save(doc, saved.Manifest.Id, opened.Revision);
         var pending = window.SaveDocument(); var dialog = await Dialog(window);
-        dialog.GetVisualDescendants().OfType<Button>().Single(b => Equals(b.Content, "OK")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        dialog.GetVisualDescendants().OfType<Button>().Single(b => Equals(b.Content, "확인")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
         Assert.False(await pending); Assert.True(session.IsDirty); Assert.True(window.IsEnabled);
         Assert.Equal("Outside change", library.OpenForEditing(saved.Manifest.Id).Document.Name); window.CloseAfterApproval();
     }

@@ -8,4 +8,18 @@
     <PackageReference Include="Avalonia.Headless.XUnit" Version="12.1.2" />
     <Using Include="Xunit" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="../../Art/Characters/bori-rabbit/runtime/bori-rabbit/*">
+      <Link>Candidates/bori-rabbit/%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="../../Art/Characters/bori-rabbit/source/bori-atlas-v1.png">
+      <Link>Candidates/bori-source.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="../../Art/Characters/bori-rabbit/resource.json">
+      <Link>Candidates/bori-resource.json</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>

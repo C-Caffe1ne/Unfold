@@ -1,0 +1,118 @@
+{
+  "id": "bori-rabbit",
+  "name": "Bori · 보리",
+  "version": 1,
+  "spriteSheet": {
+    "file": "spritesheet.png",
+    "columns": 4,
+    "rows": 6,
+    "frameWidth": 256,
+    "frameHeight": 256
+  },
+  "animations": {
+    "idle": {
+      "frames": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        2,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fps": 8,
+      "loop": true
+    },
+    "attention": {
+      "frames": [
+        0,
+        4,
+        5,
+        5,
+        6,
+        6,
+        5,
+        7,
+        0
+      ],
+      "fps": 8,
+      "loop": false
+    },
+    "stretch": {
+      "frames": [
+        0,
+        8,
+        9,
+        10,
+        11,
+        11,
+        12,
+        12,
+        12,
+        12,
+        12,
+        13,
+        14,
+        15,
+        0
+      ],
+      "fps": 6,
+      "loop": false
+    },
+    "celebrate": {
+      "frames": [
+        0,
+        16,
+        18,
+        17,
+        17,
+        17,
+        18,
+        19,
+        0
+      ],
+      "fps": 8,
+      "loop": false
+    },
+    "click": {
+      "frames": [
+        0,
+        20,
+        21,
+        22,
+        22,
+        21,
+        23,
+        0
+      ],
+      "fps": 8,
+      "loop": false
+    }
+  },
+  "renderStyle": "smooth"
+}

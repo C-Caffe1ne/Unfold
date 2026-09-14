@@ -27,7 +27,7 @@ public sealed class PetWindow : Window
         Background = Brushes.Transparent; TransparencyLevelHint = [WindowTransparencyLevel.Transparent];
         ShowInTaskbar = false; Topmost = true; ShowActivated = false; Content = animation;
         var menu = new ContextMenu();
-        var settings = new MenuItem { Header = "Settings" }; settings.Click += (_, _) => runtime.ShowSettings();
+        var settings = new MenuItem { Header = "설정" }; settings.Click += (_, _) => runtime.ShowSettings();
         menu.Items.Add(settings); ContextMenu = menu;
         animation.PointerPressed += (_, e) =>
         {

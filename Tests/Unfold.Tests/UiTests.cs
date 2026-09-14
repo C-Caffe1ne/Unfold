@@ -20,7 +20,7 @@ public static class TestBootstrap
 }
 public sealed class TestApplication : Application
 {
-    public override void Initialize() { RequestedThemeVariant = ThemeVariant.Dark; Styles.Add(new FluentTheme()); }
+    public override void Initialize() { DesignSystem.Install(this); }
 }
 
 public class UiTests

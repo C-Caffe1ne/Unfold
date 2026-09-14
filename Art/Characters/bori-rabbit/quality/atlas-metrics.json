@@ -1,0 +1,313 @@
+{
+  "sourceSha256": "5558e3b0dff14addf559c083d5e0247cb32e08c5a2741e156cab23eb8a759623",
+  "imageMode": "RGBA",
+  "size": [
+    1024,
+    1536
+  ],
+  "cellSize": [
+    256,
+    256
+  ],
+  "alphaRange": [
+    0,
+    254
+  ],
+  "visibleAlphaThreshold": 26,
+  "visibleBaselineRange": [
+    241,
+    242
+  ],
+  "frames": [
+    {
+      "index": 0,
+      "visibleBoundsAlpha26": [
+        63,
+        29,
+        192,
+        242
+      ],
+      "fullyTransparentPixels": 45762,
+      "nearOpaquePixelsAlpha240": 16882,
+      "maxEdgeAlpha": 1
+    },
+    {
+      "index": 1,
+      "visibleBoundsAlpha26": [
+        63,
+        28,
+        193,
+        242
+      ],
+      "fullyTransparentPixels": 45922,
+      "nearOpaquePixelsAlpha240": 16895,
+      "maxEdgeAlpha": 0
+    },
+    {
+      "index": 2,
+      "visibleBoundsAlpha26": [
+        63,
+        28,
+        192,
+        242
+      ],
+      "fullyTransparentPixels": 46003,
+      "nearOpaquePixelsAlpha240": 16897,
+      "maxEdgeAlpha": 0
+    },
+    {
+      "index": 3,
+      "visibleBoundsAlpha26": [
+        63,
+        28,
+        193,
+        242
+      ],
+      "fullyTransparentPixels": 45804,
+      "nearOpaquePixelsAlpha240": 16909,
+      "maxEdgeAlpha": 0
+    },
+    {
+      "index": 4,
+      "visibleBoundsAlpha26": [
+        63,
+        28,
+        192,
+        242
+      ],
+      "fullyTransparentPixels": 45690,
+      "nearOpaquePixelsAlpha240": 16889,
+      "maxEdgeAlpha": 1
+    },
+    {
+      "index": 5,
+      "visibleBoundsAlpha26": [
+        63,
+        22,
+        208,
+        242
+      ],
+      "fullyTransparentPixels": 44860,
+      "nearOpaquePixelsAlpha240": 17787,
+      "maxEdgeAlpha": 0
+    },
+    {
+      "index": 6,
+      "visibleBoundsAlpha26": [
+        63,
+        30,
+        202,
+        242
+      ],
+      "fullyTransparentPixels": 45027,
+      "nearOpaquePixelsAlpha240": 17176,
+      "maxEdgeAlpha": 0
+    },
+    {
+      "index": 7,
+      "visibleBoundsAlpha26": [
+        63,
+        28,
+        193,
+        242
+      ],
+      "fullyTransparentPixels": 45717,
+      "nearOpaquePixelsAlpha240": 16905,
+      "maxEdgeAlpha": 0
+    },
+    {
+      "index": 8,
+      "visibleBoundsAlpha26": [
+        63,
+        29,
+        193,
+        242
+      ],
+      "fullyTransparentPixels": 45916,
+      "nearOpaquePixelsAlpha240": 16878,
+      "maxEdgeAlpha": 1
+    },
+    {
+      "index": 9,
+      "visibleBoundsAlpha26": [
+        63,
+        27,
+        196,
+        242
+      ],
+      "fullyTransparentPixels": 44640,
+      "nearOpaquePixelsAlpha240": 17576,
+      "maxEdgeAlpha": 1
+    },
+    {
+      "index": 10,
+      "visibleBoundsAlpha26": [
+        63,
+        25,
+        207,
+        242
+      ],
+      "fullyTransparentPixels": 43369,
+      "nearOpaquePixelsAlpha240": 18814,
+      "maxEdgeAlpha": 1
+    },
+    {
+      "index": 11,
+      "visibleBoundsAlpha26": [
+        63,
+        17,
+        202,
+        243
+      ],
+      "fullyTransparentPixels": 41757,
+      "nearOpaquePixelsAlpha240": 20160,
+      "maxEdgeAlpha": 0
+    },
+    {
+      "index": 12,
+      "visibleBoundsAlpha26": [
+        63,
+        17,
+        202,
+        242
+      ],
+      "fullyTransparentPixels": 41889,
+      "nearOpaquePixelsAlpha240": 20177,
+      "maxEdgeAlpha": 1
+    },
+    {
+      "index": 13,
+      "visibleBoundsAlpha26": [
+        63,
+        27,
+        199,
+        243
+      ],
+      "fullyTransparentPixels": 44427,
+      "nearOpaquePixelsAlpha240": 17859,
+      "maxEdgeAlpha": 1
+    },
+    {
+      "index": 14,
+      "visibleBoundsAlpha26": [
+        63,
+        29,
+        193,
+        243
+      ],
+      "fullyTransparentPixels": 45230,
+      "nearOpaquePixelsAlpha240": 17206,
+      "maxEdgeAlpha": 1
+    },
+    {
+      "index": 15,
+      "visibleBoundsAlpha26": [
+        63,
+        29,
+        193,
+        242
+      ],
+      "fullyTransparentPixels": 45743,
+      "nearOpaquePixelsAlpha240": 16897,
+      "maxEdgeAlpha": 0
+    },
+    {
+      "index": 16,
+      "visibleBoundsAlpha26": [
+        63,
+        29,
+        192,
+        242
+      ],
+      "fullyTransparentPixels": 45626,
+      "nearOpaquePixelsAlpha240": 16900,
+      "maxEdgeAlpha": 1
+    },
+    {
+      "index": 17,
+      "visibleBoundsAlpha26": [
+        63,
+        29,
+        193,
+        242
+      ],
+      "fullyTransparentPixels": 45045,
+      "nearOpaquePixelsAlpha240": 17036,
+      "maxEdgeAlpha": 1
+    },
+    {
+      "index": 18,
+      "visibleBoundsAlpha26": [
+        63,
+        29,
+        193,
+        242
+      ],
+      "fullyTransparentPixels": 45498,
+      "nearOpaquePixelsAlpha240": 16947,
+      "maxEdgeAlpha": 1
+    },
+    {
+      "index": 19,
+      "visibleBoundsAlpha26": [
+        63,
+        29,
+        193,
+        242
+      ],
+      "fullyTransparentPixels": 45559,
+      "nearOpaquePixelsAlpha240": 16893,
+      "maxEdgeAlpha": 1
+    },
+    {
+      "index": 20,
+      "visibleBoundsAlpha26": [
+        63,
+        28,
+        192,
+        242
+      ],
+      "fullyTransparentPixels": 45171,
+      "nearOpaquePixelsAlpha240": 16917,
+      "maxEdgeAlpha": 1
+    },
+    {
+      "index": 21,
+      "visibleBoundsAlpha26": [
+        62,
+        33,
+        201,
+        242
+      ],
+      "fullyTransparentPixels": 44412,
+      "nearOpaquePixelsAlpha240": 17665,
+      "maxEdgeAlpha": 1
+    },
+    {
+      "index": 22,
+      "visibleBoundsAlpha26": [
+        63,
+        33,
+        201,
+        242
+      ],
+      "fullyTransparentPixels": 44544,
+      "nearOpaquePixelsAlpha240": 17514,
+      "maxEdgeAlpha": 1
+    },
+    {
+      "index": 23,
+      "visibleBoundsAlpha26": [
+        63,
+        28,
+        193,
+        242
+      ],
+      "fullyTransparentPixels": 45489,
+      "nearOpaquePixelsAlpha240": 16928,
+      "maxEdgeAlpha": 1
+    }
+  ],
+  "pixelEditsApplied": false,
+  "interpretation": "Read-only pixel measurements, not a visual or legal release approval."
+}

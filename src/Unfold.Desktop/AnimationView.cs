@@ -26,6 +26,7 @@ public sealed class AnimationView : Control, IDisposable
     private bool disposed;
     private bool completed;
     public event Action? Completed;
+    internal bool Repeats => loop;
     private bool NeedsTimer => frames.Count > 0 && !completed && (!loop || frames.Count > 1);
     public AnimationView()
     {

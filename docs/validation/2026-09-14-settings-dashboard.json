@@ -1,0 +1,32 @@
+{
+  "success": true,
+  "startupMs": 3398.6087,
+  "totalMs": 12894.3905,
+  "workingSetBytes": 203948032,
+  "managedBytes": 62331240,
+  "oneCoreCpuPercent": 64.00501186377187,
+  "characters": 3,
+  "imageFiles": 21,
+  "completedBreaks": 1,
+  "simulatedSessionTiming": true,
+  "savedCustomRoutines": 2,
+  "workProfiles": 1,
+  "exportedBreaks": 1,
+  "simulatedExportDestination": true,
+  "timerResetWaitSeconds": 1.2,
+  "timerStopWaitSeconds": 1.2,
+  "timerControlsVerified": true,
+  "resetWhileOpening": true,
+  "petPackInstallUpdateRepairVerified": true,
+  "simulatedPackPicker": true,
+  "settingsLayout": {
+    "minimumWidth": 860,
+    "minimumHeight": 680,
+    "timerAndPetVisible": true,
+    "detailsScrollVerified": true,
+    "noHorizontalOverflow": true
+  },
+  "idleSeconds": 0.3438187,
+  "os": "Unix 26.6.2",
+  "framework": "10.0.12"
+}

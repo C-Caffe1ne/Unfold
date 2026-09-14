@@ -9,6 +9,15 @@ internal static class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        if (args.Length > 0 && args[0] == "--review-pet-pack")
+        {
+            if (args.Length != 2) { Console.Error.WriteLine("Usage: --review-pet-pack <file.unfoldpet>"); return 2; }
+            var profile = Environment.GetEnvironmentVariable("UNFOLD_DATA_DIR");
+            if (string.IsNullOrEmpty(profile))
+                Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", Path.Combine(Path.GetTempPath(), "Unfold-review-" + Guid.NewGuid().ToString("N")));
+            else if (Directory.Exists(profile) && Directory.EnumerateFileSystemEntries(profile).Any())
+            { Console.Error.WriteLine("Pet review requires a new empty UNFOLD_DATA_DIR."); return 2; }
+        }
         if (args.Length > 0 && args[0] == "--pack-character")
         {
             if (args.Length != 4) { Console.Error.WriteLine("Usage: --pack-character <character-directory> <content-version> <new-output.unfoldpet>"); return 2; }
