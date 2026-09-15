@@ -19,6 +19,7 @@ public class PersonalizationWindowTests
         WorkProfile? saved = null; var settings = new AppSettings();
         var window = new ProfileEditorWindow(settings, null, profile => { saved = profile; return Task.CompletedTask; });
         window.Show(); Dispatcher.UIThread.RunJobs();
+        Assert.Equal(1, Find<NumericUpDown>(window, "ProfileInterval").Increment);
         Find<TextBox>(window, "ProfileName").Text = "집중 작업"; Find<NumericUpDown>(window, "ProfileInterval").Value = 45;
         Find<NumericUpDown>(window, "ProfileIdle").Value = 3; Find<ComboBox>(window, "ProfileRoutine").SelectedIndex = 1;
         Press(window, "프로필 저장");

@@ -31,8 +31,8 @@ notarization or staple a ticket.
 
 ## Visible controls
 
-- Tray/menu bar: countdown, 설정, 펫 숨기기/펫 표시, 시작/일시정지/계속, 타이머 정지,
-  타이머 초기화, Unfold 종료.
+- Tray/menu bar: countdown and current state, 설정, 펫 숨기기/펫 표시,
+  시작/일시정지/계속, 타이머 정지, Unfold 종료.
 - Pet right-click menu: 설정.
 - Settings: timer interval, idle threshold, character selection, pet visibility,
   launch at login, routine selection, **Edit my routine**, **My routines & work profiles**,
@@ -41,14 +41,16 @@ notarization or staple a ticket.
   **I'm refreshed** becomes available after the routine timer and records confirmation.
   Closing the window records no completion. Snooze counts active time, not time away.
 
-Settings uses three icon buttons: Pause/Play, Stop, and Reset. Each has a tooltip and
-an accessibility name. Pause keeps the remaining time; Stop shows 00:00; Reset restores
-the configured interval and pauses. Use Play to resume or start again. Stop and Reset
-dismiss an open invitation without recording completion. Stretch now is no longer exposed.
+Settings uses two icon buttons: Pause/Play and Stop. Each has a tooltip and an
+accessibility name. Pause keeps the remaining time; Stop shows 00:00. Use Play to resume
+or to start a full interval after Stop. Stop dismisses an open invitation without recording
+completion. Reset and Stretch now are no longer exposed.
 
-Changing **Remind me every (min)** to a valid whole minute from 5 to 240 saves and
-applies it immediately. Typed input can be committed with Enter. The current running/paused/
-stopped state is preserved. Use **Apply reminder settings** for the away threshold and routine.
+The timer state badge and tray status explicitly show running, paused, stopped, idle-paused,
+or break-held state. **Remind me every (min)** is disabled while running and accepts whole
+minutes from 5 to 240 in one-minute steps while paused or stopped. A typed or stepped value
+does not change the timer until **Apply** is pressed at the reminder card's top right. The same
+button saves the away threshold and routine. Applying keeps Pause or Stop intact.
 
 A plain click on bundled Mochi keeps its current animation; Mochi has no click
 clip. The pet stretches when the user starts the routine and then returns to idle. A hidden

@@ -15,7 +15,7 @@ public sealed class ProfileEditorWindow : Window
         Background = Ui.Background; WindowStartupLocation = WindowStartupLocation.CenterOwner;
         var id = existing?.Id ?? "profile-" + Guid.NewGuid().ToString("N");
         var name = new TextBox { Name = "ProfileName", Text = existing?.Name ?? "집중하는 시간", MaxLength = 60 };
-        var interval = new NumericUpDown { Name = "ProfileInterval", Minimum = 5, Maximum = 240, Increment = 5,
+        var interval = new NumericUpDown { Name = "ProfileInterval", Minimum = 5, Maximum = 240, Increment = 1,
             Value = existing?.IntervalMinutes ?? settings.IntervalMinutes, FormatString = "0" };
         var idle = new NumericUpDown { Name = "ProfileIdle", Minimum = 1, Maximum = 60, Increment = 1,
             Value = existing?.IdleMinutes ?? settings.IdleMinutes, FormatString = "0" };

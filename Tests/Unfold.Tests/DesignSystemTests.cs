@@ -247,6 +247,25 @@ public class DesignSystemTests
             choice.Focus(NavigationMethod.Tab); Layout(window);
             Assert.True(choice.IsFocused);
             Assert.Equal(choiceAppearance, (ColorOf(choice.Background), ColorOf(choice.BorderBrush), choice.BorderThickness, ColorOf(choiceBorder.Background), ColorOf(choiceBorder.BorderBrush)));
+            number.IsEnabled = false; Layout(window);
+            Assert.True(number.ClipToBounds);
+            Assert.Equal(DesignSystem.ControlRadius, number.CornerRadius);
+            Assert.Equal(new Thickness(1), number.BorderThickness);
+            Assert.Equal(ColorOf(DesignSystem.Shell), ColorOf(number.Background));
+            Assert.Equal(ColorOf(DesignSystem.Muted), ColorOf(number.BorderBrush));
+            Assert.Equal(new CornerRadius(0), editor.CornerRadius);
+            Assert.Equal(new CornerRadius(0), border.CornerRadius);
+            Assert.Equal(ColorOf(Brushes.Transparent), ColorOf(editor.Background));
+            Assert.Equal(ColorOf(Brushes.Transparent), ColorOf(editor.BorderBrush));
+            Assert.Equal(ColorOf(Brushes.Transparent), ColorOf(border.Background));
+            Assert.Equal(ColorOf(Brushes.Transparent), ColorOf(border.BorderBrush));
+            foreach (var button in spinnerButtons.Values)
+            {
+                var surface = button.GetVisualDescendants().OfType<ContentPresenter>().First();
+                Assert.Equal(ColorOf(DesignSystem.Shell), ColorOf(button.Background));
+                Assert.Equal(ColorOf(DesignSystem.Shell), ColorOf(surface.Background));
+                Assert.Equal(button.CornerRadius, surface.CornerRadius);
+            }
         }
         finally { window.Close(); }
     }

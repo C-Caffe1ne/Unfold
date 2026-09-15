@@ -1,0 +1,11 @@
+{
+  "name": "Unfold Design System Builder",
+  "id": "202609150001000001",
+  "api": "1.0.0",
+  "main": "code.js",
+  "editorType": ["figma"],
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": ["none"]
+  }
+}

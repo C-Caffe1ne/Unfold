@@ -32,8 +32,8 @@ Closing Settings keeps Unfold running. Use **Unfold 종료** in the tray menu to
 - Up to 10 work profiles combining a routine, reminder interval, and away threshold; apply them manually.
 - Today's confirmed breaks, seven-day reviews, and local CSV export.
 - Local pet packs: preview animations, install, update, and reinstall from a saved `.unfoldpet` file.
-- A 5–240 minute timer with immediately saved interval changes and icon controls for Pause/Resume, Stop, and Reset.
-- Reset restores the configured interval and waits for Play; Stop clears the current countdown to 00:00.
+- A 5–240 minute timer with one-minute adjustment while paused or stopped, followed by an explicit Apply action.
+- A clear running/paused/stopped state badge and icon controls for Play/Pause and Stop. Stop clears the countdown to 00:00; Play starts the saved full interval.
 - An in-app reminder window and Windows/macOS system notification adapters.
 - Opt-in launch at login; configure it from the published app in its final location.
 

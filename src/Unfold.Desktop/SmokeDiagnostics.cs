@@ -28,20 +28,29 @@ internal static class SmokeDiagnostics
             var settings = desktop.MainWindow!;
             var settingsLayout = await VerifySettingsLayout(settings, directory);
             var intervalInput = settings.GetVisualDescendants().OfType<NumericUpDown>().Single(input => input.Name == "ReminderInterval");
+            if (intervalInput.IsEnabled) throw new InvalidOperationException("The running timer allowed interval editing.");
+            Press(settings, "TimerToggle"); await Task.Delay(100);
+            if (!runtime.Clock.Paused || !intervalInput.IsEnabled) throw new InvalidOperationException("Pause did not enable interval editing.");
             intervalInput.Value = 25; await Task.Delay(100);
+            if (runtime.Settings.IntervalMinutes == 25) throw new InvalidOperationException("Changing the interval applied before pressing Apply.");
+            Press(settings, "ApplyReminderSettings"); await Task.Delay(100);
             if (runtime.Settings.IntervalMinutes != 25 || AppSettings.Load(Path.Combine(AppPaths.DataRoot, "settings.json")).IntervalMinutes != 25)
-                throw new InvalidOperationException("Changing the interval did not update/persist the timer setting.");
-            Press(settings, "TimerReset"); await Task.Delay(1200);
+                throw new InvalidOperationException("Apply did not update/persist the timer setting.");
+            await Task.Delay(1200);
             if (!runtime.Clock.Paused || runtime.Clock.Remaining != TimeSpan.FromMinutes(25))
-                throw new InvalidOperationException("Reset started the timer or ignored the new interval.");
-            Capture(settings, Path.Combine(directory, "timer-reset.png"));
+                throw new InvalidOperationException("Applying the interval started the paused timer or ignored the new interval.");
+            Capture(settings, Path.Combine(directory, "timer-paused.png"));
             Press(settings, "TimerToggle"); if (runtime.Clock.Paused) throw new InvalidOperationException("Play did not resume the timer.");
             Press(settings, "TimerStop"); await Task.Delay(1200);
             if (!runtime.Clock.Stopped || runtime.Clock.Remaining != TimeSpan.Zero) throw new InvalidOperationException("Stop did not keep the timer stopped.");
             Capture(settings, Path.Combine(directory, "timer-stopped.png"));
             intervalInput.Value = 30; await Task.Delay(100);
-            if (!runtime.Clock.Stopped || runtime.Clock.Remaining != TimeSpan.Zero) throw new InvalidOperationException("Editing an interval restarted a stopped timer.");
-            Press(settings, "TimerReset"); Press(settings, "TimerToggle");
+            if (runtime.Settings.IntervalMinutes == 30 || !runtime.Clock.Stopped || runtime.Clock.Remaining != TimeSpan.Zero)
+                throw new InvalidOperationException("Editing an interval applied early or restarted a stopped timer.");
+            Press(settings, "ApplyReminderSettings"); await Task.Delay(100);
+            if (runtime.Settings.IntervalMinutes != 30 || !runtime.Clock.Stopped || runtime.Clock.Remaining != TimeSpan.Zero)
+                throw new InvalidOperationException("Applying an interval changed the stopped state.");
+            Press(settings, "TimerToggle");
             var routineEditor = new RoutineEditorWindow(null, routine => runtime.UpdateSettings(runtime.Settings with
                 { CustomRoutine = routine, BreakRoutineId = routine.Id }));
             AppRuntime.PrepareDiagnosticWindow(routineEditor); routineEditor.Show();
@@ -126,9 +135,9 @@ internal static class SmokeDiagnostics
             Capture(reviewWindow, Path.Combine(directory, "weekly-review.png")); reviewWindow.Close();
             await runtime.ShowReminder(); Press(settings, "TimerStop");
             if (runtime.ActiveReminder is not null || runtime.BreakHistory.Completions.Count != 1) throw new InvalidOperationException("Stop did not dismiss the break without recording completion.");
-            await runtime.Reload(); var pendingReminder = runtime.ShowReminder(); var resetWhileOpening = !pendingReminder.IsCompleted;
-            Press(settings, "TimerReset"); await pendingReminder;
-            if (runtime.ActiveReminder is not null || !runtime.Clock.Paused) throw new InvalidOperationException("A reminder survived Reset.");
+            await runtime.Reload(); var pendingReminder = runtime.ShowReminder(); var stopWhileOpening = !pendingReminder.IsCompleted;
+            Press(settings, "TimerStop"); await pendingReminder;
+            if (runtime.ActiveReminder is not null || !runtime.Clock.Stopped) throw new InvalidOperationException("A reminder survived Stop.");
             editor.CloseAfterApproval();
             await VerifyPetPacks(runtime, saved, directory);
             runtime.HideSettingsForDiagnostics();
@@ -143,7 +152,7 @@ internal static class SmokeDiagnostics
                 completedBreaks = runtime.BreakHistory.Completions.Count, simulatedSessionTiming = true,
                 savedCustomRoutines = runtime.Settings.AdditionalRoutines.Count + (runtime.Settings.CustomRoutine is null ? 0 : 1),
                 workProfiles = runtime.Settings.WorkProfiles.Count, exportedBreaks = 1, simulatedExportDestination = true,
-                timerResetWaitSeconds = 1.2, timerStopWaitSeconds = 1.2, timerControlsVerified = true, resetWhileOpening,
+                timerPausedApplyWaitSeconds = 1.2, timerStopWaitSeconds = 1.2, timerControlsVerified = true, stopWhileOpening,
                 petPackInstallUpdateRepairVerified = true, simulatedPackPicker = true, settingsLayout,
                 sharedDesignDialogsVerified = true, pinnedPageActionsVerified = true,
                 idleSeconds = PlatformServices.IdleTime().TotalSeconds, os = Environment.OSVersion.ToString(), framework = Environment.Version.ToString() };
@@ -231,7 +240,7 @@ internal static class SmokeDiagnostics
             await Task.Delay(200); window.UpdateLayout();
             if (Math.Abs(window.ClientSize.Width - 860) > 1 || Math.Abs(window.ClientSize.Height - 680) > 1)
                 throw new InvalidOperationException($"Settings did not reach the minimum diagnostic size: {window.ClientSize}.");
-            foreach (var name in new[] { "SettingsCompanionCard", "SettingsTimerCard", "TimerToggle", "TimerStop", "TimerReset", "SettingsQuit", "LaunchAtLogin" })
+            foreach (var name in new[] { "SettingsCompanionCard", "SettingsTimerCard", "TimerToggle", "TimerStop", "ApplyReminderSettings", "SettingsQuit", "LaunchAtLogin" })
             {
                 var control = window.GetVisualDescendants().OfType<Control>().Single(item => item.Name == name);
                 var origin = control.TranslatePoint(default, window)!.Value;

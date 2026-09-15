@@ -12,15 +12,13 @@ public sealed class TimerControls : StackPanel
     private static readonly Geometry PauseIcon = Geometry.Parse("M 6,4 H 10 V 20 H 6 Z M 14,4 H 18 V 20 H 14 Z");
     private static readonly Geometry PlayIcon = Geometry.Parse("M 7,4 L 21,12 L 7,20 Z");
     private static readonly Geometry StopIcon = Geometry.Parse("M 5,5 H 19 V 19 H 5 Z");
-    private static readonly Geometry ResetIcon = Geometry.Parse("M 12,4 A 8,8 0 1 1 4,12 H 6 A 6,6 0 1 0 12,6 H 8 V 9 L 3,5 L 8,1 V 4 Z");
     private readonly Button toggle;
     private string? currentLabel;
-    public TimerControls(Action togglePause, Action stop, Action reset)
+    public TimerControls(Action togglePause, Action stop)
     {
         Orientation = Orientation.Horizontal; Spacing = 8;
         toggle = IconButton("TimerToggle", "타이머 일시정지", PauseIcon, togglePause);
         Children.Add(toggle); Children.Add(IconButton("TimerStop", "타이머 정지", StopIcon, stop));
-        Children.Add(IconButton("TimerReset", "타이머 초기화", ResetIcon, reset));
     }
     public void Refresh(StretchClock clock)
     {

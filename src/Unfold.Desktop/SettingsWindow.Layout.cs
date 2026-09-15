@@ -15,7 +15,7 @@ public sealed partial class SettingsWindow
     private readonly TextBlock todayCount = Label("0", 48, Cream);
     private readonly TextBlock intervalHint = Label("", 12, Muted);
 
-    private Control BuildDashboard(Button apply, CheckBox login)
+    private Control BuildDashboard(CheckBox login)
     {
         Background = DesignSystem.Canvas;
         Classes.Add("unfold-page");
@@ -31,7 +31,7 @@ public sealed partial class SettingsWindow
         main.Children.Add(BuildCompanionCard(login));
         var timer = BuildTimerCard(); Grid.SetRow(timer, 2); main.Children.Add(timer);
 
-        var details = Ui.Column(BuildReminderCard(), BuildRoutineCard(apply), BuildReviewCard()); details.Spacing = 14;
+        var details = Ui.Column(BuildReminderCard(), BuildRoutineCard(), BuildReviewCard()); details.Spacing = 14;
         var detailsScroll = new ScrollViewer { Name = "SettingsDetailsScroll", Content = details,
             HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
         var dashboard = new Grid { ColumnDefinitions = new("*,16,300") };
@@ -97,13 +97,19 @@ public sealed partial class SettingsWindow
         var header = new Grid { ColumnDefinitions = new("*,Auto") };
         header.Children.Add(Label("다음 휴식까지", 12, Cream)); Grid.SetColumn(intervalHint, 1); header.Children.Add(intervalHint);
         var footer = new Grid { ColumnDefinitions = new("*,12,Auto") };
-        footer.Children.Add(state); Grid.SetColumn(timerControls, 2); footer.Children.Add(timerControls);
+        var statusContent = Ui.Row(timerStateDot, state); statusContent.Spacing = 7;
+        timerStateBadge.Child = statusContent; footer.Children.Add(timerStateBadge);
+        Grid.SetColumn(timerControls, 2); footer.Children.Add(timerControls);
         var body = Ui.Column(header, countdown, footer); body.Spacing = 7; body.Margin = new(24, 20);
         return Card("SettingsTimerCard", body, Surface, new(28));
     }
 
     private Border BuildReminderCard()
     {
+        reminderApply.Classes.Add("compact"); reminderApply.Classes.Add("primary");
+        reminderApply.HorizontalAlignment = HorizontalAlignment.Right;
+        var header = new Grid { ColumnDefinitions = new("*,Auto") };
+        header.Children.Add(Label("알림 설정", 17, Cream)); Grid.SetColumn(reminderApply, 1); header.Children.Add(reminderApply);
         var fields = new Grid { ColumnDefinitions = new("*,12,*") };
         var minutes = Ui.Column(Label("알림 간격 (분)", 11, Muted), interval); minutes.Spacing = 6;
         var away = Ui.Column(Label("자리 비움 (분)", 11, Muted), idle); away.Spacing = 6;
@@ -111,21 +117,19 @@ public sealed partial class SettingsWindow
         ToolTip.SetTip(idle, "이 시간 동안 입력이 없으면 작업 타이머를 일시정지해요.");
         interval.MinHeight = idle.MinHeight = routines.MinHeight = 36;
         reminderSettingsStatus.FontSize = 11;
-        var body = Ui.Column(Label("알림 설정", 17, Cream), fields, reminderSettingsStatus);
+        var body = Ui.Column(header, fields, reminderSettingsStatus);
         body.Spacing = 10; body.Margin = new(20);
         return Card("SettingsReminderCard", body, Surface, new(28));
     }
 
-    private Border BuildRoutineCard(Button apply)
+    private Border BuildRoutineCard()
     {
         activeProfile.FontSize = 11; activeProfile.Foreground = Muted;
-        apply.Classes.Add("compact"); apply.Classes.Add("primary"); apply.HorizontalAlignment = HorizontalAlignment.Stretch;
-        apply.HorizontalContentAlignment = HorizontalAlignment.Center; apply.Name = "ApplyReminderSettings";
         var edit = ActionButton("내 루틴 편집", OpenRoutine); edit.Name = "SettingsEditRoutine";
         var library = ActionButton("루틴 · 프로필", OpenPersonalization); library.Name = "SettingsOpenLibrary";
         var actions = new Grid { ColumnDefinitions = new("*,8,*") };
         actions.Children.Add(edit); Grid.SetColumn(library, 2); actions.Children.Add(library);
-        var body = Ui.Column(Label("나의 휴식", 17, Cream), routines, activeProfile, actions, apply);
+        var body = Ui.Column(Label("나의 휴식", 17, Cream), routines, activeProfile, actions);
         body.Spacing = 10; body.Margin = new(20);
         return Card("SettingsRoutineCard", body, Surface, new(28));
     }

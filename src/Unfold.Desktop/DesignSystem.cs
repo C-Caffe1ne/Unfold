@@ -82,7 +82,7 @@ public static class DesignSystem
                 new Setter(TemplatedControl.BorderThicknessProperty, new Thickness(1)),
                 new Setter(Control.FocusAdornerProperty, null)
             }});
-            foreach (var state in new[] { ":pointerover", ":focus", ":focus-within" })
+            foreach (var state in new[] { ":pointerover", ":focus", ":focus-within", ":disabled" })
                 styles.Add(new Style(s => s.Is(type).Class(state)) { Setters =
                 {
                     new Setter(TemplatedControl.BackgroundProperty, Shell),
@@ -93,9 +93,10 @@ public static class DesignSystem
         styles.Add(new Style(s => s.OfType<NumericUpDown>()) { Setters =
         {
             new Setter(NumericUpDown.TextAlignmentProperty, TextAlignment.Left),
-            new Setter(NumericUpDown.VerticalContentAlignmentProperty, VerticalAlignment.Center)
+            new Setter(NumericUpDown.VerticalContentAlignmentProperty, VerticalAlignment.Center),
+            new Setter(Visual.ClipToBoundsProperty, true)
         }});
-        foreach (var state in new[] { "", ":pointerover", ":focus", ":focus-within" })
+        foreach (var state in new[] { "", ":pointerover", ":focus", ":focus-within", ":disabled" })
             styles.Add(new Style(s =>
             {
                 var input = s.OfType<TextBox>();
@@ -106,7 +107,7 @@ public static class DesignSystem
                 new Setter(Border.BorderBrushProperty, Muted),
                 new Setter(Border.BorderThicknessProperty, new Thickness(1))
             }});
-        foreach (var state in new[] { "", ":pointerover", ":focus", ":focus-within" })
+        foreach (var state in new[] { "", ":pointerover", ":focus", ":focus-within", ":disabled" })
             styles.Add(new Style(s =>
             {
                 var input = s.OfType<ComboBox>();
@@ -118,7 +119,7 @@ public static class DesignSystem
                 new Setter(Border.BorderThicknessProperty, new Thickness(1))
             }});
         // NumericUpDown supplies the visible outer border. Its inner TextBox stays transparent in every state.
-        foreach (var state in new[] { "", ":pointerover", ":focus", ":focus-within" })
+        foreach (var state in new[] { "", ":pointerover", ":focus", ":focus-within", ":disabled" })
         {
             styles.Add(new Style(s =>
             {
@@ -129,6 +130,7 @@ public static class DesignSystem
                 new Setter(TemplatedControl.BackgroundProperty, Brushes.Transparent),
                 new Setter(TemplatedControl.BorderBrushProperty, Brushes.Transparent),
                 new Setter(TemplatedControl.BorderThicknessProperty, new Thickness(1)),
+                new Setter(TemplatedControl.CornerRadiusProperty, new CornerRadius(0)),
                 new Setter(TextBox.VerticalContentAlignmentProperty, VerticalAlignment.Center),
                 new Setter(Control.FocusAdornerProperty, null)
             }});
@@ -140,7 +142,8 @@ public static class DesignSystem
             {
                 new Setter(Border.BackgroundProperty, Brushes.Transparent),
                 new Setter(Border.BorderBrushProperty, Brushes.Transparent),
-                new Setter(Border.BorderThicknessProperty, new Thickness(1))
+                new Setter(Border.BorderThicknessProperty, new Thickness(1)),
+                new Setter(Border.CornerRadiusProperty, new CornerRadius(0))
             }});
         }
         foreach (var (name, radius) in new[]
@@ -150,16 +153,31 @@ public static class DesignSystem
         })
         {
             // Fluent places both arrows side by side; the decrease button alone touches the outer right edge.
-            styles.Add(new Style(s => s.OfType<RepeatButton>().Name(name)) { Setters =
-            { new Setter(TemplatedControl.CornerRadiusProperty, radius) }});
-            styles.Add(new Style(s => s.OfType<RepeatButton>().Name(name)
-                .Template().OfType<ContentPresenter>().Name("PART_ContentPresenter")) { Setters =
-            { new Setter(ContentPresenter.CornerRadiusProperty, radius) }});
-            styles.Add(new Style(s => s.OfType<RepeatButton>().Name(name).Class(":pointerover")) { Setters =
-            { new Setter(TemplatedControl.BackgroundProperty, Shell), new Setter(TemplatedControl.ForegroundProperty, Cream) }});
-            styles.Add(new Style(s => s.OfType<RepeatButton>().Name(name).Class(":pointerover")
-                .Template().OfType<ContentPresenter>().Name("PART_ContentPresenter")) { Setters =
-            { new Setter(ContentPresenter.BackgroundProperty, Shell), new Setter(ContentPresenter.ForegroundProperty, Cream) }});
+            foreach (var state in new[] { "", ":pointerover", ":disabled" })
+            {
+                var foreground = state == ":disabled" ? Muted : Cream;
+                styles.Add(new Style(s =>
+                {
+                    var button = s.OfType<RepeatButton>().Name(name);
+                    return state.Length == 0 ? button : button.Class(state);
+                }) { Setters =
+                {
+                    new Setter(TemplatedControl.BackgroundProperty, Shell),
+                    new Setter(TemplatedControl.ForegroundProperty, foreground),
+                    new Setter(TemplatedControl.CornerRadiusProperty, radius)
+                }});
+                styles.Add(new Style(s =>
+                {
+                    var button = s.OfType<RepeatButton>().Name(name);
+                    return (state.Length == 0 ? button : button.Class(state))
+                        .Template().OfType<ContentPresenter>().Name("PART_ContentPresenter");
+                }) { Setters =
+                {
+                    new Setter(ContentPresenter.BackgroundProperty, Shell),
+                    new Setter(ContentPresenter.ForegroundProperty, foreground),
+                    new Setter(ContentPresenter.CornerRadiusProperty, radius)
+                }});
+            }
         }
         styles.Add(new Style(s => s.OfType<TextBox>()) { Setters =
         {

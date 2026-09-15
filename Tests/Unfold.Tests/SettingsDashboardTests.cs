@@ -28,7 +28,7 @@ public class SettingsDashboardTests
         {
             window.Width = size.Width; window.Height = size.Height;
             Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
-            foreach (var name in new[] { "SettingsCompanionCard", "SettingsTimerCard", "TimerToggle", "TimerStop", "TimerReset", "SettingsQuit", "LaunchAtLogin" })
+            foreach (var name in new[] { "SettingsCompanionCard", "SettingsTimerCard", "TimerToggle", "TimerStop", "ApplyReminderSettings", "SettingsQuit", "LaunchAtLogin" })
             {
                 var control = Find<Control>(window, name);
                 var origin = control.TranslatePoint(default, window)!.Value;
@@ -60,6 +60,20 @@ public class SettingsDashboardTests
         Click(window, "ApplyReminderSettings"); Dispatcher.UIThread.RunJobs();
         var loaded = AppSettings.Load(Path.Combine(scope.Root, "settings.json"));
         Assert.Equal(12, loaded.IdleMinutes); Assert.Equal("look-away", loaded.BreakRoutineId);
+    }
+
+    [AvaloniaFact]
+    public void ReminderApplyButtonStaysAtTheCardTopRight()
+    {
+        using var scope = new Scope(); var window = scope.Window;
+        window.UpdateLayout();
+        var card = Find<Border>(window, "SettingsReminderCard");
+        var apply = Find<Button>(window, "ApplyReminderSettings");
+        var cardPosition = card.TranslatePoint(default, window)!.Value;
+        var applyPosition = apply.TranslatePoint(default, window)!.Value;
+        Assert.True(applyPosition.X > cardPosition.X + card.Bounds.Width / 2);
+        Assert.True(applyPosition.Y < cardPosition.Y + 60);
+        Assert.True(applyPosition.X + apply.Bounds.Width <= cardPosition.X + card.Bounds.Width);
     }
 
     [AvaloniaFact]

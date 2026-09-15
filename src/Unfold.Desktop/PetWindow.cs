@@ -55,7 +55,7 @@ public sealed class PetWindow : Window
         {
             if (runtime.DiagnosticMode) { Position = new(-32000, -32000); return; }
             var work = Screens.Primary?.WorkingArea ?? new PixelRect(0, 0, 1280, 720);
-            Position = runtime.Settings.PetX is int x && runtime.Settings.PetY is int y ? new(x, y) : new(work.Right - (int)(Width * RenderScaling) - 24, work.Bottom - (int)(Height * RenderScaling) - 24);
+            Position = runtime.Settings.PetX is int x && runtime.Settings.PetY is int y ? new(x, y) : new(work.Right - (int)(Width * DesktopScaling) - 24, work.Bottom - (int)(Height * DesktopScaling) - 24);
             ClampPosition(); hitTimer.Start();
         };
         Closed += (_, _) => { hitTimer.Stop(); animation.Dispose(); };
@@ -93,7 +93,7 @@ public sealed class PetWindow : Window
     private void ClampPosition()
     {
         var screen = Screens.ScreenFromWindow(this) ?? Screens.Primary; if (screen is null) return;
-        var work = screen.WorkingArea; var width = (int)(Width * RenderScaling); var height = (int)(Height * RenderScaling);
+        var work = screen.WorkingArea; var width = (int)(Width * DesktopScaling); var height = (int)(Height * DesktopScaling);
         Position = new(Math.Clamp(Position.X, work.X, Math.Max(work.X, work.Right - width)), Math.Clamp(Position.Y, work.Y, Math.Max(work.Y, work.Bottom - height)));
     }
     [StructLayout(LayoutKind.Sequential)] private struct CursorPoint { public int X, Y; }

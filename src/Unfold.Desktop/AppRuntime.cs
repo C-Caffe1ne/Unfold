@@ -20,6 +20,7 @@ public sealed class AppRuntime : IDisposable
     public BreakHistory BreakHistory { get; private set; }
     public IReadOnlyList<BreakRoutine> Routines { get; private set; }
     public string? BreakHistoryError { get; private set; }
+    public bool CanEditTimerInterval => Clock.Paused || Clock.Stopped;
     internal EditorWindow? ActiveEditor => editor;
     internal Window? ActiveReminder => reminder;
     internal BreakReminderWindow? ActiveBreakReminder => reminder;
@@ -110,8 +111,9 @@ public sealed class AppRuntime : IDisposable
         catch (Exception error) { idle = TimeSpan.FromDays(1); if (ActivityError != error.Message) AppPaths.Log(error); ActivityError = error.Message; }
         if (Clock.Tick(monotonic.Elapsed, idle, TimeSpan.FromMinutes(Settings.IdleMinutes), reminder is not null || openingReminder)) _ = ShowReminder();
         var remaining = $"{(int)Clock.Remaining.TotalMinutes:00}:{Clock.Remaining.Seconds:00}";
-        if (tray is not null) tray.ToolTipText = $"Unfold · {remaining}{(Clock.Stopped ? " · 정지" : Clock.Paused ? " · 일시정지" : Clock.IdlePaused ? " · 자리 비움" : "")}";
-        if (trayStatus is not null) trayStatus.Header = $"다음 휴식: {remaining}";
+        var clockState = Clock.Stopped ? "중지" : Clock.Paused ? "일시정지" : Clock.IdlePaused ? "자리 비움" : "진행 중";
+        if (tray is not null) tray.ToolTipText = $"Unfold · {remaining} · {clockState}";
+        if (trayStatus is not null) trayStatus.Header = $"다음 휴식: {remaining} · {clockState}";
         if (trayPause is not null) trayPause.Header = Clock.Stopped ? "시작" : Clock.Paused ? "계속" : "일시정지";
         if (trayPet is not null) trayPet.Header = Settings.ShowPet ? "펫 숨기기" : "펫 표시";
         Changed?.Invoke();
@@ -125,8 +127,12 @@ public sealed class AppRuntime : IDisposable
     public async Task UpdateSettings(AppSettings value)
     {
         value = value.ValidatePersonalization();
+        var reschedulesTimer = value.IntervalMinutes != Settings.IntervalMinutes ||
+            (value.ActiveProfileId is not null && value.ActiveProfileId != Settings.ActiveProfileId);
+        if (reschedulesTimer && !CanEditTimerInterval)
+            throw new ArgumentException("타이머를 일시정지하거나 중지한 뒤 알림 시간 또는 업무 프로필을 적용해 주세요.");
         value.Save(settingsFile); var changedCharacter = value.SelectedCharacterId != Settings.SelectedCharacterId;
-        if (value.IntervalMinutes != Settings.IntervalMinutes || (value.ActiveProfileId is not null && value.ActiveProfileId != Settings.ActiveProfileId))
+        if (reschedulesTimer)
         {
             Clock.SetInterval(TimeSpan.FromMinutes(value.IntervalMinutes)); Clock.ScheduleAfterBreak(monotonic.Elapsed);
         }
@@ -266,7 +272,7 @@ public sealed class AppRuntime : IDisposable
         trayPet = new NativeMenuItem("펫 숨기기"); menu.Items.Add(trayPet);
         trayPet.Click += async (_, _) => { try { await UpdateSettings(Settings with { ShowPet = !Settings.ShowPet }); } catch (Exception error) { AppPaths.Log(error); } };
         trayPause = new NativeMenuItem("일시정지"); trayPause.Click += (_, _) => TogglePause(); menu.Items.Add(trayPause);
-        Item("타이머 정지", Stop); Item("타이머 초기화", Reset);
+        Item("타이머 중지", Stop);
         menu.Items.Add(new NativeMenuItemSeparator()); Item("Unfold 종료", () => _ = Quit());
         tray.Menu = menu; tray.Clicked += (_, _) => ShowSettings();
         TrayIcon.SetIcons(Application.Current!, new TrayIcons { tray });
