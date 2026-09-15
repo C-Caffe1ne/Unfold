@@ -77,20 +77,33 @@ public class SettingsDashboardTests
     }
 
     [AvaloniaFact]
-    public void SidebarWorksWithTheKeyboardAndReturnsFocusToTheTimer()
+    public void SidebarUsesInWindowTabsAndReturnsFocusToTheTimer()
     {
         using var scope = new Scope(); var window = scope.Window;
         var routines = Find<Button>(window, "SettingsNavRoutines");
-        Assert.Equal("내 루틴 · 업무 프로필 열기", AutomationProperties.GetName(routines));
+        Assert.Equal("내 루틴 · 업무 프로필 탭", AutomationProperties.GetName(routines));
         Assert.NotNull(ToolTip.GetTip(routines));
         routines.Focus();
         window.KeyPress(Key.Space, RawInputModifiers.None, PhysicalKey.Space, " ");
         window.KeyRelease(Key.Space, RawInputModifiers.None, PhysicalKey.Space, " "); Dispatcher.UIThread.RunJobs();
-        var dialog = Assert.Single(window.OwnedWindows); Assert.IsType<PersonalizationWindow>(dialog);
-        dialog.Close(); Dispatcher.UIThread.RunJobs();
+        Assert.Empty(window.OwnedWindows);
+        Assert.Equal("PersonalizationTabs", Find<TabControl>(window, "PersonalizationTabs").Name);
         Assert.True(routines.IsEnabled);
+
+        Click(window, "SettingsNavReview"); Dispatcher.UIThread.RunJobs();
+        Assert.Empty(window.OwnedWindows);
+        Assert.Equal("ReviewStatus", Find<TextBlock>(window, "ReviewStatus").Name);
+
         Click(window, "SettingsNavTimer"); Dispatcher.UIThread.RunJobs();
         Assert.True(Find<Button>(window, "TimerToggle").IsFocused);
+    }
+
+    [AvaloniaFact]
+    public void PetPackEntryIsAbsentFromTheSidebarButRemainsInTheCompanionCard()
+    {
+        using var scope = new Scope(); var window = scope.Window;
+        Assert.DoesNotContain(window.GetVisualDescendants().OfType<Button>(), button => button.Name == "SettingsNavPacks");
+        Assert.NotNull(Find<Button>(window, "SettingsInstallPack"));
     }
 
     private sealed class Scope : IDisposable

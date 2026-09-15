@@ -236,6 +236,19 @@ internal static class SmokeDiagnostics
         var scroll = window.GetVisualDescendants().OfType<ScrollViewer>().Single(control => control.Name == "SettingsDetailsScroll");
         try
         {
+            var navigation = window.GetVisualDescendants().OfType<Button>()
+                .Where(button => button.Name?.StartsWith("SettingsNav", StringComparison.Ordinal) == true).ToArray();
+            if (navigation.Length != 3 || navigation.Any(button => button.Name == "SettingsNavPacks"))
+                throw new InvalidOperationException("Settings sidebar does not contain exactly the three content tabs.");
+            Press(window, "SettingsNavRoutines"); await Task.Delay(100); window.UpdateLayout();
+            if (window.OwnedWindows.Count != 0 || !window.GetVisualDescendants().OfType<TabControl>().Any(control => control.Name == "PersonalizationTabs"))
+                throw new InvalidOperationException("Routine navigation opened a window instead of the in-window tab.");
+            Capture(window, Path.Combine(directory, "settings-routines-tab.png"));
+            Press(window, "SettingsNavReview"); await Task.Delay(100); window.UpdateLayout();
+            if (window.OwnedWindows.Count != 0 || !window.GetVisualDescendants().OfType<TextBlock>().Any(control => control.Name == "ReviewStatus"))
+                throw new InvalidOperationException("Review navigation opened a window instead of the in-window tab.");
+            Capture(window, Path.Combine(directory, "settings-review-tab.png"));
+            Press(window, "SettingsNavTimer"); await Task.Delay(100); window.UpdateLayout();
             window.MinWidth = 860; window.MinHeight = 680; window.Width = 860; window.Height = 680;
             await Task.Delay(200); window.UpdateLayout();
             if (Math.Abs(window.ClientSize.Width - 860) > 1 || Math.Abs(window.ClientSize.Height - 680) > 1)
@@ -257,7 +270,8 @@ internal static class SmokeDiagnostics
                 throw new InvalidOperationException("The final settings action cannot be reached by scrolling.");
             Capture(window, Path.Combine(directory, "settings-minimum-scrolled.png"));
             return new { minimumWidth = window.ClientSize.Width, minimumHeight = window.ClientSize.Height,
-                timerAndPetVisible = true, detailsScrollVerified = true, noHorizontalOverflow = true };
+                timerAndPetVisible = true, detailsScrollVerified = true, noHorizontalOverflow = true,
+                inWindowTabsVerified = true, sidebarPetPackRemoved = true };
         }
         finally
         {

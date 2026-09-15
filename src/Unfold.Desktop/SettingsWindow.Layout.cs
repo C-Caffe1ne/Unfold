@@ -14,6 +14,12 @@ public sealed partial class SettingsWindow
     private readonly TextBlock companionName = Label("", 20, Cream);
     private readonly TextBlock todayCount = Label("0", 48, Cream);
     private readonly TextBlock intervalHint = Label("", 12, Muted);
+    private readonly ContentControl settingsPageHost = new() { Name = "SettingsPageHost",
+        HorizontalContentAlignment = HorizontalAlignment.Stretch, VerticalContentAlignment = VerticalAlignment.Stretch };
+    private readonly Dictionary<string, Button> navigationItems = [];
+    private Control? dashboardPage;
+    private PersonalizationView? personalizationPage;
+    private BreakReviewView? reviewPage;
 
     private Control BuildDashboard(CheckBox login)
     {
@@ -38,8 +44,9 @@ public sealed partial class SettingsWindow
         dashboard.Children.Add(main); Grid.SetColumn(detailsScroll, 2); dashboard.Children.Add(detailsScroll);
         var content = new Grid { RowDefinitions = new("Auto,*") };
         content.Children.Add(header); Grid.SetRow(dashboard, 1); content.Children.Add(dashboard);
+        dashboardPage = content; settingsPageHost.Content = content;
         var frame = new Grid { ColumnDefinitions = new("64,16,*") };
-        frame.Children.Add(BuildNavigation()); Grid.SetColumn(content, 2); frame.Children.Add(content);
+        frame.Children.Add(BuildNavigation()); Grid.SetColumn(settingsPageHost, 2); frame.Children.Add(settingsPageHost);
         return new Border { Name = "SettingsFrame", Margin = new(16), Padding = new(14), CornerRadius = new(32),
             Background = Shell, BorderBrush = Outline, BorderThickness = new(1), Child = frame };
     }
@@ -50,12 +57,12 @@ public sealed partial class SettingsWindow
         var logo = new Border { Width = 44, Height = 44, Background = Cream, CornerRadius = new(22),
             Child = Glyph("M12,1 C13,8 16,11 23,12 C16,13 13,16 12,23 C11,16 8,13 1,12 C8,11 11,8 12,1 Z", Ink, 24) };
         rail.Children.Add(logo);
-        var links = Ui.Column(
-            Nav("SettingsNavTimer", "타이머로 이동", "M12,2 A10,10 0 1 0 12,22 A10,10 0 1 0 12,2 M11,6 H13 V11 H17 V13 H11 Z", () =>
-            { timerControls.Children.OfType<Button>().First().Focus(); return Task.CompletedTask; }),
-            Nav("SettingsNavRoutines", "내 루틴 · 업무 프로필 열기", "M4,3 H9 V8 H4 Z M12,4 H21 V6 H12 Z M4,10 H9 V15 H4 Z M12,11 H21 V13 H12 Z M4,17 H9 V22 H4 Z M12,18 H21 V20 H12 Z", OpenPersonalization),
-            Nav("SettingsNavReview", "기록 · 내보내기 열기", "M3,14 H7 V21 H3 Z M10,8 H14 V21 H10 Z M17,3 H21 V21 H17 Z", OpenReview),
-            Nav("SettingsNavPacks", "펫 팩 설치 열기", "M6,2 L12,5 L18,2 L22,8 L20,18 L12,22 L4,18 L2,8 Z M6,10 H9 V13 H6 Z M15,10 H18 V13 H15 Z M10,16 H14 V18 H10 Z", OpenPetPacks));
+        var timer = Nav("SettingsNavTimer", "타이머 탭", "M12,2 A10,10 0 1 0 12,22 A10,10 0 1 0 12,2 M11,6 H13 V11 H17 V13 H11 Z", OpenDashboard);
+        var personalization = Nav("SettingsNavRoutines", "내 루틴 · 업무 프로필 탭", "M4,3 H9 V8 H4 Z M12,4 H21 V6 H12 Z M4,10 H9 V15 H4 Z M12,11 H21 V13 H12 Z M4,17 H9 V22 H4 Z M12,18 H21 V20 H12 Z", OpenPersonalization);
+        var review = Nav("SettingsNavReview", "기록 · 내보내기 탭", "M3,14 H7 V21 H3 Z M10,8 H14 V21 H10 Z M17,3 H21 V21 H17 Z", OpenReview);
+        navigationItems["dashboard"] = timer; navigationItems["personalization"] = personalization; navigationItems["review"] = review;
+        SelectNavigation("dashboard");
+        var links = Ui.Column(timer, personalization, review);
         links.Spacing = 12; Grid.SetRow(links, 2); rail.Children.Add(links);
         var quit = Nav("SettingsQuit", "Unfold 종료", "M11,2 H13 V12 H11 Z M7,4 L8,6 A8,8 0 1 0 16,6 L17,4 A10,10 0 1 1 7,4 Z", runtime.Quit);
         Grid.SetRow(quit, 3); rail.Children.Add(quit);
@@ -146,9 +153,39 @@ public sealed partial class SettingsWindow
 
     private Task OpenRoutine() => new RoutineEditorWindow(runtime.Settings.CustomRoutine,
         routine => runtime.UpdateSettings(runtime.Settings.SaveRoutine(routine))).ShowDialog(this);
-    private Task OpenPersonalization() => new PersonalizationWindow(() => runtime.Settings, runtime.UpdateSettings).ShowDialog(this);
-    private Task OpenReview() => new BreakReviewWindow(runtime.BreakHistory.Review, () => runtime.BreakHistoryError).ShowDialog(this);
+    private Task OpenDashboard()
+    {
+        if (dashboardPage is not null) ShowPage("dashboard", dashboardPage);
+        timerControls.Children.OfType<Button>().First().Focus();
+        return Task.CompletedTask;
+    }
+    private Task OpenPersonalization()
+    {
+        personalizationPage ??= new PersonalizationView(this, () => runtime.Settings, runtime.UpdateSettings);
+        personalizationPage.Refresh(); ShowPage("personalization", personalizationPage); return Task.CompletedTask;
+    }
+    private Task OpenReview()
+    {
+        reviewPage ??= new BreakReviewView(this, runtime.BreakHistory.Review, () => runtime.BreakHistoryError);
+        reviewPage.Refresh(); ShowPage("review", reviewPage); return Task.CompletedTask;
+    }
     private Task OpenPetPacks() => new PetPackWindow(runtime.Library, runtime.SelectInstalledCharacter).ShowDialog(this);
+
+    private void ShowPage(string key, Control page)
+    {
+        settingsPageHost.Content = page; SelectNavigation(key);
+    }
+    private void SelectNavigation(string key)
+    {
+        foreach (var item in navigationItems)
+        {
+            item.Value.Classes.Remove("primary");
+            if (item.Value.Content is PathIcon icon) icon.Foreground = Cream;
+        }
+        if (!navigationItems.TryGetValue(key, out var selected)) return;
+        selected.Classes.Add("primary");
+        if (selected.Content is PathIcon selectedIcon) selectedIcon.Foreground = Ink;
+    }
 
     private static TextBlock Label(string text, double size, IBrush brush) => new()
     { Text = text, FontSize = size, Foreground = brush, TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Center };
@@ -164,6 +201,7 @@ public sealed partial class SettingsWindow
     private static Button Nav(string name, string label, string path, Func<Task> action)
     {
         var button = ActionButton(label, action); button.Name = name;
+        button.Classes.Add("navigation");
         button.Content = Glyph(path, Cream); button.Width = 46; button.Height = 46; button.Padding = new(10);
         button.HorizontalContentAlignment = HorizontalAlignment.Center; button.VerticalContentAlignment = VerticalAlignment.Center;
         AutomationProperties.SetName(button, label); ToolTip.SetTip(button, label); ToolTip.SetShowDelay(button, 500);

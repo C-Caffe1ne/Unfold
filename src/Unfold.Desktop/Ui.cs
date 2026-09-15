@@ -46,10 +46,9 @@ public static class Ui
         foreach (var control in controls) panel.Children.Add(control);
         return panel;
     }
-    public static Control Page(Window window, string title, string description, Control body, Control footer,
-        string section = "나의 휴식", double inset = DesignSystem.Inset)
+    public static Control PageContent(string title, string description, Control body, Control footer,
+        string section = "나의 휴식")
     {
-        window.Classes.Add("unfold-page");
         var heading = Text(title, DesignSystem.Title); heading.FontWeight = FontWeight.SemiBold; heading.TextWrapping = TextWrapping.Wrap;
         var header = Column(Caption("UNFOLD / " + section), heading);
         header.Spacing = 6;
@@ -62,10 +61,18 @@ public static class Ui
         var actionBar = new Border { Name = "PageActions", BorderBrush = DesignSystem.Outline,
             BorderThickness = new(0, 1, 0, 0), Padding = new(0, 12, 0, 0), Child = footer };
         Grid.SetRow(actionBar, 4); layout.Children.Add(actionBar);
+        return layout;
+    }
+    public static Control PageFrame(Window window, Control content, double inset = DesignSystem.Inset)
+    {
+        window.Classes.Add("unfold-page");
         return new Border { Name = "PageFrame", Margin = new(12), Padding = new(inset),
             Background = DesignSystem.Shell, BorderBrush = DesignSystem.Outline, BorderThickness = new(1),
-            CornerRadius = DesignSystem.FrameRadius, Child = layout };
+            CornerRadius = DesignSystem.FrameRadius, Child = content };
     }
+    public static Control Page(Window window, string title, string description, Control body, Control footer,
+        string section = "나의 휴식", double inset = DesignSystem.Inset) =>
+        PageFrame(window, PageContent(title, description, body, footer, section), inset);
     public static unsafe Bitmap Bitmap(PixelImage image)
     {
         // Transfer raw pixels once; avoid PNG encoding/decoding on every

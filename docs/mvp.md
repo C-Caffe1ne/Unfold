@@ -26,7 +26,7 @@ observed. Those outcomes are not established by a passing build or animation tes
 | Area | Current behavior |
 |---|---|
 | Language | Korean throughout the normal settings, break, personalization, review, pet-pack and tray flows. User names and saved history retain their original text. [Language scope](localization.md) |
-| Settings layout | A sidebar of shortcuts, a large companion preview and visible timer, and a scrollable column for reminder settings, routines and today's record. Default size 1120×800, minimum 860×680; resizing preserves unsaved input. [Dashboard guide](settings-ui.md) |
+| Settings layout | A sidebar switches the current window among timer, routine/profile, and review tabs. Pet-pack installation is available from the companion card rather than the sidebar. The timer tab keeps a large companion preview, visible timer, and scrollable detail column. Default size 1120×800, minimum 860×680; resizing preserves unsaved input. [Dashboard guide](settings-ui.md) |
 | Timer | 5–240 minutes in one-minute steps. The interval is locked while running and can be edited only while manually paused or stopped. Interval, idle threshold, and routine changes wait for the **적용** button at the top right of the reminder card. |
 | Timer controls | The state badge explicitly distinguishes running, paused, stopped, idle-paused, and break-held states. The two labelled, keyboard-accessible icon buttons are Play/Pause and Stop. Pause keeps the remaining time; Stop clears it to 00:00; Play resumes or starts a full interval after Stop. Stop dismisses an open or pending invitation without adding a completion. |
 | Activity | Idle threshold of 1–60 minutes. Idle time and large dispatcher/sleep gaps do not accrue work time. |

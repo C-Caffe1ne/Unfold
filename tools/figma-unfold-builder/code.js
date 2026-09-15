@@ -575,6 +575,15 @@ function dashboardCard(parent, name, width, height, style = "surface") {
 function buildDashboard(page, sets, icons) {
   const existing = page.children.find((node) => node.name === "Settings Dashboard / Desktop 1120");
   if (existing) {
+    const rail = existing.findAll((node) => node.name === "Navigation Rail")[0];
+    if (rail && "children" in rail) {
+      for (const child of [...rail.children]) {
+        if (child.type === "INSTANCE" && child.name === "Navigation Item") child.remove();
+      }
+      for (const [iconName, state] of [["Timer", "Selected"], ["Settings", "Default"], ["Review", "Default"]]) {
+        rail.appendChild(instanceOf(sets.navigation, { State: state }, null, icons[iconName]));
+      }
+    }
     const reminder = existing.findAll((node) => node.name === "알림 설정")[0];
     if (reminder && "itemSpacing" in reminder) {
       reminder.resize(300, 224);
@@ -645,7 +654,7 @@ function buildDashboard(page, sets, icons) {
   rail.fills = [boundPaint("Color/Background/Surface")];
   setRadius(rail, "Radius/Card");
   shell.appendChild(rail);
-  for (const [iconName, state] of [["Pet", "Default"], ["Timer", "Default"], ["Review", "Default"], ["Settings", "Selected"]]) {
+  for (const [iconName, state] of [["Timer", "Selected"], ["Settings", "Default"], ["Review", "Default"]]) {
     const item = instanceOf(sets.navigation, { State: state }, null, icons[iconName]);
     rail.appendChild(item);
   }

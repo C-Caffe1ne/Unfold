@@ -9,6 +9,17 @@ namespace Unfold.Desktop;
 
 public sealed class PersonalizationWindow : Window
 {
+    public PersonalizationWindow(Func<AppSettings> getSettings, Func<AppSettings, Task> saveSettings)
+    {
+        Title = "내 루틴 · 업무 프로필 · Unfold"; Width = 640; Height = 620; MinWidth = 600; MinHeight = 580;
+        Background = Ui.Background; WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        Content = Ui.PageFrame(this, new PersonalizationView(this, getSettings, saveSettings, Close));
+    }
+}
+
+internal sealed class PersonalizationView : UserControl
+{
+    private readonly Window owner;
     private readonly Func<AppSettings> settings;
     private readonly Func<AppSettings, Task> save;
     private readonly ListBox routines = new() { Name = "RoutineLibrary", Height = 230 };
@@ -16,11 +27,11 @@ public sealed class PersonalizationWindow : Window
     private readonly TextBlock status = new() { Name = "LibraryStatus", IsVisible = false, TextWrapping = TextWrapping.Wrap };
     private readonly TextBlock detail = new() { Name = "ProfileDetail", TextWrapping = TextWrapping.Wrap };
     private readonly Button editRoutine, deleteRoutine, useRoutine, editProfile, deleteProfile, applyProfile;
-    public PersonalizationWindow(Func<AppSettings> getSettings, Func<AppSettings, Task> saveSettings)
+
+    public PersonalizationView(Window owner, Func<AppSettings> getSettings, Func<AppSettings, Task> saveSettings,
+        Action? close = null)
     {
-        settings = getSettings; save = saveSettings;
-        Title = "내 루틴 · 업무 프로필 · Unfold"; Width = 640; Height = 620; MinWidth = 600; MinHeight = 580;
-        Background = Ui.Background; WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        this.owner = owner; settings = getSettings; save = saveSettings;
         AutomationProperties.SetName(routines, "루틴 목록"); AutomationProperties.SetName(profiles, "업무 프로필");
         editRoutine = Action("루틴 편집", () => EditRoutine(routines.SelectedItem as BreakRoutine));
         useRoutine = Action("루틴 사용", async () =>
@@ -32,7 +43,7 @@ public sealed class PersonalizationWindow : Window
         {
             if (routines.SelectedItem is not BreakRoutine selected) return;
             settings().RemoveRoutine(selected.Id);
-            if (await Ui.Confirm(this, "루틴을 삭제할까요?", $"‘{selected.Name}’ 루틴을 삭제할까요? 완료 기록과 진행 중인 휴식은 유지돼요.", "삭제", "취소") == 0)
+            if (await Ui.Confirm(owner, "루틴을 삭제할까요?", $"‘{selected.Name}’ 루틴을 삭제할까요? 완료 기록과 진행 중인 휴식은 유지돼요.", "삭제", "취소") == 0)
                 await Save(settings().RemoveRoutine(selected.Id), "루틴을 삭제했어요.");
         });
         editProfile = Action("프로필 편집", () => EditProfile(profiles.SelectedItem as WorkProfile));
@@ -43,7 +54,7 @@ public sealed class PersonalizationWindow : Window
         deleteProfile = Action("프로필 삭제", async () =>
         {
             if (profiles.SelectedItem is not WorkProfile selected) return;
-            if (await Ui.Confirm(this, "프로필을 삭제할까요?", $"‘{selected.Name}’ 프로필을 삭제할까요? 현재 알림 설정과 기록은 유지돼요.", "삭제", "취소") == 0)
+            if (await Ui.Confirm(owner, "프로필을 삭제할까요?", $"‘{selected.Name}’ 프로필을 삭제할까요? 현재 알림 설정과 기록은 유지돼요.", "삭제", "취소") == 0)
                 await Save(settings().RemoveProfile(selected.Id), "프로필을 삭제했어요.");
         });
         Ui.Primary(useRoutine); Ui.Primary(applyProfile); Ui.Danger(deleteRoutine); Ui.Danger(deleteProfile);
@@ -60,11 +71,17 @@ public sealed class PersonalizationWindow : Window
         } };
         var actionHost = new ContentControl { Content = routineActions };
         tabs.SelectionChanged += (_, _) => actionHost.Content = tabs.SelectedIndex == 1 ? profileActions : routineActions;
-        var close = Ui.Button("닫기", Close); close.IsCancel = true; close.HorizontalAlignment = HorizontalAlignment.Right;
-        Content = Ui.Page(this, "나만의 방식으로 쉬어 가세요.", "루틴을 만들고 작업에 맞는 프로필을 골라 보세요.",
-            tabs, Ui.Column(status, actionHost, Ui.Actions(Ui.Quiet(close))), "루틴 · 프로필");
+        var footerItems = new List<Control> { status, actionHost };
+        if (close is not null)
+        {
+            var closeButton = Ui.Button("닫기", close); closeButton.IsCancel = true; closeButton.HorizontalAlignment = HorizontalAlignment.Right;
+            footerItems.Add(Ui.Actions(Ui.Quiet(closeButton)));
+        }
+        Content = Ui.PageContent("나만의 방식으로 쉬어 가세요.", "루틴을 만들고 작업에 맞는 프로필을 골라 보세요.",
+            tabs, Ui.Column(footerItems.ToArray()), "루틴 · 프로필");
         Refresh();
     }
+
     private Button Action(string label, Func<Task> action)
     {
         var button = Ui.Action(label);
@@ -78,10 +95,12 @@ public sealed class PersonalizationWindow : Window
         };
         return button;
     }
+
     private async Task Save(AppSettings value, string message)
     {
         await save(value); Refresh(); status.IsVisible = true; status.Foreground = DesignSystem.Muted; status.Text = message;
     }
+
     private async Task EditRoutine(BreakRoutine? existing)
     {
         var current = settings();
@@ -89,16 +108,18 @@ public sealed class PersonalizationWindow : Window
             throw new ArgumentException("내 루틴 20개를 모두 사용 중이에요. 기존 루틴을 편집하거나 삭제해 주세요.");
         var id = existing?.Id ?? (current.CustomRoutine is null ? BreakRoutines.CustomId : "routine-" + Guid.NewGuid().ToString("N"));
         var editor = new RoutineEditorWindow(existing, routine => Save(settings().SaveRoutine(routine), "루틴을 저장했어요. 다음 휴식부터 사용해요."), id);
-        await editor.ShowDialog(this);
+        await editor.ShowDialog(owner);
     }
+
     private async Task EditProfile(WorkProfile? existing)
     {
         if (existing is null && settings().WorkProfiles.Count >= AppSettings.MaxWorkProfiles)
             throw new ArgumentException("프로필 10개를 모두 사용 중이에요. 기존 프로필을 편집하거나 삭제해 주세요.");
         var editor = new ProfileEditorWindow(settings(), existing, profile => Save(settings().SaveProfile(profile), "프로필을 저장했어요. ‘프로필 적용’을 누르면 사용할 수 있어요."));
-        await editor.ShowDialog(this);
+        await editor.ShowDialog(owner);
     }
-    private void Refresh()
+
+    public void Refresh()
     {
         var current = settings(); var selectedProfile = (profiles.SelectedItem as WorkProfile)?.Id;
         routines.ItemsSource = BreakRoutines.ForSettings(current);
@@ -107,6 +128,7 @@ public sealed class PersonalizationWindow : Window
         profiles.SelectedItem = current.WorkProfiles.FirstOrDefault(item => item.Id == selectedProfile) ?? current.WorkProfiles.FirstOrDefault();
         RefreshActions();
     }
+
     private void RefreshActions()
     {
         var selected = routines.SelectedItem as BreakRoutine;
