@@ -7,7 +7,7 @@ using Unfold.Core;
 
 namespace Unfold.Desktop;
 
-public sealed partial class SettingsWindow : Window
+public sealed partial class SettingsWindow : Window, IDisposable
 {
     private readonly AppRuntime runtime;
     private readonly TextBlock countdown = Ui.Text("60:00", 52, Ui.Accent), state = Ui.Text("진행 준비", 13);
@@ -92,9 +92,10 @@ public sealed partial class SettingsWindow : Window
         Content = BuildDashboard(login);
         Closing += (_, e) => { e.Cancel = true; HideToTray(); };
         Opened += (_, _) => preview.SetRunning(true);
-        runtime.Changed += Refresh; Closed += (_, _) => { runtime.Changed -= Refresh; preview.Dispose(); };
+        runtime.Changed += Refresh; Closed += (_, _) => Dispose();
         Refresh();
     }
+    public void Dispose() { runtime.Changed -= Refresh; preview.Dispose(); petPage?.Dispose(); }
     public void HideToTray() { Hide(); preview.SetRunning(false); }
     public void ResumePreview() => preview.SetRunning(true);
     private async Task SaveReminderSettings(int minutes, int away, string routineId)

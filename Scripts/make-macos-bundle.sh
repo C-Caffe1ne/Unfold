@@ -4,11 +4,17 @@ export AVALONIA_TELEMETRY_OPTOUT=1 DOTNET_CLI_TELEMETRY_OPTOUT=1
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 RID="${1:-osx-arm64}"
 case "$RID" in osx-arm64|osx-x64) ;; *) echo "Use osx-arm64 or osx-x64" >&2; exit 1;; esac
+dotnet run --project "$ROOT/tools/Unfold.MediaSetup" -- "$RID" "$ROOT"
+CSPROJ="$ROOT/src/Unfold.Desktop/Unfold.Desktop.csproj"
+# The csproj <Version> is the single source of truth so the bundle and the
+# published archive name can never drift out of sync with each other.
+VERSION="$(grep -m1 -oE '<Version>[^<]+</Version>' "$CSPROJ" | sed -E 's#</?Version>##g')"
+if [ -z "$VERSION" ]; then echo "Could not read <Version> from $CSPROJ" >&2; exit 1; fi
 OUT="$ROOT/artifacts/$RID"
 # A deleted or renamed pet must not survive in the next published bundle.
 if [ -L "$OUT" ]; then echo "Refusing linked publish directory: $OUT" >&2; exit 1; fi
 rm -rf "$OUT"
-dotnet publish "$ROOT/src/Unfold.Desktop/Unfold.Desktop.csproj" -c Release -r "$RID" \
+dotnet publish "$CSPROJ" -c Release -r "$RID" \
   --self-contained true -p:PublishReadyToRun=true -o "$OUT"
 APP="$ROOT/artifacts/Unfold.app"
 # A stale bundle from an earlier run would leave unsigned Mach-O files behind.
@@ -17,7 +23,7 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp -R "$OUT/." "$APP/Contents/MacOS/"
 cp "$ROOT/THIRD-PARTY-NOTICES.md" "$APP/Contents/Resources/"
 chmod +x "$APP/Contents/MacOS/Unfold"
-cat > "$APP/Contents/Info.plist" <<'PLIST'
+cat > "$APP/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
@@ -26,8 +32,8 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <key>CFBundleIdentifier</key><string>app.unfold.desktop</string>
 <key>CFBundleExecutable</key><string>Unfold</string>
 <key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleShortVersionString</key><string>0.2.0</string>
-<key>CFBundleVersion</key><string>2</string>
+<key>CFBundleShortVersionString</key><string>$VERSION</string>
+<key>CFBundleVersion</key><string>3</string>
 <key>LSMinimumSystemVersion</key><string>13.0</string>
 <key>LSUIElement</key><true/>
 <key>NSHighResolutionCapable</key><true/>
@@ -51,9 +57,9 @@ if [ -n "${UNFOLD_CODESIGN_IDENTITY:-}" ]; then
 else
   codesign --force --deep --sign - "$APP"
 fi
-tar -czf "$ROOT/artifacts/Unfold-$RID.tar.gz" -C "$ROOT/artifacts" Unfold.app
+tar -czf "$ROOT/artifacts/Unfold-v$VERSION-$RID.tar.gz" -C "$ROOT/artifacts" Unfold.app
 # notarytool takes .zip, .dmg or .pkg; ditto is the only zip that keeps the
 # signature and symlinks intact.
-rm -f "$ROOT/artifacts/Unfold-$RID.zip"
-ditto -c -k --keepParent "$APP" "$ROOT/artifacts/Unfold-$RID.zip"
+rm -f "$ROOT/artifacts/Unfold-v$VERSION-$RID.zip"
+ditto -c -k --keepParent "$APP" "$ROOT/artifacts/Unfold-v$VERSION-$RID.zip"
 echo "$APP"

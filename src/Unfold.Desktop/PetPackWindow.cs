@@ -11,9 +11,24 @@ namespace Unfold.Desktop;
 
 public sealed class PetPackWindow : Window
 {
+    public PetPackWindow(CharacterLibrary library, Func<CharacterPackage, Task> installed, Func<Task<string?>>? chooseFile = null,
+        Func<Task<string?>>? chooseMedia = null, Func<Task<string?>>? chooseOutput = null)
+    {
+        Title = "Unfold · 펫 추가"; Width = 520; Height = 850; MinWidth = 480; MinHeight = 560;
+        Background = Ui.Background; WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        var page = new PetManagementView(this, library, installed, chooseFile, chooseMedia, chooseOutput);
+        Content = Ui.PageFrame(this, page, inset: 16);
+        Closing += (_, e) => { if (page.IsBusy) e.Cancel = true; };
+        Closed += (_, _) => page.Dispose();
+    }
+}
+
+internal sealed class PetPackView : UserControl, IDisposable
+{
     private readonly CharacterLibrary library;
     private readonly Func<CharacterPackage, Task> installed;
     private readonly Func<Task<string?>> chooseFile;
+    private readonly Window owner;
     private readonly AnimationView preview = new() { Name = "PackPreview", Width = 192, Height = 192 };
     private readonly ComboBox clips = new() { Name = "PackClip", HorizontalAlignment = HorizontalAlignment.Stretch, IsEnabled = false };
     private readonly ComboBox background = new() { Name = "PackBackground", ItemsSource = new[] { "어두운 배경", "밝은 배경" }, SelectedIndex = 0, MinWidth = 130 };
@@ -24,14 +39,14 @@ public sealed class PetPackWindow : Window
     private readonly Button open, install, pause, replay;
     private CharacterPack? pack;
     private CharacterPackInstallInfo? target;
-    private bool closed, installing, paused, loadingPreview, previewReady;
+    private bool closed, installing, reading, paused, loadingPreview, previewReady;
     private int generation;
-    public PetPackWindow(CharacterLibrary library, Func<CharacterPackage, Task> installed, Func<Task<string?>>? chooseFile = null)
+    public bool IsBusy => installing || reading;
+    public event Action? BusyChanged;
+    public PetPackView(Window owner, CharacterLibrary library, Func<CharacterPackage, Task> installed, Func<Task<string?>>? chooseFile = null)
     {
-        this.library = library; this.installed = installed; this.chooseFile = chooseFile ?? PickFile;
-        Title = "Unfold · 펫 팩"; Width = 520; Height = 850; MinWidth = 480; MinHeight = 560; Background = Ui.Background;
+        this.owner = owner; this.library = library; this.installed = installed; this.chooseFile = chooseFile ?? PickFile;
         warnings.IsVisible = false;
-        WindowStartupLocation = WindowStartupLocation.CenterOwner;
         open = Ui.AsyncButton("펫 팩 열기…", OpenPack); open.Name = "OpenPetPack";
         install = Ui.Button("설치", () => _ = InstallPack()); install.Name = "InstallPetPack"; install.IsEnabled = false;
         pause = Ui.Button("일시정지", () => { paused = !paused; UpdatePlayback(); }); pause.Name = "PausePackPreview";
@@ -49,17 +64,16 @@ public sealed class PetPackWindow : Window
         preview.Completed += () => { if (!closed && !loadingPreview) _ = PlayClip("idle"); };
         Ui.Primary(install); status.Name = "PackStatus"; version.Foreground = playbackStatus.Foreground = status.Foreground = DesignSystem.Muted;
         warnings.Foreground = DesignSystem.Warning;
-        var close = Ui.Quiet(Ui.Button("닫기", Close)); close.IsCancel = true;
         var body = Ui.Column(
             Ui.Actions(open), title, version, previewSurface,
             Ui.Row(Ui.Field("배경", background), Ui.Field("미리보기 크기", size)),
             Ui.Field("미리 볼 동작", clips), Ui.Actions(pause, replay), playbackStatus, warnings);
         body.Spacing = 10;
-        Content = Ui.Page(this, "새로운 친구를 만나 보세요.", "펫 팩을 열어 설치 전에 모습을 살펴보세요.", body,
-            Ui.Column(status, Ui.Actions(close, install)), "펫 팩", inset: 16);
-        PropertyChanged += (_, e) => { if (e.Property == IsVisibleProperty) UpdatePlayback(); };
-        Closing += (_, e) => { if (installing) e.Cancel = true; };
-        Closed += (_, _) => { closed = true; generation++; preview.Dispose(); DisposePack(); };
+        Content = Ui.PageContent("새로운 친구를 만나 보세요.", ".unfoldpet 파일을 열어 미리보고 설치하세요.", body,
+            Ui.Column(status, Ui.Actions(install)), "펫 추가");
+        owner.PropertyChanged += OwnerPropertyChanged;
+        AttachedToVisualTree += (_, _) => UpdatePlayback();
+        DetachedFromVisualTree += (_, _) => UpdatePlayback();
         UpdatePlayback();
     }
     private static string ClipName(string? key) => key switch
@@ -78,21 +92,35 @@ public sealed class PetPackWindow : Window
         pause.Content = paused ? "계속" : "일시정지";
         var label = paused ? "미리보기 계속" : "미리보기 일시정지";
         AutomationProperties.SetName(pause, label); ToolTip.SetTip(pause, label);
-        preview.SetRunning(IsVisible && !closed && previewReady && !loadingPreview && !paused);
+        preview.SetRunning(TopLevel.GetTopLevel(this) is not null && owner.IsVisible && !closed && previewReady && !loadingPreview && !paused);
     }
     private static TextBlock Text(string value, double size = 14) => new() { Text = value, FontSize = size, Foreground = DesignSystem.Cream, TextWrapping = TextWrapping.Wrap };
     private async Task<string?> PickFile()
     {
-        var files = await StorageProvider.OpenFilePickerAsync(new() { Title = "펫 팩 열기", AllowMultiple = false,
+        var files = await owner.StorageProvider.OpenFilePickerAsync(new() { Title = "펫 팩 열기", AllowMultiple = false,
             FileTypeFilter = [new FilePickerFileType("Unfold 펫 팩") { Patterns = ["*.unfoldpet"] }] });
         return files.FirstOrDefault()?.TryGetLocalPath();
     }
-    private async Task OpenPack()
+    private void OwnerPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
     {
+        if (e.Property == IsVisibleProperty) UpdatePlayback();
+    }
+    public void Dispose()
+    {
+        if (closed) return;
+        closed = true; generation++; owner.PropertyChanged -= OwnerPropertyChanged;
+        preview.Dispose(); DisposePack();
+    }
+    public Task OpenPath(string path) => ReadPack(() => Task.FromResult<string?>(path));
+    private Task OpenPack() => ReadPack(chooseFile);
+    private async Task ReadPack(Func<Task<string?>> choose)
+    {
+        if (closed || IsBusy) return;
         CharacterPack? candidate = null;
+        reading = true; open.IsEnabled = false; BusyChanged?.Invoke();
         try
         {
-            var path = await chooseFile(); if (closed || path is null) return;
+            var path = await choose(); if (closed || path is null) return;
             generation++; previewReady = false; loadingPreview = false; paused = false; UpdatePlayback();
             install.IsEnabled = clips.IsEnabled = false; install.Content = "설치"; status.Text = "펫 팩을 확인하고 있어요…";
             playbackStatus.Text = "미리 볼 동작을 선택해 주세요.";
@@ -107,13 +135,14 @@ public sealed class PetPackWindow : Window
             warnings.Text = pack.Audit.Warnings.Count == 0 ? "" : "미리보기 참고 사항\n" + string.Join("\n", pack.Audit.Warnings);
             warnings.IsVisible = pack.Audit.Warnings.Count > 0;
             clips.ItemsSource = pack.Character.Manifest.Animations.Keys.Order().ToArray(); clips.SelectedItem = "idle"; clips.IsEnabled = true;
-            install.Content = InstallLabel(info.Action); install.IsEnabled = true;
+            install.Content = InstallLabel(info.Action);
             status.Text = info.Action == "Install" ? "설치할 준비가 됐어요. 기존 펫은 그대로 유지돼요." :
                 $"{InstallLabel(info.Action)}할 준비가 됐어요. 이 펫의 설치 파일을 교체해요.";
             await PlayClip();
+            if (!closed) install.IsEnabled = previewReady;
         }
         catch (Exception error) { if (!closed) { install.IsEnabled = false; status.Text = "팩을 열지 못했어요. " + Ui.ErrorText(error); } AppPaths.Log(error); }
-        finally { candidate?.Dispose(); }
+        finally { candidate?.Dispose(); reading = false; if (!closed) { open.IsEnabled = true; BusyChanged?.Invoke(); } }
     }
     private async Task PlayClip(string? returnTo = null)
     {
@@ -136,14 +165,15 @@ public sealed class PetPackWindow : Window
     }
     private async Task InstallPack()
     {
-        if (installing || closed || pack is null || target is null) return;
-        installing = true; install.IsEnabled = open.IsEnabled = false; status.Text = "펫을 설치하고 있어요…";
+        if (IsBusy || closed || pack is null || target is null) return;
+        installing = true; install.IsEnabled = open.IsEnabled = false; BusyChanged?.Invoke(); status.Text = "펫을 설치하고 있어요…";
         CharacterPackage? result = null;
         try
         {
             result = await Task.Run(() => library.Install(pack, target.Revision));
+            if (closed) return;
             await installed(result);
-            status.Text = "펫을 설치하고 선택했어요. 이제 창을 닫아도 돼요."; install.Content = "설치 완료";
+            status.Text = "펫을 설치하고 선택했어요. 타이머 탭에서 만나 보세요."; install.Content = "설치 완료";
         }
         catch (Exception error)
         {
@@ -151,7 +181,7 @@ public sealed class PetPackWindow : Window
                 "팩을 설치했지만 선택하지 못했어요. 설정 창을 다시 열어 펫을 선택해 주세요. " + Ui.ErrorText(error);
             AppPaths.Log(error);
         }
-        finally { installing = false; open.IsEnabled = true; }
+        finally { installing = false; if (!closed) { open.IsEnabled = true; BusyChanged?.Invoke(); } }
     }
     private void DisposePack()
     {

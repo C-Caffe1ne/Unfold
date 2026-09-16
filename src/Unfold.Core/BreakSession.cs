@@ -54,6 +54,8 @@ public sealed class BreakSession
     public string? ProfileName { get; }
     public BreakSessionState State { get; private set; }
     public TimeSpan Elapsed { get; private set; }
+    public static readonly TimeSpan MaximumOvertime = TimeSpan.FromMinutes(60);
+    public TimeSpan Overtime => Elapsed > TimeSpan.FromSeconds(Routine.DurationSeconds) ? -Remaining : TimeSpan.Zero;
     public TimeSpan Remaining => TimeSpan.FromSeconds(Routine.DurationSeconds) - Elapsed;
     public bool IsTerminal => State is BreakSessionState.Completed or BreakSessionState.Snoozed or BreakSessionState.Skipped;
     private TimeSpan last;
@@ -85,15 +87,16 @@ public sealed class BreakSession
     }
     public void Tick(TimeSpan now)
     {
-        if (State != BreakSessionState.InProgress || now < last) return;
+        if (State is not (BreakSessionState.InProgress or BreakSessionState.AwaitingConfirmation) || now < last) return;
         var delta = now - last; last = now;
         if (delta > TimeSpan.FromSeconds(10)) return;
-        Elapsed += delta > Remaining ? Remaining : delta;
-        if (Remaining == TimeSpan.Zero) State = BreakSessionState.AwaitingConfirmation;
+        var available = TimeSpan.FromSeconds(Routine.DurationSeconds) + MaximumOvertime - Elapsed;
+        Elapsed += delta > available ? available : delta;
+        if (Remaining <= TimeSpan.Zero) State = BreakSessionState.AwaitingConfirmation;
     }
     public bool Complete()
     {
-        if (State != BreakSessionState.AwaitingConfirmation) return false;
+        if (State is not (BreakSessionState.InProgress or BreakSessionState.AwaitingConfirmation)) return false;
         State = BreakSessionState.Completed; return true;
     }
     public bool Snooze() => Finish(BreakSessionState.Snoozed);

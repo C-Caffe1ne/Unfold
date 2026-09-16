@@ -9,6 +9,9 @@
     <Using Include="Xunit" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Fixtures/*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="../../Art/Characters/bori-rabbit/runtime/bori-rabbit/*">
       <Link>Candidates/bori-rabbit/%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

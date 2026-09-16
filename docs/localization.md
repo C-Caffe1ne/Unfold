@@ -13,7 +13,7 @@
 | Pause when away (min) | 자리 비움 (분) |
 | Pause / Resume / Stop timer | 타이머 일시정지 / 계속 / 정지 |
 | My routines & work profiles | 루틴 · 프로필 |
-| In 5 minutes / Skip this break / I'm refreshed | 5분 뒤에 / 이번 휴식 건너뛰기 / 잘 쉬었어요 |
+| Pet speech actions | n분 뒤에 / 휴식 시작 / 완료 / 말풍선 접기·펼치기 |
 | Review & export / Export CSV | 기록 · 내보내기 / CSV 내보내기 |
 | Install / Update / Reinstall | 설치 / 업데이트 / 재설치 |
 | Quit Unfold | Unfold 종료 |

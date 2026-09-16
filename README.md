@@ -16,9 +16,9 @@ dotnet restore Unfold.slnx --locked-mode
 dotnet run --project src/Unfold.Desktop
 ```
 
-For a Windows portable build, extract the entire `Unfold-win-x64.zip` archive and
-launch `win-x64/Unfold.exe`. Keep the adjacent files and `Assets` folder together;
-the published build includes .NET.
+For a Windows portable build, extract the entire `Unfold-v<version>-win-x64.zip`
+archive and double-click `win-x64/Unfold.cmd`. Keep the `app` folder next to it; the
+published build includes .NET.
 
 Closing Settings keeps Unfold running. Use **Unfold 종료** in the tray menu to exit.
 

@@ -101,7 +101,7 @@ public class TimerControlTests
         using var scope = new SettingsScope();
         var error = await Assert.ThrowsAsync<ArgumentException>(() => scope.Runtime.UpdateSettings(
             scope.Runtime.Settings with { IntervalMinutes = 30 }));
-        Assert.Contains("일시정지하거나 정지", error.Message);
+        Assert.Contains("일시정지하거나 중지", error.Message);
         Assert.Equal(60, scope.Runtime.Settings.IntervalMinutes);
 
         await scope.Runtime.UpdateSettings(scope.Runtime.Settings with { IdleMinutes = 12 });

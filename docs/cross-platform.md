@@ -5,8 +5,11 @@ packages include .NET. Swift, Xcode, and the Piskel web runtime are not required
 
 ## Windows installation
 
-Extract the entire `Unfold-win-x64.zip` and launch `win-x64/Unfold.exe`. Keep the
-executable, DLLs, and `Assets` directory together. The local portable build is unsigned.
+Extract the entire `Unfold-v<version>-win-x64.zip` and double-click `win-x64/Unfold.cmd`.
+It launches `win-x64/app/Unfold.exe`. Keep the `app` folder next to the launcher;
+it holds the executable, DLLs, and `Assets` directory. The local portable build is
+unsigned. Launch at login registers the real path inside `app`, so login launch
+keeps working even without the launcher after the first run.
 
 Closing Settings hides it to the tray. Run the app again or use the tray menu to
 open Settings. **Unfold 종료** exits the process. The app uses one instance per data
@@ -33,13 +36,15 @@ notarization or staple a ticket.
 
 - Tray/menu bar: countdown and current state, 설정, 펫 숨기기/펫 표시,
   시작/일시정지/계속, 타이머 정지, Unfold 종료.
-- Pet right-click menu: 설정.
+- Pet right-click menu: 말풍선 접기/펼치기, 설정.
 - Settings: timer interval, idle threshold, character selection, pet visibility,
   launch at login, routine selection, **Edit my routine**, **My routines & work profiles**,
-  **Review & export**, **Install pet pack…**, today's confirmed breaks, and timer controls.
-- Reminder: start the selected built-in or custom routine, **In 5 minutes**, or **Skip this break**.
-  **I'm refreshed** becomes available after the routine timer and records confirmation.
-  Closing the window records no completion. Snooze counts active time, not time away.
+  **Review & export**, **펫 추가**, today's confirmed breaks, and timer controls.
+- Pet speech reminder: **n분 뒤에**, **휴식 시작**, and **완료**. Right-click the pet to fold/unfold the bubble.
+  Settings offers four bubble positions, 1–60 minute snooze, and due/completion WAV effects.
+  There is no separate reminder window or OS toast.
+  **완료** is available from the start of a break. Overtime caps at +60:00 without auto-completion.
+  Snooze counts active time, not time away.
 
 Settings uses two icon buttons: Pause/Play and Stop. Each has a tooltip and an
 accessibility name. Pause keeps the remaining time; Stop shows 00:00. Use Play to resume
@@ -82,11 +87,11 @@ workflow is described in the [personalization guide](personalization.md).
 | macOS | `~/Library/Application Support/Unfold/` |
 
 `settings.json` stores preferences, the routine library and manually applied work profiles. `Characters/` holds user-created packages and
-`unfold.log` records errors. `UNFOLD_DATA_DIR` overrides this directory for isolated
+`Sounds/` holds copied custom WAV effects and generated default effects; `unfold.log` records errors. `UNFOLD_DATA_DIR` overrides this directory for isolated
 testing. Bundled assets are separate, under the application's `Assets/Characters/`.
 
 `break-history.json` stores confirmed routine completions locally, with session ID,
-timestamp, routine, planned seconds, companion ID, and optional routine/profile name snapshots. It contains no keystrokes or
+timestamp, routine, planned seconds, optional actual seconds, companion ID, and optional routine/profile name snapshots. It contains no keystrokes or
 application-usage tracking. Adding a record prunes entries older than 90 days and
 keeps at most 2,000. A corrupt history is left intact; Settings explains when new
 completions are only kept in memory. Completed seconds describe the selected
@@ -98,7 +103,7 @@ Existing valid user character packages remain selectable. The editor has no
 normal UI entry point in the MVP. Legacy Swift preferences and sandbox data are
 neither migrated nor deleted automatically.
 
-**Install pet pack…** opens a local `.unfoldpet` file for preview before installation.
+**펫 추가** opens a local `.unfoldpet` file for preview before installation.
 Preview controls offer light/dark backgrounds, 100–200% display size, Pause/Resume,
 and Replay. Display size affects this preview only. Completed reactions return to
 resting while keeping the selection available for replay.
@@ -109,12 +114,21 @@ hash/decoder failures and changed installed files are rejected. Successful insta
 the companion without resuming a paused timer. There is no store, automatic download, or
 account purchase recovery. See the [pet pack guide](pet-packs.md).
 
+The sidebar **펫 추가** page switches between **펫 팩 열기** and **펫 팩 만들기** in place.
+**파일 가져오기** on the create tab imports GIF/MP4 files. Drafts survive tab navigation and hiding the settings window.
+Assign files to five supported actions (idle required), preview each, then save a `.unfoldpet`
+and install it through the same preview dialog. MP4 conversion is local, silent, limited to
+10 seconds/128 MiB, and resized proportionally to at most 192px at 12 fps. GIF import preserves
+source pixels/timing. Opaque video backgrounds remain visible; there is no background removal.
+
 ## Development and packaging
 
 Run these commands from the repository with .NET SDK 10 installed:
 
 ```sh
 dotnet restore Unfold.slnx --locked-mode
+# MP4 import: use the matching RID (win-x64, win-arm64, osx-arm64, osx-x64).
+dotnet run --project tools/Unfold.MediaSetup -- osx-arm64 .
 dotnet test Unfold.slnx -c Release --no-restore
 dotnet run --project src/Unfold.Desktop
 ```
@@ -139,6 +153,15 @@ The CI matrix builds/tests Windows x64 and macOS arm64, then packages them. The 
 job also defines an isolated packaged smoke run. This is automated diagnostic coverage,
 not physical OS interaction or evidence that the current workflow has already passed.
 Other supported script arguments are not proof of tested architectures.
+
+Both publishing scripts prepare the pinned LGPL FFmpeg 8.1.2 build in `.tools/media-lgpl/<rid>/`.
+The setup tool verifies fixed SHA-256 checksums before extraction and retains upstream licenses,
+source provenance, and Windows support DLLs. The first preparation needs network access; cached
+archives are reverified on later runs. Normal builds copy prepared files into `Tools/`. The app
+does not download software at runtime. `UNFOLD_FFMPEG_PATH` can point to an absolute FFmpeg path
+for development; the bundled executable and then `PATH` are the fallbacks. GIF import needs no
+FFmpeg. Windows Arm uses the x64 FFmpeg process via Windows x64 emulation; actual Windows/Arm
+execution still needs target-OS testing.
 
 ## Diagnostic authoring path
 

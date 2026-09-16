@@ -40,8 +40,7 @@ public class DesignSystemTests
             new ProfileEditorWindow(new(), null, _ => Task.CompletedTask),
             new PersonalizationWindow(() => new(), _ => Task.CompletedTask),
             new BreakReviewWindow(new BreakHistory().Review),
-            new PetPackWindow(new(temp.Path), _ => Task.CompletedTask),
-            new BreakReminderWindow(new(BreakRoutines.All[0], "default-cat"), "모찌", [], true)
+            new PetPackWindow(new(temp.Path), _ => Task.CompletedTask)
         ];
         foreach (var window in windows)
         {

@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
 using Avalonia.Interactivity;
@@ -10,49 +11,89 @@ using Unfold.Desktop;
 
 namespace Unfold.Tests;
 
+[Collection("Timer settings")]
 public class BreakReminderTests
 {
-    private static Button Button(Window window, string content) => window.GetVisualDescendants().OfType<Button>().Single(button => Equals(button.Content, content));
+    private static Button Button(Window window, string name) => window.GetVisualDescendants().OfType<Button>().Single(button => button.Name == name);
     private static void Click(Button button) => button.RaiseEvent(new RoutedEventArgs(Avalonia.Controls.Button.ClickEvent));
-    private static BreakReminderWindow Window(BreakSession session, Func<TimeSpan> now) => new(session, "Mochi",
-        [new(new(2, 2, [0xFFFFAA00, 0, 0, 0xFFFFAA00]), TimeSpan.FromMilliseconds(100))], true, now);
+
     [AvaloniaFact]
-    public void RealButtonsStartAndConfirmExactlyOneSession()
+    public void BubbleButtonsAllowEarlyCompletionWithoutOpeningAnotherWindow()
     {
-        var now = TimeSpan.Zero; var session = new BreakSession(BreakRoutines.Find("look-away")!, "default-cat");
-        var window = Window(session, () => now); var started = 0; var finished = 0;
-        window.Started += () => started++; window.Finished += _ => finished++;
-        window.Show(); Dispatcher.UIThread.RunJobs();
-        Click(Button(window, "20초 휴식 시작"));
-        Assert.Equal(1, started); Assert.Equal(BreakSessionState.InProgress, session.State);
-        Assert.False(Button(window, "천천히 쉬어 가세요…").IsEnabled);
-        now = TimeSpan.FromSeconds(10); window.RefreshProgress();
-        now = TimeSpan.FromSeconds(20); window.RefreshProgress();
-        Assert.Equal(0, finished); Assert.Equal(BreakSessionState.AwaitingConfirmation, session.State);
-        Click(Button(window, "잘 쉬었어요"));
-        Assert.Equal(1, finished); Assert.Equal(BreakSessionState.Completed, session.State);
-    }
-    [AvaloniaFact]
-    public void SnoozeAndWindowCloseRemainDistinctOutcomes()
-    {
-        var session = new BreakSession(BreakRoutines.All[0], "default-cat"); var window = Window(session, () => TimeSpan.Zero);
-        window.Show(); Dispatcher.UIThread.RunJobs(); Click(Button(window, "5분 뒤에"));
-        Assert.Equal(BreakSessionState.Snoozed, session.State);
-        var second = new BreakSession(BreakRoutines.All[0], "default-cat"); var other = Window(second, () => TimeSpan.Zero);
-        other.Show(); other.Close(); Assert.Equal(BreakSessionState.Skipped, second.State);
-    }
-    [AvaloniaFact]
-    public void ReminderControlsFitAndRenderAtDefaultSize()
-    {
-        var session = new BreakSession(BreakRoutines.All[0], "default-cat"); var window = Window(session, () => TimeSpan.Zero);
-        window.Show(); Dispatcher.UIThread.RunJobs(); AvaloniaHeadlessPlatform.ForceRenderTimerTick();
-        using var image = window.CaptureRenderedFrame(); Assert.NotNull(image);
-        foreach (var button in window.GetVisualDescendants().OfType<Button>())
+        var now = TimeSpan.Zero; var model = new PetReminder();
+        var session = new BreakSession(BreakRoutines.All[0], "default-cat"); model.Invite(session);
+        var started = 0; var finished = 0; model.Started += _ => started++; model.Finished += _ => finished++;
+        var bubble = new PetSpeechBubble(() => model.Start(now), () => model.Snooze(), () => model.Complete(now));
+        var window = new Window { Width = 320, Height = 268, Content = bubble };
+        try
         {
-            var point = button.TranslatePoint(default, window)!.Value;
-            Assert.True(point.X >= 0 && point.X + button.Bounds.Width <= window.ClientSize.Width);
-            Assert.True(point.Y >= 0 && point.Y + button.Bounds.Height <= window.ClientSize.Height);
+            bubble.Refresh(model, 7); window.Show(); Dispatcher.UIThread.RunJobs();
+            Assert.Equal("7분 뒤에", Button(window, "PetBreakSnooze").Content);
+            Assert.False(Button(window, "PetBreakComplete").IsVisible);
+            Click(Button(window, "PetBreakStart")); bubble.Refresh(model, 7);
+            Assert.Equal(1, started); Assert.True(Button(window, "PetBreakComplete").IsVisible);
+            now = TimeSpan.FromSeconds(3); model.Tick(now); bubble.Refresh(model, 7);
+            Click(Button(window, "PetBreakComplete")); bubble.Refresh(model, 7);
+            Assert.Equal(1, finished); Assert.Equal(BreakSessionState.Completed, session.State);
+            Assert.Equal(PetNotice.Completed, model.Notice); Assert.Equal(3, model.CompletedSeconds);
+            Assert.Empty(window.OwnedWindows);
         }
-        window.Close();
+        finally { window.Close(); }
+    }
+
+    [AvaloniaFact]
+    public async Task PetFoldingAndAllDirectionsKeepSessionAndButtonsInsideOneWindow()
+    {
+        using var temp = new TempDirectory(); var previous = Environment.GetEnvironmentVariable("UNFOLD_DATA_DIR");
+        Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", temp.Path);
+        using var lifetime = new ClassicDesktopStyleApplicationLifetime(); using var runtime = new AppRuntime(lifetime);
+        var pet = new PetWindow(runtime);
+        try
+        {
+            var session = new BreakSession(BreakRoutines.All[0], "default-cat"); runtime.Reminder.Invite(session);
+            pet.Show();
+            foreach (var direction in Enum.GetValues<BubbleDirection>())
+            {
+                await runtime.UpdateSettings(runtime.Settings with { BubbleDirection = direction });
+                pet.RefreshSpeech(); Dispatcher.UIThread.RunJobs(); pet.UpdateLayout();
+                Assert.Equal(PetBubbleLayout.Create(direction, true).Size, pet.ClientSize);
+                foreach (var button in pet.GetVisualDescendants().OfType<Button>().Where(button => button.IsEffectivelyVisible))
+                {
+                    var point = button.TranslatePoint(default, pet)!.Value;
+                    Assert.True(point.X >= 0 && point.X + button.Bounds.Width <= pet.ClientSize.Width);
+                    Assert.True(point.Y >= 0 && point.Y + button.Bounds.Height <= pet.ClientSize.Height);
+                }
+            }
+            var fold = pet.ContextMenu!.Items.OfType<MenuItem>().Single(item => item.Name == "PetToggleSpeech");
+            fold.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent)); Dispatcher.UIThread.RunJobs(); pet.RefreshSpeech(); Dispatcher.UIThread.RunJobs(); pet.UpdateLayout();
+            Assert.True(runtime.Settings.BubbleCollapsed); Assert.Equal(new Size(192, 192), pet.ClientSize);
+            runtime.Reminder.Start(TimeSpan.Zero); runtime.Reminder.Tick(TimeSpan.FromSeconds(7));
+            fold.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent)); Dispatcher.UIThread.RunJobs(); pet.RefreshSpeech();
+            Assert.False(runtime.Settings.BubbleCollapsed); Assert.Same(session, runtime.Reminder.Session);
+            Assert.Equal(TimeSpan.FromSeconds(7), session.Elapsed); Assert.Empty(pet.OwnedWindows);
+            Assert.False(AppSettings.Load(Path.Combine(temp.Path, "settings.json")).BubbleCollapsed);
+        }
+        finally { pet.ClosePet(); Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", previous); }
+    }
+
+    [AvaloniaFact]
+    public void OvertimeTimerAndCompletionButtonFitWithLongInstructions()
+    {
+        var model = new PetReminder(); var session = new BreakSession(new("long", "긴 안내", [new(new string('쉼', 180), 1)]), "default-cat");
+        model.Invite(session); model.Start(TimeSpan.Zero); model.Tick(TimeSpan.FromSeconds(2));
+        var bubble = new PetSpeechBubble(() => { }, () => { }, () => model.Complete(TimeSpan.FromSeconds(2)));
+        bubble.Refresh(model, 60);
+        var window = new Window { Width = 320, Height = 268, Content = bubble };
+        try
+        {
+            window.Show(); Dispatcher.UIThread.RunJobs(); window.UpdateLayout(); AvaloniaHeadlessPlatform.ForceRenderTimerTick();
+            using var image = window.CaptureRenderedFrame(); Assert.NotNull(image);
+            var timer = window.GetVisualDescendants().OfType<TextBlock>().Single(text => text.Name == "PetBreakTimer");
+            var complete = Button(window, "PetBreakComplete"); Assert.Equal("+00:01", timer.Text);
+            var timerOrigin = timer.TranslatePoint(default, window)!.Value; var buttonOrigin = complete.TranslatePoint(default, window)!.Value;
+            Assert.True(buttonOrigin.Y >= timerOrigin.Y + timer.Bounds.Height);
+            Assert.True(buttonOrigin.Y + complete.Bounds.Height <= window.ClientSize.Height);
+        }
+        finally { window.Close(); }
     }
 }

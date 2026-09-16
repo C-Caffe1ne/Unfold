@@ -22,6 +22,8 @@ jobs:
         with:
           dotnet-version: '10.0.x'
       - run: dotnet restore Unfold.slnx --locked-mode
+      - name: Prepare MP4 import tools
+        run: dotnet run --project tools/Unfold.MediaSetup -- ${{ matrix.rid }} "${{ github.workspace }}"
       - run: dotnet test Unfold.slnx -c Release --no-restore
       - name: Publish Windows portable app
         if: runner.os == 'Windows'
@@ -33,7 +35,7 @@ jobs:
         run: |
           $env:UNFOLD_DATA_DIR = Join-Path $env:RUNNER_TEMP ('unfold-smoke-' + [guid]::NewGuid().ToString('N'))
           "UNFOLD_SMOKE_DIR=$env:UNFOLD_DATA_DIR" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          $process = Start-Process -FilePath './artifacts/win-x64/Unfold.exe' -ArgumentList '--smoke-test' -WindowStyle Hidden -PassThru
+          $process = Start-Process -FilePath './artifacts/win-x64/app/Unfold.exe' -ArgumentList '--smoke-test' -WindowStyle Hidden -PassThru
           if (-not $process.WaitForExit(120000)) {
             $process.Kill()
             throw 'Smoke test did not exit within 120 seconds.'

@@ -18,13 +18,17 @@
 | [입력 필드 상태 검증](validation/2026-09-14-input-fields.md) | 호버·포커스 강조 제거, 숫자 왼쪽 정렬과 화살표 모서리, 전체 136개 테스트 |
 | [타이머 피드백 검증](validation/2026-09-15-timer-feedback.md) | 상태 배지, 실행 중 간격 잠금, 명시적 적용, 재생/일시정지·정지 버튼과 회귀 검사 |
 | [비활성 입력 필드 검증](validation/2026-09-15-disabled-input.md) | 숫자 입력의 내부 반경·배경 통일, 외곽 1px 테두리와 macOS 렌더링 확인 |
+| [말풍선 알림 검증](validation/2026-09-16-stretch-speech.md) | 조기·초과 완료, 4방향 배치, 효과음과 macOS 네이티브 진단 |
+| [스트레칭 말풍선 알림](stretch-notifications.md) | 알림 흐름, 4방향 위치, 초과 시간, 효과음과 기록 호환성 |
 | [설정 대시보드](settings-ui.md) | 참고 이미지 기반 카드 배치, 바로가기와 창 크기 대응 |
 | [설정 대시보드 검증](validation/2026-09-14-settings-dashboard.md) | 130개 테스트, 기본·최소 크기 캡처와 설정 회귀 검증 |
 | [사이드바 탭 전환 검증](validation/2026-09-15-navigation-tabs.md) | 같은 창의 타이머·루틴·기록 탭, 펫 팩 항목 제거와 macOS 렌더링 검증 |
 | [개발 계획](development-plan.md) | 구현 단계, 완료 조건과 후속 범위 |
 | [루틴·프로필·회고 사용 안내](personalization.md) | 여러 루틴, 수동 업무 프로필, 주간 회고/CSV와 기존 데이터 호환 |
 | [펫 리소스 관리](pet-resources.md) | 제작 원장, 런타임 계약, 품질 기준과 검사 명령 |
-| [로컬 펫 팩 설치](pet-packs.md) | 미리보기·설치·업데이트·재설치, ZIP/버전/해시 계약과 복구 |
+| [펫 추가·커스텀 팩 만들기](pet-packs.md) | GIF·MP4 동작 배정, 팩 생성·미리보기·설치·업데이트·재설치, ZIP/버전/해시 계약 |
+| [커스텀 펫 검증](validation/2026-09-16-custom-pet.md) | 147개 테스트, 실제 MP4 변환, 동작별 팩 생성·설치, macOS 렌더링 검증 |
+| [펫 페이지 탭 검증](validation/2026-09-16-pet-tabs.md) | 사이드바 펫 추가, 열기·만들기 탭, 초안 유지와 최소 크기 렌더링 |
 | [펫 팩 기반 검증](validation/2026-09-13-pet-packs.md) | 병합 충돌 복구, 설치 회귀 테스트와 macOS 진단 |
 | [보리 아트 후보](../Art/Characters/bori-rabbit/README.md) | 원본·프롬프트·반응 5종·별도 설치 팩과 남은 아트 검수 |
 | [보리 제작·재생 검증](validation/2026-09-14-bori-candidate.md) | 119개 테스트, macOS 실제 시간 기반 재생과 검증 한계 |

@@ -3,8 +3,10 @@
     <OutputType>WinExe</OutputType>
     <AssemblyName>Unfold</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Version>0.2.0</Version>
+    <Version>0.1.1</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <MediaRuntimeIdentifier Condition="'$(RuntimeIdentifier)' != ''">$(RuntimeIdentifier)</MediaRuntimeIdentifier>
+    <MediaRuntimeIdentifier Condition="'$(MediaRuntimeIdentifier)' == ''">$(NETCoreSdkRuntimeIdentifier)</MediaRuntimeIdentifier>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../Unfold.Core/Unfold.Core.csproj" />
@@ -12,6 +14,11 @@
     <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.2" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="../../.tools/media-lgpl/$(MediaRuntimeIdentifier)/*">
+      <Link>Tools/%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
     <Content Include="../../Assets/Characters/**/*">
       <Link>Assets/Characters/%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

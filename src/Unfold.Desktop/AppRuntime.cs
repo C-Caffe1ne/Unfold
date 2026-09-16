@@ -22,8 +22,8 @@ public sealed class AppRuntime : IDisposable
     public string? BreakHistoryError { get; private set; }
     public bool CanEditTimerInterval => Clock.Paused || Clock.Stopped;
     internal EditorWindow? ActiveEditor => editor;
-    internal Window? ActiveReminder => reminder;
-    internal BreakReminderWindow? ActiveBreakReminder => reminder;
+    public PetReminder Reminder { get; } = new();
+    internal BreakSession? ActiveReminder => Reminder.Session;
     internal PetWindow? ActivePet => pet;
     private readonly IClassicDesktopStyleApplicationLifetime desktop;
     private readonly string settingsFile = Path.Combine(AppPaths.DataRoot, "settings.json");
@@ -37,7 +37,9 @@ public sealed class AppRuntime : IDisposable
     private SettingsWindow? settingsWindow;
     private EditorWindow? editor;
     private PetWindow? pet;
-    private BreakReminderWindow? reminder;
+    private readonly ReminderSoundPlayer soundPlayer = new();
+    internal int DueSoundRequests { get; private set; }
+    internal int CompletionSoundRequests { get; private set; }
     private bool quitting;
     private bool quitPending, openingEditor;
     private bool openingReminder, historyWritable = true;
@@ -69,6 +71,8 @@ public sealed class AppRuntime : IDisposable
             AppPaths.Log(error); BreakHistory = new(); historyWritable = false;
             BreakHistoryError = "기록을 열지 못했어요. 새 휴식은 앱을 종료할 때까지만 보관돼요.";
         }
+        Reminder.Started += session => ReactToBreak(session, "stretch");
+        Reminder.Finished += session => { if (!quitting) FinishBreak(session); };
         timer.Tick += (_, _) => Tick();
         desktop.ShutdownRequested += async (_, e) =>
         {
@@ -109,7 +113,11 @@ public sealed class AppRuntime : IDisposable
         TimeSpan idle;
         try { idle = PlatformServices.IdleTime(); ActivityError = null; }
         catch (Exception error) { idle = TimeSpan.FromDays(1); if (ActivityError != error.Message) AppPaths.Log(error); ActivityError = error.Message; }
-        if (Clock.Tick(monotonic.Elapsed, idle, TimeSpan.FromMinutes(Settings.IdleMinutes), reminder is not null || openingReminder)) _ = ShowReminder();
+        var now = monotonic.Elapsed;
+        Reminder.Tick(now);
+        if (Clock.Tick(now, idle, TimeSpan.FromMinutes(Settings.IdleMinutes), Reminder.Session is not null || openingReminder)) _ = ShowReminder();
+        else if (Clock.AdvanceWarningDue) { Reminder.ShowAdvance(now); _ = EnsurePetNotice(); }
+        RefreshPetNotice();
         var remaining = $"{(int)Clock.Remaining.TotalMinutes:00}:{Clock.Remaining.Seconds:00}";
         var clockState = Clock.Stopped ? "중지" : Clock.Paused ? "일시정지" : Clock.IdlePaused ? "자리 비움" : "진행 중";
         if (tray is not null) tray.ToolTipText = $"Unfold · {remaining} · {clockState}";
@@ -121,7 +129,7 @@ public sealed class AppRuntime : IDisposable
     public void TogglePause() { Clock.TogglePause(monotonic.Elapsed); Changed?.Invoke(); }
     public void Stop() { CancelReminder(); Clock.Stop(monotonic.Elapsed); Changed?.Invoke(); }
     public void Reset() { CancelReminder(); Clock.Reset(monotonic.Elapsed); Changed?.Invoke(); }
-    private void CancelReminder() { reminderGeneration++; reminder?.Close(); }
+    private void CancelReminder() { reminderGeneration++; Reminder.Cancel(); RefreshPetNotice(); }
     public void ShowSettings() { if (settingsWindow is null) return; settingsWindow.Show(); settingsWindow.ResumePreview(); settingsWindow.WindowState = WindowState.Normal; if (!DiagnosticMode) settingsWindow.Activate(); }
     internal void HideSettingsForDiagnostics() => settingsWindow?.HideToTray();
     public async Task UpdateSettings(AppSettings value)
@@ -138,6 +146,7 @@ public sealed class AppRuntime : IDisposable
         }
         Routines = BreakRoutines.ForSettings(value);
         Settings = value;
+        if (!Settings.ReminderSoundsEnabled) soundPlayer.Stop();
         if (changedCharacter) clips.Clear();
         await UpdatePet(); Changed?.Invoke();
     }
@@ -159,14 +168,14 @@ public sealed class AppRuntime : IDisposable
     }
     private async Task UpdatePet()
     {
-        if (!Settings.ShowPet || Selected is null) { pet?.HidePet(); return; }
+        if ((!Settings.ShowPet && !Reminder.HasNotice) || Selected is null) { pet?.HidePet(); return; }
         var current = pet ??= new PetWindow(this);
         if (DiagnosticMode) PrepareDiagnosticWindow(current);
         await current.SetCharacter();
         // A concurrent hide or quit can complete while SetCharacter() is in flight
         // (Dispose() nulls pet, another UpdatePet() call flips ShowPet off): re-check
         // both before resurrecting a pet nobody asked for anymore.
-        if (pet == current && Settings.ShowPet) current.ShowPet();
+        if (pet == current && (Settings.ShowPet || Reminder.HasNotice)) current.ShowPet();
     }
     public async Task OpenEditor(CharacterPackage? character = null)
     {
@@ -205,7 +214,7 @@ public sealed class AppRuntime : IDisposable
     }
     public async Task ShowReminder()
     {
-        if (reminder is not null) { if (!DiagnosticMode) reminder.Activate(); return; }
+        if (Reminder.Session is not null) { RefreshPetNotice(); return; }
         if (openingReminder || quitting) return;
         openingReminder = true;
         var generation = reminderGeneration;
@@ -215,28 +224,48 @@ public sealed class AppRuntime : IDisposable
             if (selected is null) return;
             var routine = Routines.FirstOrDefault(item => item.Id == Settings.BreakRoutineId) ?? BreakRoutines.All[0];
             var profile = Settings.WorkProfiles.FirstOrDefault(item => item.Id == Settings.ActiveProfileId);
-            var frames = await Clip(selected, "idle");
+            await Clip(selected, "idle");
             if (quitting || generation != reminderGeneration) return;
             var session = new BreakSession(routine, selected.Manifest.Id, profile);
-            var window = new BreakReminderWindow(session, selected.Manifest.Name, frames, selected.Manifest.RenderStyle == "pixel");
-            if (DiagnosticMode) PrepareDiagnosticWindow(window);
-            reminder = window;
-            window.Started += () => ReactToBreak(session, "stretch");
-            window.Finished += result =>
-            {
-                if (reminder == window) reminder = null;
-                if (!quitting) FinishBreak(result);
-            };
-            window.Show(); if (!DiagnosticMode) { window.Activate(); NativeReminder.Show(window); }
-            ReactToBreak(session, "attention");
-            Changed?.Invoke();
+            if (!Reminder.Invite(session)) return;
+            await UpdatePet();
+            if (quitting || generation != reminderGeneration || Reminder.Session != session) return;
+            PlayReminderSound(ReminderSound.Due);
+            ReactToBreak(session, "attention"); RefreshPetNotice(); Changed?.Invoke();
         }
-        catch (Exception error) { if (quitting || generation != reminderGeneration) return; if (DiagnosticMode) throw; ShowSettings(); await Ui.Error(settingsWindow!, error); }
+        catch (Exception error) { if (quitting || generation != reminderGeneration) return; if (DiagnosticMode) throw; AppPaths.Log(error); }
         finally { openingReminder = false; }
+    }
+    public void StartBreak() { Reminder.Start(monotonic.Elapsed); RefreshPetNotice(); Changed?.Invoke(); }
+    public void SnoozeBreak() { Reminder.Snooze(); RefreshPetNotice(); Changed?.Invoke(); }
+    public void CompleteBreak() { Reminder.Complete(monotonic.Elapsed); RefreshPetNotice(); Changed?.Invoke(); }
+    public async Task ToggleBubble()
+    {
+        try { await UpdateSettings(Settings with { BubbleCollapsed = !Settings.BubbleCollapsed }); }
+        catch (Exception error) { AppPaths.Log(error); }
+    }
+    private async Task EnsurePetNotice()
+    {
+        try { await UpdatePet(); }
+        catch (Exception error) { AppPaths.Log(error); }
+    }
+    private void PlayReminderSound(ReminderSound sound)
+    {
+        if (!Settings.ReminderSoundsEnabled) return;
+        if (sound == ReminderSound.Due) DueSoundRequests++; else CompletionSoundRequests++;
+        if (!DiagnosticMode) soundPlayer.Play(sound, Settings);
+    }
+    private void RefreshPetNotice()
+    {
+        if (pet is not { } current) return;
+        current.RefreshSpeech();
+        if (Settings.ShowPet || Reminder.HasNotice)
+        { if (!current.IsVisible) current.ShowPet(); }
+        else if (current.IsVisible) current.HidePet();
     }
     private void ReactToBreak(BreakSession session, string animation)
     {
-        if (Selected?.Manifest.Id == session.CharacterId && Settings.ShowPet && pet is { IsVisible: true }) _ = pet.React(animation);
+        if (Selected?.Manifest.Id == session.CharacterId && pet is { IsVisible: true }) _ = pet.React(animation);
     }
     private void FinishBreak(BreakSession session)
     {
@@ -251,9 +280,9 @@ public sealed class AppRuntime : IDisposable
                     AppPaths.Log(error); BreakHistoryError = "이번 휴식을 집계했지만 기록 파일에 저장하지 못했어요.";
                 }
             }
-            ReactToBreak(session, "celebrate");
+            ReactToBreak(session, "celebrate"); PlayReminderSound(ReminderSound.Completed);
         }
-        else if (session.State == BreakSessionState.Snoozed) Clock.ScheduleAfterBreak(monotonic.Elapsed, TimeSpan.FromMinutes(5));
+        else if (session.State == BreakSessionState.Snoozed) Clock.ScheduleAfterBreak(monotonic.Elapsed, TimeSpan.FromMinutes(Settings.SnoozeMinutes));
         else Clock.Tick(monotonic.Elapsed, TimeSpan.Zero, TimeSpan.FromMinutes(Settings.IdleMinutes), true);
         Changed?.Invoke();
     }
@@ -288,7 +317,7 @@ public sealed class AppRuntime : IDisposable
         }
         finally { quitPending = false; }
     }
-    public void Dispose() { timer.Stop(); instanceActivation?.Dispose(); instanceActivation = null; tray?.Dispose(); tray = null; pet?.ClosePet(); pet = null; reminder?.Close(); }
+    public void Dispose() { timer.Stop(); settingsWindow?.Dispose(); instanceActivation?.Dispose(); instanceActivation = null; tray?.Dispose(); tray = null; pet?.ClosePet(); pet = null; soundPlayer.Dispose(); }
     internal static void PrepareDiagnosticWindow(Window window)
     {
         // macOS can constrain an off-screen window down to 1x1 without explicit minimums.

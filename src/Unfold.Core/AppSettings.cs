@@ -13,6 +13,12 @@ public sealed partial record AppSettings
     public IReadOnlyList<BreakRoutine> AdditionalRoutines { get; init; } = [];
     public IReadOnlyList<WorkProfile> WorkProfiles { get; init; } = [];
     public string? ActiveProfileId { get; init; }
+    public BubbleDirection BubbleDirection { get; init; } = BubbleDirection.Top;
+    public bool BubbleCollapsed { get; init; }
+    public int SnoozeMinutes { get; init; } = 5;
+    public bool ReminderSoundsEnabled { get; init; } = true;
+    public string? ReminderSoundId { get; init; }
+    public string? CompletionSoundId { get; init; }
     public int? PetX { get; init; }
     public int? PetY { get; init; }
     public static AppSettings Load(string path)
@@ -44,9 +50,13 @@ public sealed partial record AppSettings
         Validate(this);
         AtomicFile.Write(path, JsonSerializer.SerializeToUtf8Bytes(this, CharacterLibrary.JsonOptions));
     }
+    private static bool ValidSoundId(string? id) => id is null || (id.Length == 64 && id.All(c => char.IsAsciiHexDigit(c)));
     private static void Validate(AppSettings value)
     {
         if (value.IntervalMinutes is < 5 or > 240 || value.IdleMinutes is < 1 or > 60 || !CharacterLibrary.SafeId(value.SelectedCharacterId))
             throw new InvalidDataException("Invalid settings values.");
+        if (!Enum.IsDefined(value.BubbleDirection) || value.SnoozeMinutes is < 1 or > 60 ||
+            !ValidSoundId(value.ReminderSoundId) || !ValidSoundId(value.CompletionSoundId))
+            throw new InvalidDataException("Invalid reminder settings.");
     }
 }

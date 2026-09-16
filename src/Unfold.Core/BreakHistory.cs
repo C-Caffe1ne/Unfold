@@ -3,7 +3,10 @@ using System.Text.Json;
 namespace Unfold.Core;
 
 public sealed record CompletedBreak(Guid SessionId, DateTimeOffset CompletedAt, string RoutineId, int Seconds, string CharacterId,
-    string? RoutineName = null, string? ProfileId = null, string? ProfileName = null);
+    string? RoutineName = null, string? ProfileId = null, string? ProfileName = null, int? ActualSeconds = null)
+{
+    [System.Text.Json.Serialization.JsonIgnore] public int RecordedSeconds => ActualSeconds ?? Seconds;
+}
 public sealed record BreakSummary(int Count, int Seconds);
 
 public sealed class BreakHistory
@@ -32,7 +35,7 @@ public sealed class BreakHistory
     {
         if (session.State != BreakSessionState.Completed || completions.Any(item => item.SessionId == session.Id)) return false;
         var item = new CompletedBreak(session.Id, completedAt, session.Routine.Id, session.Routine.DurationSeconds, session.CharacterId,
-            session.Routine.Name, session.ProfileId, session.ProfileName);
+            session.Routine.Name, session.ProfileId, session.ProfileName, (int)Math.Ceiling(session.Elapsed.TotalSeconds));
         Validate(item);
         completions.RemoveAll(previous => previous.CompletedAt < completedAt.AddDays(-90));
         completions.Add(item);
@@ -42,7 +45,7 @@ public sealed class BreakHistory
     public BreakSummary ForDay(DateTimeOffset day)
     {
         var items = completions.Where(item => item.CompletedAt.Date == day.Date).ToArray();
-        return new(items.Length, items.Sum(item => item.Seconds));
+        return new(items.Length, items.Sum(item => item.RecordedSeconds));
     }
     public void Save(string path) => AtomicFile.Write(path,
         JsonSerializer.SerializeToUtf8Bytes(new StoredHistory(1, completions), CharacterLibrary.JsonOptions));
@@ -54,13 +57,13 @@ public sealed class BreakHistory
         var days = Enumerable.Range(0, 7).Select(offset =>
         {
             var date = start.AddDays(offset); var daily = entries.Where(item => DateOnly.FromDateTime(item.CompletedAt.Date) == date).ToArray();
-            return new BreakDay(date, daily.Length, daily.Sum(item => item.Seconds));
+            return new BreakDay(date, daily.Length, daily.Sum(item => item.RecordedSeconds));
         }).ToArray();
         return new(start, endDay, Array.AsReadOnly(days), Array.AsReadOnly(entries));
     }
     private static void Validate(CompletedBreak? item)
     {
-        if (item is null || item.SessionId == Guid.Empty || item.CompletedAt == default || item.Seconds is < 1 or > 600 ||
+        if (item is null || item.SessionId == Guid.Empty || item.CompletedAt == default || item.Seconds is < 1 or > 600 || item.ActualSeconds is < 0 or > 4200 ||
             !CharacterLibrary.SafeId(item.RoutineId) || !CharacterLibrary.SafeId(item.CharacterId) ||
             item.RoutineName is { Length: > 60 } || item.ProfileName is { Length: > 60 } ||
             (item.ProfileId is not null && !CharacterLibrary.SafeId(item.ProfileId)))

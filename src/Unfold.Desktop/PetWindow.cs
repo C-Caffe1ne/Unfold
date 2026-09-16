@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Avalonia;
+using PixelPoint = Avalonia.PixelPoint;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
@@ -12,6 +13,13 @@ namespace Unfold.Desktop;
 public sealed class PetWindow : Window
 {
     private readonly AppRuntime runtime;
+    private readonly Canvas canvas = new();
+    private readonly PetSpeechBubble bubble;
+    private readonly Avalonia.Controls.Shapes.Polygon tail = new() { Fill = DesignSystem.Shell, Stroke = DesignSystem.Outline, StrokeThickness = 1, IsHitTestVisible = false };
+    private readonly MenuItem fold = new();
+    private PetBubbleLayout layout = PetBubbleLayout.Create(BubbleDirection.Top, false);
+    private double layoutScale = 1;
+    public PixelPoint PetAnchor => new(Position.X + (int)Math.Round(layout.Pet.X * DesktopScaling), Position.Y + (int)Math.Round(layout.Pet.Y * DesktopScaling));
     private readonly AnimationView animation = new() { Width = 192, Height = 192 };
     private readonly DispatcherTimer hitTimer = new() { Interval = TimeSpan.FromMilliseconds(40) };
     private Avalonia.PixelPoint? down;
@@ -25,10 +33,15 @@ public sealed class PetWindow : Window
         this.runtime = runtime;
         Width = Height = 192; CanResize = false; WindowDecorations = WindowDecorations.None;
         Background = Brushes.Transparent; TransparencyLevelHint = [WindowTransparencyLevel.Transparent];
-        ShowInTaskbar = false; Topmost = true; ShowActivated = false; Content = animation;
+        ShowInTaskbar = false; Topmost = true; ShowActivated = false;
+        bubble = new(runtime.StartBreak, runtime.SnoozeBreak, runtime.CompleteBreak);
+        canvas.Children.Add(animation); canvas.Children.Add(bubble); canvas.Children.Add(tail); Content = canvas;
+        bubble.IsVisible = tail.IsVisible = false;
         var menu = new ContextMenu();
         var settings = new MenuItem { Header = "설정" }; settings.Click += (_, _) => runtime.ShowSettings();
-        menu.Items.Add(settings); ContextMenu = menu;
+        fold.Name = "PetToggleSpeech"; fold.Click += async (_, _) => await runtime.ToggleBubble();
+        menu.Opening += (_, _) => fold.Header = runtime.Settings.BubbleCollapsed ? "말풍선 펼치기" : "말풍선 접기";
+        menu.Items.Add(fold); menu.Items.Add(settings); ContextMenu = menu;
         animation.PointerPressed += (_, e) =>
         {
             if (!e.GetCurrentPoint(animation).Properties.IsLeftButtonPressed || !animation.OpaqueAt(e.GetPosition(animation))) return;
@@ -46,7 +59,7 @@ public sealed class PetWindow : Window
         {
             if (down is null) return;
             var clicked = !dragging && Stopwatch.GetElapsedTime(pressedAt).TotalSeconds <= 0.22;
-            down = null; e.Pointer.Capture(null); ClampPosition(); runtime.SavePosition(Position);
+            down = null; e.Pointer.Capture(null); ClampPosition(); runtime.SavePosition(PetAnchor);
             if (clicked) await React();
         };
         animation.PointerCaptureLost += (_, _) => { down = null; };
@@ -87,9 +100,30 @@ public sealed class PetWindow : Window
         }
         catch (Exception error) { AppPaths.Log(error); }
     }
-    public void ShowPet() { Show(); hitTimer.Start(); animation.SetRunning(true); }
+    public void ShowPet() { Show(); RefreshSpeech(); hitTimer.Start(); animation.SetRunning(true); }
     public void HidePet() { generation++; character = null; Hide(); hitTimer.Stop(); animation.SetRunning(false); }
     public void ClosePet() { generation++; hitTimer.Stop(); Close(); }
+    public void RefreshSpeech()
+    {
+        bubble.Refresh(runtime.Reminder, runtime.Settings.SnoozeMinutes);
+        fold.Header = runtime.Settings.BubbleCollapsed ? "말풍선 펼치기" : "말풍선 접기";
+        var expanded = runtime.Reminder.HasNotice && !runtime.Settings.BubbleCollapsed;
+        var next = PetBubbleLayout.Create(runtime.Settings.BubbleDirection, expanded);
+        if (layout.Size == next.Size && layout.Pet == next.Pet && bubble.IsVisible == expanded && layoutScale == DesktopScaling) return;
+        var anchor = PetAnchor;
+        layoutScale = DesktopScaling; layout = next; Width = layout.Size.Width; Height = layout.Size.Height;
+        // Diagnostic minimums follow the live canvas instead of preventing a collapse.
+        if (runtime.DiagnosticMode) { MinWidth = Width; MinHeight = Height; }
+        canvas.Width = Width; canvas.Height = Height;
+        Canvas.SetLeft(animation, layout.Pet.X); Canvas.SetTop(animation, layout.Pet.Y);
+        Canvas.SetLeft(bubble, layout.Bubble.X); Canvas.SetTop(bubble, layout.Bubble.Y);
+        tail.Points = new Avalonia.Collections.AvaloniaList<Point>(layout.Tail);
+        bubble.IsVisible = tail.IsVisible = expanded;
+        var work = Screens.ScreenFromPoint(anchor)?.WorkingArea ?? Screens.Primary?.WorkingArea;
+        Position = runtime.DiagnosticMode ? new(-32000, -32000) : work is { } area
+            ? layout.Position(anchor, DesktopScaling, area) : anchor;
+    }
+
     private void ClampPosition()
     {
         var screen = Screens.ScreenFromWindow(this) ?? Screens.Primary; if (screen is null) return;
@@ -104,7 +138,9 @@ public sealed class PetWindow : Window
     {
         if (!OperatingSystem.IsWindows() || down is not null) return;
         if (!GetCursorPos(out var point)) return;
-        var ignore = !animation.OpaqueAt(animation.PointToClient(new Avalonia.PixelPoint(point.X, point.Y)));
+        var cursor = new PixelPoint(point.X, point.Y);
+        var onBubble = bubble.IsVisible && new Rect(bubble.Bounds.Size).Contains(bubble.PointToClient(cursor));
+        var ignore = !onBubble && !animation.OpaqueAt(animation.PointToClient(cursor));
         if (ignore == clickThrough) return;
         if (TryGetPlatformHandle()?.Handle is not nint hwnd || hwnd == 0) return;
         var style = (long)GetWindowLong(hwnd, -20);

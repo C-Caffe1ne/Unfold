@@ -12,7 +12,7 @@ public class BreakSessionTests
         var session = ShortBreak(); var history = new BreakHistory();
         Assert.False(session.Complete()); session.Tick(TimeSpan.FromHours(1)); Assert.Equal(TimeSpan.Zero, session.Elapsed);
         Assert.True(session.Start(TimeSpan.Zero)); Assert.False(session.Start(TimeSpan.Zero));
-        session.Tick(TimeSpan.FromSeconds(10)); Assert.False(session.Complete());
+        session.Tick(TimeSpan.FromSeconds(10)); Assert.False(history.Add(session, DateTimeOffset.Now));
         session.Tick(TimeSpan.FromSeconds(20)); Assert.Equal(BreakSessionState.AwaitingConfirmation, session.State);
         Assert.False(history.Add(session, DateTimeOffset.Now));
         Assert.True(session.Complete()); Assert.True(history.Add(session, DateTimeOffset.Now));

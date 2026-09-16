@@ -20,6 +20,7 @@ public sealed partial class SettingsWindow
     private Control? dashboardPage;
     private PersonalizationView? personalizationPage;
     private BreakReviewView? reviewPage;
+    private PetManagementView? petPage;
 
     private Control BuildDashboard(CheckBox login)
     {
@@ -37,7 +38,7 @@ public sealed partial class SettingsWindow
         main.Children.Add(BuildCompanionCard(login));
         var timer = BuildTimerCard(); Grid.SetRow(timer, 2); main.Children.Add(timer);
 
-        var details = Ui.Column(BuildReminderCard(), BuildRoutineCard(), BuildReviewCard()); details.Spacing = 14;
+        var details = Ui.Column(BuildReminderCard(), BuildRoutineCard(), BuildSpeechSettingsCard(), BuildReviewCard()); details.Spacing = 14;
         var detailsScroll = new ScrollViewer { Name = "SettingsDetailsScroll", Content = details,
             HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
         var dashboard = new Grid { ColumnDefinitions = new("*,16,300") };
@@ -60,9 +61,11 @@ public sealed partial class SettingsWindow
         var timer = Nav("SettingsNavTimer", "타이머 탭", "M12,2 A10,10 0 1 0 12,22 A10,10 0 1 0 12,2 M11,6 H13 V11 H17 V13 H11 Z", OpenDashboard);
         var personalization = Nav("SettingsNavRoutines", "내 루틴 · 업무 프로필 탭", "M4,3 H9 V8 H4 Z M12,4 H21 V6 H12 Z M4,10 H9 V15 H4 Z M12,11 H21 V13 H12 Z M4,17 H9 V22 H4 Z M12,18 H21 V20 H12 Z", OpenPersonalization);
         var review = Nav("SettingsNavReview", "기록 · 내보내기 탭", "M3,14 H7 V21 H3 Z M10,8 H14 V21 H10 Z M17,3 H21 V21 H17 Z", OpenReview);
+        var pets = Nav("SettingsNavPacks", "펫 추가 탭", "M10,3 H14 V10 H21 V14 H14 V21 H10 V14 H3 V10 H10 Z", OpenPetPacks);
+        navigationItems["pets"] = pets;
         navigationItems["dashboard"] = timer; navigationItems["personalization"] = personalization; navigationItems["review"] = review;
         SelectNavigation("dashboard");
-        var links = Ui.Column(timer, personalization, review);
+        var links = Ui.Column(timer, personalization, review, pets);
         links.Spacing = 12; Grid.SetRow(links, 2); rail.Children.Add(links);
         var quit = Nav("SettingsQuit", "Unfold 종료", "M11,2 H13 V12 H11 Z M7,4 L8,6 A8,8 0 1 0 16,6 L17,4 A10,10 0 1 1 7,4 Z", runtime.Quit);
         Grid.SetRow(quit, 3); rail.Children.Add(quit);
@@ -80,14 +83,10 @@ public sealed partial class SettingsWindow
         stage.Children.Add(new Viewbox { Child = preview, Stretch = Stretch.Uniform, StretchDirection = StretchDirection.DownOnly,
             HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Stretch, Margin = new(0, 8) });
         Grid.SetRow(stage, 1); content.Children.Add(stage);
-        characters.MinHeight = 38;
-        var picker = new Grid { ColumnDefinitions = new("*,10,Auto") };
-        picker.Children.Add(characters);
-        var pack = Ui.Quiet(ActionButton("펫 팩 설치…", OpenPetPacks)); pack.Name = "SettingsInstallPack";
-        Grid.SetColumn(pack, 2); picker.Children.Add(pack);
+        characters.MinHeight = 38; characters.Width = 200; characters.HorizontalAlignment = HorizontalAlignment.Left;
         showPet.FontSize = 12; showPet.Foreground = Muted; showPet.MinHeight = 28;
         login.Name = "LaunchAtLogin"; login.FontSize = 12; login.Foreground = Muted;
-        var footer = Ui.Column(picker, Ui.Row(showPet, login), Label("창을 닫아도 트레이에서 계속 실행돼요.", 11, Muted)); footer.Spacing = 6; Grid.SetRow(footer, 2); content.Children.Add(footer);
+        var footer = Ui.Column(characters, Ui.Row(showPet, login), Label("창을 닫아도 트레이에서 계속 실행돼요.", 11, Muted)); footer.Spacing = 6; Grid.SetRow(footer, 2); content.Children.Add(footer);
         return Card("SettingsCompanionCard", content, Raised, new(32, 32, 64, 32));
     }
 
@@ -169,7 +168,11 @@ public sealed partial class SettingsWindow
         reviewPage ??= new BreakReviewView(this, runtime.BreakHistory.Review, () => runtime.BreakHistoryError);
         reviewPage.Refresh(); ShowPage("review", reviewPage); return Task.CompletedTask;
     }
-    private Task OpenPetPacks() => new PetPackWindow(runtime.Library, runtime.SelectInstalledCharacter).ShowDialog(this);
+    private Task OpenPetPacks()
+    {
+        petPage ??= new PetManagementView(this, runtime.Library, runtime.SelectInstalledCharacter);
+        ShowPage("pets", petPage); return Task.CompletedTask;
+    }
 
     private void ShowPage(string key, Control page)
     {

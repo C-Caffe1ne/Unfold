@@ -34,7 +34,7 @@ public class LocalizationTests
             var text = window.GetVisualDescendants().OfType<TextBlock>().ToArray();
             var monday = Assert.Single(text, block => block.Text == "9월 14일 (월)");
             var row = Assert.IsType<Grid>(monday.Parent);
-            var count = row.Children.OfType<TextBlock>().Single(block => Grid.GetColumn(block) == 1);
+            var count = row.Children.OfType<TextBlock>().Single(block => Grid.GetColumn(block) == 1 && Grid.GetRow(block) == Grid.GetRow(monday));
             Assert.True(monday.Bounds.Right <= count.Bounds.X);
             Assert.Equal("1회", count.Text);
             Assert.Contains(text, block => block.Text == "휴식 1회 · 0분 20초 · 1일");
