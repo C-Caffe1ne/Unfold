@@ -29,6 +29,8 @@
 | [펫 추가·커스텀 팩 만들기](pet-packs.md) | GIF·MP4 동작 배정, 팩 생성·미리보기·설치·업데이트·재설치, ZIP/버전/해시 계약 |
 | [커스텀 펫 검증](validation/2026-09-16-custom-pet.md) | 147개 테스트, 실제 MP4 변환, 동작별 팩 생성·설치, macOS 렌더링 검증 |
 | [펫 페이지 탭 검증](validation/2026-09-16-pet-tabs.md) | 사이드바 펫 추가, 열기·만들기 탭, 초안 유지와 최소 크기 렌더링 |
+| [UI/UX 전수 감사와 작업 계획](validation/2026-09-16-ui-ux-audit.md) | 현재 전체 화면의 시각·흐름·접근성 감사, P1/P2 우선순위와 단계별 수정·검증 계획 |
+| [UI/UX 1단계 동작 정확성 검증](validation/2026-09-16-ui-ux-phase1.md) | 선택 루틴 편집, 프로필 적용 사전 차단, 커스텀 펫 교체 확인과 회귀 검사 |
 | [펫 팩 기반 검증](validation/2026-09-13-pet-packs.md) | 병합 충돌 복구, 설치 회귀 테스트와 macOS 진단 |
 | [보리 아트 후보](../Art/Characters/bori-rabbit/README.md) | 원본·프롬프트·반응 5종·별도 설치 팩과 남은 아트 검수 |
 | [보리 제작·재생 검증](validation/2026-09-14-bori-candidate.md) | 119개 테스트, macOS 실제 시간 기반 재생과 검증 한계 |

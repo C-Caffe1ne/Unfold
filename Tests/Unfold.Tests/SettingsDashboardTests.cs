@@ -150,6 +150,84 @@ public class SettingsDashboardTests
         Assert.Equal(12, scope.Runtime.Settings.SnoozeMinutes);
     }
 
+    [AvaloniaFact]
+    public async Task EditRoutineFollowsThePickerAndStaysLockedOnBuiltIns()
+    {
+        using var scope = new Scope(); var window = scope.Window;
+        var edit = Find<Button>(window, "SettingsEditRoutine"); var picker = Find<ComboBox>(window, "RoutinePicker");
+        Assert.Equal(BreakRoutines.DefaultId, Assert.IsType<BreakRoutine>(picker.SelectedItem).Id);
+        Assert.False(edit.IsEnabled);
+        Assert.Contains("루틴 · 프로필", AutomationProperties.GetHelpText(edit));
+        Assert.NotNull(ToolTip.GetTip(edit));
+
+        await scope.Runtime.UpdateSettings(scope.Runtime.Settings.SaveRoutine(
+            new BreakRoutine("writing", "글쓰기 쉼", [new("손목을 천천히 돌려 보세요.", 25)])));
+        Dispatcher.UIThread.RunJobs();
+        picker.SelectedItem = scope.Runtime.Routines.Single(item => item.Id == "writing");
+        Dispatcher.UIThread.RunJobs();
+        Assert.True(edit.IsEnabled);
+        Assert.Contains("글쓰기 쉼", AutomationProperties.GetHelpText(edit));
+
+        picker.SelectedItem = scope.Runtime.Routines.Single(item => item.Id == "look-away");
+        Dispatcher.UIThread.RunJobs();
+        Assert.False(edit.IsEnabled);
+    }
+
+    [AvaloniaFact]
+    public async Task EditRoutineOpensTheRoutineTheUserSelected()
+    {
+        using var scope = new Scope(); var window = scope.Window;
+        await scope.Runtime.UpdateSettings(scope.Runtime.Settings.SaveRoutine(
+            new BreakRoutine(BreakRoutines.CustomId, "나의 휴식", [new("어깨를 펴 보세요.", 20)])));
+        await scope.Runtime.UpdateSettings(scope.Runtime.Settings.SaveRoutine(
+            new BreakRoutine("writing", "글쓰기 쉼", [new("손목을 천천히 돌려 보세요.", 25)])));
+        Dispatcher.UIThread.RunJobs();
+        var picker = Find<ComboBox>(window, "RoutinePicker");
+        picker.SelectedItem = scope.Runtime.Routines.Single(item => item.Id == "writing");
+        Dispatcher.UIThread.RunJobs();
+        Click(window, "SettingsEditRoutine"); Dispatcher.UIThread.RunJobs();
+        // The dashboard button used to open CustomRoutine no matter what was selected.
+        var editor = Assert.IsType<RoutineEditorWindow>(Assert.Single(window.OwnedWindows));
+        Assert.Equal("글쓰기 쉼", Find<TextBox>(editor, "RoutineName").Text);
+        Assert.Equal("손목을 천천히 돌려 보세요.", Find<TextBox>(editor, "Step1").Text);
+        Assert.Equal(25, Find<NumericUpDown>(editor, "Seconds1").Value);
+        Assert.Equal("", Find<TextBox>(editor, "Step2").Text);
+        Find<TextBox>(editor, "RoutineName").Text = "글쓰기 쉼 2";
+        editor.GetVisualDescendants().OfType<Button>().Single(button => Equals(button.Content, "내 루틴 저장"))
+            .RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        Dispatcher.UIThread.RunJobs();
+        var saved = scope.Runtime.Settings.AdditionalRoutines.Single(item => item.Id == "writing");
+        Assert.Equal("글쓰기 쉼 2", saved.Name);
+        Assert.Equal("나의 휴식", scope.Runtime.Settings.CustomRoutine?.Name);
+    }
+
+    [AvaloniaFact]
+    public async Task ProfileApplyShowsTheTimerBlockBeforeTheClickAndReturnsWhenPaused()
+    {
+        using var scope = new Scope(); var window = scope.Window;
+        await scope.Runtime.UpdateSettings(scope.Runtime.Settings.SaveProfile(new("focus", "집중 작업", 45, 3, "look-away")));
+        scope.Runtime.Clock.Start(TimeSpan.Zero);
+        Assert.False(scope.Runtime.CanEditTimerInterval);
+        Click(window, "SettingsNavRoutines"); Dispatcher.UIThread.RunJobs();
+        Find<TabControl>(window, "PersonalizationTabs").SelectedIndex = 1; Dispatcher.UIThread.RunJobs();
+        var apply = window.GetVisualDescendants().OfType<Button>().Single(button => Equals(button.Content, "프로필 적용"));
+        var profiles = Find<ListBox>(window, "WorkProfiles");
+        Assert.Equal("focus", Assert.IsType<WorkProfile>(profiles.SelectedItem).Id);
+        Assert.False(apply.IsEnabled);
+        Assert.Contains("타이머를 일시정지하거나 중지", Find<TextBlock>(window, "ProfileDetail").Text);
+        Assert.Contains("타이머를 일시정지하거나 중지", AutomationProperties.GetHelpText(apply));
+
+        scope.Runtime.TogglePause(); Dispatcher.UIThread.RunJobs();
+        Assert.True(scope.Runtime.CanEditTimerInterval);
+        Assert.Equal("focus", Assert.IsType<WorkProfile>(profiles.SelectedItem).Id);
+        Assert.True(apply.IsEnabled);
+        Assert.DoesNotContain("타이머를 일시정지하거나 중지", Find<TextBlock>(window, "ProfileDetail").Text);
+
+        apply.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Dispatcher.UIThread.RunJobs();
+        Assert.Equal("focus", scope.Runtime.Settings.ActiveProfileId);
+        Assert.Equal(45, scope.Runtime.Settings.IntervalMinutes);
+    }
+
     private sealed class Scope : IDisposable
     {
         private readonly TempDirectory temp = new();

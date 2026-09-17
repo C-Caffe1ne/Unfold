@@ -144,6 +144,9 @@ public sealed partial class SettingsWindow : Window, IDisposable
                     : "시간을 바꾸려면 타이머를 일시정지하거나 중지해 주세요.";
                 ToolTip.SetTip(interval, canEditInterval ? "1분 단위로 알림 시간을 변경할 수 있어요." : "타이머 진행 중에는 시간을 변경할 수 없어요.");
             }
+            // The profile page shares the same timer constraint; refresh availability only
+            // so a running/paused transition never discards the visible list selection.
+            personalizationPage?.RefreshAvailability();
             showPet.IsChecked = runtime.Settings.ShowPet;
             activeProfile.Text = runtime.Settings.WorkProfiles.FirstOrDefault(profile => profile.Id == runtime.Settings.ActiveProfileId) is { } active
                 ? $"업무 프로필 · {active.Name}" : "직접 설정한 알림";
@@ -158,6 +161,7 @@ public sealed partial class SettingsWindow : Window, IDisposable
                 routines.SelectedItem = runtime.Routines.FirstOrDefault(item => item.Id == id) ?? runtime.Routines.First(item => item.Id == runtime.Settings.BreakRoutineId);
                 displayedRoutine = runtime.Settings.BreakRoutineId;
             }
+            RefreshRoutineEditing();
             if (!ReferenceEquals(characters.ItemsSource, runtime.Characters)) characters.ItemsSource = runtime.Characters;
             characters.SelectedItem = runtime.Selected;
             if (runtime.Selected is { } selected && previewCharacter != selected)

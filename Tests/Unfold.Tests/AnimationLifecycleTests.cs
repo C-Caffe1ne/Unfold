@@ -1,8 +1,10 @@
 using System.Reflection;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Headless.XUnit;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using Unfold.Core;
 using Unfold.Desktop;
 
@@ -17,6 +19,15 @@ public class AnimationLifecycleTests
 
     private static bool TimerEnabled(AnimationView view) =>
         ((DispatcherTimer)typeof(AnimationView).GetField("timer", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(view)!).IsEnabled;
+
+    // PetWindow.PetView and AnimationView.Repeats are internal to Unfold.Desktop; the pack
+    // diagnostic reads both directly. The tests reach them the same way this file already
+    // reaches the playback timer.
+    private static AnimationView PetView(PetWindow pet) =>
+        (AnimationView)typeof(PetWindow).GetProperty("PetView", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(pet)!;
+
+    private static bool Repeats(AnimationView view) =>
+        (bool)typeof(AnimationView).GetProperty("Repeats", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(view)!;
 
     private sealed class AnimationHost(Window window, AnimationView view) : IDisposable
     {
@@ -104,5 +115,46 @@ public class AnimationLifecycleTests
         view.SetRunning(false); view.SetRunning(true); Dispatcher.UIThread.RunJobs();
         Assert.Equal(1, completed); Assert.False(TimerEnabled(view));
         view.SetFrames(Clip(), true); Assert.True(TimerEnabled(view));
+    }
+
+    // Regression for: PetPackDiagnostics read the pet's playback mode with
+    // `runtime.ActivePet.Content is AnimationView`, but PetWindow.Content became the layout
+    // Canvas that also carries the speech bubble and tail. The cast silently produced null,
+    // so `--review-pet-pack` threw "The desktop pet did not enter the requested reaction."
+    // on its very first clip and exited 1 for every pack. The surface is now published as
+    // PetWindow.PetView, and that contract must keep pointing at the view the pet really
+    // renders — both for the loop-mode checks and for the per-clip render capture.
+    [AvaloniaFact]
+    public void PetAnimationSurfaceIsPublishedAsAContractAndTracksTheLiveClipMode()
+    {
+        using var temp = new TempDirectory();
+        var previous = Environment.GetEnvironmentVariable("UNFOLD_DATA_DIR");
+        Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", temp.Path);
+        using var lifetime = new ClassicDesktopStyleApplicationLifetime();
+        using var runtime = new AppRuntime(lifetime);
+        var pet = new PetWindow(runtime);
+        try
+        {
+            pet.Show(); Dispatcher.UIThread.RunJobs(); pet.UpdateLayout();
+
+            var live = pet.GetVisualDescendants().OfType<AnimationView>().Single();
+            Assert.Same(live, PetView(pet));
+            Assert.IsNotType<AnimationView>(pet.Content);
+
+            // The diagnostic renders this surface per clip, so it has to be laid out at the
+            // pet's own size and actually draw the character.
+            Assert.Equal(new Size(192, 192), PetView(pet).Bounds.Size);
+            live.SetFrames(Clip(), true);
+            Assert.True(PetView(pet).OpaqueAt(new Point(96, 96)));
+
+            // A one-shot reaction, then the restored idle loop: the two states the review
+            // asserts between captures.
+            Assert.True(Repeats(PetView(pet)));
+            live.SetFrames(Clip(2, TimeSpan.FromMilliseconds(20)), false);
+            Assert.False(Repeats(PetView(pet)));
+            live.SetFrames(Clip(), true);
+            Assert.True(Repeats(PetView(pet)));
+        }
+        finally { pet.ClosePet(); Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", previous); }
     }
 }

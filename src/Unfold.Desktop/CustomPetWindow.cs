@@ -56,13 +56,13 @@ internal sealed class CustomPetView : UserControl, IDisposable
         pendingPath = initialPath; pending.Text = initialPath is null ? "" : "가져온 파일: " + Path.GetFileName(initialPath);
         action.ItemTemplate = new FuncDataTemplate<string>((key, _) => Ui.Text(CustomPetDraft.ActionName(key ?? "")));
         AutomationProperties.SetName(action, "가져온 파일에 적용할 동작"); AutomationProperties.SetName(name, "커스텀 펫 이름");
-        status.Name = "CustomPetStatus";
+        status.Name = "CustomPetStatus"; pending.Name = "CustomPetPending";
         import = AsyncButton("파일 가져오기", ImportMedia); import.Name = "ImportPetMedia";
         assign = AsyncButton("동작에 넣기", AssignPending); assign.Name = "AssignPetMedia";
         var slots = Ui.Column();
         foreach (var key in CustomPetDraft.Actions)
         {
-            var label = Ui.Caption("파일 없음"); labels[key] = label;
+            var label = Ui.Caption("파일 없음"); label.Name = "CustomPetLabel_" + key; labels[key] = label;
             var select = AsyncButton("파일 선택…", () => SelectFile(key)); select.Name = "CustomPetFile_" + key;
             var remove = Ui.Button("제거", () => { previewGeneration++; draft.RemoveClip(key); preview.SetFrames([], true); Refresh(); }); remove.Name = "CustomPetRemove_" + key;
             var play = AsyncButton("미리보기", () => Preview(key)); play.Name = "CustomPetPreview_" + key;
@@ -122,13 +122,48 @@ internal sealed class CustomPetView : UserControl, IDisposable
     private async Task AssignPending()
     {
         if (pendingPath is not { } path || action.SelectedItem is not string key) return;
-        if (await Assign(key, path)) { pendingPath = null; pending.Text = "동작에 추가했어요. 아래에서 다른 파일을 넣거나 교체할 수 있어요."; Refresh(); }
+        // Keep the imported file when the replacement is declined so it can go to another action.
+        if (!await ConfirmReplace(key, path)) return;
+        if (await Assign(key, path))
+        {
+            pendingPath = null; pending.Text = "동작에 추가했어요. 아래에서 다른 파일을 넣거나 교체할 수 있어요.";
+            SelectNextEmptyAction(); Refresh();
+        }
     }
     private async Task SelectFile(string key)
     {
         if (busy || closed) return;
-        try { var path = await chooseMedia(); if (path is not null && !closed) await Assign(key, path); }
+        try
+        {
+            var path = await chooseMedia(); if (path is null || closed) return;
+            if (await ConfirmReplace(key, path)) await Assign(key, path);
+        }
         catch (Exception error) { ShowError(error); }
+    }
+    // Replacing an action drops the clip it already holds, so name both files and
+    // let the safe choice keep the draft, the preview and the create gate untouched.
+    private async Task<bool> ConfirmReplace(string key, string path)
+    {
+        if (busy || closed || !draft.Clips.TryGetValue(key, out var clip)) return true;
+        var name = CustomPetDraft.ActionName(key);
+        var choice = await Ui.Confirm(owner, name + " 파일을 바꿀까요?",
+            $"지금은 ‘{clip.FileName}’ 파일이 들어 있어요. 새로 가져온 ‘{Path.GetFileName(path)}’ 파일로 바꾸면 기존 파일은 펫 팩에 담기지 않아요. 다른 동작은 그대로예요.",
+            "바꾸기", "취소");
+        if (closed) return false;
+        if (choice == 0) return true;
+        status.Foreground = DesignSystem.Muted; status.Text = name + "의 기존 파일을 그대로 두었어요.";
+        return false;
+    }
+    // Point the picker at an action that still needs a file so the next import
+    // does not land on the slot that was just filled.
+    private void SelectNextEmptyAction()
+    {
+        var keys = CustomPetDraft.Actions; var start = Math.Max(action.SelectedIndex, 0);
+        for (var offset = 1; offset < keys.Count; offset++)
+        {
+            var index = (start + offset) % keys.Count;
+            if (!draft.Clips.ContainsKey(keys[index])) { action.SelectedIndex = index; return; }
+        }
     }
     private async Task<bool> Assign(string key, string path)
     {

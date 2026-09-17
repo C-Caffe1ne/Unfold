@@ -5,6 +5,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Shapes;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Unfold.Core;
 using static Unfold.Desktop.DesignSystem;
 
 namespace Unfold.Desktop;
@@ -17,6 +18,7 @@ public sealed partial class SettingsWindow
     private readonly ContentControl settingsPageHost = new() { Name = "SettingsPageHost",
         HorizontalContentAlignment = HorizontalAlignment.Stretch, VerticalContentAlignment = VerticalAlignment.Stretch };
     private readonly Dictionary<string, Button> navigationItems = [];
+    private Button? routineEdit;
     private Control? dashboardPage;
     private PersonalizationView? personalizationPage;
     private BreakReviewView? reviewPage;
@@ -132,6 +134,7 @@ public sealed partial class SettingsWindow
     {
         activeProfile.FontSize = 11; activeProfile.Foreground = Muted;
         var edit = ActionButton("내 루틴 편집", OpenRoutine); edit.Name = "SettingsEditRoutine";
+        routineEdit = edit; routines.SelectionChanged += (_, _) => RefreshRoutineEditing(); RefreshRoutineEditing();
         var library = ActionButton("루틴 · 프로필", OpenPersonalization); library.Name = "SettingsOpenLibrary";
         var actions = new Grid { ColumnDefinitions = new("*,8,*") };
         actions.Children.Add(edit); Grid.SetColumn(library, 2); actions.Children.Add(library);
@@ -150,8 +153,27 @@ public sealed partial class SettingsWindow
         return Card("SettingsReviewCard", body, Raised, new(28));
     }
 
-    private Task OpenRoutine() => new RoutineEditorWindow(runtime.Settings.CustomRoutine,
-        routine => runtime.UpdateSettings(runtime.Settings.SaveRoutine(routine))).ShowDialog(this);
+    // The dashboard picker is the edit target: opening CustomRoutine regardless of the
+    // selection let the button rewrite a routine the user was not looking at.
+    private Task OpenRoutine()
+    {
+        if (SelectedEditableRoutine() is not { } selected) return Task.CompletedTask;
+        return new RoutineEditorWindow(selected,
+            routine => runtime.UpdateSettings(runtime.Settings.SaveRoutine(routine))).ShowDialog(this);
+    }
+    private BreakRoutine? SelectedEditableRoutine() =>
+        routines.SelectedItem is BreakRoutine selected && BreakRoutines.Find(selected.Id) is null ? selected : null;
+    private void RefreshRoutineEditing()
+    {
+        if (routineEdit is null) return;
+        var selected = SelectedEditableRoutine();
+        routineEdit.IsEnabled = selected is not null;
+        var help = selected is not null
+            ? $"선택한 ‘{selected.Name}’ 루틴의 이름과 단계를 편집해요."
+            : "기본 루틴은 편집할 수 없어요. ‘루틴 · 프로필’에서 새 루틴을 만들어 보세요.";
+        ToolTip.SetTip(routineEdit, help); ToolTip.SetShowDelay(routineEdit, 500);
+        AutomationProperties.SetHelpText(routineEdit, help);
+    }
     private Task OpenDashboard()
     {
         if (dashboardPage is not null) ShowPage("dashboard", dashboardPage);
@@ -160,7 +182,8 @@ public sealed partial class SettingsWindow
     }
     private Task OpenPersonalization()
     {
-        personalizationPage ??= new PersonalizationView(this, () => runtime.Settings, runtime.UpdateSettings);
+        personalizationPage ??= new PersonalizationView(this, () => runtime.Settings, runtime.UpdateSettings,
+            canApplyProfile: () => runtime.CanEditTimerInterval);
         personalizationPage.Refresh(); ShowPage("personalization", personalizationPage); return Task.CompletedTask;
     }
     private Task OpenReview()

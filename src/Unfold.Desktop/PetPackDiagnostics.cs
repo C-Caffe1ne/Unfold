@@ -46,6 +46,7 @@ internal static class PetPackDiagnostics
                     Ui.Column(Ui.Text("Dark · 192 px", 12), new Border { Background = Ui.Panel, Padding = new Thickness(24), Child = dark }),
                     Ui.Column(Ui.Text("Light · 192 px", 12), new Border { Background = Brushes.WhiteSmoke, Padding = new Thickness(24), Child = light }))) } };
             AppRuntime.PrepareDiagnosticWindow(review); review.Show();
+            var pet = runtime.ActivePet ?? throw new InvalidOperationException("The desktop pet is not open.");
             var results = new List<object>();
             foreach (var key in selected.Manifest.Animations.Keys.OrderBy(key => key == "idle" ? 0 : 1).ThenBy(key => key, StringComparer.Ordinal))
             {
@@ -63,31 +64,33 @@ internal static class PetPackDiagnostics
                     var elapsed = Stopwatch.StartNew();
                     dark.SetFrames(frames, repeat, selected.Manifest.RenderStyle == "pixel");
                     light.SetFrames(frames, repeat, selected.Manifest.RenderStyle == "pixel");
-                    var reaction = key == "idle" ? Task.CompletedTask : runtime.ActivePet!.React(key);
-                    var startedInExpectedMode = runtime.ActivePet?.Content is AnimationView active && (key == "idle" ? active.Repeats : !active.Repeats);
+                    var reaction = key == "idle" ? Task.CompletedTask : pet.React(key);
+                    // PetWindow.PetView is the pet's own animation surface. Reading it keeps this
+                    // review on the live pet rather than on a guess about the window's visual tree.
+                    var startedInExpectedMode = key == "idle" ? pet.PetView.Repeats : !pet.PetView.Repeats;
                     if (!startedInExpectedMode) throw new InvalidOperationException("The desktop pet did not enter the requested reaction.");
                     await Task.Delay(TimeSpan.FromMilliseconds(durationMs / 2));
                     Capture(review, Path.Combine(directory, key + ".png"));
+                    Capture(pet.PetView, Path.Combine(directory, key + "-pet.png"));
                     await Task.Delay(TimeSpan.FromMilliseconds(durationMs / 2 + 100));
                     if (!repeat) await Until(() => finishedDark == 1 && finishedLight == 1);
                     await reaction;
-                    var petView = runtime.ActivePet?.Content as AnimationView;
-                    if (petView?.Repeats != true || (repeat && (finishedDark != 0 || finishedLight != 0)))
+                    if (!pet.PetView.Repeats || (repeat && (finishedDark != 0 || finishedLight != 0)))
                         throw new InvalidOperationException("Playback did not retain or restore the idle loop.");
                     results.Add(new { key, plannedMs = durationMs, observedMs = elapsed.Elapsed.TotalMilliseconds,
-                        repeat, completedDark = finishedDark, completedLight = finishedLight, petStartedInExpectedMode = startedInExpectedMode, petReturnedToIdleLoop = petView.Repeats });
+                        repeat, completedDark = finishedDark, completedLight = finishedLight, petStartedInExpectedMode = startedInExpectedMode, petReturnedToIdleLoop = pet.PetView.Repeats });
                 }
                 finally { dark.Completed -= DarkCompleted; light.Completed -= LightCompleted; dark.SetRunning(false); light.SetRunning(false); }
             }
             await runtime.UpdateSettings(runtime.Settings with { ShowPet = false });
             foreach (var key in new[] { "attention", "stretch", "celebrate", "click" })
-                if (selected.Manifest.Animations.ContainsKey(key)) await runtime.ActivePet!.React(key);
-            if (runtime.ActivePet!.IsVisible) throw new InvalidOperationException("Reactions revealed a hidden pet.");
+                if (selected.Manifest.Animations.ContainsKey(key)) await pet.React(key);
+            if (pet.IsVisible) throw new InvalidOperationException("Reactions revealed a hidden pet.");
             var persisted = new CharacterLibrary(runtime.Library.Root).List().Single(character => character.Manifest.Id == pack.Id);
             _ = persisted.LoadAnimation("idle");
             var report = new { success = true, id = pack.Id, contentVersion = pack.ContentVersion, audit,
                 packSha256 = Convert.ToHexString(SHA256.HashData(ImageCodec.ReadBounded(packPath, CharacterPack.MaxArchiveBytes))).ToLowerInvariant(),
-                realTimePlayback = true, physicalInput = false, injectedFilePicker = true, offScreenWindows = true,
+                realTimePlayback = true, physicalInput = false, injectedFilePicker = true, offScreenWindows = true, capturedLivePetView = true,
                 selectedAfterInstall = true, reopenedFromDisk = true, hiddenPetStayedHidden = true, previewControls, playback = results,
                 imageFiles = Directory.GetFiles(directory, "*.png").Length, os = Environment.OSVersion.ToString(), framework = Environment.Version.ToString() };
             AtomicFile.Write(Path.Combine(directory, "pet-review.json"), JsonSerializer.SerializeToUtf8Bytes(report, CharacterLibrary.JsonOptions));
@@ -163,5 +166,12 @@ internal static class PetPackDiagnostics
     {
         using var image = new RenderTargetBitmap(new PixelSize((int)Math.Ceiling(window.ClientSize.Width * scale), (int)Math.Ceiling(window.ClientSize.Height * scale)), new Vector(96 * scale, 96 * scale));
         image.Render(window); image.Save(path, PngBitmapEncoderOptions.Default);
+    }
+    private static void Capture(Control control, string path)
+    {
+        var size = control.Bounds.Size;
+        if (size.Width < 1 || size.Height < 1) throw new InvalidOperationException("The pet animation surface was not laid out: " + Path.GetFileName(path));
+        using var image = new RenderTargetBitmap(new PixelSize((int)Math.Ceiling(size.Width), (int)Math.Ceiling(size.Height)), new Vector(96, 96));
+        image.Render(control); image.Save(path, PngBitmapEncoderOptions.Default);
     }
 }

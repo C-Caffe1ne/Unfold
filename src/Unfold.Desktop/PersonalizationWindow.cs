@@ -27,11 +27,14 @@ internal sealed class PersonalizationView : UserControl
     private readonly TextBlock status = new() { Name = "LibraryStatus", IsVisible = false, TextWrapping = TextWrapping.Wrap };
     private readonly TextBlock detail = new() { Name = "ProfileDetail", TextWrapping = TextWrapping.Wrap };
     private readonly Button editRoutine, deleteRoutine, useRoutine, editProfile, deleteProfile, applyProfile;
+    // A standalone library window has no timer to consult, so it keeps the previous
+    // always-applicable behaviour; the settings window passes the runtime's own check.
+    private readonly Func<bool> canApplyProfile;
 
     public PersonalizationView(Window owner, Func<AppSettings> getSettings, Func<AppSettings, Task> saveSettings,
-        Action? close = null)
+        Action? close = null, Func<bool>? canApplyProfile = null)
     {
-        this.owner = owner; settings = getSettings; save = saveSettings;
+        this.owner = owner; settings = getSettings; save = saveSettings; this.canApplyProfile = canApplyProfile ?? (static () => true);
         AutomationProperties.SetName(routines, "루틴 목록"); AutomationProperties.SetName(profiles, "업무 프로필");
         editRoutine = Action("루틴 편집", () => EditRoutine(routines.SelectedItem as BreakRoutine));
         useRoutine = Action("루틴 사용", async () =>
@@ -119,6 +122,9 @@ internal sealed class PersonalizationView : UserControl
         await editor.ShowDialog(owner);
     }
 
+    /// <summary>Re-evaluates button availability without rebuilding the lists or losing the selection.</summary>
+    public void RefreshAvailability() => RefreshActions();
+
     public void Refresh()
     {
         var current = settings(); var selectedProfile = (profiles.SelectedItem as WorkProfile)?.Id;
@@ -135,8 +141,14 @@ internal sealed class PersonalizationView : UserControl
         editRoutine.IsEnabled = deleteRoutine.IsEnabled = selected is not null && BreakRoutines.Find(selected.Id) is null;
         useRoutine.IsEnabled = selected is not null;
         var profile = profiles.SelectedItem as WorkProfile;
-        editProfile.IsEnabled = deleteProfile.IsEnabled = applyProfile.IsEnabled = profile is not null;
+        editProfile.IsEnabled = deleteProfile.IsEnabled = profile is not null;
+        // Applying a profile reschedules the timer, so show the block before the click.
+        var blocked = canApplyProfile() ? null : "타이머를 일시정지하거나 중지한 뒤 프로필을 적용할 수 있어요.";
+        applyProfile.IsEnabled = profile is not null && blocked is null;
+        var applyHelp = blocked ?? "선택한 프로필의 루틴과 알림 간격, 자리 비움 기준을 지금 적용해요.";
+        ToolTip.SetTip(applyProfile, applyHelp); AutomationProperties.SetHelpText(applyProfile, applyHelp);
         detail.Text = profile is null ? "아직 프로필이 없어요. 자주 쓰는 설정을 저장해 보세요." :
-            $"{BreakRoutines.ForSettings(settings()).FirstOrDefault(item => item.Id == profile.RoutineId)?.Name} · {profile.IdleMinutes}분 자리 비움 시 일시정지";
+            $"{BreakRoutines.ForSettings(settings()).FirstOrDefault(item => item.Id == profile.RoutineId)?.Name} · {profile.IdleMinutes}분 자리 비움 시 일시정지" +
+            (blocked is null ? "" : $"\n{blocked}");
     }
 }

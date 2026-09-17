@@ -56,6 +56,20 @@ public class PersonalizationWindowTests
         Assert.Equal("writing", saved?.Id); Assert.Equal("Writing pause", saved?.Name);
     }
     [AvaloniaFact]
+    public void StandaloneLibraryKeepsProfileApplyAvailableWithoutARuntime()
+    {
+        var settings = new AppSettings().SaveProfile(new("focus", "Focus", 45, 3, "look-away"));
+        var window = new PersonalizationWindow(() => settings, value => { settings = value; return Task.CompletedTask; });
+        window.Show(); Dispatcher.UIThread.RunJobs();
+        Find<TabControl>(window, "PersonalizationTabs").SelectedIndex = 1; Dispatcher.UIThread.RunJobs();
+        Assert.True(Button(window, "프로필 적용").IsEnabled);
+        Assert.DoesNotContain("타이머를 일시정지하거나 중지", Find<TextBlock>(window, "ProfileDetail").Text);
+        Press(window, "프로필 적용"); Dispatcher.UIThread.RunJobs();
+        Assert.Equal("focus", settings.ActiveProfileId);
+        window.Close();
+    }
+
+    [AvaloniaFact]
     public void ReviewNavigationAndExportUseTheVisibleSnapshot()
     {
         var today = new DateOnly(2026, 9, 13); BreakReview? exported = null;

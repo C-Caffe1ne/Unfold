@@ -21,6 +21,10 @@ public sealed class PetWindow : Window
     private double layoutScale = 1;
     public PixelPoint PetAnchor => new(Position.X + (int)Math.Round(layout.Pet.X * DesktopScaling), Position.Y + (int)Math.Round(layout.Pet.Y * DesktopScaling));
     private readonly AnimationView animation = new() { Width = 192, Height = 192 };
+    // Content is the layout canvas that also carries the bubble and tail, and its shape
+    // changes with the bubble layout. Diagnostics and tests read playback state and render
+    // the pet through this contract instead of casting Content or walking the visual tree.
+    internal AnimationView PetView => animation;
     private readonly DispatcherTimer hitTimer = new() { Interval = TimeSpan.FromMilliseconds(40) };
     private Avalonia.PixelPoint? down;
     private Avalonia.PixelPoint origin;

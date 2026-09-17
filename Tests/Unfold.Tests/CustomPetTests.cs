@@ -97,6 +97,33 @@ public class CustomPetWindowTests
         for (var i = 0; i < 400 && !predicate(); i++) { await Task.Delay(10, TestContext.Current.CancellationToken); Dispatcher.UIThread.RunJobs(); }
         Assert.True(predicate());
     }
+    private static async Task<Window> Dialog(Window owner)
+    {
+        for (var i = 0; i < 200; i++)
+        {
+            Dispatcher.UIThread.RunJobs();
+            if (owner.OwnedWindows.FirstOrDefault() is { } dialog) return dialog;
+            await Task.Delay(10, TestContext.Current.CancellationToken);
+        }
+        throw new TimeoutException("Expected a replacement confirmation.");
+    }
+    private static Button Choice(Window dialog, string label) =>
+        dialog.GetVisualDescendants().OfType<Button>().Single(button => Equals(button.Content, label));
+    private static async Task<Window> Answer(Window owner, string label)
+    {
+        var dialog = await Dialog(owner);
+        Choice(dialog, label).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        Dispatcher.UIThread.RunJobs(); return dialog;
+    }
+    private static string Label(Window window, string key) => Find<TextBlock>(window, "CustomPetLabel_" + key).Text ?? "";
+    // The imported file is consumed and the picker moved in the same synchronous step,
+    // so this note is the signal that the whole assignment finished.
+    private static Task Assigned(Window window) =>
+        Until(() => (Find<TextBlock>(window, "CustomPetPending").Text ?? "").StartsWith("동작에 추가했어요"));
+    private static string Copy(string directory, string name)
+    {
+        var path = Path.Combine(directory, name); File.Copy(CustomPetDraftTests.Fixture(), path, true); return path;
+    }
     [AvaloniaFact]
     public async Task ImportedFileCanBeAssignedReplacedRemovedAndExportedOnlyWithIdle()
     {
@@ -114,13 +141,98 @@ public class CustomPetWindowTests
             Press(window, "CustomPetFile_idle"); await Until(() => Find<Button>(window, "CreateCustomPetPack").IsEnabled);
             Press(window, "CustomPetRemove_click"); Assert.False(Find<Button>(window, "CustomPetPreview_click").IsEnabled);
             file = Path.Combine(temp.Path, "broken.gif"); File.WriteAllText(file, "broken");
-            Press(window, "CustomPetFile_idle"); await Until(() => Find<Button>(window, "CreateCustomPetPack").IsEnabled);
+            Press(window, "CustomPetFile_idle"); await Answer(window, "바꾸기");
+            await Until(() => Find<Button>(window, "CreateCustomPetPack").IsEnabled);
             Assert.Equal("테스트 펫", Find<TextBox>(window, "CustomPetName").Text);
             Press(window, "CreateCustomPetPack"); await Until(() => window.CreatedPackPath is not null);
             using var pack = CharacterPack.Open(output); Assert.Equal("테스트 펫", pack.Character.Manifest.Name);
             Assert.Single(pack.Character.Manifest.Animations); Assert.Equal(4, pack.Character.LoadAnimation("idle").Count);
         }
         finally { window.Close(); Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", previous); }
+    }
+    [AvaloniaFact]
+    public async Task ReplacingAFilledActionAsksFirstAndCancellingKeepsBothTheClipAndTheImportedFile()
+    {
+        using var temp = new TempDirectory();
+        var picked = Copy(temp.Path, "first.gif");
+        var window = new CustomPetWindow(picked, () => Task.FromResult<string?>(picked));
+        try
+        {
+            window.Show(); Find<TextBox>(window, "CustomPetName").Text = "테스트 펫";
+            Press(window, "AssignPetMedia"); await Assigned(window);
+            Assert.Contains("first.gif", Label(window, "idle"));
+            picked = Copy(temp.Path, "second.gif");
+            Press(window, "ImportPetMedia"); Dispatcher.UIThread.RunJobs();
+            Find<ComboBox>(window, "CustomPetAction").SelectedItem = "idle";
+            Press(window, "AssignPetMedia");
+            var confirm = await Dialog(window);
+            Assert.Contains("쉬는 모습", confirm.Title);
+            Assert.Contains(confirm.GetVisualDescendants().OfType<TextBlock>(),
+                text => (text.Text ?? "").Contains("first.gif") && (text.Text ?? "").Contains("second.gif"));
+            Assert.True(Choice(confirm, "취소").IsFocused); Assert.False(Choice(confirm, "바꾸기").IsDefault);
+            Choice(confirm, "취소").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await Until(() => !window.OwnedWindows.Any() && Find<Button>(window, "AssignPetMedia").IsEnabled);
+            Assert.Contains("first.gif", Label(window, "idle"));
+            Assert.True(Find<Button>(window, "CreateCustomPetPack").IsEnabled);
+            Assert.True(Find<Button>(window, "CustomPetPreview_idle").IsEnabled);
+            // Closing the confirmation with its titlebar is also a cancel.
+            Press(window, "CustomPetFile_idle"); (await Dialog(window)).Close();
+            await Until(() => !window.OwnedWindows.Any() && Find<Button>(window, "CustomPetFile_idle").IsEnabled);
+            Assert.Contains("first.gif", Label(window, "idle"));
+            Assert.True(Find<Button>(window, "CreateCustomPetPack").IsEnabled);
+            // The imported file survived both cancels and still fits another action.
+            Assert.True(Find<Button>(window, "AssignPetMedia").IsEnabled);
+            Find<ComboBox>(window, "CustomPetAction").SelectedItem = "stretch";
+            Press(window, "AssignPetMedia"); await Assigned(window);
+            Assert.Contains("second.gif", Label(window, "stretch"));
+            Assert.Contains("first.gif", Label(window, "idle"));
+        }
+        finally { foreach (var owned in window.OwnedWindows.ToArray()) owned.Close(); window.Close(); }
+    }
+    [AvaloniaFact]
+    public async Task AnApprovedReplacementThatFailsValidationKeepsTheExistingClip()
+    {
+        using var temp = new TempDirectory();
+        var picked = Copy(temp.Path, "first.gif");
+        var window = new CustomPetWindow(picked, () => Task.FromResult<string?>(picked));
+        try
+        {
+            window.Show(); Find<TextBox>(window, "CustomPetName").Text = "테스트 펫";
+            Press(window, "AssignPetMedia"); await Assigned(window);
+            picked = Path.Combine(temp.Path, "broken.gif"); File.WriteAllText(picked, "broken");
+            Press(window, "CustomPetFile_idle"); await Answer(window, "바꾸기");
+            await Until(() => Find<TextBlock>(window, "CustomPetStatus").Foreground == DesignSystem.Error);
+            Assert.Contains("first.gif", Label(window, "idle"));
+            Assert.True(Find<Button>(window, "CreateCustomPetPack").IsEnabled);
+            Assert.True(Find<Button>(window, "CustomPetPreview_idle").IsEnabled);
+        }
+        finally { foreach (var owned in window.OwnedWindows.ToArray()) owned.Close(); window.Close(); }
+    }
+    [AvaloniaFact]
+    public async Task AssigningMovesThePickerToTheNextEmptyActionAndStopsWhenEveryActionIsFilled()
+    {
+        using var temp = new TempDirectory();
+        var picked = Copy(temp.Path, "first.gif");
+        var window = new CustomPetWindow(picked, () => Task.FromResult<string?>(picked));
+        try
+        {
+            window.Show();
+            var actions = Find<ComboBox>(window, "CustomPetAction");
+            Press(window, "AssignPetMedia"); await Assigned(window);
+            Assert.Equal("attention", actions.SelectedItem);
+            Press(window, "ImportPetMedia"); Dispatcher.UIThread.RunJobs();
+            actions.SelectedItem = "click";
+            Press(window, "AssignPetMedia"); await Assigned(window);
+            // The last action wraps around to the first action that is still empty.
+            Assert.Equal("attention", actions.SelectedItem);
+            foreach (var key in new[] { "attention", "stretch", "celebrate" })
+            { Press(window, "CustomPetFile_" + key); await Until(() => Find<Button>(window, "CustomPetRemove_" + key).IsEnabled); }
+            Press(window, "ImportPetMedia"); Dispatcher.UIThread.RunJobs();
+            actions.SelectedItem = "click";
+            Press(window, "AssignPetMedia"); await Answer(window, "바꾸기"); await Assigned(window);
+            Assert.Equal("click", actions.SelectedItem);
+        }
+        finally { foreach (var owned in window.OwnedWindows.ToArray()) owned.Close(); window.Close(); }
     }
     [AvaloniaFact]
     public async Task PetTabsKeepPreviewAndDraftThenOpenCreatedPackWithoutAnotherWindow()
