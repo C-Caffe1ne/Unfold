@@ -37,9 +37,8 @@ notarization or staple a ticket.
 - Tray/menu bar: countdown and current state, 설정, 펫 숨기기/펫 표시,
   시작/일시정지/계속, 타이머 정지, Unfold 종료.
 - Pet right-click menu: 말풍선 접기/펼치기, 설정.
-- Settings: timer interval, idle threshold, character selection, pet visibility,
-  launch at login, routine selection, **Edit my routine**, **My routines & work profiles**,
-  **Review & export**, **펫 추가**, today's confirmed breaks, and timer controls.
+- Settings: the timer home contains stretch interval and break duration; a separate settings tab contains idle time, snooze time, stretch/completion sounds and bubble position; character selection, pet visibility,
+  launch at login, **Review & export**, **펫 추가**, today's confirmed breaks, and timer controls.
 - Pet speech reminder: **n분 뒤에**, **휴식 시작**, and **완료**. Right-click the pet to fold/unfold the bubble.
   Settings offers four bubble positions, 1–60 minute snooze, and due/completion WAV effects.
   There is no separate reminder window or OS toast.
@@ -52,20 +51,21 @@ or to start a full interval after Stop. Stop dismisses an open invitation withou
 completion. Reset and Stretch now are no longer exposed.
 
 The timer state badge and tray status explicitly show running, paused, stopped, idle-paused,
-or break-held state. **Remind me every (min)** is disabled while running and accepts whole
-minutes from 5 to 240 in one-minute steps while paused or stopped. A typed or stepped value
-does not change the timer until **Apply** is pressed at the reminder card's top right. The same
-button saves the away threshold and routine. Applying keeps Pause or Stop intact.
+or break-held state. The home card's **스트레칭 시간 (분)** is disabled while running and accepts whole
+minutes from 5 to 240 in one-minute steps while paused or stopped. **휴식 시간 (분)** accepts 1–10
+minutes and may be changed while working because it applies to the next break. A typed or stepped value
+does not change behavior until the home card's **적용** is pressed. The Settings tab uses its own
+**적용** for idle and snooze time. Applying a new stretch interval keeps Pause or Stop intact.
 
 A plain click on bundled Mochi keeps its current animation; Mochi has no click
 clip. The pet stretches when the user starts the routine and then returns to idle. A hidden
 pet stays hidden while the reminder window still appears.
 
-An open reminder holds the work timer. Completion schedules a full work interval;
+An open reminder holds the work timer and retains the break duration captured when it opened. Completion schedules a full work interval;
 snooze schedules five active minutes; skip/close keeps the remaining work interval.
 Existing manual Pause remains in effect. An already-open reminder is reused.
-Manual work profiles combine the routine and timer settings. The library and review
-workflow is described in the [personalization guide](personalization.md).
+Routine and work-profile setup is no longer exposed in the normal UI. Review/export and
+legacy data compatibility are described in the [compatibility guide](personalization.md).
 
 ## Platform limits
 
@@ -86,7 +86,7 @@ workflow is described in the [personalization guide](personalization.md).
 | Windows | `%LOCALAPPDATA%\Unfold\` |
 | macOS | `~/Library/Application Support/Unfold/` |
 
-`settings.json` stores preferences, the routine library and manually applied work profiles. `Characters/` holds user-created packages and
+`settings.json` stores preferences, including `breakDurationMinutes`, and retains legacy routine/profile values so upgrades do not delete them. `Characters/` holds user-created packages and
 `Sounds/` holds copied custom WAV effects and generated default effects; `unfold.log` records errors. `UNFOLD_DATA_DIR` overrides this directory for isolated
 testing. Bundled assets are separate, under the application's `Assets/Characters/`.
 
@@ -181,7 +181,7 @@ use a new empty directory, never a real user library. The diagnostic opens off-s
 windows, suppresses system notifications, creates and edits test artwork, checks a
 save/reopen round trip, edits routines/profiles, exercises reminder start/confirm/snooze/close,
 exports review CSV and checks timer controls. It also previews, installs, updates and repairs a
-diagnostic pet pack, and rejects a malformed archive. It captures 19 PNGs, records a short process
+diagnostic pet pack, and rejects a malformed archive. It captures 43 PNGs, records a short process
 sample, and exits. Read `verification/smoke.json` in that profile.
 
 The diagnostic advances the break session clock programmatically and confirms via

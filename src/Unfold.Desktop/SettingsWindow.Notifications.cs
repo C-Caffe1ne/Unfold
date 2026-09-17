@@ -10,32 +10,28 @@ namespace Unfold.Desktop;
 
 public sealed partial class SettingsWindow
 {
-    private Border BuildSpeechSettingsCard()
+    private Border BuildNotificationSettingsCard()
     {
         var direction = new ComboBox { Name = "BubbleDirection", ItemsSource = Enum.GetValues<BubbleDirection>(),
             SelectedItem = runtime.Settings.BubbleDirection, HorizontalAlignment = HorizontalAlignment.Stretch };
         direction.ItemTemplate = new FuncDataTemplate<BubbleDirection>((value, _) => Ui.Text(value switch
         { BubbleDirection.Top => "위", BubbleDirection.Bottom => "아래", BubbleDirection.Left => "왼쪽", _ => "오른쪽" }));
-        var snooze = new NumericUpDown { Name = "SnoozeMinutes", Minimum = 1, Maximum = 60, Increment = 1,
-            Value = runtime.Settings.SnoozeMinutes, FormatString = "0", HorizontalAlignment = HorizontalAlignment.Stretch };
-        var sounds = new CheckBox { Name = "ReminderSoundsEnabled", Content = "알림·완료 효과음", IsChecked = runtime.Settings.ReminderSoundsEnabled };
-        var status = Ui.Caption("5분 전 안내 → 휴식 시작 → 완료"); status.Name = "SpeechSettingsStatus";
-        AutomationProperties.SetName(direction, "말풍선 위치"); AutomationProperties.SetName(snooze, "다시 알릴 시간, 분");
+        var sounds = new CheckBox { Name = "ReminderSoundsEnabled", Content = "알림 효과음 사용", IsChecked = runtime.Settings.ReminderSoundsEnabled };
+        var status = Ui.Caption("스트레칭 알림과 완료 알림에 서로 다른 효과음을 사용할 수 있어요."); status.Name = "SpeechSettingsStatus";
+        AutomationProperties.SetName(direction, "말풍선 위치");
         var save = Ui.AsyncButton("적용", async () =>
         {
             try
             {
-                if (snooze.Value is not decimal minutes || minutes is < 1 or > 60 || decimal.Truncate(minutes) != minutes)
-                    throw new ArgumentException("다시 알릴 시간은 1~60분의 정수로 입력해 주세요.");
                 await runtime.UpdateSettings(runtime.Settings with { BubbleDirection = (BubbleDirection)direction.SelectedItem!,
-                    SnoozeMinutes = (int)minutes, ReminderSoundsEnabled = sounds.IsChecked == true });
-                status.Text = "말풍선 알림 설정을 저장했어요.";
+                    ReminderSoundsEnabled = sounds.IsChecked == true });
+                status.Text = "알림 설정을 저장했어요.";
             }
             catch (Exception error) { status.Text = "저장하지 못했어요. " + Ui.ErrorText(error); AppPaths.Log(error); }
         });
         save.Name = "ApplySpeechSettings"; Ui.Primary(save); save.Classes.Add("compact");
         var heading = new Grid { ColumnDefinitions = new("*,Auto") };
-        heading.Children.Add(Ui.Text("말풍선 알림", 17)); Grid.SetColumn(save, 1); heading.Children.Add(save);
+        heading.Children.Add(Ui.Text("알림 설정", 17)); Grid.SetColumn(save, 1); heading.Children.Add(save);
         Control SoundRow(string caption, ReminderSound kind)
         {
             var label = Ui.Caption("");
@@ -72,10 +68,10 @@ public sealed partial class SettingsWindow
             row.Children.Add(Ui.Column(Ui.Text(caption, 12), label)); Grid.SetColumn(import, 1); row.Children.Add(import); Grid.SetColumn(reset, 3); row.Children.Add(reset);
             return row;
         }
-        var body = Ui.Column(heading, Ui.Field("말풍선 위치", direction), Ui.Field("다시 알릴 시간 (분)", snooze), sounds,
-            SoundRow("스트레칭 시간", ReminderSound.Due), SoundRow("완료", ReminderSound.Completed),
+        var body = Ui.Column(heading, Ui.Field("말풍선 위치", direction), sounds,
+            SoundRow("스트레칭 알림", ReminderSound.Due), SoundRow("완료 알림", ReminderSound.Completed),
             Ui.Caption("WAV · 최대 30초 / 5 MiB"), status);
         body.Margin = new Thickness(20); body.Spacing = 10;
-        return Card("SettingsSpeechCard", body, DesignSystem.Surface, new(28));
+        return Card("SettingsNotificationCard", body, DesignSystem.Surface, new(28));
     }
 }

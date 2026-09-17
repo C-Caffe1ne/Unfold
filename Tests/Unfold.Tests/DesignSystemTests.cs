@@ -1,6 +1,8 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Controls.Presenters;
+using Avalonia.Controls.Primitives;
 using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
 using Avalonia.Input;
@@ -26,7 +28,8 @@ public class DesignSystemTests
     private static void Fits(Window window, Control control)
     {
         var point = control.TranslatePoint(default, window)!.Value;
-        Assert.True(control.Bounds.Width > 0 && control.Bounds.Height > 0);
+        Assert.True(control.Bounds.Width > 0 && control.Bounds.Height > 0,
+            $"{window.Title}: {control.Name ?? control.GetType().Name} ({(control as ContentControl)?.Content}) has no size.");
         Assert.True(point.X >= 0 && point.Y >= 0 && point.X + control.Bounds.Width <= window.ClientSize.Width + 1 &&
             point.Y + control.Bounds.Height <= window.ClientSize.Height + 1, $"{window.Title}: {control.Name ?? control.GetType().Name} is clipped.");
     }
@@ -78,6 +81,80 @@ public class DesignSystemTests
     }
 
     [AvaloniaFact]
+    public void TheBodyScrollBarReservesItsTrackInsteadOfCoveringPageControls()
+    {
+        using var temp = new TempDirectory();
+        Window[] windows = [
+            new RoutineEditorWindow(null, _ => Task.CompletedTask),
+            new ProfileEditorWindow(new(), null, _ => Task.CompletedTask),
+            new PersonalizationWindow(() => new(), _ => Task.CompletedTask),
+            new BreakReviewWindow(new BreakHistory().Review),
+            new PetPackWindow(new(temp.Path), _ => Task.CompletedTask)
+        ];
+        foreach (var window in windows)
+        {
+            try
+            {
+                if (window.CanResize) { window.Width = window.MinWidth; window.Height = window.MinHeight; }
+                window.Show(); Layout(window);
+                PageBodyScrollGeometry.NeverOverlapsScrollBar(window);
+                var scroll = PageBodyScrollGeometry.Scroll(window);
+                scroll.ScrollToEnd(); Layout(window);
+                PageBodyScrollGeometry.NeverOverlapsScrollBar(window);
+            }
+            finally { window.Close(); }
+        }
+    }
+
+    [AvaloniaFact]
+    public void SettingsPetBuilderKeepsItsInputsAndButtonsClearOfTheBodyScrollBar()
+    {
+        using var scope = new SettingsScope(); var window = scope.Window;
+        Find<Button>(window, "SettingsNavPacks").RaiseEvent(new RoutedEventArgs(Avalonia.Controls.Button.ClickEvent));
+        Layout(window);
+        Find<TabControl>(window, "PetManagementTabs").SelectedIndex = 1; Layout(window);
+        string[] controls = ["CustomPetName", "CustomPetFile_idle", "CustomPetRemove_idle",
+            "CustomPetPreview_idle", "CustomPetFile_click"];
+        foreach (var size in new[] { new Size(1120, 800), new Size(990, 740), new Size(860, 680) })
+        {
+            window.Width = size.Width; window.Height = size.Height; Layout(window);
+            Assert.Equal(size.Width, window.ClientSize.Width, 0); Assert.Equal(size.Height, window.ClientSize.Height, 0);
+            if (size.Width == 1120)
+            {
+                Assert.Equal(320, Find<TextBox>(window, "CustomPetName").Bounds.Width, 0);
+                Assert.DoesNotContain(window.GetVisualDescendants().OfType<Button>(), button => button.Name == "ImportPetMedia");
+                var slotOrigins = CustomPetDraft.Actions.Select(key =>
+                    Find<Border>(window, "CustomPetSlot_" + key).TranslatePoint(default, window)!.Value).ToArray();
+                Assert.All(slotOrigins, origin => Assert.InRange(Math.Abs(origin.Y - slotOrigins[0].Y), 0, .5));
+                for (var index = 1; index < slotOrigins.Length; index++) Assert.True(slotOrigins[index].X > slotOrigins[index - 1].X);
+                var preview = Find<Border>(window, "CustomPetPreviewSurface");
+                var previewOrigin = preview.TranslatePoint(default, window)!.Value;
+                Assert.True(previewOrigin.Y + preview.Bounds.Height < slotOrigins[0].Y);
+                var bodyScroll = Find<ScrollViewer>(window, "PageBodyScroll");
+                var bodyOrigin = bodyScroll.TranslatePoint(default, window)!.Value;
+                foreach (var key in CustomPetDraft.Actions)
+                {
+                    var remove = Find<Button>(window, "CustomPetRemove_" + key);
+                    var removeOrigin = remove.TranslatePoint(default, window)!.Value;
+                    Assert.True(removeOrigin.Y + remove.Bounds.Height <= bodyOrigin.Y + bodyScroll.Viewport.Height + .5,
+                        $"{key} action controls are clipped in the default settings layout.");
+                }
+            }
+            var pageScroll = PageBodyScrollGeometry.Scroll(window);
+            if (pageScroll.Extent.Height > pageScroll.Viewport.Height + 1)
+                PageBodyScrollGeometry.ClearsScrollBar(window, controls);
+            else
+                PageBodyScrollGeometry.KeepsFullWidthWithoutScrollBar(window);
+            pageScroll.ScrollToEnd(); Layout(window);
+            if (pageScroll.Extent.Height > pageScroll.Viewport.Height + 1)
+                PageBodyScrollGeometry.ClearsScrollBar(window, controls);
+            else
+                PageBodyScrollGeometry.KeepsFullWidthWithoutScrollBar(window);
+            pageScroll.ScrollToHome(); Layout(window);
+        }
+    }
+
+    [AvaloniaFact]
     public async Task NestedEditorsAndDeleteConfirmationShareTheThemeAndCancelSafely()
     {
         using var profile = new ProfileScope();
@@ -115,6 +192,36 @@ public class DesignSystemTests
     }
 
     [AvaloniaFact]
+    public void ApprovedDarkSemanticTokensKeepLegacyValuesAndGeometry()
+    {
+        static Color ColorOf(IBrush brush) => ((ISolidColorBrush)brush).Color;
+        (IBrush Brush, string Hex)[] tokens =
+        [
+            (DesignSystem.TextTertiary, "#9CA798"),
+            (DesignSystem.OutlineSubtle, "#4F5B51"),
+            (DesignSystem.OutlineStrong, "#849187"),
+            (DesignSystem.Error, "#FFB4AB"),
+            (DesignSystem.Warning, "#F2CD7D"),
+            (DesignSystem.Success, "#9ED8AC"),
+            (DesignSystem.DisabledFill, "#292F29"),
+            (DesignSystem.DisabledText, "#929C91"),
+            (DesignSystem.FocusRing, "#8FD3FF"),
+            (DesignSystem.Cream, "#DFE5D1"),
+            (DesignSystem.Muted, "#B6BEB0"),
+            (DesignSystem.Surface, "#2B2F2A"),
+            (DesignSystem.Raised, "#363C33"),
+            (DesignSystem.Ink, "#252A23"),
+            (DesignSystem.Hover, "#505A48")
+        ];
+        foreach (var (brush, hex) in tokens) Assert.Equal(Color.Parse(hex), ColorOf(brush));
+        Assert.Same(DesignSystem.OutlineSubtle, DesignSystem.Outline);
+        Assert.Equal(new Thickness(1), DesignSystem.BorderSubtle);
+        Assert.Equal(new Thickness(1), DesignSystem.BorderStrong);
+        Assert.Equal(2, DesignSystem.FocusRingWidth);
+        Assert.Equal(2, DesignSystem.FocusRingOffset);
+    }
+
+    [AvaloniaFact]
     public void ButtonStatesKeepPrimaryTextLegibleAndExposeKeyboardFocus()
     {
         var primary = Ui.Primary(Ui.Button("저장", () => { }));
@@ -135,10 +242,10 @@ public class DesignSystemTests
             secondary.Focus(NavigationMethod.Tab); primary.Focus(NavigationMethod.Tab); Layout(window);
             Assert.Equal(DesignSystem.Ink, primary.BorderBrush);
             primary.IsEnabled = false; Layout(window);
-            Assert.Equal(DesignSystem.Surface, presenter.Background); Assert.Equal(DesignSystem.Muted, presenter.Foreground);
-            Assert.Equal(.55, primary.Opacity);
+            Assert.Equal(DesignSystem.DisabledFill, presenter.Background); Assert.Equal(DesignSystem.DisabledText, presenter.Foreground);
+            Assert.Equal(1, primary.Opacity);
             Assert.True(Contrast(DesignSystem.Cream, DesignSystem.Ink) >= 7);
-            Assert.True(Contrast(DesignSystem.Muted, DesignSystem.Surface) >= 4.5);
+            Assert.True(Contrast(DesignSystem.DisabledText, DesignSystem.DisabledFill) >= 4.5);
         }
         finally { window.Close(); }
     }
@@ -205,6 +312,8 @@ public class DesignSystemTests
             var border = editor.GetVisualDescendants().OfType<Border>().First(item => item.Name is "PART_BorderElement" or "PART_Border");
             var original = (editor.Background, editor.BorderBrush, editor.BorderThickness, border.Background, border.BorderBrush, border.BorderThickness);
             var numberAppearance = (ColorOf(number.Background), ColorOf(number.BorderBrush), number.BorderThickness);
+            Assert.Equal(ColorOf(DesignSystem.OutlineStrong), ColorOf(number.BorderBrush));
+            Assert.Equal(DesignSystem.BorderStrong, number.BorderThickness);
             window.MouseMove(editor.TranslatePoint(new Point(12, 12), window)!.Value); Layout(window);
             Assert.Equal(original, (editor.Background, editor.BorderBrush, editor.BorderThickness, border.Background, border.BorderBrush, border.BorderThickness));
             Assert.Equal(numberAppearance, (ColorOf(number.Background), ColorOf(number.BorderBrush), number.BorderThickness));
@@ -234,6 +343,8 @@ public class DesignSystemTests
             Assert.Equal(decrease.CornerRadius, buttonSurface.CornerRadius);
             var nameBorder = name.GetVisualDescendants().OfType<Border>().First(item => item.Name is "PART_BorderElement" or "PART_Border");
             var nameAppearance = (ColorOf(name.Background), ColorOf(name.BorderBrush), name.BorderThickness, ColorOf(nameBorder.Background), ColorOf(nameBorder.BorderBrush));
+            Assert.Equal(ColorOf(DesignSystem.OutlineStrong), ColorOf(name.BorderBrush));
+            Assert.Equal(DesignSystem.BorderStrong, name.BorderThickness);
             window.MouseMove(name.TranslatePoint(new Point(12, 12), window)!.Value); Layout(window);
             Assert.Equal(nameAppearance, (ColorOf(name.Background), ColorOf(name.BorderBrush), name.BorderThickness, ColorOf(nameBorder.Background), ColorOf(nameBorder.BorderBrush)));
             name.Focus(NavigationMethod.Tab); Layout(window);
@@ -241,6 +352,8 @@ public class DesignSystemTests
             Assert.Equal(nameAppearance, (ColorOf(name.Background), ColorOf(name.BorderBrush), name.BorderThickness, ColorOf(nameBorder.Background), ColorOf(nameBorder.BorderBrush)));
             var choiceBorder = choice.GetVisualDescendants().OfType<Border>().First();
             var choiceAppearance = (ColorOf(choice.Background), ColorOf(choice.BorderBrush), choice.BorderThickness, ColorOf(choiceBorder.Background), ColorOf(choiceBorder.BorderBrush));
+            Assert.Equal(ColorOf(DesignSystem.OutlineStrong), ColorOf(choice.BorderBrush));
+            Assert.Equal(DesignSystem.BorderStrong, choice.BorderThickness);
             window.MouseMove(choice.TranslatePoint(new Point(12, 12), window)!.Value); Layout(window);
             Assert.Equal(choiceAppearance, (ColorOf(choice.Background), ColorOf(choice.BorderBrush), choice.BorderThickness, ColorOf(choiceBorder.Background), ColorOf(choiceBorder.BorderBrush)));
             choice.Focus(NavigationMethod.Tab); Layout(window);
@@ -249,9 +362,9 @@ public class DesignSystemTests
             number.IsEnabled = false; Layout(window);
             Assert.True(number.ClipToBounds);
             Assert.Equal(DesignSystem.ControlRadius, number.CornerRadius);
-            Assert.Equal(new Thickness(1), number.BorderThickness);
+            Assert.Equal(DesignSystem.BorderStrong, number.BorderThickness);
             Assert.Equal(ColorOf(DesignSystem.Shell), ColorOf(number.Background));
-            Assert.Equal(ColorOf(DesignSystem.Muted), ColorOf(number.BorderBrush));
+            Assert.Equal(ColorOf(DesignSystem.OutlineStrong), ColorOf(number.BorderBrush));
             Assert.Equal(new CornerRadius(0), editor.CornerRadius);
             Assert.Equal(new CornerRadius(0), border.CornerRadius);
             Assert.Equal(ColorOf(Brushes.Transparent), ColorOf(editor.Background));
@@ -267,6 +380,25 @@ public class DesignSystemTests
             }
         }
         finally { window.Close(); }
+    }
+    private sealed class SettingsScope : IDisposable
+    {
+        private readonly TempDirectory temp = new();
+        private readonly string? previous = Environment.GetEnvironmentVariable("UNFOLD_DATA_DIR");
+        private readonly ClassicDesktopStyleApplicationLifetime lifetime = new();
+        private readonly AppRuntime runtime;
+        public SettingsWindow Window { get; }
+        public SettingsScope()
+        {
+            Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", temp.Path);
+            runtime = new(lifetime); Window = new(runtime); Window.Show(); Dispatcher.UIThread.RunJobs();
+        }
+        public void Dispose()
+        {
+            foreach (var dialog in Window.OwnedWindows.ToArray()) dialog.Close();
+            Window.HideToTray(); Window.Dispose(); runtime.Dispose(); lifetime.Dispose();
+            Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", previous); temp.Dispose();
+        }
     }
     private sealed class ProfileScope : IDisposable
     {
@@ -285,5 +417,69 @@ public class DesignSystemTests
         }
         var a = Luminance(first); var b = Luminance(second);
         return (Math.Max(a, b) + .05) / (Math.Min(a, b) + .05);
+    }
+}
+
+
+/// <summary>
+/// UI-04: the shared page body reserves the vertical scrollbar's track instead of letting
+/// Fluent paint it over the content. These checks compare real coordinates — the right edge
+/// of each control against the left edge of the scrollbar — not just visibility.
+/// </summary>
+internal static class PageBodyScrollGeometry
+{
+    internal static ScrollViewer Scroll(Window window) =>
+        window.GetVisualDescendants().OfType<ScrollViewer>().Single(control => control.Name == "PageBodyScroll");
+    private static ScrollBar VerticalBar(ScrollViewer scroll) =>
+        scroll.GetVisualDescendants().OfType<ScrollBar>().Single(bar => bar.Orientation == Orientation.Vertical &&
+            bar.GetVisualAncestors().OfType<ScrollViewer>().First() == scroll);
+    private static double Right(Control control, Window window) =>
+        control.TranslatePoint(default, window)!.Value.X + control.Bounds.Width;
+
+    /// <summary>Right edge of the page's pinned actions: where the body ends when nothing scrolls.</summary>
+    private static double PageRight(Window window)
+    {
+        var actions = window.GetVisualDescendants().OfType<Border>().Single(control => control.Name == "PageActions");
+        return Right(actions, window);
+    }
+
+    /// <summary>The scrollbar is shown, it stays inside the page frame, and every named control stops a full gutter before its track.</summary>
+    internal static void ClearsScrollBar(Window window, params string[] names)
+    {
+        var scroll = Scroll(window); var bar = VerticalBar(scroll); var body = (Control)scroll.Content!;
+        Assert.True(bar.IsVisible && bar.Bounds.Width > 0, $"{window.Title} {window.ClientSize}: the body scrollbar is not laid out.");
+        var barLeft = bar.TranslatePoint(default, window)!.Value.X;
+        // The body pays for the native track and the gutter while the page actions stay pinned.
+        Assert.Equal(bar.Bounds.Width + Ui.ScrollGutter, PageRight(window) - Right(body, window), 1);
+        Assert.Equal(Ui.ScrollGutter, barLeft - Right(body, window), 1);
+        // A track arranged outside the viewer would be clipped away instead of drawn.
+        Assert.True(barLeft + bar.Bounds.Width <= Right(scroll, window) + .5,
+            $"{window.Title} {window.ClientSize}: the track ends at {barLeft + bar.Bounds.Width} outside the viewer at {Right(scroll, window)}.");
+        // A page hosted inside settings has no frame of its own; only check one when it is there.
+        if (window.GetVisualDescendants().OfType<Border>().FirstOrDefault(control => control.Name == "PageFrame") is { } frame)
+            Assert.True(barLeft + bar.Bounds.Width <= Right(frame, window) - frame.BorderThickness.Right + .5,
+                $"{window.Title} {window.ClientSize}: the track reaches {barLeft + bar.Bounds.Width} past the page frame.");
+        foreach (var name in names)
+        {
+            var control = window.GetVisualDescendants().OfType<Control>().Single(item => item.Name == name);
+            Assert.True(control.IsVisible && control.Bounds.Width > 0, $"{window.Title}: {name} is not laid out.");
+            Assert.True(Right(control, window) <= barLeft - Ui.ScrollGutter + .5,
+                $"{window.Title} {window.ClientSize}: {name} ends at {Right(control, window)} but the scrollbar starts at {barLeft}.");
+        }
+    }
+
+    /// <summary>Without a scrollbar the body ends with the pinned actions; the gutter is not a permanent inset.</summary>
+    internal static void KeepsFullWidthWithoutScrollBar(Window window)
+    {
+        var scroll = Scroll(window); var body = (Control)scroll.Content!;
+        Assert.False(VerticalBar(scroll).IsVisible, $"{window.Title} {window.ClientSize}: the body still scrolls.");
+        Assert.Equal(PageRight(window), Right(body, window), 1);
+    }
+
+    /// <summary>Whichever way the page is sized, the body and the scrollbar never share pixels.</summary>
+    internal static void NeverOverlapsScrollBar(Window window, params string[] names)
+    {
+        if (VerticalBar(Scroll(window)).IsVisible) ClearsScrollBar(window, names);
+        else KeepsFullWidthWithoutScrollBar(window);
     }
 }

@@ -5,6 +5,7 @@ namespace Unfold.Core;
 public sealed partial record AppSettings
 {
     public int IntervalMinutes { get; init; } = 60;
+    public int BreakDurationMinutes { get; init; } = 1;
     public int IdleMinutes { get; init; } = 5;
     public string SelectedCharacterId { get; init; } = "default-cat";
     public bool ShowPet { get; init; } = true;
@@ -53,7 +54,8 @@ public sealed partial record AppSettings
     private static bool ValidSoundId(string? id) => id is null || (id.Length == 64 && id.All(c => char.IsAsciiHexDigit(c)));
     private static void Validate(AppSettings value)
     {
-        if (value.IntervalMinutes is < 5 or > 240 || value.IdleMinutes is < 1 or > 60 || !CharacterLibrary.SafeId(value.SelectedCharacterId))
+        if (value.IntervalMinutes is < 5 or > 240 || value.BreakDurationMinutes is < 1 or > 10 ||
+            value.IdleMinutes is < 1 or > 60 || !CharacterLibrary.SafeId(value.SelectedCharacterId))
             throw new InvalidDataException("Invalid settings values.");
         if (!Enum.IsDefined(value.BubbleDirection) || value.SnoozeMinutes is < 1 or > 60 ||
             !ValidSoundId(value.ReminderSoundId) || !ValidSoundId(value.CompletionSoundId))

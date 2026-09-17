@@ -63,25 +63,38 @@ internal sealed class PersonalizationView : UserControl
         Ui.Primary(useRoutine); Ui.Primary(applyProfile); Ui.Danger(deleteRoutine); Ui.Danger(deleteProfile);
         routines.SelectionChanged += (_, _) => RefreshActions(); profiles.SelectionChanged += (_, _) => RefreshActions();
         var routineHelp = Ui.Caption("작업에 맞는 휴식을 만들어 두세요. 기본 루틴도 언제든 사용할 수 있어요."); routineHelp.TextWrapping = TextWrapping.Wrap;
-        var profileHelp = Ui.Caption("루틴과 알림 간격, 자리 비움 기준을 프로필에 저장해 두고 필요할 때 직접 적용하세요."); profileHelp.TextWrapping = TextWrapping.Wrap;
-        var routineActions = Ui.Actions(Action("새 루틴", () => EditRoutine(null)), editRoutine, useRoutine, deleteRoutine);
+        var profileHelp = Ui.Caption("루틴과 스트레칭 시간, 자리 비움 시간을 프로필에 저장해 두고 필요할 때 직접 적용하세요."); profileHelp.TextWrapping = TextWrapping.Wrap;
+        // Five equal buttons in one wrapping row dropped 닫기 alone onto a second line at the
+        // 600px minimum. Manage stays left, the primary action and 닫기 stay together on the right.
+        var routineManage = Ui.Row(Action("새 루틴", () => EditRoutine(null)), editRoutine, deleteRoutine);
         var routineTab = Ui.Column(routineHelp, routines);
-        var profileActions = Ui.Actions(Action("새 프로필", () => EditProfile(null)), editProfile, applyProfile, deleteProfile);
+        var profileManage = Ui.Row(Action("새 프로필", () => EditProfile(null)), editProfile, deleteProfile);
         var profileTab = Ui.Column(profileHelp, profiles, detail);
         var tabs = new TabControl { Name = "PersonalizationTabs", ItemsSource = new[]
         {
             new TabItem { Header = "내 루틴", Content = routineTab }, new TabItem { Header = "업무 프로필", Content = profileTab }
         } };
-        var actionHost = new ContentControl { Content = routineActions };
-        tabs.SelectionChanged += (_, _) => actionHost.Content = tabs.SelectedIndex == 1 ? profileActions : routineActions;
-        var footerItems = new List<Control> { status, actionHost };
+        var manageHost = new ContentControl { Name = "LibraryManageActions", Content = routineManage,
+            VerticalAlignment = VerticalAlignment.Center };
+        var primaryHost = new ContentControl { Name = "LibraryPrimaryAction", Content = useRoutine,
+            VerticalAlignment = VerticalAlignment.Center };
+        tabs.SelectionChanged += (_, _) =>
+        {
+            var profileTabSelected = tabs.SelectedIndex == 1;
+            manageHost.Content = profileTabSelected ? profileManage : routineManage;
+            primaryHost.Content = profileTabSelected ? applyProfile : useRoutine;
+        };
+        var primaryGroup = Ui.Row(primaryHost);
         if (close is not null)
         {
-            var closeButton = Ui.Button("닫기", close); closeButton.IsCancel = true; closeButton.HorizontalAlignment = HorizontalAlignment.Right;
-            footerItems.Add(Ui.Actions(Ui.Quiet(closeButton)));
+            var closeButton = Ui.Button("닫기", close); closeButton.IsCancel = true;
+            primaryGroup.Children.Add(Ui.Quiet(closeButton));
         }
+        primaryGroup.HorizontalAlignment = HorizontalAlignment.Right; primaryGroup.Spacing = DesignSystem.Gap;
+        var actions = new Grid { Name = "LibraryActions", ColumnDefinitions = new("Auto,*,Auto") };
+        actions.Children.Add(manageHost); Grid.SetColumn(primaryGroup, 2); actions.Children.Add(primaryGroup);
         Content = Ui.PageContent("나만의 방식으로 쉬어 가세요.", "루틴을 만들고 작업에 맞는 프로필을 골라 보세요.",
-            tabs, Ui.Column(footerItems.ToArray()), "루틴 · 프로필");
+            tabs, Ui.Column(status, actions), "루틴 · 프로필");
         Refresh();
     }
 
@@ -145,7 +158,7 @@ internal sealed class PersonalizationView : UserControl
         // Applying a profile reschedules the timer, so show the block before the click.
         var blocked = canApplyProfile() ? null : "타이머를 일시정지하거나 중지한 뒤 프로필을 적용할 수 있어요.";
         applyProfile.IsEnabled = profile is not null && blocked is null;
-        var applyHelp = blocked ?? "선택한 프로필의 루틴과 알림 간격, 자리 비움 기준을 지금 적용해요.";
+        var applyHelp = blocked ?? "선택한 프로필의 루틴과 스트레칭 시간, 자리 비움 시간을 지금 적용해요.";
         ToolTip.SetTip(applyProfile, applyHelp); AutomationProperties.SetHelpText(applyProfile, applyHelp);
         detail.Text = profile is null ? "아직 프로필이 없어요. 자주 쓰는 설정을 저장해 보세요." :
             $"{BreakRoutines.ForSettings(settings()).FirstOrDefault(item => item.Id == profile.RoutineId)?.Name} · {profile.IdleMinutes}분 자리 비움 시 일시정지" +

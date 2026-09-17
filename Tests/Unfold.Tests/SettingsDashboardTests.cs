@@ -4,7 +4,6 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
-using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
@@ -19,17 +18,27 @@ public class SettingsDashboardTests
     private static T Find<T>(Window window, string name) where T : Control =>
         window.GetVisualDescendants().OfType<T>().Single(control => control.Name == name);
     private static void Click(Window window, string name) => Find<Button>(window, name).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+    private static void AssertNoTabPageHeader(Window window)
+    {
+        Assert.DoesNotContain(window.GetVisualDescendants().OfType<Control>(), control => control.Name == "PageHeader");
+        Assert.DoesNotContain(window.GetVisualDescendants().OfType<TextBlock>(), text =>
+            (text.Text ?? "").StartsWith("UNFOLD /", StringComparison.Ordinal) || text.Text is
+                "잠깐의 여유를 만들어 보세요." or "알림과 타이머를 설정하세요." or
+                "나를 위해 만든 여유." or "새로운 친구를 만나 보세요." or
+                "나만의 펫을 만들어 보세요." or "나의 페이스대로");
+    }
 
     [AvaloniaFact]
     public void DashboardKeepsThePetAndTimerVisibleWhileOnlyDetailsScroll()
     {
         using var scope = new Scope(); var window = scope.Window;
+        AssertNoTabPageHeader(window);
         foreach (var size in new[] { new Size(1120, 800), new Size(860, 680), new Size(1440, 960) })
         {
             window.Width = size.Width; window.Height = size.Height;
             Find<ScrollViewer>(window, "SettingsDetailsScroll").ScrollToHome();
             Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
-            foreach (var name in new[] { "SettingsCompanionCard", "SettingsTimerCard", "TimerToggle", "TimerStop", "ApplyReminderSettings", "SettingsQuit", "LaunchAtLogin" })
+            foreach (var name in new[] { "SettingsCompanionCard", "SettingsTimerCard", "SettingsHomeTimingCard", "ReminderInterval", "BreakDurationMinutes", "TimerToggle", "TimerStop", "SettingsQuit", "LaunchAtLogin" })
             {
                 var control = Find<Control>(window, name);
                 var origin = control.TranslatePoint(default, window)!.Value;
@@ -50,25 +59,40 @@ public class SettingsDashboardTests
     }
 
     [AvaloniaFact]
-    public void ResizingPreservesDraftsAndApplyStillPersistsBothSettings()
+    public async Task ResizingPreservesTimerDraftsAndLegacyRoutineData()
     {
         using var scope = new Scope(); var window = scope.Window;
-        var idle = Find<NumericUpDown>(window, "ReminderIdle"); var routine = Find<ComboBox>(window, "RoutinePicker");
-        idle.Value = 12; routine.SelectedItem = scope.Runtime.Routines.Single(item => item.Id == "look-away");
+        var legacyRoutine = new BreakRoutine("legacy-routine", "기존 루틴", [new("숨을 고르세요.", 30)]);
+        var legacyProfile = new WorkProfile("legacy-profile", "기존 프로필", 45, 3, legacyRoutine.Id);
+        await scope.Runtime.UpdateSettings(scope.Runtime.Settings.SaveRoutine(legacyRoutine).SaveProfile(legacyProfile));
+        Dispatcher.UIThread.RunJobs();
+        var breakDuration = Find<NumericUpDown>(window, "BreakDurationMinutes"); breakDuration.Value = 3;
         window.Width = window.MinWidth; window.Height = window.MinHeight; Dispatcher.UIThread.RunJobs();
-        Assert.Equal(12, idle.Value); Assert.Equal("look-away", Assert.IsType<BreakRoutine>(routine.SelectedItem).Id);
-        Assert.Equal(5, scope.Runtime.Settings.IdleMinutes); Assert.Equal(BreakRoutines.DefaultId, scope.Runtime.Settings.BreakRoutineId);
+        Assert.Equal(3, breakDuration.Value);
+        Click(window, "ApplyHomeTimingSettings"); Dispatcher.UIThread.RunJobs();
+        Click(window, "SettingsNavSettings"); Dispatcher.UIThread.RunJobs();
+        var idle = Find<NumericUpDown>(window, "ReminderIdle"); idle.Value = 12;
+        var snooze = Find<NumericUpDown>(window, "SnoozeMinutes"); snooze.Value = 9;
+        window.Width = window.MinWidth; window.Height = window.MinHeight; Dispatcher.UIThread.RunJobs();
+        Assert.Equal(12, idle.Value); Assert.Equal(9, snooze.Value);
+        window.Width = 1120; window.Height = 800; Dispatcher.UIThread.RunJobs();
+        Assert.Equal(12, idle.Value); Assert.Equal(9, snooze.Value);
+        Assert.Equal(5, scope.Runtime.Settings.IdleMinutes);
         Click(window, "ApplyReminderSettings"); Dispatcher.UIThread.RunJobs();
         var loaded = AppSettings.Load(Path.Combine(scope.Root, "settings.json"));
-        Assert.Equal(12, loaded.IdleMinutes); Assert.Equal("look-away", loaded.BreakRoutineId);
+        Assert.Equal(12, loaded.IdleMinutes); Assert.Equal(9, loaded.SnoozeMinutes); Assert.Equal(3, loaded.BreakDurationMinutes);
+        Assert.Equal(legacyRoutine.Id, loaded.BreakRoutineId);
+        Assert.Contains(loaded.AdditionalRoutines, routine => routine.Id == legacyRoutine.Id);
+        Assert.Contains(loaded.WorkProfiles, profile => profile.Id == legacyProfile.Id);
     }
 
     [AvaloniaFact]
     public void ReminderApplyButtonStaysAtTheCardTopRight()
     {
         using var scope = new Scope(); var window = scope.Window;
+        Click(window, "SettingsNavSettings"); Dispatcher.UIThread.RunJobs();
         window.UpdateLayout();
-        var card = Find<Border>(window, "SettingsReminderCard");
+        var card = Find<Border>(window, "SettingsTimerSettingsCard");
         var apply = Find<Button>(window, "ApplyReminderSettings");
         var cardPosition = card.TranslatePoint(default, window)!.Value;
         var applyPosition = apply.TranslatePoint(default, window)!.Value;
@@ -78,24 +102,53 @@ public class SettingsDashboardTests
     }
 
     [AvaloniaFact]
+    public void HomeTimingApplyStaysAtTheCardTopRight()
+    {
+        using var scope = new Scope(); var window = scope.Window;
+        window.UpdateLayout();
+        var card = Find<Border>(window, "SettingsHomeTimingCard");
+        var apply = Find<Button>(window, "ApplyHomeTimingSettings");
+        var cardPosition = card.TranslatePoint(default, window)!.Value;
+        var applyPosition = apply.TranslatePoint(default, window)!.Value;
+        Assert.True(applyPosition.X > cardPosition.X + card.Bounds.Width / 2);
+        Assert.True(applyPosition.Y < cardPosition.Y + 60);
+        Assert.True(applyPosition.X + apply.Bounds.Width <= cardPosition.X + card.Bounds.Width);
+        Assert.Contains(card.GetVisualDescendants().OfType<TextBlock>(), text => text.Text == "스트레칭 시간 (분)");
+        Assert.Contains(card.GetVisualDescendants().OfType<TextBlock>(), text => text.Text == "휴식 시간 (분)");
+    }
+
+    [AvaloniaFact]
     public void SidebarUsesInWindowTabsAndReturnsFocusToTheTimer()
     {
         using var scope = new Scope(); var window = scope.Window;
-        var routines = Find<Button>(window, "SettingsNavRoutines");
-        Assert.Equal("내 루틴 · 업무 프로필 탭", AutomationProperties.GetName(routines));
-        Assert.NotNull(ToolTip.GetTip(routines));
-        routines.Focus();
-        window.KeyPress(Key.Space, RawInputModifiers.None, PhysicalKey.Space, " ");
-        window.KeyRelease(Key.Space, RawInputModifiers.None, PhysicalKey.Space, " "); Dispatcher.UIThread.RunJobs();
-        Assert.Empty(window.OwnedWindows);
-        Assert.Equal("PersonalizationTabs", Find<TabControl>(window, "PersonalizationTabs").Name);
-        Assert.True(routines.IsEnabled);
+        var navigation = window.GetVisualDescendants().OfType<Button>()
+            .Where(button => button.Name?.StartsWith("SettingsNav", StringComparison.Ordinal) == true).ToArray();
+        Assert.Equal(4, navigation.Length);
+        foreach (var removed in new[] { "SettingsNavRoutines", "SettingsEditRoutine", "ApplyRoutineSettings", "SettingsOpenLibrary" })
+            Assert.DoesNotContain(window.GetVisualDescendants().OfType<Control>(), control => control.Name == removed);
+        Assert.DoesNotContain(window.GetVisualDescendants().OfType<TabControl>(), control => control.Name == "PersonalizationTabs");
 
         Click(window, "SettingsNavReview"); Dispatcher.UIThread.RunJobs();
         Assert.Empty(window.OwnedWindows);
         Assert.Equal("ReviewStatus", Find<TextBlock>(window, "ReviewStatus").Name);
+        AssertNoTabPageHeader(window);
+
+        var settings = Find<Button>(window, "SettingsNavSettings");
+        Assert.Equal("설정 탭", AutomationProperties.GetName(settings));
+        Click(window, "SettingsNavSettings"); Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+        Assert.Empty(window.OwnedWindows); Assert.Contains("primary", settings.Classes);
+        Assert.Equal("SettingsPreferencesPage", Find<Grid>(window, "SettingsPreferencesPage").Name);
+        AssertNoTabPageHeader(window);
+        var notification = Find<Border>(window, "SettingsNotificationCard");
+        Assert.Contains(notification.GetVisualDescendants().OfType<TextBlock>(), text => text.Text == "스트레칭 알림");
+        Assert.Contains(notification.GetVisualDescendants().OfType<TextBlock>(), text => text.Text == "완료 알림");
+        var timerSettings = Find<Border>(window, "SettingsTimerSettingsCard");
+        foreach (var label in new[] { "자리 비움 시간 (분)", "다시 알림 시간 (분)" })
+            Assert.Contains(timerSettings.GetVisualDescendants().OfType<TextBlock>(), text => text.Text == label);
+        Assert.DoesNotContain(timerSettings.GetVisualDescendants().OfType<TextBlock>(), text => text.Text == "스트레칭 시간 (분)");
 
         Click(window, "SettingsNavTimer"); Dispatcher.UIThread.RunJobs();
+        AssertNoTabPageHeader(window);
         Assert.True(Find<Button>(window, "TimerToggle").IsFocused);
     }
 
@@ -109,10 +162,12 @@ public class SettingsDashboardTests
         Assert.Equal("펫 추가 탭", AutomationProperties.GetName(nav));
         Click(window, "SettingsNavPacks"); Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
         Assert.Empty(window.OwnedWindows); Assert.Contains("primary", nav.Classes);
+        AssertNoTabPageHeader(window);
         var tabs = Find<TabControl>(window, "PetManagementTabs");
         Assert.Equal(new[] { "펫 팩 열기", "펫 팩 만들기" }, tabs.Items.OfType<TabItem>().Select(item => item.Header));
         Assert.NotNull(Find<Button>(window, "OpenPetPack"));
         tabs.SelectedIndex = 1; Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+        AssertNoTabPageHeader(window);
         Find<TextBox>(window, "CustomPetName").Text = "새 친구";
         tabs.SelectedIndex = 0; Dispatcher.UIThread.RunJobs();
         tabs.SelectedIndex = 1; Dispatcher.UIThread.RunJobs();
@@ -136,96 +191,20 @@ public class SettingsDashboardTests
         scope.Runtime.Clock.Start(TimeSpan.Zero);
         scope.Runtime.Clock.Tick(TimeSpan.FromSeconds(8), TimeSpan.Zero, TimeSpan.FromMinutes(5));
         var remaining = scope.Runtime.Clock.Remaining;
+        Click(window, "SettingsNavSettings"); Dispatcher.UIThread.RunJobs();
         Find<ComboBox>(window, "BubbleDirection").SelectedItem = BubbleDirection.Right;
-        Find<NumericUpDown>(window, "SnoozeMinutes").Value = 12;
         Find<CheckBox>(window, "ReminderSoundsEnabled").IsChecked = false;
         Assert.Equal(BubbleDirection.Top, scope.Runtime.Settings.BubbleDirection);
         Click(window, "ApplySpeechSettings"); Dispatcher.UIThread.RunJobs();
+        Find<NumericUpDown>(window, "SnoozeMinutes").Value = 12;
+        Click(window, "ApplyReminderSettings"); Dispatcher.UIThread.RunJobs();
         var settings = AppSettings.Load(Path.Combine(scope.Root, "settings.json"));
         Assert.Equal(BubbleDirection.Right, settings.BubbleDirection); Assert.Equal(12, settings.SnoozeMinutes);
         Assert.False(settings.ReminderSoundsEnabled); Assert.Equal(remaining, scope.Runtime.Clock.Remaining);
         Assert.False(scope.Runtime.Clock.Paused);
         Find<NumericUpDown>(window, "SnoozeMinutes").Value = 2.5m;
-        Click(window, "ApplySpeechSettings"); Dispatcher.UIThread.RunJobs();
+        Click(window, "ApplyReminderSettings"); Dispatcher.UIThread.RunJobs();
         Assert.Equal(12, scope.Runtime.Settings.SnoozeMinutes);
-    }
-
-    [AvaloniaFact]
-    public async Task EditRoutineFollowsThePickerAndStaysLockedOnBuiltIns()
-    {
-        using var scope = new Scope(); var window = scope.Window;
-        var edit = Find<Button>(window, "SettingsEditRoutine"); var picker = Find<ComboBox>(window, "RoutinePicker");
-        Assert.Equal(BreakRoutines.DefaultId, Assert.IsType<BreakRoutine>(picker.SelectedItem).Id);
-        Assert.False(edit.IsEnabled);
-        Assert.Contains("루틴 · 프로필", AutomationProperties.GetHelpText(edit));
-        Assert.NotNull(ToolTip.GetTip(edit));
-
-        await scope.Runtime.UpdateSettings(scope.Runtime.Settings.SaveRoutine(
-            new BreakRoutine("writing", "글쓰기 쉼", [new("손목을 천천히 돌려 보세요.", 25)])));
-        Dispatcher.UIThread.RunJobs();
-        picker.SelectedItem = scope.Runtime.Routines.Single(item => item.Id == "writing");
-        Dispatcher.UIThread.RunJobs();
-        Assert.True(edit.IsEnabled);
-        Assert.Contains("글쓰기 쉼", AutomationProperties.GetHelpText(edit));
-
-        picker.SelectedItem = scope.Runtime.Routines.Single(item => item.Id == "look-away");
-        Dispatcher.UIThread.RunJobs();
-        Assert.False(edit.IsEnabled);
-    }
-
-    [AvaloniaFact]
-    public async Task EditRoutineOpensTheRoutineTheUserSelected()
-    {
-        using var scope = new Scope(); var window = scope.Window;
-        await scope.Runtime.UpdateSettings(scope.Runtime.Settings.SaveRoutine(
-            new BreakRoutine(BreakRoutines.CustomId, "나의 휴식", [new("어깨를 펴 보세요.", 20)])));
-        await scope.Runtime.UpdateSettings(scope.Runtime.Settings.SaveRoutine(
-            new BreakRoutine("writing", "글쓰기 쉼", [new("손목을 천천히 돌려 보세요.", 25)])));
-        Dispatcher.UIThread.RunJobs();
-        var picker = Find<ComboBox>(window, "RoutinePicker");
-        picker.SelectedItem = scope.Runtime.Routines.Single(item => item.Id == "writing");
-        Dispatcher.UIThread.RunJobs();
-        Click(window, "SettingsEditRoutine"); Dispatcher.UIThread.RunJobs();
-        // The dashboard button used to open CustomRoutine no matter what was selected.
-        var editor = Assert.IsType<RoutineEditorWindow>(Assert.Single(window.OwnedWindows));
-        Assert.Equal("글쓰기 쉼", Find<TextBox>(editor, "RoutineName").Text);
-        Assert.Equal("손목을 천천히 돌려 보세요.", Find<TextBox>(editor, "Step1").Text);
-        Assert.Equal(25, Find<NumericUpDown>(editor, "Seconds1").Value);
-        Assert.Equal("", Find<TextBox>(editor, "Step2").Text);
-        Find<TextBox>(editor, "RoutineName").Text = "글쓰기 쉼 2";
-        editor.GetVisualDescendants().OfType<Button>().Single(button => Equals(button.Content, "내 루틴 저장"))
-            .RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-        Dispatcher.UIThread.RunJobs();
-        var saved = scope.Runtime.Settings.AdditionalRoutines.Single(item => item.Id == "writing");
-        Assert.Equal("글쓰기 쉼 2", saved.Name);
-        Assert.Equal("나의 휴식", scope.Runtime.Settings.CustomRoutine?.Name);
-    }
-
-    [AvaloniaFact]
-    public async Task ProfileApplyShowsTheTimerBlockBeforeTheClickAndReturnsWhenPaused()
-    {
-        using var scope = new Scope(); var window = scope.Window;
-        await scope.Runtime.UpdateSettings(scope.Runtime.Settings.SaveProfile(new("focus", "집중 작업", 45, 3, "look-away")));
-        scope.Runtime.Clock.Start(TimeSpan.Zero);
-        Assert.False(scope.Runtime.CanEditTimerInterval);
-        Click(window, "SettingsNavRoutines"); Dispatcher.UIThread.RunJobs();
-        Find<TabControl>(window, "PersonalizationTabs").SelectedIndex = 1; Dispatcher.UIThread.RunJobs();
-        var apply = window.GetVisualDescendants().OfType<Button>().Single(button => Equals(button.Content, "프로필 적용"));
-        var profiles = Find<ListBox>(window, "WorkProfiles");
-        Assert.Equal("focus", Assert.IsType<WorkProfile>(profiles.SelectedItem).Id);
-        Assert.False(apply.IsEnabled);
-        Assert.Contains("타이머를 일시정지하거나 중지", Find<TextBlock>(window, "ProfileDetail").Text);
-        Assert.Contains("타이머를 일시정지하거나 중지", AutomationProperties.GetHelpText(apply));
-
-        scope.Runtime.TogglePause(); Dispatcher.UIThread.RunJobs();
-        Assert.True(scope.Runtime.CanEditTimerInterval);
-        Assert.Equal("focus", Assert.IsType<WorkProfile>(profiles.SelectedItem).Id);
-        Assert.True(apply.IsEnabled);
-        Assert.DoesNotContain("타이머를 일시정지하거나 중지", Find<TextBlock>(window, "ProfileDetail").Text);
-
-        apply.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Dispatcher.UIThread.RunJobs();
-        Assert.Equal("focus", scope.Runtime.Settings.ActiveProfileId);
-        Assert.Equal(45, scope.Runtime.Settings.IntervalMinutes);
     }
 
     private sealed class Scope : IDisposable

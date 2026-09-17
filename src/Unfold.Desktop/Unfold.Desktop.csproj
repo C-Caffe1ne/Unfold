@@ -3,7 +3,7 @@
     <OutputType>WinExe</OutputType>
     <AssemblyName>Unfold</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Version>0.1.1</Version>
+    <Version>0.2.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <MediaRuntimeIdentifier Condition="'$(RuntimeIdentifier)' != ''">$(RuntimeIdentifier)</MediaRuntimeIdentifier>
     <MediaRuntimeIdentifier Condition="'$(MediaRuntimeIdentifier)' == ''">$(NETCoreSdkRuntimeIdentifier)</MediaRuntimeIdentifier>

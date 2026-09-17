@@ -22,7 +22,7 @@ public sealed class ProfileEditorWindow : Window
         var routines = BreakRoutines.ForSettings(settings);
         var routine = new ComboBox { Name = "ProfileRoutine", ItemsSource = routines, HorizontalAlignment = HorizontalAlignment.Stretch,
             SelectedItem = routines.FirstOrDefault(item => item.Id == (existing?.RoutineId ?? settings.BreakRoutineId)) ?? routines[0] };
-        AutomationProperties.SetName(name, "프로필 이름"); AutomationProperties.SetName(interval, "휴식 알림 간격, 분 단위");
+        AutomationProperties.SetName(name, "프로필 이름"); AutomationProperties.SetName(interval, "스트레칭 시간, 분 단위");
         AutomationProperties.SetName(idle, "자리 비움 기준, 분 단위"); AutomationProperties.SetName(routine, "프로필의 휴식 루틴");
         var error = new TextBlock { Name = "ProfileError", IsVisible = false, Foreground = DesignSystem.Error, TextWrapping = TextWrapping.Wrap };
         var cancel = Ui.Button("취소", Close); cancel.IsCancel = true;
@@ -39,7 +39,7 @@ public sealed class ProfileEditorWindow : Window
         });
         saveButton.IsDefault = true; Ui.Primary(saveButton); Ui.Quiet(cancel);
         var timing = new Grid { ColumnDefinitions = new("*,12,*") };
-        timing.Children.Add(Ui.Field("휴식 알림 간격 (분)", interval));
+        timing.Children.Add(Ui.Field("스트레칭 시간 (분)", interval));
         var away = Ui.Field("자리 비움 기준 (분)", idle); Grid.SetColumn(away, 2); timing.Children.Add(away);
         Content = Ui.Page(this, "나의 작업에 맞는 리듬.", "자주 쓰는 설정을 저장하고, 작업에 맞춰 적용해 보세요.",
             Ui.Card(Ui.Column(Ui.Field("프로필 이름", name), timing, Ui.Field("휴식 루틴", routine))),

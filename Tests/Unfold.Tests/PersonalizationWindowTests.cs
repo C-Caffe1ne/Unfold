@@ -1,3 +1,4 @@
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using Avalonia.Interactivity;
@@ -66,6 +67,38 @@ public class PersonalizationWindowTests
         Assert.DoesNotContain("타이머를 일시정지하거나 중지", Find<TextBlock>(window, "ProfileDetail").Text);
         Press(window, "프로필 적용"); Dispatcher.UIThread.RunJobs();
         Assert.Equal("focus", settings.ActiveProfileId);
+        window.Close();
+    }
+
+    [AvaloniaFact]
+    public void LibraryFooterGroupsActionsAndKeepsCloseOnThePrimaryRow()
+    {
+        var settings = new AppSettings().SaveProfile(new("focus", "Focus", 45, 3, "look-away"));
+        var window = new PersonalizationWindow(() => settings, value => { settings = value; return Task.CompletedTask; });
+        window.Show(); window.Width = window.MinWidth; window.Height = window.MinHeight;
+        Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+        var tabs = Find<TabControl>(window, "PersonalizationTabs");
+        foreach (var index in new[] { 0, 1, 0 })
+        {
+            tabs.SelectedIndex = index; Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+            var manage = index == 1 ? new[] { "새 프로필", "프로필 편집", "프로필 삭제" } : new[] { "새 루틴", "루틴 편집", "루틴 삭제" };
+            var primary = index == 1 ? "프로필 적용" : "루틴 사용";
+            var buttons = manage.Append(primary).Append("닫기").Select(label => Button(window, label)).ToArray();
+            // 닫기 used to wrap onto its own line, leaving the footer visibly asymmetric.
+            Assert.Single(buttons.Select(button => Math.Round(button.TranslatePoint(default, window)!.Value.Y)).Distinct());
+            foreach (var button in buttons)
+            {
+                var origin = button.TranslatePoint(default, window)!.Value;
+                Assert.True(button.Bounds.Width > 0 && button.Bounds.Height > 0, $"{button.Content}");
+                Assert.True(origin.X >= 0 && origin.X + button.Bounds.Width <= window.ClientSize.Width + 1, $"{button.Content}");
+                Assert.True(origin.Y + button.Bounds.Height <= window.ClientSize.Height + 1, $"{button.Content}");
+            }
+            var manageRight = manage.Max(label => Button(window, label).TranslatePoint(default, window)!.Value.X + Button(window, label).Bounds.Width);
+            var primaryLeft = Button(window, primary).TranslatePoint(default, window)!.Value.X;
+            Assert.True(primaryLeft > manageRight, "The primary group must stay right of the manage group.");
+            Assert.True(Button(window, "닫기").TranslatePoint(default, window)!.Value.X > primaryLeft);
+            Assert.Equal(3, Find<ContentControl>(window, "LibraryManageActions").GetVisualDescendants().OfType<Button>().Count());
+        }
         window.Close();
     }
 

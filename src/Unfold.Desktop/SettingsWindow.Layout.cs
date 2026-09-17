@@ -18,9 +18,8 @@ public sealed partial class SettingsWindow
     private readonly ContentControl settingsPageHost = new() { Name = "SettingsPageHost",
         HorizontalContentAlignment = HorizontalAlignment.Stretch, VerticalContentAlignment = VerticalAlignment.Stretch };
     private readonly Dictionary<string, Button> navigationItems = [];
-    private Button? routineEdit;
     private Control? dashboardPage;
-    private PersonalizationView? personalizationPage;
+    private Control? preferencesPage;
     private BreakReviewView? reviewPage;
     private PetManagementView? petPage;
 
@@ -28,26 +27,16 @@ public sealed partial class SettingsWindow
     {
         Background = DesignSystem.Canvas;
         Classes.Add("unfold-page");
-        var header = new Grid { ColumnDefinitions = new("*,Auto"), Margin = new(0, 0, 0, 18) };
-        var heading = Ui.Column(Label("UNFOLD / 나의 휴식 공간", 11, Muted), Label("잠깐의 여유를 만들어 보세요.", 25, Cream));
-        heading.Spacing = 6; header.Children.Add(heading);
-        var badge = new Border { Background = Raised, CornerRadius = new(18), Padding = new(12, 8),
-            VerticalAlignment = VerticalAlignment.Center, Child = Ui.Row(new Ellipse { Width = 6, Height = 6, Fill = Cream,
-                VerticalAlignment = VerticalAlignment.Center }, Label("나의 페이스대로", 11, Cream)) };
-        Grid.SetColumn(badge, 1); header.Children.Add(badge);
-
         var main = new Grid { Name = "SettingsMain", RowDefinitions = new("*,14,Auto") };
         main.Children.Add(BuildCompanionCard(login));
         var timer = BuildTimerCard(); Grid.SetRow(timer, 2); main.Children.Add(timer);
 
-        var details = Ui.Column(BuildReminderCard(), BuildRoutineCard(), BuildSpeechSettingsCard(), BuildReviewCard()); details.Spacing = 14;
+        var details = Ui.Column(BuildHomeTimingCard(), BuildReviewCard()); details.Spacing = 14;
         var detailsScroll = new ScrollViewer { Name = "SettingsDetailsScroll", Content = details,
             HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
         var dashboard = new Grid { ColumnDefinitions = new("*,16,300") };
         dashboard.Children.Add(main); Grid.SetColumn(detailsScroll, 2); dashboard.Children.Add(detailsScroll);
-        var content = new Grid { RowDefinitions = new("Auto,*") };
-        content.Children.Add(header); Grid.SetRow(dashboard, 1); content.Children.Add(dashboard);
-        dashboardPage = content; settingsPageHost.Content = content;
+        dashboardPage = dashboard; settingsPageHost.Content = dashboard;
         var frame = new Grid { ColumnDefinitions = new("64,16,*") };
         frame.Children.Add(BuildNavigation()); Grid.SetColumn(settingsPageHost, 2); frame.Children.Add(settingsPageHost);
         return new Border { Name = "SettingsFrame", Margin = new(16), Padding = new(14), CornerRadius = new(32),
@@ -61,13 +50,14 @@ public sealed partial class SettingsWindow
             Child = Glyph("M12,1 C13,8 16,11 23,12 C16,13 13,16 12,23 C11,16 8,13 1,12 C8,11 11,8 12,1 Z", Ink, 24) };
         rail.Children.Add(logo);
         var timer = Nav("SettingsNavTimer", "타이머 탭", "M12,2 A10,10 0 1 0 12,22 A10,10 0 1 0 12,2 M11,6 H13 V11 H17 V13 H11 Z", OpenDashboard);
-        var personalization = Nav("SettingsNavRoutines", "내 루틴 · 업무 프로필 탭", "M4,3 H9 V8 H4 Z M12,4 H21 V6 H12 Z M4,10 H9 V15 H4 Z M12,11 H21 V13 H12 Z M4,17 H9 V22 H4 Z M12,18 H21 V20 H12 Z", OpenPersonalization);
+        var settings = Nav("SettingsNavSettings", "설정 탭", "M19.4,13 A7.8,7.8 0 0 0 19.45,11 L21.1,9.7 L19.1,6.3 L17.05,7.1 A8,8 0 0 0 15.35,6.1 L15,3.9 H11 L10.65,6.1 A8,8 0 0 0 8.95,7.1 L6.9,6.3 L4.9,9.7 L6.55,11 A7.8,7.8 0 0 0 6.6,13 L4.9,14.3 L6.9,17.7 L8.95,16.9 A8,8 0 0 0 10.65,17.9 L11,20.1 H15 L15.35,17.9 A8,8 0 0 0 17.05,16.9 L19.1,17.7 L21.1,14.3 Z M13,10 A3,3 0 1 1 13,16 A3,3 0 1 1 13,10 Z", OpenPreferences);
         var review = Nav("SettingsNavReview", "기록 · 내보내기 탭", "M3,14 H7 V21 H3 Z M10,8 H14 V21 H10 Z M17,3 H21 V21 H17 Z", OpenReview);
         var pets = Nav("SettingsNavPacks", "펫 추가 탭", "M10,3 H14 V10 H21 V14 H14 V21 H10 V14 H3 V10 H10 Z", OpenPetPacks);
         navigationItems["pets"] = pets;
-        navigationItems["dashboard"] = timer; navigationItems["personalization"] = personalization; navigationItems["review"] = review;
+        navigationItems["dashboard"] = timer; navigationItems["settings"] = settings;
+        navigationItems["review"] = review;
         SelectNavigation("dashboard");
-        var links = Ui.Column(timer, personalization, review, pets);
+        var links = Ui.Column(timer, settings, review, pets);
         links.Spacing = 12; Grid.SetRow(links, 2); rail.Children.Add(links);
         var quit = Nav("SettingsQuit", "Unfold 종료", "M11,2 H13 V12 H11 Z M7,4 L8,6 A8,8 0 1 0 16,6 L17,4 A10,10 0 1 1 7,4 Z", runtime.Quit);
         Grid.SetRow(quit, 3); rail.Children.Add(quit);
@@ -112,35 +102,43 @@ public sealed partial class SettingsWindow
         return Card("SettingsTimerCard", body, Surface, new(28));
     }
 
-    private Border BuildReminderCard()
+    private Border BuildTimerSettingsCard()
     {
         reminderApply.Classes.Add("compact"); reminderApply.Classes.Add("primary");
         reminderApply.HorizontalAlignment = HorizontalAlignment.Right;
         var header = new Grid { ColumnDefinitions = new("*,Auto") };
-        header.Children.Add(Label("알림 설정", 17, Cream)); Grid.SetColumn(reminderApply, 1); header.Children.Add(reminderApply);
+        header.Children.Add(Label("타이머 설정", 17, Cream)); Grid.SetColumn(reminderApply, 1); header.Children.Add(reminderApply);
         var fields = new Grid { ColumnDefinitions = new("*,12,*") };
-        var minutes = Ui.Column(Label("알림 간격 (분)", 11, Muted), interval); minutes.Spacing = 6;
-        var away = Ui.Column(Label("자리 비움 (분)", 11, Muted), idle); away.Spacing = 6;
-        fields.Children.Add(minutes); Grid.SetColumn(away, 2); fields.Children.Add(away);
+        var away = Ui.Column(Label("자리 비움 시간 (분)", 11, Muted), idle,
+            Label("입력이 없을 때 작업 타이머를 멈춰요.", 10, Muted)); away.Spacing = 6;
+        var remindAgain = Ui.Column(Label("다시 알림 시간 (분)", 11, Muted), snooze,
+            Label("알림을 미뤘을 때 다시 기다릴 시간이에요.", 10, Muted)); remindAgain.Spacing = 6;
+        fields.Children.Add(away); Grid.SetColumn(remindAgain, 2); fields.Children.Add(remindAgain);
         ToolTip.SetTip(idle, "이 시간 동안 입력이 없으면 작업 타이머를 일시정지해요.");
-        interval.MinHeight = idle.MinHeight = routines.MinHeight = 36;
+        ToolTip.SetTip(snooze, "알림을 미룬 뒤 다시 알릴 때까지의 작업 시간이에요.");
+        idle.MinHeight = snooze.MinHeight = 36;
         reminderSettingsStatus.FontSize = 11;
         var body = Ui.Column(header, fields, reminderSettingsStatus);
         body.Spacing = 10; body.Margin = new(20);
-        return Card("SettingsReminderCard", body, Surface, new(28));
+        return Card("SettingsTimerSettingsCard", body, Surface, new(28));
     }
 
-    private Border BuildRoutineCard()
+    private Border BuildHomeTimingCard()
     {
-        activeProfile.FontSize = 11; activeProfile.Foreground = Muted;
-        var edit = ActionButton("내 루틴 편집", OpenRoutine); edit.Name = "SettingsEditRoutine";
-        routineEdit = edit; routines.SelectionChanged += (_, _) => RefreshRoutineEditing(); RefreshRoutineEditing();
-        var library = ActionButton("루틴 · 프로필", OpenPersonalization); library.Name = "SettingsOpenLibrary";
-        var actions = new Grid { ColumnDefinitions = new("*,8,*") };
-        actions.Children.Add(edit); Grid.SetColumn(library, 2); actions.Children.Add(library);
-        var body = Ui.Column(Label("나의 휴식", 17, Cream), routines, activeProfile, actions);
+        homeTimingApply.Classes.Add("compact"); homeTimingApply.Classes.Add("primary");
+        homeTimingApply.HorizontalAlignment = HorizontalAlignment.Right;
+        var header = new Grid { ColumnDefinitions = new("*,Auto") };
+        header.Children.Add(Label("시간 설정", 17, Cream)); Grid.SetColumn(homeTimingApply, 1); header.Children.Add(homeTimingApply);
+        var stretch = Ui.Column(Label("스트레칭 시간 (분)", 11, Muted), interval,
+            Label("이 시간 동안 작업하면 스트레칭을 알려요.", 10, Muted)); stretch.Spacing = 6;
+        var rest = Ui.Column(Label("휴식 시간 (분)", 11, Muted), breakDuration,
+            Label("휴식을 시작하면 이 시간부터 카운트해요.", 10, Muted)); rest.Spacing = 6;
+        interval.MinHeight = breakDuration.MinHeight = 36;
+        ToolTip.SetTip(breakDuration, "다음 휴식의 목표 시간을 1~10분으로 설정해요.");
+        homeTimingStatus.FontSize = 11;
+        var body = Ui.Column(header, stretch, rest, homeTimingStatus);
         body.Spacing = 10; body.Margin = new(20);
-        return Card("SettingsRoutineCard", body, Surface, new(28));
+        return Card("SettingsHomeTimingCard", body, Surface, new(28));
     }
 
     private Border BuildReviewCard()
@@ -153,48 +151,40 @@ public sealed partial class SettingsWindow
         return Card("SettingsReviewCard", body, Raised, new(28));
     }
 
-    // The dashboard picker is the edit target: opening CustomRoutine regardless of the
-    // selection let the button rewrite a routine the user was not looking at.
-    private Task OpenRoutine()
-    {
-        if (SelectedEditableRoutine() is not { } selected) return Task.CompletedTask;
-        return new RoutineEditorWindow(selected,
-            routine => runtime.UpdateSettings(runtime.Settings.SaveRoutine(routine))).ShowDialog(this);
-    }
-    private BreakRoutine? SelectedEditableRoutine() =>
-        routines.SelectedItem is BreakRoutine selected && BreakRoutines.Find(selected.Id) is null ? selected : null;
-    private void RefreshRoutineEditing()
-    {
-        if (routineEdit is null) return;
-        var selected = SelectedEditableRoutine();
-        routineEdit.IsEnabled = selected is not null;
-        var help = selected is not null
-            ? $"선택한 ‘{selected.Name}’ 루틴의 이름과 단계를 편집해요."
-            : "기본 루틴은 편집할 수 없어요. ‘루틴 · 프로필’에서 새 루틴을 만들어 보세요.";
-        ToolTip.SetTip(routineEdit, help); ToolTip.SetShowDelay(routineEdit, 500);
-        AutomationProperties.SetHelpText(routineEdit, help);
-    }
     private Task OpenDashboard()
     {
         if (dashboardPage is not null) ShowPage("dashboard", dashboardPage);
         timerControls.Children.OfType<Button>().First().Focus();
         return Task.CompletedTask;
     }
-    private Task OpenPersonalization()
+    private Task OpenPreferences()
     {
-        personalizationPage ??= new PersonalizationView(this, () => runtime.Settings, runtime.UpdateSettings,
-            canApplyProfile: () => runtime.CanEditTimerInterval);
-        personalizationPage.Refresh(); ShowPage("personalization", personalizationPage); return Task.CompletedTask;
+        preferencesPage ??= BuildPreferencesPage();
+        ShowPage("settings", preferencesPage);
+        return Task.CompletedTask;
     }
     private Task OpenReview()
     {
-        reviewPage ??= new BreakReviewView(this, runtime.BreakHistory.Review, () => runtime.BreakHistoryError);
+        reviewPage ??= new BreakReviewView(this, runtime.BreakHistory.Review,
+            () => runtime.BreakHistoryError, showHeader: false);
         reviewPage.Refresh(); ShowPage("review", reviewPage); return Task.CompletedTask;
     }
     private Task OpenPetPacks()
     {
-        petPage ??= new PetManagementView(this, runtime.Library, runtime.SelectInstalledCharacter);
+        petPage ??= new PetManagementView(this, runtime.Library, runtime.SelectInstalledCharacter,
+            showPageHeaders: false);
         ShowPage("pets", petPage); return Task.CompletedTask;
+    }
+
+    private Control BuildPreferencesPage()
+    {
+        var sections = Ui.Column(BuildNotificationSettingsCard(), BuildTimerSettingsCard());
+        sections.Name = "SettingsPreferencesSections"; sections.Spacing = 14; sections.MaxWidth = 780;
+        sections.HorizontalAlignment = HorizontalAlignment.Stretch;
+        var scroll = Ui.PageBodyScroll(sections); scroll.Name = "SettingsPreferencesScroll";
+        var page = new Grid { Name = "SettingsPreferencesPage" };
+        page.Children.Add(scroll);
+        return page;
     }
 
     private void ShowPage(string key, Control page)

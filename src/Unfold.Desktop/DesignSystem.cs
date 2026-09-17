@@ -14,11 +14,17 @@ public static class DesignSystem
 {
     public static readonly IBrush Canvas = Brush.Parse("#141713"), Shell = Brush.Parse("#1D201D"),
         Surface = Brush.Parse("#2B2F2A"), Raised = Brush.Parse("#363C33"), Cream = Brush.Parse("#DFE5D1"),
-        Ink = Brush.Parse("#252A23"), Muted = Brush.Parse("#B6BEB0"), Outline = Brush.Parse("#444B40"),
-        Hover = Brush.Parse("#505A48"), AccentHover = Brush.Parse("#F0F3E9"),
-        Error = Brush.Parse("#FFB4A3"), Warning = Brush.Parse("#E5C58C");
+        Ink = Brush.Parse("#252A23"), Muted = Brush.Parse("#B6BEB0"), Hover = Brush.Parse("#505A48"),
+        AccentHover = Brush.Parse("#F0F3E9"), TextTertiary = Brush.Parse("#9CA798"),
+        OutlineSubtle = Brush.Parse("#4F5B51"), OutlineStrong = Brush.Parse("#849187"),
+        Error = Brush.Parse("#FFB4AB"), Warning = Brush.Parse("#F2CD7D"), Success = Brush.Parse("#9ED8AC"),
+        DisabledFill = Brush.Parse("#292F29"), DisabledText = Brush.Parse("#929C91"), FocusRing = Brush.Parse("#8FD3FF");
+    // Compatibility alias kept while callers move to the semantic outline roles.
+    public static readonly IBrush Outline = OutlineSubtle;
     public const double Caption = 12, Body = 14, Section = 18, Title = 24;
     public const double Space = 8, Gap = 12, Inset = 20;
+    public const double FocusRingWidth = 2, FocusRingOffset = 2;
+    public static readonly Thickness BorderSubtle = new(1), BorderStrong = new(1);
     public static readonly CornerRadius ControlRadius = new(12), CardRadius = new(24), FrameRadius = new(32);
 
     public static void Install(Application app)
@@ -52,21 +58,21 @@ public static class DesignSystem
         styles.Add(new Style(s => s.OfType<Button>().Class("primary")) { Setters =
         { new Setter(TemplatedControl.BackgroundProperty, Cream), new Setter(TemplatedControl.ForegroundProperty, Ink) }});
         styles.Add(new Style(s => s.OfType<Button>().Class("quiet")) { Setters =
-        { new Setter(TemplatedControl.BackgroundProperty, Brushes.Transparent), new Setter(TemplatedControl.BorderBrushProperty, Outline) }});
+        { new Setter(TemplatedControl.BackgroundProperty, Brushes.Transparent), new Setter(TemplatedControl.BorderBrushProperty, OutlineStrong) }});
         styles.Add(new Style(s => s.OfType<Button>().Class("danger")) { Setters =
         { new Setter(TemplatedControl.ForegroundProperty, Error) }});
         styles.Add(new Style(s => s.OfType<Button>().Class("compact")) { Setters =
         { new Setter(TemplatedControl.FontSizeProperty, Caption), new Setter(TemplatedControl.PaddingProperty, new Thickness(10, 8)) }});
         // Fluent paints interactive states on its presenter; style that same surface.
         AddButtonState(styles, null, ":pointerover", Hover, Cream);
-        AddButtonState(styles, null, ":pressed", Outline, Cream);
+        AddButtonState(styles, null, ":pressed", OutlineSubtle, Cream);
         AddButtonState(styles, "primary", ":pointerover", AccentHover, Ink);
         AddButtonState(styles, "primary", ":pressed", Muted, Ink);
         AddButtonState(styles, "danger", ":pointerover", Hover, Error);
-        AddButtonState(styles, "danger", ":pressed", Outline, Error);
-        AddButtonState(styles, null, ":disabled", Surface, Muted);
+        AddButtonState(styles, "danger", ":pressed", OutlineSubtle, Error);
+        AddButtonState(styles, null, ":disabled", DisabledFill, DisabledText);
         styles.Add(new Style(s => s.OfType<Button>().Class("unfold-action").Class(":disabled")) { Setters =
-        { new Setter(Visual.OpacityProperty, .55d) }});
+        { new Setter(Visual.OpacityProperty, 1d) }});
         styles.Add(new Style(s => s.OfType<Button>().Class("unfold-action").Class(":focus-visible")) { Setters =
         { new Setter(TemplatedControl.BorderBrushProperty, Cream) }});
         styles.Add(new Style(s => s.OfType<Button>().Class("primary").Class(":focus-visible")) { Setters =
@@ -78,16 +84,16 @@ public static class DesignSystem
                 new Setter(TemplatedControl.CornerRadiusProperty, ControlRadius),
                 new Setter(TemplatedControl.FontSizeProperty, Body), new Setter(Layoutable.MinHeightProperty, 38d),
                 new Setter(TemplatedControl.BackgroundProperty, Shell),
-                new Setter(TemplatedControl.BorderBrushProperty, Muted),
-                new Setter(TemplatedControl.BorderThicknessProperty, new Thickness(1)),
+                new Setter(TemplatedControl.BorderBrushProperty, OutlineStrong),
+                new Setter(TemplatedControl.BorderThicknessProperty, BorderStrong),
                 new Setter(Control.FocusAdornerProperty, null)
             }});
             foreach (var state in new[] { ":pointerover", ":focus", ":focus-within", ":disabled" })
                 styles.Add(new Style(s => s.Is(type).Class(state)) { Setters =
                 {
                     new Setter(TemplatedControl.BackgroundProperty, Shell),
-                    new Setter(TemplatedControl.BorderBrushProperty, Muted),
-                    new Setter(TemplatedControl.BorderThicknessProperty, new Thickness(1))
+                    new Setter(TemplatedControl.BorderBrushProperty, OutlineStrong),
+                    new Setter(TemplatedControl.BorderThicknessProperty, BorderStrong)
                 }});
         }
         styles.Add(new Style(s => s.OfType<NumericUpDown>()) { Setters =
@@ -104,8 +110,8 @@ public static class DesignSystem
             }) { Setters =
             {
                 new Setter(Border.BackgroundProperty, Shell),
-                new Setter(Border.BorderBrushProperty, Muted),
-                new Setter(Border.BorderThicknessProperty, new Thickness(1))
+                new Setter(Border.BorderBrushProperty, OutlineStrong),
+                new Setter(Border.BorderThicknessProperty, BorderStrong)
             }});
         foreach (var state in new[] { "", ":pointerover", ":focus", ":focus-within", ":disabled" })
             styles.Add(new Style(s =>
@@ -115,8 +121,8 @@ public static class DesignSystem
             }) { Setters =
             {
                 new Setter(Border.BackgroundProperty, Shell),
-                new Setter(Border.BorderBrushProperty, Muted),
-                new Setter(Border.BorderThicknessProperty, new Thickness(1))
+                new Setter(Border.BorderBrushProperty, OutlineStrong),
+                new Setter(Border.BorderThicknessProperty, BorderStrong)
             }});
         // NumericUpDown supplies the visible outer border. Its inner TextBox stays transparent in every state.
         foreach (var state in new[] { "", ":pointerover", ":focus", ":focus-within", ":disabled" })
@@ -129,7 +135,7 @@ public static class DesignSystem
             {
                 new Setter(TemplatedControl.BackgroundProperty, Brushes.Transparent),
                 new Setter(TemplatedControl.BorderBrushProperty, Brushes.Transparent),
-                new Setter(TemplatedControl.BorderThicknessProperty, new Thickness(1)),
+                new Setter(TemplatedControl.BorderThicknessProperty, BorderStrong),
                 new Setter(TemplatedControl.CornerRadiusProperty, new CornerRadius(0)),
                 new Setter(TextBox.VerticalContentAlignmentProperty, VerticalAlignment.Center),
                 new Setter(Control.FocusAdornerProperty, null)
@@ -142,7 +148,7 @@ public static class DesignSystem
             {
                 new Setter(Border.BackgroundProperty, Brushes.Transparent),
                 new Setter(Border.BorderBrushProperty, Brushes.Transparent),
-                new Setter(Border.BorderThicknessProperty, new Thickness(1)),
+                new Setter(Border.BorderThicknessProperty, BorderStrong),
                 new Setter(Border.CornerRadiusProperty, new CornerRadius(0))
             }});
         }
@@ -155,7 +161,7 @@ public static class DesignSystem
             // Fluent places both arrows side by side; the decrease button alone touches the outer right edge.
             foreach (var state in new[] { "", ":pointerover", ":disabled" })
             {
-                var foreground = state == ":disabled" ? Muted : Cream;
+                var foreground = state == ":disabled" ? DisabledText : Cream;
                 styles.Add(new Style(s =>
                 {
                     var button = s.OfType<RepeatButton>().Name(name);

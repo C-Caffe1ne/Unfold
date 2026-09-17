@@ -1,6 +1,6 @@
 # 문서 안내
 
-현재 제품은 `release/mvp`의 **휴식 세션·개인화 데모를 포함한 C#·Avalonia 기반 Cat MVP**다. 아래 문서가 현재
+현재 제품은 `release/mvp`의 **휴식 세션·로컬 회고를 포함한 C#·Avalonia 기반 Cat MVP**다. 아래 문서가 현재
 구현·범위·실행 방법을 설명한다. 과거 Swift 구현과 Garden 실험은 보관 자료다.
 
 | 문서 | 역할 |
@@ -24,13 +24,20 @@
 | [설정 대시보드 검증](validation/2026-09-14-settings-dashboard.md) | 130개 테스트, 기본·최소 크기 캡처와 설정 회귀 검증 |
 | [사이드바 탭 전환 검증](validation/2026-09-15-navigation-tabs.md) | 같은 창의 타이머·루틴·기록 탭, 펫 팩 항목 제거와 macOS 렌더링 검증 |
 | [개발 계획](development-plan.md) | 구현 단계, 완료 조건과 후속 범위 |
-| [루틴·프로필·회고 사용 안내](personalization.md) | 여러 루틴, 수동 업무 프로필, 주간 회고/CSV와 기존 데이터 호환 |
+| [기존 루틴·프로필 호환과 회고](personalization.md) | 제거된 설정 UI의 데이터 보존 경계와 현재 주간 회고/CSV |
 | [펫 리소스 관리](pet-resources.md) | 제작 원장, 런타임 계약, 품질 기준과 검사 명령 |
 | [펫 추가·커스텀 팩 만들기](pet-packs.md) | GIF·MP4 동작 배정, 팩 생성·미리보기·설치·업데이트·재설치, ZIP/버전/해시 계약 |
 | [커스텀 펫 검증](validation/2026-09-16-custom-pet.md) | 147개 테스트, 실제 MP4 변환, 동작별 팩 생성·설치, macOS 렌더링 검증 |
 | [펫 페이지 탭 검증](validation/2026-09-16-pet-tabs.md) | 사이드바 펫 추가, 열기·만들기 탭, 초안 유지와 최소 크기 렌더링 |
 | [UI/UX 전수 감사와 작업 계획](validation/2026-09-16-ui-ux-audit.md) | 현재 전체 화면의 시각·흐름·접근성 감사, P1/P2 우선순위와 단계별 수정·검증 계획 |
 | [UI/UX 1단계 동작 정확성 검증](validation/2026-09-16-ui-ux-phase1.md) | 선택 루틴 편집, 프로필 적용 사전 차단, 커스텀 펫 교체 확인과 회귀 검사 |
+| [UI/UX 2단계 최소 창·숨은 상태 검증](validation/2026-09-17-ui-ux-phase2.md) | 스크롤 거터, 접힌 알림 복구, 펫 팩 경고와 상태·하단 동작 그룹의 회귀 검사 |
+| [설정 탭 구조 검증](validation/2026-09-17-settings-tab.md) | 설정 내비게이션, 알림·타이머 섹션 분리, 루틴 적용 경계와 macOS 격리 진단 |
+| [루틴·프로필 UI 제거 검증](validation/2026-09-17-remove-routine-profiles.md) | 사이드바·타이머 카드 진입점 제거, 기존 데이터 보존과 회귀 검사 |
+| [홈 스트레칭·휴식 시간 검증](validation/2026-09-17-home-break-time.md) | 스트레칭 간격 홈 이동, 1~10분 휴식 시간과 다음 세션 적용 검증 |
+| [펫 추가 탭 레이아웃 검증](validation/2026-09-17-pet-builder-layout.md) | 열기 탭의 작은 미리보기·동작 선택, 만들기 탭의 이름·다섯 행동 카드와 최소 창 검증 |
+| [설정 탭 헤더 제거 검증](validation/2026-09-17-tab-header-removal.md) | 타이머·설정·기록·펫 추가 페이지의 경로·큰 제목·설명 제거와 최소 창 검증 |
+| [v0.2.0 배포 검증](validation/2026-09-17-v0.2.0-distribution.md) | macOS arm64/x64·Windows x64 자체 포함 배포물, 체크섬, 게시 앱 진단과 실기 미검증 범위 |
 | [펫 팩 기반 검증](validation/2026-09-13-pet-packs.md) | 병합 충돌 복구, 설치 회귀 테스트와 macOS 진단 |
 | [보리 아트 후보](../Art/Characters/bori-rabbit/README.md) | 원본·프롬프트·반응 5종·별도 설치 팩과 남은 아트 검수 |
 | [보리 제작·재생 검증](validation/2026-09-14-bori-candidate.md) | 119개 테스트, macOS 실제 시간 기반 재생과 검증 한계 |

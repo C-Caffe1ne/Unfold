@@ -49,19 +49,22 @@ public sealed class BreakSession
 {
     public Guid Id { get; } = Guid.NewGuid();
     public BreakRoutine Routine { get; }
+    public int DurationSeconds { get; }
     public string CharacterId { get; }
     public string? ProfileId { get; }
     public string? ProfileName { get; }
     public BreakSessionState State { get; private set; }
     public TimeSpan Elapsed { get; private set; }
     public static readonly TimeSpan MaximumOvertime = TimeSpan.FromMinutes(60);
-    public TimeSpan Overtime => Elapsed > TimeSpan.FromSeconds(Routine.DurationSeconds) ? -Remaining : TimeSpan.Zero;
-    public TimeSpan Remaining => TimeSpan.FromSeconds(Routine.DurationSeconds) - Elapsed;
+    public TimeSpan Overtime => Elapsed > TimeSpan.FromSeconds(DurationSeconds) ? -Remaining : TimeSpan.Zero;
+    public TimeSpan Remaining => TimeSpan.FromSeconds(DurationSeconds) - Elapsed;
     public bool IsTerminal => State is BreakSessionState.Completed or BreakSessionState.Snoozed or BreakSessionState.Skipped;
     private TimeSpan last;
-    public BreakSession(BreakRoutine routine, string characterId, WorkProfile? profile = null)
+    public BreakSession(BreakRoutine routine, string characterId, WorkProfile? profile = null, int? durationSeconds = null)
     {
         routine.Validate();
+        DurationSeconds = durationSeconds ?? routine.DurationSeconds;
+        if (DurationSeconds is < 1 or > 600) throw new ArgumentOutOfRangeException(nameof(durationSeconds));
         if (!CharacterLibrary.SafeId(characterId)) throw new ArgumentException("Invalid character.");
         if (profile is not null)
         {
@@ -75,7 +78,7 @@ public sealed class BreakSession
     {
         get
         {
-            var seconds = Elapsed.TotalSeconds;
+            var seconds = Elapsed.TotalSeconds * Routine.DurationSeconds / DurationSeconds;
             foreach (var step in Routine.Steps) { if (seconds < step.Seconds) return step; seconds -= step.Seconds; }
             return Routine.Steps[^1];
         }
@@ -90,7 +93,7 @@ public sealed class BreakSession
         if (State is not (BreakSessionState.InProgress or BreakSessionState.AwaitingConfirmation) || now < last) return;
         var delta = now - last; last = now;
         if (delta > TimeSpan.FromSeconds(10)) return;
-        var available = TimeSpan.FromSeconds(Routine.DurationSeconds) + MaximumOvertime - Elapsed;
+        var available = TimeSpan.FromSeconds(DurationSeconds) + MaximumOvertime - Elapsed;
         Elapsed += delta > available ? available : delta;
         if (Remaining <= TimeSpan.Zero) State = BreakSessionState.AwaitingConfirmation;
     }

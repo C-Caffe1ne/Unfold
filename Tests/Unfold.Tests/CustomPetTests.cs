@@ -1,3 +1,4 @@
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using Avalonia.Interactivity;
@@ -116,6 +117,12 @@ public class CustomPetWindowTests
         Dispatcher.UIThread.RunJobs(); return dialog;
     }
     private static string Label(Window window, string key) => Find<TextBlock>(window, "CustomPetLabel_" + key).Text ?? "";
+    private static void AssertClipMetadataOnly(string label)
+    {
+        Assert.Matches(@"^\d+×\d+ · \d+프레임 · \d+(?:\.\d+)?초$", label);
+        Assert.DoesNotContain(".gif", label);
+        Assert.DoesNotContain(".mp4", label);
+    }
     // The imported file is consumed and the picker moved in the same synchronous step,
     // so this note is the signal that the whole assignment finished.
     private static Task Assigned(Window window) =>
@@ -151,7 +158,7 @@ public class CustomPetWindowTests
         finally { window.Close(); Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", previous); }
     }
     [AvaloniaFact]
-    public async Task ReplacingAFilledActionAsksFirstAndCancellingKeepsBothTheClipAndTheImportedFile()
+    public async Task ReplacingAFilledActionAsksFirstAndCancellingKeepsTheExistingClip()
     {
         using var temp = new TempDirectory();
         var picked = Copy(temp.Path, "first.gif");
@@ -159,33 +166,35 @@ public class CustomPetWindowTests
         try
         {
             window.Show(); Find<TextBox>(window, "CustomPetName").Text = "테스트 펫";
+            window.UpdateLayout();
+            var idleSlot = Find<Border>(window, "CustomPetSlot_idle");
+            var emptySlotSize = idleSlot.Bounds.Size;
             Press(window, "AssignPetMedia"); await Assigned(window);
-            Assert.Contains("first.gif", Label(window, "idle"));
+            window.UpdateLayout();
+            AssertClipMetadataOnly(Label(window, "idle"));
+            Assert.Equal(emptySlotSize.Width, idleSlot.Bounds.Width, 1);
+            Assert.Equal(emptySlotSize.Height, idleSlot.Bounds.Height, 1);
             picked = Copy(temp.Path, "second.gif");
-            Press(window, "ImportPetMedia"); Dispatcher.UIThread.RunJobs();
-            Find<ComboBox>(window, "CustomPetAction").SelectedItem = "idle";
-            Press(window, "AssignPetMedia");
+            Press(window, "CustomPetFile_idle");
             var confirm = await Dialog(window);
             Assert.Contains("쉬는 모습", confirm.Title);
             Assert.Contains(confirm.GetVisualDescendants().OfType<TextBlock>(),
                 text => (text.Text ?? "").Contains("first.gif") && (text.Text ?? "").Contains("second.gif"));
             Assert.True(Choice(confirm, "취소").IsFocused); Assert.False(Choice(confirm, "바꾸기").IsDefault);
             Choice(confirm, "취소").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-            await Until(() => !window.OwnedWindows.Any() && Find<Button>(window, "AssignPetMedia").IsEnabled);
-            Assert.Contains("first.gif", Label(window, "idle"));
+            await Until(() => !window.OwnedWindows.Any() && Find<Button>(window, "CustomPetFile_idle").IsEnabled);
+            AssertClipMetadataOnly(Label(window, "idle"));
             Assert.True(Find<Button>(window, "CreateCustomPetPack").IsEnabled);
             Assert.True(Find<Button>(window, "CustomPetPreview_idle").IsEnabled);
             // Closing the confirmation with its titlebar is also a cancel.
             Press(window, "CustomPetFile_idle"); (await Dialog(window)).Close();
             await Until(() => !window.OwnedWindows.Any() && Find<Button>(window, "CustomPetFile_idle").IsEnabled);
-            Assert.Contains("first.gif", Label(window, "idle"));
+            AssertClipMetadataOnly(Label(window, "idle"));
             Assert.True(Find<Button>(window, "CreateCustomPetPack").IsEnabled);
-            // The imported file survived both cancels and still fits another action.
-            Assert.True(Find<Button>(window, "AssignPetMedia").IsEnabled);
-            Find<ComboBox>(window, "CustomPetAction").SelectedItem = "stretch";
-            Press(window, "AssignPetMedia"); await Assigned(window);
-            Assert.Contains("second.gif", Label(window, "stretch"));
-            Assert.Contains("first.gif", Label(window, "idle"));
+            Press(window, "CustomPetFile_stretch");
+            await Until(() => Find<Button>(window, "CustomPetRemove_stretch").IsEnabled);
+            AssertClipMetadataOnly(Label(window, "stretch"));
+            AssertClipMetadataOnly(Label(window, "idle"));
         }
         finally { foreach (var owned in window.OwnedWindows.ToArray()) owned.Close(); window.Close(); }
     }
@@ -202,14 +211,14 @@ public class CustomPetWindowTests
             picked = Path.Combine(temp.Path, "broken.gif"); File.WriteAllText(picked, "broken");
             Press(window, "CustomPetFile_idle"); await Answer(window, "바꾸기");
             await Until(() => Find<TextBlock>(window, "CustomPetStatus").Foreground == DesignSystem.Error);
-            Assert.Contains("first.gif", Label(window, "idle"));
+            AssertClipMetadataOnly(Label(window, "idle"));
             Assert.True(Find<Button>(window, "CreateCustomPetPack").IsEnabled);
             Assert.True(Find<Button>(window, "CustomPetPreview_idle").IsEnabled);
         }
         finally { foreach (var owned in window.OwnedWindows.ToArray()) owned.Close(); window.Close(); }
     }
     [AvaloniaFact]
-    public async Task AssigningMovesThePickerToTheNextEmptyActionAndStopsWhenEveryActionIsFilled()
+    public async Task InitialImportMovesThePickerAndActionButtonsFillRemainingSlots()
     {
         using var temp = new TempDirectory();
         var picked = Copy(temp.Path, "first.gif");
@@ -220,19 +229,62 @@ public class CustomPetWindowTests
             var actions = Find<ComboBox>(window, "CustomPetAction");
             Press(window, "AssignPetMedia"); await Assigned(window);
             Assert.Equal("attention", actions.SelectedItem);
-            Press(window, "ImportPetMedia"); Dispatcher.UIThread.RunJobs();
-            actions.SelectedItem = "click";
-            Press(window, "AssignPetMedia"); await Assigned(window);
-            // The last action wraps around to the first action that is still empty.
+            Press(window, "CustomPetFile_click");
+            await Until(() => Find<Button>(window, "CustomPetRemove_click").IsEnabled);
             Assert.Equal("attention", actions.SelectedItem);
             foreach (var key in new[] { "attention", "stretch", "celebrate" })
             { Press(window, "CustomPetFile_" + key); await Until(() => Find<Button>(window, "CustomPetRemove_" + key).IsEnabled); }
-            Press(window, "ImportPetMedia"); Dispatcher.UIThread.RunJobs();
-            actions.SelectedItem = "click";
-            Press(window, "AssignPetMedia"); await Answer(window, "바꾸기"); await Assigned(window);
-            Assert.Equal("click", actions.SelectedItem);
+            Assert.DoesNotContain(window.GetVisualDescendants().OfType<Button>(), button => button.Name == "ImportPetMedia");
         }
         finally { foreach (var owned in window.OwnedWindows.ToArray()) owned.Close(); window.Close(); }
+    }
+    [AvaloniaFact]
+    public void ActionCardsWrapWithoutHorizontalScrollingAtEverySupportedWidth()
+    {
+        var file = CustomPetDraftTests.Fixture();
+        var window = new CustomPetWindow(file, () => Task.FromResult<string?>(file));
+        string[] controls = ["CustomPetName", "AssignPetMedia", "CustomPetAction",
+            "CustomPetFile_idle", "CustomPetRemove_idle", "CustomPetPreview_idle"];
+        try
+        {
+            window.Show();
+            // The default 660x880 and the 520x620 minimum both scrolled the body, and the
+            // scrollbar used to be painted over the name field and action controls.
+            foreach (var size in new[] { new Size(660, 880), new Size(590, 750), new Size(520, 620) })
+            {
+                window.Width = size.Width; window.Height = size.Height;
+                Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+                Assert.Equal(size.Width, window.ClientSize.Width, 0);
+                Assert.Equal(size.Height, window.ClientSize.Height, 0);
+                PageBodyScrollGeometry.ClearsScrollBar(window, controls);
+                Assert.DoesNotContain(window.GetVisualDescendants().OfType<ScrollViewer>(),
+                    view => view.Name == "CustomPetActionSlotsScroll");
+                var slots = Find<WrapPanel>(window, "CustomPetActionSlots");
+                var pageScroll = PageBodyScrollGeometry.Scroll(window);
+                Assert.True(pageScroll.Extent.Width <= pageScroll.Viewport.Width + 1);
+                var slotRows = slots.Children.Select(card => Math.Round(card.Bounds.Y, 1)).Distinct().Count();
+                Assert.True(slotRows > 1, $"Action cards did not wrap at {size.Width}×{size.Height}.");
+                foreach (var card in slots.Children)
+                {
+                    Assert.True(card.Bounds.X >= -.5);
+                    Assert.True(card.Bounds.Right <= slots.Bounds.Width + .5,
+                        $"{card.Name} ends at {card.Bounds.Right}; panel width is {slots.Bounds.Width}.");
+                }
+                PageBodyScrollGeometry.Scroll(window).ScrollToEnd();
+                Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+                PageBodyScrollGeometry.ClearsScrollBar(window, controls);
+                PageBodyScrollGeometry.Scroll(window).ScrollToHome();
+                Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+            }
+            // A window tall enough to hold the whole form keeps its full width: the gutter
+            // belongs to the scrollbar, not to every page.
+            window.Width = 1400; window.Height = 1600;
+            Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+            PageBodyScrollGeometry.KeepsFullWidthWithoutScrollBar(window);
+            Assert.Single(Find<WrapPanel>(window, "CustomPetActionSlots").Children
+                .Select(card => Math.Round(card.Bounds.Y, 1)).Distinct());
+        }
+        finally { window.Close(); }
     }
     [AvaloniaFact]
     public async Task PetTabsKeepPreviewAndDraftThenOpenCreatedPackWithoutAnotherWindow()
@@ -249,14 +301,18 @@ public class CustomPetWindowTests
             parent.Show(); Press(parent, "OpenPetPack"); await Until(() => Find<Button>(parent, "PausePackPreview").IsEnabled);
             var tabs = Find<TabControl>(parent, "PetManagementTabs");
             tabs.SelectedIndex = 1; Dispatcher.UIThread.RunJobs(); parent.UpdateLayout();
-            Press(parent, "ImportPetMedia"); Dispatcher.UIThread.RunJobs();
             Assert.Equal(5, Find<ComboBox>(parent, "CustomPetAction").ItemCount);
+            Assert.DoesNotContain(parent.GetVisualDescendants().OfType<Button>(), button => button.Name == "ImportPetMedia");
+            Assert.DoesNotContain(parent.GetVisualDescendants().OfType<ScrollViewer>(),
+                view => view.Name == "CustomPetActionSlotsScroll");
+            Assert.True(Find<WrapPanel>(parent, "CustomPetActionSlots").Children
+                .Select(card => Math.Round(card.Bounds.Y, 1)).Distinct().Count() > 1);
             Assert.Empty(parent.OwnedWindows);
             tabs.SelectedIndex = 0; Dispatcher.UIThread.RunJobs();
             Assert.Equal(5, Find<ComboBox>(parent, "PackClip").ItemCount); Assert.True(Find<Button>(parent, "InstallPetPack").IsEnabled);
             tabs.SelectedIndex = 1; Dispatcher.UIThread.RunJobs();
             Find<TextBox>(parent, "CustomPetName").Text = "탭에서 만든 펫";
-            Press(parent, "AssignPetMedia"); await Until(() => Find<Button>(parent, "CreateCustomPetPack").IsEnabled);
+            Press(parent, "CustomPetFile_idle"); await Until(() => Find<Button>(parent, "CreateCustomPetPack").IsEnabled);
             tabs.SelectedIndex = 0; Dispatcher.UIThread.RunJobs();
             tabs.SelectedIndex = 1; Dispatcher.UIThread.RunJobs();
             Assert.True(Find<Button>(parent, "CreateCustomPetPack").IsEnabled);

@@ -2,8 +2,10 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Avalonia;
 using PixelPoint = Avalonia.PixelPoint;
+using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Unfold.Core;
@@ -17,6 +19,22 @@ public sealed class PetWindow : Window
     private readonly PetSpeechBubble bubble;
     private readonly Avalonia.Controls.Shapes.Polygon tail = new() { Fill = DesignSystem.Shell, Stroke = DesignSystem.Outline, StrokeThickness = 1, IsHitTestVisible = false };
     private readonly MenuItem fold = new();
+    // A folded bubble leaves the pet with no sign that a break is waiting. The badge is the
+    // quietest signal that still says so, and it never takes a pointer: the pet stays draggable
+    // and click-through keeps following the sprite's opaque pixels.
+    private readonly Avalonia.Controls.Shapes.Ellipse badgeMark = new()
+    {
+        Name = "PetReminderBadgeMark", Width = 10, Height = 10,
+        HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center
+    };
+    private readonly Border badge = new()
+    {
+        Name = "PetReminderBadge", Width = 22, Height = 22, CornerRadius = new(11),
+        Background = DesignSystem.Shell, BorderBrush = DesignSystem.Outline, BorderThickness = new(1),
+        IsHitTestVisible = false, IsVisible = false
+    };
+    private ReminderBadge badgeState = ReminderBadge.None;
+    public ReminderBadge BadgeState => badgeState;
     private PetBubbleLayout layout = PetBubbleLayout.Create(BubbleDirection.Top, false);
     private double layoutScale = 1;
     public PixelPoint PetAnchor => new(Position.X + (int)Math.Round(layout.Pet.X * DesktopScaling), Position.Y + (int)Math.Round(layout.Pet.Y * DesktopScaling));
@@ -39,7 +57,8 @@ public sealed class PetWindow : Window
         Background = Brushes.Transparent; TransparencyLevelHint = [WindowTransparencyLevel.Transparent];
         ShowInTaskbar = false; Topmost = true; ShowActivated = false;
         bubble = new(runtime.StartBreak, runtime.SnoozeBreak, runtime.CompleteBreak);
-        canvas.Children.Add(animation); canvas.Children.Add(bubble); canvas.Children.Add(tail); Content = canvas;
+        badge.Child = badgeMark;
+        canvas.Children.Add(animation); canvas.Children.Add(bubble); canvas.Children.Add(tail); canvas.Children.Add(badge); Content = canvas;
         bubble.IsVisible = tail.IsVisible = false;
         var menu = new ContextMenu();
         var settings = new MenuItem { Header = "설정" }; settings.Click += (_, _) => runtime.ShowSettings();
@@ -113,6 +132,9 @@ public sealed class PetWindow : Window
         fold.Header = runtime.Settings.BubbleCollapsed ? "말풍선 펼치기" : "말풍선 접기";
         var expanded = runtime.Reminder.HasNotice && !runtime.Settings.BubbleCollapsed;
         var next = PetBubbleLayout.Create(runtime.Settings.BubbleDirection, expanded);
+        // The badge tracks the reminder even when the layout is unchanged, so it has to be
+        // updated ahead of the early return below.
+        RefreshBadge(next.Pet);
         if (layout.Size == next.Size && layout.Pet == next.Pet && bubble.IsVisible == expanded && layoutScale == DesktopScaling) return;
         var anchor = PetAnchor;
         layoutScale = DesktopScaling; layout = next; Width = layout.Size.Width; Height = layout.Size.Height;
@@ -126,6 +148,24 @@ public sealed class PetWindow : Window
         var work = Screens.ScreenFromPoint(anchor)?.WorkingArea ?? Screens.Primary?.WorkingArea;
         Position = runtime.DiagnosticMode ? new(-32000, -32000) : work is { } area
             ? layout.Position(anchor, DesktopScaling, area) : anchor;
+    }
+
+    private void RefreshBadge(Point pet)
+    {
+        var state = TrayReminderStatus.BadgeFor(runtime.Reminder.Notice, runtime.Settings.BubbleCollapsed);
+        if (state != badgeState)
+        {
+            badgeState = state;
+            // Waiting draws an open ring, resting a filled dot. Shape carries the difference so
+            // the two states stay apart without colour vision or a caption.
+            badgeMark.Fill = state == ReminderBadge.Resting ? DesignSystem.Cream : Brushes.Transparent;
+            badgeMark.Stroke = state == ReminderBadge.Waiting ? DesignSystem.Warning : Brushes.Transparent;
+            badgeMark.StrokeThickness = state == ReminderBadge.Waiting ? 2 : 0;
+            badge.IsVisible = state != ReminderBadge.None;
+            AutomationProperties.SetName(badge, state switch
+            { ReminderBadge.Waiting => "휴식 대기 중", ReminderBadge.Resting => "휴식 중", _ => "" });
+        }
+        Canvas.SetLeft(badge, pet.X + animation.Width - badge.Width - 6); Canvas.SetTop(badge, pet.Y + 6);
     }
 
     private void ClampPosition()

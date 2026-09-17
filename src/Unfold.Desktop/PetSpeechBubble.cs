@@ -50,7 +50,8 @@ public sealed class PetSpeechBubble : Border
         instruction.Text = reminder.Notice switch
         {
             PetNotice.Advance => "하던 일을 천천히 마무리해 주세요.",
-            PetNotice.Invitation => $"{session?.Routine.Name} · {session?.Routine.DurationSeconds}초\n준비되면 휴식을 시작해 주세요.",
+            PetNotice.Invitation => session is null ? "준비되면 휴식을 시작해 주세요." :
+                $"{session.Routine.Name} · {DurationText(session.DurationSeconds)}\n준비되면 휴식을 시작해 주세요.",
             PetNotice.Resting => session?.CurrentStep.Instruction,
             PetNotice.Completed => $"{reminder.CompletedSeconds / 60}분 {reminder.CompletedSeconds % 60}초 쉬었어요.\n다음 휴식 때 다시 만나요.", _ => ""
         };
@@ -66,6 +67,7 @@ public sealed class PetSpeechBubble : Border
             : "펫 우클릭으로 말풍선을 접을 수 있어요.";
         AutomationProperties.SetName(timer, "휴식 타이머 " + timer.Text);
     }
+    private static string DurationText(int seconds) => seconds % 60 == 0 ? $"{seconds / 60}분" : $"{seconds}초";
 }
 
 public sealed record PetBubbleLayout(Size Size, Point Pet, Point Bubble, IReadOnlyList<Point> Tail)

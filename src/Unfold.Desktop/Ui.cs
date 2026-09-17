@@ -46,21 +46,42 @@ public static class Ui
         foreach (var control in controls) panel.Children.Add(control);
         return panel;
     }
-    public static Control PageContent(string title, string description, Control body, Control footer,
-        string section = "나의 휴식")
+    /// <summary>Clear space kept between the page body and the vertical scrollbar track.</summary>
+    public const double ScrollGutter = DesignSystem.Space;
+    // Fluent paints the vertical scrollbar on top of the scrolled content, so inputs and buttons
+    // that stretch to the right edge end up underneath it. Turning auto-hide off reserves the
+    // track in the template; the left margin then keeps a full gutter between that track and the
+    // body. This keeps the native scrollbar drawable on every platform instead of moving it into
+    // a clipped page-frame inset.
+    public static ScrollViewer PageBodyScroll(Control body)
     {
-        var heading = Text(title, DesignSystem.Title); heading.FontWeight = FontWeight.SemiBold; heading.TextWrapping = TextWrapping.Wrap;
-        var header = Column(Caption("UNFOLD / " + section), heading);
-        header.Spacing = 6;
-        if (description.Length > 0) header.Children.Add(Caption(description));
-        var scroll = new ScrollViewer { Name = "PageBodyScroll", Content = body,
+        var scroll = new ScrollViewer { Name = "PageBodyScroll", Content = body, AllowAutoHide = false,
             HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled,
             VerticalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Auto };
-        var layout = new Grid { RowDefinitions = new("Auto,16,*,16,Auto") };
-        layout.Children.Add(header); Grid.SetRow(scroll, 2); layout.Children.Add(scroll);
+        scroll.TemplateApplied += (_, e) =>
+        {
+            if (e.NameScope.Find<Avalonia.Controls.Primitives.ScrollBar>("PART_VerticalScrollBar") is { } bar)
+                bar.Margin = new Thickness(ScrollGutter, 0, 0, 0);
+        };
+        return scroll;
+    }
+    public static Control PageContent(string title, string description, Control body, Control footer,
+        string section = "나의 휴식", bool showHeader = true)
+    {
+        var scroll = PageBodyScroll(body);
+        var layout = new Grid { RowDefinitions = showHeader ? new("Auto,16,*,16,Auto") : new("*,16,Auto") };
+        if (showHeader)
+        {
+            var heading = Text(title, DesignSystem.Title); heading.FontWeight = FontWeight.SemiBold; heading.TextWrapping = TextWrapping.Wrap;
+            var header = Column(Caption("UNFOLD / " + section), heading); header.Name = "PageHeader";
+            header.Spacing = 6;
+            if (description.Length > 0) header.Children.Add(Caption(description));
+            layout.Children.Add(header); Grid.SetRow(scroll, 2);
+        }
+        layout.Children.Add(scroll);
         var actionBar = new Border { Name = "PageActions", BorderBrush = DesignSystem.Outline,
             BorderThickness = new(0, 1, 0, 0), Padding = new(0, 12, 0, 0), Child = footer };
-        Grid.SetRow(actionBar, 4); layout.Children.Add(actionBar);
+        Grid.SetRow(actionBar, showHeader ? 4 : 2); layout.Children.Add(actionBar);
         return layout;
     }
     public static Control PageFrame(Window window, Control content, double inset = DesignSystem.Inset)

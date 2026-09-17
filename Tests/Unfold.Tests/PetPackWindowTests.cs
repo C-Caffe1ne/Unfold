@@ -1,7 +1,9 @@
 using System.Reflection;
+using System.Text.Json;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Automation;
+using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Headless.XUnit;
 using Avalonia.Interactivity;
@@ -26,6 +28,19 @@ public class PetPackWindowTests
         public void Dispose() => Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", previous);
     }
     private static Button Button(Window window, string name) => window.GetVisualDescendants().OfType<Button>().Single(button => button.Name == name);
+    private static T Find<T>(Window window, string name) where T : Control => window.GetVisualDescendants().OfType<T>().Single(control => control.Name == name);
+    /// <summary>Builds a valid pack whose missing one-shot reactions make the asset audit report warnings.</summary>
+    private static string CreateWarningPack(string root, string id = "warn-pet")
+    {
+        var directory = Path.Combine(root, "warning-source", id); Directory.CreateDirectory(directory);
+        var pixels = new uint[32 * 16];
+        for (var y = 3; y < 13; y++) for (var x = 3; x < 13; x++) { pixels[y * 32 + x] = 0xFFF4B860; pixels[y * 32 + x + 16] = 0xFFF4B860; }
+        File.WriteAllBytes(Path.Combine(directory, "spritesheet.png"), ImageCodec.EncodePng(new(32, 16, pixels)));
+        var manifest = new CharacterManifest(id, "참고 사항이 있는 팩", 1, new("spritesheet.png", 2, 1, 16, 16),
+            new() { ["idle"] = new([0, 1], 8), ["attention"] = new([1, 0], 8, Loop: false) });
+        File.WriteAllBytes(Path.Combine(directory, "character.json"), JsonSerializer.SerializeToUtf8Bytes(manifest, CharacterLibrary.JsonOptions));
+        var path = Path.Combine(root, $"{Guid.NewGuid():N}.unfoldpet"); CharacterPack.Create(directory, "1.0.0", path); return path;
+    }
     private static ComboBox Choice(Window window, string name) => window.GetVisualDescendants().OfType<ComboBox>().Single(control => control.Name == name);
     private static AnimationView Preview(Window window) => window.GetVisualDescendants().OfType<AnimationView>().Single();
     private static bool Repeats(Window window) => (bool)typeof(AnimationView).GetProperty("Repeats", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(Preview(window))!;
@@ -115,14 +130,18 @@ public class PetPackWindowTests
         try
         {
             window.Show(); Press(window, "OpenPetPack"); await Until(() => Button(window, "PausePackPreview").IsEnabled);
+            window.Width = 800; window.Height = 800; Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+            var surface = window.GetVisualDescendants().OfType<Border>().Single(control => control.Name == "PackPreviewSurface");
+            Assert.Equal(520, surface.Bounds.Width, 0); Assert.Equal(260, Choice(window, "PackClip").Bounds.Width, 0);
+            window.Width = 480; window.Height = 560; Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
             Choice(window, "PackBackground").SelectedIndex = 1; Choice(window, "PackSize").SelectedIndex = 2;
             window.UpdateLayout(); Dispatcher.UIThread.RunJobs();
-            var surface = window.GetVisualDescendants().OfType<Border>().Single(control => control.Name == "PackPreviewSurface");
             Assert.Equal(Brushes.WhiteSmoke, surface.Background);
             Assert.Equal(384, Preview(window).Bounds.Width); Assert.Equal(384, Preview(window).Bounds.Height);
             var scroll = window.GetVisualDescendants().OfType<ScrollViewer>().Single(view => view.Name == "PageBodyScroll");
             Assert.True(scroll.Extent.Width <= scroll.Viewport.Width + 1);
-            Assert.True(Preview(window).Bounds.Right <= surface.Bounds.Width);
+            Assert.True(Preview(window).Bounds.Right <= surface.Bounds.Width,
+                $"Preview right {Preview(window).Bounds.Right}, surface width {surface.Bounds.Width}, scroll viewport {scroll.Viewport.Width}, client width {window.ClientSize.Width}");
             var status = window.GetVisualDescendants().OfType<TextBlock>().Single(control => control.Name == "PackStatus");
             var statusOrigin = status.TranslatePoint(default, window)!.Value;
             Assert.True(statusOrigin.Y >= 0 && statusOrigin.Y + status.Bounds.Height <= window.ClientSize.Height);
@@ -142,6 +161,64 @@ public class PetPackWindowTests
         finally { window.Close(); }
     }
     [AvaloniaFact]
+    public async Task PinnedWarningSummaryCountsWarningsAndScrollsToTheBodyAtTheMinimumWindow()
+    {
+        using var temp = new TempDirectory(); using var profile = new ProfileScope(temp.Path);
+        var library = new CharacterLibrary(Path.Combine(temp.Path, "library"));
+        var warningPack = CreateWarningPack(temp.Path); var file = warningPack;
+        var window = new PetPackWindow(library, _ => Task.CompletedTask, () => Task.FromResult<string?>(file))
+        { Width = 480, Height = 560 };
+        try
+        {
+            window.Show(); Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+            var bar = Find<ContentControl>(window, "PackWarningBar");
+            var warnings = Find<TextBlock>(window, "PackWarnings");
+            Assert.False(bar.IsVisible); Assert.Null(bar.Content); Assert.False(warnings.IsVisible);
+            // A collapsed jump button inside PageActions would break the shared layout contract.
+            Assert.DoesNotContain(window.GetVisualDescendants().OfType<Button>(), button => button.Name == "ReviewPackWarnings");
+
+            Press(window, "OpenPetPack"); await Until(() => Button(window, "InstallPetPack").IsEnabled);
+            Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+            using (var pack = CharacterPack.Open(warningPack)) Assert.Equal(3, pack.Audit.Warnings.Count);
+            var summary = Find<TextBlock>(window, "PackWarningSummary");
+            Assert.True(bar.IsVisible); Assert.NotNull(bar.Content); Assert.True(warnings.IsVisible);
+            Assert.Contains("3개", summary.Text);
+            Assert.Contains("설치 전에", summary.Text);
+
+            // The pinned summary and its jump action must be reachable without scrolling.
+            var scroll = Find<ScrollViewer>(window, "PageBodyScroll");
+            foreach (var control in new Control[] { summary, Button(window, "ReviewPackWarnings"), Button(window, "InstallPetPack") })
+            {
+                var origin = control.TranslatePoint(default, window)!.Value;
+                Assert.True(control.Bounds.Height > 0);
+                Assert.True(origin.Y >= 0 && origin.Y + control.Bounds.Height <= window.ClientSize.Height + 1);
+            }
+            Assert.True(warnings.TranslatePoint(default, scroll)!.Value.Y > scroll.Viewport.Height,
+                "The body warnings should start below the fold at the minimum window size.");
+
+            Press(window, "ReviewPackWarnings"); Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+            var warningOrigin = warnings.TranslatePoint(default, scroll)!.Value;
+            Assert.True(scroll.Offset.Y > 0);
+            Assert.True(warningOrigin.Y >= -1 && warningOrigin.Y + warnings.Bounds.Height <= scroll.Viewport.Height + 1,
+                $"Warning top {warningOrigin.Y}, height {warnings.Bounds.Height}, viewport {scroll.Viewport.Height}");
+
+            // A clean pack must not inherit the previous pack's warning state.
+            file = CharacterPackTests.CreatePack(temp.Path); Press(window, "OpenPetPack");
+            await Until(() => Button(window, "InstallPetPack").IsEnabled); Dispatcher.UIThread.RunJobs();
+            Assert.False(bar.IsVisible); Assert.Null(bar.Content); Assert.False(warnings.IsVisible); Assert.Equal("", warnings.Text);
+
+            file = warningPack; Press(window, "OpenPetPack");
+            await Until(() => Button(window, "InstallPetPack").IsEnabled); Assert.True(bar.IsVisible);
+            file = Path.Combine(temp.Path, "broken.unfoldpet"); File.WriteAllText(file, "broken archive");
+            Press(window, "OpenPetPack"); await Until(() => Button(window, "OpenPetPack").IsEnabled);
+            Dispatcher.UIThread.RunJobs();
+            Assert.False(Button(window, "InstallPetPack").IsEnabled);
+            Assert.False(bar.IsVisible); Assert.Null(bar.Content); Assert.False(warnings.IsVisible);
+            Assert.Empty(library.List());
+        }
+        finally { window.Close(); }
+    }
+    [AvaloniaFact]
     public async Task HidingPreviewSuspendsTheReactionAndPreservesManualPause()
     {
         using var temp = new TempDirectory(); using var profile = new ProfileScope(temp.Path);
@@ -155,7 +232,7 @@ public class PetPackWindowTests
             var completed = 0; Preview(window).Completed += () => completed++;
             window.Hide(); window.Show();
             await Task.Delay(350, TestContext.Current.CancellationToken); Dispatcher.UIThread.RunJobs();
-            Assert.Equal(0, completed); Assert.Equal("계속", Button(window, "PausePackPreview").Content);
+            Assert.Equal(0, completed); Assert.Equal("미리보기 계속", AutomationProperties.GetName(Button(window, "PausePackPreview")));
             Press(window, "PausePackPreview"); window.Hide();
             await Task.Delay(350, TestContext.Current.CancellationToken); Dispatcher.UIThread.RunJobs(); Assert.Equal(0, completed);
             window.Show(); await Until(() => completed == 1 && Repeats(window));
@@ -166,6 +243,44 @@ public class PetPackWindowTests
             Assert.Equal(1, completed);
             tabs.SelectedIndex = 0; Dispatcher.UIThread.RunJobs();
             await Until(() => completed == 2 && Repeats(window));
+        }
+        finally { window.Close(); }
+    }
+
+    [AvaloniaFact]
+    public void OpenAndPlaybackControlsUseTheRequestedPreviewLayout()
+    {
+        using var temp = new TempDirectory(); using var profile = new ProfileScope(temp.Path);
+        var window = new PetPackWindow(new(Path.Combine(temp.Path, "library")), _ => Task.CompletedTask);
+        try
+        {
+            window.Show(); Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+            var clip = Choice(window, "PackClip");
+            var open = Button(window, "OpenPetPack");
+            var clipActions = Find<Grid>(window, "PackClipActions");
+            var surface = Find<Border>(window, "PackPreviewSurface");
+            var playback = Find<StackPanel>(window, "PackPlaybackControls");
+            var pause = Button(window, "PausePackPreview");
+            var replay = Button(window, "ReplayPackPreview");
+
+            Assert.Contains(clipActions, clip.GetVisualAncestors());
+            Assert.Contains(clipActions, open.GetVisualAncestors());
+            var clipOrigin = clip.TranslatePoint(default, window)!.Value;
+            var openOrigin = open.TranslatePoint(default, window)!.Value;
+            Assert.True(openOrigin.X >= clipOrigin.X + clip.Bounds.Width,
+                $"Open button left {openOrigin.X}, clip right {clipOrigin.X + clip.Bounds.Width}");
+
+            Assert.Contains(surface, playback.GetVisualAncestors());
+            Assert.Equal(HorizontalAlignment.Center, playback.HorizontalAlignment);
+            Assert.IsType<PathIcon>(pause.Content);
+            Assert.IsType<PathIcon>(replay.Content);
+            Assert.Equal(44, pause.Bounds.Width); Assert.Equal(44, replay.Bounds.Width);
+            var surfaceOrigin = surface.TranslatePoint(default, window)!.Value;
+            var playbackOrigin = playback.TranslatePoint(default, window)!.Value;
+            var playbackCenter = playbackOrigin.X + playback.Bounds.Width / 2;
+            var surfaceCenter = surfaceOrigin.X + surface.Bounds.Width / 2;
+            Assert.Equal(surfaceCenter, playbackCenter, 1);
+            Assert.True(playbackOrigin.Y > Preview(window).TranslatePoint(default, window)!.Value.Y + Preview(window).Bounds.Height);
         }
         finally { window.Close(); }
     }

@@ -39,6 +39,20 @@ public class BreakSessionTests
         session.Tick(TimeSpan.FromSeconds(30)); session.Tick(TimeSpan.FromSeconds(40));
         Assert.Equal(session.Routine.Steps[2], session.CurrentStep);
     }
+    [Fact]
+    public void ConfiguredBreakDurationScalesStepsAndHistoryPlannedTime()
+    {
+        var session = new BreakSession(BreakRoutines.All[0], "default-cat", durationSeconds: 180);
+        session.Start(TimeSpan.Zero);
+        for (var second = 10; second <= 60; second += 10) session.Tick(TimeSpan.FromSeconds(second));
+        Assert.Equal(session.Routine.Steps[1], session.CurrentStep);
+        for (var second = 70; second <= 120; second += 10) session.Tick(TimeSpan.FromSeconds(second));
+        Assert.Equal(session.Routine.Steps[2], session.CurrentStep);
+        for (var second = 130; second <= 180; second += 10) session.Tick(TimeSpan.FromSeconds(second));
+        Assert.Equal(BreakSessionState.AwaitingConfirmation, session.State);
+        session.Complete(); var history = new BreakHistory(); Assert.True(history.Add(session, DateTimeOffset.Now));
+        Assert.Equal(180, Assert.Single(history.Completions).Seconds);
+    }
     [Theory]
     [InlineData(true)] [InlineData(false)]
     public void SnoozeAndSkipNeverBecomeCompletions(bool snooze)

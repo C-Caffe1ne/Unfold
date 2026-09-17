@@ -6,7 +6,7 @@ A small desktop companion that reminds you to stretch while you work.
 
 Mochi와 잠깐 쉬고, 내 리듬으로 돌아오는 작은 데스크톱 동료.
 
-This document defines the current **Cat MVP with break sessions and a personalization demo** on `release/mvp`.
+This document defines the current **Cat MVP with break sessions and local review** on `release/mvp`.
 The application is the C#/.NET 10 and Avalonia solution. The 2026-09-13 product
 development request extends the reminder into a guided pause with local completion
 records. [Product direction](product-direction.md) and [development plan](development-plan.md)
@@ -25,15 +25,14 @@ observed. Those outcomes are not established by a passing build or animation tes
 
 | Area | Current behavior |
 |---|---|
-| Language | Korean throughout the normal settings, break, personalization, review, pet-pack and tray flows. User names and saved history retain their original text. [Language scope](localization.md) |
-| Settings layout | A sidebar switches the current window among timer, routine/profile, review, and pet-addition pages. The pet page switches between open/create tabs; the companion card has a compact selector and no add button. The timer tab keeps a large companion preview, visible timer, and scrollable detail column. Default size 1120×800, minimum 860×680; resizing preserves unsaved input. [Dashboard guide](settings-ui.md) |
-| Timer | 5–240 minutes in one-minute steps. The interval is locked while running and can be edited only while manually paused or stopped. Interval, idle threshold, and routine changes wait for the **적용** button at the top right of the reminder card. |
+| Language | Korean throughout the normal settings, break, review, pet-pack and tray flows. User names and saved history retain their original text. [Language scope](localization.md) |
+| Settings layout | A sidebar switches the current window among timer, settings, review, and pet-addition pages. The timer home places stretch interval and break duration above the review card; the Settings page keeps notification sounds, idle time and snooze. The pet page switches between open/create tabs; the companion card has a compact selector and no add button. Default size 1120×800, minimum 860×680; resizing preserves unsaved input. [Dashboard guide](settings-ui.md) |
+| Timer | The home time card groups stretch time (the 5–240 minute work interval) and the next break duration (1–10 minutes). Stretch time is locked while running and can be edited only while manually paused or stopped; break duration can be changed while running because it applies to the next session. The Settings tab keeps 1–60 minute idle and snooze values in its timer section. Each card waits for its own **적용** button. |
 | Timer controls | The state badge explicitly distinguishes running, paused, stopped, idle-paused, and break-held states. The two labelled, keyboard-accessible icon buttons are Play/Pause and Stop. Pause keeps the remaining time; Stop clears it to 00:00; Play resumes or starts a full interval after Stop. Stop dismisses an open or pending invitation without adding a completion. |
 | Activity | Idle threshold of 1–60 minutes. Idle time and large dispatcher/sleep gaps do not accrue work time. |
-| Reminder | The pet delivers a five-active-minutes warning, due invitation, and explicit completion notice in an attached speech bubble. Due offers **n분 뒤에** and **휴식 시작**; a running bubble has a timer with **완료** below it. Complete at any time after starting; overtime shows +mm:ss and caps at +60:00 without auto-completing. Position can be top/bottom/left/right and the pet context menu folds/unfolds it. No separate reminder window or OS toast. [Speech guide](stretch-notifications.md) |
-| Routines | 잠깐의 여유 (60 seconds), 눈 쉬어 주기 (20 seconds), and 몸 풀어 주기 (90 seconds). The routine and companion are captured when the invitation opens. They are gentle prompts, not measured exercise or medical advice. |
-| Routine library | Edit and save up to 20 custom routines with 1–3 prompts, 1–300 seconds per prompt and a maximum of 600 seconds total. The original personal slot is preserved alongside 19 additional routines. Saving selects the routine for future invitations; an already-open session keeps its original steps. Built-ins cannot be edited or removed. Profile references must be changed before deleting a routine. |
-| Work profiles | Save up to 10 named combinations of routine, reminder interval, and away threshold in one-minute interval steps. Apply manually. A profile that changes the interval can be applied only while the timer is paused or stopped. Pause is preserved; a stopped countdown remains at 00:00 until Play. An open session retains its original routine/profile context. No automatic schedule or meeting detection is included. |
+| Reminder | The pet delivers a five-active-minutes warning, due invitation, and explicit completion notice in an attached speech bubble. Due offers **n분 뒤에** and **휴식 시작**; a running bubble counts the configured break duration and has **완료** below it. Complete at any time after starting; overtime shows +mm:ss and caps at +60:00 without auto-completing. A duration change affects the next invitation, not an open session. The Settings tab's notification section configures stretch/completion sounds and bubble position; the pet context menu folds/unfolds it. No separate reminder window or OS toast. [Speech guide](stretch-notifications.md) |
+| Routines | 잠깐의 여유, 눈 쉬어 주기, and 몸 풀어 주기 provide the prompt sequence. The configured 1–10 minute break duration scales that sequence for new sessions. The routine, duration and companion are captured when the invitation opens. They are gentle prompts, not measured exercise or medical advice. |
+| Routine/profile compatibility | Routine-library and work-profile setup are no longer exposed in the normal UI. Existing `settings.json` values remain readable so an upgrade does not delete user data, and existing history keeps its captured routine/profile labels. Internal diagnostic components remain for compatibility testing. |
 | Manual reminder | Stretch now has been removed from Settings, the tray menu, and the pet menu. Normal invitations come from the automatic timer. The shared reminder method remains available to internal diagnostics. |
 | Scheduling | Work time is held while an invitation/session is active. Completion starts a full interval; snooze schedules 1–60 active minutes (default 5). Both preserve manual Pause. Folding/hiding never ends a session; Stop cancels without a completion. |
 | Duplicate reminder | Keeps the active session and does not replay the due sound or pet reaction. Concurrent preparations are coalesced. |
@@ -53,12 +52,12 @@ These are implementation descriptions, not blanket OS verification claims. See
 
 ## Scope boundaries
 
-The MVP has no user-facing pixel editor, drawing tools or installed-character editing/deletion,
+The MVP has no user-facing routine/profile setup, pixel editor, drawing tools or installed-character editing/deletion,
 scheduled profile switching, meeting/full-screen detection, clinical exercise
 library, accounts, cloud sync, AI chat, achievements, XP, shop, multiplayer, or
-coding-agent integration. The routine library, manually applied work profiles and weekly review/export
-are implemented as a second-stage demo. This build has no payment locks. The proposed Free/Plus
-commercial boundary remains a hypothesis. [Personalization guide](personalization.md)
+coding-agent integration. Weekly review/export remains available; routine-library and work-profile data
+are retained only for backward compatibility and internal diagnostics. This build has no payment locks.
+The proposed Free/Plus commercial boundary remains a hypothesis. [Compatibility and review guide](personalization.md)
 
 The C# editor, pixel model, and Piskel codec remain because regression tests and
 `--smoke-test` exercise authoring/save/reopen behavior. They are not advertised as

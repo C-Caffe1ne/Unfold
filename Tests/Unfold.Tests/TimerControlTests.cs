@@ -21,6 +21,8 @@ public class TimerControlTests
 {
     private static Button Button(Window window, string name) => window.GetVisualDescendants().OfType<Button>().Single(button => button.Name == name);
     private static void Press(Window window, string name) => Button(window, name).RaiseEvent(new RoutedEventArgs(Avalonia.Controls.Button.ClickEvent));
+    private static void OpenSettings(Window window) { Press(window, "SettingsNavSettings"); Dispatcher.UIThread.RunJobs(); }
+    private static void OpenTimer(Window window) { Press(window, "SettingsNavTimer"); Dispatcher.UIThread.RunJobs(); }
     [Fact]
     public void ResetRestoresTheIntervalAndWaitsForExplicitResume()
     {
@@ -41,17 +43,17 @@ public class TimerControlTests
         var interval = scope.Window.GetVisualDescendants().OfType<NumericUpDown>().Single(input => input.Name == "ReminderInterval");
         Assert.False(interval.IsEnabled); Assert.Equal(1, interval.Increment);
         Assert.Equal(60, scope.Runtime.Settings.IntervalMinutes);
-        Press(scope.Window, "TimerToggle"); Dispatcher.UIThread.RunJobs();
+        Press(scope.Window, "TimerToggle");
         Assert.True(interval.IsEnabled); Assert.Equal(60, interval.Value);
         interval.Value = 61; Dispatcher.UIThread.RunJobs();
         Assert.Equal(60, scope.Runtime.Settings.IntervalMinutes);
-        Press(scope.Window, "ApplyReminderSettings"); Dispatcher.UIThread.RunJobs();
+        Press(scope.Window, "ApplyHomeTimingSettings"); Dispatcher.UIThread.RunJobs();
         Assert.Equal(61, scope.Runtime.Settings.IntervalMinutes);
         Assert.Equal(TimeSpan.FromMinutes(61), scope.Runtime.Clock.Interval);
         Assert.Equal(TimeSpan.FromMinutes(61), scope.Runtime.Clock.Remaining);
         Assert.Equal(61, AppSettings.Load(Path.Combine(scope.Root, "settings.json")).IntervalMinutes);
         Press(scope.Window, "TimerStop"); interval.Value = 62;
-        Press(scope.Window, "ApplyReminderSettings"); Dispatcher.UIThread.RunJobs();
+        Press(scope.Window, "ApplyHomeTimingSettings"); Dispatcher.UIThread.RunJobs();
         Assert.Equal(62, scope.Runtime.Settings.IntervalMinutes);
         Assert.True(scope.Runtime.Clock.Stopped); Assert.Equal(TimeSpan.Zero, scope.Runtime.Clock.Remaining);
     }
@@ -78,22 +80,28 @@ public class TimerControlTests
         scope.Window.KeyPress(Key.Enter, RawInputModifiers.None, PhysicalKey.Enter, null);
         scope.Window.KeyRelease(Key.Enter, RawInputModifiers.None, PhysicalKey.Enter, null); Dispatcher.UIThread.RunJobs();
         Assert.Equal(60, scope.Runtime.Settings.IntervalMinutes);
-        Press(scope.Window, "ApplyReminderSettings"); Dispatcher.UIThread.RunJobs();
+        Press(scope.Window, "ApplyHomeTimingSettings"); Dispatcher.UIThread.RunJobs();
         Assert.Equal(35, scope.Runtime.Settings.IntervalMinutes);
         Assert.True(scope.Runtime.Clock.Paused); Assert.Equal(TimeSpan.FromMinutes(35), scope.Runtime.Clock.Remaining);
     }
     [AvaloniaFact]
-    public void ApplySavesTheTimerAndRelatedReminderSettingsTogether()
+    public void HomeAndSettingsApplyPersistTheirOwnTimeValues()
     {
         using var scope = new SettingsScope(); Press(scope.Window, "TimerToggle");
         var controls = scope.Window.GetVisualDescendants().OfType<NumericUpDown>().ToArray();
-        controls.Single(input => input.Name == "ReminderIdle").Value = 12;
         controls.Single(input => input.Name == "ReminderInterval").Value = 30;
+        controls.Single(input => input.Name == "BreakDurationMinutes").Value = 4;
         Assert.Equal(60, scope.Runtime.Settings.IntervalMinutes); Assert.Equal(5, scope.Runtime.Settings.IdleMinutes);
-        Press(scope.Window, "ApplyReminderSettings"); Dispatcher.UIThread.RunJobs();
-        Assert.Equal(30, scope.Runtime.Settings.IntervalMinutes); Assert.Equal(12, scope.Runtime.Settings.IdleMinutes);
+        Press(scope.Window, "ApplyHomeTimingSettings"); Dispatcher.UIThread.RunJobs();
+        Assert.Equal(30, scope.Runtime.Settings.IntervalMinutes); Assert.Equal(4, scope.Runtime.Settings.BreakDurationMinutes);
         Assert.True(scope.Runtime.Clock.Paused); Assert.Equal(TimeSpan.FromMinutes(30), scope.Runtime.Clock.Remaining);
-        Assert.Equal(12, controls.Single(input => input.Name == "ReminderIdle").Value);
+        OpenSettings(scope.Window);
+        var settingsControls = scope.Window.GetVisualDescendants().OfType<NumericUpDown>().ToArray();
+        settingsControls.Single(input => input.Name == "ReminderIdle").Value = 12;
+        settingsControls.Single(input => input.Name == "SnoozeMinutes").Value = 9;
+        Press(scope.Window, "ApplyReminderSettings"); Dispatcher.UIThread.RunJobs();
+        Assert.Equal(12, scope.Runtime.Settings.IdleMinutes); Assert.Equal(9, scope.Runtime.Settings.SnoozeMinutes);
+        Assert.Equal(12, settingsControls.Single(input => input.Name == "ReminderIdle").Value);
     }
     [AvaloniaFact]
     public async Task RuntimeRejectsIntervalChangesWhileRunningAndAllowsThemWhilePaused()

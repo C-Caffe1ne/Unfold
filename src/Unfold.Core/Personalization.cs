@@ -7,7 +7,7 @@ public sealed record WorkProfile(string Id, string Name, int IntervalMinutes, in
     {
         if (!CharacterLibrary.SafeId(Id) || string.IsNullOrWhiteSpace(Name) || Name.Length > 60 ||
             IntervalMinutes is < 5 or > 240 || IdleMinutes is < 1 or > 60 || !CharacterLibrary.SafeId(RoutineId))
-            throw new ArgumentException("이름을 입력해 주세요. 알림 간격은 5~240분, 자리 비움 기준은 1~60분이어야 해요.");
+            throw new ArgumentException("이름을 입력해 주세요. 스트레칭 시간은 5~240분, 자리 비움 시간은 1~60분이어야 해요.");
     }
 }
 

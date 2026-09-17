@@ -14,14 +14,15 @@ internal sealed class PetManagementView : UserControl, IDisposable
     public bool IsBusy => packs.IsBusy || builder.IsExporting;
 
     public PetManagementView(Window owner, CharacterLibrary library, Func<CharacterPackage, Task> installed,
-        Func<Task<string?>>? choosePack = null, Func<Task<string?>>? chooseMedia = null, Func<Task<string?>>? chooseOutput = null)
+        Func<Task<string?>>? choosePack = null, Func<Task<string?>>? chooseMedia = null,
+        Func<Task<string?>>? chooseOutput = null, bool showPageHeaders = true)
     {
-        packs = new(owner, library, installed, choosePack);
+        packs = new(owner, library, installed, choosePack, showPageHeaders);
         builder = new(owner, async path =>
         {
             tabs.SelectedIndex = 0;
             await packs.OpenPath(path);
-        }, chooseMedia: chooseMedia, chooseOutput: chooseOutput);
+        }, chooseMedia: chooseMedia, chooseOutput: chooseOutput, showHeader: showPageHeaders);
         AutomationProperties.SetName(tabs, "펫 추가 방식");
         tabs.ItemsSource = new[]
         {

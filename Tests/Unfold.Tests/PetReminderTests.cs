@@ -91,11 +91,13 @@ public class PetReminderTests
     {
         using var temp = new TempDirectory(); var path = Path.Combine(temp.Path, "settings.json"); File.WriteAllText(path, "{}");
         var old = AppSettings.Load(path); Assert.Equal(BubbleDirection.Top, old.BubbleDirection); Assert.Equal(5, old.SnoozeMinutes);
+        Assert.Equal(1, old.BreakDurationMinutes);
         var updated = old with { BubbleDirection = BubbleDirection.Left, BubbleCollapsed = true, SnoozeMinutes = 60, ReminderSoundsEnabled = false };
         updated.Save(path); var loaded = AppSettings.Load(path);
         Assert.Equal(BubbleDirection.Left, loaded.BubbleDirection); Assert.True(loaded.BubbleCollapsed);
         Assert.Equal(60, loaded.SnoozeMinutes); Assert.False(loaded.ReminderSoundsEnabled);
         Assert.Throws<InvalidDataException>(() => (old with { SnoozeMinutes = 0 }).Save(path));
+        Assert.Throws<InvalidDataException>(() => (old with { BreakDurationMinutes = 11 }).Save(path));
         Assert.Throws<InvalidDataException>(() => (old with { ReminderSoundId = "../escape" }).Save(path));
         Assert.Throws<InvalidDataException>(() => (old with { BubbleDirection = (BubbleDirection)99 }).Save(path));
     }
