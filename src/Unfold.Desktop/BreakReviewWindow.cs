@@ -21,11 +21,11 @@ public sealed class BreakReviewWindow : Window
     public BreakReview Review => view.Review;
 
     public BreakReviewWindow(Func<DateOnly, BreakReview> readHistory, Func<string?>? warning = null,
-        Func<BreakReview, Task<string?>>? exportReview = null, DateOnly? currentDay = null)
+        Func<BreakReview, Task<string?>>? exportReview = null, DateOnly? currentDay = null, Func<DateOnly>? getToday = null)
     {
         Title = "나의 일주일 · Unfold"; Width = 620; Height = 650; MinWidth = 560; MinHeight = 600;
         Background = Ui.Background; WindowStartupLocation = WindowStartupLocation.CenterOwner;
-        view = new BreakReviewView(this, readHistory, warning, exportReview, currentDay, Close);
+        view = new BreakReviewView(this, readHistory, warning, exportReview, currentDay, Close, getToday: getToday);
         Content = Ui.PageFrame(this, view);
     }
 }
@@ -37,7 +37,8 @@ internal sealed class BreakReviewView : UserControl
     private readonly Func<DateOnly, BreakReview> read;
     private readonly Func<string?> historyWarning;
     private readonly Func<BreakReview, Task<string?>> export;
-    private readonly DateOnly today;
+    private readonly Func<DateOnly> getToday;
+    private DateOnly today;
     private DateOnly endDay;
     private readonly TextBlock period = Ui.Text("", 17), summary = Ui.Text("", 22, Ui.Accent);
     private readonly TextBlock status = new() { Name = "ReviewStatus", TextWrapping = TextWrapping.Wrap };
@@ -50,11 +51,12 @@ internal sealed class BreakReviewView : UserControl
 
     public BreakReviewView(Window owner, Func<DateOnly, BreakReview> readHistory, Func<string?>? warning = null,
         Func<BreakReview, Task<string?>>? exportReview = null, DateOnly? currentDay = null, Action? close = null,
-        bool showHeader = true)
+        bool showHeader = true, Func<DateOnly>? getToday = null)
     {
         this.owner = owner; read = readHistory; historyWarning = warning ?? (() => null); export = exportReview ?? SaveCsv;
         returnToTimer = close ?? ReturnToSettingsTimer;
-        today = currentDay ?? DateOnly.FromDateTime(DateTime.Now); endDay = today; Review = read(endDay);
+        this.getToday = getToday ?? (() => currentDay ?? DateOnly.FromDateTime(DateTime.Now));
+        today = this.getToday(); endDay = today; Review = read(endDay);
         previous = Ui.Button("이전 7일", () => Navigate(-7));
         next = Ui.Button("다음 7일", () => Navigate(7));
         var save = Ui.AsyncButton("CSV 내보내기", async () =>
@@ -84,6 +86,7 @@ internal sealed class BreakReviewView : UserControl
 
     public void Refresh()
     {
+        UpdateToday();
         Review = read(endDay); period.Text = $"{Review.StartDay:yyyy-MM-dd} — {Review.EndDay:yyyy-MM-dd}";
         summary.Text = $"휴식 {Review.Entries.Count}회 · {Review.TotalSeconds / 60}분 {Review.TotalSeconds % 60}초 · {Review.DaysWithBreaks}일";
         summary.TextWrapping = TextWrapping.Wrap;
@@ -221,7 +224,17 @@ internal sealed class BreakReviewView : UserControl
 
     private void Navigate(int offset)
     {
-        endDay = endDay.AddDays(offset); expandedDates.Clear(); Refresh();
+        UpdateToday();
+        var requested = endDay.AddDays(offset);
+        endDay = requested > today ? today : requested < today.AddDays(-77) ? today.AddDays(-77) : requested;
+        expandedDates.Clear(); Refresh();
+    }
+
+    private void UpdateToday()
+    {
+        var latest = getToday();
+        if (endDay == today || endDay > latest) endDay = latest;
+        today = latest;
     }
 
     private void ReturnToSettingsTimer()

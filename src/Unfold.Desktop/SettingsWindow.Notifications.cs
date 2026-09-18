@@ -3,6 +3,7 @@ using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Layout;
+using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using Unfold.Core;
 
@@ -10,68 +11,152 @@ namespace Unfold.Desktop;
 
 public sealed partial class SettingsWindow
 {
+    private readonly ReminderSoundPlayer settingsSoundPlayer = new();
+    private Action? stopSoundPreview;
+    internal Func<ReminderSound, Task<string?>>? ChooseSoundFile { get; set; }
+    internal Func<ReminderSound, AppSettings, CancellationToken, Task>? PlaySoundPreview { get; set; }
+
     private Border BuildNotificationSettingsCard()
     {
-        var direction = new ComboBox { Name = "BubbleDirection", ItemsSource = Enum.GetValues<BubbleDirection>(),
-            SelectedItem = runtime.Settings.BubbleDirection, HorizontalAlignment = HorizontalAlignment.Stretch };
-        direction.ItemTemplate = new FuncDataTemplate<BubbleDirection>((value, _) => Ui.Text(value switch
-        { BubbleDirection.Top => "위", BubbleDirection.Bottom => "아래", BubbleDirection.Left => "왼쪽", _ => "오른쪽" }));
-        var sounds = new CheckBox { Name = "ReminderSoundsEnabled", Content = "알림 효과음 사용", IsChecked = runtime.Settings.ReminderSoundsEnabled };
-        var status = Ui.Caption("스트레칭 알림과 완료 알림에 서로 다른 효과음을 사용할 수 있어요."); status.Name = "SpeechSettingsStatus";
-        AutomationProperties.SetName(direction, "말풍선 위치");
-        var save = Ui.AsyncButton("적용", async () =>
+        bubbleDirection.ItemsSource = Enum.GetValues<BubbleDirection>();
+        bubbleDirection.Classes.Add("settings-choice");
+        bubbleDirection.Width = DesignSystem.SettingsChoiceWidth;
+        bubbleDirection.Height = DesignSystem.SettingsControlHeight;
+        bubbleDirection.HorizontalAlignment = HorizontalAlignment.Left;
+        bubbleDirection.MaxDropDownHeight = 180;
+        bubbleDirection.ItemTemplate = new FuncDataTemplate<BubbleDirection>((value, _) => new TextBlock
         {
-            try
-            {
-                await runtime.UpdateSettings(runtime.Settings with { BubbleDirection = (BubbleDirection)direction.SelectedItem!,
-                    ReminderSoundsEnabled = sounds.IsChecked == true });
-                status.Text = "알림 설정을 저장했어요.";
-            }
-            catch (Exception error) { status.Text = "저장하지 못했어요. " + Ui.ErrorText(error); AppPaths.Log(error); }
+            Text = value switch { BubbleDirection.Top => "위", BubbleDirection.Bottom => "아래", BubbleDirection.Left => "왼쪽", _ => "오른쪽" },
+            VerticalAlignment = VerticalAlignment.Center
         });
-        save.Name = "ApplySpeechSettings"; Ui.Primary(save); save.Classes.Add("compact");
-        var heading = new Grid { ColumnDefinitions = new("*,Auto") };
-        heading.Children.Add(Ui.Text("알림 설정", 17)); Grid.SetColumn(save, 1); heading.Children.Add(save);
+        bubbleDirection.ContainerPrepared += (_, e) => e.Container.Classes.Add("settings-choice-item");
+        var directionLabel = SettingsLabel("말풍선 위치");
+        Ui.KeyboardFocusLabel(bubbleDirection, directionLabel);
+        AutomationProperties.SetLabeledBy(bubbleDirection, directionLabel);
+        AutomationProperties.SetName(bubbleDirection, "말풍선 위치");
+        var position = new Grid { ColumnDefinitions = new("148,16,*") };
+        position.Children.Add(directionLabel); Grid.SetColumn(bubbleDirection, 2); position.Children.Add(bubbleDirection);
+        soundsEnabled.FontSize = DesignSystem.Body;
+        var previewButtons = new Dictionary<ReminderSound, Button>();
+        CancellationTokenSource? previewCancellation = null;
+        ReminderSound? playing = null;
+        AppSettings PendingSoundSettings() => runtime.Settings with
+        {
+            ReminderSoundsEnabled = soundsEnabled.IsChecked == true,
+            ReminderSoundId = dueSoundId, CompletionSoundId = completedSoundId,
+            ReminderSoundName = dueSoundName, CompletionSoundName = completedSoundName
+        };
+        void RefreshPlaybackButtons()
+        {
+            foreach (var (kind, button) in previewButtons)
+            {
+                button.Content = playing == kind ? "정지" : "미리듣기";
+                AutomationProperties.SetName(button, (kind == ReminderSound.Due ? "스트레칭 알림" : "완료 알림") +
+                    (playing == kind ? " 미리듣기 정지" : " 효과음 미리듣기"));
+            }
+        }
+        stopSoundPreview = () =>
+        {
+            previewCancellation?.Cancel(); previewCancellation = null;
+            settingsSoundPlayer.Stop(); playing = null; RefreshPlaybackButtons();
+        };
         Control SoundRow(string caption, ReminderSound kind)
         {
-            var label = Ui.Caption("");
-            void RefreshLabel() => label.Text = (kind == ReminderSound.Due ? runtime.Settings.ReminderSoundId : runtime.Settings.CompletionSoundId) is null ? "기본 효과음" : "가져온 WAV";
-            RefreshLabel();
-            var import = Ui.AsyncButton("파일…", async () =>
+            var label = Ui.Caption(""); label.Name = kind == ReminderSound.Due ? "DueSoundName" : "CompletionSoundName";
+            label.TextWrapping = TextWrapping.NoWrap; label.TextTrimming = TextTrimming.CharacterEllipsis;
+            void RefreshLabel()
             {
+                var id = kind == ReminderSound.Due ? dueSoundId : completedSoundId;
+                var name = kind == ReminderSound.Due ? dueSoundName : completedSoundName;
+                label.Text = id is null ? "기본 효과음" : name ?? "가져온 WAV · " + id[..8];
+                ToolTip.SetTip(label, label.Text);
+            }
+            refreshSoundNames += RefreshLabel;
+            RefreshLabel();
+            var play = Ui.Button("미리듣기", () => { });
+            play.Name = kind == ReminderSound.Due ? "PreviewDueSound" : "PreviewCompletionSound";
+            play.Width = DesignSystem.SettingsPreviewWidth;
+            previewButtons.Add(kind, play);
+            play.Click += async (_, _) =>
+            {
+                var stop = playing == kind; stopSoundPreview();
+                if (stop) return;
+                using var cancellation = new CancellationTokenSource();
+                previewCancellation = cancellation; playing = kind; RefreshPlaybackButtons();
                 try
                 {
-                    var files = await StorageProvider.OpenFilePickerAsync(new() { Title = caption + " 효과음 가져오기", AllowMultiple = false,
-                        FileTypeFilter = [new FilePickerFileType("WAV 효과음") { Patterns = ["*.wav"] }] });
-                    if (files.FirstOrDefault()?.TryGetLocalPath() is not { } path) return;
+                    preferencesStatus.IsVisible = false;
+                    await (PlaySoundPreview ?? settingsSoundPlayer.Preview)(kind, PendingSoundSettings(), cancellation.Token);
+                }
+                catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { }
+                catch (Exception error)
+                {
+                    if (!cancellation.IsCancellationRequested)
+                    { ShowPreferencesError("미리듣기를 하지 못했어요. " + Ui.ErrorText(error)); AppPaths.Log(error); }
+                }
+                finally
+                {
+                    if (previewCancellation == cancellation)
+                    { previewCancellation = null; playing = null; RefreshPlaybackButtons(); }
+                }
+            };
+            var import = Ui.AsyncButton("파일 가져오기", async () =>
+            {
+                soundImports++; RefreshPreferencesState();
+                try
+                {
+                    string? path;
+                    if (ChooseSoundFile is { } choose) path = await choose(kind);
+                    else
+                    {
+                        var files = await StorageProvider.OpenFilePickerAsync(new() { Title = caption + " 효과음 가져오기", AllowMultiple = false,
+                            FileTypeFilter = [new FilePickerFileType("WAV 효과음") { Patterns = ["*.wav"] }] });
+                        path = files.FirstOrDefault()?.TryGetLocalPath();
+                    }
+                    if (path is null) return;
                     var library = new ReminderSounds(Path.Combine(AppPaths.DataRoot, "Sounds"));
                     var id = await Task.Run(() => library.Import(path));
-                    await runtime.UpdateSettings(kind == ReminderSound.Due ? runtime.Settings with { ReminderSoundId = id } : runtime.Settings with { CompletionSoundId = id });
-                    RefreshLabel(); status.Text = caption + " 효과음을 저장했어요.";
+                    stopSoundPreview();
+                    var fileName = Path.GetFileName(path);
+                    if (kind == ReminderSound.Due) { dueSoundId = id; dueSoundName = fileName; }
+                    else { completedSoundId = id; completedSoundName = fileName; }
+                    RefreshLabel(); PreferencesEdited();
                 }
-                catch (Exception error) { status.Text = error is InvalidDataException ? error.Message : "효과음을 가져오지 못했어요."; AppPaths.Log(error); }
+                catch (Exception error) { ShowPreferencesError(error is InvalidDataException ? error.Message : "효과음을 가져오지 못했어요."); AppPaths.Log(error); }
+                finally { soundImports--; RefreshPreferencesState(); }
             });
             import.Name = kind == ReminderSound.Due ? "ImportDueSound" : "ImportCompletionSound";
+            import.Width = DesignSystem.SettingsImportWidth;
             AutomationProperties.SetName(import, caption + " 효과음 파일 가져오기");
-            var reset = Ui.AsyncButton("기본", async () =>
+            var reset = Ui.Button("기본", () =>
             {
-                try
-                {
-                    await runtime.UpdateSettings(kind == ReminderSound.Due ? runtime.Settings with { ReminderSoundId = null } : runtime.Settings with { CompletionSoundId = null });
-                    RefreshLabel(); status.Text = "기본 효과음으로 바꿨어요.";
-                }
-                catch (Exception error) { status.Text = "효과음을 저장하지 못했어요."; AppPaths.Log(error); }
+                stopSoundPreview();
+                if (kind == ReminderSound.Due) { dueSoundId = null; dueSoundName = null; }
+                else { completedSoundId = null; completedSoundName = null; }
+                RefreshLabel(); PreferencesEdited();
             });
+            reset.Name = kind == ReminderSound.Due ? "ResetDueSound" : "ResetCompletionSound";
+            reset.Width = DesignSystem.SettingsResetWidth; reset.Classes.Add("settings-reset");
             AutomationProperties.SetName(reset, caption + " 기본 효과음 사용");
-            import.Classes.Add("compact"); reset.Classes.Add("compact");
-            var row = new Grid { ColumnDefinitions = new("*,Auto,6,Auto") };
-            row.Children.Add(Ui.Column(Ui.Text(caption, 12), label)); Grid.SetColumn(import, 1); row.Children.Add(import); Grid.SetColumn(reset, 3); row.Children.Add(reset);
+            foreach (var button in new[] { play, import, reset })
+            { button.Classes.Add("compact"); button.Height = DesignSystem.SettingsControlHeight; }
+            var file = Ui.Column(SettingsLabel(caption), label); file.Spacing = 4;
+            var row = new Grid { Name = kind == ReminderSound.Due ? "DueSoundRow" : "CompletionSoundRow", ColumnDefinitions = new("*,24,Auto") };
+            row.Children.Add(file);
+            var actions = Ui.Row(play, import, reset); Grid.SetColumn(actions, 2); row.Children.Add(actions);
             return row;
         }
-        var body = Ui.Column(heading, Ui.Field("말풍선 위치", direction), sounds,
-            SoundRow("스트레칭 알림", ReminderSound.Due), SoundRow("완료 알림", ReminderSound.Completed),
-            Ui.Caption("WAV · 최대 30초 / 5 MiB"), status);
-        body.Margin = new Thickness(20); body.Spacing = 10;
+        var soundRows = Ui.Column(SoundRow("스트레칭 알림", ReminderSound.Due), SoundRow("완료 알림", ReminderSound.Completed));
+        soundRows.Spacing = DesignSystem.SettingsRowGap;
+        var soundGroup = Ui.Column(soundRows, soundsEnabled,
+            Ui.Caption("WAV · 최대 30초 / 5 MiB · 미리듣기는 알림 효과음을 꺼도 들을 수 있어요."));
+        soundGroup.Spacing = 12; soundRows.Margin = new(0, 24, 0, 8);
+        var fields = Ui.Column(position, soundGroup); fields.Spacing = 0;
+        var body = Ui.Column(SettingsHeading("알림 설정"), fields);
+        bubbleDirection.SelectionChanged += (_, _) => PreferencesEdited();
+        soundsEnabled.IsCheckedChanged += (_, _) => PreferencesEdited();
+        RefreshPlaybackButtons();
+        body.Margin = new(DesignSystem.Inset); body.Spacing = DesignSystem.Inset;
         return Card("SettingsNotificationCard", body, DesignSystem.Surface, new(28));
     }
 }

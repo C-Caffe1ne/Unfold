@@ -1,0 +1,152 @@
+{
+  "date": "2026-09-18",
+  "branch": "release/mvp",
+  "baseCommit": "5e91545aabefe3f89fee7cb5f8e20a55f17b92de",
+  "scope": "Settings tab UI redesign and unified save/cancel",
+  "tests": {
+    "focused": {
+      "source": "/tmp/unfold-settings-redesign.jynxCH/focused/_hwanghyeonseong-ui-MacBookAir_2026-09-18_20_28_20_net10.0.trx",
+      "counters": {
+        "total": "35",
+        "executed": "35",
+        "passed": "35",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      }
+    },
+    "preferences": {
+      "source": "/tmp/unfold-settings-redesign.jynxCH/preferences/_hwanghyeonseong-ui-MacBookAir_2026-09-18_20_31_05_net10.0.trx",
+      "counters": {
+        "total": "6",
+        "executed": "6",
+        "passed": "6",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      }
+    },
+    "full": {
+      "source": "/tmp/unfold-settings-redesign.jynxCH/full/_hwanghyeonseong-ui-MacBookAir_2026-09-18_20_32_12_net10.0.trx",
+      "counters": {
+        "total": "202",
+        "executed": "202",
+        "passed": "202",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      }
+    }
+  },
+  "smoke": {
+    "success": true,
+    "startupMs": 1301.8428,
+    "totalMs": 16692.9294,
+    "workingSetBytes": 189906944,
+    "managedBytes": 113519512,
+    "oneCoreCpuPercent": 75.062791822289,
+    "characters": 4,
+    "imageFiles": 46,
+    "completedBreaks": 1,
+    "simulatedSessionTiming": true,
+    "savedCustomRoutines": 2,
+    "workProfiles": 1,
+    "exportedBreaks": 1,
+    "simulatedExportDestination": true,
+    "timerPausedApplyWaitSeconds": 1.2,
+    "timerStopWaitSeconds": 1.2,
+    "timerControlsVerified": true,
+    "petSpeechDirectionsVerified": true,
+    "speechOvertimeAndFoldVerified": true,
+    "soundRequestsVerified": true,
+    "hiddenPetNoticeVerified": true,
+    "stopWhileOpening": true,
+    "petPackInstallUpdateRepairVerified": true,
+    "simulatedPackPicker": true,
+    "settingsLayout": {
+      "minimumWidth": 860,
+      "minimumHeight": 680,
+      "timerAndPetVisible": true,
+      "detailsScrollVerified": true,
+      "noHorizontalOverflow": true,
+      "inWindowTabsVerified": true,
+      "settingsTabVerified": true,
+      "homeTimingVerified": true,
+      "petManagementTabsVerified": true,
+      "routineProfileEntryRemoved": true,
+      "petDraftPreserved": true,
+      "petCardAddButtonRemoved": true,
+      "petSelectorWidth": 200,
+      "settingsOptionsScrollRequired": false,
+      "settingsOptionsExtentHeight": 554,
+      "settingsOptionsViewportHeight": 554,
+      "settingsOptionsTopOffset": 0,
+      "settingsOptionsBottomOffset": null,
+      "settingsOptionsCapturesDiffer": null,
+      "settingsOptionsCaptureFiles": [
+        "settings-options-overview.png"
+      ],
+      "settingsPreferencesStyling": {
+        "pinnedActions": true,
+        "dirtySave": true,
+        "cancelRestores": true,
+        "dropdownCaptured": true
+      }
+    },
+    "weeklyReview": {
+      "expandedCaptured": true,
+      "captureFile": "weekly-review-expanded.png",
+      "routineNameVisible": true,
+      "completionTimeVisible": true,
+      "actualDurationVisible": true
+    },
+    "customPetGifAuthoringVerified": true,
+    "sharedDesignDialogsVerified": true,
+    "pinnedPageActionsVerified": true,
+    "idleSeconds": 0.3456883,
+    "os": "Unix 26.6.2",
+    "framework": "10.0.12"
+  },
+  "smokeScreenshotCount": 46,
+  "archivedScreenshots": [
+    "docs/validation/images/2026-09-18-settings-ui-redesign/settings-direction-popup.png",
+    "docs/validation/images/2026-09-18-settings-ui-redesign/settings-options-default.png",
+    "docs/validation/images/2026-09-18-settings-ui-redesign/settings-options-dirty.png",
+    "docs/validation/images/2026-09-18-settings-ui-redesign/settings-options-minimum.png"
+  ],
+  "validationLimits": [
+    "macOS native off-screen rendering and programmatic UI actions; not a manual interaction session",
+    "Windows hardware not tested",
+    "Native file picker and perceived audio not manually tested"
+  ]
+}

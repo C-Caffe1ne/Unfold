@@ -20,6 +20,8 @@ public sealed partial record AppSettings
     public bool ReminderSoundsEnabled { get; init; } = true;
     public string? ReminderSoundId { get; init; }
     public string? CompletionSoundId { get; init; }
+    public string? ReminderSoundName { get; init; }
+    public string? CompletionSoundName { get; init; }
     public int? PetX { get; init; }
     public int? PetY { get; init; }
     public static AppSettings Load(string path)

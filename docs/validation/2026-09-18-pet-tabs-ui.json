@@ -1,0 +1,140 @@
+{
+  "date": "2026-09-18",
+  "scope": "Approved pet tabs UI and full-card action preview",
+  "environment": "macOS arm64; .NET 10.0.12; Avalonia 12.1.2",
+  "sourceRoot": "/tmp/unfold-pet-tabs-ui.Vt23p4",
+  "release": {
+    "exitCode": 0,
+    "trx": "/tmp/unfold-pet-tabs-ui.Vt23p4/full/_hwanghyeonseong-ui-MacBookAir_2026-09-18_22_01_53_net10.0.trx",
+    "counters": {
+      "total": "205",
+      "executed": "205",
+      "passed": "205",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    }
+  },
+  "newFocusedTests": {
+    "passed": 5,
+    "failed": 0
+  },
+  "smokeExitCode": 0,
+  "smoke": {
+    "success": true,
+    "startupMs": 1437.7453,
+    "totalMs": 16769.1647,
+    "workingSetBytes": 177717248,
+    "managedBytes": 157901464,
+    "oneCoreCpuPercent": 78.54983249991062,
+    "characters": 4,
+    "imageFiles": 46,
+    "completedBreaks": 1,
+    "simulatedSessionTiming": true,
+    "savedCustomRoutines": 2,
+    "workProfiles": 1,
+    "exportedBreaks": 1,
+    "simulatedExportDestination": true,
+    "timerPausedApplyWaitSeconds": 1.2,
+    "timerStopWaitSeconds": 1.2,
+    "timerControlsVerified": true,
+    "petSpeechDirectionsVerified": true,
+    "speechOvertimeAndFoldVerified": true,
+    "soundRequestsVerified": true,
+    "hiddenPetNoticeVerified": true,
+    "stopWhileOpening": true,
+    "petPackInstallUpdateRepairVerified": true,
+    "simulatedPackPicker": true,
+    "settingsLayout": {
+      "minimumWidth": 860,
+      "minimumHeight": 680,
+      "timerAndPetVisible": true,
+      "detailsScrollVerified": true,
+      "noHorizontalOverflow": true,
+      "inWindowTabsVerified": true,
+      "settingsTabVerified": true,
+      "homeTimingVerified": true,
+      "petManagementTabsVerified": true,
+      "routineProfileEntryRemoved": true,
+      "petDraftPreserved": true,
+      "petCardAddButtonRemoved": true,
+      "petSelectorWidth": 200,
+      "settingsOptionsScrollRequired": false,
+      "settingsOptionsExtentHeight": 554,
+      "settingsOptionsViewportHeight": 554,
+      "settingsOptionsTopOffset": 0,
+      "settingsOptionsBottomOffset": null,
+      "settingsOptionsCapturesDiffer": null,
+      "settingsOptionsCaptureFiles": [
+        "settings-options-overview.png"
+      ],
+      "settingsPreferencesStyling": {
+        "pinnedActions": true,
+        "dirtySave": true,
+        "cancelRestores": true,
+        "dropdownCaptured": true
+      }
+    },
+    "weeklyReview": {
+      "expandedCaptured": true,
+      "captureFile": "weekly-review-expanded.png",
+      "routineNameVisible": true,
+      "completionTimeVisible": true,
+      "actualDurationVisible": true
+    },
+    "customPetGifAuthoringVerified": true,
+    "petCardPreviewVerified": true,
+    "sharedDesignDialogsVerified": true,
+    "pinnedPageActionsVerified": true,
+    "idleSeconds": 63.3358969,
+    "os": "Unix 26.6.2",
+    "framework": "10.0.12"
+  },
+  "captures": [
+    {
+      "file": "docs/validation/images/2026-09-18-pet-tabs-ui/settings-pet-create-minimum.png",
+      "sha256": "9f37fe5078bdefaf3ff92a0b109b99ef3aa969fd09086f769573db87d7d65204"
+    },
+    {
+      "file": "docs/validation/images/2026-09-18-pet-tabs-ui/settings-pet-create-tab.png",
+      "sha256": "611523c4b06257987abc8ccb20c5c2a6b1170d01019cc3fe828e1f4727d3522c"
+    },
+    {
+      "file": "docs/validation/images/2026-09-18-pet-tabs-ui/settings-pet-open-minimum.png",
+      "sha256": "377f270ebf9545c9a52417855fab11010f27cb6e84997721eb34e59dc3d9ae41"
+    },
+    {
+      "file": "docs/validation/images/2026-09-18-pet-tabs-ui/settings-pet-open-tab.png",
+      "sha256": "79f48d163680faec3ab712a2afcd6c31c9f105f928fa93f8a488bdeb69a3c7fb"
+    },
+    {
+      "file": "docs/validation/images/2026-09-18-pet-tabs-ui/custom-pet-editor.png",
+      "sha256": "e19b1eb1846d0de43195502d948a3815c0b49f678827447148a96e449e7056a9"
+    },
+    {
+      "file": "docs/validation/images/2026-09-18-pet-tabs-ui/custom-pet-preview.png",
+      "sha256": "1853c3dd91625bc2851e5a4510d58ad8f473bf897164a3581e6d6942a764abec"
+    },
+    {
+      "file": "docs/validation/images/2026-09-18-pet-tabs-ui/pack-error.png",
+      "sha256": "06de5778f7dfe5a20aa1155c87463fd771149ee623ac75b2c0e97ca4f9d5d5a8"
+    }
+  ],
+  "unverified": [
+    "Real user pointer/keyboard and OS file chooser",
+    "Windows hardware",
+    "OS display scaling and multiple monitors",
+    "Real MP4 converter execution in this turn",
+    "Packaging/signing/notarization"
+  ]
+}

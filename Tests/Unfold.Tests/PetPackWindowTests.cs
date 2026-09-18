@@ -132,7 +132,7 @@ public class PetPackWindowTests
             window.Show(); Press(window, "OpenPetPack"); await Until(() => Button(window, "PausePackPreview").IsEnabled);
             window.Width = 800; window.Height = 800; Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
             var surface = window.GetVisualDescendants().OfType<Border>().Single(control => control.Name == "PackPreviewSurface");
-            Assert.Equal(520, surface.Bounds.Width, 0); Assert.Equal(260, Choice(window, "PackClip").Bounds.Width, 0);
+            Assert.Equal(520, surface.Bounds.Width, 0); Assert.Equal(200, Choice(window, "PackClip").Bounds.Width, 0);
             window.Width = 480; window.Height = 560; Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
             Choice(window, "PackBackground").SelectedIndex = 1; Choice(window, "PackSize").SelectedIndex = 2;
             window.UpdateLayout(); Dispatcher.UIThread.RunJobs();

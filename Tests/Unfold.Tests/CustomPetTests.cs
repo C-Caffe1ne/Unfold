@@ -119,7 +119,7 @@ public class CustomPetWindowTests
     private static string Label(Window window, string key) => Find<TextBlock>(window, "CustomPetLabel_" + key).Text ?? "";
     private static void AssertClipMetadataOnly(string label)
     {
-        Assert.Matches(@"^\d+×\d+ · \d+프레임 · \d+(?:\.\d+)?초$", label);
+        Assert.Matches(@"^\d+ × \d+px\n\d+프레임 · \d+(?:\.\d+)?초$", label);
         Assert.DoesNotContain(".gif", label);
         Assert.DoesNotContain(".mp4", label);
     }

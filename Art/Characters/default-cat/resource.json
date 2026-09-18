@@ -1,6 +1,6 @@
 {
   "id": "default-cat",
-  "contentVersion": "1.0.0",
+  "contentVersion": "1.0.1",
   "releaseStatus": "existing-prototype",
   "runtimeDirectory": "Assets/Characters/default-cat",
   "sourceStatus": "authoring-originals-not-verified",
@@ -9,9 +9,9 @@
   "rightsStatus": "needs-documentation",
   "rightsEvidence": [],
   "qualityFindings": [
-    "idle: 384x384; stretch: 480x480. Review scale and foot alignment.",
-    "stretch: 18 decoded frames, none with a fully transparent pixel. Rework from an RGBA source before a premium release.",
+    "idle and stretch now use the existing 384x384 transparent sprite sheet. Stretch uses 15 frames at 7 fps (indices 8 through 15 and back to 8).",
+    "Frame transparency and matching canvas sizes verified automatically. Final animation polish, DPI and authoring rights still require review.",
     "attention, celebrate and click clips are not supplied."
   ],
-  "notes": "Existing Mochi exports retained byte-for-byte. Confirm original authoring files and distribution rights before selling this resource. This ledger is not a runtime manifest or a purchase entitlement."
+  "notes": "2026-09-18: remapped runtime stretch from the opaque legacy GIF to existing RGBA sheet frames; original image bytes and legacy GIF preserved. Confirm original authoring files and distribution rights before selling this resource. This ledger is not a runtime manifest or a purchase entitlement."
 }

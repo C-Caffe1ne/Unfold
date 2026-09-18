@@ -69,7 +69,7 @@ public sealed class AppRuntime : IDisposable
     private readonly Dictionary<string, Task<IReadOnlyList<AnimationFrame>>> clips = [];
     private readonly List<CharacterPackage> builtIns = [];
     private TrayIcon? tray;
-    private NativeMenuItem? trayStatus, trayPause, trayPet, trayExpand;
+    private NativeMenuItem? trayStatus, trayPause, trayPet, trayExpand, trayFocusReminder;
     private SettingsWindow? settingsWindow;
     private EditorWindow? editor;
     private PetWindow? pet;
@@ -168,6 +168,7 @@ public sealed class AppRuntime : IDisposable
         if (tray is not null) tray.ToolTipText = TrayStatus.ToolTip;
         if (trayStatus is not null) trayStatus.Header = TrayStatus.Status;
         if (trayExpand is not null) trayExpand.IsEnabled = TrayStatus.CanExpand;
+        if (trayFocusReminder is not null) trayFocusReminder.IsEnabled = Reminder.Session is not null;
         if (trayPause is not null) trayPause.Header = Clock.Stopped ? "시작" : Clock.Paused ? "계속" : "일시정지";
         if (trayPet is not null) trayPet.Header = Settings.ShowPet ? "펫 숨기기" : "펫 표시";
     }
@@ -299,6 +300,16 @@ public sealed class AppRuntime : IDisposable
         try { await UpdateSettings(Settings with { BubbleCollapsed = false }); }
         catch (Exception error) { AppPaths.Log(error); }
     }
+    public async Task FocusReminder()
+    {
+        if (Reminder.Session is null) return;
+        try
+        {
+            await UpdateSettings(Settings with { BubbleCollapsed = false });
+            pet?.FocusReminder();
+        }
+        catch (Exception error) { AppPaths.Log(error); }
+    }
     private async Task EnsurePetNotice()
     {
         try { await UpdatePet(); }
@@ -354,6 +365,8 @@ public sealed class AppRuntime : IDisposable
         trayStatus = new NativeMenuItem("다음 휴식") { IsEnabled = false }; menu.Items.Add(trayStatus);
         trayExpand = new NativeMenuItem("휴식 알림 펼치기") { IsEnabled = false }; menu.Items.Add(trayExpand);
         trayExpand.Click += async (_, _) => await ExpandReminder();
+        trayFocusReminder = new NativeMenuItem("휴식 알림으로 이동") { IsEnabled = false }; menu.Items.Add(trayFocusReminder);
+        trayFocusReminder.Click += async (_, _) => await FocusReminder();
         void Item(string text, Action action) { var item = new NativeMenuItem(text); item.Click += (_, _) => action(); menu.Items.Add(item); }
         Item("설정", ShowSettings);
         trayPet = new NativeMenuItem("펫 숨기기"); menu.Items.Add(trayPet);
@@ -371,6 +384,7 @@ public sealed class AppRuntime : IDisposable
         quitPending = true;
         try
         {
+            if (settingsWindow is not null && !await settingsWindow.CanCloseDraft()) return;
             if (editor is not null && !await editor.CanCloseDocument()) return;
             quitting = true; editor?.CloseAfterApproval(); Dispose(); desktop.Shutdown();
         }

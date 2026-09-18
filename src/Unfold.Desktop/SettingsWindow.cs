@@ -20,10 +20,9 @@ public sealed partial class SettingsWindow : Window, IDisposable
     private readonly TimerControls timerControls;
     private readonly CheckBox showPet;
     private readonly NumericUpDown interval, breakDuration, idle, snooze;
-    private readonly Button homeTimingApply, reminderApply;
+    private readonly Button homeTimingApply;
     private readonly TextBlock homeTimingStatus = new() { Text = "스트레칭 시간은 타이머를 일시정지하거나 중지한 뒤 바꿀 수 있어요.", FontSize = 12, TextWrapping = TextWrapping.Wrap, Foreground = DesignSystem.Muted };
-    private readonly TextBlock reminderSettingsStatus = new() { Text = "자리 비움과 다시 알림 시간을 설정해 주세요.", FontSize = 12, TextWrapping = TextWrapping.Wrap, Foreground = DesignSystem.Muted };
-    private int displayedInterval, displayedBreakDuration, displayedIdle, displayedSnooze;
+    private int displayedInterval, displayedBreakDuration;
     private bool? intervalEditingAvailable;
     private CharacterPackage? previewCharacter;
     private bool updating;
@@ -35,10 +34,10 @@ public sealed partial class SettingsWindow : Window, IDisposable
         breakDuration = new NumericUpDown { Name = "BreakDurationMinutes", Minimum = 1, Maximum = 10, Value = runtime.Settings.BreakDurationMinutes, Increment = 1, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch, FormatString = "0" };
         idle = new NumericUpDown { Name = "ReminderIdle", Minimum = 1, Maximum = 60, Value = runtime.Settings.IdleMinutes, Increment = 1, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch, FormatString = "0" };
         snooze = new NumericUpDown { Name = "SnoozeMinutes", Minimum = 1, Maximum = 60, Value = runtime.Settings.SnoozeMinutes, Increment = 1, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch, FormatString = "0" };
-        displayedInterval = runtime.Settings.IntervalMinutes; displayedIdle = runtime.Settings.IdleMinutes;
-        displayedBreakDuration = runtime.Settings.BreakDurationMinutes; displayedSnooze = runtime.Settings.SnoozeMinutes;
+        displayedInterval = runtime.Settings.IntervalMinutes;
+        displayedBreakDuration = runtime.Settings.BreakDurationMinutes;
         timerControls = new(runtime.TogglePause, runtime.Stop);
-        AutomationProperties.SetName(interval, "스트레칭 시간, 분 단위");
+        AutomationProperties.SetName(interval, "스트레칭 알림 간격, 분 단위");
         AutomationProperties.SetName(breakDuration, "휴식 시간, 분 단위");
         AutomationProperties.SetName(idle, "자리 비움 시간, 분 단위");
         AutomationProperties.SetName(snooze, "다시 알림 시간, 분 단위");
@@ -58,19 +57,6 @@ public sealed partial class SettingsWindow : Window, IDisposable
         homeTimingApply.Name = "ApplyHomeTimingSettings";
         AutomationProperties.SetName(homeTimingApply, "스트레칭과 휴식 시간 적용");
         ToolTip.SetTip(homeTimingApply, "변경한 스트레칭과 휴식 시간 적용");
-        reminderApply = Ui.AsyncButton("적용", async () =>
-        {
-            if (idle.Value is not decimal away || away is < 1 or > 60 || decimal.Truncate(away) != away ||
-                snooze.Value is not decimal remindAgain || remindAgain is < 1 or > 60 || decimal.Truncate(remindAgain) != remindAgain)
-            {
-                reminderSettingsStatus.Text = "분 단위의 정수를 입력해 주세요. 자리 비움과 다시 알림 시간은 1~60분이에요.";
-                reminderSettingsStatus.Foreground = DesignSystem.Error; return;
-            }
-            await SaveTimerSettings((int)away, (int)remindAgain);
-        });
-        reminderApply.Name = "ApplyReminderSettings";
-        AutomationProperties.SetName(reminderApply, "타이머 설정 적용");
-        ToolTip.SetTip(reminderApply, "변경한 타이머 설정 적용");
         showPet = new CheckBox { Content = "바탕화면에 펫 표시", IsChecked = runtime.Settings.ShowPet };
         showPet.IsCheckedChanged += async (_, _) =>
         {
@@ -105,15 +91,44 @@ public sealed partial class SettingsWindow : Window, IDisposable
             try { await runtime.UpdateSettings(runtime.Settings with { SelectedCharacterId = selected.Manifest.Id }); }
             catch (Exception error) { updating = true; characters.SelectedItem = runtime.Selected; updating = false; await Ui.Error(this, error); }
         };
+        homeTimingStatus.Name = "HomeTimingStatus";
         Content = BuildDashboard(login);
+        interval.ValueChanged += (_, _) => TimingEdited();
+        breakDuration.ValueChanged += (_, _) => TimingEdited();
+        foreach (var input in new[] { idle, snooze })
+            input.PropertyChanged += (_, e) =>
+            {
+                if (e.Property == NumericUpDown.ValueProperty || e.Property == NumericUpDown.TextProperty) PreferencesEdited();
+            };
         Closing += (_, e) => { e.Cancel = true; HideToTray(); };
         Opened += (_, _) => preview.SetRunning(true);
         runtime.Changed += Refresh; Closed += (_, _) => Dispose();
         Refresh();
     }
-    public void Dispose() { runtime.Changed -= Refresh; preview.Dispose(); petPage?.Dispose(); }
-    public void HideToTray() { Hide(); preview.SetRunning(false); }
+    public void Dispose() { runtime.Changed -= Refresh; stopSoundPreview?.Invoke(); settingsSoundPlayer.Dispose(); preview.Dispose(); petPage?.Dispose(); }
+    public void HideToTray() { stopSoundPreview?.Invoke(); Hide(); preview.SetRunning(false); }
     public void ResumePreview() => preview.SetRunning(true);
+    private void TimingEdited()
+    {
+        if (updating) return;
+        var dirty = interval.Value != runtime.Settings.IntervalMinutes || breakDuration.Value != runtime.Settings.BreakDurationMinutes;
+        var message = homeTimingStatus;
+        message.Foreground = dirty ? DesignSystem.Warning : DesignSystem.Muted;
+        message.Text = dirty ? "변경사항이 있어요. 적용을 눌러 저장해 주세요." : "저장된 설정과 같아요.";
+    }
+    internal async Task<bool> CanCloseDraft()
+    {
+        if (petPage is null) return true;
+        if (petPage.IsBusy)
+        {
+            Show(); Activate();
+            await Ui.Confirm(this, "파일 작업 중이에요", "파일을 확인하거나 저장하고 있어요. 작업이 끝난 뒤 종료해 주세요.", "확인");
+            return false;
+        }
+        if (!petPage.HasUnsavedDraft) return true;
+        Show(); Activate(); await OpenPetPacks();
+        return await petPage.CanCloseDraft();
+    }
     private async Task SaveHomeTimingSettings(int minutes, int rest)
     {
         try
@@ -126,18 +141,6 @@ public sealed partial class SettingsWindow : Window, IDisposable
         catch (Exception error) when (error is ArgumentException or IOException or UnauthorizedAccessException)
         { AppPaths.Log(error); homeTimingStatus.Foreground = DesignSystem.Error; homeTimingStatus.Text = "시간을 저장하지 못했어요. 다시 적용해 주세요."; }
     }
-    private async Task SaveTimerSettings(int away, int remindAgain)
-    {
-        try
-        {
-            var updated = runtime.Settings with { IdleMinutes = away, SnoozeMinutes = remindAgain,
-                ActiveProfileId = away == runtime.Settings.IdleMinutes ? runtime.Settings.ActiveProfileId : null };
-            await runtime.UpdateSettings(updated);
-            reminderSettingsStatus.Foreground = DesignSystem.Muted; reminderSettingsStatus.Text = "타이머 설정을 저장했어요.";
-        }
-        catch (Exception error) when (error is ArgumentException or IOException or UnauthorizedAccessException)
-        { AppPaths.Log(error); reminderSettingsStatus.Foreground = DesignSystem.Error; reminderSettingsStatus.Text = "타이머 설정을 저장하지 못했어요. 다시 적용해 주세요."; }
-    }
     private async void Refresh()
     {
         if (updating) return; updating = true;
@@ -146,7 +149,8 @@ public sealed partial class SettingsWindow : Window, IDisposable
         {
             countdown.Text = $"{(int)runtime.Clock.Remaining.TotalMinutes:00}:{runtime.Clock.Remaining.Seconds:00}";
             var stateBrush = DesignSystem.Cream;
-            state.Text = runtime.ActivityError ?? (runtime.ActiveReminder is not null ? "휴식 중 · 타이머 대기" :
+            state.Text = runtime.ActivityError ?? (runtime.Reminder.Notice == PetNotice.Invitation ? "휴식 대기 중 · 시작하거나 미뤄 주세요" :
+                runtime.Reminder.Notice == PetNotice.Resting ? "휴식 중 · 작업 타이머 대기" :
                 runtime.Clock.Stopped ? "중지됨 · 재생하면 새로 시작" : runtime.Clock.Paused ? "일시정지 · 남은 시간 유지 중" :
                 runtime.Clock.IdlePaused ? "자리 비움 · 자동 일시정지" : "진행 중 · 작업 시간 측정 중");
             if (runtime.ActivityError is not null || runtime.Clock.Stopped) stateBrush = DesignSystem.Error;
@@ -163,7 +167,8 @@ public sealed partial class SettingsWindow : Window, IDisposable
             timerControls.Refresh(runtime.Clock);
             var canEditInterval = runtime.CanEditTimerInterval;
             interval.IsEnabled = canEditInterval;
-            if (!canEditInterval && interval.Value != runtime.Settings.IntervalMinutes)
+            var discardedInterval = !canEditInterval && interval.Value != runtime.Settings.IntervalMinutes;
+            if (discardedInterval)
                 interval.Value = runtime.Settings.IntervalMinutes;
             if (intervalEditingAvailable != canEditInterval)
             {
@@ -174,11 +179,15 @@ public sealed partial class SettingsWindow : Window, IDisposable
                     : "휴식 시간은 지금 바꿀 수 있어요. 스트레칭 시간은 일시정지하거나 중지한 뒤 변경해 주세요.";
                 ToolTip.SetTip(interval, canEditInterval ? "1분 단위로 스트레칭 시간을 변경할 수 있어요." : "타이머 진행 중에는 스트레칭 시간을 변경할 수 없어요.");
             }
+            if (discardedInterval)
+            {
+                homeTimingStatus.Foreground = DesignSystem.Warning;
+                homeTimingStatus.Text = "적용하지 않은 알림 간격은 되돌렸어요. 저장된 간격으로 진행해요.";
+            }
             showPet.IsChecked = runtime.Settings.ShowPet;
             if (displayedInterval != runtime.Settings.IntervalMinutes) interval.Value = displayedInterval = runtime.Settings.IntervalMinutes;
             if (displayedBreakDuration != runtime.Settings.BreakDurationMinutes) breakDuration.Value = displayedBreakDuration = runtime.Settings.BreakDurationMinutes;
-            if (displayedIdle != runtime.Settings.IdleMinutes) idle.Value = displayedIdle = runtime.Settings.IdleMinutes;
-            if (displayedSnooze != runtime.Settings.SnoozeMinutes) snooze.Value = displayedSnooze = runtime.Settings.SnoozeMinutes;
+            SyncPreferencesFromRuntime();
             if (!ReferenceEquals(characters.ItemsSource, runtime.Characters)) characters.ItemsSource = runtime.Characters;
             characters.SelectedItem = runtime.Selected;
             if (runtime.Selected is { } selected && previewCharacter != selected)

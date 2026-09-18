@@ -99,7 +99,7 @@ public class TimerControlTests
         var settingsControls = scope.Window.GetVisualDescendants().OfType<NumericUpDown>().ToArray();
         settingsControls.Single(input => input.Name == "ReminderIdle").Value = 12;
         settingsControls.Single(input => input.Name == "SnoozeMinutes").Value = 9;
-        Press(scope.Window, "ApplyReminderSettings"); Dispatcher.UIThread.RunJobs();
+        Press(scope.Window, "SavePreferences"); Dispatcher.UIThread.RunJobs();
         Assert.Equal(12, scope.Runtime.Settings.IdleMinutes); Assert.Equal(9, scope.Runtime.Settings.SnoozeMinutes);
         Assert.Equal(12, settingsControls.Single(input => input.Name == "ReminderIdle").Value);
     }

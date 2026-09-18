@@ -126,12 +126,13 @@ public sealed class PetWindow : Window
     public void ShowPet() { Show(); RefreshSpeech(); hitTimer.Start(); animation.SetRunning(true); }
     public void HidePet() { generation++; character = null; Hide(); hitTimer.Stop(); animation.SetRunning(false); }
     public void ClosePet() { generation++; hitTimer.Stop(); Close(); }
+    internal void FocusReminder() { Activate(); bubble.FocusAction(); }
     public void RefreshSpeech()
     {
         bubble.Refresh(runtime.Reminder, runtime.Settings.SnoozeMinutes);
         fold.Header = runtime.Settings.BubbleCollapsed ? "말풍선 펼치기" : "말풍선 접기";
         var expanded = runtime.Reminder.HasNotice && !runtime.Settings.BubbleCollapsed;
-        var next = PetBubbleLayout.Create(runtime.Settings.BubbleDirection, expanded);
+        var next = PetBubbleLayout.Create(runtime.Settings.BubbleDirection, expanded, bubble.Height);
         // The badge tracks the reminder even when the layout is unchanged, so it has to be
         // updated ahead of the early return below.
         RefreshBadge(next.Pet);

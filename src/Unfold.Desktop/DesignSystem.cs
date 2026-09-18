@@ -23,7 +23,12 @@ public static class DesignSystem
     public static readonly IBrush Outline = OutlineSubtle;
     public const double Caption = 12, Body = 14, Section = 18, Title = 24;
     public const double Space = 8, Gap = 12, Inset = 20;
+    public const double SettingsContentWidth = 760, SettingsControlHeight = 40, SettingsChoiceWidth = 200,
+        SettingsNumberWidth = 160, SettingsRowGap = 16, SettingsActionWidth = 80,
+        SettingsPreviewWidth = 80, SettingsImportWidth = 104, SettingsResetWidth = 64;
     public const double FocusRingWidth = 2, FocusRingOffset = 2;
+    public const double PetContentWidth = 760, PetControlHeight = 40, PetChoiceWidth = 200,
+        PetPreviewOptionWidth = 148, PetPreviewWidth = 520, PetActionWidth = 128, PetActionHeight = 148;
     public static readonly Thickness BorderSubtle = new(1), BorderStrong = new(1);
     public static readonly CornerRadius ControlRadius = new(12), CardRadius = new(24), FrameRadius = new(32);
 
@@ -116,7 +121,8 @@ public static class DesignSystem
         foreach (var state in new[] { "", ":pointerover", ":focus", ":focus-within", ":disabled" })
             styles.Add(new Style(s =>
             {
-                var input = s.OfType<ComboBox>();
+                var input = s.OfType<ComboBox>().Not(selector => selector.Class("settings-choice"))
+                    .Not(selector => selector.Class("pet-choice")).Not(selector => selector.Class("pet-preview-choice"));
                 return (state.Length == 0 ? input : input.Class(state)).Template().OfType<Border>();
             }) { Setters =
             {
@@ -204,7 +210,84 @@ public static class DesignSystem
         { new Setter(TemplatedControl.BackgroundProperty, Surface), new Setter(TemplatedControl.CornerRadiusProperty, ControlRadius) }});
         styles.Add(new Style(s => s.OfType<ListBoxItem>()) { Setters =
         { new Setter(TemplatedControl.PaddingProperty, new Thickness(12, 10)), new Setter(TemplatedControl.CornerRadiusProperty, new CornerRadius(8)) }});
+        AddChoiceStyles(styles, "settings-choice", SettingsChoiceWidth);
+        AddChoiceStyles(styles, "pet-choice", PetChoiceWidth);
+        AddChoiceStyles(styles, "pet-preview-choice", PetPreviewOptionWidth);
+        styles.Add(new Style(s => s.OfType<Button>().Class("settings-reset")) { Setters =
+        { new Setter(TemplatedControl.BackgroundProperty, Brushes.Transparent), new Setter(TemplatedControl.ForegroundProperty, Muted) }});
+        AddPetCardStyles(styles);
         app.Styles.Add(styles);
+    }
+
+    private static void AddChoiceStyles(Styles styles, string className, double popupWidth)
+    {
+        styles.Add(new Style(s => s.OfType<ComboBox>().Class(className)) { Setters =
+        {
+            new Setter(TemplatedControl.PaddingProperty, new Thickness(12, 0)),
+            new Setter(ContentControl.VerticalContentAlignmentProperty, VerticalAlignment.Center)
+        }});
+        foreach (var state in new[] { "", ":pointerover", ":pressed", ":focus", ":focus-visible", ":focus-within", ":disabled" })
+        {
+            Selector Choice(Selector? selector)
+            {
+                var choice = selector.OfType<ComboBox>().Class(className);
+                return state.Length == 0 ? choice : choice.Class(state);
+            }
+            styles.Add(new Style(s => Choice(s).Template().OfType<Border>().Name("Background")) { Setters =
+            {
+                new Setter(Border.BackgroundProperty, Shell), new Setter(Border.BorderBrushProperty, OutlineStrong),
+                new Setter(Border.BorderThicknessProperty, BorderStrong), new Setter(Border.CornerRadiusProperty, ControlRadius)
+            }});
+            foreach (var name in new[] { "HighlightBackground", "DropDownOverlay" })
+                styles.Add(new Style(s => Choice(s).Template().OfType<Border>().Name(name)) { Setters =
+                { new Setter(Visual.IsVisibleProperty, false) }});
+        }
+        styles.Add(new Style(s => s.OfType<ComboBox>().Class(className).Template().OfType<Popup>().Name("PART_Popup")) { Setters =
+        { new Setter(Layoutable.WidthProperty, popupWidth) }});
+        styles.Add(new Style(s => s.OfType<ComboBox>().Class(className).Template().OfType<Border>().Name("PopupBorder")) { Setters =
+        {
+            new Setter(Border.BackgroundProperty, Surface), new Setter(Border.BorderBrushProperty, OutlineStrong),
+            new Setter(Border.BorderThicknessProperty, BorderStrong), new Setter(Border.PaddingProperty, new Thickness(4)),
+            new Setter(Border.CornerRadiusProperty, ControlRadius)
+        }});
+        styles.Add(new Style(s => s.OfType<ComboBox>().Class(className).Template().OfType<ItemsPresenter>().Name("PART_ItemsPresenter")) { Setters =
+        { new Setter(Layoutable.MarginProperty, new Thickness(0)) }});
+        styles.Add(new Style(s => s.OfType<ComboBoxItem>().Class(className + "-item")) { Setters =
+        {
+            new Setter(Layoutable.MinHeightProperty, 36d), new Setter(Layoutable.MarginProperty, new Thickness(0)),
+            new Setter(TemplatedControl.PaddingProperty, new Thickness(12, 8)), new Setter(TemplatedControl.CornerRadiusProperty, new CornerRadius(8))
+        }});
+        foreach (var state in new[] { ":pointerover", ":selected" })
+            styles.Add(new Style(s => s.OfType<ComboBoxItem>().Class(className + "-item").Class(state)
+                .Template().OfType<ContentPresenter>().Name("PART_ContentPresenter")) { Setters =
+            {
+                new Setter(ContentPresenter.BackgroundProperty, state == ":selected" ? Cream : Raised),
+                new Setter(ContentPresenter.ForegroundProperty, state == ":selected" ? Ink : Cream)
+            }});
+    }
+
+    private static void AddPetCardStyles(Styles styles)
+    {
+        styles.Add(new Style(s => s.OfType<Button>().Class("pet-action-preview")) { Setters =
+        {
+            new Setter(TemplatedControl.BackgroundProperty, Brushes.Transparent),
+            new Setter(TemplatedControl.BorderThicknessProperty, new Thickness(0)),
+            new Setter(TemplatedControl.PaddingProperty, new Thickness(0)),
+            new Setter(TemplatedControl.CornerRadiusProperty, new CornerRadius(18)),
+            new Setter(Layoutable.MinHeightProperty, 0d)
+        }});
+        foreach (var state in new[] { "", ":pointerover", ":pressed", ":disabled", ":focus-visible" })
+            styles.Add(new Style(s =>
+            {
+                var button = s.OfType<Button>().Class("pet-action-preview");
+                return (state.Length == 0 ? button : button.Class(state))
+                    .Template().OfType<ContentPresenter>().Name("PART_ContentPresenter");
+            }) { Setters =
+            {
+                new Setter(ContentPresenter.BackgroundProperty, Brushes.Transparent),
+                new Setter(ContentPresenter.BorderBrushProperty, state == ":focus-visible" ? Cream : Brushes.Transparent),
+                new Setter(ContentPresenter.BorderThicknessProperty, new Thickness(1))
+            }});
     }
 
     private static Color ColorOf(IBrush brush) => ((ISolidColorBrush)brush).Color;

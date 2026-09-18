@@ -198,7 +198,7 @@ internal static class SmokeDiagnostics
                 workProfiles = runtime.Settings.WorkProfiles.Count, exportedBreaks = 1, simulatedExportDestination = true,
                 timerPausedApplyWaitSeconds = 1.2, timerStopWaitSeconds = 1.2, timerControlsVerified = true, petSpeechDirectionsVerified = true, speechOvertimeAndFoldVerified = true, soundRequestsVerified = true, hiddenPetNoticeVerified = true, stopWhileOpening,
                 petPackInstallUpdateRepairVerified = true, simulatedPackPicker = true, settingsLayout, weeklyReview,
-                customPetGifAuthoringVerified = true,
+                customPetGifAuthoringVerified = true, petCardPreviewVerified = true,
                 sharedDesignDialogsVerified = true, pinnedPageActionsVerified = true,
                 idleSeconds = PlatformServices.IdleTime().TotalSeconds, os = Environment.OSVersion.ToString(), framework = Environment.Version.ToString() };
             AtomicFile.Write(Path.Combine(directory, "smoke.json"), JsonSerializer.SerializeToUtf8Bytes(report, CharacterLibrary.JsonOptions));
@@ -287,6 +287,15 @@ internal static class SmokeDiagnostics
             Button Create() => window.GetVisualDescendants().OfType<Button>().Single(button => button.Name == "CreateCustomPetPack");
             await Until(() => Create().IsEnabled);
             Press(window, "CustomPetFile_click"); await Until(() => Create().IsEnabled);
+            Press(window, "CustomPetPreview_idle");
+            await Until(() => window.GetVisualDescendants().OfType<TextBlock>()
+                .Single(text => text.Name == "CustomPetPreviewAction").Text == "미리보기 · 쉬는 모습");
+            window.UpdateLayout();
+            var selectedCard = window.GetVisualDescendants().OfType<Border>().Single(card => card.Name == "CustomPetSlot_idle");
+            var cardPreview = window.GetVisualDescendants().OfType<Button>().Single(button => button.Name == "CustomPetPreview_idle");
+            if (selectedCard.BorderBrush != DesignSystem.Cream || cardPreview.Content is PathIcon ||
+                Math.Abs(cardPreview.Bounds.Width - selectedCard.Bounds.Width + 2) > 1)
+                throw new InvalidOperationException("The selected action does not use a full-card preview control.");
             Capture(window, Path.Combine(directory, "custom-pet-editor.png"));
             VerifyBodyScrollGutter(window, PetBuilderControls);
             VerifyPetActionCards(window, expectWrap: true);
@@ -411,6 +420,8 @@ internal static class SmokeDiagnostics
         var rows = slots.Children.Select(card => Math.Round(card.Bounds.Y, 1)).Distinct().Count();
         if (expectWrap && rows <= 1)
             throw new InvalidOperationException("The pet action cards did not wrap at a narrow window size.");
+        if (!expectWrap && rows != 1)
+            throw new InvalidOperationException("The five pet action cards do not fit on one row.");
         foreach (var card in slots.Children)
             if (card.Bounds.X < -.5 || card.Bounds.Right > slots.Bounds.Width + .5)
                 throw new InvalidOperationException($"The pet action card {card.Name} overflows horizontally.");
@@ -451,7 +462,7 @@ internal static class SmokeDiagnostics
                 throw new InvalidOperationException("Pet navigation did not open the two in-window tabs.");
             var packPreview = window.GetVisualDescendants().OfType<Border>().Single(control => control.Name == "PackPreviewSurface");
             var packClip = window.GetVisualDescendants().OfType<ComboBox>().Single(control => control.Name == "PackClip");
-            if (Math.Abs(packPreview.Bounds.Width - 520) > 1 || Math.Abs(packClip.Bounds.Width - 260) > 1)
+            if (Math.Abs(packPreview.Bounds.Width - 520) > 1 || Math.Abs(packClip.Bounds.Width - 200) > 1)
                 throw new InvalidOperationException("The pet pack preview or action picker is not compact.");
             Capture(window, Path.Combine(directory, "settings-pet-open-tab.png"));
             petTabs.SelectedIndex = 1; await Task.Delay(100); window.UpdateLayout();
@@ -479,6 +490,13 @@ internal static class SmokeDiagnostics
             var petScroll = window.GetVisualDescendants().OfType<ScrollViewer>().Single(control => control.Name == "PageBodyScroll");
             if (petScroll.Extent.Width > petScroll.Viewport.Width + 1)
                 throw new InvalidOperationException("Pet builder overflows horizontally.");
+            foreach (var key in CustomPetDraft.Actions)
+            {
+                var add = window.GetVisualDescendants().OfType<Button>().Single(control => control.Name == "CustomPetFile_" + key);
+                var location = add.TranslatePoint(default, petScroll)!.Value;
+                if (location.Y < 0 || location.Y + add.Bounds.Height > petScroll.Viewport.Height + 1)
+                    throw new InvalidOperationException($"The {key} action needs scrolling at the minimum settings size.");
+            }
             VerifyBodyScrollGutter(window, PetBuilderControls);
             petScroll.ScrollToEnd(); await Task.Delay(100); window.UpdateLayout();
             VerifyBodyScrollGutter(window, PetBuilderControls);
@@ -560,6 +578,7 @@ internal static class SmokeDiagnostics
                 Capture(window, Path.Combine(directory, overviewFile));
                 settingsOptionsCaptureFiles = [overviewFile];
             }
+            var settingsPreferencesStyling = await VerifyPreferencesStyling(window, directory);
             Press(window, "SettingsNavTimer"); await Task.Delay(100);
             return new { minimumWidth = window.ClientSize.Width, minimumHeight = window.ClientSize.Height,
                 timerAndPetVisible = true, detailsScrollVerified = true, noHorizontalOverflow = true,
@@ -567,13 +586,55 @@ internal static class SmokeDiagnostics
                 routineProfileEntryRemoved = true,
                 petDraftPreserved = true, petCardAddButtonRemoved = true, petSelectorWidth = picker.Bounds.Width,
                 settingsOptionsScrollRequired, settingsOptionsExtentHeight, settingsOptionsViewportHeight,
-                settingsOptionsTopOffset, settingsOptionsBottomOffset, settingsOptionsCapturesDiffer, settingsOptionsCaptureFiles };
+                settingsOptionsTopOffset, settingsOptionsBottomOffset, settingsOptionsCapturesDiffer, settingsOptionsCaptureFiles,
+                settingsPreferencesStyling };
         }
         finally
         {
             window.Width = width; window.Height = height; window.MinWidth = minWidth; window.MinHeight = minHeight;
             scroll.ScrollToHome(); await Task.Delay(100);
         }
+    }
+    private static async Task<object> VerifyPreferencesStyling(Window window, string directory)
+    {
+        T Find<T>(string name) where T : Control => window.GetVisualDescendants().OfType<T>().Single(control => control.Name == name);
+        var save = Find<Button>("SavePreferences"); var cancel = Find<Button>("CancelPreferences");
+        var scroll = Find<ScrollViewer>("SettingsPreferencesScroll");
+        var idle = Find<NumericUpDown>("ReminderIdle"); var oldIdle = idle.Value;
+        var choice = Find<ComboBox>("BubbleDirection");
+        if (save.IsEnabled) throw new InvalidOperationException("The unchanged preferences form enabled Save.");
+        foreach (var size in new[] { new Size(860, 680), new Size(1120, 800) })
+        {
+            window.Width = size.Width; window.Height = size.Height; await Task.Delay(100); window.UpdateLayout();
+            scroll.ScrollToHome(); await Task.Delay(50); window.UpdateLayout();
+            var top = scroll.TranslatePoint(default, window)!.Value;
+            var action = save.TranslatePoint(default, window)!.Value;
+            if (action.Y < top.Y + scroll.Bounds.Height || action.Y + save.Bounds.Height > window.ClientSize.Height ||
+                action.X + save.Bounds.Width > window.ClientSize.Width || cancel.TranslatePoint(default, window)!.Value.X >= action.X)
+                throw new InvalidOperationException("Preferences actions are clipped or not pinned below the body.");
+            scroll.ScrollToEnd(); await Task.Delay(50); window.UpdateLayout();
+            if (save.TranslatePoint(default, window)!.Value != action || scroll.Extent.Width > scroll.Viewport.Width + 1)
+                throw new InvalidOperationException("Preferences actions moved with the body or it overflowed horizontally.");
+            scroll.ScrollToHome(); await Task.Delay(50); window.UpdateLayout();
+            Capture(window, Path.Combine(directory, size.Width == 860 ? "settings-options-minimum.png" : "settings-options-default.png"));
+        }
+        window.Width = 860; window.Height = 680; await Task.Delay(100); window.UpdateLayout();
+        idle.Value = oldIdle == 60 ? 59 : oldIdle + 1;
+        if (!save.IsEnabled) throw new InvalidOperationException("Editing preferences did not enable Save.");
+        Capture(window, Path.Combine(directory, "settings-options-dirty.png"));
+        Press(window, "CancelPreferences");
+        if (save.IsEnabled || idle.Value != oldIdle) throw new InvalidOperationException("Cancel did not restore saved preferences.");
+        choice.IsDropDownOpen = true; await Task.Delay(150); window.UpdateLayout();
+        try
+        {
+            var popup = choice.GetVisualDescendants().OfType<Popup>().Single();
+            if (popup.Child is not Border surface || surface.Bounds.Width <= 0 || surface.Bounds.Height <= 0)
+                throw new InvalidOperationException("The preferences dropdown did not create a visible surface.");
+            using var image = new RenderTargetBitmap(new PixelSize((int)Math.Ceiling(surface.Bounds.Width), (int)Math.Ceiling(surface.Bounds.Height)), new Vector(96, 96));
+            image.Render(surface); image.Save(Path.Combine(directory, "settings-direction-popup.png"), PngBitmapEncoderOptions.Default);
+        }
+        finally { choice.IsDropDownOpen = false; }
+        return new { pinnedActions = true, dirtySave = true, cancelRestores = true, dropdownCaptured = true };
     }
     private static async Task Until(Func<bool> ready)
     {

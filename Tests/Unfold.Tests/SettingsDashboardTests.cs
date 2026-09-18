@@ -78,7 +78,7 @@ public class SettingsDashboardTests
         window.Width = 1120; window.Height = 800; Dispatcher.UIThread.RunJobs();
         Assert.Equal(12, idle.Value); Assert.Equal(9, snooze.Value);
         Assert.Equal(5, scope.Runtime.Settings.IdleMinutes);
-        Click(window, "ApplyReminderSettings"); Dispatcher.UIThread.RunJobs();
+        Click(window, "SavePreferences"); Dispatcher.UIThread.RunJobs();
         var loaded = AppSettings.Load(Path.Combine(scope.Root, "settings.json"));
         Assert.Equal(12, loaded.IdleMinutes); Assert.Equal(9, loaded.SnoozeMinutes); Assert.Equal(3, loaded.BreakDurationMinutes);
         Assert.Equal(legacyRoutine.Id, loaded.BreakRoutineId);
@@ -87,18 +87,27 @@ public class SettingsDashboardTests
     }
 
     [AvaloniaFact]
-    public void ReminderApplyButtonStaysAtTheCardTopRight()
+    public void PreferencesActionsStayBelowTheScrollableBodyAtBothWindowSizes()
     {
         using var scope = new Scope(); var window = scope.Window;
         Click(window, "SettingsNavSettings"); Dispatcher.UIThread.RunJobs();
-        window.UpdateLayout();
-        var card = Find<Border>(window, "SettingsTimerSettingsCard");
-        var apply = Find<Button>(window, "ApplyReminderSettings");
-        var cardPosition = card.TranslatePoint(default, window)!.Value;
-        var applyPosition = apply.TranslatePoint(default, window)!.Value;
-        Assert.True(applyPosition.X > cardPosition.X + card.Bounds.Width / 2);
-        Assert.True(applyPosition.Y < cardPosition.Y + 60);
-        Assert.True(applyPosition.X + apply.Bounds.Width <= cardPosition.X + card.Bounds.Width);
+        foreach (var size in new[] { new Size(1120, 800), new Size(860, 680) })
+        {
+            window.Width = size.Width; window.Height = size.Height; Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+            var scroll = Find<ScrollViewer>(window, "SettingsPreferencesScroll");
+            var save = Find<Button>(window, "SavePreferences"); var cancel = Find<Button>(window, "CancelPreferences");
+            var saveOrigin = save.TranslatePoint(default, window)!.Value;
+            var cancelOrigin = cancel.TranslatePoint(default, window)!.Value;
+            var bodyOrigin = scroll.TranslatePoint(default, window)!.Value;
+            Assert.True(saveOrigin.Y >= bodyOrigin.Y + scroll.Bounds.Height);
+            Assert.True(saveOrigin.Y + save.Bounds.Height <= window.ClientSize.Height);
+            Assert.True(cancelOrigin.X + cancel.Bounds.Width < saveOrigin.X);
+            Assert.Equal(cancelOrigin.Y, saveOrigin.Y);
+            scroll.ScrollToEnd(); Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+            Assert.Equal(saveOrigin, save.TranslatePoint(default, window)!.Value);
+            Assert.True(scroll.Extent.Width <= scroll.Viewport.Width + 1);
+        }
+        Assert.DoesNotContain(window.GetVisualDescendants().OfType<Button>(), button => button.Content as string == "적용");
     }
 
     [AvaloniaFact]
@@ -113,7 +122,7 @@ public class SettingsDashboardTests
         Assert.True(applyPosition.X > cardPosition.X + card.Bounds.Width / 2);
         Assert.True(applyPosition.Y < cardPosition.Y + 60);
         Assert.True(applyPosition.X + apply.Bounds.Width <= cardPosition.X + card.Bounds.Width);
-        Assert.Contains(card.GetVisualDescendants().OfType<TextBlock>(), text => text.Text == "스트레칭 시간 (분)");
+        Assert.Contains(card.GetVisualDescendants().OfType<TextBlock>(), text => text.Text == "스트레칭 알림 간격 (분)");
         Assert.Contains(card.GetVisualDescendants().OfType<TextBlock>(), text => text.Text == "휴식 시간 (분)");
     }
 
@@ -145,7 +154,7 @@ public class SettingsDashboardTests
         var timerSettings = Find<Border>(window, "SettingsTimerSettingsCard");
         foreach (var label in new[] { "자리 비움 시간 (분)", "다시 알림 시간 (분)" })
             Assert.Contains(timerSettings.GetVisualDescendants().OfType<TextBlock>(), text => text.Text == label);
-        Assert.DoesNotContain(timerSettings.GetVisualDescendants().OfType<TextBlock>(), text => text.Text == "스트레칭 시간 (분)");
+        Assert.DoesNotContain(timerSettings.GetVisualDescendants().OfType<TextBlock>(), text => text.Text == "스트레칭 알림 간격 (분)");
 
         Click(window, "SettingsNavTimer"); Dispatcher.UIThread.RunJobs();
         AssertNoTabPageHeader(window);
@@ -195,15 +204,14 @@ public class SettingsDashboardTests
         Find<ComboBox>(window, "BubbleDirection").SelectedItem = BubbleDirection.Right;
         Find<CheckBox>(window, "ReminderSoundsEnabled").IsChecked = false;
         Assert.Equal(BubbleDirection.Top, scope.Runtime.Settings.BubbleDirection);
-        Click(window, "ApplySpeechSettings"); Dispatcher.UIThread.RunJobs();
         Find<NumericUpDown>(window, "SnoozeMinutes").Value = 12;
-        Click(window, "ApplyReminderSettings"); Dispatcher.UIThread.RunJobs();
+        Click(window, "SavePreferences"); Dispatcher.UIThread.RunJobs();
         var settings = AppSettings.Load(Path.Combine(scope.Root, "settings.json"));
         Assert.Equal(BubbleDirection.Right, settings.BubbleDirection); Assert.Equal(12, settings.SnoozeMinutes);
         Assert.False(settings.ReminderSoundsEnabled); Assert.Equal(remaining, scope.Runtime.Clock.Remaining);
         Assert.False(scope.Runtime.Clock.Paused);
         Find<NumericUpDown>(window, "SnoozeMinutes").Value = 2.5m;
-        Click(window, "ApplyReminderSettings"); Dispatcher.UIThread.RunJobs();
+        Click(window, "SavePreferences"); Dispatcher.UIThread.RunJobs();
         Assert.Equal(12, scope.Runtime.Settings.SnoozeMinutes);
     }
 

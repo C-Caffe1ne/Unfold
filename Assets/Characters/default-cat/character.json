@@ -17,7 +17,8 @@
       "loop": true
     },
     "stretch": {
-      "gif": "stretch.gif",
+      "frames": [8, 9, 10, 11, 12, 13, 14, 15, 14, 13, 12, 11, 10, 9, 8],
+      "fps": 7,
       "loop": false
     }
   }

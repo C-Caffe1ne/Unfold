@@ -31,7 +31,7 @@ public sealed class TimerControls : StackPanel
     {
         var button = new Button { Name = name, Classes = { "unfold-action" }, Width = 44, Height = 44, Padding = new Thickness(10),
             HorizontalContentAlignment = HorizontalAlignment.Center, VerticalContentAlignment = VerticalAlignment.Center,
-            Content = new PathIcon { Width = 20, Height = 20, Data = icon, Foreground = DesignSystem.Cream } };
+            Content = new PathIcon { Width = 20, Height = 20, Data = icon } };
         AutomationProperties.SetName(button, label); ToolTip.SetTip(button, label); ToolTip.SetShowDelay(button, 500);
         button.Click += (_, _) => action(); return button;
     }

@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
+using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
@@ -37,7 +38,19 @@ public static class Ui
     {
         var caption = Caption(label);
         Avalonia.Automation.AutomationProperties.SetLabeledBy(input, caption);
+        KeyboardFocusLabel(input, caption);
         return new StackPanel { Spacing = 6 }.With([caption, input]);
+    }
+    public static void KeyboardFocusLabel(Control input, TextBlock caption)
+    {
+        var text = caption.Text; var brush = caption.Foreground;
+        input.GotFocus += (_, args) =>
+        {
+            var keyboard = args.NavigationMethod is NavigationMethod.Tab or NavigationMethod.Directional;
+            caption.Text = keyboard ? text + " · 선택" : text;
+            caption.Foreground = keyboard ? DesignSystem.FocusRing : brush;
+        };
+        input.LostFocus += (_, _) => { caption.Text = text; caption.Foreground = brush; };
     }
     public static WrapPanel Actions(params Control[] controls)
     {
@@ -114,7 +127,7 @@ public static class Ui
         {
             var button = Button(choice, () => { result = index; dialog.Close(); });
             if (choice is "취소" or "Cancel") { button.IsCancel = true; Quiet(button); }
-            if (choice.Contains("삭제") || choice is "Delete" or "Discard" or "Crop") Danger(button);
+            if (choice.Contains("삭제") || choice is "버리기" or "Delete" or "Discard" or "Crop") Danger(button);
             else if (index == 0) Primary(button);
             if (choices.Length == 1) button.IsDefault = true;
             return button;

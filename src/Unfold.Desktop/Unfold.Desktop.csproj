@@ -9,6 +9,7 @@
     <MediaRuntimeIdentifier Condition="'$(MediaRuntimeIdentifier)' == ''">$(NETCoreSdkRuntimeIdentifier)</MediaRuntimeIdentifier>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="Unfold.Tests" />
     <ProjectReference Include="../Unfold.Core/Unfold.Core.csproj" />
     <PackageReference Include="Avalonia.Desktop" Version="12.1.2" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.2" />

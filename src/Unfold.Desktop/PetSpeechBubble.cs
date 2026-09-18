@@ -39,6 +39,7 @@ public sealed class PetSpeechBubble : Border
     }
     public void Refresh(PetReminder reminder, int snoozeMinutes)
     {
+        Height = reminder.Notice is PetNotice.Advance or PetNotice.Completed ? 170 : 268;
         var session = reminder.Session;
         title.Text = reminder.Notice switch
         {
@@ -68,19 +69,25 @@ public sealed class PetSpeechBubble : Border
         AutomationProperties.SetName(timer, "휴식 타이머 " + timer.Text);
     }
     private static string DurationText(int seconds) => seconds % 60 == 0 ? $"{seconds / 60}분" : $"{seconds}초";
+    internal void FocusAction() => (complete.IsVisible ? complete : start).Focus(Avalonia.Input.NavigationMethod.Tab);
 }
 
 public sealed record PetBubbleLayout(Size Size, Point Pet, Point Bubble, IReadOnlyList<Point> Tail)
 {
-    public static PetBubbleLayout Create(BubbleDirection direction, bool expanded)
+    public static PetBubbleLayout Create(BubbleDirection direction, bool expanded, double bubbleHeight = 268)
     {
         if (!expanded) return new(new(192, 192), default, default, []);
+        var height = Math.Max(192, bubbleHeight);
+        var center = height / 2;
+        var petY = (height - 192) / 2;
+        var bubbleY = (height - bubbleHeight) / 2;
         return direction switch
         {
-            BubbleDirection.Top => new(new(320, 472), new(64, 280), default, [new(150, 267), new(170, 267), new(160, 280)]),
-            BubbleDirection.Bottom => new(new(320, 472), new(64, 0), new(0, 204), [new(150, 205), new(170, 205), new(160, 192)]),
-            BubbleDirection.Left => new(new(524, 268), new(332, 38), default, [new(319, 124), new(319, 144), new(332, 134)]),
-            BubbleDirection.Right => new(new(524, 268), new(0, 38), new(204, 0), [new(205, 124), new(205, 144), new(192, 134)]),
+            BubbleDirection.Top => new(new(320, bubbleHeight + 204), new(64, bubbleHeight + 12), default,
+                [new(150, bubbleHeight - 1), new(170, bubbleHeight - 1), new(160, bubbleHeight + 12)]),
+            BubbleDirection.Bottom => new(new(320, bubbleHeight + 204), new(64, 0), new(0, 204), [new(150, 205), new(170, 205), new(160, 192)]),
+            BubbleDirection.Left => new(new(524, height), new(332, petY), new(0, bubbleY), [new(319, center - 10), new(319, center + 10), new(332, center)]),
+            BubbleDirection.Right => new(new(524, height), new(0, petY), new(204, bubbleY), [new(205, center - 10), new(205, center + 10), new(192, center)]),
             _ => throw new ArgumentOutOfRangeException(nameof(direction))
         };
     }

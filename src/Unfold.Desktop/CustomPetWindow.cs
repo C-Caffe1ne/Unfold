@@ -34,20 +34,30 @@ internal sealed class CustomPetView : UserControl, IDisposable
     private readonly Func<Task<string?>> chooseOutput;
     private readonly CancellationTokenSource cancellation = new();
     private readonly TextBox name = new() { Name = "CustomPetName", PlaceholderText = "펫 이름", MaxLength = 80,
-        Width = 320, HorizontalAlignment = HorizontalAlignment.Left };
+        Width = 320, Height = DesignSystem.PetControlHeight, VerticalContentAlignment = VerticalAlignment.Center,
+        HorizontalAlignment = HorizontalAlignment.Left };
     private readonly ComboBox action = new() { Name = "CustomPetAction", ItemsSource = CustomPetDraft.Actions, SelectedIndex = 0,
         HorizontalAlignment = HorizontalAlignment.Stretch };
     private readonly TextBlock pending = Ui.Caption(""), status = Ui.Caption("쉬는 모습은 필수예요. 나머지 동작은 원하는 것만 넣어 주세요.");
     private readonly AnimationView preview = new() { Name = "CustomPetPreview", Width = 220, Height = 220 };
     private readonly TextBlock previewHint = Ui.Caption("아래 행동 카드에 파일을 넣으면 이곳에서 확인할 수 있어요.");
     private readonly Dictionary<string, TextBlock> labels = [];
+    private readonly Dictionary<string, Border> actionCards = [];
     private readonly List<Button> actions = [];
     private readonly Button assign, create;
     private readonly Border pendingCard;
     private string? pendingPath;
     private bool busy, closed, exporting;
     private int previewGeneration;
+    private string? previewAction;
+    private string savedName = "";
+    private readonly Dictionary<string, ImportedPetClip> savedClips = [];
+    private readonly TextBlock previewLabel = Ui.Caption("");
+    private readonly Border previewSurface;
     public bool IsExporting => exporting;
+    internal bool IsBusy => busy;
+    internal bool HasUnsavedChanges => pendingPath is not null || (name.Text ?? "").Trim() != savedName ||
+        draft.Clips.Count != savedClips.Count || draft.Clips.Any(pair => !savedClips.TryGetValue(pair.Key, out var saved) || saved != pair.Value);
     public event Action? BusyChanged;
 
     public CustomPetView(Window owner, Func<string, Task> created, string? initialPath = null,
@@ -64,8 +74,8 @@ internal sealed class CustomPetView : UserControl, IDisposable
         {
             Name = "CustomPetActionSlots",
             Orientation = Orientation.Horizontal,
-            ItemWidth = 132,
-            ItemHeight = 132,
+            ItemWidth = DesignSystem.PetActionWidth,
+            ItemHeight = DesignSystem.PetActionHeight,
             ItemSpacing = DesignSystem.Space,
             LineSpacing = DesignSystem.Space,
             ItemsAlignment = WrapPanelItemsAlignment.Start
@@ -77,17 +87,23 @@ internal sealed class CustomPetView : UserControl, IDisposable
             var select = AsyncButton("파일 선택…", () => SelectFile(key)); select.Name = "CustomPetFile_" + key;
             var remove = Ui.Button("제거", () =>
             {
-                previewGeneration++; draft.RemoveClip(key); preview.SetFrames([], true);
-                previewHint.IsVisible = true; Refresh();
+                draft.RemoveClip(key);
+                if (previewAction == key)
+                {
+                    previewGeneration++; previewAction = null; preview.SetFrames([], true);
+                    previewHint.IsVisible = true; previewLabel.Text = "";
+                }
+                Refresh();
             });
             remove.Name = "CustomPetRemove_" + key;
-            var play = AsyncButton("미리보기", () => Preview(key)); play.Name = "CustomPetPreview_" + key;
+            var play = AsyncButton("", () => Preview(key)); play.Name = "CustomPetPreview_" + key;
+            play.Classes.Add("pet-action-preview");
+            play.HorizontalAlignment = HorizontalAlignment.Stretch; play.VerticalAlignment = VerticalAlignment.Stretch;
             AutomationProperties.SetName(select, CustomPetDraft.ActionName(key) + " 파일 선택");
             AutomationProperties.SetName(remove, CustomPetDraft.ActionName(key) + " 파일 제거");
             AutomationProperties.SetName(play, CustomPetDraft.ActionName(key) + " 미리보기");
             ConfigureSlotButton(select, "M11,4 H13 V11 H20 V13 H13 V20 H11 V13 H4 V11 H11 Z",
                 CustomPetDraft.ActionName(key) + " 파일 선택");
-            ConfigureSlotButton(play, "M7,4 L19,12 L7,20 Z", CustomPetDraft.ActionName(key) + " 미리보기");
             ConfigureSlotButton(remove,
                 "M8,5 V3 H16 V5 H21 V7 H19 L18,21 H6 L5,7 H3 V5 Z M8,9 H10 V18 H8 Z M14,9 H16 V18 H14 Z",
                 CustomPetDraft.ActionName(key) + " 파일 제거");
@@ -95,15 +111,18 @@ internal sealed class CustomPetView : UserControl, IDisposable
             actions.AddRange([select, remove, play]);
             var heading = Ui.Text(CustomPetDraft.ActionName(key), DesignSystem.Body);
             heading.FontWeight = FontWeight.SemiBold;
-            var requirement = Ui.Caption(key == "idle" ? "필수 · 반복" : "선택 · 한 번 재생");
+            var requirement = Ui.Caption(key == "idle" ? "필수 · 반복" : "선택 · 한 번");
             label.MaxLines = 2; label.TextTrimming = TextTrimming.CharacterEllipsis;
-            var controls = Ui.Row(play, select, remove); controls.Spacing = 4;
-            controls.HorizontalAlignment = HorizontalAlignment.Center;
-            var slotContent = new Grid { RowDefinitions = new("Auto,4,Auto,8,*,8,Auto") };
-            slotContent.Children.Add(heading);
-            Grid.SetRow(requirement, 2); slotContent.Children.Add(requirement);
-            Grid.SetRow(label, 4); slotContent.Children.Add(label);
-            Grid.SetRow(controls, 6); slotContent.Children.Add(controls);
+            var controls = Ui.Row(select, remove); controls.Spacing = 4;
+            controls.Name = "CustomPetActions_" + key;
+            controls.HorizontalAlignment = HorizontalAlignment.Right; controls.VerticalAlignment = VerticalAlignment.Bottom;
+            controls.Margin = new Thickness(10);
+            var copy = Ui.Column(heading, requirement, label); copy.Spacing = 3;
+            copy.Margin = new Thickness(10, 10, 10, 46); copy.IsHitTestVisible = false;
+            label.Margin = new Thickness(0, 6, 0, 0);
+            // The full-card button and file actions are siblings: file clicks never bubble through preview.
+            var slotContent = new Grid();
+            slotContent.Children.Add(play); slotContent.Children.Add(copy); slotContent.Children.Add(controls);
             var slot = new Border
             {
                 Name = "CustomPetSlot_" + key,
@@ -111,23 +130,23 @@ internal sealed class CustomPetView : UserControl, IDisposable
                 BorderBrush = DesignSystem.Outline,
                 BorderThickness = new Thickness(1),
                 CornerRadius = new CornerRadius(18),
-                Padding = new Thickness(6),
-                MinHeight = 126,
                 Child = slotContent
             };
+            actionCards[key] = slot;
             slots.Children.Add(slot);
         }
-        create = AsyncButton("펫 팩 만들기…", Export); create.Name = "CreateCustomPetPack"; Ui.Primary(create);
+        create = AsyncButton("펫 팩 만들기…", () => Export()); create.Name = "CreateCustomPetPack"; Ui.Primary(create);
+        create.Height = DesignSystem.PetControlHeight;
         name.TextChanged += (_, _) => Refresh();
         pendingCard = BuildPendingCard();
-        var identity = Ui.Field("펫 이름", name);
+        var identity = PetManagementView.Field("펫 이름", name);
 
         previewHint.Name = "CustomPetPreviewHint";
         previewHint.HorizontalAlignment = HorizontalAlignment.Center;
         previewHint.VerticalAlignment = VerticalAlignment.Center;
         previewHint.TextAlignment = TextAlignment.Center;
         previewHint.MaxWidth = 280;
-        var previewStage = new Grid();
+        var previewStage = new Grid { RowDefinitions = new("*,Auto") };
         previewStage.Children.Add(new Viewbox
         {
             Child = preview,
@@ -135,34 +154,42 @@ internal sealed class CustomPetView : UserControl, IDisposable
             StretchDirection = StretchDirection.DownOnly,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
-            Margin = new Thickness(12)
+            Margin = new Thickness(4, 0, 4, 6)
         });
         previewStage.Children.Add(previewHint);
-        var previewSurface = new Border
+        previewLabel.Name = "CustomPetPreviewAction";
+        previewLabel.HorizontalAlignment = HorizontalAlignment.Center;
+        previewLabel.VerticalAlignment = VerticalAlignment.Bottom;
+        Grid.SetRow(previewLabel, 1); previewStage.Children.Add(previewLabel);
+        previewSurface = new Border
         {
             Name = "CustomPetPreviewSurface",
             Background = DesignSystem.Surface,
-            BorderBrush = DesignSystem.Outline,
-            BorderThickness = new Thickness(1),
             CornerRadius = DesignSystem.CardRadius,
             Padding = new Thickness(12),
-            MinHeight = 230,
-            MaxWidth = 600,
+            Height = 272,
+            MaxWidth = DesignSystem.PetPreviewWidth,
             HorizontalAlignment = HorizontalAlignment.Stretch,
             Child = previewStage
         };
-        var guide = Ui.Caption("GIF는 원본 그대로 사용해요. MP4는 10초 이하 · 128 MiB까지, 소리 없이 최대 192px · 초당 12프레임으로 변환해요. 영상의 배경은 유지돼요.");
-        var body = Ui.Column(identity, pendingCard, guide, previewSurface,
-            Ui.Caption("행동별 파일"), slots);
-        body.Spacing = 12;
-        var footer = new Grid { ColumnDefinitions = new("*,12,Auto") };
+        var guide = Ui.Caption("GIF는 원본 그대로 사용해요. MP4는 10초 이하 · 128 MiB까지 가져올 수 있어요.\nMP4는 소리 없이 최대 192px · 초당 12프레임으로 변환하며, 영상의 배경은 유지돼요.");
+        var actionHeading = Ui.Text("행동별 파일"); actionHeading.FontWeight = FontWeight.SemiBold;
+        var actionHeader = new Grid { ColumnDefinitions = new("*,12,Auto") };
+        actionHeader.Children.Add(actionHeading);
+        var cardHint = Ui.Caption("카드를 눌러 미리보기"); Grid.SetColumn(cardHint, 2); actionHeader.Children.Add(cardHint);
+        var actionGroup = Ui.Column(actionHeader, slots, guide);
+        var body = Ui.Column(identity, pendingCard, previewSurface, actionGroup);
+        body.Spacing = DesignSystem.Inset;
+        var footer = new Grid { ColumnDefinitions = new("*,20,Auto") };
+        status.VerticalAlignment = VerticalAlignment.Center;
         footer.Children.Add(status);
         Grid.SetColumn(create, 2); footer.Children.Add(create);
-        Content = Ui.PageContent("나만의 펫을 만들어 보세요.", "파일을 동작에 배정한 뒤 펫 팩으로 저장하세요. 저장 후 미리보고 설치할 수 있어요.",
-            body, footer, "펫 추가", showHeader);
+        Content = PetManagementView.Page("나만의 펫을 만들어 보세요.", "파일을 동작에 배정한 뒤 펫 팩으로 저장하세요. 저장 후 미리보고 설치할 수 있어요.",
+            body, footer, showHeader);
         owner.PropertyChanged += OwnerPropertyChanged;
         AttachedToVisualTree += (_, _) => UpdatePlayback();
         DetachedFromVisualTree += (_, _) => UpdatePlayback();
+        UpdatePreviewSize();
         Refresh();
     }
     public static async Task<string?> PickMediaFile(Window owner)
@@ -182,7 +209,9 @@ internal sealed class CustomPetView : UserControl, IDisposable
     private void OwnerPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
     {
         if (e.Property == IsVisibleProperty) UpdatePlayback();
+        if (e.Property == TopLevel.ClientSizeProperty) UpdatePreviewSize();
     }
+    private void UpdatePreviewSize() => previewSurface.Height = owner.ClientSize.Height is > 0 and < 740 ? 156 : 272;
     private void UpdatePlayback() => preview.SetRunning(TopLevel.GetTopLevel(this) is not null && owner.IsVisible && !closed && !busy);
     public void Dispose()
     {
@@ -262,33 +291,55 @@ internal sealed class CustomPetView : UserControl, IDisposable
             if (!closed && request == previewGeneration && draft.Clips.TryGetValue(key, out var current) && current == clip)
             {
                 preview.SetFrames(frames, key == "idle", pixel: false);
+                previewAction = key;
                 previewHint.IsVisible = false;
+                previewLabel.Text = "미리보기 · " + CustomPetDraft.ActionName(key);
+                RefreshCardSelection();
                 UpdatePlayback();
             }
         }
         catch (OperationCanceledException) when (closed) { }
         catch (Exception error) { ShowError(error); }
     }
-    private async Task Export()
+    private async Task<bool> Export(bool showCreated = true)
     {
-        if (busy || closed) return;
+        if (busy || closed) return false;
         busy = true; exporting = true; Refresh(); BusyChanged?.Invoke();
         try
         {
-            var path = await chooseOutput(); if (path is null || closed) return;
+            var path = await chooseOutput(); if (path is null || closed) return false;
             var petName = name.Text ?? "";
             status.Text = "펫 팩을 만들고 검증하고 있어요…";
             // Each creation is a new pack; keep the draft available for further editing.
             var snapshot = new CustomPetDraft();
             foreach (var (key, clip) in draft.Clips) snapshot.SetClip(key, clip);
             await Task.Run(() => snapshot.Export(petName, path));
-            if (closed) return;
+            if (closed) return false;
+            savedName = petName.Trim(); savedClips.Clear();
+            foreach (var pair in snapshot.Clips) savedClips.Add(pair.Key, pair.Value);
             exporting = false;
             status.Foreground = DesignSystem.Muted; status.Text = "펫 팩을 저장했어요. ‘펫 팩 열기’ 탭에서 설치할 수 있어요.";
-            await created(path);
+            if (showCreated) await created(path);
+            return true;
         }
-        catch (Exception error) { ShowError(error); }
+        catch (Exception error) { ShowError(error); return false; }
         finally { busy = exporting = false; if (!closed) { Refresh(); BusyChanged?.Invoke(); } }
+    }
+    internal async Task<bool> CanCloseDraft()
+    {
+        if (busy)
+        {
+            status.Text = "파일 작업이 끝난 뒤 종료해 주세요.";
+            return false;
+        }
+        if (!HasUnsavedChanges) return true;
+        var canSave = !string.IsNullOrWhiteSpace(name.Text) && draft.Clips.ContainsKey("idle") && pendingPath is null;
+        var choice = await Ui.Confirm(owner, "작성 중인 펫을 저장할까요?",
+            canSave ? "저장하지 않고 종료하면 작성 중인 이름과 행동 배정이 사라져요." :
+                "펫 이름과 필수 ‘쉬는 모습’을 넣고 가져온 파일을 배정하면 저장할 수 있어요. 계속 작성하거나 초안을 버릴 수 있어요.",
+            canSave ? "저장하고 종료" : "계속 작성", "버리기", "취소");
+        if (choice == 1) return true;
+        return choice == 0 && canSave && await Export(showCreated: false);
     }
     private void Refresh()
     {
@@ -299,9 +350,15 @@ internal sealed class CustomPetView : UserControl, IDisposable
         create.IsEnabled = !busy && !string.IsNullOrWhiteSpace(name.Text) && draft.Clips.ContainsKey("idle");
         foreach (var (key, label) in labels)
             label.Text = draft.Clips.TryGetValue(key, out var clip)
-                ? $"{clip.Width}×{clip.Height} · {clip.FrameCount}프레임 · {clip.Duration.TotalSeconds:0.##}초" : "파일 없음";
+                ? $"{clip.Width} × {clip.Height}px\n{clip.FrameCount}프레임 · {clip.Duration.TotalSeconds:0.##}초" : "파일 없음";
         foreach (var button in actions)
             button.IsEnabled = !busy && (button.Name!.StartsWith("CustomPetFile_") || draft.Clips.ContainsKey(button.Name[(button.Name.LastIndexOf('_') + 1)..]));
+        RefreshCardSelection();
+    }
+    private void RefreshCardSelection()
+    {
+        foreach (var (key, card) in actionCards)
+            card.BorderBrush = previewAction == key ? DesignSystem.Cream : DesignSystem.Outline;
     }
     private void ShowError(Exception error)
     {
@@ -336,9 +393,9 @@ internal sealed class CustomPetView : UserControl, IDisposable
     {
         button.Content = new PathIcon
         {
-            Data = Geometry.Parse(path), Width = 16, Height = 16, Foreground = DesignSystem.Cream
+            Data = Geometry.Parse(path), Width = 16, Height = 16
         };
-        button.Width = 34; button.Height = 34; button.MinHeight = 34; button.Padding = new Thickness(8);
+        button.Width = 32; button.Height = 32; button.MinHeight = 32; button.Padding = new Thickness(6);
         button.Classes.Add("compact");
         AutomationProperties.SetName(button, label);
         ToolTip.SetTip(button, label);

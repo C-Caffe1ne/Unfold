@@ -24,12 +24,18 @@
 | [설정 대시보드 검증](validation/2026-09-14-settings-dashboard.md) | 130개 테스트, 기본·최소 크기 캡처와 설정 회귀 검증 |
 | [사이드바 탭 전환 검증](validation/2026-09-15-navigation-tabs.md) | 같은 창의 타이머·루틴·기록 탭, 펫 팩 항목 제거와 macOS 렌더링 검증 |
 | [개발 계획](development-plan.md) | 구현 단계, 완료 조건과 후속 범위 |
+| [설정 탭 UI 개편 계획](plans/2026-09-18-settings-ui-redesign.md) | UI 우선·UX 후속 순서, 드롭다운·텍스트 위계·간격·레이아웃 검수와 구현 기준 |
+| [설정 탭 UI 개편 검증](validation/2026-09-18-settings-ui-redesign.md) | 하단 취소·저장, 변경 상태·오류 복구, 설정 전용 드롭다운, 202개 테스트와 macOS 캡처 |
+| [펫 추가 탭 UI 후속 시안](plans/2026-09-18-pet-tabs-ui-proposal.md) | 열기·만들기 배치, 다섯 행동 카드, 상태별 시안과 사용자 확인 후 구현 경계 |
+| [펫 추가 탭 UI 적용 검증](validation/2026-09-18-pet-tabs-ui.md) | 카드 클릭 미리보기, 최소 창의 다섯 카드, 고정 하단, Release 205개와 macOS 렌더링 검증 |
 | [기존 루틴·프로필 호환과 회고](personalization.md) | 제거된 설정 UI의 데이터 보존 경계와 현재 주간 회고/CSV |
 | [펫 리소스 관리](pet-resources.md) | 제작 원장, 런타임 계약, 품질 기준과 검사 명령 |
 | [펫 추가·커스텀 팩 만들기](pet-packs.md) | GIF·MP4 동작 배정, 팩 생성·미리보기·설치·업데이트·재설치, ZIP/버전/해시 계약 |
 | [커스텀 펫 검증](validation/2026-09-16-custom-pet.md) | 147개 테스트, 실제 MP4 변환, 동작별 팩 생성·설치, macOS 렌더링 검증 |
 | [펫 페이지 탭 검증](validation/2026-09-16-pet-tabs.md) | 사이드바 펫 추가, 열기·만들기 탭, 초안 유지와 최소 크기 렌더링 |
 | [UI/UX 전수 감사와 작업 계획](validation/2026-09-16-ui-ux-audit.md) | 현재 전체 화면의 시각·흐름·접근성 감사, P1/P2 우선순위와 단계별 수정·검증 계획 |
+| [UI/UX 재검수](validation/2026-09-18-ui-ux-audit.md) | 9/18 체크아웃의 12개 수정 항목과 화면·코드 근거 |
+| [UI/UX 후속 구현](validation/2026-09-18-ui-ux-implementation.md) | 기록 날짜·초안 보호·설정·미리보기·접근성·기본 펫 수정, 196개 테스트와 macOS 진단 |
 | [UI/UX 1단계 동작 정확성 검증](validation/2026-09-16-ui-ux-phase1.md) | 선택 루틴 편집, 프로필 적용 사전 차단, 커스텀 펫 교체 확인과 회귀 검사 |
 | [UI/UX 2단계 최소 창·숨은 상태 검증](validation/2026-09-17-ui-ux-phase2.md) | 스크롤 거터, 접힌 알림 복구, 펫 팩 경고와 상태·하단 동작 그룹의 회귀 검사 |
 | [설정 탭 구조 검증](validation/2026-09-17-settings-tab.md) | 설정 내비게이션, 알림·타이머 섹션 분리, 루틴 적용 경계와 macOS 격리 진단 |

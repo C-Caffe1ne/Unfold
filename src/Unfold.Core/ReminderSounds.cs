@@ -18,7 +18,7 @@ public sealed class ReminderSounds(string directory)
         AtomicFile.Write(Path.Combine(directory, id + ".wav"), data);
         return id;
     }
-    public string Resolve(ReminderSound sound, string? id)
+    public string Resolve(ReminderSound sound, string? id, bool strict = false)
     {
         if (id is { Length: 64 } && id.All(char.IsAsciiHexDigit))
         {
@@ -26,12 +26,26 @@ public sealed class ReminderSounds(string directory)
             if (File.Exists(imported))
             {
                 try { Validate(ImageCodec.ReadBounded(imported, 5 * 1024 * 1024)); return imported; }
-                catch (Exception error) when (error is IOException or InvalidDataException or UnauthorizedAccessException) { }
+                catch (Exception error) when (!strict && error is (IOException or InvalidDataException or UnauthorizedAccessException)) { }
             }
         }
+        if (strict && id is not null) throw new FileNotFoundException("가져온 효과음을 찾지 못했어요. 파일을 다시 선택해 주세요.");
         var path = Path.Combine(directory, sound == ReminderSound.Due ? "default-due.wav" : "default-completed.wav");
         if (!File.Exists(path)) AtomicFile.Write(path, Default(sound));
         return path;
+    }
+    public static TimeSpan Duration(ReadOnlySpan<byte> data)
+    {
+        Validate(data);
+        uint rate = 0; long length = 0;
+        for (var offset = 12; offset + 8 <= data.Length;)
+        {
+            var size = (int)BinaryPrimitives.ReadUInt32LittleEndian(data.Slice(offset + 4, 4));
+            if (data.Slice(offset, 4).SequenceEqual("fmt "u8)) rate = BinaryPrimitives.ReadUInt32LittleEndian(data.Slice(offset + 16, 4));
+            if (data.Slice(offset, 4).SequenceEqual("data"u8)) length += size;
+            offset += 8 + size + (size & 1);
+        }
+        return TimeSpan.FromSeconds(length / (double)rate);
     }
     public static void Validate(ReadOnlySpan<byte> data)
     {

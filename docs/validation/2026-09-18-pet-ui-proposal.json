@@ -1,0 +1,234 @@
+{
+  "success": true,
+  "revision": 2,
+  "initial": {
+    "bounds": {
+      "x": 0,
+      "y": 0,
+      "width": 860,
+      "height": 680,
+      "right": 860,
+      "bottom": 680
+    },
+    "footer": {
+      "x": 123,
+      "y": 585,
+      "width": 706,
+      "height": 64,
+      "right": 829,
+      "bottom": 649
+    },
+    "cards": [
+      {
+        "x": 123,
+        "y": 389.984375,
+        "width": 128,
+        "height": 148,
+        "right": 251,
+        "bottom": 537.984375
+      },
+      {
+        "x": 259,
+        "y": 389.984375,
+        "width": 128,
+        "height": 148,
+        "right": 387,
+        "bottom": 537.984375
+      },
+      {
+        "x": 395,
+        "y": 389.984375,
+        "width": 128,
+        "height": 148,
+        "right": 523,
+        "bottom": 537.984375
+      },
+      {
+        "x": 531,
+        "y": 389.984375,
+        "width": 128,
+        "height": 148,
+        "right": 659,
+        "bottom": 537.984375
+      },
+      {
+        "x": 667,
+        "y": 389.984375,
+        "width": 128,
+        "height": 148,
+        "right": 795,
+        "bottom": 537.984375
+      }
+    ],
+    "overflow": []
+  },
+  "loaded": {
+    "bounds": {
+      "x": 0,
+      "y": 0,
+      "width": 860,
+      "height": 712.875,
+      "right": 860,
+      "bottom": 712.875
+    },
+    "footer": {
+      "x": 123,
+      "y": 617.875,
+      "width": 706,
+      "height": 64,
+      "right": 829,
+      "bottom": 681.875
+    },
+    "cards": [
+      {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "right": 0,
+        "bottom": 0
+      }
+    ],
+    "overflow": []
+  },
+  "widthChecks": [
+    {
+      "width": 1120,
+      "page": "create",
+      "renderedWidth": 1120,
+      "height": 800,
+      "horizontalOverflow": false
+    },
+    {
+      "width": 1120,
+      "page": "open",
+      "renderedWidth": 1120,
+      "height": 800,
+      "horizontalOverflow": false
+    },
+    {
+      "width": 1024,
+      "page": "create",
+      "renderedWidth": 1024,
+      "height": 800,
+      "horizontalOverflow": false
+    },
+    {
+      "width": 1024,
+      "page": "open",
+      "renderedWidth": 1024,
+      "height": 800,
+      "horizontalOverflow": false
+    },
+    {
+      "width": 860,
+      "page": "create",
+      "renderedWidth": 860,
+      "height": 680,
+      "horizontalOverflow": false
+    },
+    {
+      "width": 860,
+      "page": "open",
+      "renderedWidth": 860,
+      "height": 712.875,
+      "horizontalOverflow": false
+    },
+    {
+      "width": 736,
+      "page": "create",
+      "renderedWidth": 736,
+      "height": 832.859375,
+      "horizontalOverflow": false
+    },
+    {
+      "width": 736,
+      "page": "open",
+      "renderedWidth": 736,
+      "height": 709.96875,
+      "horizontalOverflow": false
+    },
+    {
+      "width": 480,
+      "page": "create",
+      "renderedWidth": 480,
+      "height": 976.859375,
+      "horizontalOverflow": false
+    },
+    {
+      "width": 480,
+      "page": "open",
+      "renderedWidth": 480,
+      "height": 771.359375,
+      "horizontalOverflow": false
+    },
+    {
+      "width": 320,
+      "page": "create",
+      "renderedWidth": 320,
+      "height": 1049.03125,
+      "horizontalOverflow": false
+    },
+    {
+      "width": 320,
+      "page": "open",
+      "renderedWidth": 320,
+      "height": 808.75,
+      "horizontalOverflow": false
+    }
+  ],
+  "checks": [
+    "five action cards visible at 860px",
+    "card click selects preview without a separate play icon",
+    "card preview supports Enter and Space",
+    "empty card click preserves current preview",
+    "add and remove buttons remain independent from card preview",
+    "fixed card geometry after adding media",
+    "other action removal preserves selected preview",
+    "required idle controls create enabled state",
+    "create transitions to preview",
+    "tab switches preserve name and media",
+    "pause/resume/replay local states",
+    "background and 100/200 percent preview",
+    "empty/error/warning states",
+    "no horizontal overflow at six widths"
+  ],
+  "consoleErrors": [],
+  "productFilesUnchanged": {
+    "compared": 97,
+    "changed": [],
+    "added": []
+  }
+}
