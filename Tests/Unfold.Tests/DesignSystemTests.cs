@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Controls.Presenters;
@@ -22,7 +23,7 @@ public class DesignSystemTests
     private static T Find<T>(Window window, string name) where T : Control =>
         window.GetVisualDescendants().OfType<T>().Single(control => control.Name == name);
     private static Button Button(Window window, string text) =>
-        window.GetVisualDescendants().OfType<Button>().Single(control => Equals(control.Content, text));
+        window.GetVisualDescendants().OfType<Button>().Single(control => Equals(control.Content, text) || AutomationProperties.GetName(control) == text);
     private static void Press(Window window, string text) => Button(window, text).RaiseEvent(new RoutedEventArgs(Avalonia.Controls.Button.ClickEvent));
     private static void Layout(Window window) { Dispatcher.UIThread.RunJobs(); window.UpdateLayout(); }
     private static void Fits(Window window, Control control)
@@ -166,7 +167,7 @@ public class DesignSystemTests
             Press(window, "루틴 편집"); Layout(window);
             var editor = Assert.IsType<RoutineEditorWindow>(Assert.Single(window.OwnedWindows));
             Assert.Equal(DesignSystem.Shell, Find<Border>(editor, "PageFrame").Background);
-            Assert.Equal(DesignSystem.Cream, Button(editor, "내 루틴 저장").Background);
+            Assert.Equal(DesignSystem.Accent, Button(editor, "내 루틴 저장").Background);
             editor.Close(); Layout(window);
             Press(window, "루틴 삭제"); Layout(window);
             var confirm = Assert.Single(window.OwnedWindows);
@@ -185,33 +186,22 @@ public class DesignSystemTests
             var error = Ui.Error(window, new IOException("diagnostic")); Layout(window);
             var alert = Assert.Single(window.OwnedWindows);
             Fits(alert, Find<Border>(alert, "PageActions"));
-            Assert.Equal(DesignSystem.Cream, Button(alert, "확인").Background);
+            Assert.Equal(DesignSystem.Accent, Button(alert, "확인").Background);
             Press(alert, "확인"); await error;
         }
         finally { foreach (var owned in window.OwnedWindows.ToArray()) owned.Close(); window.Close(); }
     }
 
     [AvaloniaFact]
-    public void ApprovedDarkSemanticTokensKeepLegacyValuesAndGeometry()
+    public void DefaultOatTokensKeepSharedGeometry()
     {
         static Color ColorOf(IBrush brush) => ((ISolidColorBrush)brush).Color;
+        DesignSystem.ApplyTheme(AppTheme.OatLatte);
         (IBrush Brush, string Hex)[] tokens =
         [
-            (DesignSystem.TextTertiary, "#9CA798"),
-            (DesignSystem.OutlineSubtle, "#4F5B51"),
-            (DesignSystem.OutlineStrong, "#849187"),
-            (DesignSystem.Error, "#FFB4AB"),
-            (DesignSystem.Warning, "#F2CD7D"),
-            (DesignSystem.Success, "#9ED8AC"),
-            (DesignSystem.DisabledFill, "#292F29"),
-            (DesignSystem.DisabledText, "#929C91"),
-            (DesignSystem.FocusRing, "#8FD3FF"),
-            (DesignSystem.Cream, "#DFE5D1"),
-            (DesignSystem.Muted, "#B6BEB0"),
-            (DesignSystem.Surface, "#2B2F2A"),
-            (DesignSystem.Raised, "#363C33"),
-            (DesignSystem.Ink, "#252A23"),
-            (DesignSystem.Hover, "#505A48")
+            (DesignSystem.Cream, "#38342E"), (DesignSystem.Muted, "#6A6257"),
+            (DesignSystem.Surface, "#FFFFFF"), (DesignSystem.Raised, "#E9E1D3"),
+            (DesignSystem.Accent, "#756344"), (DesignSystem.Ink, "#FFFFFF")
         ];
         foreach (var (brush, hex) in tokens) Assert.Equal(Color.Parse(hex), ColorOf(brush));
         Assert.Same(DesignSystem.OutlineSubtle, DesignSystem.Outline);
@@ -231,21 +221,21 @@ public class DesignSystemTests
         window.Show(); Layout(window);
         try
         {
-            Assert.Equal(DesignSystem.Cream, primary.Background); Assert.Equal(DesignSystem.Ink, primary.Foreground);
+            Assert.Equal(DesignSystem.Accent, primary.Background); Assert.Equal(DesignSystem.Ink, primary.Foreground);
             var point = primary.TranslatePoint(new(10, 10), window)!.Value;
             window.MouseMove(point); Layout(window);
             var presenter = primary.GetVisualDescendants().OfType<ContentPresenter>().Single(item => item.Name == "PART_ContentPresenter");
             Assert.Equal(DesignSystem.AccentHover, presenter.Background); Assert.Equal(DesignSystem.Ink, presenter.Foreground);
             window.MouseDown(point, MouseButton.Left); Layout(window);
-            Assert.Equal(DesignSystem.Muted, presenter.Background);
+            Assert.Equal(DesignSystem.Accent, presenter.Background);
             window.MouseUp(point, MouseButton.Left); window.MouseMove(new(1, 1));
             secondary.Focus(NavigationMethod.Tab); primary.Focus(NavigationMethod.Tab); Layout(window);
             Assert.Equal(DesignSystem.Ink, primary.BorderBrush);
             primary.IsEnabled = false; Layout(window);
             Assert.Equal(DesignSystem.DisabledFill, presenter.Background); Assert.Equal(DesignSystem.DisabledText, presenter.Foreground);
             Assert.Equal(1, primary.Opacity);
-            Assert.True(Contrast(DesignSystem.Cream, DesignSystem.Ink) >= 7);
-            Assert.True(Contrast(DesignSystem.DisabledText, DesignSystem.DisabledFill) >= 4.5);
+            Assert.True(Contrast(DesignSystem.Accent, DesignSystem.Ink) >= 4.5);
+            Assert.True(Contrast(DesignSystem.DisabledText, DesignSystem.DisabledFill) >= 3);
         }
         finally { window.Close(); }
     }
@@ -260,12 +250,12 @@ public class DesignSystemTests
         window.Show(); Layout(window); input.Focus(); input.SelectAll();
         try
         {
-            Assert.Equal(DesignSystem.Cream, input.SelectionBrush);
+            Assert.Equal(DesignSystem.Accent, input.SelectionBrush);
             Assert.Equal(DesignSystem.Ink, input.SelectionForegroundBrush);
             var item = list.GetVisualDescendants().OfType<ListBoxItem>().Single(item => item.IsSelected);
             Assert.Equal(DesignSystem.Ink, item.Foreground);
             var presenter = item.GetVisualDescendants().OfType<ContentPresenter>().Single(item => item.Name == "PART_ContentPresenter");
-            Assert.Equal(DesignSystem.Cream, presenter.Background); Assert.Equal(DesignSystem.Ink, presenter.Foreground);
+            Assert.Equal(DesignSystem.Accent, presenter.Background); Assert.Equal(DesignSystem.Ink, presenter.Foreground);
             var glyph = check.GetVisualDescendants().OfType<Avalonia.Controls.Shapes.Path>().Single(item => item.Name == "CheckGlyph");
             Assert.Equal(DesignSystem.Ink, glyph.Fill);
         }

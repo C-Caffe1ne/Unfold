@@ -1,0 +1,30 @@
+{
+  "date": "2026-09-20",
+  "scope": "speech-title-only-v4 implementation",
+  "productCodeChanged": true,
+  "focusedTests": {"passed": 6, "failed": 0, "skipped": 0},
+  "releaseTests": {"passed": 212, "failed": 0, "skipped": 0},
+  "smoke": {
+    "success": true,
+    "imageFiles": 82,
+    "petSpeechDirectionsVerified": true,
+    "speechOvertimeAndFoldVerified": true,
+    "speechTitleOnlyGeometryVerified": true,
+    "soundRequestsVerified": true
+  },
+  "geometry": {
+    "width": 320,
+    "heights": {"advance":96,"invitation":159,"resting":196,"completed":113},
+    "padding": {"horizontal":20,"vertical":14},
+    "cornerRadius": 24,
+    "elementGap": 6,
+    "controlHeight": 40,
+    "timerSize": 40,
+    "titleSize": 18,
+    "titleAlignment": "center"
+  },
+  "instructionBodyRemoved": true,
+  "retainedElements": ["title", "timer", "snooze button", "start button", "complete button", "footer status hint", "pet"],
+  "platform": "macOS native off-screen diagnostics",
+  "unverified": ["real pointer and keyboard use", "perceived audio", "Windows hardware", "DPI changes", "multiple monitors", "long-duration use"]
+}

@@ -26,7 +26,7 @@ public class BreakReviewTests
         window.GetVisualDescendants().OfType<T>().Single(control => control.Name == name);
 
     private static Button Button(Window window, string label) =>
-        window.GetVisualDescendants().OfType<Button>().Single(button => Equals(button.Content, label));
+        window.GetVisualDescendants().OfType<Button>().Single(button => Equals(button.Content, label) || AutomationProperties.GetName(button) == label);
 
     private static void Press(Window window, string label)
     {
@@ -72,7 +72,7 @@ public class BreakReviewTests
     }
 
     [AvaloniaFact]
-    public void ReviewDateRowExpandsToShowRoutineCompletionTimeAndActualDuration()
+    public void ReviewDateRowShowsOnlyCompletionTimeAndActualDurationAndPreservesExportData()
     {
         var entry = Entry("00000000-0000-0000-0000-000000000001", Today, 9, 42, "small-reset", "잠깐의 여유", 60, 65,
             TimeSpan.FromHours(-7));
@@ -86,8 +86,10 @@ public class BreakReviewTests
             header.Focus(); KeyPress(window, Key.Enter, PhysicalKey.Enter);
             Assert.True(header.IsChecked); Assert.True(details.IsVisible); Assert.True(header.IsFocused);
             var texts = details.GetVisualDescendants().OfType<TextBlock>().Select(text => text.Text).ToArray();
-            Assert.Contains("잠깐의 여유", texts); Assert.Contains("09:42 완료", texts); Assert.Contains("실제 휴식 1분 05초", texts);
+            Assert.DoesNotContain("잠깐의 여유", texts); Assert.DoesNotContain("바로 돌아온 휴식", texts);
+            Assert.Equal(4, texts.Length); Assert.Contains("09:42 완료", texts); Assert.Contains("실제 휴식 1분 05초", texts);
             Assert.Contains("실제 휴식 0초", texts);
+            Assert.Contains("잠깐의 여유", System.Text.Encoding.UTF8.GetString(window.Review.Csv()));
             Assert.Contains("펼침", AutomationProperties.GetName(header));
         }
         finally { window.Close(); }
@@ -118,7 +120,7 @@ public class BreakReviewTests
     }
 
     [AvaloniaFact]
-    public void ReviewDateRowShowsLegacyPlannedDurationWithoutCallingItActual()
+    public void ReviewDateRowMarksMissingActualTimeAndKeepsLegacyTargetInSummaryAndExport()
     {
         var entry = Entry("00000000-0000-0000-0000-000000000002", Today, 14, 18, "legacy-routine", null, 20, null);
         var window = new BreakReviewWindow(_ => Review(Today, entry), currentDay: Today);
@@ -127,9 +129,12 @@ public class BreakReviewTests
             window.Show(); Layout(window); Header(window, Today).IsChecked = true; Layout(window);
             var texts = Find<StackPanel>(window, "ReviewDetails_20260917").GetVisualDescendants().OfType<TextBlock>()
                 .Select(text => text.Text).ToArray();
-            Assert.Contains("legacy-routine", texts);
-            Assert.Contains("실제 시간 미기록 · 당시 목표 20초", texts);
+            Assert.Equal(2, texts.Length); Assert.Contains("14:18 완료", texts);
+            Assert.Contains("실제 휴식 시간 미기록", texts);
+            Assert.DoesNotContain("legacy-routine", texts);
             Assert.DoesNotContain("실제 휴식 20초", texts);
+            Assert.Equal(20, window.Review.TotalSeconds);
+            Assert.Contains("legacy-routine\",20,", System.Text.Encoding.UTF8.GetString(window.Review.Csv()));
         }
         finally { window.Close(); }
     }
@@ -158,7 +163,7 @@ public class BreakReviewTests
                 "ReviewEntry_00000000000000000000000000000030",
                 "ReviewEntry_00000000000000000000000000000001",
                 "ReviewEntry_00000000000000000000000000000002"
-            ], details.Children.OfType<Grid>().Select(row => row.Name));
+            ], details.Children.OfType<Border>().Select(row => row.Name));
         }
         finally { window.Close(); }
     }
@@ -173,7 +178,7 @@ public class BreakReviewTests
             window.Show(); Layout(window);
             Assert.NotNull(Button(window, "타이머로 돌아가기"));
             Assert.True(Button(window, "이전 7일").IsVisible); Assert.True(Button(window, "CSV 내보내기").IsVisible);
-            Assert.Contains(window.GetVisualDescendants().OfType<TextBlock>(), text => text.Text == "첫 휴식은 언제든 괜찮아요.");
+            Assert.DoesNotContain(window.GetVisualDescendants().OfType<TextBlock>(), text => text.Text == "첫 휴식은 언제든 괜찮아요.");
         }
         finally { window.Close(); }
     }
@@ -231,7 +236,31 @@ public class BreakReviewTests
     }
 
     [AvaloniaFact]
-    public void ReviewDetailKeepsKoreanWeekdayAndLongRoutineNameWithinMinimumWindow()
+    public void ReviewDateHeaderPressKeepsHoverAppearanceWithoutTransitions()
+    {
+        var entry = Entry("00000000-0000-0000-0000-000000000053", Today, 9, 0, "press", "클릭", 20, 20);
+        var window = new BreakReviewWindow(_ => Review(Today, entry), currentDay: Today);
+        try
+        {
+            window.Show(); Layout(window);
+            var header = Header(window, Today);
+            var presenter = header.GetVisualDescendants().OfType<ContentPresenter>()
+                .Single(control => control.Name == "PART_ContentPresenter");
+            var point = header.TranslatePoint(new Point(12, 12), window)!.Value;
+            window.MouseMove(point); Layout(window);
+            var hover = Assert.IsAssignableFrom<ISolidColorBrush>(presenter.Background);
+            window.MouseDown(point, MouseButton.Left); Layout(window);
+            var pressed = Assert.IsAssignableFrom<ISolidColorBrush>(presenter.Background);
+            Assert.Equal(hover.Color, pressed.Color);
+            Assert.True(presenter.Transitions is null || presenter.Transitions.Count == 0);
+            window.MouseUp(point, MouseButton.Left); Layout(window);
+            Assert.True(header.IsChecked);
+        }
+        finally { window.Close(); }
+    }
+
+    [AvaloniaFact]
+    public void ReviewDetailKeepsKoreanWeekdayAndHidesLongRoutineNameAtMinimumSizes()
     {
         var longName = string.Concat(Enumerable.Repeat("긴이름", 20));
         var entry = Entry("00000000-0000-0000-0000-000000000061", Today, 16, 30, "long-routine", longName, 60, 65);
@@ -251,22 +280,73 @@ public class BreakReviewTests
         Header(scope.Window, day).IsChecked = true; Layout(scope.Window);
         Assert.Contains(scope.Window.GetVisualDescendants().OfType<TextBlock>(), text =>
             text.Text == day.ToString("M월 d일 (ddd)", CultureInfo.GetCultureInfo("ko-KR")));
-        var routine = scope.Window.GetVisualDescendants().OfType<TextBlock>().Single(text => text.Text == longName);
-        var row = Assert.IsType<Grid>(routine.Parent); var completed = row.Children.OfType<TextBlock>().Single(text => text.Text?.EndsWith(" 완료") == true);
-        Assert.True(routine.Bounds.Right <= completed.Bounds.X + .5);
+        Assert.DoesNotContain(scope.Window.GetVisualDescendants().OfType<TextBlock>(), text => text.Text == longName);
+        var row = scope.Window.GetVisualDescendants().OfType<Border>().Single(control => control.Name?.StartsWith("ReviewEntry_", StringComparison.Ordinal) == true);
         Assert.True(row.Bounds.Right <= Assert.IsAssignableFrom<Control>(row.Parent).Bounds.Width + 1);
     }
 
     private static void AssertDetailFits(Window window, Guid sessionId, string longName)
     {
-        var row = Find<Grid>(window, $"ReviewEntry_{sessionId:N}");
-        var routine = row.Children.OfType<TextBlock>().Single(text => text.Text == longName);
-        var completed = row.Children.OfType<TextBlock>().Single(text => text.Text?.EndsWith(" 완료") == true);
-        var duration = row.Children.OfType<TextBlock>().Single(text => text.Text?.StartsWith("실제 휴식", StringComparison.Ordinal) == true);
-        Assert.Equal(TextWrapping.Wrap, routine.TextWrapping);
-        Assert.True(routine.Bounds.Right <= completed.Bounds.X + .5);
-        Assert.True(completed.Bounds.Right <= duration.Bounds.X + .5);
-        Assert.True(duration.Bounds.Right <= row.Bounds.Width + .5);
+        var row = Find<Border>(window, $"ReviewEntry_{sessionId:N}");
+        var texts = row.GetVisualDescendants().OfType<TextBlock>().ToArray();
+        Assert.Equal(2, texts.Length); Assert.DoesNotContain(texts, text => text.Text == longName);
+        var completed = texts.Single(text => text.Text?.EndsWith(" 완료") == true);
+        var duration = texts.Single(text => text.Text?.StartsWith("실제 휴식", StringComparison.Ordinal) == true);
+        var first = completed.TranslatePoint(default, row)!.Value;
+        var second = duration.TranslatePoint(default, row)!.Value;
+        Assert.True(first.Y + completed.Bounds.Height <= second.Y + .5 || first.X + completed.Bounds.Width <= second.X + .5);
+        Assert.True(second.X + duration.Bounds.Width <= row.Bounds.Width + .5);
+    }
+
+    [AvaloniaFact]
+    public void ReviewSummaryControlsAndFooterFitWithExpandedRecordsAndExportFailure()
+    {
+        var entry = Entry("00000000-0000-0000-0000-000000000081", Today, 9, 42, "hidden-routine", "가볍게 몸 풀기", 60, 65);
+        foreach (var size in new[] { new Size(1120, 800), new Size(860, 680), new Size(620, 650), new Size(560, 600) })
+        {
+            var tab = size.Width >= 860;
+            var window = new Window { Width = size.Width, Height = size.Height };
+            var view = new BreakReviewView(window, end => Review(end, entry),
+                () => "일부 기록을 읽지 못했어요. 현재 확인할 수 있는 기록만 표시하고 있어요.",
+                _ => throw new IOException("No space"), currentDay: Today, close: tab ? null : () => { }, showHeader: !tab);
+            // Mirror the tab's rail/frame inset and the compatibility window's page frame.
+            window.Content = tab ? new Border { Padding = new(111, 31, 31, 31), Child = view } : Ui.PageFrame(window, view);
+            try
+            {
+                window.Show(); Layout(window); Header(window, Today).IsChecked = true; Layout(window);
+                var cardWidth = Find<Border>(window, "ReviewSummaryCard").Bounds.Width;
+                Assert.True(cardWidth <= 760.5, $"{size}: summary width {cardWidth}");
+                Assert.Equal("1", Find<TextBlock>(window, "ReviewCount").Text);
+                Assert.Equal("1분 5초", Find<TextBlock>(window, "ReviewDuration").Text);
+                Assert.Equal("1", Find<TextBlock>(window, "ReviewActiveDays").Text);
+                var period = Find<TextBlock>(window, "ReviewPeriod");
+                foreach (var name in new[] { "ReviewPrevious", "ReviewNext", "ReviewRefresh" })
+                {
+                    var button = Find<Button>(window, name); Assert.IsType<PathIcon>(button.Content);
+                    Assert.Equal(new Size(40, 40), button.Bounds.Size);
+                    Assert.NotNull(ToolTip.GetTip(button));
+                    Assert.True(button.TranslatePoint(default, window)!.Value.X > period.TranslatePoint(default, window)!.Value.X + period.Bounds.Width);
+                }
+                Press(window, "CSV 내보내기");
+                Assert.Contains("내보내지 못했어요", Find<TextBlock>(window, "ReviewStatus").Text);
+                Assert.True(Find<Button>(window, "ReviewExport").IsEnabled);
+                var scroll = Find<ScrollViewer>(window, "PageBodyScroll");
+                var footer = Find<Grid>(window, "ReviewFooter");
+                var footerTop = footer.TranslatePoint(default, window)!.Value.Y;
+                Assert.True(footerTop >= scroll.TranslatePoint(default, window)!.Value.Y + scroll.Bounds.Height);
+                foreach (var name in new[] { "ReviewStatus", "ReviewExport" })
+                {
+                    var control = Find<Control>(window, name); var origin = control.TranslatePoint(default, window)!.Value;
+                    Assert.True(origin.Y + control.Bounds.Height <= size.Height);
+                    Assert.True(origin.X + control.Bounds.Width <= size.Width);
+                }
+                scroll.ScrollToEnd(); Layout(window);
+                Assert.Equal(footerTop, footer.TranslatePoint(default, window)!.Value.Y);
+                Assert.True(scroll.Extent.Width <= scroll.Viewport.Width + .5);
+                AssertDetailFits(window, entry.SessionId, entry.RoutineName!);
+            }
+            finally { window.Close(); }
+        }
     }
 
     private static IBrush EffectiveBackground(Visual visual)

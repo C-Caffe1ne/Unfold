@@ -10,36 +10,45 @@ namespace Unfold.Desktop;
 
 public sealed class PetSpeechBubble : Border
 {
-    private readonly TextBlock title = Ui.Text("", 17), instruction = Ui.Text("", 14), timer = Ui.Text("", 34);
-    private readonly TextBlock hint = Ui.Caption("");
+    private readonly TextBlock title = Ui.Text("", DesignSystem.Section), timer = Ui.Text("", DesignSystem.SpeechTimerSize);
     private readonly Button start, snooze, complete;
     private readonly Grid invitation = new() { ColumnDefinitions = new("*,8,*") };
 
     public PetSpeechBubble(Action startBreak, Action snoozeBreak, Action completeBreak)
     {
-        Name = "PetSpeechBubble"; Width = 320; Height = 268;
+        Name = "PetSpeechBubble"; Width = DesignSystem.SpeechBubbleWidth; Height = DesignSystem.SpeechInvitationHeight;
         Background = DesignSystem.Shell; BorderBrush = DesignSystem.Outline; BorderThickness = new(1);
-        CornerRadius = new(22); Padding = new(18);
-        title.FontWeight = FontWeight.SemiBold; title.TextWrapping = TextWrapping.Wrap;
-        instruction.TextWrapping = TextWrapping.Wrap; instruction.MaxLines = 4; instruction.TextTrimming = TextTrimming.CharacterEllipsis;
+        CornerRadius = DesignSystem.CardRadius; Padding = new(20, 14);
+        title.Name = "PetBreakTitle"; title.FontWeight = FontWeight.SemiBold;
+        title.TextWrapping = TextWrapping.Wrap; title.TextAlignment = TextAlignment.Center;
+        title.HorizontalAlignment = HorizontalAlignment.Stretch;
         timer.Name = "PetBreakTimer"; timer.HorizontalAlignment = HorizontalAlignment.Center;
-        hint.TextAlignment = TextAlignment.Center;
         start = Ui.Primary(Ui.Button("휴식 시작", startBreak)); start.Name = "PetBreakStart";
         snooze = Ui.Button("5분 뒤에", snoozeBreak); snooze.Name = "PetBreakSnooze";
         complete = Ui.Primary(Ui.Button("완료", completeBreak)); complete.Name = "PetBreakComplete";
         foreach (var button in new[] { start, snooze, complete })
-        { button.HorizontalAlignment = HorizontalAlignment.Stretch; button.HorizontalContentAlignment = HorizontalAlignment.Center; }
+        {
+            button.Height = DesignSystem.SpeechControlHeight;
+            button.HorizontalAlignment = HorizontalAlignment.Stretch; button.HorizontalContentAlignment = HorizontalAlignment.Center;
+        }
         invitation.Children.Add(snooze); Grid.SetColumn(start, 2); invitation.Children.Add(start);
-        var body = new Grid { RowDefinitions = new("Auto,8,*,8,Auto,8,Auto,8,Auto") };
-        body.Children.Add(title); Grid.SetRow(instruction, 2); body.Children.Add(instruction);
-        Grid.SetRow(timer, 4); body.Children.Add(timer);
         var actions = new Grid(); actions.Children.Add(invitation); actions.Children.Add(complete);
-        Grid.SetRow(actions, 6); body.Children.Add(actions); Grid.SetRow(hint, 8); body.Children.Add(hint);
+        var footer = new StackPanel { Spacing = DesignSystem.SpeechGap };
+        footer.Children.Add(timer); footer.Children.Add(actions);
+        var body = new Grid { RowDefinitions = new("Auto,*,Auto") };
+        body.Children.Add(title); Grid.SetRow(footer, 2); body.Children.Add(footer);
         Child = body; AutomationProperties.SetName(this, "펫의 스트레칭 알림");
     }
     public void Refresh(PetReminder reminder, int snoozeMinutes)
     {
-        Height = reminder.Notice is PetNotice.Advance or PetNotice.Completed ? 170 : 268;
+        Height = reminder.Notice switch
+        {
+            PetNotice.Advance => DesignSystem.SpeechAdvanceHeight,
+            PetNotice.Invitation => DesignSystem.SpeechInvitationHeight,
+            PetNotice.Resting => DesignSystem.SpeechRestingHeight,
+            PetNotice.Completed => DesignSystem.SpeechCompletedHeight,
+            _ => DesignSystem.SpeechInvitationHeight
+        };
         var session = reminder.Session;
         title.Text = reminder.Notice switch
         {
@@ -48,46 +57,44 @@ public sealed class PetSpeechBubble : Border
             PetNotice.Resting => session?.Remaining < TimeSpan.Zero ? "조금 더 쉬어도 좋아요" : "함께 쉬어 가요",
             PetNotice.Completed => "스트레칭을 마쳤어요!", _ => ""
         };
-        instruction.Text = reminder.Notice switch
-        {
-            PetNotice.Advance => "하던 일을 천천히 마무리해 주세요.",
-            PetNotice.Invitation => session is null ? "준비되면 휴식을 시작해 주세요." :
-                $"{session.Routine.Name} · {DurationText(session.DurationSeconds)}\n준비되면 휴식을 시작해 주세요.",
-            PetNotice.Resting => session?.CurrentStep.Instruction,
-            PetNotice.Completed => $"{reminder.CompletedSeconds / 60}분 {reminder.CompletedSeconds % 60}초 쉬었어요.\n다음 휴식 때 다시 만나요.", _ => ""
-        };
-        ToolTip.SetTip(instruction, instruction.Text);
         invitation.IsVisible = reminder.Notice == PetNotice.Invitation;
         complete.IsVisible = timer.IsVisible = reminder.Notice == PetNotice.Resting;
         complete.IsEnabled = session?.State is BreakSessionState.InProgress or BreakSessionState.AwaitingConfirmation;
         snooze.Content = $"{snoozeMinutes}분 뒤에";
         timer.Text = session is null ? "" : PetReminder.TimerText(session);
         timer.Foreground = session?.Remaining < TimeSpan.Zero ? DesignSystem.Warning : DesignSystem.Cream;
-        hint.Text = reminder.Notice == PetNotice.Resting
-            ? session?.Overtime >= BreakSession.MaximumOvertime ? "+60분에 도달했어요. 완료를 눌러 주세요." : "준비되면 언제든 완료할 수 있어요."
-            : "펫 우클릭으로 말풍선을 접을 수 있어요.";
         AutomationProperties.SetName(timer, "휴식 타이머 " + timer.Text);
     }
-    private static string DurationText(int seconds) => seconds % 60 == 0 ? $"{seconds / 60}분" : $"{seconds}초";
     internal void FocusAction() => (complete.IsVisible ? complete : start).Focus(Avalonia.Input.NavigationMethod.Tab);
 }
 
 public sealed record PetBubbleLayout(Size Size, Point Pet, Point Bubble, IReadOnlyList<Point> Tail)
 {
-    public static PetBubbleLayout Create(BubbleDirection direction, bool expanded, double bubbleHeight = 268)
+    public static PetBubbleLayout Create(BubbleDirection direction, bool expanded,
+        double bubbleHeight = DesignSystem.SpeechInvitationHeight, double petSize = DesignSystem.PetBaseSize)
     {
-        if (!expanded) return new(new(192, 192), default, default, []);
-        var height = Math.Max(192, bubbleHeight);
+        if (petSize <= 0 || !double.IsFinite(petSize)) throw new ArgumentOutOfRangeException(nameof(petSize));
+        if (!expanded) return new(new(petSize, petSize), default, default, []);
+        var bubbleWidth = DesignSystem.SpeechBubbleWidth;
+        var gap = DesignSystem.PetBubbleGap;
+        var width = Math.Max(bubbleWidth, petSize);
+        var horizontalCenter = width / 2;
+        var height = Math.Max(petSize, bubbleHeight);
         var center = height / 2;
-        var petY = (height - 192) / 2;
+        var petY = (height - petSize) / 2;
         var bubbleY = (height - bubbleHeight) / 2;
         return direction switch
         {
-            BubbleDirection.Top => new(new(320, bubbleHeight + 204), new(64, bubbleHeight + 12), default,
-                [new(150, bubbleHeight - 1), new(170, bubbleHeight - 1), new(160, bubbleHeight + 12)]),
-            BubbleDirection.Bottom => new(new(320, bubbleHeight + 204), new(64, 0), new(0, 204), [new(150, 205), new(170, 205), new(160, 192)]),
-            BubbleDirection.Left => new(new(524, height), new(332, petY), new(0, bubbleY), [new(319, center - 10), new(319, center + 10), new(332, center)]),
-            BubbleDirection.Right => new(new(524, height), new(0, petY), new(204, bubbleY), [new(205, center - 10), new(205, center + 10), new(192, center)]),
+            BubbleDirection.Top => new(new(width, bubbleHeight + gap + petSize),
+                new((width - petSize) / 2, bubbleHeight + gap), new((width - bubbleWidth) / 2, 0),
+                [new(horizontalCenter - 10, bubbleHeight - 1), new(horizontalCenter + 10, bubbleHeight - 1), new(horizontalCenter, bubbleHeight + gap)]),
+            BubbleDirection.Bottom => new(new(width, bubbleHeight + gap + petSize),
+                new((width - petSize) / 2, 0), new((width - bubbleWidth) / 2, petSize + gap),
+                [new(horizontalCenter - 10, petSize + gap + 1), new(horizontalCenter + 10, petSize + gap + 1), new(horizontalCenter, petSize)]),
+            BubbleDirection.Left => new(new(bubbleWidth + gap + petSize, height), new(bubbleWidth + gap, petY), new(0, bubbleY),
+                [new(bubbleWidth - 1, center - 10), new(bubbleWidth - 1, center + 10), new(bubbleWidth + gap, center)]),
+            BubbleDirection.Right => new(new(bubbleWidth + gap + petSize, height), new(0, petY), new(petSize + gap, bubbleY),
+                [new(petSize + gap + 1, center - 10), new(petSize + gap + 1, center + 10), new(petSize, center)]),
             _ => throw new ArgumentOutOfRangeException(nameof(direction))
         };
     }

@@ -1,0 +1,36 @@
+{
+  "date": "2026-09-20",
+  "scope": "remove visible feature explanation copy from active UI",
+  "build": {
+    "configuration": "Release",
+    "success": true,
+    "warnings": 0,
+    "errors": 0
+  },
+  "tests": {
+    "uiCopyFocused": { "passed": 13, "failed": 0, "skipped": 0 },
+    "themeFollowUp": { "passed": 4, "failed": 0, "skipped": 0 },
+    "full": { "passed": 215, "failed": 0, "skipped": 0 }
+  },
+  "smoke": {
+    "isolatedData": true,
+    "success": true,
+    "imageFiles": 82,
+    "minimumWindow": "860x680",
+    "noHorizontalOverflow": true,
+    "settingsOptionsExtentHeight": 800,
+    "featureExplanationCopyRemoved": true
+  },
+  "preserved": [
+    "field labels",
+    "current values",
+    "file metadata",
+    "state names",
+    "operation success and failure feedback",
+    "tooltips and accessibility names"
+  ],
+  "actualMacOS": "not run; automated off-screen capture only",
+  "actualWindows": "not run",
+  "humanReview": "not run"
+}
+

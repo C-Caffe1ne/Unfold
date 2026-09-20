@@ -13,7 +13,7 @@
 | Break duration (min) | 휴식 시간 (분) |
 | Pause when away (min) | 자리 비움 (분) |
 | Pause / Resume / Stop timer | 타이머 일시정지 / 계속 / 정지 |
-| Pet speech actions | n분 뒤에 / 휴식 시작 / 완료 / 말풍선 접기·펼치기 |
+| Pet speech actions | n분 뒤에 / 휴식 시작 / 완료 |
 | Review & export / Export CSV | 기록 · 내보내기 / CSV 내보내기 |
 | Install / Update / Reinstall | 설치 / 업데이트 / 재설치 |
 | Quit Unfold | Unfold 종료 |

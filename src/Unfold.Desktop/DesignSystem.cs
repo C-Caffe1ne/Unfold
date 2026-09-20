@@ -10,40 +10,39 @@ using Avalonia.Themes.Fluent;
 namespace Unfold.Desktop;
 
 /// <summary>Shared visual tokens and control states for Unfold's desktop UI.</summary>
-public static class DesignSystem
+public static partial class DesignSystem
 {
-    public static readonly IBrush Canvas = Brush.Parse("#141713"), Shell = Brush.Parse("#1D201D"),
-        Surface = Brush.Parse("#2B2F2A"), Raised = Brush.Parse("#363C33"), Cream = Brush.Parse("#DFE5D1"),
-        Ink = Brush.Parse("#252A23"), Muted = Brush.Parse("#B6BEB0"), Hover = Brush.Parse("#505A48"),
-        AccentHover = Brush.Parse("#F0F3E9"), TextTertiary = Brush.Parse("#9CA798"),
-        OutlineSubtle = Brush.Parse("#4F5B51"), OutlineStrong = Brush.Parse("#849187"),
-        Error = Brush.Parse("#FFB4AB"), Warning = Brush.Parse("#F2CD7D"), Success = Brush.Parse("#9ED8AC"),
-        DisabledFill = Brush.Parse("#292F29"), DisabledText = Brush.Parse("#929C91"), FocusRing = Brush.Parse("#8FD3FF");
     // Compatibility alias kept while callers move to the semantic outline roles.
-    public static readonly IBrush Outline = OutlineSubtle;
+    public static IBrush Outline => OutlineSubtle;
     public const double Caption = 12, Body = 14, Section = 18, Title = 24;
     public const double Space = 8, Gap = 12, Inset = 20;
     public const double SettingsContentWidth = 760, SettingsControlHeight = 40, SettingsChoiceWidth = 200,
         SettingsNumberWidth = 160, SettingsRowGap = 16, SettingsActionWidth = 80,
         SettingsPreviewWidth = 80, SettingsImportWidth = 104, SettingsResetWidth = 64;
     public const double FocusRingWidth = 2, FocusRingOffset = 2;
+    public const double HomeTimerHeight = 196, HomeControlHeight = 40, HomeChoiceWidth = 200,
+        HomeNumberWidth = 160, HomeActionWidth = 80, HomePetScaleWidth = 280;
+    public const double ReviewContentWidth = 760, ReviewControlHeight = 40, ReviewDateHeight = 44;
     public const double PetContentWidth = 760, PetControlHeight = 40, PetChoiceWidth = 200,
         PetPreviewOptionWidth = 148, PetPreviewWidth = 520, PetActionWidth = 128, PetActionHeight = 148;
+    public const double SpeechBubbleWidth = 320, SpeechAdvanceHeight = 96, SpeechInvitationHeight = 159,
+        SpeechRestingHeight = 196, SpeechCompletedHeight = 113, SpeechControlHeight = 40,
+        SpeechTimerSize = 40, SpeechGap = 6, PetBaseSize = 192, PetBubbleGap = 12;
     public static readonly Thickness BorderSubtle = new(1), BorderStrong = new(1);
     public static readonly CornerRadius ControlRadius = new(12), CardRadius = new(24), FrameRadius = new(32);
 
     public static void Install(Application app)
     {
-        app.RequestedThemeVariant = ThemeVariant.Dark;
         var fluent = new FluentTheme();
-        fluent.Palettes[ThemeVariant.Dark] = new ColorPaletteResources
-        {
-            Accent = ColorOf(Cream), RegionColor = ColorOf(Shell),
-            BaseHigh = ColorOf(Cream), BaseMediumHigh = ColorOf(Muted),
-            AltHigh = ColorOf(Ink), ErrorText = ColorOf(Error)
-        };
+        ApplyFluentPalette(app, fluent, Themes.Single(item => item.Id == CurrentTheme));
         app.Styles.Add(fluent);
         var styles = new Styles();
+        styles.Add(new Style(s => s.OfType<FlyoutPresenter>().Class("theme-picker")) { Setters =
+        {
+            new Setter(TemplatedControl.BackgroundProperty, Surface), new Setter(TemplatedControl.ForegroundProperty, Cream),
+            new Setter(TemplatedControl.BorderBrushProperty, OutlineStrong), new Setter(TemplatedControl.BorderThicknessProperty, BorderStrong),
+            new Setter(TemplatedControl.CornerRadiusProperty, CardRadius), new Setter(TemplatedControl.PaddingProperty, new Thickness(16))
+        }});
         styles.Add(new Style(s => s.OfType<Window>().Class("unfold-page")) { Setters =
         {
             new Setter(TemplatedControl.BackgroundProperty, Canvas), new Setter(TemplatedControl.ForegroundProperty, Cream),
@@ -61,7 +60,7 @@ public static class DesignSystem
             new Setter(ContentControl.VerticalContentAlignmentProperty, VerticalAlignment.Center)
         }});
         styles.Add(new Style(s => s.OfType<Button>().Class("primary")) { Setters =
-        { new Setter(TemplatedControl.BackgroundProperty, Cream), new Setter(TemplatedControl.ForegroundProperty, Ink) }});
+        { new Setter(TemplatedControl.BackgroundProperty, Accent), new Setter(TemplatedControl.ForegroundProperty, Ink) }});
         styles.Add(new Style(s => s.OfType<Button>().Class("quiet")) { Setters =
         { new Setter(TemplatedControl.BackgroundProperty, Brushes.Transparent), new Setter(TemplatedControl.BorderBrushProperty, OutlineStrong) }});
         styles.Add(new Style(s => s.OfType<Button>().Class("danger")) { Setters =
@@ -72,7 +71,7 @@ public static class DesignSystem
         AddButtonState(styles, null, ":pointerover", Hover, Cream);
         AddButtonState(styles, null, ":pressed", OutlineSubtle, Cream);
         AddButtonState(styles, "primary", ":pointerover", AccentHover, Ink);
-        AddButtonState(styles, "primary", ":pressed", Muted, Ink);
+        AddButtonState(styles, "primary", ":pressed", Accent, Ink);
         AddButtonState(styles, "danger", ":pointerover", Hover, Error);
         AddButtonState(styles, "danger", ":pressed", OutlineSubtle, Error);
         AddButtonState(styles, null, ":disabled", DisabledFill, DisabledText);
@@ -87,7 +86,8 @@ public static class DesignSystem
             styles.Add(new Style(s => s.Is(type)) { Setters =
             {
                 new Setter(TemplatedControl.CornerRadiusProperty, ControlRadius),
-                new Setter(TemplatedControl.FontSizeProperty, Body), new Setter(Layoutable.MinHeightProperty, 38d),
+                new Setter(TemplatedControl.FontSizeProperty, Body), new Setter(TemplatedControl.ForegroundProperty, Cream),
+                new Setter(Layoutable.MinHeightProperty, 38d),
                 new Setter(TemplatedControl.BackgroundProperty, Shell),
                 new Setter(TemplatedControl.BorderBrushProperty, OutlineStrong),
                 new Setter(TemplatedControl.BorderThicknessProperty, BorderStrong),
@@ -122,7 +122,8 @@ public static class DesignSystem
             styles.Add(new Style(s =>
             {
                 var input = s.OfType<ComboBox>().Not(selector => selector.Class("settings-choice"))
-                    .Not(selector => selector.Class("pet-choice")).Not(selector => selector.Class("pet-preview-choice"));
+                    .Not(selector => selector.Class("pet-choice")).Not(selector => selector.Class("pet-preview-choice"))
+                    .Not(selector => selector.Class("home-choice"));
                 return (state.Length == 0 ? input : input.Class(state)).Template().OfType<Border>();
             }) { Setters =
             {
@@ -193,7 +194,7 @@ public static class DesignSystem
         }
         styles.Add(new Style(s => s.OfType<TextBox>()) { Setters =
         {
-            new Setter(TextBox.SelectionBrushProperty, Cream), new Setter(TextBox.SelectionForegroundBrushProperty, Ink),
+            new Setter(TextBox.SelectionBrushProperty, Accent), new Setter(TextBox.SelectionForegroundBrushProperty, Ink),
             new Setter(TextBox.CaretBrushProperty, Cream)
         }});
         foreach (var state in new[] { ":checked", ":indeterminate" })
@@ -204,13 +205,14 @@ public static class DesignSystem
             styles.Add(new Style(s => s.Is(type).Class(":selected")) { Setters =
             { new Setter(TemplatedControl.ForegroundProperty, Ink) }});
             styles.Add(new Style(s => s.Is(type).Class(":selected").Template().OfType<ContentPresenter>().Name("PART_ContentPresenter")) { Setters =
-            { new Setter(ContentPresenter.BackgroundProperty, Cream), new Setter(ContentPresenter.ForegroundProperty, Ink) }});
+            { new Setter(ContentPresenter.BackgroundProperty, Accent), new Setter(ContentPresenter.ForegroundProperty, Ink) }});
         }
         styles.Add(new Style(s => s.OfType<ListBox>()) { Setters =
         { new Setter(TemplatedControl.BackgroundProperty, Surface), new Setter(TemplatedControl.CornerRadiusProperty, ControlRadius) }});
         styles.Add(new Style(s => s.OfType<ListBoxItem>()) { Setters =
         { new Setter(TemplatedControl.PaddingProperty, new Thickness(12, 10)), new Setter(TemplatedControl.CornerRadiusProperty, new CornerRadius(8)) }});
         AddChoiceStyles(styles, "settings-choice", SettingsChoiceWidth);
+        AddChoiceStyles(styles, "home-choice", HomeChoiceWidth);
         AddChoiceStyles(styles, "pet-choice", PetChoiceWidth);
         AddChoiceStyles(styles, "pet-preview-choice", PetPreviewOptionWidth);
         styles.Add(new Style(s => s.OfType<Button>().Class("settings-reset")) { Setters =
@@ -261,7 +263,7 @@ public static class DesignSystem
             styles.Add(new Style(s => s.OfType<ComboBoxItem>().Class(className + "-item").Class(state)
                 .Template().OfType<ContentPresenter>().Name("PART_ContentPresenter")) { Setters =
             {
-                new Setter(ContentPresenter.BackgroundProperty, state == ":selected" ? Cream : Raised),
+                new Setter(ContentPresenter.BackgroundProperty, state == ":selected" ? Accent : Raised),
                 new Setter(ContentPresenter.ForegroundProperty, state == ":selected" ? Ink : Cream)
             }});
     }

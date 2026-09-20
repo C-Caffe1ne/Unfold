@@ -49,13 +49,16 @@ internal static class SmokeDiagnostics
             Capture(settings, Path.Combine(directory, "timer-paused.png"));
             Press(settings, "TimerToggle"); if (runtime.Clock.Paused) throw new InvalidOperationException("Play did not resume the timer.");
             Press(settings, "TimerStop"); await Task.Delay(1200);
-            if (!runtime.Clock.Stopped || runtime.Clock.Remaining != TimeSpan.Zero) throw new InvalidOperationException("Stop did not keep the timer stopped.");
+            var stoppedCountdown = settings.GetVisualDescendants().OfType<TextBlock>().Single(text => text.Name == "TimerCountdown");
+            if (!runtime.Clock.Stopped || runtime.Clock.Remaining != TimeSpan.FromMinutes(25) || stoppedCountdown.Text != "25:00" ||
+                settings.GetVisualDescendants().OfType<TextBlock>().Any(text => text.Name == "TimerStateDetail"))
+                throw new InvalidOperationException("Stop did not keep the configured interval visible.");
             Capture(settings, Path.Combine(directory, "timer-stopped.png"));
             intervalInput.Value = 30; await Task.Delay(100);
-            if (runtime.Settings.IntervalMinutes == 30 || !runtime.Clock.Stopped || runtime.Clock.Remaining != TimeSpan.Zero)
+            if (runtime.Settings.IntervalMinutes == 30 || !runtime.Clock.Stopped || runtime.Clock.Remaining != TimeSpan.FromMinutes(25))
                 throw new InvalidOperationException("Editing an interval applied early or restarted a stopped timer.");
             Press(settings, "ApplyHomeTimingSettings"); await Task.Delay(100);
-            if (runtime.Settings.IntervalMinutes != 30 || !runtime.Clock.Stopped || runtime.Clock.Remaining != TimeSpan.Zero)
+            if (runtime.Settings.IntervalMinutes != 30 || !runtime.Clock.Stopped || runtime.Clock.Remaining != TimeSpan.FromMinutes(30))
                 throw new InvalidOperationException("Applying an interval changed the stopped state.");
             Press(settings, "TimerToggle");
             var routineEditor = new RoutineEditorWindow(null, routine => runtime.UpdateSettings(runtime.Settings with
@@ -116,6 +119,9 @@ internal static class SmokeDiagnostics
             await runtime.ShowReminder();
             if (runtime.Reminder.Session != session || runtime.DueSoundRequests != dueSounds)
                 throw new InvalidOperationException("Duplicate reminder restarted the session or sound.");
+            VerifySpeechBubble(reminder, "스트레칭할 시간이에요", DesignSystem.SpeechInvitationHeight,
+                session.Routine.Name, session.CurrentStep.Instruction, "준비되면 휴식을 시작해 주세요.");
+            var themes = await VerifyThemes(settings, runtime, directory);
             foreach (var direction in Enum.GetValues<BubbleDirection>())
             {
                 await runtime.UpdateSettings(runtime.Settings with { BubbleDirection = direction });
@@ -125,6 +131,7 @@ internal static class SmokeDiagnostics
             await runtime.UpdateSettings(runtime.Settings with { BubbleDirection = BubbleDirection.Top });
             Press(reminder, "PetBreakStart");
             if (session.State != BreakSessionState.InProgress) throw new InvalidOperationException("Start button did not begin the break.");
+            VerifySpeechBubble(reminder, "함께 쉬어 가요", DesignSystem.SpeechRestingHeight, session.CurrentStep.Instruction);
             await runtime.UpdateSettings(runtime.Settings.SaveRoutine(writing with { Name = "Revised writing pause", Steps = [new("Different next time.", 40)] }));
             if (session.Routine.DurationSeconds != 20 || session.DurationSeconds != 180 || session.ProfileId != applied.ActiveProfileId)
                 throw new InvalidOperationException("Editing a routine changed an in-progress break.");
@@ -134,15 +141,16 @@ internal static class SmokeDiagnostics
             reminder.RefreshSpeech();
             if (session.State != BreakSessionState.AwaitingConfirmation || runtime.BreakHistory.Completions.Count != 0 || !PetReminder.TimerText(session).StartsWith('+'))
                 throw new InvalidOperationException("Overtime or explicit confirmation failed.");
+            VerifySpeechBubble(reminder, "조금 더 쉬어도 좋아요", DesignSystem.SpeechRestingHeight, session.CurrentStep.Instruction);
             await Task.Delay(100); Capture(reminder, Path.Combine(directory, "speech-overtime.png"));
-            await runtime.ToggleBubble(); await Task.Delay(100);
-            if (reminder.Width != 192 || runtime.Reminder.Session != session) throw new InvalidOperationException("Folding lost the session.");
-            Capture(reminder, Path.Combine(directory, "speech-folded.png"));
-            await runtime.ToggleBubble(); await Task.Delay(100);
+            var petMenu = reminder.ContextMenu?.Items.OfType<MenuItem>().ToArray() ?? [];
+            if (petMenu.Length != 1 || petMenu[0].Header as string != "설정" || runtime.Reminder.Session != session)
+                throw new InvalidOperationException("The pet context menu still exposes reminder hiding or lost the active session.");
             Press(reminder, "PetBreakComplete");
             var historyFile = Path.Combine(AppPaths.DataRoot, "break-history.json");
             if (runtime.ActiveReminder is not null || BreakHistory.Load(historyFile).Completions.Count != 1 || runtime.CompletionSoundRequests != 1)
                 throw new InvalidOperationException("Confirmed break was not saved/sounded exactly once.");
+            VerifySpeechBubble(reminder, "스트레칭을 마쳤어요!", DesignSystem.SpeechCompletedHeight, "쉬었어요", "다음 휴식 때");
             await Task.Delay(100); Capture(reminder, Path.Combine(directory, "speech-completed.png"));
             var completed = BreakHistory.Load(historyFile).Completions.Single();
             if (completed.RoutineName != "글쓰기 휴식" || completed.ProfileId != applied.ActiveProfileId || completed.Seconds != 180 || completed.ActualSeconds < 190)
@@ -156,11 +164,12 @@ internal static class SmokeDiagnostics
             {
                 var path = Path.Combine(directory, "review.csv"); AtomicFile.Write(path, snapshot.Csv()); return Task.FromResult<string?>(path);
             });
-            AppRuntime.PrepareDiagnosticWindow(reviewWindow); reviewWindow.Show(); await Task.Delay(100); Press(reviewWindow, "CSV 내보내기");
+            AppRuntime.PrepareDiagnosticWindow(reviewWindow); reviewWindow.Show(); await Task.Delay(100); Press(reviewWindow, "ReviewExport");
             if (reviewWindow.Review.Entries.Count != 1 || !File.ReadAllText(Path.Combine(directory, "review.csv")).Contains("글쓰기 휴식"))
                 throw new InvalidOperationException("Review/export differs from completed history.");
             Capture(reviewWindow, Path.Combine(directory, "weekly-review.png"));
             var weeklyReview = VerifyExpandedReview(reviewWindow, completed, directory);
+            var reviewLayout = await VerifyReviewLayout(settings, reviewWindow, completed, directory);
             reviewWindow.Close();
             await runtime.ShowReminder(); Press(settings, "TimerStop");
             if (runtime.ActiveReminder is not null || runtime.BreakHistory.Completions.Count != 1) throw new InvalidOperationException("Stop did not dismiss the break without recording completion.");
@@ -177,8 +186,29 @@ internal static class SmokeDiagnostics
             if (reminder.IsVisible) throw new InvalidOperationException("Temporary reminder pet did not hide after snooze.");
             await runtime.UpdateSettings(runtime.Settings with { ShowPet = true, ReminderSoundsEnabled = true });
             runtime.Reminder.ShowAdvance(TimeSpan.FromDays(2)); reminder.RefreshSpeech();
+            VerifySpeechBubble(reminder, "5분 뒤에 스트레칭해요", DesignSystem.SpeechAdvanceHeight, "하던 일을");
             await Task.Delay(100); Capture(reminder, Path.Combine(directory, "speech-five-minutes.png"));
             runtime.Stop();
+            var previewRemaining = runtime.Clock.Remaining;
+            var previewHistory = runtime.BreakHistory.Completions.Count;
+            var previewDueSounds = runtime.DueSoundRequests; var previewCompletionSounds = runtime.CompletionSoundRequests;
+            foreach (var notice in new[] { PetNotice.Advance, PetNotice.Invitation, PetNotice.Resting, PetNotice.Completed })
+            {
+                await runtime.ShowReminderPreview(notice); reminder.RefreshSpeech(); await Task.Delay(50);
+                if (runtime.PreviewNotice != notice || runtime.Reminder.HasNotice || runtime.Clock.Remaining != previewRemaining ||
+                    runtime.BreakHistory.Completions.Count != previewHistory || runtime.DueSoundRequests != previewDueSounds ||
+                    runtime.CompletionSoundRequests != previewCompletionSounds)
+                    throw new InvalidOperationException("A debug preview changed live timer, reminder, history or sound state.");
+            }
+            runtime.CloseReminderPreview();
+            foreach (var scale in new[] { 50, 100, 150 })
+            {
+                await runtime.UpdateSettings(runtime.Settings with { PetScalePercent = scale }); reminder.RefreshSpeech();
+                var expected = DesignSystem.PetBaseSize * scale / 100d;
+                if (Math.Abs(reminder.PetView.Width - expected) > .5 || Math.Abs(reminder.PetView.Height - expected) > .5)
+                    throw new InvalidOperationException("The desktop pet did not apply the saved scale.");
+            }
+            await runtime.UpdateSettings(runtime.Settings with { PetScalePercent = 100 });
             var soundLibrary = new ReminderSounds(Path.Combine(directory, "sounds"));
             foreach (var sound in Enum.GetValues<ReminderSound>()) ReminderSounds.Validate(File.ReadAllBytes(soundLibrary.Resolve(sound, null)));
             editor.CloseAfterApproval();
@@ -196,8 +226,10 @@ internal static class SmokeDiagnostics
                 completedBreaks = runtime.BreakHistory.Completions.Count, simulatedSessionTiming = true,
                 savedCustomRoutines = runtime.Settings.AdditionalRoutines.Count + (runtime.Settings.CustomRoutine is null ? 0 : 1),
                 workProfiles = runtime.Settings.WorkProfiles.Count, exportedBreaks = 1, simulatedExportDestination = true,
-                timerPausedApplyWaitSeconds = 1.2, timerStopWaitSeconds = 1.2, timerControlsVerified = true, petSpeechDirectionsVerified = true, speechOvertimeAndFoldVerified = true, soundRequestsVerified = true, hiddenPetNoticeVerified = true, stopWhileOpening,
-                petPackInstallUpdateRepairVerified = true, simulatedPackPicker = true, settingsLayout, weeklyReview,
+                timerPausedApplyWaitSeconds = 1.2, timerStopWaitSeconds = 1.2, timerControlsVerified = true, petSpeechDirectionsVerified = true,
+                petContextMenuVerified = true, petScaleAndDebugPreviewVerified = true, speechTitleOnlyGeometryVerified = true,
+                soundRequestsVerified = true, hiddenPetNoticeVerified = true, stopWhileOpening,
+                petPackInstallUpdateRepairVerified = true, simulatedPackPicker = true, settingsLayout, weeklyReview, reviewLayout, themes,
                 customPetGifAuthoringVerified = true, petCardPreviewVerified = true,
                 sharedDesignDialogsVerified = true, pinnedPageActionsVerified = true,
                 idleSeconds = PlatformServices.IdleTime().TotalSeconds, os = Environment.OSVersion.ToString(), framework = Environment.Version.ToString() };
@@ -210,6 +242,77 @@ internal static class SmokeDiagnostics
             AppPaths.Log(error); runtime.Dispose(); desktop.Shutdown(1);
         }
     }
+    private static void VerifySpeechBubble(PetWindow window, string expectedTitle, double expectedHeight, params string[] forbiddenBodyText)
+    {
+        window.UpdateLayout();
+        var bubble = window.GetVisualDescendants().OfType<PetSpeechBubble>().Single();
+        var title = bubble.GetVisualDescendants().OfType<TextBlock>().Single(text => text.Name == "PetBreakTitle");
+        if (Math.Abs(bubble.Width - DesignSystem.SpeechBubbleWidth) > .5 || Math.Abs(bubble.Height - expectedHeight) > .5)
+            throw new InvalidOperationException("Speech bubble dimensions differ from the approved state geometry.");
+        if (title.Text != expectedTitle || title.TextAlignment != Avalonia.Media.TextAlignment.Center ||
+            Math.Abs(title.FontSize - DesignSystem.Section) > .5)
+            throw new InvalidOperationException("Speech bubble title differs from the approved centered hierarchy.");
+        var texts = bubble.GetVisualDescendants().OfType<TextBlock>().Select(text => text.Text ?? "").ToArray();
+        if (forbiddenBodyText.Any(body => texts.Any(text => text.Contains(body, StringComparison.Ordinal))))
+            throw new InvalidOperationException("Speech bubble still exposes removed instruction body text.");
+        if (bubble.GetVisualDescendants().OfType<Button>().Where(button => button.IsEffectivelyVisible)
+            .Any(button => Math.Abs(button.Bounds.Height - DesignSystem.SpeechControlHeight) > .5))
+            throw new InvalidOperationException("Speech bubble controls differ from the approved height.");
+    }
+    private static async Task<object> VerifyThemes(Window window, AppRuntime runtime, string directory)
+    {
+        var originalTheme = runtime.Settings.Theme;
+        var width = window.Width; var height = window.Height;
+        var minWidth = window.MinWidth; var minHeight = window.MinHeight;
+        var button = window.GetVisualDescendants().OfType<Button>().Single(item => item.Name == "SettingsTheme");
+        var flyout = (Flyout)button.Flyout!;
+        var choices = (Control)flyout.Content!;
+        var verified = new List<string>();
+        try
+        {
+            window.MinWidth = 860; window.MinHeight = 680;
+            window.Width = 860; window.Height = 680; await Task.Delay(100); window.UpdateLayout();
+            var quit = window.GetVisualDescendants().OfType<Button>().Single(item => item.Name == "SettingsQuit");
+            var origin = button.TranslatePoint(default, window)!.Value;
+            var quitOrigin = quit.TranslatePoint(default, window)!.Value;
+            if (origin.Y < 0 || origin.Y + button.Bounds.Height >= quitOrigin.Y || quitOrigin.Y + quit.Bounds.Height > window.ClientSize.Height)
+                throw new InvalidOperationException("Theme/quit buttons overlap or clip at minimum size.");
+            window.Width = 1120; window.Height = 800;
+            foreach (var palette in DesignSystem.Themes)
+            {
+                Press(window, "SettingsNavTimer"); await Task.Delay(100);
+                flyout.ShowAt(button); await Task.Delay(80);
+                choices.GetVisualDescendants().OfType<Button>().Single(item => item.Name == "Theme" + palette.Id)
+                    .RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                await Task.Delay(100); window.UpdateLayout();
+                if (runtime.Settings.Theme != palette.Id || AppSettings.Load(Path.Combine(AppPaths.DataRoot, "settings.json")).Theme != palette.Id)
+                    throw new InvalidOperationException("Theme selection did not persist: " + palette.Name);
+                Capture(window, Path.Combine(directory, "theme-" + palette.Id + "-home.png"));
+                Capture(runtime.ActivePet!, Path.Combine(directory, "theme-" + palette.Id + "-speech.png"));
+                flyout.ShowAt(button); await Task.Delay(80);
+                var presenter = choices.GetVisualAncestors().OfType<FlyoutPresenter>().Single();
+                using (var image = new RenderTargetBitmap(new PixelSize((int)presenter.Bounds.Width, (int)presenter.Bounds.Height), new Vector(96, 96)))
+                { image.Render(presenter); image.Save(Path.Combine(directory, "theme-" + palette.Id + "-picker.png"), PngBitmapEncoderOptions.Default); }
+                flyout.Hide();
+                foreach (var (tab, file) in new[] { ("SettingsNavSettings", "settings"), ("SettingsNavReview", "review"), ("SettingsNavPacks", "pets") })
+                {
+                    Press(window, tab); await Task.Delay(100); window.UpdateLayout();
+                    Capture(window, Path.Combine(directory, "theme-" + palette.Id + "-" + file + ".png"));
+                }
+                var tabs = window.GetVisualDescendants().OfType<TabControl>().Single(item => item.Name == "PetManagementTabs");
+                tabs.SelectedIndex = 1; await Task.Delay(100);
+                Capture(window, Path.Combine(directory, "theme-" + palette.Id + "-builder.png")); tabs.SelectedIndex = 0;
+                verified.Add(palette.Name);
+            }
+        }
+        finally
+        {
+            flyout.Hide(); runtime.SetTheme(originalTheme); Press(window, "SettingsNavTimer");
+            window.MinWidth = minWidth; window.MinHeight = minHeight; window.Width = width; window.Height = height;
+        }
+        return new { palettes = verified, persisted = true, minimumNavigationFits = true, simulatedSelection = true };
+    }
+
     private static async Task VerifySharedDialogs(Window owner, string directory)
     {
         async Task<Window> PrepareDialog(double height)
@@ -395,11 +498,53 @@ internal static class SmokeDiagnostics
         var routineNameVisible = texts.Contains(routineName);
         var completionTimeVisible = texts.Contains(completionTime);
         var actualDurationVisible = texts.Contains(actualDuration);
-        if (header.IsChecked != true || !details.IsVisible || !routineNameVisible || !completionTimeVisible || !actualDurationVisible)
-            throw new InvalidOperationException("The expanded weekly review did not show its routine, completion time, and actual break duration.");
+        if (header.IsChecked != true || !details.IsVisible || routineNameVisible || texts.Length != 2 || !completionTimeVisible || !actualDurationVisible)
+            throw new InvalidOperationException("The expanded weekly review must show only completion time and actual break duration.");
         const string captureFile = "weekly-review-expanded.png";
         Capture(window, Path.Combine(directory, captureFile));
         return new { expandedCaptured = true, captureFile, routineNameVisible, completionTimeVisible, actualDurationVisible };
+    }
+    private static async Task<object> VerifyReviewLayout(Window settings, BreakReviewWindow compatibility, CompletedBreak completed, string directory)
+    {
+        var measurements = new List<object>();
+        var day = DateOnly.FromDateTime(completed.CompletedAt.Date);
+        settings.MinWidth = 860; settings.MinHeight = 680;
+        Press(settings, "SettingsNavReview");
+        compatibility.MinWidth = 560; compatibility.MinHeight = 600;
+        foreach (var item in new[] { (settings, new Size(1120, 800), "review-default.png"),
+            (settings, new Size(860, 680), "review-minimum.png"),
+            ((Window)compatibility, new Size(620, 650), "review-compatibility.png"),
+            ((Window)compatibility, new Size(560, 600), "review-compatibility-minimum.png") })
+        {
+            var (window, size, file) = item;
+            window.Width = size.Width; window.Height = size.Height; await Task.Delay(100); window.UpdateLayout();
+            if (window.ClientSize != size) throw new InvalidOperationException($"Review diagnostic size differs: {window.ClientSize} instead of {size}.");
+            T Find<T>(string name) where T : Control => window.GetVisualDescendants().OfType<T>().Single(control => control.Name == name);
+            Find<ToggleButton>($"ReviewDateHeader_{day:yyyyMMdd}").IsChecked = true;
+            var scroll = Find<ScrollViewer>("PageBodyScroll"); scroll.ScrollToHome(); window.UpdateLayout();
+            var cardWidth = Find<Border>("ReviewSummaryCard").Bounds.Width;
+            if (cardWidth > DesignSystem.ReviewContentWidth + .5 || scroll.Extent.Width > scroll.Viewport.Width + .5)
+                throw new InvalidOperationException("Review exceeds its content width or scrolls horizontally.");
+            var fields = Find<Border>($"ReviewEntry_{completed.SessionId:N}").GetVisualDescendants().OfType<TextBlock>().ToArray();
+            if (fields.Length != 2 || fields.Any(text => text.Text == completed.RoutineName))
+                throw new InvalidOperationException("Review detail exposes fields other than completion time and actual duration.");
+            foreach (var name in new[] { "ReviewPrevious", "ReviewNext", "ReviewRefresh" })
+                if (Find<Button>(name).Bounds.Size != new Size(40, 40))
+                    throw new InvalidOperationException("Review period controls differ from the approved 40px size.");
+            var footer = Find<Grid>("ReviewFooter"); var footerTop = footer.TranslatePoint(default, window)!.Value.Y;
+            if (footerTop < scroll.TranslatePoint(default, window)!.Value.Y + scroll.Bounds.Height ||
+                footerTop + footer.Bounds.Height > window.ClientSize.Height + .5)
+                throw new InvalidOperationException("Review footer is not fully visible below the scroll area.");
+            Capture(window, Path.Combine(directory, file));
+            scroll.ScrollToEnd(); window.UpdateLayout();
+            if (footer.TranslatePoint(default, window)!.Value.Y != footerTop)
+                throw new InvalidOperationException("Review footer moved while the body scrolled.");
+            measurements.Add(new { width = size.Width, height = size.Height, cardWidth, footerTop,
+                scrollRequired = scroll.Extent.Height > scroll.Viewport.Height, capture = file });
+        }
+        settings.Width = 1120; settings.Height = 800; Press(settings, "SettingsNavTimer");
+        await Task.Delay(100); settings.UpdateLayout();
+        return new { measurements, completionAndActualOnly = true, noHorizontalOverflow = true, pinnedFooter = true };
     }
     private static void VerifySettingsPageHeaderRemoved(Window window)
     {
@@ -437,6 +582,7 @@ internal static class SmokeDiagnostics
         try
         {
             VerifySettingsPageHeaderRemoved(window);
+            var homeDashboard = await VerifyHomeDashboard(window, directory);
             var navigation = window.GetVisualDescendants().OfType<Button>()
                 .Where(button => button.Name?.StartsWith("SettingsNav", StringComparison.Ordinal) == true).ToArray();
             if (navigation.Length != 4 || !navigation.Any(button => button.Name == "SettingsNavPacks") ||
@@ -514,7 +660,7 @@ internal static class SmokeDiagnostics
             await Task.Delay(200); window.UpdateLayout();
             if (Math.Abs(window.ClientSize.Width - 860) > 1 || Math.Abs(window.ClientSize.Height - 680) > 1)
                 throw new InvalidOperationException($"Settings did not reach the minimum diagnostic size: {window.ClientSize}.");
-            foreach (var name in new[] { "SettingsCompanionCard", "SettingsTimerCard", "SettingsHomeTimingCard", "ReminderInterval", "BreakDurationMinutes", "TimerToggle", "TimerStop", "SettingsQuit", "LaunchAtLogin" })
+            foreach (var name in new[] { "SettingsCompanionCard", "SettingsTimerCard", "SettingsHomeTimingCard", "ReminderInterval", "BreakDurationMinutes", "TimerToggle", "TimerStop", "SettingsQuit" })
             {
                 var control = window.GetVisualDescendants().OfType<Control>().Single(item => item.Name == name);
                 var origin = control.TranslatePoint(default, window)!.Value;
@@ -535,8 +681,16 @@ internal static class SmokeDiagnostics
             var preferences = window.GetVisualDescendants().OfType<Grid>().Single(control => control.Name == "SettingsPreferencesPage");
             var notificationSettings = window.GetVisualDescendants().OfType<Border>().Single(control => control.Name == "SettingsNotificationCard");
             var timerSettings = window.GetVisualDescendants().OfType<Border>().Single(control => control.Name == "SettingsTimerSettingsCard");
-            if (!preferences.IsVisible || !notificationSettings.IsVisible || !timerSettings.IsVisible)
-                throw new InvalidOperationException("The settings tab did not expose both settings sections.");
+            var appBehaviorSettings = window.GetVisualDescendants().OfType<Border>().Single(control => control.Name == "SettingsAppBehaviorCard");
+            var debugSettings = window.GetVisualDescendants().OfType<Border>().Single(control => control.Name == "SettingsDebugToolsCard");
+            if (!preferences.IsVisible || !notificationSettings.IsVisible || !timerSettings.IsVisible || !appBehaviorSettings.IsVisible || !debugSettings.IsVisible)
+                throw new InvalidOperationException("The settings tab did not expose all settings sections.");
+            foreach (var name in new[] { "ShowPetOnDesktop", "LaunchAtLogin" })
+            {
+                var option = window.GetVisualDescendants().OfType<CheckBox>().Single(control => control.Name == name);
+                if (!appBehaviorSettings.GetVisualDescendants().Contains(option))
+                    throw new InvalidOperationException($"The app behavior option is outside its settings card: {name}.");
+            }
             if (timerSettings.GetVisualDescendants().OfType<TextBlock>().Any(text => text.Text == "스트레칭 시간 (분)"))
                 throw new InvalidOperationException("The stretch interval still appears in the Settings tab.");
             var preferencesScroll = window.GetVisualDescendants().OfType<ScrollViewer>().Single(control => control.Name == "SettingsPreferencesScroll");
@@ -562,10 +716,10 @@ internal static class SmokeDiagnostics
                 var bottomOffset = preferencesScroll.Offset.Y; settingsOptionsBottomOffset = bottomOffset;
                 if (bottomOffset <= 0)
                     throw new InvalidOperationException("The settings options require scrolling but did not reach a positive bottom offset.");
-                var timerOrigin = timerSettings.TranslatePoint(default, preferencesScroll);
-                if (timerOrigin is null || timerOrigin.Value.Y < -.5 ||
-                    timerOrigin.Value.Y + timerSettings.Bounds.Height > settingsOptionsViewportHeight + .5)
-                    throw new InvalidOperationException("The timer settings card is not fully visible at the bottom scroll offset.");
+                var appBehaviorOrigin = appBehaviorSettings.TranslatePoint(default, preferencesScroll);
+                if (appBehaviorOrigin is null || appBehaviorOrigin.Value.Y < -.5 ||
+                    appBehaviorOrigin.Value.Y + appBehaviorSettings.Bounds.Height > settingsOptionsViewportHeight + .5)
+                    throw new InvalidOperationException("The app behavior card is not fully visible at the bottom scroll offset.");
                 Capture(window, bottomPath);
                 settingsOptionsCapturesDiffer = !File.ReadAllBytes(topPath).SequenceEqual(File.ReadAllBytes(bottomPath));
                 if (settingsOptionsCapturesDiffer != true)
@@ -587,7 +741,7 @@ internal static class SmokeDiagnostics
                 petDraftPreserved = true, petCardAddButtonRemoved = true, petSelectorWidth = picker.Bounds.Width,
                 settingsOptionsScrollRequired, settingsOptionsExtentHeight, settingsOptionsViewportHeight,
                 settingsOptionsTopOffset, settingsOptionsBottomOffset, settingsOptionsCapturesDiffer, settingsOptionsCaptureFiles,
-                settingsPreferencesStyling };
+                settingsPreferencesStyling, homeDashboard };
         }
         finally
         {
@@ -595,6 +749,79 @@ internal static class SmokeDiagnostics
             scroll.ScrollToHome(); await Task.Delay(100);
         }
     }
+    private static async Task<object> VerifyHomeDashboard(Window window, string directory)
+    {
+        T Find<T>(string name) where T : Control => window.GetVisualDescendants().OfType<T>().Single(control => control.Name == name);
+        var measurements = new List<object>();
+        // PrepareDiagnosticWindow initially pins the minimum to the startup size.
+        window.MinWidth = 860; window.MinHeight = 680;
+        foreach (var size in new[] { new Size(1120, 800), new Size(860, 680) })
+        {
+            window.Width = size.Width; window.Height = size.Height; await Task.Delay(100); window.UpdateLayout();
+            if (window.ClientSize != size) throw new InvalidOperationException($"Home diagnostic size differs: {window.ClientSize} instead of {size}.");
+            var timer = Find<Border>("SettingsTimerCard"); var pet = Find<Border>("SettingsCompanionCard");
+            var timing = Find<Border>("SettingsHomeTimingCard");
+            var timerTop = timer.TranslatePoint(default, window)!.Value.Y;
+            var petTop = pet.TranslatePoint(default, window)!.Value.Y;
+            if (Math.Abs(timer.Bounds.Height - 196) > .5 || Math.Abs(petTop - timerTop - timer.Bounds.Height - 20) > .5 ||
+                Math.Abs(timing.TranslatePoint(default, window)!.Value.Y - timerTop) > .5)
+                throw new InvalidOperationException("Home does not keep the timer above the pet with aligned timing settings.");
+            foreach (var name in new[] { "ReminderInterval", "BreakDurationMinutes" })
+                if (Find<NumericUpDown>(name).Bounds.Size != new Size(160, 40))
+                    throw new InvalidOperationException("Home timing input dimensions differ from the approved design.");
+            var picker = Find<ComboBox>("CharacterPicker");
+            if (picker.Bounds.Size != new Size(200, 40)) throw new InvalidOperationException("Home pet selector dimensions differ.");
+            var scaleLabel = Find<TextBlock>("PetScaleLabel"); var scale = Find<Slider>("PetScale");
+            var scaleValue = Find<TextBlock>("PetScaleValue");
+            var scaleLabelTop = scaleLabel.TranslatePoint(default, pet)!.Value.Y;
+            var scaleTop = scale.TranslatePoint(default, pet)!.Value.Y;
+            var scaleValueTop = scaleValue.TranslatePoint(default, pet)!.Value.Y;
+            if (scaleLabelTop + scaleLabel.Bounds.Height > scaleTop + .5 ||
+                scaleTop + scale.Bounds.Height > scaleValueTop + .5)
+                throw new InvalidOperationException("Home pet scale label and percentage are not stacked around the slider.");
+            VerifyHomeActions(window);
+            var file = size.Width == 860 ? "home-minimum.png" : "home-default.png";
+            Capture(window, Path.Combine(directory, file));
+            measurements.Add(new { width = window.ClientSize.Width, height = window.ClientSize.Height,
+                timerTop, timerHeight = timer.Bounds.Height, petTop, petHeight = pet.Bounds.Height, capture = file });
+        }
+        // Layout-only stress fixture. Save failure and state transitions are exercised separately by tests.
+        var nameText = Find<TextBlock>("CompanionName"); var status = Find<TextBlock>("HomeTimingStatus");
+        var nameBefore = nameText.Text; var statusBefore = status.Text; var statusBrush = status.Foreground; var statusVisible = status.IsVisible;
+        nameText.Text = "오래 함께할 아주 긴 이름을 가진 나만의 새로운 고양이 친구";
+        status.Text = "저장하지 못했어요."; status.Foreground = DesignSystem.Error; status.IsVisible = true;
+        window.UpdateLayout(); VerifyHomeActions(window);
+        Capture(window, Path.Combine(directory, "home-minimum-long-name-error.png"));
+        nameText.Text = nameBefore; status.Text = statusBefore; status.Foreground = statusBrush; status.IsVisible = statusVisible;
+        var choice = Find<ComboBox>("CharacterPicker"); choice.IsDropDownOpen = true;
+        await Task.Delay(100); window.UpdateLayout();
+        try
+        {
+            var popup = choice.GetVisualDescendants().OfType<Popup>().Single();
+            if (popup.Child is not Border surface || Math.Abs(surface.Bounds.Width - 200) > 1 || surface.Bounds.Height <= 0)
+                throw new InvalidOperationException("The home dropdown did not create a compact visible popup.");
+            using var image = new RenderTargetBitmap(new PixelSize((int)Math.Ceiling(surface.Bounds.Width), (int)Math.Ceiling(surface.Bounds.Height)), new Vector(96, 96));
+            image.Render(surface); image.Save(Path.Combine(directory, "home-pet-picker.png"), PngBitmapEncoderOptions.Default);
+        }
+        finally { choice.IsDropDownOpen = false; }
+        window.Width = 1120; window.Height = 800; await Task.Delay(100); window.UpdateLayout();
+        return new { timerFirst = true, measurements, longNameAndErrorLayoutFixture = true, compactControls = true };
+    }
+
+    private static void VerifyHomeActions(Window window)
+    {
+        foreach (var pair in new[] { ("TimerToggle", "SettingsTimerCard"), ("TimerStop", "SettingsTimerCard"),
+            ("CharacterPicker", "SettingsCompanionCard"), ("PetScale", "SettingsCompanionCard") })
+        {
+            var control = window.GetVisualDescendants().OfType<Control>().Single(item => item.Name == pair.Item1);
+            var card = window.GetVisualDescendants().OfType<Border>().Single(item => item.Name == pair.Item2);
+            var position = control.TranslatePoint(default, card)!.Value;
+            if (position.X < 0 || position.Y < 0 || position.X + control.Bounds.Width > card.Bounds.Width + .5 ||
+                position.Y + control.Bounds.Height > card.Bounds.Height + .5)
+                throw new InvalidOperationException($"Home control is outside its card: {pair.Item1}.");
+        }
+    }
+
     private static async Task<object> VerifyPreferencesStyling(Window window, string directory)
     {
         T Find<T>(string name) where T : Control => window.GetVisualDescendants().OfType<T>().Single(control => control.Name == name);

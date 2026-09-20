@@ -1,0 +1,25 @@
+{
+  "date": "2026-09-20",
+  "proposal": "speech-title-only-v4",
+  "productCodeChanged": false,
+  "titleAlignment": "center",
+  "instructionBody": "removed",
+  "retainedElements": ["title", "timer", "snooze button", "start button", "complete button", "footer status hint", "pet"],
+  "verticalPadding": 14,
+  "horizontalPadding": 20,
+  "elementGap": 6,
+  "bubbleWidth": 320,
+  "normalHeightsAt320": {"advance":96,"invitation":159,"resting":196,"overtime":196,"limit":196,"completed":113},
+  "palettes": ["oat","sage","midnight","plum"],
+  "states": ["advance","invitation","resting","overtime","limit","completed"],
+  "bodyCopyCount": 0,
+  "browserMeasurements": {
+    "invitation": {"width":320,"height":159,"titleCenterDelta":0},
+    "resting": {"width":320,"height":196,"titleCenterDelta":0},
+    "completed": {"width":320,"height":113,"titleCenterDelta":0}
+  },
+  "instructionNodesFound": 0,
+  "startToCompleteVerified": true,
+  "browserErrorLogs": 0,
+  "limits": ["HTML preview only", "Native Avalonia layout and four-direction positioning require implementation verification"]
+}

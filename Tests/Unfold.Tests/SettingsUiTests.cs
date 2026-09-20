@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Headless.XUnit;
+using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Unfold.Core;
@@ -131,6 +132,9 @@ public class SettingsUiTests
         await AddCharacter(runtime, "Rex", opaque: false);
         await runtime.UpdateSettings(runtime.Settings);
         var window = new SettingsWindow(runtime); window.Show(); Dispatcher.UIThread.RunJobs();
+        Control<Button>(window, button => button.Name == "SettingsNavSettings")
+            .RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
         var showPet = Control<CheckBox>(window, c => Equals(c.Content, "바탕화면에 펫 표시"));
         Assert.True(showPet.IsChecked);
 

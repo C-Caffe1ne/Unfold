@@ -1,0 +1,238 @@
+{
+  "date": "2026-09-20",
+  "branch": "release/mvp",
+  "baseCommit": "0b72a36af5e2844d9ad4a361c55ab11dfdeb16cf",
+  "scope": "Approved home timer-first mockup implementation; review UI proposal only",
+  "environment": "macOS arm64; .NET 10; Avalonia 12.1.2",
+  "build": {
+    "exitCode": 0,
+    "warnings": 0,
+    "errors": 0
+  },
+  "tests": {
+    "focused": {
+      "exitCode": 0,
+      "total": 28,
+      "passed": 28,
+      "failed": 0,
+      "notExecuted": 0,
+      "trx": "/tmp/unfold-home-implementation.6KJt7u/focused/_hwanghyeonseong-ui-MacBookAir_2026-09-20_14_01_27_net10.0.trx"
+    },
+    "full": {
+      "exitCode": 0,
+      "total": 207,
+      "passed": 207,
+      "failed": 0,
+      "notExecuted": 0,
+      "trx": "/tmp/unfold-home-implementation.6KJt7u/full/_hwanghyeonseong-ui-MacBookAir_2026-09-20_14_02_31_net10.0.trx"
+    }
+  },
+  "nativeSmoke": {
+    "exitCode": 0,
+    "profile": "/tmp/unfold-home-implementation.6KJt7u/verified-profile",
+    "report": {
+      "success": true,
+      "startupMs": 1028.7317,
+      "totalMs": 16217.775,
+      "workingSetBytes": 518799360,
+      "managedBytes": 145652264,
+      "oneCoreCpuPercent": 2.7360935556475603,
+      "characters": 4,
+      "imageFiles": 50,
+      "completedBreaks": 1,
+      "simulatedSessionTiming": true,
+      "savedCustomRoutines": 2,
+      "workProfiles": 1,
+      "exportedBreaks": 1,
+      "simulatedExportDestination": true,
+      "timerPausedApplyWaitSeconds": 1.2,
+      "timerStopWaitSeconds": 1.2,
+      "timerControlsVerified": true,
+      "petSpeechDirectionsVerified": true,
+      "speechOvertimeAndFoldVerified": true,
+      "soundRequestsVerified": true,
+      "hiddenPetNoticeVerified": true,
+      "stopWhileOpening": true,
+      "petPackInstallUpdateRepairVerified": true,
+      "simulatedPackPicker": true,
+      "settingsLayout": {
+        "minimumWidth": 860,
+        "minimumHeight": 680,
+        "timerAndPetVisible": true,
+        "detailsScrollVerified": true,
+        "noHorizontalOverflow": true,
+        "inWindowTabsVerified": true,
+        "settingsTabVerified": true,
+        "homeTimingVerified": true,
+        "petManagementTabsVerified": true,
+        "routineProfileEntryRemoved": true,
+        "petDraftPreserved": true,
+        "petCardAddButtonRemoved": true,
+        "petSelectorWidth": 200,
+        "settingsOptionsScrollRequired": false,
+        "settingsOptionsExtentHeight": 554,
+        "settingsOptionsViewportHeight": 554,
+        "settingsOptionsTopOffset": 0,
+        "settingsOptionsBottomOffset": null,
+        "settingsOptionsCapturesDiffer": null,
+        "settingsOptionsCaptureFiles": [
+          "settings-options-overview.png"
+        ],
+        "settingsPreferencesStyling": {
+          "pinnedActions": true,
+          "dirtySave": true,
+          "cancelRestores": true,
+          "dropdownCaptured": true
+        },
+        "homeDashboard": {
+          "timerFirst": true,
+          "measurements": [
+            {
+              "width": 1120,
+              "height": 800,
+              "timerTop": 31,
+              "timerHeight": 196,
+              "petTop": 247,
+              "petHeight": 522,
+              "capture": "home-default.png"
+            },
+            {
+              "width": 860,
+              "height": 680,
+              "timerTop": 31,
+              "timerHeight": 196,
+              "petTop": 247,
+              "petHeight": 402,
+              "capture": "home-minimum.png"
+            }
+          ],
+          "longNameAndErrorLayoutFixture": true,
+          "compactControls": true
+        }
+      },
+      "weeklyReview": {
+        "expandedCaptured": true,
+        "captureFile": "weekly-review-expanded.png",
+        "routineNameVisible": true,
+        "completionTimeVisible": true,
+        "actualDurationVisible": true
+      },
+      "customPetGifAuthoringVerified": true,
+      "petCardPreviewVerified": true,
+      "sharedDesignDialogsVerified": true,
+      "pinnedPageActionsVerified": true,
+      "idleSeconds": 70.1344862,
+      "os": "Unix 26.6.2",
+      "framework": "10.0.12"
+    },
+    "pngCount": 50
+  },
+  "images": {
+    "home-default.png": {
+      "pixels": [
+        1120,
+        800
+      ],
+      "sha256": "f6ec927a1f78a78dbcb5a029ced4df2fe0c87ab90f380137ace071110103a4ba"
+    },
+    "home-minimum.png": {
+      "pixels": [
+        860,
+        680
+      ],
+      "sha256": "91c82bdcf30edf591781f4428dc1d374ef4e1697be9ddacf7ab8ef7bfd57b14c"
+    },
+    "home-minimum-long-name-error.png": {
+      "pixels": [
+        860,
+        680
+      ],
+      "sha256": "8b171653dbdd5a1212df15d2b1f446a5d95ee419ba3ca7ebb3d72e6ac18ae5b8"
+    },
+    "home-pet-picker.png": {
+      "pixels": [
+        200,
+        46
+      ],
+      "sha256": "5593dbcb522d72b13dcb5bb88921aebf44fd65f01c09a3240f6105a7f7985ebb"
+    },
+    "timer-paused.png": {
+      "pixels": [
+        1120,
+        800
+      ],
+      "sha256": "eb3496de2b7f8a742a5927ef760f5c6f2e9a19611792690e5e08a79479f02c29"
+    },
+    "timer-stopped.png": {
+      "pixels": [
+        1120,
+        800
+      ],
+      "sha256": "ab3d1b9a630fc091443e222202c790a1cdde3da581d3b2a9a50fc809fa624bc0"
+    },
+    "settings-completed.png": {
+      "pixels": [
+        1120,
+        800
+      ],
+      "sha256": "ab665f12a0e62ad948a672cd1fc9c6aeb60d1028742d7df24cfee20f9527a2bf"
+    },
+    "settings-review-tab.png": {
+      "pixels": [
+        1120,
+        800
+      ],
+      "sha256": "629b38f18b66c1820875b772164f53984d07e6b354f05e48572f60553b88e8b0"
+    },
+    "weekly-review-expanded.png": {
+      "pixels": [
+        620,
+        650
+      ],
+      "sha256": "c522914644a762aa03628aed27f196acc16f3f0f04b7344603d228f22a2f19aa"
+    },
+    "speech-top.png": {
+      "pixels": [
+        320,
+        472
+      ],
+      "sha256": "d0e9afaa0a7d9c05a04e2dbe284c6bc0580335ea5641e2a7816c81566e16571c"
+    },
+    "speech-five-minutes.png": {
+      "pixels": [
+        320,
+        374
+      ],
+      "sha256": "353843f80020e3052516ac6a7906b241ae1da51363c2fd40f5d34e64c9817734"
+    }
+  },
+  "sourceSha256": {
+    "src/Unfold.Desktop/SettingsWindow.Layout.cs": "c9b8fe5c2b492661cf039bf9a66b5752d8d65dad313bc696374a849a9bb53b56",
+    "src/Unfold.Desktop/SettingsWindow.cs": "c7889db14a83017aadfcc958d396c552704df3beed5b6ac82dfb32f39237ad3c",
+    "src/Unfold.Desktop/DesignSystem.cs": "3f770c3db155231da1de1bd10f45d6a501e02482f5e585449a4a6db2623b566b",
+    "src/Unfold.Desktop/SmokeDiagnostics.cs": "f5044361b5d3174b7eb5d42371c396ad78a6c2adb4c5481087965b7673de82bb",
+    "Tests/Unfold.Tests/SettingsDashboardTests.cs": "d55cae4df6108f3f3509a52708f608e517ff5cc84f5d97cd99ca55c016e3263b"
+  },
+  "reviewMockup": {
+    "fragment": "/Users/hwanghyeonseong/.codex/visualizations/2026/09/16/01a0a982-9729-7290-b2f3-81df3aee4585/review-ui-proposal.html",
+    "basicWidth": 1120,
+    "bodyMaxWidth": 760,
+    "narrowRootWidth": 313,
+    "narrowScrollWidth": 313,
+    "checks": [
+      "expand date",
+      "previous empty week",
+      "return current week",
+      "export preview response",
+      "empty return response",
+      "long name and error wrap"
+    ],
+    "browserErrors": 0,
+    "nativeReviewCodeChanged": false
+  },
+  "limitations": [
+    "Native UI is off-screen; button events are programmatic",
+    "Review mockup is browser-only and uses sample records",
+    "Windows real device, DPI, physical keyboard/mouse, perceived sound and long-duration use not verified"
+  ]
+}

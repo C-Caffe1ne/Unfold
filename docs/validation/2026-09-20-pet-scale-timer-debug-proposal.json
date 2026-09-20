@@ -1,0 +1,42 @@
+{
+  "date": "2026-09-20",
+  "stage": "UI proposal only; awaiting user review before product changes",
+  "branch": "release/mvp",
+  "commit": "0b72a36af5e2844d9ad4a361c55ab11dfdeb16cf",
+  "plan": "docs/plans/2026-09-20-pet-scale-timer-debug-proposal.md",
+  "fragment": "/Users/hwanghyeonseong/.codex/visualizations/2026/09/16/01a0a982-9729-7290-b2f3-81df3aee4585/feature-controls-proposal.html",
+  "fragmentBytes": 26636,
+  "fragmentSha256": "70d9775f05e60a9ad5f1e3c7244e27b11f197ca8a9db3bb9bf3a88f61651d5a3",
+  "productCodeChangedByProposal": false,
+  "browserChecks": {
+    "petScale": {
+      "range": [50, 150],
+      "step": 10,
+      "verifiedValue": 150,
+      "valueLabelUpdated": true,
+      "scaleTextLabelsPresent": false,
+      "placedAbovePetSelector": true
+    },
+    "timerStopped": {
+      "countdown": "45:00",
+      "status": "중지됨",
+      "detail": "재생하면 45:00부터 시작"
+    },
+    "petContextMenu": {
+      "items": ["설정"],
+      "bubbleFoldItemPresent": false
+    },
+    "debugPreview": {
+      "toggleVerified": true,
+      "states": ["5분 전 알림", "스트레칭 알림", "휴식 진행", "완료 알림", "미리보기 종료"],
+      "restingTimerVerified": true,
+      "completedTitleVerified": true,
+      "closeVerified": true
+    }
+  },
+  "limits": [
+    "HTML proposal only; native Avalonia source was not changed in this stage",
+    "The preview does not exercise real timer, history, persistence or desktop pet window behavior",
+    "macOS and Windows native pointer, display scaling and multi-monitor behavior require implementation verification"
+  ]
+}

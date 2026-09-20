@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Unfold.Core;
@@ -14,14 +15,22 @@ public sealed partial class SettingsWindow : Window, IDisposable
     private readonly Avalonia.Controls.Shapes.Ellipse timerStateDot = new() { Name = "TimerStateIndicator", Width = 8, Height = 8, Fill = DesignSystem.Muted };
     private readonly Border timerStateBadge = new() { Name = "TimerStateBadge", Background = DesignSystem.Raised, CornerRadius = new(12), Padding = new(10, 6) };
     private readonly ComboBox characters = new() { Name = "CharacterPicker", MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch };
-    private readonly TextBlock today = Ui.Text("오늘은 아직 휴식 기록이 없어요", 16);
-    private readonly TextBlock historyStatus = new() { FontSize = 12, TextWrapping = TextWrapping.Wrap, Foreground = DesignSystem.Muted };
-    private readonly AnimationView preview = new() { Name = "CompanionPreview", Width = 240, Height = 240 };
+    private readonly TextBlock today = new() { FontSize = 16, IsVisible = false };
+    private readonly TextBlock historyStatus = new() { FontSize = 12, TextWrapping = TextWrapping.Wrap,
+        Foreground = DesignSystem.Error, IsVisible = false };
+    private readonly AnimationView preview = new() { Name = "CompanionPreview", Width = DesignSystem.PetBaseSize,
+        Height = DesignSystem.PetBaseSize, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+    private readonly Slider petScale = new() { Name = "PetScale", Minimum = 50, Maximum = 150,
+        TickFrequency = 10, IsSnapToTickEnabled = true, Value = 100 };
+    private readonly TextBlock petScaleValue = new() { Name = "PetScaleValue", FontSize = DesignSystem.Body,
+        Foreground = DesignSystem.Cream, Text = "100%" };
+    private Grid? companionPreviewStage;
     private readonly TimerControls timerControls;
-    private readonly CheckBox showPet;
+    private readonly CheckBox showPet, launchAtLogin;
     private readonly NumericUpDown interval, breakDuration, idle, snooze;
     private readonly Button homeTimingApply;
-    private readonly TextBlock homeTimingStatus = new() { Text = "스트레칭 시간은 타이머를 일시정지하거나 중지한 뒤 바꿀 수 있어요.", FontSize = 12, TextWrapping = TextWrapping.Wrap, Foreground = DesignSystem.Muted };
+    private readonly TextBlock homeTimingStatus = new() { FontSize = 12, TextWrapping = TextWrapping.Wrap,
+        Foreground = DesignSystem.Muted, IsVisible = false };
     private int displayedInterval, displayedBreakDuration;
     private bool? intervalEditingAvailable;
     private CharacterPackage? previewCharacter;
@@ -42,6 +51,8 @@ public sealed partial class SettingsWindow : Window, IDisposable
         AutomationProperties.SetName(idle, "자리 비움 시간, 분 단위");
         AutomationProperties.SetName(snooze, "다시 알림 시간, 분 단위");
         AutomationProperties.SetName(characters, "함께할 펫");
+        AutomationProperties.SetName(petScale, "펫 크기, 퍼센트");
+        countdown.Name = "TimerCountdown";
         state.Name = "TimerStateText";
         state.TextWrapping = TextWrapping.Wrap;
         homeTimingApply = Ui.AsyncButton("적용", async () =>
@@ -50,26 +61,26 @@ public sealed partial class SettingsWindow : Window, IDisposable
                 breakDuration.Value is not decimal rest || rest is < 1 or > 10 || decimal.Truncate(rest) != rest)
             {
                 homeTimingStatus.Text = "분 단위의 정수를 입력해 주세요. 스트레칭 시간은 5~240분, 휴식 시간은 1~10분이에요.";
-                homeTimingStatus.Foreground = DesignSystem.Error; return;
+                homeTimingStatus.Foreground = DesignSystem.Error; homeTimingStatus.IsVisible = true; return;
             }
             await SaveHomeTimingSettings((int)minutes, (int)rest);
         });
         homeTimingApply.Name = "ApplyHomeTimingSettings";
         AutomationProperties.SetName(homeTimingApply, "스트레칭과 휴식 시간 적용");
         ToolTip.SetTip(homeTimingApply, "변경한 스트레칭과 휴식 시간 적용");
-        showPet = new CheckBox { Content = "바탕화면에 펫 표시", IsChecked = runtime.Settings.ShowPet };
+        showPet = new CheckBox { Name = "ShowPetOnDesktop", Content = "바탕화면에 펫 표시", IsChecked = runtime.Settings.ShowPet };
         showPet.IsCheckedChanged += async (_, _) =>
         {
             if (updating) return;
             try { await runtime.UpdateSettings(runtime.Settings with { ShowPet = showPet.IsChecked == true }); }
             catch (Exception error) { updating = true; showPet.IsChecked = runtime.Settings.ShowPet; updating = false; await Ui.Error(this, error); }
         };
-        var login = new CheckBox { Content = "로그인 시 자동 실행" };
-        try { login.IsChecked = PlatformServices.StartsAtLogin(); } catch (Exception error) { AppPaths.Log(error); }
-        login.IsCheckedChanged += async (_, _) =>
+        launchAtLogin = new CheckBox { Name = "LaunchAtLogin", Content = "로그인 시 자동 실행" };
+        try { launchAtLogin.IsChecked = PlatformServices.StartsAtLogin(); } catch (Exception error) { AppPaths.Log(error); }
+        launchAtLogin.IsCheckedChanged += async (_, _) =>
         {
             if (updating) return;
-            var attempted = login.IsChecked == true;
+            var attempted = launchAtLogin.IsChecked == true;
             try { PlatformServices.SetStartAtLogin(attempted); }
             catch (Exception error)
             {
@@ -79,8 +90,8 @@ public sealed partial class SettingsWindow : Window, IDisposable
                 // query fails, fall back to the state before this attempt rather than
                 // leaving the checkbox showing the unconfirmed, possibly-wrong new value.
                 updating = true;
-                try { login.IsChecked = PlatformServices.StartsAtLogin(); }
-                catch (Exception queryError) { AppPaths.Log(queryError); login.IsChecked = !attempted; }
+                try { launchAtLogin.IsChecked = PlatformServices.StartsAtLogin(); }
+                catch (Exception queryError) { AppPaths.Log(queryError); launchAtLogin.IsChecked = !attempted; }
                 updating = false;
                 await Ui.Error(this, error);
             }
@@ -91,8 +102,22 @@ public sealed partial class SettingsWindow : Window, IDisposable
             try { await runtime.UpdateSettings(runtime.Settings with { SelectedCharacterId = selected.Manifest.Id }); }
             catch (Exception error) { updating = true; characters.SelectedItem = runtime.Selected; updating = false; await Ui.Error(this, error); }
         };
+        petScale.PropertyChanged += async (_, e) =>
+        {
+            if (e.Property != RangeBase.ValueProperty || updating) return;
+            var percent = Math.Clamp((int)Math.Round(petScale.Value / 10) * 10, 50, 150);
+            SetPetScalePreview(percent);
+            if (percent == runtime.Settings.PetScalePercent) return;
+            try { await runtime.UpdateSettings(runtime.Settings with { PetScalePercent = percent }); }
+            catch (Exception error)
+            {
+                updating = true; petScale.Value = runtime.Settings.PetScalePercent;
+                SetPetScalePreview(runtime.Settings.PetScalePercent); updating = false;
+                await Ui.Error(this, error);
+            }
+        };
         homeTimingStatus.Name = "HomeTimingStatus";
-        Content = BuildDashboard(login);
+        Content = BuildDashboard();
         interval.ValueChanged += (_, _) => TimingEdited();
         breakDuration.ValueChanged += (_, _) => TimingEdited();
         foreach (var input in new[] { idle, snooze })
@@ -105,16 +130,21 @@ public sealed partial class SettingsWindow : Window, IDisposable
         runtime.Changed += Refresh; Closed += (_, _) => Dispose();
         Refresh();
     }
-    public void Dispose() { runtime.Changed -= Refresh; stopSoundPreview?.Invoke(); settingsSoundPlayer.Dispose(); preview.Dispose(); petPage?.Dispose(); }
-    public void HideToTray() { stopSoundPreview?.Invoke(); Hide(); preview.SetRunning(false); }
+    public void Dispose() { runtime.Changed -= Refresh; runtime.CloseReminderPreview(); stopSoundPreview?.Invoke(); settingsSoundPlayer.Dispose(); preview.Dispose(); petPage?.Dispose(); }
+    public void HideToTray() { runtime.CloseReminderPreview(); stopSoundPreview?.Invoke(); Hide(); preview.SetRunning(false); }
     public void ResumePreview() => preview.SetRunning(true);
     private void TimingEdited()
     {
         if (updating) return;
-        var dirty = interval.Value != runtime.Settings.IntervalMinutes || breakDuration.Value != runtime.Settings.BreakDurationMinutes;
-        var message = homeTimingStatus;
-        message.Foreground = dirty ? DesignSystem.Warning : DesignSystem.Muted;
-        message.Text = dirty ? "변경사항이 있어요. 적용을 눌러 저장해 주세요." : "저장된 설정과 같아요.";
+        homeTimingStatus.Text = ""; homeTimingStatus.IsVisible = false;
+    }
+    private void SetPetScalePreview(int percent)
+    {
+        var actualSize = DesignSystem.PetBaseSize * percent / 100d;
+        petScaleValue.Text = $"{percent}%";
+        preview.Width = preview.Height = actualSize;
+        if (companionPreviewStage is not null)
+            companionPreviewStage.Width = companionPreviewStage.Height = actualSize;
     }
     internal async Task<bool> CanCloseDraft()
     {
@@ -136,10 +166,11 @@ public sealed partial class SettingsWindow : Window, IDisposable
             var updated = runtime.Settings with { IntervalMinutes = minutes, BreakDurationMinutes = rest,
                 ActiveProfileId = minutes == runtime.Settings.IntervalMinutes ? runtime.Settings.ActiveProfileId : null };
             await runtime.UpdateSettings(updated);
-            homeTimingStatus.Foreground = DesignSystem.Muted; homeTimingStatus.Text = "스트레칭과 휴식 시간을 저장했어요.";
+            homeTimingStatus.Foreground = DesignSystem.Muted; homeTimingStatus.Text = "저장했어요.";
+            homeTimingStatus.IsVisible = true;
         }
         catch (Exception error) when (error is ArgumentException or IOException or UnauthorizedAccessException)
-        { AppPaths.Log(error); homeTimingStatus.Foreground = DesignSystem.Error; homeTimingStatus.Text = "시간을 저장하지 못했어요. 다시 적용해 주세요."; }
+        { AppPaths.Log(error); homeTimingStatus.Foreground = DesignSystem.Error; homeTimingStatus.Text = "저장하지 못했어요."; homeTimingStatus.IsVisible = true; }
     }
     private async void Refresh()
     {
@@ -148,22 +179,26 @@ public sealed partial class SettingsWindow : Window, IDisposable
         try
         {
             countdown.Text = $"{(int)runtime.Clock.Remaining.TotalMinutes:00}:{runtime.Clock.Remaining.Seconds:00}";
-            var stateBrush = DesignSystem.Cream;
-            state.Text = runtime.ActivityError ?? (runtime.Reminder.Notice == PetNotice.Invitation ? "휴식 대기 중 · 시작하거나 미뤄 주세요" :
-                runtime.Reminder.Notice == PetNotice.Resting ? "휴식 중 · 작업 타이머 대기" :
-                runtime.Clock.Stopped ? "중지됨 · 재생하면 새로 시작" : runtime.Clock.Paused ? "일시정지 · 남은 시간 유지 중" :
-                runtime.Clock.IdlePaused ? "자리 비움 · 자동 일시정지" : "진행 중 · 작업 시간 측정 중");
-            if (runtime.ActivityError is not null || runtime.Clock.Stopped) stateBrush = DesignSystem.Error;
+            var stateBrush = DesignSystem.Success;
+            state.Text = runtime.ActivityError is not null ? "상태 확인 필요" :
+                runtime.Reminder.Notice == PetNotice.Invitation ? "휴식 대기 중" :
+                runtime.Reminder.Notice == PetNotice.Resting ? "휴식 중" :
+                runtime.Clock.Stopped ? "중지됨" : runtime.Clock.Paused ? "일시정지" :
+                runtime.Clock.IdlePaused ? "자리 비움" : "진행 중";
+            ToolTip.SetTip(timerStateBadge, runtime.ActivityError);
+            if (runtime.ActivityError is not null) stateBrush = DesignSystem.Error;
+            else if (runtime.Clock.Stopped) stateBrush = DesignSystem.Stopped;
             else if (runtime.ActiveReminder is not null || runtime.Clock.Paused || runtime.Clock.IdlePaused) stateBrush = DesignSystem.Warning;
             state.Foreground = stateBrush; timerStateDot.Fill = stateBrush;
             var summary = runtime.BreakHistory.ForDay(DateTimeOffset.Now);
-            today.Text = summary.Count == 0 ? "첫 휴식은 언제든 괜찮아요." :
-                $"오늘 {summary.Seconds / 60}분 {summary.Seconds % 60}초의 여유를 만들었어요.";
+            today.Text = summary.Count == 0 ? "" : $"{summary.Seconds / 60}분 {summary.Seconds % 60}초";
+            today.IsVisible = summary.Count > 0;
             today.TextWrapping = TextWrapping.Wrap;
             companionName.Text = runtime.Selected?.Manifest.Name ?? "함께할 펫을 선택해 주세요";
             todayCount.Text = summary.Count.ToString();
             intervalHint.Text = $"{runtime.Settings.IntervalMinutes}분 간격";
-            historyStatus.Text = runtime.BreakHistoryError ?? "완료한 휴식은 이 기기에만 저장돼요.";
+            historyStatus.Text = runtime.BreakHistoryError ?? "";
+            historyStatus.IsVisible = runtime.BreakHistoryError is not null;
             timerControls.Refresh(runtime.Clock);
             var canEditInterval = runtime.CanEditTimerInterval;
             interval.IsEnabled = canEditInterval;
@@ -173,21 +208,21 @@ public sealed partial class SettingsWindow : Window, IDisposable
             if (intervalEditingAvailable != canEditInterval)
             {
                 intervalEditingAvailable = canEditInterval;
-                homeTimingStatus.Foreground = DesignSystem.Muted;
-                homeTimingStatus.Text = canEditInterval
-                    ? "시간을 변경한 뒤 우측 상단 적용을 눌러 주세요."
-                    : "휴식 시간은 지금 바꿀 수 있어요. 스트레칭 시간은 일시정지하거나 중지한 뒤 변경해 주세요.";
+                homeTimingStatus.Text = ""; homeTimingStatus.IsVisible = false;
                 ToolTip.SetTip(interval, canEditInterval ? "1분 단위로 스트레칭 시간을 변경할 수 있어요." : "타이머 진행 중에는 스트레칭 시간을 변경할 수 없어요.");
             }
             if (discardedInterval)
             {
                 homeTimingStatus.Foreground = DesignSystem.Warning;
-                homeTimingStatus.Text = "적용하지 않은 알림 간격은 되돌렸어요. 저장된 간격으로 진행해요.";
+                homeTimingStatus.Text = "저장하지 않은 변경을 되돌렸어요.";
+                homeTimingStatus.IsVisible = true;
             }
             showPet.IsChecked = runtime.Settings.ShowPet;
+            if ((int)petScale.Value != runtime.Settings.PetScalePercent) petScale.Value = runtime.Settings.PetScalePercent;
+            SetPetScalePreview(runtime.Settings.PetScalePercent);
             if (displayedInterval != runtime.Settings.IntervalMinutes) interval.Value = displayedInterval = runtime.Settings.IntervalMinutes;
             if (displayedBreakDuration != runtime.Settings.BreakDurationMinutes) breakDuration.Value = displayedBreakDuration = runtime.Settings.BreakDurationMinutes;
-            SyncPreferencesFromRuntime();
+            SyncPreferencesFromRuntime(); RefreshDebugPreviewStatus();
             if (!ReferenceEquals(characters.ItemsSource, runtime.Characters)) characters.ItemsSource = runtime.Characters;
             characters.SelectedItem = runtime.Selected;
             if (runtime.Selected is { } selected && previewCharacter != selected)
@@ -195,7 +230,12 @@ public sealed partial class SettingsWindow : Window, IDisposable
                 previewCharacter = selected; loadPreview = selected;
             }
         }
-        catch (Exception error) { AppPaths.Log(error); state.Text = Ui.ErrorText(error); }
+        catch (Exception error)
+        {
+            AppPaths.Log(error); state.Text = "상태 확인 필요";
+            state.Foreground = timerStateDot.Fill = DesignSystem.Error;
+            ToolTip.SetTip(timerStateBadge, Ui.ErrorText(error));
+        }
         finally { updating = false; }
         if (loadPreview is null) return;
         try

@@ -76,7 +76,7 @@ public class PetTabsUiTests
             Assert.Contains("쉬는 모습", Selected()); Assert.False(stretchPreview.IsEnabled);
             Assert.Equal(beforeRemove, idleClicks); Assert.Equal(2, picks);
             Click(owner, Find<Button>(owner, "CustomPetRemove_idle"));
-            Assert.True(Find<TextBlock>(owner, "CustomPetPreviewHint").IsVisible);
+            Assert.False(Find<TextBlock>(owner, "CustomPetPreviewHint").IsVisible);
             Assert.False(idlePreview.IsEnabled); Assert.Equal(beforeRemove, idleClicks);
         }
         finally { owner.Close(); }

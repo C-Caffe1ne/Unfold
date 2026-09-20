@@ -38,9 +38,9 @@ internal sealed class CustomPetView : UserControl, IDisposable
         HorizontalAlignment = HorizontalAlignment.Left };
     private readonly ComboBox action = new() { Name = "CustomPetAction", ItemsSource = CustomPetDraft.Actions, SelectedIndex = 0,
         HorizontalAlignment = HorizontalAlignment.Stretch };
-    private readonly TextBlock pending = Ui.Caption(""), status = Ui.Caption("쉬는 모습은 필수예요. 나머지 동작은 원하는 것만 넣어 주세요.");
+    private readonly TextBlock pending = Ui.Caption(""), status = Ui.Caption("");
     private readonly AnimationView preview = new() { Name = "CustomPetPreview", Width = 220, Height = 220 };
-    private readonly TextBlock previewHint = Ui.Caption("아래 행동 카드에 파일을 넣으면 이곳에서 확인할 수 있어요.");
+    private readonly TextBlock previewHint = Ui.Caption("");
     private readonly Dictionary<string, TextBlock> labels = [];
     private readonly Dictionary<string, Border> actionCards = [];
     private readonly List<Button> actions = [];
@@ -91,7 +91,7 @@ internal sealed class CustomPetView : UserControl, IDisposable
                 if (previewAction == key)
                 {
                     previewGeneration++; previewAction = null; preview.SetFrames([], true);
-                    previewHint.IsVisible = true; previewLabel.Text = "";
+                    previewHint.IsVisible = false; previewLabel.Text = "";
                 }
                 Refresh();
             });
@@ -142,6 +142,7 @@ internal sealed class CustomPetView : UserControl, IDisposable
         var identity = PetManagementView.Field("펫 이름", name);
 
         previewHint.Name = "CustomPetPreviewHint";
+        previewHint.IsVisible = false;
         previewHint.HorizontalAlignment = HorizontalAlignment.Center;
         previewHint.VerticalAlignment = VerticalAlignment.Center;
         previewHint.TextAlignment = TextAlignment.Center;
@@ -172,19 +173,17 @@ internal sealed class CustomPetView : UserControl, IDisposable
             HorizontalAlignment = HorizontalAlignment.Stretch,
             Child = previewStage
         };
-        var guide = Ui.Caption("GIF는 원본 그대로 사용해요. MP4는 10초 이하 · 128 MiB까지 가져올 수 있어요.\nMP4는 소리 없이 최대 192px · 초당 12프레임으로 변환하며, 영상의 배경은 유지돼요.");
         var actionHeading = Ui.Text("행동별 파일"); actionHeading.FontWeight = FontWeight.SemiBold;
-        var actionHeader = new Grid { ColumnDefinitions = new("*,12,Auto") };
+        var actionHeader = new Grid { ColumnDefinitions = new("*") };
         actionHeader.Children.Add(actionHeading);
-        var cardHint = Ui.Caption("카드를 눌러 미리보기"); Grid.SetColumn(cardHint, 2); actionHeader.Children.Add(cardHint);
-        var actionGroup = Ui.Column(actionHeader, slots, guide);
+        var actionGroup = Ui.Column(actionHeader, slots);
         var body = Ui.Column(identity, pendingCard, previewSurface, actionGroup);
         body.Spacing = DesignSystem.Inset;
         var footer = new Grid { ColumnDefinitions = new("*,20,Auto") };
         status.VerticalAlignment = VerticalAlignment.Center;
         footer.Children.Add(status);
         Grid.SetColumn(create, 2); footer.Children.Add(create);
-        Content = PetManagementView.Page("나만의 펫을 만들어 보세요.", "파일을 동작에 배정한 뒤 펫 팩으로 저장하세요. 저장 후 미리보고 설치할 수 있어요.",
+        Content = PetManagementView.Page("나만의 펫을 만들어 보세요.", "",
             body, footer, showHeader);
         owner.PropertyChanged += OwnerPropertyChanged;
         AttachedToVisualTree += (_, _) => UpdatePlayback();
@@ -226,7 +225,7 @@ internal sealed class CustomPetView : UserControl, IDisposable
         if (!await ConfirmReplace(key, path)) return;
         if (await Assign(key, path))
         {
-            pendingPath = null; pending.Text = "동작에 추가했어요. 아래에서 다른 파일을 넣거나 교체할 수 있어요.";
+            pendingPath = null; pending.Text = "동작에 추가했어요.";
             SelectNextEmptyAction(); Refresh();
         }
     }
@@ -318,7 +317,7 @@ internal sealed class CustomPetView : UserControl, IDisposable
             savedName = petName.Trim(); savedClips.Clear();
             foreach (var pair in snapshot.Clips) savedClips.Add(pair.Key, pair.Value);
             exporting = false;
-            status.Foreground = DesignSystem.Muted; status.Text = "펫 팩을 저장했어요. ‘펫 팩 열기’ 탭에서 설치할 수 있어요.";
+            status.Foreground = DesignSystem.Muted; status.Text = "펫 팩을 저장했어요.";
             if (showCreated) await created(path);
             return true;
         }

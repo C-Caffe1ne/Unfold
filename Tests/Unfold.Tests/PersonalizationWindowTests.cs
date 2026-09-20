@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using Avalonia.Interactivity;
@@ -12,7 +13,7 @@ namespace Unfold.Tests;
 public class PersonalizationWindowTests
 {
     private static T Find<T>(Window window, string name) where T : Control => window.GetVisualDescendants().OfType<T>().Single(control => control.Name == name);
-    private static Button Button(Window window, string label) => window.GetVisualDescendants().OfType<Button>().Single(button => Equals(button.Content, label));
+    private static Button Button(Window window, string label) => window.GetVisualDescendants().OfType<Button>().Single(button => Equals(button.Content, label) || AutomationProperties.GetName(button) == label);
     private static void Press(Window window, string label) => Button(window, label).RaiseEvent(new RoutedEventArgs(Avalonia.Controls.Button.ClickEvent));
     [AvaloniaFact]
     public void ProfileEditorSavesTheSelectedRoutineAndInterval()

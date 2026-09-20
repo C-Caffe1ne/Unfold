@@ -24,11 +24,11 @@ public sealed partial class SettingsWindow
     private bool savingPreferences, restoringPreferences;
 
     private sealed record PreferencesValues(BubbleDirection Direction, bool SoundsEnabled,
-        string? DueId, string? CompletedId, string? DueName, string? CompletedName, int Idle, int Snooze)
+        string? DueId, string? CompletedId, string? DueName, string? CompletedName, int Idle, int Snooze, bool DebugTools)
     {
         public static PreferencesValues From(AppSettings settings) => new(settings.BubbleDirection, settings.ReminderSoundsEnabled,
             settings.ReminderSoundId, settings.CompletionSoundId, settings.ReminderSoundName, settings.CompletionSoundName,
-            settings.IdleMinutes, settings.SnoozeMinutes);
+            settings.IdleMinutes, settings.SnoozeMinutes, settings.DebugToolsEnabled);
     }
 
     private bool TryReadPreferences(out PreferencesValues? value)
@@ -38,7 +38,7 @@ public sealed partial class SettingsWindow
             decimal.Truncate(number) == number && decimal.TryParse(input.Text, NumberStyles.Number, CultureInfo.CurrentCulture, out var text) && text == number;
         if (bubbleDirection.SelectedItem is not BubbleDirection direction || !ValidMinutes(idle) || !ValidMinutes(snooze)) return false;
         value = new(direction, soundsEnabled.IsChecked == true, dueSoundId, completedSoundId, dueSoundName, completedSoundName,
-            (int)idle.Value!.Value, (int)snooze.Value!.Value);
+            (int)idle.Value!.Value, (int)snooze.Value!.Value, debugToolsEnabled.IsChecked == true);
         return true;
     }
 
@@ -71,12 +71,15 @@ public sealed partial class SettingsWindow
         try
         {
             bubbleDirection.SelectedItem = saved.Direction; soundsEnabled.IsChecked = saved.SoundsEnabled;
+            debugToolsEnabled.IsChecked = saved.DebugTools;
             idle.Value = saved.Idle; snooze.Value = saved.Snooze;
             // Restore raw invalid/empty text too, including when the numeric Value has not changed.
             idle.Text = saved.Idle.ToString(CultureInfo.CurrentCulture); snooze.Text = saved.Snooze.ToString(CultureInfo.CurrentCulture);
             dueSoundId = saved.DueId; completedSoundId = saved.CompletedId;
             dueSoundName = saved.DueName; completedSoundName = saved.CompletedName;
             refreshSoundNames?.Invoke(); observedPreferences = saved;
+            RefreshDebugToolsVisibility();
+            if (!saved.DebugTools) runtime.CloseReminderPreview();
         }
         finally { restoringPreferences = false; }
         preferencesStatus.IsVisible = false; RefreshPreferencesState();
@@ -108,7 +111,7 @@ public sealed partial class SettingsWindow
                 BubbleDirection = pending.Direction, ReminderSoundsEnabled = pending.SoundsEnabled,
                 ReminderSoundId = pending.DueId, CompletionSoundId = pending.CompletedId,
                 ReminderSoundName = pending.DueName, CompletionSoundName = pending.CompletedName,
-                IdleMinutes = pending.Idle, SnoozeMinutes = pending.Snooze,
+                IdleMinutes = pending.Idle, SnoozeMinutes = pending.Snooze, DebugToolsEnabled = pending.DebugTools,
                 ActiveProfileId = pending.Idle == current.IdleMinutes ? current.ActiveProfileId : null
             });
             observedPreferences = PreferencesValues.From(runtime.Settings);

@@ -76,13 +76,19 @@ public class PetReminderTests
     [InlineData(BubbleDirection.Left, 1.5)] [InlineData(BubbleDirection.Right, 2)]
     public void BubbleFitsNegativeOriginMonitorAtEdges(BubbleDirection direction, double scale)
     {
-        var work = new PixelRect(-2560, -100, 2560, 1440); var layout = PetBubbleLayout.Create(direction, true);
-        foreach (var anchor in new[] { new Avalonia.PixelPoint(work.X, work.Y), new(work.Right - 192, work.Bottom - 192) })
+        var work = new PixelRect(-2560, -100, 2560, 1440);
+        foreach (var percent in new[] { 50, 100, 150 })
         {
-            var position = layout.Position(anchor, scale, work);
-            Assert.True(position.X >= work.X && position.Y >= work.Y);
-            Assert.True(position.X + layout.Size.Width * scale <= work.Right);
-            Assert.True(position.Y + layout.Size.Height * scale <= work.Bottom);
+            var petSize = DesignSystem.PetBaseSize * percent / 100d;
+            var layout = PetBubbleLayout.Create(direction, true, DesignSystem.SpeechInvitationHeight, petSize);
+            foreach (var anchor in new[] { new Avalonia.PixelPoint(work.X, work.Y),
+                new(work.Right - (int)Math.Ceiling(petSize * scale), work.Bottom - (int)Math.Ceiling(petSize * scale)) })
+            {
+                var position = layout.Position(anchor, scale, work);
+                Assert.True(position.X >= work.X && position.Y >= work.Y);
+                Assert.True(position.X + layout.Size.Width * scale <= work.Right);
+                Assert.True(position.Y + layout.Size.Height * scale <= work.Bottom);
+            }
         }
     }
 
@@ -91,13 +97,18 @@ public class PetReminderTests
     {
         using var temp = new TempDirectory(); var path = Path.Combine(temp.Path, "settings.json"); File.WriteAllText(path, "{}");
         var old = AppSettings.Load(path); Assert.Equal(BubbleDirection.Top, old.BubbleDirection); Assert.Equal(5, old.SnoozeMinutes);
-        Assert.Equal(1, old.BreakDurationMinutes);
-        var updated = old with { BubbleDirection = BubbleDirection.Left, BubbleCollapsed = true, SnoozeMinutes = 60, ReminderSoundsEnabled = false };
+        Assert.Equal(1, old.BreakDurationMinutes); Assert.Equal(100, old.PetScalePercent); Assert.False(old.DebugToolsEnabled);
+        var updated = old with { BubbleDirection = BubbleDirection.Left, SnoozeMinutes = 60, ReminderSoundsEnabled = false,
+            PetScalePercent = 150, DebugToolsEnabled = true };
         updated.Save(path); var loaded = AppSettings.Load(path);
-        Assert.Equal(BubbleDirection.Left, loaded.BubbleDirection); Assert.True(loaded.BubbleCollapsed);
+        Assert.Equal(BubbleDirection.Left, loaded.BubbleDirection); Assert.Equal(150, loaded.PetScalePercent); Assert.True(loaded.DebugToolsEnabled);
         Assert.Equal(60, loaded.SnoozeMinutes); Assert.False(loaded.ReminderSoundsEnabled);
+        File.WriteAllText(path, "{\"bubbleCollapsed\":true,\"petScalePercent\":100}");
+        Assert.Equal(100, AppSettings.Load(path).PetScalePercent);
         Assert.Throws<InvalidDataException>(() => (old with { SnoozeMinutes = 0 }).Save(path));
         Assert.Throws<InvalidDataException>(() => (old with { BreakDurationMinutes = 11 }).Save(path));
+        Assert.Throws<InvalidDataException>(() => (old with { PetScalePercent = 45 }).Save(path));
+        Assert.Throws<InvalidDataException>(() => (old with { PetScalePercent = 115 }).Save(path));
         Assert.Throws<InvalidDataException>(() => (old with { ReminderSoundId = "../escape" }).Save(path));
         Assert.Throws<InvalidDataException>(() => (old with { BubbleDirection = (BubbleDirection)99 }).Save(path));
     }

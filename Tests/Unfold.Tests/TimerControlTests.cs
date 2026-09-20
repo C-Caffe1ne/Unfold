@@ -55,7 +55,7 @@ public class TimerControlTests
         Press(scope.Window, "TimerStop"); interval.Value = 62;
         Press(scope.Window, "ApplyHomeTimingSettings"); Dispatcher.UIThread.RunJobs();
         Assert.Equal(62, scope.Runtime.Settings.IntervalMinutes);
-        Assert.True(scope.Runtime.Clock.Stopped); Assert.Equal(TimeSpan.Zero, scope.Runtime.Clock.Remaining);
+        Assert.True(scope.Runtime.Clock.Stopped); Assert.Equal(TimeSpan.FromMinutes(62), scope.Runtime.Clock.Remaining);
     }
     [Fact]
     public void StopPauseAndResetHaveDistinctResumeBehavior()
@@ -63,9 +63,9 @@ public class TimerControlTests
         var clock = new StretchClock(TimeSpan.FromMinutes(25)); clock.Start(TimeSpan.Zero);
         clock.Tick(TimeSpan.FromSeconds(3), TimeSpan.Zero, TimeSpan.FromMinutes(5)); clock.TogglePause(TimeSpan.FromSeconds(3));
         Assert.Equal(TimeSpan.FromSeconds(1497), clock.Remaining); Assert.False(clock.Stopped);
-        clock.Stop(TimeSpan.FromSeconds(4)); Assert.True(clock.Stopped); Assert.True(clock.Paused); Assert.Equal(TimeSpan.Zero, clock.Remaining);
+        clock.Stop(TimeSpan.FromSeconds(4)); Assert.True(clock.Stopped); Assert.True(clock.Paused); Assert.Equal(TimeSpan.FromMinutes(25), clock.Remaining);
         clock.SetInterval(TimeSpan.FromMinutes(30)); clock.ScheduleAfterBreak(TimeSpan.FromSeconds(5));
-        Assert.True(clock.Stopped); Assert.Equal(TimeSpan.Zero, clock.Remaining);
+        Assert.True(clock.Stopped); Assert.Equal(TimeSpan.FromMinutes(30), clock.Remaining);
         clock.TogglePause(TimeSpan.FromSeconds(6)); Assert.False(clock.Stopped); Assert.False(clock.Paused); Assert.Equal(TimeSpan.FromMinutes(30), clock.Remaining);
         clock.Stop(TimeSpan.FromSeconds(7)); clock.Reset(TimeSpan.FromSeconds(8));
         Assert.False(clock.Stopped); Assert.True(clock.Paused); Assert.Equal(TimeSpan.FromMinutes(30), clock.Remaining);
@@ -130,7 +130,7 @@ public class TimerControlTests
         using var scope = new SettingsScope(); scope.Window.Width = scope.Window.MinWidth; scope.Window.Height = scope.Window.MinHeight;
         Dispatcher.UIThread.RunJobs();
         Assert.StartsWith("진행 중", scope.Window.GetVisualDescendants().OfType<TextBlock>().Single(text => text.Name == "TimerStateText").Text);
-        Assert.Equal(DesignSystem.Cream, scope.Window.GetVisualDescendants().OfType<Avalonia.Controls.Shapes.Ellipse>().Single(dot => dot.Name == "TimerStateIndicator").Fill);
+        Assert.Equal(DesignSystem.Success, scope.Window.GetVisualDescendants().OfType<Avalonia.Controls.Shapes.Ellipse>().Single(dot => dot.Name == "TimerStateIndicator").Fill);
         Assert.DoesNotContain(scope.Window.GetVisualDescendants().OfType<Button>(), button => Equals(button.Content, "Stretch now"));
         Assert.DoesNotContain(scope.Window.GetVisualDescendants().OfType<Button>(), button => button.Name == "TimerReset");
         foreach (var name in new[] { "TimerToggle", "TimerStop" })
@@ -146,8 +146,11 @@ public class TimerControlTests
         Assert.Equal(DesignSystem.Warning, scope.Window.GetVisualDescendants().OfType<Avalonia.Controls.Shapes.Ellipse>().Single(dot => dot.Name == "TimerStateIndicator").Fill);
         Assert.Equal("타이머 계속", AutomationProperties.GetName(Button(scope.Window, "TimerToggle")));
         Press(scope.Window, "TimerStop"); Assert.True(scope.Runtime.Clock.Stopped);
+        Assert.Equal(scope.Runtime.Clock.Interval, scope.Runtime.Clock.Remaining);
+        Assert.Equal("60:00", scope.Window.GetVisualDescendants().OfType<TextBlock>().Single(text => text.Name == "TimerCountdown").Text);
         Assert.StartsWith("중지됨", scope.Window.GetVisualDescendants().OfType<TextBlock>().Single(text => text.Name == "TimerStateText").Text);
-        Assert.Equal(DesignSystem.Error, scope.Window.GetVisualDescendants().OfType<Avalonia.Controls.Shapes.Ellipse>().Single(dot => dot.Name == "TimerStateIndicator").Fill);
+        Assert.DoesNotContain(scope.Window.GetVisualDescendants().OfType<TextBlock>(), text => text.Name == "TimerStateDetail");
+        Assert.Equal(DesignSystem.Stopped, scope.Window.GetVisualDescendants().OfType<Avalonia.Controls.Shapes.Ellipse>().Single(dot => dot.Name == "TimerStateIndicator").Fill);
         Assert.Equal("타이머 시작", AutomationProperties.GetName(Button(scope.Window, "TimerToggle")));
         var play = Button(scope.Window, "TimerToggle"); play.Focus();
         scope.Window.KeyPress(Key.Space, RawInputModifiers.None, PhysicalKey.Space, " ");

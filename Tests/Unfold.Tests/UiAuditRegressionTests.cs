@@ -20,7 +20,7 @@ public class UiAuditRegressionTests
     private static void Layout(Window window) { Dispatcher.UIThread.RunJobs(); window.UpdateLayout(); }
     private static void Press(Control root, string name) => Find<Button>(root, name).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
     private static void Choice(Window dialog, string label) => dialog.GetVisualDescendants().OfType<Button>()
-        .Single(button => Equals(button.Content, label)).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        .Single(button => Equals(button.Content, label) || AutomationProperties.GetName(button) == label).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
     private static async Task Until(Func<bool> predicate)
     {
         for (var i = 0; i < 300 && !predicate(); i++) { await Task.Delay(10, TestContext.Current.CancellationToken); Dispatcher.UIThread.RunJobs(); }
@@ -41,7 +41,7 @@ public class UiAuditRegressionTests
             today = today.AddDays(1); Choice(window, "새로고침"); Assert.Equal(past, window.Review.EndDay);
             Choice(window, "CSV 내보내기"); await Until(() => exported is not null); Assert.Equal(past, exported!.EndDay);
             Choice(window, "다음 7일"); Choice(window, "다음 7일"); Assert.Equal(today, window.Review.EndDay);
-            Assert.False(window.GetVisualDescendants().OfType<Button>().Single(b => Equals(b.Content, "다음 7일")).IsEnabled);
+            Assert.False(Find<Button>(window, "ReviewNext").IsEnabled);
         }
         finally { window.Close(); }
     }
@@ -100,7 +100,7 @@ public class UiAuditRegressionTests
             Assert.Contains("스트레칭", Find<TextBlock>(owner, "CustomPetPreviewAction").Text);
             Press(owner, "CustomPetRemove_idle"); Assert.False(hint.IsVisible);
             Assert.Contains("스트레칭", Find<TextBlock>(owner, "CustomPetPreviewAction").Text);
-            Press(owner, "CustomPetRemove_stretch"); Assert.True(hint.IsVisible);
+            Press(owner, "CustomPetRemove_stretch"); Assert.False(hint.IsVisible);
         }
         finally { owner.Close(); }
     }
@@ -131,11 +131,37 @@ public class UiAuditRegressionTests
         scope.Runtime.StartBreak(); Assert.StartsWith("휴식 중", Find<TextBlock>(window, "TimerStateText").Text);
         scope.Runtime.Stop();
         var interval = Find<NumericUpDown>(window, "ReminderInterval"); interval.Value = 61;
-        Assert.Contains("변경사항", Find<TextBlock>(window, "HomeTimingStatus").Text);
+        Assert.False(Find<TextBlock>(window, "HomeTimingStatus").IsVisible);
         Press(window, "ApplyHomeTimingSettings"); Assert.Contains("저장했어요", Find<TextBlock>(window, "HomeTimingStatus").Text);
-        interval.Value = 62; Assert.Contains("변경사항", Find<TextBlock>(window, "HomeTimingStatus").Text);
+        interval.Value = 62; Assert.False(Find<TextBlock>(window, "HomeTimingStatus").IsVisible);
         Press(window, "TimerToggle"); Assert.Equal(61, interval.Value);
         Assert.Contains("되돌렸어요", Find<TextBlock>(window, "HomeTimingStatus").Text);
+    }
+
+    [AvaloniaFact]
+    public void PrimaryTabsDoNotShowFeatureExplanationCopy()
+    {
+        using var scope = new SettingsScope(); var window = scope.Window;
+        var removed = new HashSet<string>
+        {
+            "첫 휴식은 언제든 괜찮아요.", "완료한 휴식은 이 기기에만 저장돼요.",
+            "입력이 없을 때 작업 타이머를 멈춰요.", "알림을 미룬 뒤 다시 기다릴 시간이에요.",
+            "변경한 항목은 바로 적용돼요.", "기다리지 않고 펫 알림 상태를 확인해요.",
+            "미리보기 전용 · 실제 타이머, 기록, 다시 알림은 바뀌지 않아요.",
+            "직접 완료한 휴식이에요. 실제 시간이 없는 구형 기록은 당시 목표 시간을 합산해요.",
+            "완료 당시 기기의 날짜를 기준으로 표시해요. 내보내기에는 이 7일만 포함돼요.",
+            "펫 팩을 열어 모습을 확인해 보세요.\n.unfoldpet",
+            "아래 행동 카드에 파일을 넣으면 이곳에서 확인할 수 있어요.",
+            "카드를 눌러 미리보기"
+        };
+        void AssertRemoved() => Assert.DoesNotContain(window.GetVisualDescendants().OfType<TextBlock>(),
+            text => removed.Contains(text.Text ?? ""));
+
+        Layout(window); AssertRemoved();
+        Press(window, "SettingsNavSettings"); Layout(window); AssertRemoved();
+        Press(window, "SettingsNavReview"); Layout(window); AssertRemoved();
+        Press(window, "SettingsNavPacks"); Layout(window); AssertRemoved();
+        Find<TabControl>(window, "PetManagementTabs").SelectedIndex = 1; Layout(window); AssertRemoved();
     }
 
     [AvaloniaFact]
@@ -214,11 +240,14 @@ public class UiAuditRegressionTests
     public void CompactBubblesKeepPetAndBubbleInsideEveryDirection()
     {
         foreach (var direction in Enum.GetValues<BubbleDirection>())
-        foreach (var height in new[] { 170d, 268d })
+        foreach (var height in new[] { DesignSystem.SpeechAdvanceHeight, DesignSystem.SpeechInvitationHeight,
+            DesignSystem.SpeechRestingHeight, DesignSystem.SpeechCompletedHeight })
+        foreach (var percent in new[] { 50, 100, 150 })
         {
-            var layout = PetBubbleLayout.Create(direction, true, height);
-            Assert.True(layout.Pet.X >= 0 && layout.Pet.Y >= 0 && layout.Pet.X + 192 <= layout.Size.Width && layout.Pet.Y + 192 <= layout.Size.Height);
-            Assert.True(layout.Bubble.X >= 0 && layout.Bubble.Y >= 0 && layout.Bubble.X + 320 <= layout.Size.Width && layout.Bubble.Y + height <= layout.Size.Height);
+            var petSize = DesignSystem.PetBaseSize * percent / 100d;
+            var layout = PetBubbleLayout.Create(direction, true, height, petSize);
+            Assert.True(layout.Pet.X >= 0 && layout.Pet.Y >= 0 && layout.Pet.X + petSize <= layout.Size.Width && layout.Pet.Y + petSize <= layout.Size.Height);
+            Assert.True(layout.Bubble.X >= 0 && layout.Bubble.Y >= 0 && layout.Bubble.X + DesignSystem.SpeechBubbleWidth <= layout.Size.Width && layout.Bubble.Y + height <= layout.Size.Height);
         }
     }
 

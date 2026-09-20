@@ -24,14 +24,14 @@ public sealed class StretchClock
         if (Paused) Start(now);
         else { Paused = true; last = now; initialized = true; }
     }
-    public void Stop(TimeSpan now) { Remaining = TimeSpan.Zero; Stopped = true; Paused = true; last = now; initialized = true; }
+    public void Stop(TimeSpan now) { Remaining = Interval; Stopped = true; Paused = true; last = now; initialized = true; }
     public void Reset(TimeSpan now) { Remaining = Interval; advanceWarned = false; Stopped = false; Paused = true; last = now; initialized = true; }
     public void ScheduleAfterBreak(TimeSpan now, TimeSpan? delay = null)
     {
         var next = delay ?? Interval;
         if (next < TimeSpan.FromSeconds(1) || next > TimeSpan.FromMinutes(240)) throw new ArgumentOutOfRangeException(nameof(delay));
         advanceWarned = delay is not null && next <= TimeSpan.FromMinutes(5); AdvanceWarningDue = false;
-        Remaining = Stopped ? TimeSpan.Zero : next; last = now; initialized = true;
+        Remaining = Stopped ? Interval : next; last = now; initialized = true;
     }
     public bool Tick(TimeSpan now, TimeSpan idleFor, TimeSpan idleThreshold, bool heldForBreak = false)
     {

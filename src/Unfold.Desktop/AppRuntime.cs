@@ -7,35 +7,17 @@ using Unfold.Core;
 
 namespace Unfold.Desktop;
 
-/// <summary>Waiting is an outlined mark, resting a filled one, so the collapsed pet separates
-/// the two states by shape rather than by colour or wording alone.</summary>
-public enum ReminderBadge { None, Waiting, Resting }
-
-/// <summary>One contract behind the tray tooltip, the tray status row, the tray recovery action
-/// and the pet badge. A collapsed bubble hides the break UI, so these four have to agree about
-/// what the timer is doing without any of them recomputing the state on its own.</summary>
-public readonly record struct TrayReminderStatus(ReminderBadge Badge, string Status, string ToolTip, bool CanExpand)
+/// <summary>One contract behind the tray tooltip and status row.</summary>
+public readonly record struct TrayReminderStatus(string Status, string ToolTip)
 {
-    /// <summary>The badge and the recovery action exist only while the bubble hides an active reminder.</summary>
-    public static ReminderBadge BadgeFor(PetNotice notice, bool bubbleCollapsed) => bubbleCollapsed
-        ? notice switch
-        {
-            PetNotice.Invitation => ReminderBadge.Waiting,
-            PetNotice.Resting => ReminderBadge.Resting,
-            _ => ReminderBadge.None
-        }
-        : ReminderBadge.None;
-
-    public static TrayReminderStatus Create(PetNotice notice, bool bubbleCollapsed, string remaining, string clockState)
+    public static TrayReminderStatus Create(PetNotice notice, string remaining, string clockState)
     {
-        var badge = BadgeFor(notice, bubbleCollapsed);
         // Invitation and Resting both hold the work timer, so the countdown alone would read as
         // a stuck clock. Tooltip and status therefore lead with the same label.
         var label = notice switch { PetNotice.Invitation => "휴식 대기 중", PetNotice.Resting => "휴식 중", _ => null };
         return label is null
-            ? new(badge, $"다음 휴식: {remaining} · {clockState}", $"Unfold · {remaining} · {clockState}", false)
-            : new(badge, $"{label} · 작업 타이머 {remaining} 멈춤", $"Unfold · {label} · 타이머 {remaining} 멈춤",
-                badge != ReminderBadge.None);
+            ? new($"다음 휴식: {remaining} · {clockState}", $"Unfold · {remaining} · {clockState}")
+            : new($"{label} · 작업 타이머 {remaining} 멈춤", $"Unfold · {label} · 타이머 {remaining} 멈춤");
     }
 }
 
@@ -55,10 +37,11 @@ public sealed class AppRuntime : IDisposable
     public bool CanEditTimerInterval => Clock.Paused || Clock.Stopped;
     internal EditorWindow? ActiveEditor => editor;
     public PetReminder Reminder { get; } = new();
+    internal PetReminder PresentedReminder => Reminder.HasNotice ? Reminder : reminderPreview ?? Reminder;
+    public PetNotice? PreviewNotice => reminderPreview?.Notice;
     /// <summary>Last state pushed to the tray. Kept as a value so callers can read the tray
     /// contract without touching the native menu.</summary>
     public TrayReminderStatus TrayStatus { get; private set; }
-    public bool CanExpandReminder => TrayReminderStatus.BadgeFor(Reminder.Notice, Settings.BubbleCollapsed) != ReminderBadge.None;
     internal BreakSession? ActiveReminder => Reminder.Session;
     internal PetWindow? ActivePet => pet;
     private readonly IClassicDesktopStyleApplicationLifetime desktop;
@@ -69,7 +52,7 @@ public sealed class AppRuntime : IDisposable
     private readonly Dictionary<string, Task<IReadOnlyList<AnimationFrame>>> clips = [];
     private readonly List<CharacterPackage> builtIns = [];
     private TrayIcon? tray;
-    private NativeMenuItem? trayStatus, trayPause, trayPet, trayExpand, trayFocusReminder;
+    private NativeMenuItem? trayStatus, trayPause, trayPet, trayFocusReminder;
     private SettingsWindow? settingsWindow;
     private EditorWindow? editor;
     private PetWindow? pet;
@@ -80,6 +63,7 @@ public sealed class AppRuntime : IDisposable
     private bool quitPending, openingEditor;
     private bool openingReminder, historyWritable = true;
     private int reminderGeneration;
+    private PetReminder? reminderPreview;
     private SingleInstance? instanceActivation;
     public AppRuntime(IClassicDesktopStyleApplicationLifetime desktop)
     {
@@ -99,6 +83,7 @@ public sealed class AppRuntime : IDisposable
                 catch (Exception copyError) when (copyError is IOException or UnauthorizedAccessException) { AppPaths.Log(copyError); }
             }
         }
+        DesignSystem.ApplyTheme(Settings.Theme);
         Routines = BreakRoutines.ForSettings(Settings);
         Clock = new(TimeSpan.FromMinutes(Settings.IntervalMinutes));
         try { BreakHistory = BreakHistory.Load(historyFile); }
@@ -153,21 +138,21 @@ public sealed class AppRuntime : IDisposable
         var now = monotonic.Elapsed;
         Reminder.Tick(now);
         if (Clock.Tick(now, idle, TimeSpan.FromMinutes(Settings.IdleMinutes), Reminder.Session is not null || openingReminder)) _ = ShowReminder();
-        else if (Clock.AdvanceWarningDue) { Reminder.ShowAdvance(now); _ = EnsurePetNotice(); }
+        else if (Clock.AdvanceWarningDue)
+        {
+            ClearReminderPreview(); Reminder.ShowAdvance(now); _ = EnsurePetNotice();
+        }
         RefreshPetNotice();
         Changed?.Invoke();
     }
-    /// <summary>Recomputes every tray surface from <see cref="TrayReminderStatus"/>. Called from
-    /// each reminder transition as well as the tick, so a fold, an invitation or a completion is
-    /// visible in the tray immediately instead of up to a second later.</summary>
+    /// <summary>Recomputes every tray surface from <see cref="TrayReminderStatus"/>.</summary>
     private void RefreshTray()
     {
         var remaining = $"{(int)Clock.Remaining.TotalMinutes:00}:{Clock.Remaining.Seconds:00}";
         var clockState = Clock.Stopped ? "중지" : Clock.Paused ? "일시정지" : Clock.IdlePaused ? "자리 비움" : "진행 중";
-        TrayStatus = TrayReminderStatus.Create(Reminder.Notice, Settings.BubbleCollapsed, remaining, clockState);
+        TrayStatus = TrayReminderStatus.Create(Reminder.Notice, remaining, clockState);
         if (tray is not null) tray.ToolTipText = TrayStatus.ToolTip;
         if (trayStatus is not null) trayStatus.Header = TrayStatus.Status;
-        if (trayExpand is not null) trayExpand.IsEnabled = TrayStatus.CanExpand;
         if (trayFocusReminder is not null) trayFocusReminder.IsEnabled = Reminder.Session is not null;
         if (trayPause is not null) trayPause.Header = Clock.Stopped ? "시작" : Clock.Paused ? "계속" : "일시정지";
         if (trayPet is not null) trayPet.Header = Settings.ShowPet ? "펫 숨기기" : "펫 표시";
@@ -192,11 +177,19 @@ public sealed class AppRuntime : IDisposable
         }
         Routines = BreakRoutines.ForSettings(value);
         Settings = value;
+        if (DesignSystem.CurrentTheme != Settings.Theme) DesignSystem.ApplyTheme(Settings.Theme);
         if (!Settings.ReminderSoundsEnabled) soundPlayer.Stop();
         if (changedCharacter) clips.Clear();
-        // Folding the bubble changes the badge and the tray recovery action, so the tray cannot
-        // wait for the next tick to notice a settings change.
         await UpdatePet(); RefreshPetNotice(); Changed?.Invoke();
+    }
+    public void SetTheme(AppTheme theme)
+    {
+        if (Settings.Theme == theme) return;
+        var value = Settings with { Theme = theme };
+        value.Save(settingsFile);
+        Settings = value;
+        DesignSystem.ApplyTheme(theme);
+        Changed?.Invoke();
     }
     public void SavePosition(Avalonia.PixelPoint position)
     {
@@ -216,14 +209,14 @@ public sealed class AppRuntime : IDisposable
     }
     private async Task UpdatePet()
     {
-        if ((!Settings.ShowPet && !Reminder.HasNotice) || Selected is null) { pet?.HidePet(); return; }
+        if ((!Settings.ShowPet && !PresentedReminder.HasNotice) || Selected is null) { pet?.HidePet(); return; }
         var current = pet ??= new PetWindow(this);
         if (DiagnosticMode) PrepareDiagnosticWindow(current);
         await current.SetCharacter();
         // A concurrent hide or quit can complete while SetCharacter() is in flight
         // (Dispose() nulls pet, another UpdatePet() call flips ShowPet off): re-check
         // both before resurrecting a pet nobody asked for anymore.
-        if (pet == current && (Settings.ShowPet || Reminder.HasNotice)) current.ShowPet();
+        if (pet == current && (Settings.ShowPet || PresentedReminder.HasNotice)) current.ShowPet();
     }
     public async Task OpenEditor(CharacterPackage? character = null)
     {
@@ -262,6 +255,7 @@ public sealed class AppRuntime : IDisposable
     }
     public async Task ShowReminder()
     {
+        ClearReminderPreview();
         if (Reminder.Session is not null) { RefreshPetNotice(); return; }
         if (openingReminder || quitting) return;
         openingReminder = true;
@@ -287,27 +281,36 @@ public sealed class AppRuntime : IDisposable
     public void StartBreak() { Reminder.Start(monotonic.Elapsed); RefreshPetNotice(); Changed?.Invoke(); }
     public void SnoozeBreak() { Reminder.Snooze(); RefreshPetNotice(); Changed?.Invoke(); }
     public void CompleteBreak() { Reminder.Complete(monotonic.Elapsed); RefreshPetNotice(); Changed?.Invoke(); }
-    public async Task ToggleBubble()
+    public async Task ShowReminderPreview(PetNotice notice)
     {
-        try { await UpdateSettings(Settings with { BubbleCollapsed = !Settings.BubbleCollapsed }); }
-        catch (Exception error) { AppPaths.Log(error); }
+        if (notice == PetNotice.None) { CloseReminderPreview(); return; }
+        if (Reminder.HasNotice) throw new InvalidOperationException("진행 중인 알림을 먼저 완료하거나 미뤄 주세요.");
+        var routine = Routines.FirstOrDefault(item => item.Id == Settings.BreakRoutineId) ?? BreakRoutines.All[0];
+        var characterId = Selected?.Manifest.Id ?? Settings.SelectedCharacterId;
+        var preview = new PetReminder();
+        var session = new BreakSession(routine, characterId, durationSeconds: Settings.BreakDurationMinutes * 60);
+        switch (notice)
+        {
+            case PetNotice.Advance: preview.ShowAdvance(TimeSpan.Zero); break;
+            case PetNotice.Invitation: preview.Invite(session); break;
+            case PetNotice.Resting: preview.Invite(session); preview.Start(TimeSpan.Zero); break;
+            case PetNotice.Completed:
+                preview.Invite(session); preview.Start(TimeSpan.Zero); preview.Complete(TimeSpan.Zero); break;
+            default: throw new ArgumentOutOfRangeException(nameof(notice));
+        }
+        reminderPreview = preview;
+        await UpdatePet(); RefreshPetNotice(); Changed?.Invoke();
     }
-    /// <summary>Tray recovery for a reminder hidden behind a folded bubble. It only unfolds:
-    /// the session, its elapsed time and the work timer are left exactly as they are.</summary>
-    public async Task ExpandReminder()
+    public void CloseReminderPreview()
     {
-        if (!CanExpandReminder) return;
-        try { await UpdateSettings(Settings with { BubbleCollapsed = false }); }
-        catch (Exception error) { AppPaths.Log(error); }
+        if (reminderPreview is null) return;
+        reminderPreview = null; RefreshPetNotice(); Changed?.Invoke();
     }
+    private void ClearReminderPreview() => reminderPreview = null;
     public async Task FocusReminder()
     {
         if (Reminder.Session is null) return;
-        try
-        {
-            await UpdateSettings(Settings with { BubbleCollapsed = false });
-            pet?.FocusReminder();
-        }
+        try { pet?.FocusReminder(); await Task.CompletedTask; }
         catch (Exception error) { AppPaths.Log(error); }
     }
     private async Task EnsurePetNotice()
@@ -326,7 +329,7 @@ public sealed class AppRuntime : IDisposable
         RefreshTray();
         if (pet is not { } current) return;
         current.RefreshSpeech();
-        if (Settings.ShowPet || Reminder.HasNotice)
+        if (Settings.ShowPet || PresentedReminder.HasNotice)
         { if (!current.IsVisible) current.ShowPet(); }
         else if (current.IsVisible) current.HidePet();
     }
@@ -363,8 +366,6 @@ public sealed class AppRuntime : IDisposable
         tray = new TrayIcon { Icon = new WindowIcon(icon), ToolTipText = "Unfold", IsVisible = true };
         var menu = new NativeMenu();
         trayStatus = new NativeMenuItem("다음 휴식") { IsEnabled = false }; menu.Items.Add(trayStatus);
-        trayExpand = new NativeMenuItem("휴식 알림 펼치기") { IsEnabled = false }; menu.Items.Add(trayExpand);
-        trayExpand.Click += async (_, _) => await ExpandReminder();
         trayFocusReminder = new NativeMenuItem("휴식 알림으로 이동") { IsEnabled = false }; menu.Items.Add(trayFocusReminder);
         trayFocusReminder.Click += async (_, _) => await FocusReminder();
         void Item(string text, Action action) { var item = new NativeMenuItem(text); item.Click += (_, _) => action(); menu.Items.Add(item); }

@@ -12,6 +12,7 @@
 | [제품 방향](product-direction.md) | 초기 고객, 경쟁 판단, 무료·Plus·펫 팩의 가치 제안 |
 | [UI 한글화](localization.md) | 한국어 적용 범위, 표시 용어, 기존 데이터 보존과 검증 한계 |
 | [UI 한글화 검증](validation/2026-09-14-korean-ui.md) | 127개 테스트, macOS 게시 앱 진단과 한글 화면 캡처 |
+| [색상 테마 구현·검증](validation/2026-09-20-themes.md) | 네 가지 테마, 오트 라떼 기본값, 선택·저장·초안 보존과 네이티브 캡처 |
 | [디자인 시스템](design-system.md) | 공통 시각 토큰, 페이지·버튼·입력 규칙과 중첩 창 적용 범위 |
 | [Figma 디자인 시스템](figma-design-system.md) | 편집 가능한 Figma 파일, 변수·Variant 구성과 로컬 빌더 실행 방법 |
 | [디자인 시스템 검증](validation/2026-09-14-design-system.md) | 135개 테스트, 최종 변경 영역 13개 재검사와 macOS 화면 24장 |
@@ -28,6 +29,15 @@
 | [설정 탭 UI 개편 검증](validation/2026-09-18-settings-ui-redesign.md) | 하단 취소·저장, 변경 상태·오류 복구, 설정 전용 드롭다운, 202개 테스트와 macOS 캡처 |
 | [펫 추가 탭 UI 후속 시안](plans/2026-09-18-pet-tabs-ui-proposal.md) | 열기·만들기 배치, 다섯 행동 카드, 상태별 시안과 사용자 확인 후 구현 경계 |
 | [펫 추가 탭 UI 적용 검증](validation/2026-09-18-pet-tabs-ui.md) | 카드 클릭 미리보기, 최소 창의 다섯 카드, 고정 하단, Release 205개와 macOS 렌더링 검증 |
+| [홈 UI 검수와 수정 시안](plans/2026-09-20-home-ui-proposal.md) | 네 카드의 글자 위계·입력·간격·상태 배지, 최소 창과 긴 이름, 사용자 확인 후 구현 경계 |
+| [홈 UI 적용 검증](validation/2026-09-20-home-ui-implementation.md) | 타이머 상단·펫 하단, 입력 크기·상태 설명, Release 207개와 macOS 기본·최소 창 검증 |
+| [기록 화면 후속 시안](plans/2026-09-20-review-ui-proposal.md) | 승인된 기간 조작·요약·날짜별 상세 구성 |
+| [기록 UI 적용 검증](validation/2026-09-20-review-ui-implementation.md) | 완료 시각·실제 시간 표시, 208개 테스트와 기본·최소 창 캡처 |
+| [말풍선 UI 후속 시안](plans/2026-09-20-speech-ui-proposal.md) | 제목·여백·버튼 크기 정리안과 승인 후 구현 범위 |
+| [말풍선 UI 적용 검증](validation/2026-09-20-speech-ui-implementation.md) | 본문 제거·제목 중앙 정렬·상태별 크기, Release 212개와 네 방향 macOS 캡처 |
+| [펫 크기·타이머·디버그 시안](plans/2026-09-20-pet-scale-timer-debug-proposal.md) | 50~150% 펫 크기, 중지 시간 표시, 우클릭 단순화와 알림 상태 미리보기 기준 |
+| [펫 크기·타이머·디버그 구현 검증](validation/2026-09-20-pet-scale-timer-debug-implementation.md) | Release 214개, 82장 자동 캡처와 실제 macOS·Windows 미검증 범위 |
+| [UI 설명 문구 제거 검증](validation/2026-09-20-ui-copy-cleanup.md) | 홈·설정·기록·펫 추가·말풍선의 고정 설명 제거, Release 215개와 자동 캡처 |
 | [기존 루틴·프로필 호환과 회고](personalization.md) | 제거된 설정 UI의 데이터 보존 경계와 현재 주간 회고/CSV |
 | [펫 리소스 관리](pet-resources.md) | 제작 원장, 런타임 계약, 품질 기준과 검사 명령 |
 | [펫 추가·커스텀 팩 만들기](pet-packs.md) | GIF·MP4 동작 배정, 팩 생성·미리보기·설치·업데이트·재설치, ZIP/버전/해시 계약 |

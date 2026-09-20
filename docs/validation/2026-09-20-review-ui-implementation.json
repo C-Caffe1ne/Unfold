@@ -1,0 +1,241 @@
+{
+  "date": "2026-09-20",
+  "branch": "release/mvp",
+  "baseCommit": "0b72a36af5e2844d9ad4a361c55ab11dfdeb16cf",
+  "scope": "Approved record UI revision 2 implementation; speech UI proposal only",
+  "environment": "macOS arm64; .NET 10; Avalonia 12.1.2",
+  "build": {
+    "exitCode": 0,
+    "warnings": 0,
+    "errors": 0
+  },
+  "tests": {
+    "exitCode": 0,
+    "trx": "/tmp/unfold-review-implementation.V4jRl6/verified-tests/_hwanghyeonseong-ui-MacBookAir_2026-09-20_14_43_10_net10.0.trx",
+    "counts": {
+      "total": 208,
+      "passed": 208,
+      "failed": 0,
+      "notExecuted": 0
+    }
+  },
+  "nativeSmoke": {
+    "exitCode": 0,
+    "profile": "/tmp/unfold-review-implementation.V4jRl6/verified-native-profile",
+    "report": {
+      "success": true,
+      "startupMs": 1169.7102,
+      "totalMs": 17049.0852,
+      "workingSetBytes": 571523072,
+      "managedBytes": 146982184,
+      "oneCoreCpuPercent": 3.0049035075392876,
+      "characters": 4,
+      "imageFiles": 54,
+      "completedBreaks": 1,
+      "simulatedSessionTiming": true,
+      "savedCustomRoutines": 2,
+      "workProfiles": 1,
+      "exportedBreaks": 1,
+      "simulatedExportDestination": true,
+      "timerPausedApplyWaitSeconds": 1.2,
+      "timerStopWaitSeconds": 1.2,
+      "timerControlsVerified": true,
+      "petSpeechDirectionsVerified": true,
+      "speechOvertimeAndFoldVerified": true,
+      "soundRequestsVerified": true,
+      "hiddenPetNoticeVerified": true,
+      "stopWhileOpening": true,
+      "petPackInstallUpdateRepairVerified": true,
+      "simulatedPackPicker": true,
+      "settingsLayout": {
+        "minimumWidth": 860,
+        "minimumHeight": 680,
+        "timerAndPetVisible": true,
+        "detailsScrollVerified": true,
+        "noHorizontalOverflow": true,
+        "inWindowTabsVerified": true,
+        "settingsTabVerified": true,
+        "homeTimingVerified": true,
+        "petManagementTabsVerified": true,
+        "routineProfileEntryRemoved": true,
+        "petDraftPreserved": true,
+        "petCardAddButtonRemoved": true,
+        "petSelectorWidth": 200,
+        "settingsOptionsScrollRequired": false,
+        "settingsOptionsExtentHeight": 554,
+        "settingsOptionsViewportHeight": 554,
+        "settingsOptionsTopOffset": 0,
+        "settingsOptionsBottomOffset": null,
+        "settingsOptionsCapturesDiffer": null,
+        "settingsOptionsCaptureFiles": [
+          "settings-options-overview.png"
+        ],
+        "settingsPreferencesStyling": {
+          "pinnedActions": true,
+          "dirtySave": true,
+          "cancelRestores": true,
+          "dropdownCaptured": true
+        },
+        "homeDashboard": {
+          "timerFirst": true,
+          "measurements": [
+            {
+              "width": 1120,
+              "height": 800,
+              "timerTop": 31,
+              "timerHeight": 196,
+              "petTop": 247,
+              "petHeight": 522,
+              "capture": "home-default.png"
+            },
+            {
+              "width": 860,
+              "height": 680,
+              "timerTop": 31,
+              "timerHeight": 196,
+              "petTop": 247,
+              "petHeight": 402,
+              "capture": "home-minimum.png"
+            }
+          ],
+          "longNameAndErrorLayoutFixture": true,
+          "compactControls": true
+        }
+      },
+      "weeklyReview": {
+        "expandedCaptured": true,
+        "captureFile": "weekly-review-expanded.png",
+        "routineNameVisible": false,
+        "completionTimeVisible": true,
+        "actualDurationVisible": true
+      },
+      "reviewLayout": {
+        "measurements": [
+          {
+            "width": 1120,
+            "height": 800,
+            "cardWidth": 760,
+            "footerTop": 729,
+            "scrollRequired": false,
+            "capture": "review-default.png"
+          },
+          {
+            "width": 860,
+            "height": 680,
+            "cardWidth": 694,
+            "footerTop": 609,
+            "scrollRequired": true,
+            "capture": "review-minimum.png"
+          },
+          {
+            "width": 620,
+            "height": 650,
+            "cardWidth": 530,
+            "footerTop": 577,
+            "scrollRequired": true,
+            "capture": "review-compatibility.png"
+          },
+          {
+            "width": 560,
+            "height": 600,
+            "cardWidth": 470,
+            "footerTop": 527,
+            "scrollRequired": true,
+            "capture": "review-compatibility-minimum.png"
+          }
+        ],
+        "completionAndActualOnly": true,
+        "noHorizontalOverflow": true,
+        "pinnedFooter": true
+      },
+      "customPetGifAuthoringVerified": true,
+      "petCardPreviewVerified": true,
+      "sharedDesignDialogsVerified": true,
+      "pinnedPageActionsVerified": true,
+      "idleSeconds": 865.1186808,
+      "os": "Unix 26.6.2",
+      "framework": "10.0.12"
+    },
+    "pngCount": 54
+  },
+  "images": {
+    "review-default.png": {
+      "pixels": [
+        1120,
+        800
+      ],
+      "sha256": "8463705bc6a267bd3aadddce3338ce90fb30b3858909ffc46ac499764e7c1656"
+    },
+    "review-minimum.png": {
+      "pixels": [
+        860,
+        680
+      ],
+      "sha256": "0ea6e3c5989711d118d7010d489021df66cf19894a8f6264585e01e2dcfa422d"
+    },
+    "review-compatibility.png": {
+      "pixels": [
+        620,
+        650
+      ],
+      "sha256": "80b5135126301ea6f8b5af7c34a0aac6d7b2725937753de923dd4fef73581a44"
+    },
+    "review-compatibility-minimum.png": {
+      "pixels": [
+        560,
+        600
+      ],
+      "sha256": "c62711a26cdae66d7d8d99db99f6d01eb1123a9a7797c08a4055bca775b933fd"
+    },
+    "settings-review-tab.png": {
+      "pixels": [
+        1120,
+        800
+      ],
+      "sha256": "681037c261a7a8f517b04ca170179b7346bfeb9a2bba336a38729fea1083f2ab"
+    }
+  },
+  "sourceSha256": {
+    "src/Unfold.Desktop/BreakReviewWindow.cs": "fdabce4ac8fe6f20ff8bcfad231a8235ccb7707d798d96e8c18ceb75f89b5a1d",
+    "src/Unfold.Desktop/DesignSystem.cs": "f0b989b195d75f164e8a4a5cba7fd9a1c2082ac7979ad2fc3268ebb236458c7c",
+    "src/Unfold.Desktop/SmokeDiagnostics.cs": "88d8875fc3e9d70e45d6e5dd57f86b9e6ccba32a38e036612ced8c377458d5dc",
+    "Tests/Unfold.Tests/BreakReviewTests.cs": "4fa03d6dff1596ba8573939d0b7a742e3b6526435615bd6e2d400abb96e1f1e7",
+    "Tests/Unfold.Tests/LocalizationTests.cs": "11f5a88b0e8b6f5714dbcd5dce277b6971b3e150d4307f7e02b21ebb1a658048",
+    "Tests/Unfold.Tests/UiAuditRegressionTests.cs": "4902a82d9d10ded3304edadef21748107cb25a8f127eeb9e059097d4b3dc7421",
+    "Tests/Unfold.Tests/PersonalizationWindowTests.cs": "3332ab432f762a0372a9aaac407031825339f9c18135ba7df20f4d0da4f55201",
+    "Tests/Unfold.Tests/DesignSystemTests.cs": "df7d531630f90d5e77b6c7a80a3ac17493e707e2c45aa299acd68eb8181256e3"
+  },
+  "speechMockup": {
+    "fragment": "/Users/hwanghyeonseong/.codex/visualizations/2026/09/16/01a0a982-9729-7290-b2f3-81df3aee4585/speech-ui-proposal.html",
+    "sha256": "d86780f9f32b7f95c8ccb1c760d2a6bfbfeb8b744c7d98f7a9cbe57b83cb8185",
+    "nativeSpeechCodeChanged": false,
+    "normalWidth": 320,
+    "narrowWidth": 313,
+    "heights": [
+      170,
+      268
+    ],
+    "buttonHeight": 40,
+    "states": [
+      "advance",
+      "invitation",
+      "resting",
+      "overtime",
+      "limit",
+      "completed"
+    ],
+    "checks": [
+      "start then complete",
+      "60 minute snooze response",
+      "all six states with long text at 313px",
+      "all content within bubble",
+      "no horizontal overflow"
+    ],
+    "browserErrors": 0
+  },
+  "limitations": [
+    "macOS native rendering uses off-screen windows and programmatic input",
+    "Speech proposal uses sample values and no runtime actions",
+    "Windows hardware, OS scaling, physical keyboard/mouse and long-duration use unverified"
+  ]
+}

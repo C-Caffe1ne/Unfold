@@ -1,0 +1,200 @@
+{
+  "date": "2026-09-20",
+  "runtime": "C# .NET 10 / Avalonia 12.1.2",
+  "tests": {
+    "total": "212",
+    "executed": "212",
+    "passed": "212",
+    "failed": "0",
+    "error": "0",
+    "timeout": "0",
+    "aborted": "0",
+    "inconclusive": "0",
+    "passedButRunAborted": "0",
+    "notRunnable": "0",
+    "notExecuted": "0",
+    "disconnected": "0",
+    "warning": "0",
+    "completed": "0",
+    "inProgress": "0",
+    "pending": "0"
+  },
+  "nativeProfile": "/tmp/unfold-themes-final.MYPLax",
+  "nativeSmoke": {
+    "success": true,
+    "startupMs": 977.8257,
+    "totalMs": 21075.9353,
+    "workingSetBytes": 428933120,
+    "managedBytes": 139721672,
+    "oneCoreCpuPercent": 2.6541095548742115,
+    "characters": 4,
+    "imageFiles": 82,
+    "completedBreaks": 1,
+    "simulatedSessionTiming": true,
+    "savedCustomRoutines": 2,
+    "workProfiles": 1,
+    "exportedBreaks": 1,
+    "simulatedExportDestination": true,
+    "timerPausedApplyWaitSeconds": 1.2,
+    "timerStopWaitSeconds": 1.2,
+    "timerControlsVerified": true,
+    "petSpeechDirectionsVerified": true,
+    "speechOvertimeAndFoldVerified": true,
+    "soundRequestsVerified": true,
+    "hiddenPetNoticeVerified": true,
+    "stopWhileOpening": true,
+    "petPackInstallUpdateRepairVerified": true,
+    "simulatedPackPicker": true,
+    "settingsLayout": {
+      "minimumWidth": 860,
+      "minimumHeight": 680,
+      "timerAndPetVisible": true,
+      "detailsScrollVerified": true,
+      "noHorizontalOverflow": true,
+      "inWindowTabsVerified": true,
+      "settingsTabVerified": true,
+      "homeTimingVerified": true,
+      "petManagementTabsVerified": true,
+      "routineProfileEntryRemoved": true,
+      "petDraftPreserved": true,
+      "petCardAddButtonRemoved": true,
+      "petSelectorWidth": 200,
+      "settingsOptionsScrollRequired": false,
+      "settingsOptionsExtentHeight": 554,
+      "settingsOptionsViewportHeight": 554,
+      "settingsOptionsTopOffset": 0,
+      "settingsOptionsBottomOffset": null,
+      "settingsOptionsCapturesDiffer": null,
+      "settingsOptionsCaptureFiles": [
+        "settings-options-overview.png"
+      ],
+      "settingsPreferencesStyling": {
+        "pinnedActions": true,
+        "dirtySave": true,
+        "cancelRestores": true,
+        "dropdownCaptured": true
+      },
+      "homeDashboard": {
+        "timerFirst": true,
+        "measurements": [
+          {
+            "width": 1120,
+            "height": 800,
+            "timerTop": 31,
+            "timerHeight": 196,
+            "petTop": 247,
+            "petHeight": 522,
+            "capture": "home-default.png"
+          },
+          {
+            "width": 860,
+            "height": 680,
+            "timerTop": 31,
+            "timerHeight": 196,
+            "petTop": 247,
+            "petHeight": 402,
+            "capture": "home-minimum.png"
+          }
+        ],
+        "longNameAndErrorLayoutFixture": true,
+        "compactControls": true
+      }
+    },
+    "weeklyReview": {
+      "expandedCaptured": true,
+      "captureFile": "weekly-review-expanded.png",
+      "routineNameVisible": false,
+      "completionTimeVisible": true,
+      "actualDurationVisible": true
+    },
+    "reviewLayout": {
+      "measurements": [
+        {
+          "width": 1120,
+          "height": 800,
+          "cardWidth": 760,
+          "footerTop": 729,
+          "scrollRequired": false,
+          "capture": "review-default.png"
+        },
+        {
+          "width": 860,
+          "height": 680,
+          "cardWidth": 694,
+          "footerTop": 609,
+          "scrollRequired": true,
+          "capture": "review-minimum.png"
+        },
+        {
+          "width": 620,
+          "height": 650,
+          "cardWidth": 530,
+          "footerTop": 577,
+          "scrollRequired": true,
+          "capture": "review-compatibility.png"
+        },
+        {
+          "width": 560,
+          "height": 600,
+          "cardWidth": 470,
+          "footerTop": 527,
+          "scrollRequired": true,
+          "capture": "review-compatibility-minimum.png"
+        }
+      ],
+      "completionAndActualOnly": true,
+      "noHorizontalOverflow": true,
+      "pinnedFooter": true
+    },
+    "themes": {
+      "palettes": [
+        "오트 라떼",
+        "세이지",
+        "미드나이트 블루",
+        "플럼"
+      ],
+      "persisted": true,
+      "minimumNavigationFits": true,
+      "simulatedSelection": true
+    },
+    "customPetGifAuthoringVerified": true,
+    "petCardPreviewVerified": true,
+    "sharedDesignDialogsVerified": true,
+    "pinnedPageActionsVerified": true,
+    "idleSeconds": 0.0108848,
+    "os": "Unix 26.6.2",
+    "framework": "10.0.12"
+  },
+  "savedCaptures": [
+    "docs/validation/images/2026-09-20-themes/theme-OatLatte-review.png",
+    "docs/validation/images/2026-09-20-themes/theme-MidnightBlue-pets.png",
+    "docs/validation/images/2026-09-20-themes/theme-OatLatte-settings.png",
+    "docs/validation/images/2026-09-20-themes/theme-Plum-settings.png",
+    "docs/validation/images/2026-09-20-themes/theme-Sage-review.png",
+    "docs/validation/images/2026-09-20-themes/theme-Plum-pets.png",
+    "docs/validation/images/2026-09-20-themes/theme-OatLatte-home.png",
+    "docs/validation/images/2026-09-20-themes/theme-Plum-picker.png",
+    "docs/validation/images/2026-09-20-themes/theme-Sage-home.png",
+    "docs/validation/images/2026-09-20-themes/theme-MidnightBlue-review.png",
+    "docs/validation/images/2026-09-20-themes/theme-Sage-settings.png",
+    "docs/validation/images/2026-09-20-themes/theme-OatLatte-builder.png",
+    "docs/validation/images/2026-09-20-themes/theme-Plum-speech.png",
+    "docs/validation/images/2026-09-20-themes/theme-Sage-builder.png",
+    "docs/validation/images/2026-09-20-themes/theme-Sage-pets.png",
+    "docs/validation/images/2026-09-20-themes/theme-Sage-speech.png",
+    "docs/validation/images/2026-09-20-themes/theme-OatLatte-speech.png",
+    "docs/validation/images/2026-09-20-themes/theme-Plum-builder.png",
+    "docs/validation/images/2026-09-20-themes/theme-MidnightBlue-picker.png",
+    "docs/validation/images/2026-09-20-themes/theme-MidnightBlue-settings.png",
+    "docs/validation/images/2026-09-20-themes/theme-Sage-picker.png",
+    "docs/validation/images/2026-09-20-themes/theme-MidnightBlue-home.png",
+    "docs/validation/images/2026-09-20-themes/theme-Plum-review.png",
+    "docs/validation/images/2026-09-20-themes/theme-OatLatte-picker.png",
+    "docs/validation/images/2026-09-20-themes/theme-Plum-home.png",
+    "docs/validation/images/2026-09-20-themes/theme-MidnightBlue-builder.png",
+    "docs/validation/images/2026-09-20-themes/theme-OatLatte-pets.png",
+    "docs/validation/images/2026-09-20-themes/theme-MidnightBlue-speech.png",
+    "docs/validation/images/2026-09-20-themes/home-minimum.png",
+    "docs/validation/images/2026-09-20-themes/settings-options-default.png"
+  ]
+}

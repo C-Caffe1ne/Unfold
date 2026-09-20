@@ -1,0 +1,199 @@
+{
+  "date": "2026-09-20",
+  "stage": "UI audit and proposal only; awaiting user review before product changes",
+  "branch": "release/mvp",
+  "commit": "0b72a36af5e2844d9ad4a361c55ab11dfdeb16cf",
+  "fragment": "/Users/hwanghyeonseong/.codex/visualizations/2026/09/16/01a0a982-9729-7290-b2f3-81df3aee4585/home-ui-proposal.html",
+  "fragmentBytes": 56824,
+  "fragmentSha256": "3ba4ac4f968b73534acf10c31290cf07444755c0ed6ab7bbb673e5ec0904a86f",
+  "sourceRoot": "/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-home-proposal.nvg939iu",
+  "build": {
+    "exitCode": 0,
+    "warnings": 0,
+    "errors": 0
+  },
+  "nativeBaseline": {
+    "exitCode": 0,
+    "smoke": {
+      "success": true,
+      "startupMs": 1075.5612,
+      "totalMs": 15749.4414,
+      "workingSetBytes": 395264000,
+      "managedBytes": 141142288,
+      "oneCoreCpuPercent": 2.6622167931609004,
+      "characters": 4,
+      "imageFiles": 46,
+      "completedBreaks": 1,
+      "simulatedSessionTiming": true,
+      "savedCustomRoutines": 2,
+      "workProfiles": 1,
+      "exportedBreaks": 1,
+      "simulatedExportDestination": true,
+      "timerPausedApplyWaitSeconds": 1.2,
+      "timerStopWaitSeconds": 1.2,
+      "timerControlsVerified": true,
+      "petSpeechDirectionsVerified": true,
+      "speechOvertimeAndFoldVerified": true,
+      "soundRequestsVerified": true,
+      "hiddenPetNoticeVerified": true,
+      "stopWhileOpening": true,
+      "petPackInstallUpdateRepairVerified": true,
+      "simulatedPackPicker": true,
+      "settingsLayout": {
+        "minimumWidth": 860,
+        "minimumHeight": 680,
+        "timerAndPetVisible": true,
+        "detailsScrollVerified": true,
+        "noHorizontalOverflow": true,
+        "inWindowTabsVerified": true,
+        "settingsTabVerified": true,
+        "homeTimingVerified": true,
+        "petManagementTabsVerified": true,
+        "routineProfileEntryRemoved": true,
+        "petDraftPreserved": true,
+        "petCardAddButtonRemoved": true,
+        "petSelectorWidth": 200,
+        "settingsOptionsScrollRequired": false,
+        "settingsOptionsExtentHeight": 554,
+        "settingsOptionsViewportHeight": 554,
+        "settingsOptionsTopOffset": 0,
+        "settingsOptionsBottomOffset": null,
+        "settingsOptionsCapturesDiffer": null,
+        "settingsOptionsCaptureFiles": [
+          "settings-options-overview.png"
+        ],
+        "settingsPreferencesStyling": {
+          "pinnedActions": true,
+          "dirtySave": true,
+          "cancelRestores": true,
+          "dropdownCaptured": true
+        }
+      },
+      "weeklyReview": {
+        "expandedCaptured": true,
+        "captureFile": "weekly-review-expanded.png",
+        "routineNameVisible": true,
+        "completionTimeVisible": true,
+        "actualDurationVisible": true
+      },
+      "customPetGifAuthoringVerified": true,
+      "petCardPreviewVerified": true,
+      "sharedDesignDialogsVerified": true,
+      "pinnedPageActionsVerified": true,
+      "idleSeconds": 1.4359039,
+      "os": "Unix 26.6.2",
+      "framework": "10.0.12"
+    }
+  },
+  "browserProposal": {
+    "normalLayouts": [
+      {
+        "width": 860,
+        "height": 680
+      },
+      {
+        "width": 1120,
+        "height": 800
+      }
+    ],
+    "longNameSaveError": {
+      "width": 860,
+      "height": 680,
+      "nameHeight": 49,
+      "timerBottom": 649
+    },
+    "responsiveDOMChecks": [
+      {
+        "availableWidth": 305,
+        "height": 1350,
+        "horizontalOverflow": false,
+        "controlSpills": []
+      },
+      {
+        "availableWidth": 736,
+        "height": 680,
+        "horizontalOverflow": false,
+        "controlSpills": []
+      },
+      {
+        "availableWidth": 860,
+        "height": 680,
+        "horizontalOverflow": false,
+        "controlSpills": []
+      }
+    ],
+    "interactions": [
+      "Pause enables interval input",
+      "Interval plus one and apply while paused",
+      "Stop shows 00:00; Play restarts saved interval",
+      "Break duration can be changed while running",
+      "Pet selector changes heading",
+      "Invitation and Resting show distinct state text",
+      "Invalid 4 minute interval shows error; valid 45 minute value recovers"
+    ],
+    "correctedDuringReview": [
+      "Narrow companion controls overflowing their panel",
+      "Two-line name exceeding compact height",
+      "Malformed second pet option",
+      "Apply reads latest directly typed input"
+    ]
+  },
+  "productSourceIntegrity": {
+    "trackedFilesCompared": 94,
+    "changed": []
+  },
+  "limits": [
+    "Proposal clock and records use sample values; no real timer or storage writes",
+    "Static pet capture; custom selector uses same illustration",
+    "HTML layout does not verify Avalonia implementation",
+    "No full .NET test rerun for documentation/proposal-only work",
+    "Windows, OS display scaling and real native input unverified"
+  ],
+  "timerFirstRevision": {
+    "revision": 2,
+    "request": "Swap timer and pet positions in the proposal",
+    "fragment": "/Users/hwanghyeonseong/.codex/visualizations/2026/09/16/01a0a982-9729-7290-b2f3-81df3aee4585/home-timer-first-proposal.html",
+    "sha256": "e3d3f18a7e767c27910611142a23333a841e05cddfe69787323b7caa6b82bec2",
+    "desktopTimerHeight": 196,
+    "layoutChecks": [
+      {
+        "width": 860,
+        "height": 680,
+        "timerTop": 31,
+        "petTop": 247,
+        "petBottom": 649,
+        "horizontalOverflow": false
+      },
+      {
+        "width": 1120,
+        "height": 800,
+        "timerTop": 31,
+        "petTop": 247,
+        "petBottom": 769,
+        "horizontalOverflow": false
+      },
+      {
+        "width": 860,
+        "height": 680,
+        "longNameAndSaveError": true,
+        "controlSpills": []
+      },
+      {
+        "width": 305,
+        "height": 1350,
+        "timerBeforePet": true,
+        "horizontalOverflow": false,
+        "controlSpills": []
+      }
+    ],
+    "interactionChecks": [
+      "Pause enables interval input",
+      "Stop shows 00:00",
+      "First button in DOM is timer toggle"
+    ],
+    "browserErrors": [],
+    "productSourceFilesCompared": 94,
+    "productSourceChanges": [],
+    "limitations": "HTML proposal only; no new native build/tests for this reorder"
+  }
+}

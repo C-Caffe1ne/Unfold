@@ -1,0 +1,39 @@
+{
+  "date": "2026-09-20",
+  "scope": "pet scale, stopped timer display, pet context menu, reminder debug previews",
+  "build": {
+    "configuration": "Release",
+    "success": true,
+    "warnings": 0,
+    "errors": 0
+  },
+  "tests": {
+    "focused": { "passed": 23, "failed": 0, "skipped": 0 },
+    "scaleConsistencyFocused": { "passed": 11, "failed": 0, "skipped": 0 },
+    "optionPlacementFocused": { "passed": 16, "failed": 0, "skipped": 0 },
+    "uiCopyFocused": { "passed": 13, "failed": 0, "skipped": 0 },
+    "full": { "passed": 215, "failed": 0, "skipped": 0 }
+  },
+  "smoke": {
+    "isolatedData": true,
+    "success": true,
+    "imageFiles": 82,
+    "petContextMenuVerified": true,
+    "petScaleAndDebugPreviewVerified": true,
+    "appBehaviorCardVerified": true,
+    "settingsPreviewScale": 1.0,
+    "actualLogicalSizeShown": true,
+    "timerControlsVerified": true,
+    "noHorizontalOverflow": true,
+    "minimumWindow": "860x680"
+  },
+  "captures": [
+    "images/2026-09-20-pet-scale-timer-debug/home-default.png",
+    "images/2026-09-20-pet-scale-timer-debug/home-minimum.png",
+    "images/2026-09-20-pet-scale-timer-debug/settings-options-bottom.png",
+    "images/2026-09-20-pet-scale-timer-debug/timer-stopped.png"
+  ],
+  "actualMacOS": "not run; automated off-screen capture only",
+  "actualWindows": "not run",
+  "humanReview": "not run"
+}

@@ -37,7 +37,9 @@ public class LocalizationTests
             var count = row.Children.OfType<TextBlock>().Single(block => Grid.GetColumn(block) == 1 && Grid.GetRow(block) == Grid.GetRow(monday));
             Assert.True(monday.Bounds.Right <= count.Bounds.X);
             Assert.Equal("1회", count.Text);
-            Assert.Contains(text, block => block.Text == "휴식 1회 · 0분 20초 · 1일");
+            Assert.Contains(text, block => block.Name == "ReviewCount" && block.Text == "1");
+            Assert.Contains(text, block => block.Name == "ReviewDuration" && block.Text == "0분 20초");
+            Assert.Contains(text, block => block.Name == "ReviewActiveDays" && block.Text == "1");
             var csv = Encoding.UTF8.GetString(window.Review.Csv()).TrimStart('\uFEFF');
             Assert.StartsWith("confirmed_at,routine_id,routine_name,planned_seconds,character_id,profile_id,profile_name", csv);
             Assert.Contains(",\"look-away\",\"Look away\",20,\"default-cat\",", csv);

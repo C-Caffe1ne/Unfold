@@ -3,7 +3,7 @@ namespace Unfold.Core;
 public enum BubbleDirection { Top, Bottom, Left, Right }
 public enum PetNotice { None, Advance, Invitation, Resting, Completed }
 
-/// <summary>The reminder outlives its presentation: folding or hiding never finishes a session.</summary>
+/// <summary>The reminder owns break state independently from the pet window that presents it.</summary>
 public sealed class PetReminder
 {
     public PetNotice Notice { get; private set; }

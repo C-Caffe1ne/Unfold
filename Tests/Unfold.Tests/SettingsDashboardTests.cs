@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls.Primitives;
 using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
 using Avalonia.Interactivity;
@@ -38,7 +39,7 @@ public class SettingsDashboardTests
             window.Width = size.Width; window.Height = size.Height;
             Find<ScrollViewer>(window, "SettingsDetailsScroll").ScrollToHome();
             Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
-            foreach (var name in new[] { "SettingsCompanionCard", "SettingsTimerCard", "SettingsHomeTimingCard", "ReminderInterval", "BreakDurationMinutes", "TimerToggle", "TimerStop", "SettingsQuit", "LaunchAtLogin" })
+            foreach (var name in new[] { "SettingsCompanionCard", "SettingsTimerCard", "SettingsHomeTimingCard", "ReminderInterval", "BreakDurationMinutes", "TimerToggle", "TimerStop", "SettingsQuit" })
             {
                 var control = Find<Control>(window, name);
                 var origin = control.TranslatePoint(default, window)!.Value;
@@ -47,7 +48,15 @@ public class SettingsDashboardTests
                 Assert.True(origin.Y >= 0 && origin.Y + control.Bounds.Height <= window.ClientSize.Height + 1, name);
             }
             var hero = Find<Border>(window, "SettingsCompanionCard"); var timer = Find<Border>(window, "SettingsTimerCard");
-            Assert.True(hero.Bounds.Bottom < timer.Bounds.Top);
+            Assert.Equal(196, timer.Bounds.Height);
+            Assert.Equal(20, hero.Bounds.Top - timer.Bounds.Bottom);
+            Assert.Equal(timer.TranslatePoint(default, window)!.Value.Y,
+                Find<Border>(window, "SettingsHomeTimingCard").TranslatePoint(default, window)!.Value.Y);
+            var main = Find<Grid>(window, "SettingsMain");
+            Assert.Same(timer, main.Children[0]); Assert.Same(hero, main.Children[1]);
+            Assert.DoesNotContain(window.GetVisualDescendants().OfType<TextBlock>(), text => text.Name == "TimerStateDetail");
+            foreach (var name in new[] { "ReminderInterval", "BreakDurationMinutes" })
+                Assert.Equal(new Size(160, 40), Find<NumericUpDown>(window, name).Bounds.Size);
             var scroll = Find<ScrollViewer>(window, "SettingsDetailsScroll");
             Assert.True(scroll.Extent.Width <= scroll.Viewport.Width + 1);
             // Scroll to the final card without moving the timer out of reach.
@@ -56,6 +65,105 @@ public class SettingsDashboardTests
             var reviewPosition = review.TranslatePoint(default, window)!.Value;
             Assert.True(reviewPosition.Y + review.Bounds.Height <= window.ClientSize.Height + 1);
         }
+    }
+
+    [AvaloniaFact]
+    public void PetScaleSitsAboveThePickerAndPersistsWithoutLegendLabels()
+    {
+        using var scope = new Scope(); var window = scope.Window;
+        var card = Find<Border>(window, "SettingsCompanionCard");
+        var slider = Find<Slider>(window, "PetScale");
+        var picker = Find<ComboBox>(window, "CharacterPicker");
+        var value = Find<TextBlock>(window, "PetScaleValue");
+        var label = Find<TextBlock>(window, "PetScaleLabel");
+        window.UpdateLayout();
+        var labelOrigin = label.TranslatePoint(default, card)!.Value;
+        var sliderOrigin = slider.TranslatePoint(default, card)!.Value;
+        var valueOrigin = value.TranslatePoint(default, card)!.Value;
+        var pickerOrigin = picker.TranslatePoint(default, card)!.Value;
+        Assert.True(labelOrigin.Y + label.Bounds.Height <= sliderOrigin.Y);
+        Assert.True(sliderOrigin.Y + slider.Bounds.Height <= valueOrigin.Y);
+        Assert.True(sliderOrigin.Y + slider.Bounds.Height < pickerOrigin.Y);
+        Assert.Equal(50, slider.Minimum); Assert.Equal(150, slider.Maximum);
+        Assert.Equal(10, slider.TickFrequency); Assert.True(slider.IsSnapToTickEnabled);
+        Assert.DoesNotContain(card.GetVisualDescendants().OfType<TextBlock>(), text => text.Text is "축소" or "기본" or "확대");
+
+        var host = Find<Control>(window, "CompanionPreview");
+        var stage = Find<Grid>(window, "CompanionPreviewStage");
+        var previewScroll = Find<ScrollViewer>(window, "CompanionPreviewScroll");
+        foreach (var size in new[] { new Size(1120, 800), new Size(860, 680) })
+        {
+            window.Width = size.Width; window.Height = size.Height;
+            foreach (var scale in new[] { 50, 100, 150 })
+            {
+                slider.Value = scale; Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+                var actualSize = DesignSystem.PetBaseSize * scale / 100d;
+                Assert.Equal(actualSize, host.Width); Assert.Equal(actualSize, host.Height);
+                Assert.Equal(actualSize, stage.Width); Assert.Equal(actualSize, stage.Height);
+                Assert.Equal($"{scale}%", value.Text);
+                Assert.True(previewScroll.Extent.Width <= previewScroll.Viewport.Width + 1);
+                Assert.Equal(size == new Size(860, 680) && scale == 150,
+                    previewScroll.Extent.Height > previewScroll.Viewport.Height + 1);
+            }
+        }
+        Assert.Equal("150%", value.Text); Assert.Equal(150, scope.Runtime.Settings.PetScalePercent);
+        Assert.Equal(150, AppSettings.Load(Path.Combine(scope.Root, "settings.json")).PetScalePercent);
+        Assert.True(card.TranslatePoint(default, window)!.Value.X + card.Bounds.Width <= window.ClientSize.Width + 1);
+    }
+
+    [AvaloniaFact]
+    public void LongPetNameAndSaveFailureKeepHomeActionsInsideTheirCards()
+    {
+        using var scope = new Scope(); var window = scope.Window;
+        window.Width = 860; window.Height = 680;
+        var name = Find<TextBlock>(window, "CompanionName");
+        name.Text = "오래 함께할 아주 긴 이름을 가진 나만의 새로운 고양이 친구";
+        var rest = Find<NumericUpDown>(window, "BreakDurationMinutes"); rest.Value = 4;
+        // An actual failed save must keep the draft and the next action visible.
+        var settingsFile = Path.Combine(scope.Root, "settings.json");
+        if (File.Exists(settingsFile)) File.Delete(settingsFile);
+        Directory.CreateDirectory(settingsFile);
+        Click(window, "ApplyHomeTimingSettings"); Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+        Assert.Contains("저장하지 못했어요", Find<TextBlock>(window, "HomeTimingStatus").Text);
+        Assert.Equal(4, rest.Value); Assert.NotEqual(4, scope.Runtime.Settings.BreakDurationMinutes);
+        Assert.True(Find<Button>(window, "ApplyHomeTimingSettings").IsEnabled);
+        foreach (var pair in new[] { ("CharacterPicker", "SettingsCompanionCard"), ("PetScale", "SettingsCompanionCard"),
+            ("HomeTimingStatus", "SettingsHomeTimingCard"), ("TimerStop", "SettingsTimerCard") })
+        {
+            var control = Find<Control>(window, pair.Item1); var card = Find<Border>(window, pair.Item2);
+            var point = control.TranslatePoint(default, card)!.Value;
+            Assert.True(point.X >= 0 && point.X + control.Bounds.Width <= card.Bounds.Width, pair.Item1);
+            Assert.True(point.Y >= 0 && point.Y + control.Bounds.Height <= card.Bounds.Height, pair.Item1);
+        }
+        Assert.Equal(2, name.MaxLines);
+        Assert.Equal(196, Find<Border>(window, "SettingsTimerCard").Bounds.Height);
+    }
+
+    [AvaloniaFact]
+    public async Task HomeSeparatesAllSixTimerStateTitlesWithoutHelperCopy()
+    {
+        using var scope = new Scope(); var window = scope.Window;
+        window.Width = 860; window.Height = 680;
+        void AssertState(string title)
+        {
+            Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+            Assert.Equal(title, Find<TextBlock>(window, "TimerStateText").Text);
+            var badge = Find<Border>(window, "TimerStateBadge"); var toggle = Find<Button>(window, "TimerToggle");
+            Assert.True(badge.TranslatePoint(default, window)!.Value.X + badge.Bounds.Width < toggle.TranslatePoint(default, window)!.Value.X);
+            Assert.DoesNotContain(window.GetVisualDescendants().OfType<TextBlock>(), text => text.Name == "TimerStateDetail");
+        }
+        AssertState("진행 중");
+        Click(window, "TimerToggle"); AssertState("일시정지");
+        Click(window, "TimerStop"); AssertState("중지됨");
+        Click(window, "TimerToggle");
+        scope.Runtime.Clock.Start(TimeSpan.Zero);
+        scope.Runtime.Clock.Tick(TimeSpan.FromSeconds(1), TimeSpan.FromMinutes(6), TimeSpan.FromMinutes(5));
+        await scope.Runtime.UpdateSettings(scope.Runtime.Settings);
+        AssertState("자리 비움");
+        scope.Runtime.Reminder.Invite(new(BreakRoutines.All[0], "default-cat"));
+        await scope.Runtime.UpdateSettings(scope.Runtime.Settings);
+        AssertState("휴식 대기 중");
+        scope.Runtime.StartBreak(); AssertState("휴식 중");
     }
 
     [AvaloniaFact]
@@ -136,6 +244,8 @@ public class SettingsDashboardTests
         foreach (var removed in new[] { "SettingsNavRoutines", "SettingsEditRoutine", "ApplyRoutineSettings", "SettingsOpenLibrary" })
             Assert.DoesNotContain(window.GetVisualDescendants().OfType<Control>(), control => control.Name == removed);
         Assert.DoesNotContain(window.GetVisualDescendants().OfType<TabControl>(), control => control.Name == "PersonalizationTabs");
+        Assert.DoesNotContain(window.GetVisualDescendants().OfType<Control>(), control =>
+            control.Name is "ShowPetOnDesktop" or "LaunchAtLogin");
 
         Click(window, "SettingsNavReview"); Dispatcher.UIThread.RunJobs();
         Assert.Empty(window.OwnedWindows);
@@ -155,6 +265,10 @@ public class SettingsDashboardTests
         foreach (var label in new[] { "자리 비움 시간 (분)", "다시 알림 시간 (분)" })
             Assert.Contains(timerSettings.GetVisualDescendants().OfType<TextBlock>(), text => text.Text == label);
         Assert.DoesNotContain(timerSettings.GetVisualDescendants().OfType<TextBlock>(), text => text.Text == "스트레칭 알림 간격 (분)");
+        var appBehavior = Find<Border>(window, "SettingsAppBehaviorCard");
+        Assert.Contains(appBehavior.GetVisualDescendants().OfType<CheckBox>(), checkbox => checkbox.Name == "ShowPetOnDesktop");
+        Assert.Contains(appBehavior.GetVisualDescendants().OfType<CheckBox>(), checkbox => checkbox.Name == "LaunchAtLogin");
+        Assert.NotNull(Find<Border>(window, "SettingsDebugToolsCard"));
 
         Click(window, "SettingsNavTimer"); Dispatcher.UIThread.RunJobs();
         AssertNoTabPageHeader(window);
@@ -213,6 +327,46 @@ public class SettingsDashboardTests
         Find<NumericUpDown>(window, "SnoozeMinutes").Value = 2.5m;
         Click(window, "SavePreferences"); Dispatcher.UIThread.RunJobs();
         Assert.Equal(12, scope.Runtime.Settings.SnoozeMinutes);
+    }
+
+    [AvaloniaFact]
+    public void DebugPreviewButtonsAreOptInAndDoNotChangeLiveState()
+    {
+        using var scope = new Scope(); var window = scope.Window;
+        Click(window, "SettingsNavSettings"); Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+        var toggle = Find<CheckBox>(window, "DebugToolsEnabled");
+        var firstPreview = Find<Button>(window, "DebugPreviewAdvance");
+        Assert.False(toggle.IsChecked); Assert.False(firstPreview.IsEffectivelyVisible);
+
+        toggle.IsChecked = true; Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+        Assert.True(firstPreview.IsEffectivelyVisible); Assert.True(Find<Button>(window, "SavePreferences").IsEnabled);
+        Click(window, "SavePreferences"); Dispatcher.UIThread.RunJobs();
+        Assert.True(scope.Runtime.Settings.DebugToolsEnabled);
+        Assert.True(AppSettings.Load(Path.Combine(scope.Root, "settings.json")).DebugToolsEnabled);
+
+        var remaining = scope.Runtime.Clock.Remaining;
+        var history = scope.Runtime.BreakHistory.Completions.Count;
+        var dueSounds = scope.Runtime.DueSoundRequests;
+        var completionSounds = scope.Runtime.CompletionSoundRequests;
+        foreach (var item in new[]
+        {
+            ("DebugPreviewAdvance", PetNotice.Advance),
+            ("DebugPreviewInvitation", PetNotice.Invitation),
+            ("DebugPreviewResting", PetNotice.Resting),
+            ("DebugPreviewCompleted", PetNotice.Completed)
+        })
+        {
+            Click(window, item.Item1); Dispatcher.UIThread.RunJobs();
+            Assert.Equal(item.Item2, scope.Runtime.PreviewNotice);
+            Assert.False(scope.Runtime.Reminder.HasNotice);
+            Assert.Equal(remaining, scope.Runtime.Clock.Remaining);
+            Assert.Equal(history, scope.Runtime.BreakHistory.Completions.Count);
+            Assert.Equal(dueSounds, scope.Runtime.DueSoundRequests);
+            Assert.Equal(completionSounds, scope.Runtime.CompletionSoundRequests);
+        }
+        Click(window, "DebugPreviewClose"); Dispatcher.UIThread.RunJobs();
+        Assert.Null(scope.Runtime.PreviewNotice);
+        Assert.Equal("미리보기 대기 중", Find<TextBlock>(window, "DebugPreviewStatus").Text);
     }
 
     private sealed class Scope : IDisposable

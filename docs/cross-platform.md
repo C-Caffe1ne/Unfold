@@ -36,17 +36,17 @@ notarization or staple a ticket.
 
 - Tray/menu bar: countdown and current state, 설정, 펫 숨기기/펫 표시,
   시작/일시정지/계속, 타이머 정지, Unfold 종료.
-- Pet right-click menu: 말풍선 접기/펼치기, 설정.
+- Pet right-click menu: 설정.
 - Settings: the timer home contains stretch interval and break duration; a separate settings tab contains idle time, snooze time, stretch/completion sounds and bubble position; character selection, pet visibility,
   launch at login, **Review & export**, **펫 추가**, today's confirmed breaks, and timer controls.
-- Pet speech reminder: **n분 뒤에**, **휴식 시작**, and **완료**. Right-click the pet to fold/unfold the bubble.
+- Pet speech reminder: **n분 뒤에**, **휴식 시작**, and **완료**. The bubble remains visible while its reminder state is active.
   Settings offers four bubble positions, 1–60 minute snooze, and due/completion WAV effects.
   There is no separate reminder window or OS toast.
   **완료** is available from the start of a break. Overtime caps at +60:00 without auto-completion.
   Snooze counts active time, not time away.
 
 Settings uses two icon buttons: Pause/Play and Stop. Each has a tooltip and an
-accessibility name. Pause keeps the remaining time; Stop shows 00:00. Use Play to resume
+accessibility name. Pause keeps the remaining time; Stop shows the configured full interval. Use Play to resume
 or to start a full interval after Stop. Stop dismisses an open invitation without recording
 completion. Reset and Stretch now are no longer exposed.
 

@@ -8,19 +8,21 @@ namespace Unfold.Tests;
 public class SettingsReliabilityTests
 {
     [Fact]
-    public void LoadWithOutOfRangeIntervalThrowsInvalidDataException()
+    public void LoadWithOutOfRangeIntervalRecoversThatFieldAlone()
     {
         using var temp = new TempDirectory(); var file = Path.Combine(temp.Path, "settings.json");
-        File.WriteAllText(file, "{\"IntervalMinutes\":999}");
-        Assert.Throws<InvalidDataException>(() => AppSettings.Load(file));
+        File.WriteAllText(file, "{\"IntervalMinutes\":999,\"IdleMinutes\":9}");
+        var value = AppSettings.Load(file);
+        Assert.Equal(new AppSettings().IntervalMinutes, value.IntervalMinutes); Assert.Equal(9, value.IdleMinutes);
     }
 
     [Fact]
-    public void LoadWithNullSelectedCharacterIdThrowsInvalidDataException()
+    public void LoadWithNullSelectedCharacterIdRecoversThatFieldAlone()
     {
         using var temp = new TempDirectory(); var file = Path.Combine(temp.Path, "settings.json");
-        File.WriteAllText(file, "{\"SelectedCharacterId\":null}");
-        Assert.Throws<InvalidDataException>(() => AppSettings.Load(file));
+        File.WriteAllText(file, "{\"SelectedCharacterId\":null,\"IdleMinutes\":9}");
+        var value = AppSettings.Load(file);
+        Assert.Equal(new AppSettings().SelectedCharacterId, value.SelectedCharacterId); Assert.Equal(9, value.IdleMinutes);
     }
 
     [Fact]
@@ -84,9 +86,8 @@ public class SettingsReliabilityTests
     }
 
     [AvaloniaTheory]
-    [InlineData("{\"IntervalMinutes\":999,\"SelectedCharacterId\":\"default-cat\"}")]
     [InlineData("null")]
-    public void InvalidSettingsValuesDoNotPreventStartup(string contents)
+    public void UnreadableSettingsDoNotPreventStartup(string contents)
     {
         using var temp = new TempDirectory();
         var (lifetime, env) = IsolatedDataRoot(temp.Path);
@@ -112,6 +113,23 @@ public class SettingsReliabilityTests
             File.WriteAllText(settingsFile, "{\"SelectedCharacterId\":null}");
             using var runtime = new AppRuntime(lifetime);
             Assert.Equal(new AppSettings(), runtime.Settings);
+        }
+    }
+
+    [AvaloniaFact]
+    public void ARecoverableValueStartsUpHealedWithoutDiscardingTheFile()
+    {
+        using var temp = new TempDirectory();
+        var (lifetime, env) = IsolatedDataRoot(temp.Path);
+        using (env) using (lifetime)
+        {
+            var settingsFile = Path.Combine(temp.Path, "settings.json");
+            File.WriteAllText(settingsFile, "{\"IntervalMinutes\":999,\"IdleMinutes\":9,\"ShowPet\":false}");
+            using var runtime = new AppRuntime(lifetime);
+            // Only the damaged field resets; the rest of the file survives and nothing is quarantined.
+            Assert.Equal(new AppSettings().IntervalMinutes, runtime.Settings.IntervalMinutes);
+            Assert.Equal(9, runtime.Settings.IdleMinutes); Assert.False(runtime.Settings.ShowPet);
+            Assert.Empty(Directory.EnumerateFiles(temp.Path, "settings.json.invalid-*"));
         }
     }
 

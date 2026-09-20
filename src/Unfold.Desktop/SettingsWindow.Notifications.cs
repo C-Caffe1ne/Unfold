@@ -148,8 +148,7 @@ public sealed partial class SettingsWindow
         }
         var soundRows = Ui.Column(SoundRow("스트레칭 알림", ReminderSound.Due), SoundRow("완료 알림", ReminderSound.Completed));
         soundRows.Spacing = DesignSystem.SettingsRowGap;
-        var soundGroup = Ui.Column(soundRows, soundsEnabled,
-            Ui.Caption("WAV · 최대 30초 / 5 MiB · 미리듣기는 알림 효과음을 꺼도 들을 수 있어요."));
+        var soundGroup = Ui.Column(soundRows, soundsEnabled);
         soundGroup.Spacing = 12; soundRows.Margin = new(0, 24, 0, 8);
         var fields = Ui.Column(position, soundGroup); fields.Spacing = 0;
         var body = Ui.Column(SettingsHeading("알림 설정"), fields);
