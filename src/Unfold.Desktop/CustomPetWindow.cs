@@ -50,14 +50,11 @@ internal sealed class CustomPetView : UserControl, IDisposable
     private bool busy, closed, exporting;
     private int previewGeneration;
     private string? previewAction;
-    private string savedName = "";
-    private readonly Dictionary<string, ImportedPetClip> savedClips = [];
     private readonly TextBlock previewLabel = Ui.Caption("");
     private readonly Border previewSurface;
     public bool IsExporting => exporting;
     internal bool IsBusy => busy;
-    internal bool HasUnsavedChanges => pendingPath is not null || (name.Text ?? "").Trim() != savedName ||
-        draft.Clips.Count != savedClips.Count || draft.Clips.Any(pair => !savedClips.TryGetValue(pair.Key, out var saved) || saved != pair.Value);
+    internal bool HasUnsavedChanges => pendingPath is not null || !string.IsNullOrWhiteSpace(name.Text) || draft.Clips.Count > 0;
     public event Action? BusyChanged;
 
     public CustomPetView(Window owner, Func<string, Task> created, string? initialPath = null,
@@ -309,13 +306,12 @@ internal sealed class CustomPetView : UserControl, IDisposable
             var path = await chooseOutput(); if (path is null || closed) return false;
             var petName = name.Text ?? "";
             status.Text = "펫 팩을 만들고 검증하고 있어요…";
-            // Each creation is a new pack; keep the draft available for further editing.
+            // Keep the draft intact until the archive has been written and validated.
             var snapshot = new CustomPetDraft();
             foreach (var (key, clip) in draft.Clips) snapshot.SetClip(key, clip);
             await Task.Run(() => snapshot.Export(petName, path));
             if (closed) return false;
-            savedName = petName.Trim(); savedClips.Clear();
-            foreach (var pair in snapshot.Clips) savedClips.Add(pair.Key, pair.Value);
+            ResetDraft();
             exporting = false;
             status.Foreground = DesignSystem.Muted; status.Text = "펫 팩을 저장했어요.";
             if (showCreated) await created(path);
@@ -323,6 +319,14 @@ internal sealed class CustomPetView : UserControl, IDisposable
         }
         catch (Exception error) { ShowError(error); return false; }
         finally { busy = exporting = false; if (!closed) { Refresh(); BusyChanged?.Invoke(); } }
+    }
+    private void ResetDraft()
+    {
+        previewGeneration++; previewAction = null; preview.SetFrames([], true);
+        previewHint.IsVisible = false; previewLabel.Text = "";
+        foreach (var key in CustomPetDraft.Actions) draft.RemoveClip(key);
+        pendingPath = null; pending.Text = ""; action.SelectedIndex = 0; name.Text = "";
+        Refresh();
     }
     internal async Task<bool> CanCloseDraft()
     {

@@ -1,0 +1,158 @@
+{
+  "success": true,
+  "id": "diagnostic-pack",
+  "contentVersion": "1.0.0",
+  "audit": {
+    "id": "diagnostic-pack",
+    "clips": [
+      {
+        "key": "attention",
+        "frames": 1,
+        "durationMs": 125,
+        "width": 32,
+        "height": 32,
+        "decodedBytes": 4096,
+        "transparentFrames": 1,
+        "emptyFrames": 0
+      },
+      {
+        "key": "celebrate",
+        "frames": 1,
+        "durationMs": 125,
+        "width": 32,
+        "height": 32,
+        "decodedBytes": 4096,
+        "transparentFrames": 1,
+        "emptyFrames": 0
+      },
+      {
+        "key": "click",
+        "frames": 1,
+        "durationMs": 125,
+        "width": 32,
+        "height": 32,
+        "decodedBytes": 4096,
+        "transparentFrames": 1,
+        "emptyFrames": 0
+      },
+      {
+        "key": "idle",
+        "frames": 1,
+        "durationMs": 83.3333,
+        "width": 32,
+        "height": 32,
+        "decodedBytes": 4096,
+        "transparentFrames": 1,
+        "emptyFrames": 0
+      },
+      {
+        "key": "stretch",
+        "frames": 1,
+        "durationMs": 125,
+        "width": 32,
+        "height": 32,
+        "decodedBytes": 4096,
+        "transparentFrames": 1,
+        "emptyFrames": 0
+      }
+    ],
+    "files": [
+      {
+        "path": "character.json",
+        "bytes": 931,
+        "sha256": "59fb4e0d31a473412ba15a07a84e5b5f9fe2b873767c295d0f859fd4a13ae83d"
+      },
+      {
+        "path": "spritesheet.png",
+        "bytes": 163,
+        "sha256": "d941da8604a322315d7e6d488be07bd8bb2910f595397732fcb22a1cb91104eb"
+      }
+    ],
+    "errors": [],
+    "warnings": []
+  },
+  "packSha256": "c54be42346135503864ef332d212e4b61ba59759786323e49f0726d5ad3ba0b6",
+  "realTimePlayback": true,
+  "physicalInput": false,
+  "injectedFilePicker": true,
+  "simulatedActionConfirmation": true,
+  "offScreenWindows": true,
+  "capturedLivePetView": true,
+  "selectedAfterInstall": true,
+  "reopenedFromDisk": true,
+  "hiddenPetStayedHidden": true,
+  "previewControls": {
+    "reaction": "stretch",
+    "pausedForMs": 275,
+    "completedOnce": 1,
+    "selectedReactionRetained": true,
+    "logicalPreviewSizes": [
+      192,
+      384
+    ],
+    "captureScale": 2,
+    "windowRenderScaling": 1,
+    "backgrounds": [
+      "theme",
+      "light"
+    ],
+    "alternateBackgroundInjected": true,
+    "backgroundSettingVisible": false,
+    "horizontalOverflow": false
+  },
+  "playback": [
+    {
+      "key": "idle",
+      "plannedMs": 83.3333,
+      "observedMs": 215.489,
+      "repeat": true,
+      "completedDark": 0,
+      "completedLight": 0,
+      "petStartedInExpectedMode": true,
+      "petReturnedToIdleLoop": true
+    },
+    {
+      "key": "attention",
+      "plannedMs": 125,
+      "observedMs": 235.8299,
+      "repeat": false,
+      "completedDark": 1,
+      "completedLight": 1,
+      "petStartedInExpectedMode": true,
+      "petReturnedToIdleLoop": true
+    },
+    {
+      "key": "celebrate",
+      "plannedMs": 125,
+      "observedMs": 263.4159,
+      "repeat": false,
+      "completedDark": 1,
+      "completedLight": 1,
+      "petStartedInExpectedMode": true,
+      "petReturnedToIdleLoop": true
+    },
+    {
+      "key": "click",
+      "plannedMs": 125,
+      "observedMs": 251.2359,
+      "repeat": false,
+      "completedDark": 1,
+      "completedLight": 1,
+      "petStartedInExpectedMode": true,
+      "petReturnedToIdleLoop": true
+    },
+    {
+      "key": "stretch",
+      "plannedMs": 125,
+      "observedMs": 251.5577,
+      "repeat": false,
+      "completedDark": 1,
+      "completedLight": 1,
+      "petStartedInExpectedMode": true,
+      "petReturnedToIdleLoop": true
+    }
+  ],
+  "imageFiles": 14,
+  "os": "Microsoft Windows NT 10.0.26200.0",
+  "framework": "10.0.9"
+}

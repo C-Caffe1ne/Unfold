@@ -199,6 +199,9 @@ internal sealed class BreakReviewView : UserControl
 
     private static void AddDateHeaderStyles(ToggleButton toggle)
     {
+        // Fluent scales the ToggleButton itself on press, independently of its presenter.
+        toggle.RenderTransform = null;
+        toggle.Transitions = null;
         static Style PresenterStyle(Func<Selector?, Selector> selector, IBrush background) =>
             new(selector) { Setters =
             {

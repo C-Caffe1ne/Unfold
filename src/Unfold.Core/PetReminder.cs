@@ -6,10 +6,12 @@ public enum PetNotice { None, Advance, Invitation, Resting, Completed }
 /// <summary>The reminder owns break state independently from the pet window that presents it.</summary>
 public sealed class PetReminder
 {
+    public static readonly TimeSpan NoticeDuration = TimeSpan.FromSeconds(5);
     public PetNotice Notice { get; private set; }
     public BreakSession? Session { get; private set; }
     public int CompletedSeconds { get; private set; }
     public bool HasNotice => Notice != PetNotice.None;
+    public TimeSpan? NoticeExpiresAt => Notice is PetNotice.Advance or PetNotice.Completed ? expires : null;
     public event Action<BreakSession>? Started;
     public event Action<BreakSession>? Finished;
     private TimeSpan expires;
@@ -17,7 +19,7 @@ public sealed class PetReminder
     public void ShowAdvance(TimeSpan now)
     {
         if (Session is not null || Notice == PetNotice.Completed) return;
-        Notice = PetNotice.Advance; expires = now + TimeSpan.FromSeconds(15);
+        Notice = PetNotice.Advance; expires = now + NoticeDuration;
     }
     public bool Invite(BreakSession session)
     {
@@ -40,7 +42,7 @@ public sealed class PetReminder
         session.Tick(now);
         if (!session.Complete()) return false;
         CompletedSeconds = (int)Math.Ceiling(session.Elapsed.TotalSeconds);
-        Session = null; Notice = PetNotice.Completed; expires = now + TimeSpan.FromSeconds(15);
+        Session = null; Notice = PetNotice.Completed; expires = now + NoticeDuration;
         Finished?.Invoke(session); return true;
     }
     public bool Snooze()

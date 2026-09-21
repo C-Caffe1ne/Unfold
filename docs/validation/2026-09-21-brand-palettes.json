@@ -1,0 +1,148 @@
+{
+  "success": true,
+  "startupMs": 1094.8938,
+  "totalMs": 21927.1005,
+  "workingSetBytes": 560832512,
+  "managedBytes": 327957648,
+  "oneCoreCpuPercent": 2.3308669487442484,
+  "characters": 4,
+  "imageFiles": 82,
+  "completedBreaks": 1,
+  "simulatedSessionTiming": true,
+  "savedCustomRoutines": 2,
+  "workProfiles": 1,
+  "exportedBreaks": 1,
+  "simulatedExportDestination": true,
+  "timerPausedApplyWaitSeconds": 1.2,
+  "timerStopWaitSeconds": 1.2,
+  "timerControlsVerified": true,
+  "petSpeechDirectionsVerified": true,
+  "petContextMenuVerified": true,
+  "petScaleAndDebugPreviewVerified": true,
+  "speechTitleOnlyGeometryVerified": true,
+  "soundRequestsVerified": true,
+  "hiddenPetNoticeVerified": true,
+  "stopWhileOpening": true,
+  "petPackInstallUpdateRepairVerified": true,
+  "simulatedPackPicker": true,
+  "settingsLayout": {
+    "minimumWidth": 860,
+    "minimumHeight": 680,
+    "timerAndPetVisible": true,
+    "detailsScrollVerified": true,
+    "noHorizontalOverflow": true,
+    "inWindowTabsVerified": true,
+    "settingsTabVerified": true,
+    "homeTimingVerified": true,
+    "petManagementTabsVerified": true,
+    "routineProfileEntryRemoved": true,
+    "petDraftPreserved": true,
+    "petCardAddButtonRemoved": true,
+    "petSelectorWidth": 200,
+    "settingsOptionsScrollRequired": true,
+    "settingsOptionsExtentHeight": 812,
+    "settingsOptionsViewportHeight": 554,
+    "settingsOptionsTopOffset": 0,
+    "settingsOptionsBottomOffset": 258,
+    "settingsOptionsCapturesDiffer": true,
+    "settingsOptionsCaptureFiles": [
+      "settings-options-top.png",
+      "settings-options-bottom.png"
+    ],
+    "settingsPreferencesStyling": {
+      "pinnedActions": true,
+      "dirtySave": true,
+      "cancelRestores": true,
+      "dropdownCaptured": true
+    },
+    "homeDashboard": {
+      "timerFirst": true,
+      "measurements": [
+        {
+          "width": 1120,
+          "height": 800,
+          "timerTop": 31,
+          "timerHeight": 196,
+          "petTop": 247,
+          "petHeight": 522,
+          "capture": "home-default.png"
+        },
+        {
+          "width": 860,
+          "height": 680,
+          "timerTop": 31,
+          "timerHeight": 196,
+          "petTop": 247,
+          "petHeight": 402,
+          "capture": "home-minimum.png"
+        }
+      ],
+      "longNameAndErrorLayoutFixture": true,
+      "compactControls": true
+    }
+  },
+  "weeklyReview": {
+    "expandedCaptured": true,
+    "captureFile": "weekly-review-expanded.png",
+    "routineNameVisible": false,
+    "completionTimeVisible": true,
+    "actualDurationVisible": true
+  },
+  "reviewLayout": {
+    "measurements": [
+      {
+        "width": 1120,
+        "height": 800,
+        "cardWidth": 760,
+        "footerTop": 729,
+        "scrollRequired": false,
+        "capture": "review-default.png"
+      },
+      {
+        "width": 860,
+        "height": 680,
+        "cardWidth": 694,
+        "footerTop": 609,
+        "scrollRequired": true,
+        "capture": "review-minimum.png"
+      },
+      {
+        "width": 620,
+        "height": 650,
+        "cardWidth": 530,
+        "footerTop": 577,
+        "scrollRequired": true,
+        "capture": "review-compatibility.png"
+      },
+      {
+        "width": 560,
+        "height": 600,
+        "cardWidth": 470,
+        "footerTop": 527,
+        "scrollRequired": true,
+        "capture": "review-compatibility-minimum.png"
+      }
+    ],
+    "completionAndActualOnly": true,
+    "noHorizontalOverflow": true,
+    "pinnedFooter": true
+  },
+  "themes": {
+    "palettes": [
+      "\uB2E4\uC815\uD55C \uC624\uD2B8",
+      "\uC228 \uACE0\uB974\uB294 \uC232",
+      "\uBC24\uC758 \uBC84\uD130",
+      "\uC720\uC5F0\uD55C \uB77C\uC77C\uB77D"
+    ],
+    "persisted": true,
+    "minimumNavigationFits": true,
+    "simulatedSelection": true
+  },
+  "customPetGifAuthoringVerified": true,
+  "petCardPreviewVerified": true,
+  "sharedDesignDialogsVerified": true,
+  "pinnedPageActionsVerified": true,
+  "idleSeconds": 0,
+  "os": "Microsoft Windows NT 10.0.26200.0",
+  "framework": "10.0.9"
+}

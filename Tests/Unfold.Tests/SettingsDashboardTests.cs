@@ -380,7 +380,8 @@ public class SettingsDashboardTests
         public Scope()
         {
             Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", Root);
-            Runtime = new(lifetime); Window = new(Runtime); Window.Show(); Dispatcher.UIThread.RunJobs();
+            Runtime = new(lifetime) { ConfirmActionOverride = (_, _, _) => Task.FromResult(0) };
+            Window = new(Runtime); Window.Show(); Dispatcher.UIThread.RunJobs();
         }
         public void Dispose()
         {

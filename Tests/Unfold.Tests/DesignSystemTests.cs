@@ -199,9 +199,9 @@ public class DesignSystemTests
         DesignSystem.ApplyTheme(AppTheme.OatLatte);
         (IBrush Brush, string Hex)[] tokens =
         [
-            (DesignSystem.Cream, "#38342E"), (DesignSystem.Muted, "#6A6257"),
-            (DesignSystem.Surface, "#FFFFFF"), (DesignSystem.Raised, "#E9E1D3"),
-            (DesignSystem.Accent, "#756344"), (DesignSystem.Ink, "#FFFFFF")
+            (DesignSystem.Cream, "#342D28"), (DesignSystem.Muted, "#706154"),
+            (DesignSystem.Surface, "#FFFCF7"), (DesignSystem.Raised, "#F0E5D8"),
+            (DesignSystem.Accent, "#985139"), (DesignSystem.Ink, "#FFFFFF")
         ];
         foreach (var (brush, hex) in tokens) Assert.Equal(Color.Parse(hex), ColorOf(brush));
         Assert.Same(DesignSystem.OutlineSubtle, DesignSystem.Outline);

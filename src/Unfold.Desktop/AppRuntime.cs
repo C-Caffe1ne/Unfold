@@ -49,6 +49,8 @@ public sealed class AppRuntime : IDisposable
     private readonly string historyFile = Path.Combine(AppPaths.DataRoot, "break-history.json");
     private readonly Stopwatch monotonic = Stopwatch.StartNew();
     private readonly DispatcherTimer timer = new() { Interval = TimeSpan.FromSeconds(1) };
+    private readonly DispatcherTimer noticeExpiryTimer = new();
+    private TimeSpan? scheduledNoticeExpiry;
     private readonly Dictionary<string, Task<IReadOnlyList<AnimationFrame>>> clips = [];
     private readonly List<CharacterPackage> builtIns = [];
     private TrayIcon? tray;
@@ -60,7 +62,10 @@ public sealed class AppRuntime : IDisposable
     internal int DueSoundRequests { get; private set; }
     internal int CompletionSoundRequests { get; private set; }
     private bool quitting;
-    private bool quitPending, openingEditor;
+    private bool disposed;
+    private bool quitPending, stopPending, openingEditor;
+    private bool petNoticeSuppressed;
+    internal Func<string, string, string[], Task<int>>? ConfirmActionOverride { get; set; }
     private bool openingReminder, historyWritable = true;
     private int reminderGeneration;
     private PetReminder? reminderPreview;
@@ -96,6 +101,13 @@ public sealed class AppRuntime : IDisposable
         Reminder.Finished += session => { if (!quitting) FinishBreak(session); };
         RefreshTray();
         timer.Tick += (_, _) => Tick();
+        noticeExpiryTimer.Tick += (_, _) =>
+        {
+            if (disposed) return;
+            noticeExpiryTimer.Stop(); scheduledNoticeExpiry = null;
+            Reminder.Tick(monotonic.Elapsed);
+            RefreshPetNotice(); Changed?.Invoke();
+        };
         desktop.ShutdownRequested += async (_, e) =>
         {
             if (quitting) return;
@@ -140,7 +152,7 @@ public sealed class AppRuntime : IDisposable
         if (Clock.Tick(now, idle, TimeSpan.FromMinutes(Settings.IdleMinutes), Reminder.Session is not null || openingReminder)) _ = ShowReminder();
         else if (Clock.AdvanceWarningDue)
         {
-            ClearReminderPreview(); Reminder.ShowAdvance(now); _ = EnsurePetNotice();
+            ClearReminderPreview(); petNoticeSuppressed = false; Reminder.ShowAdvance(now); _ = EnsurePetNotice();
         }
         RefreshPetNotice();
         Changed?.Invoke();
@@ -159,11 +171,24 @@ public sealed class AppRuntime : IDisposable
     }
     public void TogglePause() { Clock.TogglePause(monotonic.Elapsed); Changed?.Invoke(); }
     public void Stop() { CancelReminder(); Clock.Stop(monotonic.Elapsed); Changed?.Invoke(); }
+    public async Task RequestStop()
+    {
+        if (quitting || disposed || stopPending || quitPending) return;
+        stopPending = true;
+        try
+        {
+            if (await ConfirmAction("타이머를 중지할까요?", "타이머를 중지하면 남은 시간이 초기화되고 진행 중인 휴식이 취소돼요.", "중지", "취소") == 0 && !disposed)
+                Stop();
+        }
+        finally { stopPending = false; }
+    }
     public void Reset() { CancelReminder(); Clock.Reset(monotonic.Elapsed); Changed?.Invoke(); }
     private void CancelReminder() { reminderGeneration++; Reminder.Cancel(); RefreshPetNotice(); }
     public void ShowSettings() { if (settingsWindow is null) return; settingsWindow.Show(); settingsWindow.ResumePreview(); settingsWindow.WindowState = WindowState.Normal; if (!DiagnosticMode) settingsWindow.Activate(); }
     internal void HideSettingsForDiagnostics() => settingsWindow?.HideToTray();
-    public async Task UpdateSettings(AppSettings value)
+    public Task UpdateSettings(AppSettings value) => UpdateSettings(value, false);
+    public Task HidePet() => UpdateSettings(Settings with { ShowPet = false }, true);
+    private async Task UpdateSettings(AppSettings value, bool hideCurrentNotice)
     {
         value = value.ValidatePersonalization();
         var reschedulesTimer = value.IntervalMinutes != Settings.IntervalMinutes ||
@@ -171,12 +196,15 @@ public sealed class AppRuntime : IDisposable
         if (reschedulesTimer && !CanEditTimerInterval)
             throw new ArgumentException("타이머를 일시정지하거나 중지한 뒤 스트레칭 시간 또는 업무 프로필을 적용해 주세요.");
         value.Save(settingsFile); var changedCharacter = value.SelectedCharacterId != Settings.SelectedCharacterId;
+        var hidingPet = hideCurrentNotice || (!value.ShowPet && Settings.ShowPet);
         if (reschedulesTimer)
         {
             Clock.SetInterval(TimeSpan.FromMinutes(value.IntervalMinutes)); Clock.ScheduleAfterBreak(monotonic.Elapsed);
         }
         Routines = BreakRoutines.ForSettings(value);
         Settings = value;
+        if (hidingPet) { petNoticeSuppressed = true; ClearReminderPreview(); }
+        else if (Settings.ShowPet) petNoticeSuppressed = false;
         if (DesignSystem.CurrentTheme != Settings.Theme) DesignSystem.ApplyTheme(Settings.Theme);
         if (!Settings.ReminderSoundsEnabled) soundPlayer.Stop();
         if (changedCharacter) clips.Clear();
@@ -209,15 +237,16 @@ public sealed class AppRuntime : IDisposable
     }
     private async Task UpdatePet()
     {
-        if ((!Settings.ShowPet && !PresentedReminder.HasNotice) || Selected is null) { pet?.HidePet(); return; }
+        if (!ShouldShowPet || Selected is null) { pet?.HidePet(); return; }
         var current = pet ??= new PetWindow(this);
         if (DiagnosticMode) PrepareDiagnosticWindow(current);
         await current.SetCharacter();
         // A concurrent hide or quit can complete while SetCharacter() is in flight
         // (Dispose() nulls pet, another UpdatePet() call flips ShowPet off): re-check
         // both before resurrecting a pet nobody asked for anymore.
-        if (pet == current && (Settings.ShowPet || PresentedReminder.HasNotice)) current.ShowPet();
+        if (pet == current && ShouldShowPet) current.ShowPet();
     }
+    private bool ShouldShowPet => Settings.ShowPet || (!petNoticeSuppressed && PresentedReminder.HasNotice);
     public async Task OpenEditor(CharacterPackage? character = null)
     {
         if (openingEditor || quitting) return;
@@ -270,6 +299,7 @@ public sealed class AppRuntime : IDisposable
             if (quitting || generation != reminderGeneration) return;
             var session = new BreakSession(routine, selected.Manifest.Id, profile, Settings.BreakDurationMinutes * 60);
             if (!Reminder.Invite(session)) return;
+            petNoticeSuppressed = false;
             await UpdatePet();
             if (quitting || generation != reminderGeneration || Reminder.Session != session) return;
             PlayReminderSound(ReminderSound.Due);
@@ -299,6 +329,7 @@ public sealed class AppRuntime : IDisposable
             default: throw new ArgumentOutOfRangeException(nameof(notice));
         }
         reminderPreview = preview;
+        petNoticeSuppressed = false;
         await UpdatePet(); RefreshPetNotice(); Changed?.Invoke();
     }
     public void CloseReminderPreview()
@@ -310,7 +341,7 @@ public sealed class AppRuntime : IDisposable
     public async Task FocusReminder()
     {
         if (Reminder.Session is null) return;
-        try { pet?.FocusReminder(); await Task.CompletedTask; }
+        try { petNoticeSuppressed = false; await UpdatePet(); pet?.FocusReminder(); }
         catch (Exception error) { AppPaths.Log(error); }
     }
     private async Task EnsurePetNotice()
@@ -326,12 +357,29 @@ public sealed class AppRuntime : IDisposable
     }
     private void RefreshPetNotice()
     {
+        ScheduleNoticeExpiry();
         RefreshTray();
         if (pet is not { } current) return;
         current.RefreshSpeech();
-        if (Settings.ShowPet || PresentedReminder.HasNotice)
+        if (ShouldShowPet)
         { if (!current.IsVisible) current.ShowPet(); }
         else if (current.IsVisible) current.HidePet();
+    }
+    private void ScheduleNoticeExpiry()
+    {
+        if (disposed) return;
+        var expiry = Reminder.NoticeExpiresAt;
+        if (expiry == scheduledNoticeExpiry) return;
+        noticeExpiryTimer.Stop(); scheduledNoticeExpiry = expiry;
+        if (expiry is not { } deadline) return;
+        var remaining = deadline - monotonic.Elapsed;
+        if (remaining <= TimeSpan.Zero)
+        {
+            Reminder.Tick(monotonic.Elapsed); scheduledNoticeExpiry = null; return;
+        }
+        // Completion can happen between work-clock ticks. Expire at its own deadline,
+        // without adding up to another second while waiting for the work timer.
+        noticeExpiryTimer.Interval = remaining; noticeExpiryTimer.Start();
     }
     private void ReactToBreak(BreakSession session, string animation)
     {
@@ -371,9 +419,9 @@ public sealed class AppRuntime : IDisposable
         void Item(string text, Action action) { var item = new NativeMenuItem(text); item.Click += (_, _) => action(); menu.Items.Add(item); }
         Item("설정", ShowSettings);
         trayPet = new NativeMenuItem("펫 숨기기"); menu.Items.Add(trayPet);
-        trayPet.Click += async (_, _) => { try { await UpdateSettings(Settings with { ShowPet = !Settings.ShowPet }); } catch (Exception error) { AppPaths.Log(error); } };
+        trayPet.Click += async (_, _) => { try { if (Settings.ShowPet) await HidePet(); else await UpdateSettings(Settings with { ShowPet = true }); } catch (Exception error) { AppPaths.Log(error); } };
         trayPause = new NativeMenuItem("일시정지"); trayPause.Click += (_, _) => TogglePause(); menu.Items.Add(trayPause);
-        Item("타이머 중지", Stop);
+        Item("타이머 중지", () => _ = RequestStop());
         menu.Items.Add(new NativeMenuItemSeparator()); Item("Unfold 종료", () => _ = Quit());
         tray.Menu = menu; tray.Clicked += (_, _) => ShowSettings();
         TrayIcon.SetIcons(Application.Current!, new TrayIcons { tray });
@@ -381,17 +429,33 @@ public sealed class AppRuntime : IDisposable
     }
     public async Task Quit()
     {
-        if (quitting || quitPending) return;
+        if (quitting || disposed || quitPending || stopPending) return;
         quitPending = true;
         try
         {
+            if (await ConfirmAction("Unfold를 종료할까요?", "Unfold를 종료하면 타이머와 휴식 알림도 종료돼요.", "종료", "취소") != 0 || disposed) return;
             if (settingsWindow is not null && !await settingsWindow.CanCloseDraft()) return;
             if (editor is not null && !await editor.CanCloseDocument()) return;
             quitting = true; editor?.CloseAfterApproval(); Dispose(); desktop.Shutdown();
         }
         finally { quitPending = false; }
     }
-    public void Dispose() { timer.Stop(); settingsWindow?.Dispose(); instanceActivation?.Dispose(); instanceActivation = null; tray?.Dispose(); tray = null; pet?.ClosePet(); pet = null; soundPlayer.Dispose(); }
+    private Task<int> ConfirmAction(string title, string message, params string[] choices)
+    {
+        if (ConfirmActionOverride is { } confirm) return confirm(title, message, choices);
+        var owner = (Window?)settingsWindow ?? desktop.MainWindow ?? pet;
+        if (owner is null)
+        {
+            settingsWindow = new(this); desktop.MainWindow = settingsWindow; owner = settingsWindow;
+            if (DiagnosticMode) PrepareDiagnosticWindow(owner);
+        }
+        if (!owner.IsVisible)
+        {
+            if (owner == settingsWindow) ShowSettings(); else owner.Show();
+        }
+        return Ui.Confirm(owner, title, message, choices);
+    }
+    public void Dispose() { if (disposed) return; disposed = true; timer.Stop(); noticeExpiryTimer.Stop(); scheduledNoticeExpiry = null; settingsWindow?.Dispose(); instanceActivation?.Dispose(); instanceActivation = null; tray?.Dispose(); tray = null; pet?.ClosePet(); pet = null; soundPlayer.Dispose(); }
     internal static void PrepareDiagnosticWindow(Window window)
     {
         // macOS can constrain an off-screen window down to 1x1 without explicit minimums.

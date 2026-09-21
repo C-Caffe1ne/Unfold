@@ -47,6 +47,47 @@ public sealed class ReminderSounds(string directory)
         }
         return TimeSpan.FromSeconds(length / (double)rate);
     }
+    /// <summary>Returns a PCM copy at the requested gain, preserving every chunk and the original duration.</summary>
+    public static byte[] WithVolume(ReadOnlySpan<byte> data, int percent)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(percent);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(percent, 100);
+        Validate(data);
+        var result = data.ToArray();
+        if (percent == 100) return result;
+        ushort bits = 0;
+        // RIFF permits ancillary chunks, multiple data chunks, and a format chunk after the data.
+        for (var offset = 12; offset + 8 <= data.Length;)
+        {
+            var length = (int)BinaryPrimitives.ReadUInt32LittleEndian(data.Slice(offset + 4, 4));
+            if (data.Slice(offset, 4).SequenceEqual("fmt "u8)) bits = BinaryPrimitives.ReadUInt16LittleEndian(data.Slice(offset + 22, 2));
+            offset += 8 + length + (length & 1);
+        }
+        for (var offset = 12; offset + 8 <= result.Length;)
+        {
+            var length = (int)BinaryPrimitives.ReadUInt32LittleEndian(result.AsSpan(offset + 4, 4));
+            if (result.AsSpan(offset, 4).SequenceEqual("data"u8))
+            {
+                var samples = result.AsSpan(offset + 8, length);
+                if (bits == 8)
+                {
+                    for (var sample = 0; sample < samples.Length; sample++)
+                        samples[sample] = (byte)(128 + (samples[sample] - 128) * percent / 100);
+                }
+                else
+                {
+                    if (samples.Length % 2 != 0) throw new InvalidDataException("PCM WAV sample is incomplete.");
+                    for (var sample = 0; sample < samples.Length; sample += 2)
+                    {
+                        var amplitude = BinaryPrimitives.ReadInt16LittleEndian(samples.Slice(sample, 2));
+                        BinaryPrimitives.WriteInt16LittleEndian(samples.Slice(sample, 2), (short)(amplitude * percent / 100));
+                    }
+                }
+            }
+            offset += 8 + length + (length & 1);
+        }
+        return result;
+    }
     public static void Validate(ReadOnlySpan<byte> data)
     {
         static InvalidDataException Invalid() => new("효과음은 30초 이하 · 5 MiB 이하의 PCM WAV(8/16비트, 모노/스테레오) 파일을 선택해 주세요.");

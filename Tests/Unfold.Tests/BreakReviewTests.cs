@@ -249,12 +249,31 @@ public class BreakReviewTests
             var point = header.TranslatePoint(new Point(12, 12), window)!.Value;
             window.MouseMove(point); Layout(window);
             var hover = Assert.IsAssignableFrom<ISolidColorBrush>(presenter.Background);
-            window.MouseDown(point, MouseButton.Left); Layout(window);
-            var pressed = Assert.IsAssignableFrom<ISolidColorBrush>(presenter.Background);
-            Assert.Equal(hover.Color, pressed.Color);
-            Assert.True(presenter.Transitions is null || presenter.Transitions.Count == 0);
-            window.MouseUp(point, MouseButton.Left); Layout(window);
+            var bounds = header.Bounds;
+            void AssertNoMotion()
+            {
+                Assert.True(header.Transitions is null || header.Transitions.Count == 0);
+                Assert.True(presenter.Transitions is null || presenter.Transitions.Count == 0);
+                Assert.Equal(Matrix.Identity, header.RenderTransform?.Value ?? Matrix.Identity);
+                Assert.Equal(Matrix.Identity, presenter.RenderTransform?.Value ?? Matrix.Identity);
+                Assert.Equal(bounds, header.Bounds);
+            }
+            AssertNoMotion();
+            // Exercise both unchecked and checked press styles, including release.
+            foreach (var expanded in new[] { true, false })
+            {
+                window.MouseDown(point, MouseButton.Left); Layout(window);
+                var pressed = Assert.IsAssignableFrom<ISolidColorBrush>(presenter.Background);
+                Assert.Equal(hover.Color, pressed.Color); AssertNoMotion();
+                window.MouseUp(point, MouseButton.Left); Layout(window);
+                Assert.Equal(expanded, header.IsChecked); AssertNoMotion();
+            }
+            window.MouseMove(new Point(0, 0)); header.Focus(); Layout(window);
+            window.KeyPress(Key.Space, RawInputModifiers.None, PhysicalKey.Space, " "); Layout(window);
+            AssertNoMotion();
+            window.KeyRelease(Key.Space, RawInputModifiers.None, PhysicalKey.Space, " "); Layout(window);
             Assert.True(header.IsChecked);
+            AssertNoMotion();
         }
         finally { window.Close(); }
     }

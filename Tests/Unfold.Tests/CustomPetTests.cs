@@ -326,9 +326,18 @@ public class CustomPetWindowTests
             Press(parent, "InstallPetPack"); await Until(() => selected.Count == 1 && tabs.IsEnabled);
             Assert.Equal("탭에서 만든 펫", selected[0].Manifest.Name);
             tabs.SelectedIndex = 1; Dispatcher.UIThread.RunJobs();
-            Assert.Equal("탭에서 만든 펫", Find<TextBox>(parent, "CustomPetName").Text);
-            Assert.True(Find<Button>(parent, "CreateCustomPetPack").IsEnabled);
+            Assert.Equal("", Find<TextBox>(parent, "CustomPetName").Text);
+            Assert.False(Find<Button>(parent, "CreateCustomPetPack").IsEnabled);
+            Assert.Equal("", Find<TextBlock>(parent, "CustomPetPreviewAction").Text);
+            Assert.Equal("idle", Find<ComboBox>(parent, "CustomPetAction").SelectedItem);
+            foreach (var key in CustomPetDraft.Actions)
+            {
+                Assert.Equal("파일 없음", Find<TextBlock>(parent, "CustomPetLabel_" + key).Text);
+                Assert.False(Find<Button>(parent, "CustomPetPreview_" + key).IsEnabled);
+                Assert.False(Find<Button>(parent, "CustomPetRemove_" + key).IsEnabled);
+            }
             Find<TextBox>(parent, "CustomPetName").Text = "다음 펫";
+            Press(parent, "CustomPetFile_idle"); await Until(() => Find<Button>(parent, "CreateCustomPetPack").IsEnabled);
             output = Path.Combine(temp.Path, "second.unfoldpet");
             Press(parent, "CreateCustomPetPack"); await Until(() => tabs.SelectedIndex == 0);
             await Until(() => tabs.IsEnabled && Find<Button>(parent, "InstallPetPack").IsEnabled);

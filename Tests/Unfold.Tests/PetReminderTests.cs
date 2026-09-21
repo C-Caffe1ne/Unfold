@@ -71,6 +71,37 @@ public class PetReminderTests
         Assert.True(clock.AdvanceWarningDue);
     }
 
+    [Fact]
+    public void FiveMinuteIntervalsReachEachBreakWithoutAnAdvanceWarning()
+    {
+        var clock = new StretchClock(TimeSpan.FromMinutes(5)); clock.Start(TimeSpan.Zero);
+        var invitations = 0;
+        for (var second = 1; second <= 600; second++)
+        {
+            if (clock.Tick(TimeSpan.FromSeconds(second), TimeSpan.Zero, TimeSpan.FromMinutes(5))) invitations++;
+            Assert.False(clock.AdvanceWarningDue);
+        }
+        Assert.Equal(2, invitations);
+        clock.Stop(TimeSpan.FromSeconds(600)); clock.Start(TimeSpan.FromSeconds(600));
+        clock.Tick(TimeSpan.FromSeconds(601), TimeSpan.Zero, TimeSpan.FromMinutes(5));
+        Assert.False(clock.AdvanceWarningDue);
+    }
+
+    [Fact]
+    public void PassiveNoticesExpireAtFiveSecondsWhileBreakActionsRemainAvailable()
+    {
+        var model = new PetReminder(); model.ShowAdvance(TimeSpan.FromSeconds(10));
+        model.Tick(TimeSpan.FromMilliseconds(14999)); Assert.Equal(PetNotice.Advance, model.Notice);
+        model.Tick(TimeSpan.FromSeconds(15)); Assert.False(model.HasNotice);
+        var session = new BreakSession(BreakRoutines.All[0], "default-cat"); model.Invite(session);
+        model.Tick(TimeSpan.FromSeconds(30)); Assert.Equal(PetNotice.Invitation, model.Notice);
+        Assert.True(model.Start(TimeSpan.FromSeconds(30)));
+        model.Tick(TimeSpan.FromSeconds(36)); Assert.Equal(PetNotice.Resting, model.Notice);
+        Assert.True(model.Complete(TimeSpan.FromSeconds(36)));
+        model.Tick(TimeSpan.FromMilliseconds(40999)); Assert.Equal(PetNotice.Completed, model.Notice);
+        model.Tick(TimeSpan.FromSeconds(41)); Assert.False(model.HasNotice);
+    }
+
     [Theory]
     [InlineData(BubbleDirection.Top, 1)] [InlineData(BubbleDirection.Bottom, 2)]
     [InlineData(BubbleDirection.Left, 1.5)] [InlineData(BubbleDirection.Right, 2)]

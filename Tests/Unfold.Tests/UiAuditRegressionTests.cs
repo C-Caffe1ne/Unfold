@@ -74,10 +74,11 @@ public class UiAuditRegressionTests
             output = Path.Combine(temp.Path, "friend.unfoldpet");
             var saved = view.CanCloseDraft(); Layout(owner); Choice(Assert.Single(owner.OwnedWindows), "저장하고 종료");
             Assert.True(await saved); Assert.False(view.HasUnsavedChanges); Assert.True(File.Exists(output));
+            Assert.Equal("", Find<TextBox>(owner, "CustomPetName").Text);
             Assert.True(await view.CanCloseDraft()); Assert.Empty(owner.OwnedWindows);
             Find<TextBox>(owner, "CustomPetName").Text = "다른 이름"; Assert.True(view.HasUnsavedChanges);
-            Find<TextBox>(owner, "CustomPetName").Text = "새 친구"; Assert.False(view.HasUnsavedChanges);
-            Press(owner, "CustomPetRemove_idle"); Assert.True(view.HasUnsavedChanges);
+            Find<TextBox>(owner, "CustomPetName").Text = ""; Assert.False(view.HasUnsavedChanges);
+            Press(owner, "CustomPetFile_idle"); await Until(() => !view.IsBusy); Assert.True(view.HasUnsavedChanges);
             var discard = view.CanCloseDraft(); Layout(owner); Choice(Assert.Single(owner.OwnedWindows), "버리기"); Assert.True(await discard);
         }
         finally { foreach (var dialog in owner.OwnedWindows.ToArray()) dialog.Close(); owner.Close(); }

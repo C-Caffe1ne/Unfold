@@ -74,15 +74,15 @@ public class ThemeTests
         Press(Find<Button>(window, "SavePreferences"));
         Assert.Equal(AppTheme.Plum, AppSettings.Load(scope.Path).Theme); Assert.Equal(19, AppSettings.Load(scope.Path).IdleMinutes);
         Press(Find<Button>(window, "SettingsNavPacks"));
-        var background = Find<ComboBox>(window, "PackBackground"); background.SelectedIndex = 1;
         var preview = Find<Border>(window, "PackPreviewSurface");
+        Assert.DoesNotContain(window.GetVisualDescendants().OfType<ComboBox>(), control => control.Name == "PackBackground");
         Assert.DoesNotContain(preview.GetVisualDescendants().OfType<TextBlock>(), text => text.Text?.Contains(".unfoldpet") == true);
         foreach (var palette in DesignSystem.Themes)
         {
             Choose(window, palette.Id);
-            Assert.Equal(Brushes.WhiteSmoke, preview.Background);
+            Assert.Same(DesignSystem.Surface, preview.Background);
+            Assert.Equal(Color.Parse(palette.Surface), ((ISolidColorBrush)preview.Background!).Color);
         }
-        background.SelectedIndex = 0;
         Assert.Same(DesignSystem.Surface, preview.Background);
         Find<TabControl>(window, "PetManagementTabs").SelectedIndex = 1; Layout(window);
         var name = Find<TextBox>(window, "CustomPetName"); name.Text = "작성 중인 펫";

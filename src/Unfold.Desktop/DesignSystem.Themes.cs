@@ -8,24 +8,25 @@ namespace Unfold.Desktop;
 
 public sealed record ThemePalette(AppTheme Id, string Name, bool IsDark, string Canvas, string Shell,
     string Surface, string Raised, string Text, string Muted, string Outline, string Line,
-    string Accent, string OnAccent, string AccentHover, string Hover, string Halo,
+    string Accent, string OnAccent, string Secondary, string AccentHover, string Hover, string Halo,
     string Warning, string Error, string Success, string DisabledFill, string DisabledText, string Stopped);
 
 public static partial class DesignSystem
 {
     public static IReadOnlyList<ThemePalette> Themes { get; } = Array.AsReadOnly<ThemePalette>([
-        new(AppTheme.OatLatte, "오트 라떼", false, "#F3EEE5", "#FBF8F2", "#FFFFFF", "#E9E1D3",
-            "#38342E", "#6A6257", "#D2C8B8", "#8C8171", "#756344", "#FFFFFF", "#65543A", "#DED4C3", "#DDD1BD",
-            "#865D0C", "#A73D35", "#386246", "#EEE8DE", "#807869", "#D62F32"),
-        new(AppTheme.Sage, "세이지", false, "#E6EDE8", "#F4F7F2", "#FFFFFF", "#DCE7DC",
-            "#263D32", "#50665A", "#BFCFBF", "#718878", "#496B51", "#FFFFFF", "#395B41", "#CCDCCC", "#C7D7C9",
-            "#805812", "#A23C36", "#356B47", "#E0E8E0", "#627568", "#D62F32"),
-        new(AppTheme.MidnightBlue, "미드나이트 블루", true, "#101923", "#192430", "#243342", "#2D4052",
-            "#E7EFF6", "#B6C6D2", "#465A6C", "#839CB0", "#A8CADF", "#142A3A", "#C0DAEA", "#3A5064", "#3A5268",
-            "#E8C382", "#FFB4AE", "#A1D4B7", "#22303E", "#91A5B5", "#FF383C"),
-        new(AppTheme.Plum, "플럼", true, "#211C23", "#2B242D", "#382F3A", "#463B45",
-            "#F5E9EB", "#D3BCC8", "#665164", "#A2899D", "#E3BBC4", "#37222E", "#F0D1D7", "#574754", "#604C5D",
-            "#ECCE91", "#FFB4AE", "#B9D6BC", "#392E39", "#B49CA9", "#FF383C")
+        // Keep the persisted IDs while replacing their visual identities with the approved brand palettes.
+        new(AppTheme.OatLatte, "다정한 오트", false, "#F5EFE6", "#FAF6EF", "#FFFCF7", "#F0E5D8",
+            "#342D28", "#706154", "#D8CBBE", "#9A8674", "#985139", "#FFFFFF", "#E9B894", "#84432F", "#EDDDCC", "#EDDDCC",
+            "#7B560B", "#9E3F38", "#3F6850", "#EAE1D6", "#807365", "#B63734"),
+        new(AppTheme.Sage, "숨 고르는 숲", false, "#F0F2E8", "#F7F8F0", "#FCFCF6", "#E7ECDD",
+            "#263D32", "#5D6C5F", "#CAD1BF", "#7B8C76", "#365D4C", "#FFFFFF", "#CEDA9B", "#294B3C", "#E1E6CD", "#E1E6CD",
+            "#765912", "#9F3D3D", "#365D4C", "#E3E8D9", "#73806E", "#B63734"),
+        new(AppTheme.MidnightBlue, "밤의 버터", true, "#172133", "#1D293F", "#243047", "#2B3850",
+            "#F0F1ED", "#B5C0D0", "#46546B", "#8395AD", "#E8CF91", "#263147", "#94ACC5", "#F0DBAE", "#303E55", "#303E55",
+            "#ECD09A", "#FFB4AE", "#AFD6BE", "#263248", "#91A0B7", "#FF888B"),
+        new(AppTheme.Plum, "유연한 라일락", false, "#F1EDF7", "#F7F4FB", "#FDFCFF", "#ECE5F4",
+            "#32283E", "#70627F", "#D5CADE", "#9785AA", "#685187", "#FFFFFF", "#C8BAE6", "#574171", "#E4DAF1", "#E4DAF1",
+            "#785515", "#9E3C50", "#3C6956", "#E8E1F0", "#82738F", "#B63750")
     ]);
     public static AppTheme CurrentTheme { get; private set; } = AppTheme.OatLatte;
     // Keep brush identities stable: open popups, dialogs and unsaved pages update in place.

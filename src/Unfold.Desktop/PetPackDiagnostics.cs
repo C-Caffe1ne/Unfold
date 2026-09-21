@@ -23,6 +23,7 @@ internal static class PetPackDiagnostics
         using var light = new AnimationView { Width = 192, Height = 192 };
         try
         {
+            runtime.ConfirmActionOverride = (_, _, _) => Task.FromResult(0);
             await runtime.Start(true, true); runtime.Reset();
             using var pack = await Task.Run(() => CharacterPack.Open(packPath));
             installer = new(runtime.Library, runtime.SelectInstalledCharacter, () => Task.FromResult<string?>(Path.GetFullPath(packPath)));
@@ -33,7 +34,8 @@ internal static class PetPackDiagnostics
             Capture(installer, Path.Combine(directory, "pack-preview.png"));
             var previewControls = await ReviewPreview(installer, pack, directory);
             if (runtime.Characters.Any(character => character.Manifest.Id == pack.Id)) throw new InvalidOperationException("Preview installed the pack.");
-            Press(installer, "InstallPetPack"); await Until(() => Equals(Install().Content, "설치 완료"));
+            Press(installer, "InstallPetPack"); await Until(() => !Install().IsEnabled &&
+                installer.GetVisualDescendants().OfType<TextBlock>().Single(text => text.Name == "PackStatus").Text == "저장했어요.");
             if (runtime.Selected?.Manifest.Id != pack.Id || !runtime.Clock.Paused) throw new InvalidOperationException("Installed pack was not selected or resumed the timer.");
             Capture(installer, Path.Combine(directory, "pack-installed.png")); installer.Close(); installer = null;
             var selected = runtime.Selected;
@@ -90,7 +92,8 @@ internal static class PetPackDiagnostics
             _ = persisted.LoadAnimation("idle");
             var report = new { success = true, id = pack.Id, contentVersion = pack.ContentVersion, audit,
                 packSha256 = Convert.ToHexString(SHA256.HashData(ImageCodec.ReadBounded(packPath, CharacterPack.MaxArchiveBytes))).ToLowerInvariant(),
-                realTimePlayback = true, physicalInput = false, injectedFilePicker = true, offScreenWindows = true, capturedLivePetView = true,
+                realTimePlayback = true, physicalInput = false, injectedFilePicker = true, simulatedActionConfirmation = true,
+                offScreenWindows = true, capturedLivePetView = true,
                 selectedAfterInstall = true, reopenedFromDisk = true, hiddenPetStayedHidden = true, previewControls, playback = results,
                 imageFiles = Directory.GetFiles(directory, "*.png").Length, os = Environment.OSVersion.ToString(), framework = Environment.Version.ToString() };
             AtomicFile.Write(Path.Combine(directory, "pet-review.json"), JsonSerializer.SerializeToUtf8Bytes(report, CharacterLibrary.JsonOptions));
@@ -106,6 +109,8 @@ internal static class PetPackDiagnostics
     {
         ComboBox Choice(string name) => window.GetVisualDescendants().OfType<ComboBox>().Single(control => control.Name == name);
         var preview = window.GetVisualDescendants().OfType<AnimationView>().Single();
+        var surface = window.GetVisualDescendants().OfType<Border>().Single(control => control.Name == "PackPreviewSurface");
+        var themeBackground = surface.Background;
         var key = pack.Character.Manifest.Animations.ContainsKey("stretch") ? "stretch" :
             pack.Character.Manifest.Animations.FirstOrDefault(pair => !pair.Value.Loop).Key;
         var pausedForMs = 0d; var completed = 0;
@@ -128,13 +133,17 @@ internal static class PetPackDiagnostics
                 await Task.Delay(TimeSpan.FromMilliseconds(duration / 2));
                 Press(window, "PausePackPreview");
             }
-            Choice("PackSize").SelectedIndex = 2; Choice("PackBackground").SelectedIndex = 1; window.UpdateLayout();
+            if (window.GetVisualDescendants().OfType<ComboBox>().Any(control => control.Name == "PackBackground"))
+                throw new InvalidOperationException("The removed preview background setting is still present.");
+            Choice("PackSize").SelectedIndex = 2; window.UpdateLayout();
             if (preview.Bounds.Width != 384 || preview.Bounds.Height != 384) throw new InvalidOperationException("Large preview has the wrong size.");
             var scroll = window.GetVisualDescendants().OfType<ScrollViewer>().Single(view => view.Name == "PageBodyScroll");
             if (scroll.Extent.Width > scroll.Viewport.Width + 1) throw new InvalidOperationException("Large preview overflows horizontally.");
+            Capture(window, Path.Combine(directory, "pack-preview-large-theme-2x.png"), 2);
+            // Alternate backgrounds inspect asset edges only; the product has no background selector.
+            surface.Background = Brushes.WhiteSmoke;
             Capture(window, Path.Combine(directory, "pack-preview-large-light-2x.png"), 2);
-            Choice("PackBackground").SelectedIndex = 0; window.UpdateLayout();
-            Capture(window, Path.Combine(directory, "pack-preview-large-dark-2x.png"), 2);
+            surface.Background = themeBackground;
             Choice("PackSize").SelectedIndex = 0; window.UpdateLayout();
             if (preview.Bounds.Width != 192) throw new InvalidOperationException("Default preview size was not restored.");
             Press(window, "PausePackPreview");
@@ -146,9 +155,10 @@ internal static class PetPackDiagnostics
             }
             return new { reaction = key, pausedForMs, completedOnce = completed, selectedReactionRetained = key is not null,
                 logicalPreviewSizes = new[] { 192, 384 }, captureScale = 2, windowRenderScaling = window.RenderScaling,
-                backgrounds = new[] { "light", "dark" }, horizontalOverflow = false };
+                backgrounds = new[] { "theme", "light" }, alternateBackgroundInjected = true,
+                backgroundSettingVisible = false, horizontalOverflow = false };
         }
-        finally { preview.Completed -= Completed; }
+        finally { surface.Background = themeBackground; preview.Completed -= Completed; }
     }
     private static async Task Until(Func<bool> ready)
     {

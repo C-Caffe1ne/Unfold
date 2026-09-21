@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
 using Avalonia.Media;
+using System.Globalization;
 using Unfold.Core;
 
 namespace Unfold.Desktop;
@@ -21,7 +22,7 @@ public sealed partial class SettingsWindow : Window, IDisposable
     private readonly AnimationView preview = new() { Name = "CompanionPreview", Width = DesignSystem.PetBaseSize,
         Height = DesignSystem.PetBaseSize, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
     private readonly Slider petScale = new() { Name = "PetScale", Minimum = 50, Maximum = 150,
-        TickFrequency = 10, IsSnapToTickEnabled = true, Value = 100 };
+        TickFrequency = 10, IsSnapToTickEnabled = true, Value = 100, Classes = { "thumb-hover-slider" } };
     private readonly TextBlock petScaleValue = new() { Name = "PetScaleValue", FontSize = DesignSystem.Body,
         Foreground = DesignSystem.Cream, Text = "100%" };
     private Grid? companionPreviewStage;
@@ -35,9 +36,10 @@ public sealed partial class SettingsWindow : Window, IDisposable
     private bool? intervalEditingAvailable;
     private CharacterPackage? previewCharacter;
     private bool updating;
+    private bool savingHomeTiming;
     public SettingsWindow(AppRuntime runtime)
     {
-        this.runtime = runtime; Title = "Unfold · 휴식 알림"; Width = 1120; Height = 800; MinWidth = 860; MinHeight = 680;
+        this.runtime = runtime; Title = "Unfold · 휴식 알림"; Width = 1120; Height = 800; MinWidth = 640; MinHeight = 560;
         Background = Ui.Background;
         interval = new NumericUpDown { Name = "ReminderInterval", Minimum = 5, Maximum = 240, Value = runtime.Settings.IntervalMinutes, Increment = 1, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch, FormatString = "0" };
         breakDuration = new NumericUpDown { Name = "BreakDurationMinutes", Minimum = 1, Maximum = 10, Value = runtime.Settings.BreakDurationMinutes, Increment = 1, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch, FormatString = "0" };
@@ -45,7 +47,7 @@ public sealed partial class SettingsWindow : Window, IDisposable
         snooze = new NumericUpDown { Name = "SnoozeMinutes", Minimum = 1, Maximum = 60, Value = runtime.Settings.SnoozeMinutes, Increment = 1, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch, FormatString = "0" };
         displayedInterval = runtime.Settings.IntervalMinutes;
         displayedBreakDuration = runtime.Settings.BreakDurationMinutes;
-        timerControls = new(runtime.TogglePause, runtime.Stop);
+        timerControls = new(runtime.TogglePause, () => _ = runtime.RequestStop());
         AutomationProperties.SetName(interval, "스트레칭 알림 간격, 분 단위");
         AutomationProperties.SetName(breakDuration, "휴식 시간, 분 단위");
         AutomationProperties.SetName(idle, "자리 비움 시간, 분 단위");
@@ -55,19 +57,17 @@ public sealed partial class SettingsWindow : Window, IDisposable
         countdown.Name = "TimerCountdown";
         state.Name = "TimerStateText";
         state.TextWrapping = TextWrapping.Wrap;
-        homeTimingApply = Ui.AsyncButton("적용", async () =>
+        homeTimingApply = Ui.Action("저장");
+        homeTimingApply.Click += async (_, _) =>
         {
-            if (interval.Value is not decimal minutes || minutes is < 5 or > 240 || decimal.Truncate(minutes) != minutes ||
-                breakDuration.Value is not decimal rest || rest is < 1 or > 10 || decimal.Truncate(rest) != rest)
-            {
-                homeTimingStatus.Text = "분 단위의 정수를 입력해 주세요. 스트레칭 시간은 5~240분, 휴식 시간은 1~10분이에요.";
-                homeTimingStatus.Foreground = DesignSystem.Error; homeTimingStatus.IsVisible = true; return;
-            }
-            await SaveHomeTimingSettings((int)minutes, (int)rest);
-        });
+            if (savingHomeTiming || !homeTimingApply.IsEnabled ||
+                !TryReadHomeMinutes(interval, 5, 240, out var minutes) ||
+                !TryReadHomeMinutes(breakDuration, 1, 10, out var rest)) return;
+            await SaveHomeTimingSettings(minutes, rest);
+        };
         homeTimingApply.Name = "ApplyHomeTimingSettings";
-        AutomationProperties.SetName(homeTimingApply, "스트레칭과 휴식 시간 적용");
-        ToolTip.SetTip(homeTimingApply, "변경한 스트레칭과 휴식 시간 적용");
+        AutomationProperties.SetName(homeTimingApply, "스트레칭과 휴식 시간 저장");
+        ToolTip.SetTip(homeTimingApply, "변경한 스트레칭과 휴식 시간 저장");
         showPet = new CheckBox { Name = "ShowPetOnDesktop", Content = "바탕화면에 펫 표시", IsChecked = runtime.Settings.ShowPet };
         showPet.IsCheckedChanged += async (_, _) =>
         {
@@ -118,8 +118,11 @@ public sealed partial class SettingsWindow : Window, IDisposable
         };
         homeTimingStatus.Name = "HomeTimingStatus";
         Content = BuildDashboard();
-        interval.ValueChanged += (_, _) => TimingEdited();
-        breakDuration.ValueChanged += (_, _) => TimingEdited();
+        foreach (var input in new[] { interval, breakDuration })
+            input.PropertyChanged += (_, e) =>
+            {
+                if (e.Property == NumericUpDown.ValueProperty || e.Property == NumericUpDown.TextProperty) TimingEdited();
+            };
         foreach (var input in new[] { idle, snooze })
             input.PropertyChanged += (_, e) =>
             {
@@ -137,6 +140,23 @@ public sealed partial class SettingsWindow : Window, IDisposable
     {
         if (updating) return;
         homeTimingStatus.Text = ""; homeTimingStatus.IsVisible = false;
+        RefreshHomeTimingState();
+    }
+    private static bool TryReadHomeMinutes(NumericUpDown input, int minimum, int maximum, out int minutes)
+    {
+        minutes = 0;
+        if (input.Value is not decimal value || value < minimum || value > maximum || decimal.Truncate(value) != value ||
+            !decimal.TryParse(input.Text, NumberStyles.Number, CultureInfo.CurrentCulture, out var text) || text != value) return false;
+        minutes = (int)value; return true;
+    }
+    private void RefreshHomeTimingState()
+    {
+        var validInterval = TryReadHomeMinutes(interval, 5, 240, out var minutes);
+        var validRest = TryReadHomeMinutes(breakDuration, 1, 10, out var rest);
+        var changed = !validInterval || !validRest || minutes != runtime.Settings.IntervalMinutes || rest != runtime.Settings.BreakDurationMinutes;
+        homeTimingApply.Opacity = changed ? 1 : 0;
+        homeTimingApply.IsHitTestVisible = changed;
+        homeTimingApply.IsEnabled = changed && validInterval && validRest && !savingHomeTiming;
     }
     private void SetPetScalePreview(int percent)
     {
@@ -161,6 +181,7 @@ public sealed partial class SettingsWindow : Window, IDisposable
     }
     private async Task SaveHomeTimingSettings(int minutes, int rest)
     {
+        savingHomeTiming = true; RefreshHomeTimingState();
         try
         {
             var updated = runtime.Settings with { IntervalMinutes = minutes, BreakDurationMinutes = rest,
@@ -171,6 +192,7 @@ public sealed partial class SettingsWindow : Window, IDisposable
         }
         catch (Exception error) when (error is ArgumentException or IOException or UnauthorizedAccessException)
         { AppPaths.Log(error); homeTimingStatus.Foreground = DesignSystem.Error; homeTimingStatus.Text = "저장하지 못했어요."; homeTimingStatus.IsVisible = true; }
+        finally { savingHomeTiming = false; RefreshHomeTimingState(); }
     }
     private async void Refresh()
     {
@@ -202,9 +224,13 @@ public sealed partial class SettingsWindow : Window, IDisposable
             timerControls.Refresh(runtime.Clock);
             var canEditInterval = runtime.CanEditTimerInterval;
             interval.IsEnabled = canEditInterval;
-            var discardedInterval = !canEditInterval && interval.Value != runtime.Settings.IntervalMinutes;
+            var discardedInterval = !canEditInterval &&
+                (!TryReadHomeMinutes(interval, 5, 240, out var pendingInterval) || pendingInterval != runtime.Settings.IntervalMinutes);
             if (discardedInterval)
+            {
                 interval.Value = runtime.Settings.IntervalMinutes;
+                interval.Text = runtime.Settings.IntervalMinutes.ToString(CultureInfo.CurrentCulture);
+            }
             if (intervalEditingAvailable != canEditInterval)
             {
                 intervalEditingAvailable = canEditInterval;
@@ -222,6 +248,7 @@ public sealed partial class SettingsWindow : Window, IDisposable
             SetPetScalePreview(runtime.Settings.PetScalePercent);
             if (displayedInterval != runtime.Settings.IntervalMinutes) interval.Value = displayedInterval = runtime.Settings.IntervalMinutes;
             if (displayedBreakDuration != runtime.Settings.BreakDurationMinutes) breakDuration.Value = displayedBreakDuration = runtime.Settings.BreakDurationMinutes;
+            RefreshHomeTimingState();
             SyncPreferencesFromRuntime(); RefreshDebugPreviewStatus();
             if (!ReferenceEquals(characters.ItemsSource, runtime.Characters)) characters.ItemsSource = runtime.Characters;
             characters.SelectedItem = runtime.Selected;

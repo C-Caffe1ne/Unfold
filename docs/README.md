@@ -12,7 +12,10 @@
 | [제품 방향](product-direction.md) | 초기 고객, 경쟁 판단, 무료·Plus·펫 팩의 가치 제안 |
 | [UI 한글화](localization.md) | 한국어 적용 범위, 표시 용어, 기존 데이터 보존과 검증 한계 |
 | [UI 한글화 검증](validation/2026-09-14-korean-ui.md) | 127개 테스트, macOS 게시 앱 진단과 한글 화면 캡처 |
-| [색상 테마 구현·검증](validation/2026-09-20-themes.md) | 네 가지 테마, 오트 라떼 기본값, 선택·저장·초안 보존과 네이티브 캡처 |
+| [브랜드 팔레트 교체 검증](validation/2026-09-21-brand-palettes.md) | 승인된 네 시안의 색상, 다정한 오트 기본값, 저장 ID 호환과 Windows 자동 캡처 |
+| [알림·저장·입력 동작 검증](validation/2026-09-21-ux-refinements.md) | 5분 타이머·5초 안내, 음량, 저장 후 초기화, 호버·클릭 피드백과 Release 240개 통과 |
+| [반응형·메뉴·확인 동작 검증](validation/2026-09-21-responsive-actions.md) | 640×560 반응형, 펫 숨기기, 중지·종료 확인, 설정·펫 열기 배치와 Release 254개 통과 |
+| [색상 테마 초기 구현·검증](validation/2026-09-20-themes.md) | 최초 네 가지 테마의 선택·저장·초안 보존과 당시 네이티브 캡처 |
 | [디자인 시스템](design-system.md) | 공통 시각 토큰, 페이지·버튼·입력 규칙과 중첩 창 적용 범위 |
 | [Figma 디자인 시스템](figma-design-system.md) | 편집 가능한 Figma 파일, 변수·Variant 구성과 로컬 빌더 실행 방법 |
 | [디자인 시스템 검증](validation/2026-09-14-design-system.md) | 135개 테스트, 최종 변경 영역 13개 재검사와 macOS 화면 24장 |

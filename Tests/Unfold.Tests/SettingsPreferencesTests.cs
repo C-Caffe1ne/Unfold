@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Controls.Primitives;
@@ -16,6 +17,37 @@ namespace Unfold.Tests;
 [Collection("Timer settings")]
 public class SettingsPreferencesTests
 {
+    [AvaloniaFact]
+    public void VolumeIsDraftedPreviewedCancelledAndSavedWithTheOtherNotificationSettings()
+    {
+        using var scope = new Scope(); var window = scope.Window;
+        var volume = Find<Slider>(window, "ReminderVolumePercent");
+        var label = Find<TextBlock>(window, "ReminderVolumeValue");
+        var save = Find<Button>(window, "SavePreferences");
+        Assert.Equal(0, volume.Minimum); Assert.Equal(100, volume.Maximum); Assert.Equal(100, volume.Value);
+        Assert.Equal("알림 소리 크기, 퍼센트", AutomationProperties.GetName(volume));
+        Assert.False(save.IsEnabled);
+        var previews = new List<(ReminderSound Sound, int Volume)>();
+        window.PlaySoundPreview = (sound, settings, _) =>
+        { previews.Add((sound, settings.ReminderVolumePercent)); return Task.CompletedTask; };
+        volume.Value = 37;
+        Assert.Equal("37%", label.Text); Assert.True(save.IsEnabled);
+        Assert.Equal(100, scope.Runtime.Settings.ReminderVolumePercent);
+        Press(window, "PreviewDueSound"); Press(window, "PreviewCompletionSound");
+        Assert.Equal(new[] { (ReminderSound.Due, 37), (ReminderSound.Completed, 37) }, previews);
+        Assert.Equal(100, scope.Runtime.Settings.ReminderVolumePercent);
+        Press(window, "SettingsNavTimer"); Press(window, "SettingsNavSettings");
+        Assert.Equal(37, volume.Value);
+        Press(window, "CancelPreferences");
+        Assert.Equal(100, volume.Value); Assert.Equal("100%", label.Text); Assert.False(save.IsEnabled);
+        volume.Value = 0; Press(window, "SavePreferences");
+        Assert.False(save.IsEnabled);
+        Assert.Equal(0, scope.Runtime.Settings.ReminderVolumePercent);
+        Assert.Equal(0, AppSettings.Load(Path.Combine(scope.Root, "settings.json")).ReminderVolumePercent);
+        volume.Value = 100; Press(window, "CancelPreferences");
+        Assert.Equal(0, volume.Value); Assert.Equal("0%", label.Text); Assert.False(save.IsEnabled);
+    }
+
     [AvaloniaFact]
     public void SaveTracksTheWholeFormAndCancelRestoresTheLastSave()
     {
@@ -50,16 +82,20 @@ public class SettingsPreferencesTests
         var path = Path.Combine(scope.Root, "settings.json"); Directory.CreateDirectory(path);
         Find<ComboBox>(window, "BubbleDirection").SelectedItem = BubbleDirection.Left;
         Find<NumericUpDown>(window, "ReminderIdle").Value = 17;
+        Find<Slider>(window, "ReminderVolumePercent").Value = 23;
         Press(window, "SavePreferences");
         Assert.True(Find<Button>(window, "SavePreferences").IsEnabled);
         Assert.True(Find<TextBlock>(window, "PreferencesStatus").IsVisible);
         Assert.Contains("저장하지 못했어요", Find<TextBlock>(window, "PreferencesStatus").Text);
         Assert.Equal(BubbleDirection.Top, scope.Runtime.Settings.BubbleDirection);
         Assert.Equal(5, scope.Runtime.Settings.IdleMinutes);
+        Assert.Equal(100, scope.Runtime.Settings.ReminderVolumePercent);
+        Assert.Equal(23, Find<Slider>(window, "ReminderVolumePercent").Value);
         Assert.Equal(17, Find<NumericUpDown>(window, "ReminderIdle").Value);
         Assert.Equal(BubbleDirection.Left, Find<ComboBox>(window, "BubbleDirection").SelectedItem);
         Directory.Delete(path); Press(window, "SavePreferences");
         Assert.Equal(17, AppSettings.Load(path).IdleMinutes);
+        Assert.Equal(23, AppSettings.Load(path).ReminderVolumePercent);
         Assert.Equal(BubbleDirection.Left, scope.Runtime.Settings.BubbleDirection);
         Assert.False(Find<Button>(window, "SavePreferences").IsEnabled);
         Assert.False(Find<TextBlock>(window, "PreferencesStatus").IsVisible);
@@ -134,6 +170,9 @@ public class SettingsPreferencesTests
         Assert.Equal(Find<Button>(window, "ImportCompletionSound").Bounds.Width, import.Bounds.Width);
         var complete = Find<Grid>(window, "CompletionSoundRow"); var enabled = Find<CheckBox>(window, "ReminderSoundsEnabled");
         Assert.True(enabled.TranslatePoint(default, window)!.Value.Y > complete.TranslatePoint(default, window)!.Value.Y + complete.Bounds.Height);
+        var volume = Find<Slider>(window, "ReminderVolumePercent"); var volumeValue = Find<TextBlock>(window, "ReminderVolumeValue");
+        Assert.True(volume.Bounds.Width > 0);
+        Assert.True(volumeValue.TranslatePoint(default, window)!.Value.X >= volume.TranslatePoint(default, window)!.Value.X + volume.Bounds.Width);
         var choice = Find<ComboBox>(window, "BubbleDirection");
         var closedBorder = choice.GetVisualDescendants().OfType<Border>().Single(border => border.Name == "Background");
         var original = (closedBorder.Background, closedBorder.BorderBrush, closedBorder.BorderThickness);

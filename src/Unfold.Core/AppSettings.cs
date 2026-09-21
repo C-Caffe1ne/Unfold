@@ -20,6 +20,7 @@ public sealed partial record AppSettings
     public int SnoozeMinutes { get; init; } = 5;
     public bool DebugToolsEnabled { get; init; }
     public bool ReminderSoundsEnabled { get; init; } = true;
+    public int ReminderVolumePercent { get; init; } = 100;
     public string? ReminderSoundId { get; init; }
     public string? CompletionSoundId { get; init; }
     public string? ReminderSoundName { get; init; }
@@ -70,6 +71,7 @@ public sealed partial record AppSettings
             value = value with { SelectedCharacterId = fallback.SelectedCharacterId };
         if (!Enum.IsDefined(value.BubbleDirection)) value = value with { BubbleDirection = fallback.BubbleDirection };
         if (value.SnoozeMinutes is < 1 or > 60) value = value with { SnoozeMinutes = fallback.SnoozeMinutes };
+        if (value.ReminderVolumePercent is < 0 or > 100) value = value with { ReminderVolumePercent = fallback.ReminderVolumePercent };
         // A damaged identifier drops its display name too, so the two never disagree.
         if (!ValidSoundId(value.ReminderSoundId)) value = value with { ReminderSoundId = null, ReminderSoundName = null };
         if (!ValidSoundId(value.CompletionSoundId)) value = value with { CompletionSoundId = null, CompletionSoundName = null };
@@ -83,7 +85,7 @@ public sealed partial record AppSettings
             value.IdleMinutes is < 1 or > 60 || value.PetScalePercent is < 50 or > 150 || value.PetScalePercent % 10 != 0 ||
             !CharacterLibrary.SafeId(value.SelectedCharacterId))
             throw new InvalidDataException("Invalid settings values.");
-        if (!Enum.IsDefined(value.BubbleDirection) || value.SnoozeMinutes is < 1 or > 60 ||
+        if (!Enum.IsDefined(value.BubbleDirection) || value.SnoozeMinutes is < 1 or > 60 || value.ReminderVolumePercent is < 0 or > 100 ||
             !ValidSoundId(value.ReminderSoundId) || !ValidSoundId(value.CompletionSoundId))
             throw new InvalidDataException("Invalid reminder settings.");
     }

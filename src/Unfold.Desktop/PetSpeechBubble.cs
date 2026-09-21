@@ -22,7 +22,8 @@ public sealed class PetSpeechBubble : Border
         title.Name = "PetBreakTitle"; title.FontWeight = FontWeight.SemiBold;
         title.TextWrapping = TextWrapping.Wrap; title.TextAlignment = TextAlignment.Center;
         title.HorizontalAlignment = HorizontalAlignment.Stretch;
-        timer.Name = "PetBreakTimer"; timer.HorizontalAlignment = HorizontalAlignment.Center;
+        timer.Name = "PetBreakTimer"; timer.HorizontalAlignment = HorizontalAlignment.Stretch;
+        timer.TextAlignment = TextAlignment.Center;
         start = Ui.Primary(Ui.Button("휴식 시작", startBreak)); start.Name = "PetBreakStart";
         snooze = Ui.Button("5분 뒤에", snoozeBreak); snooze.Name = "PetBreakSnooze";
         complete = Ui.Primary(Ui.Button("완료", completeBreak)); complete.Name = "PetBreakComplete";
@@ -30,13 +31,14 @@ public sealed class PetSpeechBubble : Border
         {
             button.Height = DesignSystem.SpeechControlHeight;
             button.HorizontalAlignment = HorizontalAlignment.Stretch; button.HorizontalContentAlignment = HorizontalAlignment.Center;
+            button.SetValue(TextBlock.TextAlignmentProperty, TextAlignment.Center);
         }
         invitation.Children.Add(snooze); Grid.SetColumn(start, 2); invitation.Children.Add(start);
         var actions = new Grid(); actions.Children.Add(invitation); actions.Children.Add(complete);
         var footer = new StackPanel { Spacing = DesignSystem.SpeechGap };
         footer.Children.Add(timer); footer.Children.Add(actions);
-        var body = new Grid { RowDefinitions = new("Auto,*,Auto") };
-        body.Children.Add(title); Grid.SetRow(footer, 2); body.Children.Add(footer);
+        var body = new Grid { RowDefinitions = new("*,Auto") };
+        body.Children.Add(title); Grid.SetRow(footer, 1); body.Children.Add(footer);
         Child = body; AutomationProperties.SetName(this, "펫의 스트레칭 알림");
     }
     public void Refresh(PetReminder reminder, int snoozeMinutes)

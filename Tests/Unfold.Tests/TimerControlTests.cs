@@ -23,6 +23,31 @@ public class TimerControlTests
     private static void Press(Window window, string name) => Button(window, name).RaiseEvent(new RoutedEventArgs(Avalonia.Controls.Button.ClickEvent));
     private static void OpenSettings(Window window) { Press(window, "SettingsNavSettings"); Dispatcher.UIThread.RunJobs(); }
     private static void OpenTimer(Window window) { Press(window, "SettingsNavTimer"); Dispatcher.UIThread.RunJobs(); }
+    [AvaloniaFact]
+    public async Task HomeSaveAppearsOnlyForChangesAndRejectsInvalidRawInput()
+    {
+        using var scope = new SettingsScope();
+        var save = Button(scope.Window, "ApplyHomeTimingSettings");
+        var rest = scope.Window.GetVisualDescendants().OfType<NumericUpDown>().Single(input => input.Name == "BreakDurationMinutes");
+        Assert.Equal("저장", save.Content);
+        Assert.False(save.IsEnabled); Assert.Equal(0, save.Opacity); Assert.False(save.IsHitTestVisible);
+        rest.Value = 3; Dispatcher.UIThread.RunJobs();
+        Assert.True(save.IsEnabled); Assert.Equal(1, save.Opacity); Assert.True(save.IsHitTestVisible);
+        await scope.Runtime.UpdateSettings(scope.Runtime.Settings);
+        Assert.Equal(3, rest.Value); Assert.True(save.IsEnabled);
+        rest.Value = 1; Dispatcher.UIThread.RunJobs();
+        Assert.False(save.IsEnabled); Assert.Equal(0, save.Opacity);
+        rest.Text = "invalid"; Dispatcher.UIThread.RunJobs();
+        Assert.False(save.IsEnabled); Assert.Equal(1, save.Opacity);
+        Press(scope.Window, "ApplyHomeTimingSettings");
+        Assert.Equal(1, scope.Runtime.Settings.BreakDurationMinutes);
+        rest.Value = 3; rest.Text = "3"; Dispatcher.UIThread.RunJobs();
+        Assert.True(save.IsEnabled);
+        Press(scope.Window, "ApplyHomeTimingSettings"); Dispatcher.UIThread.RunJobs();
+        Assert.Equal(3, scope.Runtime.Settings.BreakDurationMinutes);
+        Assert.Equal(3, AppSettings.Load(Path.Combine(scope.Root, "settings.json")).BreakDurationMinutes);
+        Assert.False(save.IsEnabled); Assert.Equal(0, save.Opacity); Assert.False(save.IsHitTestVisible);
+    }
     [Fact]
     public void ResetRestoresTheIntervalAndWaitsForExplicitResume()
     {
@@ -167,7 +192,7 @@ public class TimerControlTests
         public SettingsScope()
         {
             Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", Root);
-            Runtime = new(new ClassicDesktopStyleApplicationLifetime());
+            Runtime = new(new ClassicDesktopStyleApplicationLifetime()) { ConfirmActionOverride = (_, _, _) => Task.FromResult(0) };
             Window = new(Runtime); Window.Show(); Dispatcher.UIThread.RunJobs();
         }
         public void Dispose()

@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
+using Avalonia.Markup.Xaml.MarkupExtensions;
 using Avalonia.Media;
 using Avalonia.Styling;
 using Avalonia.Themes.Fluent;
@@ -215,10 +216,39 @@ public static partial class DesignSystem
         AddChoiceStyles(styles, "home-choice", HomeChoiceWidth);
         AddChoiceStyles(styles, "pet-choice", PetChoiceWidth);
         AddChoiceStyles(styles, "pet-preview-choice", PetPreviewOptionWidth);
+        AddThumbHoverSliderStyles(styles);
         styles.Add(new Style(s => s.OfType<Button>().Class("settings-reset")) { Setters =
         { new Setter(TemplatedControl.BackgroundProperty, Brushes.Transparent), new Setter(TemplatedControl.ForegroundProperty, Muted) }});
         AddPetCardStyles(styles);
         app.Styles.Add(styles);
+    }
+
+    private static void AddThumbHoverSliderStyles(Styles styles)
+    {
+        // Fluent applies pointer-over brushes to the whole Slider. Keep the track and
+        // thumb at rest until the pointer actually enters the thumb's hit target.
+        foreach (var state in new[] { "", ":pointerover" })
+        {
+            Selector Slider(Selector? selector)
+            {
+                var slider = selector.OfType<Slider>().Class("thumb-hover-slider");
+                return state.Length == 0 ? slider : slider.Class(state).Not(s => s.Class(":disabled"));
+            }
+            styles.Add(new Style(s => Slider(s).Template().OfType<Grid>().Name("SliderContainer")) { Setters =
+            { new Setter(Panel.BackgroundProperty, new DynamicResourceExtension("SliderContainerBackground")) }});
+            foreach (var (name, resource) in new[]
+            {
+                ("PART_DecreaseButton", "SliderTrackValueFill"),
+                ("PART_IncreaseButton", "SliderTrackFill")
+            })
+                styles.Add(new Style(s => Slider(s).Template().OfType<RepeatButton>().Name(name)) { Setters =
+                { new Setter(TemplatedControl.BackgroundProperty, new DynamicResourceExtension(resource)) }});
+            styles.Add(new Style(s => Slider(s).Template().OfType<Thumb>()) { Setters =
+            { new Setter(TemplatedControl.BackgroundProperty, new DynamicResourceExtension("SliderThumbBackground")) }});
+        }
+        styles.Add(new Style(s => s.OfType<Slider>().Class("thumb-hover-slider").Not(s => s.Class(":disabled"))
+            .Template().OfType<Thumb>().Class(":pointerover")) { Setters =
+        { new Setter(TemplatedControl.BackgroundProperty, new DynamicResourceExtension("SliderThumbBackgroundPointerOver")) }});
     }
 
     private static void AddChoiceStyles(Styles styles, string className, double popupWidth)

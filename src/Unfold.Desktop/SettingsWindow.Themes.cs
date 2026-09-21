@@ -42,7 +42,7 @@ public sealed partial class SettingsWindow
             choice.HorizontalContentAlignment = HorizontalAlignment.Stretch;
             var row = new Grid { ColumnDefinitions = new("24,12,*,20") };
             row.Children.Add(new Border { Width = 22, Height = 22, CornerRadius = new(11),
-                Background = Brush.Parse(palette.Canvas), BorderBrush = Brush.Parse(palette.Line), BorderThickness = new(1),
+                Background = Brush.Parse(palette.Secondary), BorderBrush = Brush.Parse(palette.Line), BorderThickness = new(1),
                 Child = new Border { Margin = new(5), CornerRadius = new(6), Background = Brush.Parse(palette.Accent) } });
             var label = new TextBlock { Text = palette.Name, VerticalAlignment = VerticalAlignment.Center };
             Grid.SetColumn(label, 2); row.Children.Add(label);

@@ -17,6 +17,67 @@ public class BreakReminderTests
     private static Button Button(Window window, string name) => window.GetVisualDescendants().OfType<Button>().Single(button => button.Name == name);
     private static void Click(Button button) => button.RaiseEvent(new RoutedEventArgs(Avalonia.Controls.Button.ClickEvent));
 
+    [AvaloniaTheory]
+    [InlineData(PetNotice.Advance)]
+    [InlineData(PetNotice.Invitation)]
+    [InlineData(PetNotice.Resting)]
+    [InlineData(PetNotice.Completed)]
+    public void SpeechTextIsCenteredAndPassiveNoticesUseTheBubbleCenter(PetNotice notice)
+    {
+        var model = new PetReminder();
+        if (notice == PetNotice.Advance) model.ShowAdvance(TimeSpan.Zero);
+        else
+        {
+            model.Invite(new(BreakRoutines.All[0], "default-cat", durationSeconds: 60));
+            if (notice is PetNotice.Resting or PetNotice.Completed) model.Start(TimeSpan.Zero);
+            if (notice == PetNotice.Completed) model.Complete(TimeSpan.Zero);
+        }
+        var bubble = new PetSpeechBubble(() => { }, () => { }, () => { }); bubble.Refresh(model, 60);
+        var window = new Window { Width = bubble.Width, Height = bubble.Height, Content = bubble };
+        try
+        {
+            window.Show(); Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+            foreach (var text in bubble.GetVisualDescendants().OfType<TextBlock>().Where(text => text.IsEffectivelyVisible && !string.IsNullOrEmpty(text.Text)))
+                Assert.Equal(Avalonia.Media.TextAlignment.Center, text.TextAlignment);
+            var title = bubble.GetVisualDescendants().OfType<TextBlock>().Single(text => text.Name == "PetBreakTitle");
+            var origin = title.TranslatePoint(default, bubble)!.Value;
+            Assert.InRange(Math.Abs(origin.X + title.Bounds.Width / 2 - bubble.Bounds.Width / 2), 0, 1);
+            if (notice is PetNotice.Advance or PetNotice.Completed)
+                Assert.InRange(Math.Abs(origin.Y + title.Bounds.Height / 2 - bubble.Bounds.Height / 2), 0, 1);
+            if (notice == PetNotice.Resting)
+            {
+                var timer = bubble.GetVisualDescendants().OfType<TextBlock>().Single(text => text.Name == "PetBreakTimer");
+                var timerOrigin = timer.TranslatePoint(default, bubble)!.Value;
+                Assert.InRange(Math.Abs(timerOrigin.X + timer.Bounds.Width / 2 - bubble.Bounds.Width / 2), 0, 1);
+                Assert.True(Button(window, "PetBreakComplete").IsVisible);
+            }
+        }
+        finally { window.Close(); }
+    }
+
+    [AvaloniaFact]
+    public async Task CompletionNoticeExpiresWithoutWaitingForTheWorkClockTick()
+    {
+        using var temp = new TempDirectory(); var previous = Environment.GetEnvironmentVariable("UNFOLD_DATA_DIR");
+        Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", temp.Path);
+        using var lifetime = new ClassicDesktopStyleApplicationLifetime();
+        var runtime = new AppRuntime(lifetime);
+        try
+        {
+            await runtime.UpdateSettings(runtime.Settings with { ReminderSoundsEnabled = false });
+            // Do not start the runtime: its recurring work timer never ticks in this test.
+            runtime.Reminder.Invite(new(BreakRoutines.All[0], "default-cat"));
+            runtime.StartBreak(); runtime.CompleteBreak();
+            Assert.Equal(PetNotice.Completed, runtime.Reminder.Notice);
+            var expired = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            runtime.Changed += () => { if (!runtime.Reminder.HasNotice) expired.TrySetResult(); };
+            await expired.Task.WaitAsync(TimeSpan.FromSeconds(6), TestContext.Current.CancellationToken);
+            Assert.False(runtime.Reminder.HasNotice);
+            Assert.Single(runtime.BreakHistory.Completions);
+        }
+        finally { runtime.Dispose(); Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", previous); }
+    }
+
     [AvaloniaFact]
     public void BubbleButtonsAllowEarlyCompletionWithoutOpeningAnotherWindow()
     {
@@ -88,7 +149,7 @@ public class BreakReminderTests
                 }
             }
             var menu = pet.ContextMenu!.Items.OfType<MenuItem>().ToArray();
-            Assert.Single(menu); Assert.Equal("설정", menu[0].Header);
+            Assert.Equal(new object?[] { "설정", "펫 숨기기" }, menu.Select(item => item.Header));
             runtime.Reminder.Start(TimeSpan.Zero); runtime.Reminder.Tick(TimeSpan.FromSeconds(7));
             pet.RefreshSpeech(); Assert.Same(session, runtime.Reminder.Session);
             Assert.Equal(TimeSpan.FromSeconds(7), session.Elapsed); Assert.Empty(pet.OwnedWindows);

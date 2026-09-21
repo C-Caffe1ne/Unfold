@@ -56,7 +56,13 @@ public sealed class PetWindow : Window
         bubble.IsVisible = tail.IsVisible = tailOutline.IsVisible = false;
         var menu = new ContextMenu();
         var settings = new MenuItem { Header = "설정" }; settings.Click += (_, _) => runtime.ShowSettings();
-        menu.Items.Add(settings); ContextMenu = menu;
+        var hide = new MenuItem { Header = "펫 숨기기", Name = "HidePet" };
+        hide.Click += async (_, _) =>
+        {
+            try { await runtime.HidePet(); }
+            catch (Exception error) { await Ui.Error(this, error); }
+        };
+        menu.Items.Add(settings); menu.Items.Add(hide); ContextMenu = menu;
         animation.PointerPressed += (_, e) =>
         {
             if (!e.GetCurrentPoint(animation).Properties.IsLeftButtonPressed || !animation.OpaqueAt(e.GetPosition(animation))) return;

@@ -21,6 +21,7 @@ internal static class SmokeDiagnostics
         var directory = Path.Combine(AppPaths.DataRoot, "verification"); Directory.CreateDirectory(directory);
         try
         {
+            runtime.ConfirmActionOverride = (_, _, _) => Task.FromResult(0);
             await runtime.Start(false, true);
             await Task.Delay(250);
             var startupMs = elapsed.Elapsed.TotalMilliseconds;
@@ -29,6 +30,8 @@ internal static class SmokeDiagnostics
             Capture(runtime.ActivePet, Path.Combine(directory, "pet.png"));
             var settings = desktop.MainWindow!;
             var settingsLayout = await VerifySettingsLayout(settings, directory);
+            await VerifyResponsiveLayout(settings, directory);
+            await VerifyActionConfirmations(runtime, settings, directory);
             var intervalInput = settings.GetVisualDescendants().OfType<NumericUpDown>().Single(input => input.Name == "ReminderInterval");
             var breakDurationInput = settings.GetVisualDescendants().OfType<NumericUpDown>().Single(input => input.Name == "BreakDurationMinutes");
             if (intervalInput.IsEnabled) throw new InvalidOperationException("The running timer allowed interval editing.");
@@ -144,8 +147,8 @@ internal static class SmokeDiagnostics
             VerifySpeechBubble(reminder, "조금 더 쉬어도 좋아요", DesignSystem.SpeechRestingHeight, session.CurrentStep.Instruction);
             await Task.Delay(100); Capture(reminder, Path.Combine(directory, "speech-overtime.png"));
             var petMenu = reminder.ContextMenu?.Items.OfType<MenuItem>().ToArray() ?? [];
-            if (petMenu.Length != 1 || petMenu[0].Header as string != "설정" || runtime.Reminder.Session != session)
-                throw new InvalidOperationException("The pet context menu still exposes reminder hiding or lost the active session.");
+            if (!petMenu.Select(item => item.Header as string).SequenceEqual(new[] { "설정", "펫 숨기기" }) || runtime.Reminder.Session != session)
+                throw new InvalidOperationException("The pet context menu differs from settings/hide or lost the active session.");
             Press(reminder, "PetBreakComplete");
             var historyFile = Path.Combine(AppPaths.DataRoot, "break-history.json");
             if (runtime.ActiveReminder is not null || BreakHistory.Load(historyFile).Completions.Count != 1 || runtime.CompletionSoundRequests != 1)
@@ -223,7 +226,7 @@ internal static class SmokeDiagnostics
                 workingSetBytes = process.WorkingSet64, managedBytes = GC.GetTotalMemory(false),
                 oneCoreCpuPercent = (process.TotalProcessorTime - cpuBefore).TotalMilliseconds / sample.Elapsed.TotalMilliseconds * 100,
                 characters = runtime.Characters.Count, imageFiles = Directory.GetFiles(directory, "*.png").Length,
-                completedBreaks = runtime.BreakHistory.Completions.Count, simulatedSessionTiming = true,
+                completedBreaks = runtime.BreakHistory.Completions.Count, simulatedSessionTiming = true, simulatedActionConfirmation = true,
                 savedCustomRoutines = runtime.Settings.AdditionalRoutines.Count + (runtime.Settings.CustomRoutine is null ? 0 : 1),
                 workProfiles = runtime.Settings.WorkProfiles.Count, exportedBreaks = 1, simulatedExportDestination = true,
                 timerPausedApplyWaitSeconds = 1.2, timerStopWaitSeconds = 1.2, timerControlsVerified = true, petSpeechDirectionsVerified = true,
@@ -232,6 +235,7 @@ internal static class SmokeDiagnostics
                 petPackInstallUpdateRepairVerified = true, simulatedPackPicker = true, settingsLayout, weeklyReview, reviewLayout, themes,
                 customPetGifAuthoringVerified = true, petCardPreviewVerified = true,
                 sharedDesignDialogsVerified = true, pinnedPageActionsVerified = true,
+                responsiveMinimum = new { width = 640, height = 560, verified = true }, actionConfirmationCancelVerified = true,
                 idleSeconds = PlatformServices.IdleTime().TotalSeconds, os = Environment.OSVersion.ToString(), framework = Environment.Version.ToString() };
             AtomicFile.Write(Path.Combine(directory, "smoke.json"), JsonSerializer.SerializeToUtf8Bytes(report, CharacterLibrary.JsonOptions));
             await runtime.Quit();
@@ -355,18 +359,20 @@ internal static class SmokeDiagnostics
             Press(window, "OpenPetPack"); await Until(() => InstallButton().IsEnabled);
             if (runtime.Characters.Any(character => character.Manifest.Id == manifest.Id)) throw new InvalidOperationException("Preview installed a companion without confirmation.");
             Capture(window, Path.Combine(directory, "pack-preview.png"));
-            Press(window, "InstallPetPack"); await Until(() => Equals(InstallButton().Content, "설치 완료"));
+            Press(window, "InstallPetPack"); await Until(() => PackSaved(window));
             if (runtime.Selected?.Manifest.Id != manifest.Id) throw new InvalidOperationException("Installed companion was not selected.");
             Capture(window, Path.Combine(directory, "pack-installed.png"));
             selectedFile = second; Press(window, "OpenPetPack"); await Until(() => InstallButton().IsEnabled);
-            if (!Equals(InstallButton().Content, "업데이트")) throw new InvalidOperationException("New pack version was not recognized.");
+            if (window.GetVisualDescendants().OfType<TextBlock>().Single(text => text.Name == "PackStatus").Text != "업데이트 준비 완료")
+                throw new InvalidOperationException("New pack version was not recognized.");
             Capture(window, Path.Combine(directory, "pack-update.png"));
-            Press(window, "InstallPetPack"); await Until(() => Equals(InstallButton().Content, "설치 완료"));
+            Press(window, "InstallPetPack"); await Until(() => PackSaved(window));
             var sheet = Path.Combine(runtime.Library.PackagePath(manifest.Id), "spritesheet.png"); File.WriteAllText(sheet, "diagnostic corruption");
             Press(window, "OpenPetPack"); await Until(() => InstallButton().IsEnabled);
-            if (!Equals(InstallButton().Content, "재설치")) throw new InvalidOperationException("Repair was not offered for the installed version.");
+            if (window.GetVisualDescendants().OfType<TextBlock>().Single(text => text.Name == "PackStatus").Text != "재설치 준비 완료")
+                throw new InvalidOperationException("Repair was not offered for the installed version.");
             Capture(window, Path.Combine(directory, "pack-reinstall.png"));
-            Press(window, "InstallPetPack"); await Until(() => Equals(InstallButton().Content, "설치 완료"));
+            Press(window, "InstallPetPack"); await Until(() => PackSaved(window));
             if (!File.ReadAllBytes(sheet).SequenceEqual(File.ReadAllBytes(Path.Combine(source, "spritesheet.png"))))
                 throw new InvalidOperationException("Reinstall did not restore the companion's image.");
             selectedFile = Path.Combine(AppPaths.DataRoot, "broken.unfoldpet"); File.WriteAllText(selectedFile, "not a zip");
@@ -433,7 +439,7 @@ internal static class SmokeDiagnostics
             await Until(() => installWindow.GetVisualDescendants().OfType<Button>().Single(button => button.Name == "PausePackPreview").IsEnabled);
             await Task.Delay(100);
             Capture(installWindow, Path.Combine(directory, "custom-pet-preview.png"));
-            Press(installWindow, "InstallPetPack"); await Until(() => Equals(Install().Content, "설치 완료"));
+            Press(installWindow, "InstallPetPack"); await Until(() => PackSaved(installWindow));
             if (runtime.Selected?.Manifest.Id != pack.Id || !runtime.Clock.Paused)
                 throw new InvalidOperationException("Custom pet installation did not select the pet or changed timer pause.");
         }
@@ -862,6 +868,67 @@ internal static class SmokeDiagnostics
         }
         finally { choice.IsDropDownOpen = false; }
         return new { pinnedActions = true, dirtySave = true, cancelRestores = true, dropdownCaptured = true };
+    }
+    private static bool PackSaved(Window window) =>
+        !window.GetVisualDescendants().OfType<Button>().Single(button => button.Name == "InstallPetPack").IsEnabled &&
+        window.GetVisualDescendants().OfType<TextBlock>().Single(text => text.Name == "PackStatus").Text == "저장했어요.";
+
+    private static async Task VerifyResponsiveLayout(Window window, string directory)
+    {
+        var originalSize = window.ClientSize;
+        var minimum = new Size(window.MinWidth, window.MinHeight);
+        window.MinWidth = 640; window.MinHeight = 560; window.Width = 640; window.Height = 560;
+        async Task Layout()
+        {
+            await Task.Delay(80); window.UpdateLayout();
+            foreach (var scroll in window.GetVisualDescendants().OfType<ScrollViewer>().Where(item => item.IsEffectivelyVisible && item.Bounds.Width > 0))
+                if (scroll.Extent.Width > scroll.Viewport.Width + 1) throw new InvalidOperationException($"Compact page overflows: {scroll.Name}.");
+        }
+        try
+        {
+            Press(window, "SettingsNavTimer"); await Layout();
+            var home = window.GetVisualDescendants().OfType<ScrollViewer>().Single(item => item.Name == "SettingsDashboardScroll");
+            home.ScrollToHome(); await Layout(); Capture(window, Path.Combine(directory, "responsive-home-top.png"));
+            home.ScrollToEnd(); await Layout(); Capture(window, Path.Combine(directory, "responsive-home-bottom.png"));
+            Press(window, "SettingsNavSettings"); await Layout();
+            var preferences = window.GetVisualDescendants().OfType<ScrollViewer>().Single(item => item.Name == "SettingsPreferencesScroll");
+            preferences.ScrollToHome(); await Layout(); Capture(window, Path.Combine(directory, "responsive-settings-top.png"));
+            preferences.ScrollToEnd(); await Layout(); Capture(window, Path.Combine(directory, "responsive-settings-bottom.png"));
+            Press(window, "SettingsNavReview"); await Layout(); Capture(window, Path.Combine(directory, "responsive-review.png"));
+            Press(window, "SettingsNavPacks"); await Layout();
+            var tabs = window.GetVisualDescendants().OfType<TabControl>().Single(item => item.Name == "PetManagementTabs");
+            tabs.SelectedIndex = 0; await Layout(); Capture(window, Path.Combine(directory, "responsive-pet-open.png"));
+            tabs.SelectedIndex = 1; await Layout();
+            var builder = window.GetVisualDescendants().OfType<ScrollViewer>().Single(item => item.Name == "PageBodyScroll");
+            builder.ScrollToEnd(); await Layout(); Capture(window, Path.Combine(directory, "responsive-pet-create.png"));
+        }
+        finally
+        {
+            window.MinWidth = minimum.Width; window.MinHeight = minimum.Height;
+            window.Width = originalSize.Width; window.Height = originalSize.Height;
+            Press(window, "SettingsNavTimer"); await Task.Delay(80); window.UpdateLayout();
+        }
+    }
+    private static async Task VerifyActionConfirmations(AppRuntime runtime, Window owner, string directory)
+    {
+        var original = runtime.ConfirmActionOverride;
+        runtime.ConfirmActionOverride = null;
+        try
+        {
+            foreach (var (action, capture) in new[] { ("TimerStop", "confirm-stop.png"), ("SettingsQuit", "confirm-quit.png") })
+            {
+                var stopped = runtime.Clock.Stopped;
+                Press(owner, action);
+                await Until(() => owner.OwnedWindows.Any());
+                var dialog = owner.OwnedWindows.Single();
+                AppRuntime.PrepareDiagnosticWindow(dialog); await Task.Delay(80); dialog.UpdateLayout();
+                Capture(dialog, Path.Combine(directory, capture));
+                Press(dialog, "취소"); await Task.Delay(80);
+                if (runtime.Clock.Stopped != stopped || !owner.IsVisible || owner.OwnedWindows.Any())
+                    throw new InvalidOperationException("Cancelling an action confirmation changed the app state.");
+            }
+        }
+        finally { runtime.ConfirmActionOverride = original; }
     }
     private static async Task Until(Func<bool> ready)
     {

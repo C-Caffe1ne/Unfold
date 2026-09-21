@@ -12,6 +12,10 @@ public sealed partial class SettingsWindow
 {
     private readonly ComboBox bubbleDirection = new() { Name = "BubbleDirection" };
     private readonly CheckBox soundsEnabled = new() { Name = "ReminderSoundsEnabled", Content = "알림 효과음 사용" };
+    private readonly Slider soundVolume = new() { Name = "ReminderVolumePercent", Minimum = 0, Maximum = 100,
+        TickFrequency = 1, IsSnapToTickEnabled = true, SmallChange = 1, LargeChange = 10, Value = 100, Classes = { "thumb-hover-slider" } };
+    private readonly TextBlock soundVolumeValue = new() { Name = "ReminderVolumeValue", Text = "100%",
+        FontSize = DesignSystem.Body, Foreground = DesignSystem.Cream, VerticalAlignment = VerticalAlignment.Center };
     private readonly Button preferencesSave = new() { Name = "SavePreferences", Content = "저장", Classes = { "unfold-action", "primary" }, IsEnabled = false };
     private readonly Button preferencesCancel = new() { Name = "CancelPreferences", Content = "취소", Classes = { "unfold-action", "quiet" } };
     private readonly TextBlock preferencesStatus = new() { Name = "PreferencesStatus", IsVisible = false,
@@ -23,10 +27,10 @@ public sealed partial class SettingsWindow
     private int soundImports;
     private bool savingPreferences, restoringPreferences;
 
-    private sealed record PreferencesValues(BubbleDirection Direction, bool SoundsEnabled,
+    private sealed record PreferencesValues(BubbleDirection Direction, bool SoundsEnabled, int VolumePercent,
         string? DueId, string? CompletedId, string? DueName, string? CompletedName, int Idle, int Snooze, bool DebugTools)
     {
-        public static PreferencesValues From(AppSettings settings) => new(settings.BubbleDirection, settings.ReminderSoundsEnabled,
+        public static PreferencesValues From(AppSettings settings) => new(settings.BubbleDirection, settings.ReminderSoundsEnabled, settings.ReminderVolumePercent,
             settings.ReminderSoundId, settings.CompletionSoundId, settings.ReminderSoundName, settings.CompletionSoundName,
             settings.IdleMinutes, settings.SnoozeMinutes, settings.DebugToolsEnabled);
     }
@@ -37,7 +41,7 @@ public sealed partial class SettingsWindow
         static bool ValidMinutes(NumericUpDown input) => input.Value is decimal number && number is >= 1 and <= 60 &&
             decimal.Truncate(number) == number && decimal.TryParse(input.Text, NumberStyles.Number, CultureInfo.CurrentCulture, out var text) && text == number;
         if (bubbleDirection.SelectedItem is not BubbleDirection direction || !ValidMinutes(idle) || !ValidMinutes(snooze)) return false;
-        value = new(direction, soundsEnabled.IsChecked == true, dueSoundId, completedSoundId, dueSoundName, completedSoundName,
+        value = new(direction, soundsEnabled.IsChecked == true, (int)Math.Round(soundVolume.Value), dueSoundId, completedSoundId, dueSoundName, completedSoundName,
             (int)idle.Value!.Value, (int)snooze.Value!.Value, debugToolsEnabled.IsChecked == true);
         return true;
     }
@@ -71,6 +75,7 @@ public sealed partial class SettingsWindow
         try
         {
             bubbleDirection.SelectedItem = saved.Direction; soundsEnabled.IsChecked = saved.SoundsEnabled;
+            soundVolume.Value = saved.VolumePercent;
             debugToolsEnabled.IsChecked = saved.DebugTools;
             idle.Value = saved.Idle; snooze.Value = saved.Snooze;
             // Restore raw invalid/empty text too, including when the numeric Value has not changed.
@@ -108,7 +113,7 @@ public sealed partial class SettingsWindow
             var current = runtime.Settings;
             await runtime.UpdateSettings(current with
             {
-                BubbleDirection = pending.Direction, ReminderSoundsEnabled = pending.SoundsEnabled,
+                BubbleDirection = pending.Direction, ReminderSoundsEnabled = pending.SoundsEnabled, ReminderVolumePercent = pending.VolumePercent,
                 ReminderSoundId = pending.DueId, CompletionSoundId = pending.CompletedId,
                 ReminderSoundName = pending.DueName, CompletionSoundName = pending.CompletedName,
                 IdleMinutes = pending.Idle, SnoozeMinutes = pending.Snooze, DebugToolsEnabled = pending.DebugTools,

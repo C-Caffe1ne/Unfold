@@ -46,7 +46,7 @@ public sealed class StretchClock
         Remaining -= active;
         if (Remaining > TimeSpan.Zero)
         {
-            if (active > TimeSpan.Zero && !advanceWarned && Remaining <= TimeSpan.FromMinutes(5))
+            if (Interval > TimeSpan.FromMinutes(5) && active > TimeSpan.Zero && !advanceWarned && Remaining <= TimeSpan.FromMinutes(5))
             { advanceWarned = true; AdvanceWarningDue = true; }
             return false;
         }

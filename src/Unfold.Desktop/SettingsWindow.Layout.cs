@@ -37,9 +37,33 @@ public sealed partial class SettingsWindow
         var details = Ui.Column(BuildHomeTimingCard(), BuildReviewCard()); details.Spacing = Inset;
         var detailsScroll = new ScrollViewer { Name = "SettingsDetailsScroll", Content = details,
             HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
-        var dashboard = new Grid { ColumnDefinitions = new("*,20,300") };
+        var dashboard = new Grid { Name = "SettingsDashboard", ColumnDefinitions = new("*,20,300") };
         dashboard.Children.Add(main); Grid.SetColumn(detailsScroll, 2); dashboard.Children.Add(detailsScroll);
-        dashboardPage = dashboard; settingsPageHost.Content = dashboard;
+        var dashboardScroll = new ScrollViewer { Name = "SettingsDashboardScroll", Content = dashboard,
+            HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
+            HorizontalContentAlignment = HorizontalAlignment.Stretch, VerticalContentAlignment = VerticalAlignment.Stretch };
+        bool? compactLayout = null;
+        void UpdateDashboardLayout()
+        {
+            var compact = (ClientSize.Width > 0 ? ClientSize.Width : Width) < 860;
+            if (compactLayout == compact) return;
+            compactLayout = compact;
+            dashboardScroll.Offset = default;
+            dashboardScroll.VerticalScrollBarVisibility = compact ? ScrollBarVisibility.Auto : ScrollBarVisibility.Disabled;
+            dashboard.ColumnDefinitions = new(compact ? "*" : "*,20,300");
+            dashboard.RowDefinitions = new(compact ? "Auto,20,Auto" : "*");
+            main.RowDefinitions[2].Height = compact ? new GridLength(420) : new GridLength(1, GridUnitType.Star);
+            Grid.SetColumn(detailsScroll, compact ? 0 : 2); Grid.SetRow(detailsScroll, compact ? 2 : 0);
+            detailsScroll.VerticalScrollBarVisibility = compact ? ScrollBarVisibility.Disabled : ScrollBarVisibility.Auto;
+            if (compact && FocusManager?.GetFocusedElement() is Control focused && focused.GetVisualAncestors().Contains(dashboard))
+                Dispatcher.UIThread.Post(() =>
+                {
+                    if (compactLayout == true && ReferenceEquals(FocusManager?.GetFocusedElement(), focused)) focused.BringIntoView();
+                }, DispatcherPriority.Loaded);
+        }
+        SizeChanged += (_, _) => UpdateDashboardLayout();
+        UpdateDashboardLayout();
+        dashboardPage = dashboardScroll; settingsPageHost.Content = dashboardScroll;
         var frame = new Grid { ColumnDefinitions = new("64,16,*") };
         frame.Children.Add(BuildNavigation()); Grid.SetColumn(settingsPageHost, 2); frame.Children.Add(settingsPageHost);
         return new Border { Name = "SettingsFrame", Margin = new(16), Padding = new(14), CornerRadius = new(32),
@@ -48,10 +72,7 @@ public sealed partial class SettingsWindow
 
     private Border BuildNavigation()
     {
-        var rail = new Grid { RowDefinitions = new("Auto,24,*,Auto"), Margin = new(7, 12) };
-        var logo = new Border { Width = 44, Height = 44, Background = Accent, CornerRadius = new(22),
-            Child = Glyph("M12,1 C13,8 16,11 23,12 C16,13 13,16 12,23 C11,16 8,13 1,12 C8,11 11,8 12,1 Z", Ink, 24) };
-        rail.Children.Add(logo);
+        var rail = new Grid { Name = "SettingsNavigationRail", RowDefinitions = new("*,Auto"), Margin = new(7, 12) };
         var timer = Nav("SettingsNavTimer", "타이머 탭", "M12,2 A10,10 0 1 0 12,22 A10,10 0 1 0 12,2 M11,6 H13 V11 H17 V13 H11 Z", OpenDashboard);
         var settings = Nav("SettingsNavSettings", "설정 탭", "M19.4,13 A7.8,7.8 0 0 0 19.45,11 L21.1,9.7 L19.1,6.3 L17.05,7.1 A8,8 0 0 0 15.35,6.1 L15,3.9 H11 L10.65,6.1 A8,8 0 0 0 8.95,7.1 L6.9,6.3 L4.9,9.7 L6.55,11 A7.8,7.8 0 0 0 6.6,13 L4.9,14.3 L6.9,17.7 L8.95,16.9 A8,8 0 0 0 10.65,17.9 L11,20.1 H15 L15.35,17.9 A8,8 0 0 0 17.05,16.9 L19.1,17.7 L21.1,14.3 Z M13,10 A3,3 0 1 1 13,16 A3,3 0 1 1 13,10 Z", OpenPreferences);
         var review = Nav("SettingsNavReview", "기록 · 내보내기 탭", "M3,14 H7 V21 H3 Z M10,8 H14 V21 H10 Z M17,3 H21 V21 H17 Z", OpenReview);
@@ -60,11 +81,11 @@ public sealed partial class SettingsWindow
         navigationItems["dashboard"] = timer; navigationItems["settings"] = settings;
         navigationItems["review"] = review;
         SelectNavigation("dashboard");
-        var links = Ui.Column(timer, settings, review, pets);
-        links.Spacing = 12; Grid.SetRow(links, 2); rail.Children.Add(links);
+        var links = Ui.Column(timer, pets, review, settings); links.Name = "SettingsNavigationLinks";
+        links.Spacing = 12; rail.Children.Add(links);
         var quit = Nav("SettingsQuit", "Unfold 종료", "M11,2 H13 V12 H11 Z M7,4 L8,6 A8,8 0 1 0 16,6 L17,4 A10,10 0 1 1 7,4 Z", runtime.Quit);
         var bottom = Ui.Column(BuildThemeButton(), quit); bottom.Spacing = 12;
-        Grid.SetRow(bottom, 3); rail.Children.Add(bottom);
+        Grid.SetRow(bottom, 1); rail.Children.Add(bottom);
         return new Border { Background = Surface, CornerRadius = new(28), Child = rail };
     }
 
