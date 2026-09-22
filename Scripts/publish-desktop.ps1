@@ -31,6 +31,10 @@ dotnet publish (Join-Path $projectRoot 'src/Unfold.Desktop/Unfold.Desktop.csproj
 if ($LASTEXITCODE -ne 0) { throw "Publish failed ($LASTEXITCODE)." }
 Copy-Item -LiteralPath (Join-Path $projectRoot 'docs/cross-platform.md') -Destination (Join-Path $publishDirectory 'README.md')
 Copy-Item -LiteralPath (Join-Path $projectRoot 'THIRD-PARTY-NOTICES.md') -Destination $publishDirectory
+$releaseNotes = Join-Path $projectRoot "docs/releases/v$version.md"
+if (Test-Path -LiteralPath $releaseNotes) {
+    Copy-Item -LiteralPath $releaseNotes -Destination (Join-Path $packageDirectory 'RELEASE-NOTES.md')
+}
 if ($Runtime.StartsWith('win-')) {
     $launcher = Join-Path $packageDirectory 'Unfold.cmd'
     Set-Content -LiteralPath $launcher -Encoding UTF8 -Value @'

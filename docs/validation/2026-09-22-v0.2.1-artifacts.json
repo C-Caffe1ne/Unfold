@@ -1,0 +1,108 @@
+{
+  "version": "0.2.1",
+  "sourceCommit": "a0dead4050a7e7ac39567fdce4d3b5e5c2345915",
+  "host": "macOS-26.6.2-arm64-arm-64bit",
+  "artifacts": [
+    {
+      "rid": "osx-arm64",
+      "file": "artifacts/Unfold-v0.2.1-osx-arm64.zip",
+      "bytes": 69738671,
+      "sha256": "4835dff95f6aea7d635105ee60557d4d84ef0957422d6e284eab2d898827d110",
+      "version": "0.2.1",
+      "characterIds": [
+        "bori-rabbit",
+        "default-cat",
+        "hedgehog",
+        "penguin",
+        "puppy-dog"
+      ],
+      "characterFilesMatchSource": true,
+      "archiveCrcValid": true,
+      "releaseNotesIncluded": true,
+      "mediaToolsIncluded": true,
+      "selfContained": true,
+      "binaryFormat": "Mach-O 64-bit executable arm64",
+      "signature": "ad-hoc",
+      "bundleBuild": "4",
+      "signatureVerifiedAfterExtraction": true
+    },
+    {
+      "rid": "osx-arm64",
+      "file": "artifacts/Unfold-v0.2.1-osx-arm64.tar.gz",
+      "bytes": 69389393,
+      "sha256": "0aaab1486ee00f6a2bd2327d7c8b299ed11051eabd01d8c8665153065f691b16",
+      "version": "0.2.1",
+      "characterIds": [
+        "bori-rabbit",
+        "default-cat",
+        "hedgehog",
+        "penguin",
+        "puppy-dog"
+      ],
+      "characterFilesMatchSource": true,
+      "archiveReadValid": true,
+      "releaseNotesIncluded": true
+    },
+    {
+      "rid": "osx-x64",
+      "file": "artifacts/Unfold-v0.2.1-osx-x64.zip",
+      "bytes": 73631600,
+      "sha256": "1c39126bcb844be84294b6f68f824b8b0d0e33a2a4d9681f911866d82a048de1",
+      "version": "0.2.1",
+      "characterIds": [
+        "bori-rabbit",
+        "default-cat",
+        "hedgehog",
+        "penguin",
+        "puppy-dog"
+      ],
+      "characterFilesMatchSource": true,
+      "archiveCrcValid": true,
+      "releaseNotesIncluded": true,
+      "mediaToolsIncluded": true,
+      "selfContained": true,
+      "binaryFormat": "Mach-O 64-bit executable x86_64",
+      "signature": "ad-hoc",
+      "bundleBuild": "4",
+      "signatureVerifiedAfterExtraction": true
+    },
+    {
+      "rid": "osx-x64",
+      "file": "artifacts/Unfold-v0.2.1-osx-x64.tar.gz",
+      "bytes": 73281643,
+      "sha256": "138d2a916337094ecc614144b1237dd96a2d3c1c7ed64568322ab25c56cd5736",
+      "version": "0.2.1",
+      "characterIds": [
+        "bori-rabbit",
+        "default-cat",
+        "hedgehog",
+        "penguin",
+        "puppy-dog"
+      ],
+      "characterFilesMatchSource": true,
+      "archiveReadValid": true,
+      "releaseNotesIncluded": true
+    },
+    {
+      "rid": "win-x64",
+      "file": "artifacts/Unfold-v0.2.1-win-x64.zip",
+      "bytes": 100944612,
+      "sha256": "848cf9a115830c3312296ba03071d8afa3c1026641795c4a6a81478952b03e5f",
+      "version": "0.2.1",
+      "characterIds": [
+        "bori-rabbit",
+        "default-cat",
+        "hedgehog",
+        "penguin",
+        "puppy-dog"
+      ],
+      "characterFilesMatchSource": true,
+      "archiveCrcValid": true,
+      "releaseNotesIncluded": true,
+      "mediaToolsIncluded": true,
+      "selfContained": true,
+      "binaryFormat": "PE32+ executable (GUI) x86-64, for MS Windows",
+      "signature": "unsigned"
+    }
+  ]
+}

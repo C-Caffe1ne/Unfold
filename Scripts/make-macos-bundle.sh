@@ -22,6 +22,10 @@ rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp -R "$OUT/." "$APP/Contents/MacOS/"
 cp "$ROOT/THIRD-PARTY-NOTICES.md" "$APP/Contents/Resources/"
+cp "$ROOT/docs/cross-platform.md" "$APP/Contents/Resources/README.md"
+if [ -f "$ROOT/docs/releases/v$VERSION.md" ]; then
+  cp "$ROOT/docs/releases/v$VERSION.md" "$APP/Contents/Resources/RELEASE-NOTES.md"
+fi
 chmod +x "$APP/Contents/MacOS/Unfold"
 cat > "$APP/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
@@ -33,7 +37,7 @@ cat > "$APP/Contents/Info.plist" <<PLIST
 <key>CFBundleExecutable</key><string>Unfold</string>
 <key>CFBundlePackageType</key><string>APPL</string>
 <key>CFBundleShortVersionString</key><string>$VERSION</string>
-<key>CFBundleVersion</key><string>3</string>
+<key>CFBundleVersion</key><string>4</string>
 <key>LSMinimumSystemVersion</key><string>13.0</string>
 <key>LSUIElement</key><true/>
 <key>NSHighResolutionCapable</key><true/>

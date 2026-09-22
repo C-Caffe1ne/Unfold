@@ -1,7 +1,12 @@
 # Unfold desktop — Windows and macOS
 
-Unfold is a C#/.NET 10 and Avalonia stretch reminder with a desktop cat. Published
+Unfold is a C#/.NET 10 and Avalonia stretch reminder with desktop pets. Published
 packages include .NET. Swift, Xcode, and the Piskel web runtime are not required.
+
+Version 0.2.1 includes Mochi (cat), 보리 (rabbit), 강아지 (dog), 고슴도치 (hedgehog)
+and 펭귄 (penguin). Choose them from Home without installing separate packs.
+Release notes are included as `RELEASE-NOTES.md` at the Windows portable folder's
+top level and inside `Unfold.app/Contents/Resources/` on macOS.
 
 ## Windows installation
 
@@ -36,7 +41,7 @@ notarization or staple a ticket.
 
 - Tray/menu bar: countdown and current state, 설정, 펫 숨기기/펫 표시,
   시작/일시정지/계속, 타이머 정지, Unfold 종료.
-- Pet right-click menu: 설정.
+- Pet right-click menu: 설정, 펫 숨기기.
 - Settings: the timer home contains stretch interval and break duration; a separate settings tab contains idle time, snooze time, stretch/completion sounds and bubble position; character selection, pet visibility,
   launch at login, **Review & export**, **펫 추가**, today's confirmed breaks, and timer controls.
 - Pet speech reminder: **n분 뒤에**, **휴식 시작**, and **완료**. The bubble remains visible while its reminder state is active.
@@ -54,12 +59,14 @@ The timer state badge and tray status explicitly show running, paused, stopped, 
 or break-held state. The home card's **스트레칭 시간 (분)** is disabled while running and accepts whole
 minutes from 5 to 240 in one-minute steps while paused or stopped. **휴식 시간 (분)** accepts 1–10
 minutes and may be changed while working because it applies to the next break. A typed or stepped value
-does not change behavior until the home card's **적용** is pressed. The Settings tab uses its own
-**적용** for idle and snooze time. Applying a new stretch interval keeps Pause or Stop intact.
+does not change behavior until the home card's **저장** is pressed. The Settings tab uses its own
+**취소·저장** for idle/snooze time and notification preferences. Saving a new stretch interval keeps Pause or Stop intact.
 
-A plain click on bundled Mochi keeps its current animation; Mochi has no click
-clip. The pet stretches when the user starts the routine and then returns to idle. A hidden
-pet stays hidden while the reminder window still appears.
+All five bundled pets provide ten behaviors. Eligible idle time triggers sleep, looking around
+or yawning; a short click squashes, bounces and plays surprise followed by looking around.
+The third consecutive snooze triggers sulking. Starting a break plays one stretch before walking
+inside the current monitor's work area; completion, stop, hiding or selecting another pet ends movement.
+A hidden pet can appear temporarily for a new reminder without changing the saved visibility setting.
 
 An open reminder holds the work timer and retains the break duration captured when it opened. Completion schedules a full work interval;
 snooze schedules five active minutes; skip/close keeps the remaining work interval.
@@ -72,9 +79,8 @@ legacy data compatibility are described in the [compatibility guide](personaliza
 - Transparent-pixel click-through is implemented for Windows only. macOS rejects
   transparent pixels inside the app's hit test, but does not pass those clicks
   through to another application's window.
-- System notification delivery depends on OS settings. The in-app reminder works
-  independently and activates its window; interruption during focused work needs
-  actual user testing.
+- Reminders use the pet speech bubble, not an OS notification or a separate reminder window.
+  Interruption during focused work still needs actual user testing.
 - Windows/macOS login launch, multi-monitor dragging, display changes, suspend,
   full-screen behavior, and installation trust need tests on the target OS.
 - A portable build does not include an installer or an automatic updater.
@@ -104,20 +110,20 @@ normal UI entry point in the MVP. Legacy Swift preferences and sandbox data are
 neither migrated nor deleted automatically.
 
 **펫 추가** opens a local `.unfoldpet` file for preview before installation.
-Preview controls offer light/dark backgrounds, 100–200% display size, Pause/Resume,
+Preview controls use the current theme background and offer 100–200% display size, Pause/Resume,
 and Replay. Display size affects this preview only. Completed reactions return to
 resting while keeping the selection available for replay.
-The dialog offers Install for a new ID, Update for a newer content version, or Reinstall
-for the same version. Reinstall restores damaged/missing runtime images from a saved pack.
+The **저장** action installs a new ID, updates a newer content version, or reinstalls
+the same version. Reinstall restores damaged/missing runtime images from a saved pack.
 Built-in companions and existing user-authored IDs cannot be replaced. Invalid archives,
 hash/decoder failures and changed installed files are rejected. Successful installation selects
 the companion without resuming a paused timer. There is no store, automatic download, or
 account purchase recovery. See the [pet pack guide](pet-packs.md).
 
 The sidebar **펫 추가** page switches between **펫 팩 열기** and **펫 팩 만들기** in place.
-**파일 가져오기** on the create tab imports GIF/MP4 files. Drafts survive tab navigation and hiding the settings window.
+The action cards on the create tab import GIF/MP4 files. Drafts survive tab navigation and hiding the settings window.
 Assign files to five supported actions (idle required), preview each, then save a `.unfoldpet`
-and install it through the same preview dialog. MP4 conversion is local, silent, limited to
+and install it through the same preview page. MP4 conversion is local, silent, limited to
 10 seconds/128 MiB, and resized proportionally to at most 192px at 12 fps. GIF import preserves
 source pixels/timing. Opaque video backgrounds remain visible; there is no background removal.
 
@@ -181,7 +187,7 @@ use a new empty directory, never a real user library. The diagnostic opens off-s
 windows, suppresses system notifications, creates and edits test artwork, checks a
 save/reopen round trip, edits routines/profiles, exercises reminder start/confirm/snooze/close,
 exports review CSV and checks timer controls. It also previews, installs, updates and repairs a
-diagnostic pet pack, and rejects a malformed archive. It captures 43 PNGs, records a short process
+diagnostic pet pack, and rejects a malformed archive. It captures diagnostic PNGs, records a short process
 sample, and exits. Read `verification/smoke.json` in that profile.
 
 The diagnostic advances the break session clock programmatically and confirms via
