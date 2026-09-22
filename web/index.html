@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="oat">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<title>Unfold — 잠깐 쉬고, 내 리듬으로 돌아오세요</title>
+<meta name="description" content="책상에서 오래 일하는 사람을 위한 데스크톱 휴식 동료. Windows와 macOS에서 동작하고, 내 반려동물을 펫으로 만들 수 있습니다.">
+<link rel="stylesheet" href="styles/main.css">
+<link rel="stylesheet" href="styles/pages.css">
+</head>
+<body>
+<a class="skip-link" href="#main">본문으로 건너뛰기</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="index.html">
+      <span class="brand-mark" aria-hidden="true">U</span>
+      Unfold
+    </a>
+
+    <nav class="site-nav" id="site-nav" aria-label="주요 메뉴">
+      <a href="#features">기능</a>
+      <a href="#themes">테마</a>
+      <a href="#privacy">프라이버시</a>
+      <a href="pricing.html">가격</a>
+      <a href="install.html">설치 안내</a>
+    </nav>
+
+    <div class="header-actions">
+      <div class="theme-picker" role="group" aria-label="사이트 테마 선택">
+        <button class="theme-swatch" type="button" data-theme-value="oat" data-value="oat" aria-pressed="true" aria-label="다정한 오트 테마"></button>
+        <button class="theme-swatch" type="button" data-theme-value="sage" data-value="sage" aria-pressed="false" aria-label="숨 고르는 숲 테마"></button>
+        <button class="theme-swatch" type="button" data-theme-value="midnight" data-value="midnight" aria-pressed="false" aria-label="밤의 버터 테마"></button>
+        <button class="theme-swatch" type="button" data-theme-value="plum" data-value="plum" aria-pressed="false" aria-label="유연한 라일락 테마"></button>
+      </div>
+      <a class="btn btn-quiet" href="login.html">로그인</a>
+      <a class="btn btn-primary" href="signup.html">출시 알림 받기</a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="메뉴 열기">☰</button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- 히어로 -->
+  <section class="hero">
+    <div class="wrap hero-inner">
+      <div>
+        <h1 class="hero-title">잠깐 쉬고,<br><em>내 리듬</em>으로 돌아오세요</h1>
+        <p class="hero-desc">
+          작업 시간을 재다가 때가 되면 펫이 말을 겁니다. 짧게 쉬고 완료를 누르면
+          그 흔적이 내 컴퓨터에 남습니다. 연속 기록도, 벌칙도 없습니다.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary btn-lg" href="signup.html">출시 소식 받기</a>
+          <a class="btn btn-quiet btn-lg" href="#features">어떻게 동작하나요</a>
+        </div>
+        <p class="hero-meta">Windows 10 이상 · macOS 12 이상 · 일회성 구매 예정 · 가격 준비 중</p>
+      </div>
+
+      <div class="hero-visual">
+        <div class="hero-shot">
+          <img src="assets/app-home.png" alt="Unfold 설정 창. 타이머 카드와 펫, 오늘의 기록이 함께 보인다." width="1120" height="800">
+        </div>
+        <img class="hero-pet" src="assets/pet-stretch.gif" alt="고양이 펫 Mochi가 기지개를 켜는 모습" width="132" height="132">
+      </div>
+    </div>
+  </section>
+
+  <!-- 핵심 루프 -->
+  <section class="section" id="features">
+    <div class="wrap">
+      <div class="section-head center">
+        <span class="eyebrow">동작 방식</span>
+        <h2 class="section-title">알림 하나로 끝나지 않습니다</h2>
+        <p class="section-desc">
+          쉬자고 말하고 사라지는 대신, 휴식을 시작하고 마치는 과정을 끝까지 함께합니다.
+        </p>
+      </div>
+
+      <ol class="grid grid-4 loop-list">
+        <li class="loop-item">
+          <h3 class="card-title">작업 시간을 잰다</h3>
+          <p class="card-desc">
+            5분에서 240분까지 정합니다. 자리를 비우면 자동으로 멈추고, 절전 구간은
+            작업 시간에 넣지 않습니다.
+          </p>
+        </li>
+        <li class="loop-item">
+          <h3 class="card-title">펫이 말을 건다</h3>
+          <p class="card-desc">
+            때가 되면 말풍선으로 휴식을 제안합니다. 지금 곤란하면 미루고,
+            여유가 생겼을 때 시작하면 됩니다.
+          </p>
+        </li>
+        <li class="loop-item">
+          <h3 class="card-title">함께 쉰다</h3>
+          <p class="card-desc">
+            1~10분을 고를 수 있습니다. 시작하면 펫이 기지개를 켭니다.
+            시간이 지나도 저절로 끝나지 않습니다.
+          </p>
+        </li>
+        <li class="loop-item">
+          <h3 class="card-title">기록이 남는다</h3>
+          <p class="card-desc">
+            완료를 눌러야만 기록합니다. 창을 닫거나 컴퓨터가 잠든 것은
+            완료로 치지 않습니다.
+          </p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 기능 하이라이트 -->
+  <section class="section section-alt">
+    <div class="wrap">
+
+      <!-- 커스텀 펫 -->
+      <article class="feature">
+        <div>
+          <span class="eyebrow">Unfold에만 있습니다</span>
+          <h2 class="feature-title">내 반려동물을 펫으로 만드세요</h2>
+          <p class="feature-desc">
+            찍어 둔 영상이나 GIF를 다섯 가지 행동에 배정하면 내 펫이 됩니다.
+            쉬는 모습, 휴식 안내, 스트레칭, 휴식 완료, 클릭 반응까지.
+          </p>
+          <ul class="check-list">
+            <li>변환이 전부 내 컴퓨터에서 일어납니다. 영상을 어디에도 올리지 않습니다.</li>
+            <li>GIF는 원본 픽셀과 프레임 시간을 그대로 보존합니다.</li>
+            <li>만든 펫은 <code>.unfoldpet</code> 파일로 저장해 두고 언제든 다시 설치할 수 있습니다.</li>
+          </ul>
+        </div>
+        <div class="feature-media">
+          <img src="assets/app-custom-pet.png" alt="펫 팩 만들기 화면. 쉬는 모습·휴식 안내·스트레칭·휴식 완료·클릭 반응 다섯 개의 행동 카드가 보인다." width="1120" height="800">
+        </div>
+      </article>
+
+      <!-- 어디서든 -->
+      <article class="feature feature-reverse">
+        <div>
+          <span class="eyebrow">어디서 일하든</span>
+          <h2 class="feature-title">Steam도, 브라우저도 필요 없습니다</h2>
+          <p class="feature-desc">
+            트레이와 메뉴바에 바로 올라가는 독립 실행 앱입니다. 에디터를 쓰든
+            디자인 툴을 쓰든 터미널을 쓰든 펫은 화면에 그대로 있습니다.
+          </p>
+          <ul class="check-list">
+            <li>Windows와 macOS에서 사용할 수 있습니다.</li>
+            <li>게임 클라이언트나 브라우저 확장에 얹히지 않습니다.</li>
+            <li>펫 크기는 50%에서 150%까지, 위치는 끌어서 옮기고 그대로 기억합니다.</li>
+          </ul>
+        </div>
+        <div class="feature-media">
+          <img src="assets/app-speech.png" alt="화면에 떠 있는 펫과 휴식 초대 말풍선" width="524" height="192">
+        </div>
+      </article>
+
+      <!-- 벌칙 없음 -->
+      <article class="feature">
+        <div>
+          <span class="eyebrow">부담 없이</span>
+          <h2 class="feature-title">연속 기록도, 벌칙도 없습니다</h2>
+          <p class="feature-desc">
+            며칠 건너뛰었다고 펫이 아프거나 사라지지 않습니다. 달성률로 다그치지도
+            않습니다. 쉬어 간 날이 보이면 그걸로 충분합니다.
+          </p>
+          <ul class="check-list">
+            <li>7일 단위로 돌아보고, 원하면 CSV로 내보냅니다.</li>
+            <li>기록은 90일까지만 두고 오래된 것은 자동으로 지웁니다.</li>
+            <li>완료를 누른 기록일 뿐, 운동량을 측정하지 않습니다.</li>
+          </ul>
+        </div>
+        <div class="feature-media">
+          <img src="assets/app-review.png" alt="기록 화면. 7일간의 완료 횟수와 기록된 시간 요약이 보인다." width="1120" height="800">
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- 테마 -->
+  <section class="section" id="themes">
+    <div class="wrap">
+      <div class="section-head center">
+        <span class="eyebrow">네 가지 테마</span>
+        <h2 class="section-title">책상에 어울리는 색으로</h2>
+        <p class="section-desc">
+          눌러 보세요. 이 사이트의 색도 같이 바뀝니다.
+        </p>
+      </div>
+
+      <div class="theme-demo">
+        <div role="group" aria-label="앱 테마 미리보기 선택">
+          <button class="theme-option" type="button" data-theme-value="oat" aria-pressed="true">
+            <span class="theme-dot theme-dot-oat" aria-hidden="true"></span>
+            다정한 오트
+          </button>
+          <button class="theme-option" type="button" data-theme-value="sage" aria-pressed="false">
+            <span class="theme-dot theme-dot-sage" aria-hidden="true"></span>
+            숨 고르는 숲
+          </button>
+          <button class="theme-option" type="button" data-theme-value="midnight" aria-pressed="false">
+            <span class="theme-dot theme-dot-midnight" aria-hidden="true"></span>
+            밤의 버터
+          </button>
+          <button class="theme-option" type="button" data-theme-value="plum" aria-pressed="false">
+            <span class="theme-dot theme-dot-plum" aria-hidden="true"></span>
+            유연한 라일락
+          </button>
+        </div>
+
+        <div class="theme-preview">
+          <img src="assets/theme-oat.png" alt="다정한 오트 테마가 적용된 Unfold 화면" data-theme-shot="oat" width="1120" height="800">
+          <img src="assets/theme-sage.png" alt="숨 고르는 숲 테마가 적용된 Unfold 화면" data-theme-shot="sage" width="1120" height="800" hidden>
+          <img src="assets/theme-midnight.png" alt="밤의 버터 테마가 적용된 Unfold 화면" data-theme-shot="midnight" width="1120" height="800" hidden>
+          <img src="assets/theme-plum.png" alt="유연한 라일락 테마가 적용된 Unfold 화면" data-theme-shot="plum" width="1120" height="800" hidden>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 프라이버시 -->
+  <section class="section section-alt" id="privacy">
+    <div class="wrap">
+      <div class="section-head center">
+        <span class="eyebrow">프라이버시</span>
+        <h2 class="section-title">Google 계정과 구매 확인 정보만</h2>
+        <p class="section-desc">
+          Google 로그인과 구매 확인에 필요한 정보만 다룰 예정입니다.
+          쉬어 간 기록은 내 컴퓨터를 떠나지 않습니다.
+        </p>
+      </div>
+
+      <div class="card card-narrow">
+        <table class="data-table">
+          <caption>Unfold가 다루는 정보와 저장 위치</caption>
+          <thead>
+            <tr>
+              <th scope="col">항목</th>
+              <th scope="col">어디에 있나</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>이메일 주소</td>
+              <td><span class="tag tag-sent">서버 예정</span> Google 계정 확인용</td>
+            </tr>
+            <tr>
+              <td>구매·체험 상태</td>
+              <td><span class="tag tag-sent">서버 예정</span> 라이선스 확인용</td>
+            </tr>
+            <tr>
+              <td>기기 식별값</td>
+              <td><span class="tag tag-sent">서버 예정</span> 원본이 아닌 해시로만 저장</td>
+            </tr>
+            <tr>
+              <td>휴식 완료 기록</td>
+              <td><span class="tag tag-local">내 컴퓨터</span> 전송하지 않음</td>
+            </tr>
+            <tr>
+              <td>타이머·알림 설정</td>
+              <td><span class="tag tag-local">내 컴퓨터</span> 전송하지 않음</td>
+            </tr>
+            <tr>
+              <td>펫 파일과 원본 영상</td>
+              <td><span class="tag tag-local">내 컴퓨터</span> 전송하지 않음</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="stack-top">
+          <a class="btn btn-quiet" href="privacy.html">자세히 보기</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 가격 -->
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head center">
+        <span class="eyebrow">가격</span>
+        <h2 class="section-title">한 번 사면 계속 씁니다</h2>
+        <p class="section-desc">구독이 아닙니다. 기능을 나눠 팔지도 않습니다.</p>
+      </div>
+
+      <div class="price-grid">
+        <div class="price-card">
+          <h3 class="price-name">3일 무료 체험</h3>
+          <div class="price-amount">
+            <span class="price-value">₩0</span>
+            <span class="price-unit">3일간</span>
+          </div>
+          <ul class="check-list">
+            <li>모든 기능을 제한 없이 사용합니다</li>
+            <li>결제 수단을 등록하지 않습니다</li>
+            <li>체험이 끝나도 기록과 설정은 그대로 남습니다</li>
+          </ul>
+          <a class="btn btn-secondary btn-block" href="signup.html">체험 소식 받기</a>
+        </div>
+
+        <div class="price-card is-featured">
+          <span class="price-badge">가격 준비 중</span>
+          <h3 class="price-name">Unfold</h3>
+          <div class="price-amount">
+            <span class="price-value is-pending">출시 전 안내</span>
+            <span class="price-unit">일회성 결제 예정</span>
+          </div>
+          <ul class="check-list">
+            <li>타이머, 휴식 루틴, 말풍선 알림</li>
+            <li>커스텀 펫 제작과 펫 팩 설치</li>
+            <li>기록·회고·CSV 내보내기, 테마 네 가지</li>
+            <li>기기 3대까지, Windows와 macOS 모두</li>
+          </ul>
+          <a class="btn btn-primary btn-block" href="pricing.html">구매 방식 알아보기</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section-tight">
+    <div class="wrap">
+      <div class="cta-band">
+        <h2 class="cta-title">오늘 한 번은 기지개를 켜 볼까요</h2>
+        <p class="cta-desc">
+          가격과 체험 다운로드가 준비되면 가장 먼저 알려 드릴게요.
+        </p>
+        <a class="btn btn-primary btn-lg" href="signup.html">Google로 출시 알림 받기</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <a class="brand" href="index.html">
+          <span class="brand-mark" aria-hidden="true">U</span>
+          Unfold
+        </a>
+        <p class="footer-desc">
+          책상에서 오래 일하는 사람을 위한 데스크톱 휴식 동료입니다.
+        </p>
+      </div>
+
+      <div>
+        <h3 class="footer-head">제품</h3>
+        <ul class="footer-links">
+          <li><a href="#features">기능</a></li>
+          <li><a href="pricing.html">가격</a></li>
+          <li><a href="changelog.html">변경 이력</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="footer-head">도움말</h3>
+        <ul class="footer-links">
+          <li><a href="install.html">설치 안내</a></li>
+          <li><a href="install.html#mac">macOS 설치</a></li>
+          <li><a href="install.html#windows">Windows 설치</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="footer-head">계정</h3>
+        <ul class="footer-links">
+          <li><a href="signup.html">출시 알림</a></li>
+          <li><a href="login.html">로그인</a></li>
+          <li><a href="privacy.html">프라이버시</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-base">
+      <p>© 2026 Unfold</p>
+      <p>Windows 10 이상 · macOS 12 이상</p>
+    </div>
+  </div>
+</footer>
+
+<script src="scripts/theme.js"></script>
+<script src="scripts/main.js"></script>
+</body>
+</html>

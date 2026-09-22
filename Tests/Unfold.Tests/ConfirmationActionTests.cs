@@ -22,7 +22,9 @@ public class ConfirmationActionTests
         var session = new BreakSession(BreakRoutines.All[0], "default-cat");
         runtime.Reminder.Invite(session); runtime.StartBreak();
 
-        var pending = runtime.RequestStop(); var dialog = await Dialog(scope.Owner);
+        var pending = runtime.RequestStop();
+        Assert.Empty(scope.Owner.OwnedWindows);
+        var dialog = await Dialog(scope.Owner);
         await runtime.RequestStop(); await runtime.Quit();
         Assert.Single(scope.Owner.OwnedWindows);
         Assert.False(runtime.Clock.Stopped); Assert.Same(session, runtime.Reminder.Session);

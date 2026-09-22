@@ -1,0 +1,16 @@
+{
+  "id": "default-cat",
+  "contentVersion": "2.0.0",
+  "runtimeDirectory": "Assets/Characters/default-cat",
+  "sourceFile": "Art/Characters/original-companions-v2/source/mochi-atlas.png",
+  "sourceSha256": "757c36941310927ffd618fa507b63936659d07ba5a77b5cc84d177322e14d51c",
+  "createdWith": {
+    "tool": "image_gen",
+    "mode": "built-in",
+    "date": "2026-09-22"
+  },
+  "promptRecord": "Art/Characters/original-companions-v2/generation.md",
+  "sourceStatus": "original-rgba-png-preserved",
+  "humanArtApproval": "pending",
+  "notes": "256px cells; runtime aligns visible baseline without altering original pixels. No layered Aseprite source or rights certification is claimed."
+}

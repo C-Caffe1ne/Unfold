@@ -37,6 +37,24 @@ public static partial class DesignSystem
         // A stopped timer is a deliberate user action, so it stays distinct from the error color.
         Stopped = new();
 
+    /// <summary>Elevation for the borderless confirm, name and error windows: a wide ambient pool that
+    /// lifts the card off the owner window plus a tighter contact shadow under its lower edge. Both stay
+    /// within <see cref="ModalShadowRoom"/> so no window edge cuts the blur. A modal reads this once while
+    /// it is built, which is enough because a modal disables its owner and cannot outlive a theme change.</summary>
+    public static BoxShadows ModalShadow
+    {
+        get
+        {
+            var palette = Themes.Single(item => item.Id == CurrentTheme);
+            // Dark palettes already sit near black, so their shadow takes depth from opacity, not hue.
+            var tint = palette.IsDark ? Colors.Black : Color.Parse(palette.Text);
+            return new(Shadow(tint, palette.IsDark ? 0.52 : 0.20, 12, 36),
+                [Shadow(tint, palette.IsDark ? 0.38 : 0.12, 3, 10)]);
+        }
+    }
+    private static BoxShadow Shadow(Color tint, double opacity, double offsetY, double blur) =>
+        new() { Color = new Color((byte)Math.Round(opacity * 255), tint.R, tint.G, tint.B), OffsetY = offsetY, Blur = blur };
+
     static DesignSystem() => ApplyTheme(AppTheme.OatLatte);
 
     public static void ApplyTheme(AppTheme theme)

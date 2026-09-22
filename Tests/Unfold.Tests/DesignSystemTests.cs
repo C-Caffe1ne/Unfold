@@ -34,6 +34,24 @@ public class DesignSystemTests
         Assert.True(point.X >= 0 && point.Y >= 0 && point.X + control.Bounds.Width <= window.ClientSize.Width + 1 &&
             point.Y + control.Bounds.Height <= window.ClientSize.Height + 1, $"{window.Title}: {control.Name ?? control.GetType().Name} is clipped.");
     }
+    private static void IsAppModal(Window window)
+    {
+        Assert.Equal(WindowDecorations.None, window.WindowDecorations);
+        Assert.Equal(Brushes.Transparent, window.Background);
+        Assert.Contains(WindowTransparencyLevel.Transparent, window.TransparencyLevelHint);
+        Assert.False(window.ShowInTaskbar);
+        Assert.Contains("unfold-modal", window.Classes);
+        Assert.Equal(SizeToContent.Manual, window.SizeToContent);
+        Assert.Equal(window.Height, window.MinHeight);
+        Assert.Equal(window.Height, window.MaxHeight);
+        Assert.True(window.Transitions is null || window.Transitions.Count == 0);
+        Assert.Null(window.RenderTransform);
+        foreach (var control in window.GetVisualDescendants().OfType<Button>().Where(button => button.Classes.Contains("unfold-action")))
+        {
+            Assert.True(control.Transitions is null || control.Transitions.Count == 0, $"{control.GetType().Name} still has motion transitions.");
+            Assert.Null(control.RenderTransform);
+        }
+    }
 
     [AvaloniaFact]
     public void PageActionsRemainVisibleAtMinimumSizeAndWhileTheBodyScrolls()
@@ -171,7 +189,10 @@ public class DesignSystemTests
             editor.Close(); Layout(window);
             Press(window, "루틴 삭제"); Layout(window);
             var confirm = Assert.Single(window.OwnedWindows);
+            IsAppModal(confirm);
             Assert.Equal(DesignSystem.Shell, Find<Border>(confirm, "PageFrame").Background);
+            Assert.Equal(Brushes.Transparent, Find<Border>(confirm, "ModalBody").Background);
+            Assert.DoesNotContain(confirm.GetVisualDescendants().OfType<ScrollViewer>(), scroll => scroll.Name == "PageBodyScroll");
             Assert.Contains("danger", Button(confirm, "삭제").Classes);
             Assert.True(Button(confirm, "취소").IsFocused);
             Assert.False(Button(confirm, "삭제").IsDefault);
@@ -180,16 +201,97 @@ public class DesignSystemTests
             Assert.Empty(window.OwnedWindows); Assert.NotNull(settings.CustomRoutine);
             var prompt = Ui.Prompt(window, "이름 바꾸기", "내 이름"); Layout(window);
             var name = Assert.Single(window.OwnedWindows);
+            IsAppModal(name);
             Assert.Equal(DesignSystem.Shell, Find<Border>(name, "PageFrame").Background);
             Fits(name, Find<Border>(name, "PageActions"));
             name.Close(); Assert.Null(await prompt);
             var error = Ui.Error(window, new IOException("diagnostic")); Layout(window);
             var alert = Assert.Single(window.OwnedWindows);
+            IsAppModal(alert);
+            Assert.Equal(Brushes.Transparent, Find<Border>(alert, "ModalBody").Background);
             Fits(alert, Find<Border>(alert, "PageActions"));
             Assert.Equal(DesignSystem.Accent, Button(alert, "확인").Background);
             Press(alert, "확인"); await error;
         }
         finally { foreach (var owned in window.OwnedWindows.ToArray()) owned.Close(); window.Close(); }
+    }
+
+    /// <summary>A drop shadow is painted outside the frame it belongs to, so a modal window has to keep
+    /// transparent room for it. A blur that reached the window edge would be cut into a hard line
+    /// instead of fading out, which is exactly the flat look the shadow is there to replace.</summary>
+    private static void ShadowClearsTheWindowEdge(Window modal)
+    {
+        var frame = Find<Border>(modal, "PageFrame");
+        Assert.True(frame.BoxShadow.Count > 0, $"{modal.Title}: the modal frame has no drop shadow.");
+        var origin = frame.TranslatePoint(default, modal)!.Value;
+        for (var index = 0; index < frame.BoxShadow.Count; index++)
+        {
+            var shadow = frame.BoxShadow[index];
+            Assert.True(shadow.Color.A > 0, $"{modal.Title}: shadow layer {index} is fully transparent.");
+            // A blur radius reaches half its length beyond the edge it is drawn from.
+            var reach = shadow.Blur / 2 + shadow.Spread;
+            Assert.True(origin.X + shadow.OffsetX - reach >= 0 && origin.Y + shadow.OffsetY - reach >= 0 &&
+                origin.X + frame.Bounds.Width + shadow.OffsetX + reach <= modal.ClientSize.Width + .5 &&
+                origin.Y + frame.Bounds.Height + shadow.OffsetY + reach <= modal.ClientSize.Height + .5,
+                $"{modal.Title} {modal.ClientSize}: shadow layer {index} is clipped by the window edge.");
+        }
+    }
+
+    [AvaloniaFact]
+    public async Task SharedModalsAreRaisedByAShadowTheirWindowDoesNotClip()
+    {
+        using var profile = new ProfileScope();
+        var owner = new Window { Width = 900, Height = 700, Title = "소유 창" };
+        owner.Content = Ui.PageFrame(owner, Ui.Text("소유 창 본문"));
+        owner.Show(); Layout(owner);
+        try
+        {
+            // A page fills its own window, so it stays flat. Only the floating modal is raised.
+            Assert.Equal(0, Find<Border>(owner, "PageFrame").BoxShadow.Count);
+            var confirmTask = Ui.Confirm(owner, "삭제할까요?", "이 항목을 삭제할까요?", "삭제", "취소");
+            Layout(owner);
+            var confirm = Assert.Single(owner.OwnedWindows); Layout(confirm);
+            ShadowClearsTheWindowEdge(confirm);
+            // The shadow room is added to the window; the card keeps the width it was designed at.
+            Assert.Equal(confirm.ClientSize.Width - 2 * DesignSystem.ModalShadowRoom,
+                Find<Border>(confirm, "PageFrame").Bounds.Width, 1);
+            Press(confirm, "취소"); Assert.Equal(1, await confirmTask);
+            var promptTask = Ui.Prompt(owner, "이름 바꾸기", "내 이름");
+            Layout(owner);
+            var prompt = Assert.Single(owner.OwnedWindows); Layout(prompt);
+            ShadowClearsTheWindowEdge(prompt); Fits(prompt, Find<Border>(prompt, "PageActions"));
+            prompt.Close(); Assert.Null(await promptTask);
+            var errorTask = Ui.Error(owner, new IOException("diagnostic"));
+            Layout(owner);
+            var alert = Assert.Single(owner.OwnedWindows); Layout(alert);
+            ShadowClearsTheWindowEdge(alert);
+            Press(alert, "확인"); await errorTask;
+        }
+        finally { foreach (var owned in owner.OwnedWindows.ToArray()) owned.Close(); owner.Close(); }
+    }
+
+    [AvaloniaFact]
+    public void EveryPaletteKeepsTheModalShadowVisibleInsideItsRoom()
+    {
+        try
+        {
+            foreach (var palette in DesignSystem.Themes)
+            {
+                DesignSystem.ApplyTheme(palette.Id);
+                var shadow = DesignSystem.ModalShadow;
+                Assert.True(shadow.Count > 0, palette.Name);
+                for (var index = 0; index < shadow.Count; index++)
+                {
+                    var layer = shadow[index];
+                    // A shadow the eye cannot separate from the desktop leaves the modal looking flat.
+                    Assert.InRange(layer.Color.A, (byte)1, (byte)255);
+                    var reach = layer.OffsetY + layer.Blur / 2 + layer.Spread;
+                    Assert.True(reach <= DesignSystem.ModalShadowRoom,
+                        $"{palette.Name}: shadow layer {index} reaches {reach} past a {DesignSystem.ModalShadowRoom} gutter.");
+                }
+            }
+        }
+        finally { DesignSystem.ApplyTheme(AppTheme.OatLatte); }
     }
 
     [AvaloniaFact]

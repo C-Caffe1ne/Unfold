@@ -2,8 +2,9 @@
 
 2026-09-14 · 개발 계획 3차의 **파일 배포·설치 기반**.
 판매용 캐릭터, 결제, 구매 권한 복원이 완료된 단계는 아니다.
-별도 설치 가능한 [보리 0.1.0 아트 후보](../Art/Characters/bori-rabbit/README.md)는
-원본과 반응 5종을 포함한 제작 검수 단계다.
+현재 Mochi·보리는 [확장 행동이 있는 기본 팩](../Art/Characters/original-companions-v2/README.md)으로 제공한다.
+같은 행동 프로필의 [강아지·고슴도치·펭귄](../Art/Characters/original-companions-v3/README.md)도 기본 목록에 포함한다.
+기존 [보리 0.1.0 아트 후보](../Art/Characters/bori-rabbit/README.md)는 역사 자료로 보존한다.
 
 ## 사용 방법
 
@@ -139,6 +140,13 @@ PNG/GIF만 담는다. 별도 최상위 폴더나 원본 `.piskel`·`.aseprite`�
 해시는 내용 일치 검사다. **제작자 서명이나 구매 권한 증거가 아니다.** 현재 형식은
 로컬 파일 설치이며 원격 카탈로그·라이선스 잠금·DRM을 포함하지 않는다.
 
+`character.json`의 선택 필드 `behaviorProfile: "unfold-original-v1"`과 열 개 행동 키를
+모두 가진 팩만 랜덤 대기·스퀴시/바운스·미루기 반응·휴식 중 이동을 사용한다.
+키는 기존 다섯 개와 `sleep`, `look`, `yawn`, `sulk`, `walk`다. 이 필드가 없거나
+클립이 부족하면 기존 행동을 유지한다. 커스텀 제작기의 다섯 파일 슬롯과 출력 규격은 그대로다.
+기본 Mochi·보리·강아지·고슴도치·펭귄 팩 파일은 열어 미리볼 수 있지만 현재 앱에서 같은 기본 ID를 다시 설치할 수는 없다.
+다섯 펫은 홈 선택 목록에서 바로 선택한다.
+
 ## 제작자가 파일 만들기
 
 Release 빌드 후 저장소 루트에서 실행한다. 입력 폴더 이름은 manifest ID와 같아야 한다.
@@ -176,7 +184,7 @@ dotnet src/Unfold.Desktop/bin/Release/net10.0/Unfold.dll \
 
 [3차 기반 검증 기록](validation/2026-09-13-pet-packs.md)에 자동 검사와 macOS 진단을
 구분해 기록한다. 진단용 도형은 설치 계약 확인용이며 판매할 펫 아트가 아니다.
-기존 Mochi의 런타임 파일과 제작 원장의 미확인 권리 상태는 유지한다.
+새 Mochi·보리의 자동 재생·패키지 검사는 [확장 행동 검증](validation/2026-09-22-original-companions.md)에 기록한다.
 보리 후보의 설치·실제 시간 기반 재생 결과는 [보리 검증 기록](validation/2026-09-14-bori-candidate.md)에 있다.
 배경·크기·일시정지/다시 재생 조작과 2배 렌더링 캡처는
 [미리보기 검증 기록](validation/2026-09-14-pet-pack-preview.md)에 있다.

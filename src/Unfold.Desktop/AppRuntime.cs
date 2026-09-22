@@ -136,7 +136,10 @@ public sealed class AppRuntime : IDisposable
     }
     public async Task Reload()
     {
-        var users = await Task.Run(() => Library.List()); Characters = builtIns.Concat(users).ToArray(); clips.Clear(); Changed?.Invoke();
+        var users = await Task.Run(() => Library.List());
+        var bundledIds = builtIns.Select(item => item.Manifest.Id).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        Characters = builtIns.Concat(users.Where(item => !bundledIds.Contains(item.Manifest.Id))).ToArray();
+        clips.Clear(); Changed?.Invoke();
     }
     public async Task SelectInstalledCharacter(CharacterPackage character)
     {
@@ -400,7 +403,12 @@ public sealed class AppRuntime : IDisposable
             }
             ReactToBreak(session, "celebrate"); PlayReminderSound(ReminderSound.Completed);
         }
-        else if (session.State == BreakSessionState.Snoozed) Clock.ScheduleAfterBreak(monotonic.Elapsed, TimeSpan.FromMinutes(Settings.SnoozeMinutes));
+        else if (session.State == BreakSessionState.Snoozed)
+        {
+            Clock.ScheduleAfterBreak(monotonic.Elapsed, TimeSpan.FromMinutes(Settings.SnoozeMinutes));
+            if (Reminder.ConsecutiveSnoozes == 3 && Selected?.HasOriginalBehavior == true)
+                ReactToBreak(session, "sulk");
+        }
         else Clock.Tick(monotonic.Elapsed, TimeSpan.Zero, TimeSpan.FromMinutes(Settings.IdleMinutes), true);
         Changed?.Invoke();
     }

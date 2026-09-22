@@ -91,6 +91,8 @@ public class SettingsDashboardTests
         var host = Find<Control>(window, "CompanionPreview");
         var stage = Find<Grid>(window, "CompanionPreviewStage");
         var previewScroll = Find<ScrollViewer>(window, "CompanionPreviewScroll");
+        Assert.Single(stage.Children); Assert.Same(host, stage.Children[0]);
+        Assert.DoesNotContain(stage.Children, child => child is Avalonia.Controls.Shapes.Ellipse);
         foreach (var size in new[] { new Size(1120, 800), new Size(860, 680) })
         {
             window.Width = size.Width; window.Height = size.Height;
@@ -273,6 +275,31 @@ public class SettingsDashboardTests
         Click(window, "SettingsNavTimer"); Dispatcher.UIThread.RunJobs();
         AssertNoTabPageHeader(window);
         Assert.True(Find<Button>(window, "TimerToggle").IsFocused);
+    }
+
+    [AvaloniaFact]
+    public void SingleColumnTabContentIsCenteredAndStillFitsAtMinimumWidth()
+    {
+        using var scope = new Scope(); var window = scope.Window;
+        void AssertCentered(string scrollName, string bodyName, double maxWidth)
+        {
+            Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+            var scroll = Find<ScrollViewer>(window, scrollName);
+            var wrapper = Find<Decorator>(window, bodyName);
+            var body = Assert.IsAssignableFrom<Control>(wrapper.Child);
+            var origin = body.TranslatePoint(default, scroll)!.Value;
+            Assert.True(body.Bounds.Width <= maxWidth + .5);
+            Assert.InRange(Math.Abs(origin.X + body.Bounds.Width / 2 - scroll.Viewport.Width / 2), 0, 1);
+            Assert.True(scroll.Extent.Width <= scroll.Viewport.Width + 1);
+        }
+
+        foreach (var width in new[] { 1120d, 860d })
+        {
+            window.Width = width; window.Height = 800; Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+            Click(window, "SettingsNavSettings"); AssertCentered("SettingsPreferencesScroll", "SettingsPreferencesBody", DesignSystem.SettingsContentWidth);
+            Click(window, "SettingsNavReview"); AssertCentered("PageBodyScroll", "ReviewBody", DesignSystem.ReviewContentWidth);
+            Click(window, "SettingsNavPacks"); AssertCentered("PageBodyScroll", "PetPageBody", DesignSystem.PetContentWidth);
+        }
     }
 
     [AvaloniaFact]

@@ -2,7 +2,6 @@ using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
-using Avalonia.Controls.Shapes;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Input;
@@ -97,8 +96,6 @@ public sealed partial class SettingsWindow
         var petLabel = Label("함께하는 펫", Body, Muted);
         var intro = Ui.Column(petLabel, companionName); intro.Spacing = 4; intro.IsHitTestVisible = false;
         companionPreviewStage = new Grid { Name = "CompanionPreviewStage", Width = PetBaseSize, Height = PetBaseSize };
-        companionPreviewStage.Children.Add(new Ellipse { MaxWidth = 220, MaxHeight = 140, Fill = PetHalo,
-            HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch });
         companionPreviewStage.Children.Add(preview);
         var previewScroll = new ScrollViewer { Name = "CompanionPreviewScroll", Content = companionPreviewStage,
             HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
@@ -241,10 +238,7 @@ public sealed partial class SettingsWindow
     {
         preferencesSections = Ui.Column(BuildNotificationSettingsCard(), BuildTimerSettingsCard(), BuildAppBehaviorCard(), BuildDebugSettingsCard());
         preferencesSections.Name = "SettingsPreferencesSections"; preferencesSections.Spacing = Inset;
-        // An inner capped grid preserves the left edge instead of centering a MaxWidth-limited stack.
-        var body = new Grid { ColumnDefinitions = new("*") };
-        body.ColumnDefinitions[0].MaxWidth = SettingsContentWidth;
-        body.Children.Add(preferencesSections);
+        var body = Ui.CenteredBody(preferencesSections, SettingsContentWidth, "SettingsPreferencesBody");
         var scroll = Ui.PageBodyScroll(body); scroll.Name = "SettingsPreferencesScroll";
         var page = new Grid { Name = "SettingsPreferencesPage", RowDefinitions = new("*,Auto") };
         page.Children.Add(scroll);

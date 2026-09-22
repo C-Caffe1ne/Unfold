@@ -2,6 +2,12 @@
 
 ## 자동 검사
 
+강아지·고슴도치·펭귄 세 팩의 원본 정렬, 278개 테스트와 다섯 펫 재생 진단은
+[세 동물 펫 팩 검증](validation/2026-09-22-companion-trio.md)에 기록했다.
+
+Mochi·보리의 랜덤 행동, 스퀴시·바운스, 미루기 반응과 스트레칭 후 이동은
+[확장 행동 구현·검증](validation/2026-09-22-original-companions.md)에 기록했다.
+
 펫 숨기기, 중지·종료 확인, 640×560 반응형과 설정·펫 열기 재배치는
 [반응형·메뉴·확인 동작 검증](validation/2026-09-21-responsive-actions.md)에 기록했다.
 
@@ -107,6 +113,17 @@ dotnet run --project src/Unfold.Desktop -c Release --no-build -- --smoke-test
 사용자의 신체 활동, 장시간 CPU/메모리는 검증하지 않는다.
 
 ## 펫 팩 재생 진단
+
+기본 Mochi·보리의 확장 행동은 새 빈 `UNFOLD_DATA_DIR`로 아래 명령을 실행한다:
+
+```sh
+dotnet src/Unfold.Desktop/bin/Release/net10.0/Unfold.dll --review-original-pets
+```
+
+생략하면 새 임시 프로필을 만들고, 파일이 있는 경로는 거부한다.
+`verification/original-pets.json`과 PNG를 확인한다. 화면 밖 창에서 실제 시간 재생을 검사하며
+포인터 동작은 코드로 호출한다. 실제 화면 이동은 억제한다. 기본 ID는 설치 보호 대상이므로
+아래 설치 진단 대신 이 진단을 사용한다.
 
 Release 빌드 후 `.unfoldpet` 파일을 지정한다. 그래픽 세션이 있는 실제 OS에서 실행한다:
 

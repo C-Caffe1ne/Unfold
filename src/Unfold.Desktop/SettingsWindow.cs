@@ -269,7 +269,7 @@ public sealed partial class SettingsWindow : Window, IDisposable
         {
             var frames = await runtime.Clip("idle");
             if (runtime.Selected == loadPreview && previewCharacter == loadPreview)
-                preview.SetFrames(frames, true, loadPreview.Manifest.RenderStyle == "pixel");
+                preview.SetFrames(frames, true, loadPreview.Manifest.RenderStyle == "pixel", loadPreview.HasOriginalBehavior);
             if (!IsVisible) preview.SetRunning(false);
         }
         catch (Exception error) { AppPaths.Log(error); }

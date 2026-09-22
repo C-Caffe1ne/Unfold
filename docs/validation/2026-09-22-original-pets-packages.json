@@ -1,0 +1,16 @@
+[
+  {
+    "file": "Mochi-2.0.0.unfoldpet",
+    "bytes": 1863293,
+    "sha256": "4371dd1430a9f61f3c29ae8b2cdca60a4dd7f9d5fe92a7f18b4e74441336a6f8",
+    "id": "default-cat",
+    "contentVersion": "2.0.0"
+  },
+  {
+    "file": "Bori-0.2.0.unfoldpet",
+    "bytes": 1789947,
+    "sha256": "a2f87de6a8f78c8d530cf5ed63c5a9dd2873f2dbfe9e78ccf14f367ec8c26767",
+    "id": "bori-rabbit",
+    "contentVersion": "0.2.0"
+  }
+]

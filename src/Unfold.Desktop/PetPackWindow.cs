@@ -114,7 +114,8 @@ internal sealed class PetPackView : UserControl, IDisposable
     private static string ClipName(string? key) => key switch
     {
         "idle" => "쉬는 모습", "attention" => "휴식 안내", "stretch" => "스트레칭",
-        "celebrate" => "휴식 완료", "click" => "클릭 반응", _ => key ?? ""
+        "celebrate" => "휴식 완료", "click" => "클릭 반응", "sleep" => "잠자기",
+        "look" => "두리번거리기", "yawn" => "하품", "sulk" => "삐지기", "walk" => "걷기", _ => key ?? ""
     };
     private void UpdatePlayback()
     {
@@ -194,7 +195,7 @@ internal sealed class PetPackView : UserControl, IDisposable
         {
             var frames = await Task.Run(() => current.Character.LoadAnimation(key));
             if (closed || request != generation || pack != current) return;
-            preview.SetFrames(frames, current.Character.Manifest.Animations[key].Loop, current.Character.Manifest.RenderStyle == "pixel");
+            preview.SetFrames(frames, current.Character.Manifest.Animations[key].Loop, current.Character.Manifest.RenderStyle == "pixel", current.Character.HasOriginalBehavior);
             previewReady = true;
             status.Foreground = DesignSystem.Muted;
             playbackStatus.Text = returnTo is not null ? "쉬는 모습" :

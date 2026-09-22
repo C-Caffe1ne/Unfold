@@ -21,7 +21,8 @@ public sealed class App : Application
             var ready = Runtime;
             Dispatcher.UIThread.Post(async () =>
             {
-                if (desktop.Args is ["--review-pet-pack", var packPath]) await PetPackDiagnostics.Run(ready, desktop, packPath);
+                if (desktop.Args is ["--review-original-pets"]) await OriginalCompanionDiagnostics.Run(ready, desktop);
+                else if (desktop.Args is ["--review-pet-pack", var packPath]) await PetPackDiagnostics.Run(ready, desktop, packPath);
                 else if (desktop.Args?.Contains("--smoke-test") == true) await SmokeDiagnostics.Run(ready, desktop);
                 else await ready.Start(desktop.Args?.Contains("--background") == true);
             });

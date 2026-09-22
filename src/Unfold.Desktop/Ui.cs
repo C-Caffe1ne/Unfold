@@ -5,6 +5,8 @@ using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using Avalonia.Threading;
+using System.Runtime.InteropServices;
 using Unfold.Core;
 
 namespace Unfold.Desktop;
@@ -78,6 +80,27 @@ public static class Ui
         };
         return scroll;
     }
+    public static Decorator CenteredBody(Control content, double maxWidth, string name)
+    {
+        content.HorizontalAlignment = HorizontalAlignment.Stretch;
+        return new CenteredBodyDecorator(maxWidth) { Name = name, Child = content };
+    }
+    private sealed class CenteredBodyDecorator(double contentMaxWidth) : Decorator
+    {
+        protected override Size MeasureOverride(Size availableSize)
+        {
+            var width = double.IsFinite(availableSize.Width) ? Math.Min(availableSize.Width, contentMaxWidth) : contentMaxWidth;
+            Child?.Measure(new Size(width, availableSize.Height));
+            var desired = Child?.DesiredSize ?? default;
+            return new Size(double.IsFinite(availableSize.Width) ? availableSize.Width : Math.Min(desired.Width, contentMaxWidth), desired.Height);
+        }
+        protected override Size ArrangeOverride(Size finalSize)
+        {
+            var width = Math.Min(finalSize.Width, contentMaxWidth);
+            Child?.Arrange(new Rect((finalSize.Width - width) / 2, 0, width, finalSize.Height));
+            return finalSize;
+        }
+    }
     public static Control PageContent(string title, string description, Control body, Control footer,
         string section = "나의 휴식", bool showHeader = true)
     {
@@ -97,16 +120,85 @@ public static class Ui
         Grid.SetRow(actionBar, showHeader ? 4 : 2); layout.Children.Add(actionBar);
         return layout;
     }
-    public static Control PageFrame(Window window, Control content, double inset = DesignSystem.Inset)
+    public static Border PageFrame(Window window, Control content, double inset = DesignSystem.Inset)
     {
         window.Classes.Add("unfold-page");
-        return new Border { Name = "PageFrame", Margin = new(12), Padding = new(inset),
+        return new Border { Name = "PageFrame", Margin = new(DesignSystem.FrameMargin), Padding = new(inset),
             Background = DesignSystem.Shell, BorderBrush = DesignSystem.Outline, BorderThickness = new(1),
             CornerRadius = DesignSystem.FrameRadius, Child = content };
     }
     public static Control Page(Window window, string title, string description, Control body, Control footer,
         string section = "나의 휴식", double inset = DesignSystem.Inset) =>
         PageFrame(window, PageContent(title, description, body, footer, section), inset);
+    private static Window ModalWindow(string title, double width)
+    {
+        // The frame keeps its designed footprint and the window adds the shadow room on both sides,
+        // so the drop shadow falls onto transparent pixels instead of being cut at the window edge.
+        var outer = width + 2 * (DesignSystem.ModalShadowRoom - DesignSystem.FrameMargin);
+        var dialog = new Window
+        {
+            Title = title,
+            Width = outer,
+            MinWidth = outer,
+            MaxWidth = outer,
+            SizeToContent = SizeToContent.Height,
+            CanResize = false,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            WindowDecorations = WindowDecorations.None,
+            Background = Brushes.Transparent,
+            TransparencyLevelHint = [WindowTransparencyLevel.Transparent],
+            ShowInTaskbar = false,
+            Transitions = null,
+            RenderTransform = null
+        };
+        dialog.Classes.Add("unfold-modal");
+        DisableAutomaticWindowAnimation(dialog);
+        return dialog;
+    }
+    private static void DisableAutomaticWindowAnimation(Window dialog)
+    {
+        if (!OperatingSystem.IsMacOS() || dialog.TryGetPlatformHandle()?.Handle is not nint handle || handle == 0) return;
+        // AppKit otherwise infers an order-front animation for this borderless NSWindow. That
+        // briefly scales the confirmation surface even though Avalonia transitions are disabled.
+        ObjcMsgSend(handle, SelRegisterName("setAnimationBehavior:"), 2);
+    }
+    [DllImport("/usr/lib/libobjc.A.dylib", EntryPoint = "sel_registerName")]
+    private static extern nint SelRegisterName(string name);
+    [DllImport("/usr/lib/libobjc.A.dylib", EntryPoint = "objc_msgSend")]
+    private static extern void ObjcMsgSend(nint receiver, nint selector, nint value);
+    private static Button ModalButton(Button button)
+    {
+        button.Transitions = null; button.RenderTransform = null;
+        return button;
+    }
+    private static void LockModalSize(Window dialog)
+    {
+        if (dialog.Content is not Control content) return;
+        content.Measure(new Size(dialog.Width, double.PositiveInfinity));
+        dialog.Height = dialog.MinHeight = dialog.MaxHeight = Math.Ceiling(content.DesiredSize.Height);
+        dialog.SizeToContent = SizeToContent.Manual;
+    }
+    private static Border ModalBody(Control child)
+    {
+        var body = Card(child); body.Name = "ModalBody"; body.Background = Brushes.Transparent;
+        return body;
+    }
+    private static Control ModalPage(Window window, string title, string section, Control body, Control footer)
+    {
+        var heading = Text(title, DesignSystem.Title); heading.FontWeight = FontWeight.SemiBold; heading.TextWrapping = TextWrapping.Wrap;
+        var header = Column(Caption("UNFOLD / " + section), heading); header.Name = "PageHeader"; header.Spacing = 6;
+        var layout = new Grid { RowDefinitions = new("Auto,16,Auto,16,Auto") };
+        layout.Children.Add(header); Grid.SetRow(body, 2); layout.Children.Add(body);
+        var actionBar = new Border { Name = "PageActions", BorderBrush = DesignSystem.Outline,
+            BorderThickness = new(0, 1, 0, 0), Padding = new(0, 12, 0, 0), Child = footer };
+        Grid.SetRow(actionBar, 4); layout.Children.Add(actionBar);
+        // A modal floats over the owner window rather than sitting in a page, so it carries an
+        // elevation shadow. The wider margin is the transparent room that shadow is drawn into.
+        var frame = PageFrame(window, layout);
+        frame.Margin = new(DesignSystem.ModalShadowRoom);
+        frame.BoxShadow = DesignSystem.ModalShadow;
+        return frame;
+    }
     public static unsafe Bitmap Bitmap(PixelImage image)
     {
         // Transfer raw pixels once; avoid PNG encoding/decoding on every
@@ -120,12 +212,11 @@ public static class Ui
 
     public static async Task<int> Confirm(Window owner, string title, string message, params string[] choices)
     {
-        var dialog = new Window { Title = title, Width = 460, MinWidth = 460, SizeToContent = SizeToContent.Height,
-            CanResize = false, WindowStartupLocation = WindowStartupLocation.CenterOwner };
+        var dialog = ModalWindow(title, 460);
         var result = -1;
         var buttons = choices.Select((choice, index) =>
         {
-            var button = Button(choice, () => { result = index; dialog.Close(); });
+            var button = ModalButton(Button(choice, () => { result = index; dialog.Close(); }));
             if (choice is "취소" or "Cancel") { button.IsCancel = true; Quiet(button); }
             if (choice.Contains("삭제") || choice is "버리기" or "Delete" or "Discard" or "Crop") Danger(button);
             else if (index == 0) Primary(button);
@@ -133,9 +224,13 @@ public static class Ui
             return button;
         }).ToArray();
         var messageText = Text(message); messageText.TextWrapping = TextWrapping.Wrap;
-        dialog.Content = Page(dialog, title, "", Card(messageText), Actions(buttons), "확인");
+        dialog.Content = ModalPage(dialog, title, "확인", ModalBody(messageText), Actions(buttons));
         dialog.Opened += (_, _) => (buttons.FirstOrDefault(button => button.IsCancel) ?? buttons.FirstOrDefault())?.Focus();
-        // Closing the dialog using its titlebar must always cancel, never select Save/Delete.
+        LockModalSize(dialog);
+        // Showing a modal while the originating pointer event is still unwinding can make macOS
+        // activate the newly disabled owner and then the dialog again, which appears as a bounce.
+        await Dispatcher.UIThread.InvokeAsync(static () => { }, DispatcherPriority.Background);
+        // Closing the dialog without choosing an action must always cancel, never select Save/Delete.
         await dialog.ShowDialog(owner); return result;
     }
     public static Task Error(Window owner, Exception error)
@@ -170,12 +265,13 @@ public static class Ui
     public static async Task<string?> Prompt(Window owner, string title, string value)
     {
         var input = new TextBox { Text = value, MinWidth = 280 };
-        var dialog = new Window { Title = title, Width = 420, MinWidth = 420, SizeToContent = SizeToContent.Height,
-            CanResize = false, WindowStartupLocation = WindowStartupLocation.CenterOwner };
-        var cancel = Quiet(Button("취소", () => dialog.Close())); cancel.IsCancel = true;
-        var save = Primary(Button("저장", () => { if (!string.IsNullOrWhiteSpace(input.Text)) dialog.Close(input.Text.Trim()); })); save.IsDefault = true;
-        dialog.Content = Page(dialog, title, "", Field("이름", input), Actions(cancel, save), "이름 편집");
+        var dialog = ModalWindow(title, 420);
+        var cancel = Quiet(ModalButton(Button("취소", () => dialog.Close()))); cancel.IsCancel = true;
+        var save = Primary(ModalButton(Button("저장", () => { if (!string.IsNullOrWhiteSpace(input.Text)) dialog.Close(input.Text.Trim()); }))); save.IsDefault = true;
+        dialog.Content = ModalPage(dialog, title, "이름 편집", Field("이름", input), Actions(cancel, save));
         dialog.Opened += (_, _) => { input.Focus(); input.SelectAll(); };
+        LockModalSize(dialog);
+        await Dispatcher.UIThread.InvokeAsync(static () => { }, DispatcherPriority.Background);
         return await dialog.ShowDialog<string?>(owner);
     }
 }

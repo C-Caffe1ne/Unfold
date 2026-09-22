@@ -55,10 +55,7 @@ internal sealed class PetManagementView : UserControl, IDisposable
 
     internal static Control Page(string title, string description, Control body, Control footer, bool showHeader)
     {
-        // Keep the scroll viewport full width while capping its content at the left edge.
-        var capped = new Grid { ColumnDefinitions = new("*") };
-        capped.ColumnDefinitions[0].MaxWidth = DesignSystem.PetContentWidth;
-        capped.Children.Add(body);
+        var capped = Ui.CenteredBody(body, DesignSystem.PetContentWidth, "PetPageBody");
         var page = (Grid)Ui.PageContent(title, description, capped, footer, "펫 추가", showHeader);
         page.RowDefinitions[^2].Height = new GridLength(24);
         var actionBar = page.Children.OfType<Border>().Single(control => control.Name == "PageActions");

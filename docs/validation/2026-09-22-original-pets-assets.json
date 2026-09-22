@@ -1,0 +1,244 @@
+{
+  "characters": [
+    {
+      "id": "bori-rabbit",
+      "clips": [
+        {
+          "key": "attention",
+          "frames": 5,
+          "durationMs": 1000,
+          "width": 256,
+          "height": 256,
+          "decodedBytes": 1310720,
+          "transparentFrames": 5,
+          "emptyFrames": 0
+        },
+        {
+          "key": "celebrate",
+          "frames": 6,
+          "durationMs": 999.9996,
+          "width": 256,
+          "height": 256,
+          "decodedBytes": 1572864,
+          "transparentFrames": 6,
+          "emptyFrames": 0
+        },
+        {
+          "key": "click",
+          "frames": 8,
+          "durationMs": 1600,
+          "width": 256,
+          "height": 256,
+          "decodedBytes": 2097152,
+          "transparentFrames": 8,
+          "emptyFrames": 0
+        },
+        {
+          "key": "idle",
+          "frames": 8,
+          "durationMs": 4000,
+          "width": 256,
+          "height": 256,
+          "decodedBytes": 2097152,
+          "transparentFrames": 8,
+          "emptyFrames": 0
+        },
+        {
+          "key": "look",
+          "frames": 7,
+          "durationMs": 1750,
+          "width": 256,
+          "height": 256,
+          "decodedBytes": 1835008,
+          "transparentFrames": 7,
+          "emptyFrames": 0
+        },
+        {
+          "key": "sleep",
+          "frames": 14,
+          "durationMs": 7000,
+          "width": 256,
+          "height": 256,
+          "decodedBytes": 3670016,
+          "transparentFrames": 14,
+          "emptyFrames": 0
+        },
+        {
+          "key": "stretch",
+          "frames": 8,
+          "durationMs": 2000,
+          "width": 256,
+          "height": 256,
+          "decodedBytes": 2097152,
+          "transparentFrames": 8,
+          "emptyFrames": 0
+        },
+        {
+          "key": "sulk",
+          "frames": 7,
+          "durationMs": 2333.3331,
+          "width": 256,
+          "height": 256,
+          "decodedBytes": 1835008,
+          "transparentFrames": 7,
+          "emptyFrames": 0
+        },
+        {
+          "key": "walk",
+          "frames": 4,
+          "durationMs": 571.4284,
+          "width": 256,
+          "height": 256,
+          "decodedBytes": 1048576,
+          "transparentFrames": 4,
+          "emptyFrames": 0
+        },
+        {
+          "key": "yawn",
+          "frames": 7,
+          "durationMs": 1750,
+          "width": 256,
+          "height": 256,
+          "decodedBytes": 1835008,
+          "transparentFrames": 7,
+          "emptyFrames": 0
+        }
+      ],
+      "files": [
+        {
+          "path": "character.json",
+          "bytes": 1966,
+          "sha256": "eb44ea9877bd3bc1c71d6eabb0c67d7eb8aa2e9d8a068e81cc11fbf5b2400011"
+        },
+        {
+          "path": "spritesheet.png",
+          "bytes": 1801146,
+          "sha256": "aa1201af303d70cff6b8b543f3280168e979a7279ed83a4e98cab27f1be7f75a"
+        }
+      ],
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "id": "default-cat",
+      "clips": [
+        {
+          "key": "attention",
+          "frames": 5,
+          "durationMs": 1000,
+          "width": 256,
+          "height": 256,
+          "decodedBytes": 1310720,
+          "transparentFrames": 5,
+          "emptyFrames": 0
+        },
+        {
+          "key": "celebrate",
+          "frames": 6,
+          "durationMs": 999.9996,
+          "width": 256,
+          "height": 256,
+          "decodedBytes": 1572864,
+          "transparentFrames": 6,
+          "emptyFrames": 0
+        },
+        {
+          "key": "click",
+          "frames": 8,
+          "durationMs": 1600,
+          "width": 256,
+          "height": 256,
+          "decodedBytes": 2097152,
+          "transparentFrames": 8,
+          "emptyFrames": 0
+        },
+        {
+          "key": "idle",
+          "frames": 8,
+          "durationMs": 4000,
+          "width": 256,
+          "height": 256,
+          "decodedBytes": 2097152,
+          "transparentFrames": 8,
+          "emptyFrames": 0
+        },
+        {
+          "key": "look",
+          "frames": 7,
+          "durationMs": 1750,
+          "width": 256,
+          "height": 256,
+          "decodedBytes": 1835008,
+          "transparentFrames": 7,
+          "emptyFrames": 0
+        },
+        {
+          "key": "sleep",
+          "frames": 14,
+          "durationMs": 7000,
+          "width": 256,
+          "height": 256,
+          "decodedBytes": 3670016,
+          "transparentFrames": 14,
+          "emptyFrames": 0
+        },
+        {
+          "key": "stretch",
+          "frames": 9,
+          "durationMs": 2250,
+          "width": 256,
+          "height": 256,
+          "decodedBytes": 2359296,
+          "transparentFrames": 9,
+          "emptyFrames": 0
+        },
+        {
+          "key": "sulk",
+          "frames": 7,
+          "durationMs": 2333.3331,
+          "width": 256,
+          "height": 256,
+          "decodedBytes": 1835008,
+          "transparentFrames": 7,
+          "emptyFrames": 0
+        },
+        {
+          "key": "walk",
+          "frames": 4,
+          "durationMs": 571.4284,
+          "width": 256,
+          "height": 256,
+          "decodedBytes": 1048576,
+          "transparentFrames": 4,
+          "emptyFrames": 0
+        },
+        {
+          "key": "yawn",
+          "frames": 7,
+          "durationMs": 1750,
+          "width": 256,
+          "height": 256,
+          "decodedBytes": 1835008,
+          "transparentFrames": 7,
+          "emptyFrames": 0
+        }
+      ],
+      "files": [
+        {
+          "path": "character.json",
+          "bytes": 1980,
+          "sha256": "c5616752d1d6f3eec9779f3f0edbf534c2d397e56fd13ee40e8eafd530c00a79"
+        },
+        {
+          "path": "spritesheet.png",
+          "bytes": 1874483,
+          "sha256": "757c36941310927ffd618fa507b63936659d07ba5a77b5cc84d177322e14d51c"
+        }
+      ],
+      "errors": [],
+      "warnings": []
+    }
+  ],
+  "errors": [],
+  "success": true
+}

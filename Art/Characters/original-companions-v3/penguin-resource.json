@@ -1,0 +1,296 @@
+{
+  "id": "penguin",
+  "contentVersion": "0.1.0",
+  "sourceFile": "Art/Characters/original-companions-v3/source/penguin-atlas.png",
+  "sourceSha256": "5ca94681f83d1feba29e1d520c5dab8e5474df98e9bc17a3eece4a43fbfb42a7",
+  "runtimeDirectory": "Assets/Characters/penguin",
+  "runtimeSha256": "44b4db94148f76d2c448946f8899ebe3578cb90731bd15c01cbbfa5e9d8ab5ad",
+  "createdWith": {
+    "tool": "image_gen",
+    "mode": "built-in",
+    "date": "2026-09-22"
+  },
+  "promptRecord": "Art/Characters/original-companions-v3/generation.md",
+  "sourceStatus": "original-rgba-png-preserved",
+  "packing": {
+    "tool": "Pillow",
+    "method": "unscaled-rgba-crop-and-place",
+    "cellSize": 256,
+    "baseline": 230,
+    "frames": [
+      {
+        "index": 0,
+        "sourceBox": [
+          95,
+          87,
+          254,
+          285
+        ],
+        "cellOffset": [
+          48,
+          34
+        ],
+        "size": [
+          159,
+          198
+        ]
+      },
+      {
+        "index": 1,
+        "sourceBox": [
+          394,
+          87,
+          555,
+          285
+        ],
+        "cellOffset": [
+          47,
+          34
+        ],
+        "size": [
+          161,
+          198
+        ]
+      },
+      {
+        "index": 2,
+        "sourceBox": [
+          699,
+          87,
+          868,
+          286
+        ],
+        "cellOffset": [
+          43,
+          33
+        ],
+        "size": [
+          169,
+          199
+        ]
+      },
+      {
+        "index": 3,
+        "sourceBox": [
+          988,
+          87,
+          1160,
+          286
+        ],
+        "cellOffset": [
+          42,
+          33
+        ],
+        "size": [
+          172,
+          199
+        ]
+      },
+      {
+        "index": 4,
+        "sourceBox": [
+          90,
+          370,
+          256,
+          572
+        ],
+        "cellOffset": [
+          45,
+          30
+        ],
+        "size": [
+          166,
+          202
+        ]
+      },
+      {
+        "index": 5,
+        "sourceBox": [
+          402,
+          427,
+          580,
+          576
+        ],
+        "cellOffset": [
+          39,
+          83
+        ],
+        "size": [
+          178,
+          149
+        ]
+      },
+      {
+        "index": 6,
+        "sourceBox": [
+          693,
+          370,
+          861,
+          573
+        ],
+        "cellOffset": [
+          44,
+          29
+        ],
+        "size": [
+          168,
+          203
+        ]
+      },
+      {
+        "index": 7,
+        "sourceBox": [
+          1003,
+          370,
+          1168,
+          574
+        ],
+        "cellOffset": [
+          45,
+          28
+        ],
+        "size": [
+          165,
+          204
+        ]
+      },
+      {
+        "index": 8,
+        "sourceBox": [
+          74,
+          686,
+          281,
+          868
+        ],
+        "cellOffset": [
+          24,
+          50
+        ],
+        "size": [
+          207,
+          182
+        ]
+      },
+      {
+        "index": 9,
+        "sourceBox": [
+          394,
+          665,
+          557,
+          867
+        ],
+        "cellOffset": [
+          46,
+          30
+        ],
+        "size": [
+          163,
+          202
+        ]
+      },
+      {
+        "index": 10,
+        "sourceBox": [
+          697,
+          665,
+          862,
+          870
+        ],
+        "cellOffset": [
+          45,
+          27
+        ],
+        "size": [
+          165,
+          205
+        ]
+      },
+      {
+        "index": 11,
+        "sourceBox": [
+          1003,
+          664,
+          1166,
+          868
+        ],
+        "cellOffset": [
+          46,
+          28
+        ],
+        "size": [
+          163,
+          204
+        ]
+      },
+      {
+        "index": 12,
+        "sourceBox": [
+          85,
+          972,
+          272,
+          1164
+        ],
+        "cellOffset": [
+          34,
+          40
+        ],
+        "size": [
+          187,
+          192
+        ]
+      },
+      {
+        "index": 13,
+        "sourceBox": [
+          385,
+          974,
+          574,
+          1165
+        ],
+        "cellOffset": [
+          33,
+          41
+        ],
+        "size": [
+          189,
+          191
+        ]
+      },
+      {
+        "index": 14,
+        "sourceBox": [
+          684,
+          974,
+          874,
+          1165
+        ],
+        "cellOffset": [
+          33,
+          41
+        ],
+        "size": [
+          190,
+          191
+        ]
+      },
+      {
+        "index": 15,
+        "sourceBox": [
+          986,
+          971,
+          1180,
+          1167
+        ],
+        "cellOffset": [
+          31,
+          36
+        ],
+        "size": [
+          194,
+          196
+        ]
+      }
+    ]
+  },
+  "humanArtApproval": "pending"
+}

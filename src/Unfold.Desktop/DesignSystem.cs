@@ -29,6 +29,12 @@ public static partial class DesignSystem
     public const double SpeechBubbleWidth = 320, SpeechAdvanceHeight = 96, SpeechInvitationHeight = 159,
         SpeechRestingHeight = 196, SpeechCompletedHeight = 113, SpeechControlHeight = 40,
         SpeechTimerSize = 40, SpeechGap = 6, PetBaseSize = 192, PetBubbleGap = 12;
+    /// <summary>Clear space a page frame keeps between itself and its window edge.</summary>
+    public const double FrameMargin = 12;
+    /// <summary>Total transparent space a modal window keeps around its frame. The frame margin is
+    /// already part of it; a modal widens its window for the rest so the drop shadow falls onto
+    /// transparent pixels instead of being cut off at the window edge.</summary>
+    public const double ModalShadowRoom = 32;
     public static readonly Thickness BorderSubtle = new(1), BorderStrong = new(1);
     public static readonly CornerRadius ControlRadius = new(12), CardRadius = new(24), FrameRadius = new(32);
 

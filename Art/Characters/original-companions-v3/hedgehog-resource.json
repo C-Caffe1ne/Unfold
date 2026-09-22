@@ -1,0 +1,296 @@
+{
+  "id": "hedgehog",
+  "contentVersion": "0.1.0",
+  "sourceFile": "Art/Characters/original-companions-v3/source/hedgehog-atlas.png",
+  "sourceSha256": "8af0abee2f2093d03b052482d619df9daeedc2a0f2bb6964b8816c6d0916d628",
+  "runtimeDirectory": "Assets/Characters/hedgehog",
+  "runtimeSha256": "5f0c8deb306e05f87f15868d753cda14edc3ea30f7983da39783817b63a77f19",
+  "createdWith": {
+    "tool": "image_gen",
+    "mode": "built-in",
+    "date": "2026-09-22"
+  },
+  "promptRecord": "Art/Characters/original-companions-v3/generation.md",
+  "sourceStatus": "original-rgba-png-preserved",
+  "packing": {
+    "tool": "Pillow",
+    "method": "unscaled-rgba-crop-and-place",
+    "cellSize": 256,
+    "baseline": 230,
+    "frames": [
+      {
+        "index": 0,
+        "sourceBox": [
+          91,
+          115,
+          293,
+          312
+        ],
+        "cellOffset": [
+          27,
+          35
+        ],
+        "size": [
+          202,
+          197
+        ]
+      },
+      {
+        "index": 1,
+        "sourceBox": [
+          385,
+          115,
+          587,
+          313
+        ],
+        "cellOffset": [
+          27,
+          34
+        ],
+        "size": [
+          202,
+          198
+        ]
+      },
+      {
+        "index": 2,
+        "sourceBox": [
+          671,
+          124,
+          872,
+          313
+        ],
+        "cellOffset": [
+          27,
+          43
+        ],
+        "size": [
+          201,
+          189
+        ]
+      },
+      {
+        "index": 3,
+        "sourceBox": [
+          963,
+          122,
+          1165,
+          312
+        ],
+        "cellOffset": [
+          27,
+          42
+        ],
+        "size": [
+          202,
+          190
+        ]
+      },
+      {
+        "index": 4,
+        "sourceBox": [
+          89,
+          391,
+          294,
+          587
+        ],
+        "cellOffset": [
+          25,
+          36
+        ],
+        "size": [
+          205,
+          196
+        ]
+      },
+      {
+        "index": 5,
+        "sourceBox": [
+          384,
+          426,
+          587,
+          585
+        ],
+        "cellOffset": [
+          26,
+          73
+        ],
+        "size": [
+          203,
+          159
+        ]
+      },
+      {
+        "index": 6,
+        "sourceBox": [
+          677,
+          391,
+          881,
+          587
+        ],
+        "cellOffset": [
+          26,
+          36
+        ],
+        "size": [
+          204,
+          196
+        ]
+      },
+      {
+        "index": 7,
+        "sourceBox": [
+          968,
+          389,
+          1171,
+          586
+        ],
+        "cellOffset": [
+          26,
+          35
+        ],
+        "size": [
+          203,
+          197
+        ]
+      },
+      {
+        "index": 8,
+        "sourceBox": [
+          88,
+          705,
+          330,
+          852
+        ],
+        "cellOffset": [
+          7,
+          85
+        ],
+        "size": [
+          242,
+          147
+        ]
+      },
+      {
+        "index": 9,
+        "sourceBox": [
+          382,
+          662,
+          587,
+          858
+        ],
+        "cellOffset": [
+          25,
+          36
+        ],
+        "size": [
+          205,
+          196
+        ]
+      },
+      {
+        "index": 10,
+        "sourceBox": [
+          669,
+          661,
+          876,
+          859
+        ],
+        "cellOffset": [
+          24,
+          34
+        ],
+        "size": [
+          207,
+          198
+        ]
+      },
+      {
+        "index": 11,
+        "sourceBox": [
+          962,
+          662,
+          1171,
+          859
+        ],
+        "cellOffset": [
+          23,
+          35
+        ],
+        "size": [
+          209,
+          197
+        ]
+      },
+      {
+        "index": 12,
+        "sourceBox": [
+          90,
+          970,
+          312,
+          1134
+        ],
+        "cellOffset": [
+          17,
+          68
+        ],
+        "size": [
+          222,
+          164
+        ]
+      },
+      {
+        "index": 13,
+        "sourceBox": [
+          391,
+          975,
+          605,
+          1141
+        ],
+        "cellOffset": [
+          21,
+          66
+        ],
+        "size": [
+          214,
+          166
+        ]
+      },
+      {
+        "index": 14,
+        "sourceBox": [
+          670,
+          977,
+          893,
+          1141
+        ],
+        "cellOffset": [
+          16,
+          68
+        ],
+        "size": [
+          223,
+          164
+        ]
+      },
+      {
+        "index": 15,
+        "sourceBox": [
+          965,
+          977,
+          1188,
+          1141
+        ],
+        "cellOffset": [
+          16,
+          68
+        ],
+        "size": [
+          223,
+          164
+        ]
+      }
+    ]
+  },
+  "humanArtApproval": "pending"
+}

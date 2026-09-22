@@ -319,25 +319,31 @@ internal static class SmokeDiagnostics
 
     private static async Task VerifySharedDialogs(Window owner, string directory)
     {
-        async Task<Window> PrepareDialog(double height)
+        async Task<Window> PrepareDialog()
         {
             await Until(() => owner.OwnedWindows.Any());
             var dialog = owner.OwnedWindows.Single();
-            // Native off-screen auto-sized dialogs need explicit capture bounds.
-            dialog.SizeToContent = SizeToContent.Manual; dialog.Height = height;
+            if (dialog.WindowDecorations != WindowDecorations.None || dialog.ShowInTaskbar ||
+                !dialog.TransparencyLevelHint.Contains(WindowTransparencyLevel.Transparent))
+                throw new InvalidOperationException("A shared dialog still uses operating-system window chrome.");
+            if (!dialog.Classes.Contains("unfold-modal") || dialog.SizeToContent != SizeToContent.Manual ||
+                dialog.Transitions?.Count > 0 || dialog.RenderTransform is not null ||
+                dialog.GetVisualDescendants().OfType<Button>().Where(button => button.Classes.Contains("unfold-action")).Any(control =>
+                    control.Transitions?.Count > 0 || control.RenderTransform is not null))
+                throw new InvalidOperationException("A shared dialog still contains motion or unresolved auto sizing.");
             AppRuntime.PrepareDiagnosticWindow(dialog); await Task.Delay(100);
             return dialog;
         }
         var confirmTask = Ui.Confirm(owner, "프로필을 삭제할까요?", "‘집중하는 시간’ 프로필을 삭제할까요? 현재 알림 설정과 기록은 유지돼요.", "삭제", "취소");
-        var confirm = await PrepareDialog(300);
+        var confirm = await PrepareDialog();
         Capture(confirm, Path.Combine(directory, "dialog-confirm.png"));
         Press(confirm, "취소"); if (await confirmTask != 1) throw new InvalidOperationException("Dialog cancel selected a destructive action.");
         var promptTask = Ui.Prompt(owner, "이름 바꾸기", "나만의 휴식");
-        var prompt = await PrepareDialog(280);
+        var prompt = await PrepareDialog();
         Capture(prompt, Path.Combine(directory, "dialog-prompt.png")); prompt.Close();
         if (await promptTask is not null) throw new InvalidOperationException("Closing the name dialog saved a value.");
         var errorTask = Ui.Error(owner, new IOException("Design system diagnostic"));
-        var error = await PrepareDialog(300);
+        var error = await PrepareDialog();
         Capture(error, Path.Combine(directory, "dialog-error.png")); Press(error, "확인"); await errorTask;
     }
     private static async Task VerifyPetPacks(AppRuntime runtime, CharacterPackage fixture, string directory)

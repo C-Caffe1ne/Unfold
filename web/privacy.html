@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="oat">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<title>프라이버시 — Unfold</title>
+<meta name="description" content="Unfold가 서버로 보내는 것과 보내지 않는 것을 전부 적었습니다.">
+<link rel="stylesheet" href="styles/main.css">
+<link rel="stylesheet" href="styles/pages.css">
+</head>
+<body>
+<a class="skip-link" href="#main">본문으로 건너뛰기</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="index.html">
+      <span class="brand-mark" aria-hidden="true">U</span>
+      Unfold
+    </a>
+    <nav class="site-nav" id="site-nav" aria-label="주요 메뉴">
+      <a href="index.html#features">기능</a>
+      <a href="pricing.html">가격</a>
+      <a href="install.html">설치 안내</a>
+      <a href="privacy.html" aria-current="page">프라이버시</a>
+    </nav>
+    <div class="header-actions">
+      <div class="theme-picker" role="group" aria-label="사이트 테마 선택">
+        <button class="theme-swatch" type="button" data-theme-value="oat" data-value="oat" aria-pressed="true" aria-label="다정한 오트 테마"></button>
+        <button class="theme-swatch" type="button" data-theme-value="sage" data-value="sage" aria-pressed="false" aria-label="숨 고르는 숲 테마"></button>
+        <button class="theme-swatch" type="button" data-theme-value="midnight" data-value="midnight" aria-pressed="false" aria-label="밤의 버터 테마"></button>
+        <button class="theme-swatch" type="button" data-theme-value="plum" data-value="plum" aria-pressed="false" aria-label="유연한 라일락 테마"></button>
+      </div>
+      <a class="btn btn-primary" href="signup.html">출시 알림 받기</a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="메뉴 열기">☰</button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <div class="page-head">
+    <div class="wrap">
+      <h1 class="page-title">프라이버시</h1>
+      <p class="page-desc">
+        Google 로그인과 결제 확인에 필요한 정보만 다루는 방향으로 설계하고 있습니다.
+      </p>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="wrap prose">
+
+      <h2>출시 후 서버에서 다룰 정보</h2>
+      <table class="data-table">
+        <caption>Google 로그인과 라이선스 확인에 필요한 최소 정보입니다.</caption>
+        <thead>
+          <tr>
+            <th scope="col">항목</th>
+            <th scope="col">쓰는 이유</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>이메일 주소</td>
+            <td>Google 계정 식별, 로그인, 구매 내역 연결</td>
+          </tr>
+          <tr>
+            <td>구매·체험 상태</td>
+            <td>체험 남은 기간과 결제 여부 확인</td>
+          </tr>
+          <tr>
+            <td>기기 식별 해시</td>
+            <td>기기 수 제한과 체험 초기화 방지. 원본 값이 아니라 해시만 저장합니다</td>
+          </tr>
+          <tr>
+            <td>운영체제 종류</td>
+            <td>맞는 다운로드 파일 제공</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>보내지 않는 것</h2>
+      <table class="data-table">
+        <caption>아래는 전부 사용자의 컴퓨터에만 있습니다.</caption>
+        <thead>
+          <tr>
+            <th scope="col">항목</th>
+            <th scope="col">어디에 있나</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>휴식 완료 기록</td>
+            <td><code>break-history.json</code>. 90일까지만 두고 자동으로 지웁니다</td>
+          </tr>
+          <tr>
+            <td>타이머·알림 설정</td>
+            <td><code>settings.json</code></td>
+          </tr>
+          <tr>
+            <td>설치한 펫 파일</td>
+            <td><code>Characters/</code> 폴더</td>
+          </tr>
+          <tr>
+            <td>커스텀 펫으로 넣은 영상·GIF</td>
+            <td>변환도 사용자의 컴퓨터에서 합니다. 원본을 올리지 않습니다</td>
+          </tr>
+          <tr>
+            <td>CSV로 내보낸 기록</td>
+            <td>사용자가 고른 위치. 자동으로 공유하지 않습니다</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>하지 않는 것</h2>
+      <p>
+        <strong>사용 행태를 추적하지 않습니다.</strong> 어떤 화면을 봤는지,
+        얼마나 자주 썼는지 수집하는 코드가 없습니다.
+      </p>
+      <p>
+        <strong>키 입력이나 실행 중인 프로그램을 보지 않습니다.</strong>
+        자리 비움 판단에는 운영체제가 알려 주는 "마지막 입력 이후 경과 시간"만 씁니다.
+        무엇을 눌렀는지는 알 수 없고 기록하지도 않습니다.
+      </p>
+      <p>
+        <strong>광고와 제3자 분석 도구를 넣지 않습니다.</strong>
+      </p>
+      <p>
+        <strong>완료 기록은 운동량이 아닙니다.</strong> 사용자가 완료 버튼을 누른
+        시각과 시간일 뿐이고, 건강 정보로 다루지 않습니다.
+      </p>
+
+      <h2>결제 정보</h2>
+      <p>
+        결제는 Lemon Squeezy가 처리하도록 연결할 예정입니다. 카드 번호를 비롯한
+        결제 수단 정보는 Unfold가 직접 저장하지 않고, 결제 화면은 브라우저에서
+        열리도록 설계합니다. 실제 수집 항목과 보관 기간은 서비스 공개 전에 확정합니다.
+      </p>
+
+      <h2>계정을 지우고 싶다면</h2>
+      <p>
+        출시 전 계정 삭제 방법과 처리 기한을 확정해 이곳에 안내합니다. 계정을 삭제해도
+        컴퓨터에 있는 기록과 설정은 자동으로 지워지지 않으므로, 로컬 데이터 삭제 방법도
+        <a href="install.html">설치 안내</a>에 함께 제공합니다.
+      </p>
+
+      <div class="notice notice-info stack-top">
+        <span class="notice-icon" aria-hidden="true">ℹ</span>
+        <div>
+          <strong>이 페이지는 목업입니다</strong>
+          <p>
+            실제 서비스 시작 전에 법적 검토를 거친 개인정보 처리 방침으로 교체해야 합니다.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-base">
+      <p>© 2026 Unfold</p>
+      <p><a href="install.html">설치 안내</a> · <a href="changelog.html">변경 이력</a></p>
+    </div>
+  </div>
+</footer>
+
+<script src="scripts/theme.js"></script>
+<script src="scripts/main.js"></script>
+</body>
+</html>

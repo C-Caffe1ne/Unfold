@@ -16,7 +16,7 @@ describe the paid-value hypotheses. No payment flow or store is implemented.
 
 ```text
 Active computer use → break invitation → start a chosen routine
-→ visible Mochi stretches once → timed steps → user confirms completion
+→ visible original pet stretches once, then walks → timed break → user confirms completion
 → local record + next work interval
 ```
 
@@ -40,10 +40,10 @@ observed. Those outcomes are not established by a passing build or animation tes
 | Completion history | Only pressing **완료** after starting adds a local record, including early completion and overtime. New records retain planned seconds and measured active session seconds; summaries use actual seconds when available. Sleep/stalled UI gaps do not accrue time. History is bounded to 2,000 entries; adding a record removes entries older than 90 days. |
 | Review/export | Seven-day counts and recorded rest time, previous-period navigation, and CSV export. The CSV retains planned_seconds and appends actual_seconds (blank for older records). Routine/profile snapshots and local dates are preserved. |
 | Desktop pet | Frameless, topmost, draggable, position-persistent, optionally hidden, and adjustable from 50–150% in 10% steps. Windows has OS-level transparent-pixel click-through; macOS does not. |
-| Mochi animation | Eight idle frames plus `stretch.gif`. A plain click has no reaction because Mochi has no `click` clip. Starting a break makes a visible pet stretch once, then return to idle. |
-| Optional reactions | Packages may supply `attention` on invitation, `celebrate` on confirmed completion, and `click`. Missing event clips leave the pet unchanged. Current Mochi does not supply these three. |
+| Original pet animation | Bundled Mochi (cat), 보리 (rabbit), 강아지 (dog), 고슴도치 (hedgehog) and 펭귄 (penguin) have ten clips, with random sleep/look/yawn after 20–40 eligible idle seconds. Press squashes, release bounces and plays surprise → looking around. The third consecutive snooze triggers sulking. During a break, one complete stretch precedes slow movement inside the current monitor work area. Pointer hover, dragging and context menus pause movement; completion, stop, hide and character change end it. Automatic movement does not overwrite saved manual position. |
+| Optional reactions | Packages may supply `attention` on invitation, `celebrate` on confirmed completion, and `click`. Missing event clips leave the pet unchanged. Expanded behaviors require the `unfold-original-v1` profile and all ten clips; the custom GIF/MP4 builder retains its five slots and existing playback. |
 | Hidden pet | A hidden pet appears temporarily for a new speech reminder without changing ShowPet. Explicit Hide Pet saves ShowPet=false and hides the current reminder without ending its session; routine refresh does not reveal it. Focus Reminder or the next new notification can reveal it again. Advance and completion notices expire after five seconds; invitation and active-break controls remain available. |
-| Character picker | A compact 200px selector lists bundled Mochi and valid characters already in the user's local library. |
+| Character picker | A compact 200px selector lists the five bundled pets and valid characters in the local library. When an old installed pack has a bundled ID, the bundled version appears once and the user's original files remain on disk. |
 | Pet packs | The sidebar **펫 추가** page has **펫 팩 열기** and **펫 팩 만들기** tabs, preserving drafts while navigating. Open a local .unfoldpet file, inspect animations/version on the current theme background, 100–200% preview size, Pause/Resume and Replay, then save to install, update, or reinstall. Action selection sits below the preview beside size; there is no background selector. Built-in and user-authored IDs are protected. Invalid packs and changed installed files are rejected before replacement. No purchase recovery or remote download. [Pack guide](pet-packs.md) |
 | Custom pets | **펫 추가 → 펫 팩 만들기 → 파일 가져오기** assigns GIF/MP4 snapshots to idle, attention, stretch, celebrate and click. Idle is required. Save a validated .unfoldpet, then preview/install through the existing flow. GIF timing is preserved; MP4 up to 10 seconds/128 MiB becomes silent GIF at up to 192px and 12 fps. No background removal. |
 | Launch at login | Opt-in Windows registry/macOS LaunchAgent integration. Test it from a published app in its final location. |
@@ -55,10 +55,16 @@ These are implementation descriptions, not blanket OS verification claims. See
 
 The MVP has no user-facing routine/profile setup, pixel editor, drawing tools or installed-character editing/deletion,
 scheduled profile switching, meeting/full-screen detection, clinical exercise
-library, accounts, cloud sync, AI chat, achievements, XP, shop, multiplayer, or
+library, cloud sync, AI chat, achievements, XP, in-app shop, multiplayer, or
 coding-agent integration. Weekly review/export remains available; routine-library and work-profile data
-are retained only for backward compatibility and internal diagnostics. This build has no payment locks.
-The proposed Free/Plus commercial boundary remains a hypothesis. [Compatibility and review guide](personalization.md)
+are retained only for backward compatibility and internal diagnostics. [Compatibility and review guide](personalization.md)
+
+Accounts, sign-in, the three-day trial and Lemon Squeezy payment are **planned but not implemented**.
+The current build makes no network calls at all: there is no account, no trial clock, no entitlement
+check and no payment lock, and every feature runs locally without signing in. Under that plan,
+completion history, settings and pet files still stay on the device. The single-product commercial
+boundary is recorded in [product direction](product-direction.md) and must not be described here as
+shipped behavior.
 
 The C# editor, pixel model, and Piskel codec remain because regression tests and
 `--smoke-test` exercise authoring/save/reopen behavior. They are not advertised as
@@ -74,12 +80,13 @@ tests, Xcode project, and Swift-only build workflow are recoverable from Git his
 see the [archive index](archive/README.md).
 
 Resource production, provenance, clip contracts, and the read-only asset audit are
-defined in [pet resources](pet-resources.md). Existing Mochi exports retain their
-bytes; the audit flags its stretch transparency/canvas mismatch and missing optional
-reactions. Runtime compatibility is not a premium-art quality approval.
-The separately installable [Bori 0.1.0 candidate](../Art/Characters/bori-rabbit/README.md)
-supplies all five reactions. It is excluded from bundled assets and still needs final
-art and commercial-rights review.
+defined in [pet resources](pet-resources.md). The [2026-09-22 original packs](../Art/Characters/original-companions-v2/README.md)
+replace the live Mochi atlas and add bundled Bori, using transparent 256px cells.
+The [dog, hedgehog and penguin packs](../Art/Characters/original-companions-v3/README.md)
+add three more pets with the same ten-clip profile and 16 poses in 256px cells.
+Generation prompts, source PNGs and hashes are retained. The legacy Mochi GIF and
+[Bori 0.1.0 candidate](../Art/Characters/bori-rabbit/README.md) remain as historical inputs.
+Runtime compatibility and automated captures are not final art or commercial-rights approval.
 
 ## Change rules
 

@@ -1,0 +1,16 @@
+{
+  "id": "bori-rabbit",
+  "contentVersion": "0.2.0",
+  "runtimeDirectory": "Assets/Characters/bori-rabbit",
+  "sourceFile": "Art/Characters/original-companions-v2/source/bori-atlas.png",
+  "sourceSha256": "aa1201af303d70cff6b8b543f3280168e979a7279ed83a4e98cab27f1be7f75a",
+  "createdWith": {
+    "tool": "image_gen",
+    "mode": "built-in",
+    "date": "2026-09-22"
+  },
+  "promptRecord": "Art/Characters/original-companions-v2/generation.md",
+  "sourceStatus": "original-rgba-png-preserved",
+  "humanArtApproval": "pending",
+  "notes": "256px cells; runtime aligns visible baseline without altering original pixels. No layered Aseprite source or rights certification is claimed."
+}

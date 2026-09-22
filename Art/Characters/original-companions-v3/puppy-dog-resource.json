@@ -1,0 +1,296 @@
+{
+  "id": "puppy-dog",
+  "contentVersion": "0.1.0",
+  "sourceFile": "Art/Characters/original-companions-v3/source/puppy-dog-atlas.png",
+  "sourceSha256": "5351340aa585adebcd4567de09a360e10bae04e19282298a8c18d59034237ce4",
+  "runtimeDirectory": "Assets/Characters/puppy-dog",
+  "runtimeSha256": "c8b605eed4f30c4ae51b5f1e2a03e100bfe326ffd364c0fc8e1367522a69161c",
+  "createdWith": {
+    "tool": "image_gen",
+    "mode": "built-in",
+    "date": "2026-09-22"
+  },
+  "promptRecord": "Art/Characters/original-companions-v3/generation.md",
+  "sourceStatus": "original-rgba-png-preserved",
+  "packing": {
+    "tool": "Pillow",
+    "method": "unscaled-rgba-crop-and-place",
+    "cellSize": 256,
+    "baseline": 230,
+    "frames": [
+      {
+        "index": 0,
+        "sourceBox": [
+          78,
+          95,
+          262,
+          286
+        ],
+        "cellOffset": [
+          36,
+          41
+        ],
+        "size": [
+          184,
+          191
+        ]
+      },
+      {
+        "index": 1,
+        "sourceBox": [
+          382,
+          95,
+          568,
+          286
+        ],
+        "cellOffset": [
+          35,
+          41
+        ],
+        "size": [
+          186,
+          191
+        ]
+      },
+      {
+        "index": 2,
+        "sourceBox": [
+          683,
+          96,
+          873,
+          286
+        ],
+        "cellOffset": [
+          33,
+          42
+        ],
+        "size": [
+          190,
+          190
+        ]
+      },
+      {
+        "index": 3,
+        "sourceBox": [
+          988,
+          94,
+          1172,
+          286
+        ],
+        "cellOffset": [
+          36,
+          40
+        ],
+        "size": [
+          184,
+          192
+        ]
+      },
+      {
+        "index": 4,
+        "sourceBox": [
+          79,
+          377,
+          264,
+          568
+        ],
+        "cellOffset": [
+          35,
+          41
+        ],
+        "size": [
+          185,
+          191
+        ]
+      },
+      {
+        "index": 5,
+        "sourceBox": [
+          356,
+          431,
+          584,
+          563
+        ],
+        "cellOffset": [
+          14,
+          100
+        ],
+        "size": [
+          228,
+          132
+        ]
+      },
+      {
+        "index": 6,
+        "sourceBox": [
+          688,
+          375,
+          877,
+          568
+        ],
+        "cellOffset": [
+          33,
+          39
+        ],
+        "size": [
+          189,
+          193
+        ]
+      },
+      {
+        "index": 7,
+        "sourceBox": [
+          988,
+          376,
+          1174,
+          568
+        ],
+        "cellOffset": [
+          35,
+          40
+        ],
+        "size": [
+          186,
+          192
+        ]
+      },
+      {
+        "index": 8,
+        "sourceBox": [
+          64,
+          675,
+          282,
+          849
+        ],
+        "cellOffset": [
+          19,
+          58
+        ],
+        "size": [
+          218,
+          174
+        ]
+      },
+      {
+        "index": 9,
+        "sourceBox": [
+          382,
+          665,
+          573,
+          853
+        ],
+        "cellOffset": [
+          32,
+          44
+        ],
+        "size": [
+          191,
+          188
+        ]
+      },
+      {
+        "index": 10,
+        "sourceBox": [
+          685,
+          663,
+          875,
+          853
+        ],
+        "cellOffset": [
+          33,
+          42
+        ],
+        "size": [
+          190,
+          190
+        ]
+      },
+      {
+        "index": 11,
+        "sourceBox": [
+          991,
+          664,
+          1180,
+          853
+        ],
+        "cellOffset": [
+          33,
+          43
+        ],
+        "size": [
+          189,
+          189
+        ]
+      },
+      {
+        "index": 12,
+        "sourceBox": [
+          61,
+          966,
+          283,
+          1137
+        ],
+        "cellOffset": [
+          17,
+          61
+        ],
+        "size": [
+          222,
+          171
+        ]
+      },
+      {
+        "index": 13,
+        "sourceBox": [
+          376,
+          966,
+          596,
+          1135
+        ],
+        "cellOffset": [
+          18,
+          63
+        ],
+        "size": [
+          220,
+          169
+        ]
+      },
+      {
+        "index": 14,
+        "sourceBox": [
+          677,
+          968,
+          893,
+          1137
+        ],
+        "cellOffset": [
+          20,
+          63
+        ],
+        "size": [
+          216,
+          169
+        ]
+      },
+      {
+        "index": 15,
+        "sourceBox": [
+          978,
+          970,
+          1200,
+          1138
+        ],
+        "cellOffset": [
+          17,
+          64
+        ],
+        "size": [
+          222,
+          168
+        ]
+      }
+    ]
+  },
+  "humanArtApproval": "pending"
+}

@@ -1,0 +1,128 @@
+{
+  "success": true,
+  "pets": [
+    {
+      "id": "default-cat",
+      "clips": [
+        {
+          "key": "idle",
+          "frames": 8,
+          "elapsedMs": 2057.6288
+        },
+        {
+          "key": "attention",
+          "frames": 5,
+          "elapsedMs": 1015.3722
+        },
+        {
+          "key": "stretch",
+          "frames": 9,
+          "elapsedMs": 2261.2834
+        },
+        {
+          "key": "celebrate",
+          "frames": 6,
+          "elapsedMs": 1009.6926
+        },
+        {
+          "key": "click",
+          "frames": 8,
+          "elapsedMs": 1605.061
+        },
+        {
+          "key": "sleep",
+          "frames": 14,
+          "elapsedMs": 7010.7635
+        },
+        {
+          "key": "look",
+          "frames": 7,
+          "elapsedMs": 1758.5904
+        },
+        {
+          "key": "yawn",
+          "frames": 7,
+          "elapsedMs": 1756.1383
+        },
+        {
+          "key": "sulk",
+          "frames": 7,
+          "elapsedMs": 2341.5888
+        },
+        {
+          "key": "walk",
+          "frames": 4,
+          "elapsedMs": 574.0566
+        }
+      ],
+      "pointerPoseCaptured": true,
+      "thirdSnoozeVerified": true,
+      "stretchBeforeWalkVerified": true,
+      "completionAndHideStopWalking": true
+    },
+    {
+      "id": "bori-rabbit",
+      "clips": [
+        {
+          "key": "idle",
+          "frames": 8,
+          "elapsedMs": 2067.1652
+        },
+        {
+          "key": "attention",
+          "frames": 5,
+          "elapsedMs": 1002.8999
+        },
+        {
+          "key": "stretch",
+          "frames": 8,
+          "elapsedMs": 2003.7659
+        },
+        {
+          "key": "celebrate",
+          "frames": 6,
+          "elapsedMs": 1008.4301
+        },
+        {
+          "key": "click",
+          "frames": 8,
+          "elapsedMs": 1608.6681
+        },
+        {
+          "key": "sleep",
+          "frames": 14,
+          "elapsedMs": 7004.4062
+        },
+        {
+          "key": "look",
+          "frames": 7,
+          "elapsedMs": 1757.9372
+        },
+        {
+          "key": "yawn",
+          "frames": 7,
+          "elapsedMs": 1756.4305
+        },
+        {
+          "key": "sulk",
+          "frames": 7,
+          "elapsedMs": 2340.7897
+        },
+        {
+          "key": "walk",
+          "frames": 4,
+          "elapsedMs": 574.1957
+        }
+      ],
+      "pointerPoseCaptured": true,
+      "thirdSnoozeVerified": true,
+      "stretchBeforeWalkVerified": true,
+      "completionAndHideStopWalking": true
+    }
+  ],
+  "physicalInput": false,
+  "offScreen": true,
+  "realTimePlayback": true,
+  "desktopMovement": false,
+  "images": 46
+}

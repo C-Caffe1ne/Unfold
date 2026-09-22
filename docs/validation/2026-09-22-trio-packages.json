@@ -1,0 +1,44 @@
+[
+  {
+    "id": "puppy-dog",
+    "file": "artifacts/pet-packs/companions-v3/puppy-dog-0.1.0.unfoldpet",
+    "bytes": 819136,
+    "sha256": "1c3a1d6d2e069dfb0a8082bd6f3740e8f1c0e1579147774cfe9bf8e66f2e60a2",
+    "entries": [
+      "character.json",
+      "spritesheet.png",
+      "pack.json"
+    ],
+    "zipCrcValid": true,
+    "internalHashesValid": true,
+    "runtimeBytesMatch": true
+  },
+  {
+    "id": "hedgehog",
+    "file": "artifacts/pet-packs/companions-v3/hedgehog-0.1.0.unfoldpet",
+    "bytes": 861890,
+    "sha256": "728e6b0d92f919f22ad035e2c24e08c95ee36ee5bc272437598674989c478244",
+    "entries": [
+      "character.json",
+      "spritesheet.png",
+      "pack.json"
+    ],
+    "zipCrcValid": true,
+    "internalHashesValid": true,
+    "runtimeBytesMatch": true
+  },
+  {
+    "id": "penguin",
+    "file": "artifacts/pet-packs/companions-v3/penguin-0.1.0.unfoldpet",
+    "bytes": 723170,
+    "sha256": "6ce2962c1f3cb4858c8a5a68160c0fb4969ac1e81d396ddc9610c18df522f32e",
+    "entries": [
+      "character.json",
+      "spritesheet.png",
+      "pack.json"
+    ],
+    "zipCrcValid": true,
+    "internalHashesValid": true,
+    "runtimeBytesMatch": true
+  }
+]

@@ -7,13 +7,16 @@ namespace Unfold.Core;
 public sealed record SheetDefinition(string File, int Columns, int Rows, int FrameWidth, int FrameHeight);
 public sealed record AnimationDefinition(int[]? Frames = null, double? Fps = null, string? Gif = null, bool Loop = true);
 public sealed record CharacterManifest(string Id, string Name, int Version, SheetDefinition SpriteSheet,
-    Dictionary<string, AnimationDefinition> Animations, string? ThumbnailSymbol = null, string? RenderStyle = null);
+    Dictionary<string, AnimationDefinition> Animations, string? ThumbnailSymbol = null, string? RenderStyle = null,
+    string? BehaviorProfile = null);
 
 public sealed class CharacterPackage
 {
     public string DirectoryPath { get; }
     public CharacterManifest Manifest { get; }
     public bool IsBuiltIn { get; }
+    public bool HasOriginalBehavior => Manifest.BehaviorProfile == OriginalCompanion.Profile &&
+        OriginalCompanion.RequiredClips.All(Manifest.Animations.ContainsKey);
     private readonly Lazy<PixelImage> sheet;
     public PixelImage Sheet => sheet.Value;
     public override string ToString() => Manifest.Name;

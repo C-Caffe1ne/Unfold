@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="oat">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<title>로그인 — Unfold</title>
+<meta name="description" content="Unfold 계정으로 로그인해 다운로드와 라이선스를 관리하세요.">
+<link rel="stylesheet" href="styles/main.css">
+<link rel="stylesheet" href="styles/pages.css">
+</head>
+<body>
+<a class="skip-link" href="#main">본문으로 건너뛰기</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="index.html">
+      <span class="brand-mark" aria-hidden="true">U</span>
+      Unfold
+    </a>
+    <nav class="site-nav" id="site-nav" aria-label="주요 메뉴">
+      <a href="index.html#features">기능</a>
+      <a href="pricing.html">가격</a>
+      <a href="install.html">설치 안내</a>
+      <a href="privacy.html">프라이버시</a>
+    </nav>
+    <div class="header-actions">
+      <div class="theme-picker" role="group" aria-label="사이트 테마 선택">
+        <button class="theme-swatch" type="button" data-theme-value="oat" data-value="oat" aria-pressed="true" aria-label="다정한 오트 테마"></button>
+        <button class="theme-swatch" type="button" data-theme-value="sage" data-value="sage" aria-pressed="false" aria-label="숨 고르는 숲 테마"></button>
+        <button class="theme-swatch" type="button" data-theme-value="midnight" data-value="midnight" aria-pressed="false" aria-label="밤의 버터 테마"></button>
+        <button class="theme-swatch" type="button" data-theme-value="plum" data-value="plum" aria-pressed="false" aria-label="유연한 라일락 테마"></button>
+      </div>
+      <a class="btn btn-primary" href="signup.html">출시 알림 받기</a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="메뉴 열기">☰</button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="auth-main">
+  <div class="wrap">
+    <div class="auth-card">
+
+      <span class="eyebrow">Google 계정</span>
+      <h1 class="auth-title">다시 만나서 반가워요</h1>
+      <p class="auth-desc">
+        출시 후에는 가입할 때 사용한 Google 계정으로 다운로드와 구매 내역을 확인합니다.
+      </p>
+
+      <div class="notice notice-info" role="status" data-mock-result hidden tabindex="-1">
+        <span class="notice-icon" aria-hidden="true">✓</span>
+        <div>
+          <strong>Google 로그인은 아직 연결 전입니다</strong>
+          <p>계정 화면의 구성을 미리 보려면 <a href="dashboard.html">대시보드 목업</a>으로 이동하세요.</p>
+        </div>
+      </div>
+
+      <button class="google-auth-button" type="button" data-google-auth>
+        <svg class="google-mark" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="#4285F4" d="M21.6 12.2c0-.7-.1-1.4-.2-2H12v3.8h5.4a4.6 4.6 0 0 1-2 3v2.5h3.2c1.9-1.8 3-4.3 3-7.3Z"/>
+          <path fill="#34A853" d="M12 22c2.7 0 5-.9 6.6-2.4l-3.2-2.5c-.9.6-2 1-3.4 1a5.8 5.8 0 0 1-5.5-4H3.2v2.6A10 10 0 0 0 12 22Z"/>
+          <path fill="#FBBC05" d="M6.5 14.1a6 6 0 0 1 0-4.2V7.3H3.2a10 10 0 0 0 0 9.4l3.3-2.6Z"/>
+          <path fill="#EA4335" d="M12 5.9c1.5 0 2.8.5 3.8 1.5l2.8-2.8A9.4 9.4 0 0 0 12 2a10 10 0 0 0-8.8 5.3l3.3 2.6a5.8 5.8 0 0 1 5.5-4Z"/>
+        </svg>
+        Google로 로그인
+      </button>
+
+      <p class="auth-security">Unfold는 Google 비밀번호를 보거나 저장하지 않습니다.</p>
+
+      <p class="auth-foot">
+        아직 신청하지 않으셨나요? <a href="signup.html">출시 알림 받기</a>
+      </p>
+
+    </div>
+  </div>
+</main>
+
+<script src="scripts/theme.js"></script>
+<script src="scripts/main.js"></script>
+</body>
+</html>

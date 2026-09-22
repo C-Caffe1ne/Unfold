@@ -11,7 +11,7 @@ using Unfold.Core;
 
 namespace Unfold.Desktop;
 
-public sealed class PetWindow : Window
+public sealed partial class PetWindow : Window
 {
     private readonly AppRuntime runtime;
     private readonly Canvas canvas = new();
@@ -44,6 +44,7 @@ public sealed class PetWindow : Window
     private bool dragging, clickThrough;
     private long pressedAt;
     private int generation;
+    private CancellationTokenSource? reactionCancellation;
     private CharacterPackage? character;
     public PetWindow(AppRuntime runtime)
     {
@@ -67,6 +68,7 @@ public sealed class PetWindow : Window
         {
             if (!e.GetCurrentPoint(animation).Properties.IsLeftButtonPressed || !animation.OpaqueAt(e.GetPosition(animation))) return;
             down = animation.PointToScreen(e.GetPosition(animation)); origin = Position; pressedAt = Stopwatch.GetTimestamp(); dragging = false;
+            BeginCompanionPress();
             e.Pointer.Capture(animation); e.Handled = true;
         };
         animation.PointerMoved += (_, e) =>
@@ -74,17 +76,18 @@ public sealed class PetWindow : Window
             if (down is not { } start) return;
             var current = animation.PointToScreen(e.GetPosition(animation)); var delta = current - start;
             if (Math.Sqrt((double)delta.X * delta.X + (double)delta.Y * delta.Y) >= 5) dragging = true;
-            if (dragging) Position = new(origin.X + delta.X, origin.Y + delta.Y);
+            if (dragging) { CancelCompanionPose(); Position = new(origin.X + delta.X, origin.Y + delta.Y); }
         };
         animation.PointerReleased += async (_, e) =>
         {
             if (down is null) return;
-            var clicked = !dragging && Stopwatch.GetElapsedTime(pressedAt).TotalSeconds <= 0.22;
+            var clicked = !dragging && (HasOriginalBehavior || Stopwatch.GetElapsedTime(pressedAt).TotalSeconds <= 0.22);
             down = null; e.Pointer.Capture(null); ClampPosition(); runtime.SavePosition(PetAnchor);
+            ReleaseCompanionPress(clicked);
             if (clicked) await React();
         };
-        animation.PointerCaptureLost += (_, _) => { down = null; };
-        hitTimer.Tick += (_, _) => UpdateClickThrough();
+        animation.PointerCaptureLost += (_, _) => { if (down is not null) { down = null; ReleaseCompanionPress(false); } };
+        hitTimer.Tick += (_, _) => { UpdateClickThrough(); TickCompanion(); };
         Opened += (_, _) =>
         {
             if (runtime.DiagnosticMode) { Position = new(-32000, -32000); return; }
@@ -92,42 +95,79 @@ public sealed class PetWindow : Window
             Position = runtime.Settings.PetX is int x && runtime.Settings.PetY is int y ? new(x, y) : new(work.Right - (int)(Width * DesktopScaling) - 24, work.Bottom - (int)(Height * DesktopScaling) - 24);
             ClampPosition(); hitTimer.Start();
         };
-        Closed += (_, _) => { hitTimer.Stop(); animation.Dispose(); };
+        Closed += (_, _) => { InvalidatePlayback(); ResetCompanion(); hitTimer.Stop(); animation.Dispose(); };
     }
     public async Task SetCharacter()
     {
         var selected = runtime.Selected;
         if (character == selected) return;
-        var current = ++generation; var frames = await runtime.Clip("idle");
+        var current = InvalidatePlayback(); ResetCompanion();
+        var frames = await runtime.Clip("idle");
         if (current != generation) return;
-        character = selected; animation.SetFrames(frames, true, selected?.Manifest.RenderStyle == "pixel");
+        character = selected; ActiveAnimation = "idle";
+        if (selected?.HasOriginalBehavior == true && runtime.Reminder.Notice == PetNotice.Resting)
+            originalStretchSession = runtime.Reminder.Session;
+        animation.SetFrames(frames, true, selected?.Manifest.RenderStyle == "pixel", selected?.HasOriginalBehavior == true);
     }
     internal async Task React(string? preferred = null)
     {
         try
         {
             var selected = runtime.Selected;
+            if (!IsVisible) return;
             // Stretch belongs to reminders. A plain click reacts only when the character
             // ships a click clip, and otherwise leaves the idle loop alone — so the early
             // return has to happen before generation moves, or it would cancel a stretch.
             var key = preferred ?? (selected?.Manifest.Animations.ContainsKey("click") == true ? "click" : null);
             if (key is null || selected?.Manifest.Animations.ContainsKey(key) != true) return;
-            var current = ++generation;
-            var frames = await runtime.Clip(key); if (current != generation) return;
-            animation.SetFrames(frames, false, selected?.Manifest.RenderStyle == "pixel");
-            var duration = frames.Sum(f => f.Duration.TotalMilliseconds);
-            await Task.Delay(TimeSpan.FromMilliseconds(Math.Clamp(duration, 200, 10000)));
-            if (current == generation) { character = null; await SetCharacter(); }
+            var current = InvalidatePlayback();
+            var cancellation = reactionCancellation = new CancellationTokenSource();
+            var session = runtime.Reminder.Session;
+            if (selected.HasOriginalBehavior && key == "stretch" && runtime.Reminder.Notice == PetNotice.Resting)
+                originalStretchSession = session;
+            ActiveAnimation = key; reacting = true; idleSchedule.Reset();
+            var completed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            void Finished() => completed.TrySetResult();
+            animation.Completed += Finished;
+            try
+            {
+                var frames = await runtime.Clip(key); if (current != generation) return;
+                animation.SetRunning(true);
+                animation.SetFrames(frames, false, selected.Manifest.RenderStyle == "pixel", selected.HasOriginalBehavior);
+                await completed.Task.WaitAsync(cancellation.Token);
+                if (current != generation) return;
+                if (selected.HasOriginalBehavior && key == "stretch" && session is not null &&
+                    runtime.Reminder.Session == session && runtime.Reminder.Notice == PetNotice.Resting)
+                { originalStretchSession = null; walkingSession = session; }
+                await RestoreBaseAnimation(current);
+            }
+            finally
+            {
+                animation.Completed -= Finished;
+                if (reactionCancellation == cancellation) reactionCancellation = null;
+                cancellation.Dispose();
+            }
         }
+        catch (OperationCanceledException) { }
         catch (Exception error) { AppPaths.Log(error); }
     }
-    public void ShowPet() { Show(); RefreshSpeech(); hitTimer.Start(); animation.SetRunning(true); }
-    public void HidePet() { generation++; character = null; Hide(); hitTimer.Stop(); animation.SetRunning(false); }
-    public void ClosePet() { generation++; hitTimer.Stop(); Close(); }
+    private int InvalidatePlayback()
+    {
+        generation++; reactionCancellation?.Cancel(); reactionCancellation = null; reacting = false;
+        return generation;
+    }
+    public void ShowPet()
+    {
+        Show(); RefreshSpeech(); lastCompanionTick = Stopwatch.GetTimestamp(); hitTimer.Start(); animation.SetRunning(true);
+        if (originalStretchSession is not null && !reacting && !pressed) _ = React("stretch");
+    }
+    public void HidePet() { InvalidatePlayback(); ResetCompanion(); character = null; Hide(); hitTimer.Stop(); animation.SetRunning(false); }
+    public void ClosePet() { InvalidatePlayback(); ResetCompanion(); hitTimer.Stop(); Close(); }
     internal void FocusReminder() { Activate(); bubble.FocusAction(); }
     public void RefreshSpeech()
     {
         var reminder = runtime.PresentedReminder;
+        RefreshCompanionContext();
         bubble.Refresh(reminder, runtime.Settings.SnoozeMinutes);
         var petSize = DesignSystem.PetBaseSize * runtime.Settings.PetScalePercent / 100d;
         animation.Width = animation.Height = petSize;

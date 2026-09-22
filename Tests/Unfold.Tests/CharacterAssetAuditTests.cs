@@ -10,7 +10,8 @@ public class CharacterAssetAuditTests
     {
         var report = CharacterAssetAudit.Inspect(Path.Combine(AppContext.BaseDirectory, "Assets", "Characters"));
         Assert.True(report.Success, JsonSerializer.Serialize(report));
-        var cat = Assert.Single(report.Characters); Assert.Equal("default-cat", cat.Id);
+        Assert.Equal(new[] { "bori-rabbit", "default-cat", "hedgehog", "penguin", "puppy-dog" }, report.Characters.Select(item => item.Id).Order());
+        var cat = report.Characters.Single(item => item.Id == "default-cat");
         Assert.Contains(cat.Clips, clip => clip.Key == "stretch" && clip.Frames > 1 && clip.EmptyFrames == 0);
         Assert.All(cat.Files, file => { Assert.True(file.Bytes > 0); Assert.Equal(64, file.Sha256.Length); });
     }

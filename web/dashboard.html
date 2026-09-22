@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="oat">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<title>계정 화면 미리보기 — Unfold</title>
+<meta name="description" content="Google 로그인 후 사용할 Unfold 계정과 다운로드 화면의 목업입니다.">
+<link rel="stylesheet" href="styles/main.css">
+<link rel="stylesheet" href="styles/pages.css">
+</head>
+<body>
+<a class="skip-link" href="#main">본문으로 건너뛰기</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="index.html">
+      <span class="brand-mark" aria-hidden="true">U</span>
+      Unfold
+    </a>
+    <nav class="site-nav" id="site-nav" aria-label="주요 메뉴">
+      <a href="dashboard.html" aria-current="page">내 계정</a>
+      <a href="install.html">설치 안내</a>
+      <a href="changelog.html">변경 이력</a>
+      <a href="privacy.html">프라이버시</a>
+    </nav>
+    <div class="header-actions">
+      <div class="theme-picker" role="group" aria-label="사이트 테마 선택">
+        <button class="theme-swatch" type="button" data-theme-value="oat" data-value="oat" aria-pressed="true" aria-label="다정한 오트 테마"></button>
+        <button class="theme-swatch" type="button" data-theme-value="sage" data-value="sage" aria-pressed="false" aria-label="숨 고르는 숲 테마"></button>
+        <button class="theme-swatch" type="button" data-theme-value="midnight" data-value="midnight" aria-pressed="false" aria-label="밤의 버터 테마"></button>
+        <button class="theme-swatch" type="button" data-theme-value="plum" data-value="plum" aria-pressed="false" aria-label="유연한 라일락 테마"></button>
+      </div>
+      <a class="btn btn-quiet" href="login.html">로그인 화면</a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="메뉴 열기">☰</button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <div class="dash-head">
+    <div class="wrap">
+      <h1 class="dash-title">계정 화면 미리보기</h1>
+      <p class="dash-email">Google 로그인 후 계정 이메일이 표시됩니다</p>
+    </div>
+  </div>
+
+  <div class="wrap dash-layout">
+
+    <div>
+      <!-- 체험 상태 -->
+      <div class="status-strip">
+        <span class="status-dot is-warning" aria-hidden="true"></span>
+        <div class="status-text">
+          <strong>Google 로그인·결제 연동 준비 중</strong>
+          <span>이 화면에는 실제 계정이나 구매 상태가 연결되어 있지 않습니다</span>
+        </div>
+        <a class="btn btn-primary" href="pricing.html">가격 안내 보기</a>
+      </div>
+
+      <!-- 다운로드 -->
+      <section class="card">
+        <h2 class="card-title">다운로드</h2>
+        <p class="card-desc stack-top">
+          서명·공증과 실제 OS 확인을 마친 공개 파일만 제공할 예정입니다.
+          지금 보이는 항목은 다운로드 영역의 레이아웃을 확인하기 위한 목업입니다.
+        </p>
+
+        <ul class="dl-list stack-top">
+          <li>
+            <div class="dl-row" data-os="mac">
+              <div class="dl-info">
+                <strong>macOS · Apple Silicon</strong>
+                <span>공개 파일 준비 중 · macOS 12 이상</span>
+                <span class="dl-hint" data-os-hint hidden>이 컴퓨터용 공개 파일이 여기에 표시됩니다</span>
+              </div>
+              <button class="btn btn-secondary" type="button" disabled>준비 중</button>
+            </div>
+          </li>
+          <li>
+            <div class="dl-row">
+              <div class="dl-info">
+                <strong>macOS · Intel</strong>
+                <span>공개 파일 준비 중 · macOS 12 이상</span>
+              </div>
+              <button class="btn btn-secondary" type="button" disabled>준비 중</button>
+            </div>
+          </li>
+          <li>
+            <div class="dl-row" data-os="windows">
+              <div class="dl-info">
+                <strong>Windows · x64</strong>
+                <span>공개 파일 준비 중 · Windows 10 이상</span>
+                <span class="dl-hint" data-os-hint hidden>이 컴퓨터용 공개 파일이 여기에 표시됩니다</span>
+              </div>
+              <button class="btn btn-secondary" type="button" disabled>준비 중</button>
+            </div>
+          </li>
+        </ul>
+
+        <p class="checksum">공개 시 파일별 버전·용량·SHA-256 값을 이곳에 표시합니다.</p>
+
+        <div class="notice notice-warning stack-top">
+          <span class="notice-icon" aria-hidden="true">⚠</span>
+          <div>
+            <strong>처음 실행할 때 경고가 뜹니다</strong>
+            <p>
+              현재 테스트 배포본은 운영체제 경고가 나타날 수 있습니다.
+              공개 전에 서명·공증 상태와 <a href="install.html">설치 안내</a>를 함께 갱신합니다.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 계정 연결 -->
+      <section class="card stack-top">
+        <h2 class="card-title">Google 계정 연결</h2>
+        <p class="card-desc">
+          별도 비밀번호 없이 Google 계정으로 로그인하고, 구매 완료 후 Lemon Squeezy의
+          주문 정보를 이 계정에 연결하는 흐름을 준비하고 있습니다.
+        </p>
+      </section>
+    </div>
+
+    <aside>
+      <section class="card side-card">
+        <h2 class="card-title">구매 준비</h2>
+        <p class="card-desc">
+          가격은 아직 정하지 않았습니다. 확정 후 Lemon Squeezy 결제 창으로 연결합니다.
+        </p>
+        <a class="btn btn-primary btn-block stack-top" href="pricing.html">가격 안내 보기</a>
+      </section>
+
+      <section class="card side-card">
+        <h2 class="card-title">공개 상태</h2>
+        <p class="card-desc">
+          다운로드 준비 중
+        </p>
+        <p class="card-desc stack-top">
+          현재 변경 이력은 테스트 빌드의 기록입니다. 공개 파일이 준비되면 이 페이지에서
+          버전과 검증 상태를 함께 안내합니다.
+        </p>
+        <a class="btn btn-quiet btn-block stack-top" href="changelog.html">변경 이력 보기</a>
+      </section>
+
+      <section class="card side-card">
+        <h2 class="card-title">도움이 필요하신가요</h2>
+        <p class="card-desc">
+          설치가 막히거나 결제에 문제가 있으면 알려 주세요.
+        </p>
+        <a class="btn btn-quiet btn-block stack-top" href="install.html">설치 안내 보기</a>
+      </section>
+    </aside>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-base">
+      <p>© 2026 Unfold</p>
+      <p><a href="privacy.html">프라이버시</a></p>
+    </div>
+  </div>
+</footer>
+
+<script src="scripts/theme.js"></script>
+<script src="scripts/main.js"></script>
+</body>
+</html>

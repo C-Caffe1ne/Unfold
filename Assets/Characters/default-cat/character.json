@@ -2,24 +2,150 @@
   "id": "default-cat",
   "name": "Mochi",
   "version": 1,
-  "thumbnailSymbol": "cat.fill",
+  "renderStyle": "smooth",
+  "behaviorProfile": "unfold-original-v1",
   "spriteSheet": {
     "file": "spritesheet.png",
-    "columns": 8,
-    "rows": 3,
-    "frameWidth": 384,
-    "frameHeight": 384
+    "columns": 4,
+    "rows": 6,
+    "frameWidth": 256,
+    "frameHeight": 256
   },
   "animations": {
     "idle": {
-      "frames": [0, 1, 2, 3, 4, 5, 6, 7],
-      "fps": 7,
+      "frames": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "fps": 2,
       "loop": true
     },
-    "stretch": {
-      "frames": [8, 9, 10, 11, 12, 13, 14, 15, 14, 13, 12, 11, 10, 9, 8],
-      "fps": 7,
+    "attention": {
+      "frames": [
+        0,
+        8,
+        8,
+        8,
+        0
+      ],
+      "fps": 5,
       "loop": false
+    },
+    "stretch": {
+      "frames": [
+        0,
+        9,
+        9,
+        10,
+        10,
+        10,
+        10,
+        9,
+        0
+      ],
+      "fps": 4,
+      "loop": false
+    },
+    "celebrate": {
+      "frames": [
+        0,
+        12,
+        12,
+        12,
+        12,
+        0
+      ],
+      "fps": 6,
+      "loop": false
+    },
+    "click": {
+      "frames": [
+        13,
+        13,
+        14,
+        14,
+        13,
+        15,
+        15,
+        0
+      ],
+      "fps": 5,
+      "loop": false
+    },
+    "sleep": {
+      "frames": [
+        4,
+        4,
+        5,
+        5,
+        6,
+        6,
+        5,
+        5,
+        6,
+        6,
+        5,
+        5,
+        4,
+        0
+      ],
+      "fps": 2,
+      "loop": false
+    },
+    "look": {
+      "frames": [
+        0,
+        2,
+        2,
+        0,
+        3,
+        3,
+        0
+      ],
+      "fps": 4,
+      "loop": false
+    },
+    "yawn": {
+      "frames": [
+        0,
+        4,
+        7,
+        7,
+        7,
+        4,
+        0
+      ],
+      "fps": 4,
+      "loop": false
+    },
+    "sulk": {
+      "frames": [
+        17,
+        17,
+        16,
+        16,
+        16,
+        17,
+        0
+      ],
+      "fps": 3,
+      "loop": false
+    },
+    "walk": {
+      "frames": [
+        18,
+        19,
+        20,
+        21
+      ],
+      "fps": 7,
+      "loop": true
     }
   }
 }

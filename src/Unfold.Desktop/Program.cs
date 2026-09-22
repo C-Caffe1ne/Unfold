@@ -9,6 +9,15 @@ internal static class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        if (args.Length > 0 && args[0] == "--review-original-pets")
+        {
+            if (args.Length != 1) { Console.Error.WriteLine("Usage: --review-original-pets"); return 2; }
+            var profile = Environment.GetEnvironmentVariable("UNFOLD_DATA_DIR");
+            if (string.IsNullOrEmpty(profile))
+                Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", Path.Combine(Path.GetTempPath(), "Unfold-originals-" + Guid.NewGuid().ToString("N")));
+            else if (Directory.Exists(profile) && Directory.EnumerateFileSystemEntries(profile).Any())
+            { Console.Error.WriteLine("Original pet review requires a new empty UNFOLD_DATA_DIR."); return 2; }
+        }
         if (args.Length > 0 && args[0] == "--review-pet-pack")
         {
             if (args.Length != 2) { Console.Error.WriteLine("Usage: --review-pet-pack <file.unfoldpet>"); return 2; }
@@ -47,7 +56,22 @@ internal static class Program
             catch (Exception error) { AppPaths.Log(error); return 1; }
         }
     }
-    public static AppBuilder BuildAvaloniaApp() => AppBuilder.Configure<App>().UsePlatformDetect().LogToTrace();
+    public static AppBuilder BuildAvaloniaApp() => ConfigureRendering(AppBuilder.Configure<App>().UsePlatformDetect()).LogToTrace();
+
+    internal static AppBuilder ConfigureRendering(AppBuilder builder)
+    {
+        if (OperatingSystem.IsMacOS())
+        {
+            // Metal leaves transient previous-frame silhouettes in the transparent pet
+            // window during rapid pose changes. Keep GPU rendering through OpenGL,
+            // with a software fallback for Macs where OpenGL cannot initialize.
+            builder.With(new AvaloniaNativePlatformOptions
+            {
+                RenderingMode = [AvaloniaNativeRenderingMode.OpenGl, AvaloniaNativeRenderingMode.Software]
+            });
+        }
+        return builder;
+    }
 }
 
 public static class AppPaths

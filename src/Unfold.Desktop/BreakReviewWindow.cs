@@ -106,9 +106,7 @@ internal sealed class BreakReviewView : UserControl
         var daily = Ui.Column(dailyHeading, days); daily.Spacing = DesignSystem.Space;
         var dailyCard = Ui.Card(daily, DesignSystem.Inset); dailyCard.Name = "ReviewDailyCard";
         var sections = Ui.Column(summaryCard, dailyCard, warningText); sections.Spacing = DesignSystem.Inset;
-        sections.MaxWidth = DesignSystem.ReviewContentWidth; sections.HorizontalAlignment = HorizontalAlignment.Stretch;
-        var body = new Grid { Name = "ReviewBody", ColumnDefinitions = new("*") };
-        body.ColumnDefinitions[0].MaxWidth = DesignSystem.ReviewContentWidth; body.Children.Add(sections);
+        var body = Ui.CenteredBody(sections, DesignSystem.ReviewContentWidth, "ReviewBody");
         var footer = new Grid { Name = "ReviewFooter", ColumnDefinitions = new("*,Auto"), ColumnSpacing = DesignSystem.Inset };
         footer.Children.Add(status); var actions = Ui.Actions(footerActions.ToArray());
         actions.VerticalAlignment = VerticalAlignment.Center; Grid.SetColumn(actions, 1); footer.Children.Add(actions);

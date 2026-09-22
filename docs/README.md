@@ -8,8 +8,14 @@
 | [에이전트 작업 안내](../AGENTS.md) | Codex·Claude 공통 프로젝트 지침. Claude는 `CLAUDE.md`에서 가져온다. |
 | [프로젝트 README](../README.md) | 사용자 소개, 빠른 실행, 저장소 구조 |
 | [MVP 범위](mvp.md) | 제품 목적, 구현된 동작, 제외 범위, 변경 원칙 |
-| [방향 및 BM 초안](business-model.md) | 현재 Cat MVP의 포지셔닝과 조건부 수익 가설, 검증 순서 |
-| [제품 방향](product-direction.md) | 초기 고객, 경쟁 판단, 무료·Plus·펫 팩의 가치 제안 |
+| [보리·Mochi 확장 행동 계획](plans/2026-09-22-original-companions.md) | 랜덤 행동, 클릭·미루기 반응, 스트레칭 후 이동과 커스텀 팩 호환 계약 |
+| [보리·Mochi 제작 원장](../Art/Characters/original-companions-v2/README.md) | 새 PNG 원본, 프롬프트, 팩 버전과 생성 방법 |
+| [강아지·고슴도치·펭귄 제작 원장](../Art/Characters/original-companions-v3/README.md) | 세 팩의 원본 보존, 16개 자세 정렬, 행동 타임라인과 재생성 |
+| [강아지·고슴도치·펭귄 검증](validation/2026-09-22-companion-trio.md) | 세 팩 추가, 자산·패키징·재생 검사와 검증 한계 |
+| [동일 콘셉트 펫 생성·적용 가이드](pet-generation-guide.md) | 손그림풍 스타일, 참조 원본·프롬프트 재사용, 시트 정렬·10개 행동, 번들 적용과 잔상 검수 |
+| [보리·Mochi 확장 행동 검증](validation/2026-09-22-original-companions.md) | 상태·포인터·이동 경계 검사, 실제 시간 재생과 검증 한계 |
+| [방향 및 BM 초안](business-model.md) | 포지셔닝, 단일 유료 앱 + 3일 체험 가설, 검증 순서와 판정선 |
+| [제품 방향](product-direction.md) | 초기 고객, 경쟁 판단, 단일 유료 앱과 3일 무료 체험 구성 |
 | [UI 한글화](localization.md) | 한국어 적용 범위, 표시 용어, 기존 데이터 보존과 검증 한계 |
 | [UI 한글화 검증](validation/2026-09-14-korean-ui.md) | 127개 테스트, macOS 게시 앱 진단과 한글 화면 캡처 |
 | [브랜드 팔레트 교체 검증](validation/2026-09-21-brand-palettes.md) | 승인된 네 시안의 색상, 다정한 오트 기본값, 저장 ID 호환과 Windows 자동 캡처 |

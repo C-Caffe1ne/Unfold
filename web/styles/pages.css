@@ -1,0 +1,775 @@
+/* ==========================================================================
+   Unfold 웹사이트 — 페이지별 스타일
+   ========================================================================== */
+
+/* --- 1. 히어로 -----------------------------------------------------------*/
+.hero {
+  padding: var(--gap-3xl) 0 var(--gap-2xl);
+  background: linear-gradient(180deg, var(--halo) 0%, var(--canvas) 70%);
+}
+
+.hero-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: var(--gap-2xl);
+}
+
+.hero-title {
+  margin-bottom: var(--gap-lg);
+  font-size: clamp(34px, 5.2vw, 52px);
+  line-height: 1.2;
+}
+
+.hero-title em {
+  color: var(--accent);
+  font-style: normal;
+}
+
+.hero-desc {
+  margin-bottom: var(--gap-xl);
+  max-width: 460px;
+  color: var(--muted);
+  font-size: 18px;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-md);
+  margin-bottom: var(--gap-md);
+}
+
+.hero-meta {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.hero-visual {
+  position: relative;
+}
+
+.hero-shot {
+  border: 1px solid var(--outline-subtle);
+  border-radius: var(--radius-frame);
+  box-shadow: var(--shadow-lift);
+  overflow: hidden;
+}
+
+.hero-pet {
+  position: absolute;
+  right: -16px;
+  bottom: -28px;
+  width: 132px;
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.18));
+}
+
+/* --- 2. 핵심 루프 --------------------------------------------------------*/
+.loop-list {
+  counter-reset: loop;
+}
+
+.loop-item {
+  position: relative;
+  padding: var(--gap-xl);
+  padding-top: var(--gap-2xl);
+  background-color: var(--surface);
+  border: 1px solid var(--outline-subtle);
+  border-radius: var(--radius-card);
+}
+
+.loop-item::before {
+  content: counter(loop);
+  counter-increment: loop;
+  position: absolute;
+  top: var(--gap-lg);
+  left: var(--gap-xl);
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  background-color: var(--accent);
+  color: var(--on-accent);
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* --- 3. 기능 하이라이트 (이미지 + 텍스트) --------------------------------*/
+.feature {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: var(--gap-2xl);
+}
+
+.feature + .feature {
+  margin-top: var(--gap-3xl);
+}
+
+.feature-reverse .feature-media {
+  order: -1;
+}
+
+.feature-media img {
+  border: 1px solid var(--outline-subtle);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.feature-title {
+  margin-bottom: var(--gap-md);
+  font-size: clamp(24px, 3.4vw, 32px);
+}
+
+.feature-desc {
+  margin-bottom: var(--gap-lg);
+  color: var(--muted);
+  font-size: 17px;
+}
+
+.check-list li {
+  display: flex;
+  gap: var(--gap-md);
+  padding: var(--gap-sm) 0;
+  font-size: 15px;
+}
+
+.check-list li::before {
+  content: '✓';
+  flex-shrink: 0;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* --- 4. 테마 전환 데모 ---------------------------------------------------*/
+.theme-demo {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: var(--gap-xl);
+  align-items: start;
+  padding: var(--gap-xl);
+  background-color: var(--shell);
+  border: 1px solid var(--outline-subtle);
+  border-radius: var(--radius-frame);
+}
+
+.theme-option {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-md);
+  width: 100%;
+  padding: var(--gap-md);
+  background-color: transparent;
+  color: var(--text);
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.16s var(--ease);
+}
+
+.theme-option:hover {
+  background-color: var(--raised);
+}
+
+.theme-option[aria-pressed='true'] {
+  background-color: var(--raised);
+  border-color: var(--outline-strong);
+  font-weight: 600;
+}
+
+.theme-dot {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--outline-subtle);
+  border-radius: 50%;
+}
+
+.theme-preview img {
+  border: 1px solid var(--outline-subtle);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.theme-preview img[hidden] {
+  display: none;
+}
+
+/* --- 5. 프라이버시 표 ----------------------------------------------------*/
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+  text-align: left;
+}
+
+.data-table caption {
+  margin-bottom: var(--gap-md);
+  color: var(--muted);
+  font-size: 14px;
+  text-align: left;
+}
+
+.data-table th,
+.data-table td {
+  padding: var(--gap-md);
+  border-bottom: 1px solid var(--outline-subtle);
+  vertical-align: top;
+}
+
+.data-table th {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.tag {
+  display: inline-block;
+  padding: 2px var(--gap-sm);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tag-sent {
+  background-color: var(--halo);
+  color: var(--accent);
+}
+
+.tag-local {
+  background-color: var(--raised);
+  color: var(--muted);
+}
+
+/* --- 6. 가격 -------------------------------------------------------------*/
+.price-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--gap-lg);
+  max-width: 880px;
+  margin: 0 auto;
+}
+
+.price-card {
+  display: flex;
+  flex-direction: column;
+  padding: var(--gap-xl);
+  background-color: var(--surface);
+  border: 1px solid var(--outline-subtle);
+  border-radius: var(--radius-card);
+}
+
+.price-card.is-featured {
+  border-color: var(--accent);
+  border-width: 2px;
+}
+
+.price-badge {
+  align-self: flex-start;
+  margin-bottom: var(--gap-md);
+  padding: var(--gap-xs) var(--gap-md);
+  background-color: var(--accent);
+  color: var(--on-accent);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.price-name {
+  margin-bottom: var(--gap-sm);
+  font-size: 20px;
+}
+
+.price-amount {
+  display: flex;
+  align-items: baseline;
+  gap: var(--gap-sm);
+  margin-bottom: var(--gap-lg);
+}
+
+.price-value {
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.price-value.is-pending {
+  font-size: clamp(26px, 4vw, 34px);
+}
+
+.price-unit {
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.price-card .check-list {
+  flex: 1;
+  margin-bottom: var(--gap-lg);
+}
+
+/* --- 7. 인증 (가입·로그인) -----------------------------------------------*/
+.auth-main {
+  display: grid;
+  place-items: center;
+  min-height: calc(100vh - 68px);
+  padding: var(--gap-2xl) 0;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+  padding: var(--gap-xl);
+  background-color: var(--surface);
+  border: 1px solid var(--outline-subtle);
+  border-radius: var(--radius-frame);
+  box-shadow: var(--shadow-card);
+}
+
+.auth-title {
+  margin-bottom: var(--gap-sm);
+  font-size: 26px;
+}
+
+.auth-desc {
+  margin-bottom: var(--gap-xl);
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.auth-foot {
+  margin-top: var(--gap-lg);
+  color: var(--muted);
+  font-size: 14px;
+  text-align: center;
+}
+
+.auth-foot a {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.auth-steps {
+  display: flex;
+  gap: var(--gap-sm);
+  margin-bottom: var(--gap-xl);
+}
+
+.auth-step {
+  flex: 1;
+  padding-top: var(--gap-sm);
+  border-top: 3px solid var(--outline-subtle);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.auth-step.is-active {
+  border-top-color: var(--accent);
+  color: var(--text);
+}
+
+.google-auth-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap-md);
+  width: 100%;
+  min-height: 52px;
+  padding: 0 var(--gap-lg);
+  background-color: #ffffff;
+  color: #202124;
+  border: 1px solid #dadce0;
+  border-radius: var(--radius-control);
+  box-shadow: 0 1px 2px rgba(60, 64, 67, 0.08);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.16s var(--ease), border-color 0.16s var(--ease),
+    box-shadow 0.16s var(--ease);
+}
+
+.google-auth-button:hover {
+  background-color: #f8faff;
+  border-color: #c5c8ce;
+  box-shadow: 0 2px 6px rgba(60, 64, 67, 0.14);
+}
+
+.google-auth-button:focus-visible {
+  outline-color: var(--accent);
+}
+
+.google-mark {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.auth-benefits {
+  margin-top: var(--gap-xl);
+  padding-top: var(--gap-lg);
+  border-top: 1px solid var(--outline-subtle);
+}
+
+.auth-benefits li {
+  position: relative;
+  padding-left: 22px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.auth-benefits li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.auth-benefits li + li {
+  margin-top: var(--gap-sm);
+}
+
+.auth-security {
+  margin-top: var(--gap-md);
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+.auth-card .notice {
+  margin-bottom: var(--gap-lg);
+}
+
+/* --- 8. 대시보드 ---------------------------------------------------------*/
+.dash-head {
+  padding: var(--gap-xl) 0;
+  background-color: var(--shell);
+  border-bottom: 1px solid var(--outline-subtle);
+}
+
+.dash-title {
+  margin-bottom: var(--gap-xs);
+  font-size: 28px;
+}
+
+.dash-email {
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.dash-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: var(--gap-lg);
+  padding: var(--gap-xl) 0 var(--gap-3xl);
+  align-items: start;
+}
+
+.status-strip {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-md);
+  margin-bottom: var(--gap-lg);
+  padding: var(--gap-lg);
+  background-color: var(--halo);
+  border-radius: var(--radius-card);
+}
+
+.status-dot {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  background-color: var(--success);
+  border-radius: 50%;
+}
+
+.status-dot.is-warning {
+  background-color: var(--warning);
+}
+
+.status-text strong {
+  display: block;
+  font-size: 16px;
+}
+
+.status-text span {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.status-strip .btn {
+  margin-left: auto;
+}
+
+.dl-list li + li {
+  margin-top: var(--gap-md);
+}
+
+.dl-row {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-md);
+  padding: var(--gap-md) var(--gap-lg);
+  background-color: var(--shell);
+  border: 1px solid var(--outline-subtle);
+  border-radius: var(--radius-control);
+}
+
+.dl-row.is-detected {
+  border-color: var(--outline-strong);
+}
+
+.dl-info strong {
+  display: block;
+  font-size: 15px;
+}
+
+.dl-info span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.dl-hint {
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.dl-row .btn {
+  margin-left: auto;
+}
+
+.checksum {
+  margin-top: var(--gap-md);
+  padding: var(--gap-md);
+  background-color: var(--raised);
+  border-radius: var(--radius-control);
+  color: var(--muted);
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  font-size: 12px;
+  word-break: break-all;
+}
+
+.device-list li {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-md);
+  padding: var(--gap-md) 0;
+  border-bottom: 1px solid var(--outline-subtle);
+}
+
+.device-list li:last-child {
+  border-bottom: 0;
+}
+
+.device-info strong {
+  display: block;
+  font-size: 15px;
+}
+
+.device-info span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.device-list .btn {
+  margin-left: auto;
+}
+
+.side-card + .side-card {
+  margin-top: var(--gap-lg);
+}
+
+/* --- 9. 설치 안내 --------------------------------------------------------*/
+.tabs {
+  display: flex;
+  gap: var(--gap-xs);
+  margin-bottom: var(--gap-xl);
+  padding: var(--gap-xs);
+  background-color: var(--raised);
+  border-radius: var(--radius-control);
+}
+
+.tab {
+  flex: 1;
+  min-height: 42px;
+  padding: 0 var(--gap-lg);
+  background-color: transparent;
+  color: var(--muted);
+  border: 0;
+  border-radius: 9px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tab[aria-selected='true'] {
+  background-color: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-card);
+}
+
+.tab-panel[hidden] {
+  display: none;
+}
+
+.steps {
+  counter-reset: step;
+}
+
+.steps li {
+  position: relative;
+  padding: 0 0 var(--gap-xl) var(--gap-2xl);
+  border-left: 2px solid var(--outline-subtle);
+}
+
+.steps li:last-child {
+  padding-bottom: 0;
+  border-left-color: transparent;
+}
+
+.steps li::before {
+  content: counter(step);
+  counter-increment: step;
+  position: absolute;
+  top: -2px;
+  left: -15px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  background-color: var(--accent);
+  color: var(--on-accent);
+  border-radius: 50%;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.steps h3 {
+  margin-bottom: var(--gap-xs);
+  font-size: 17px;
+}
+
+.steps p {
+  color: var(--muted);
+  font-size: 15px;
+}
+
+/* --- 10. 본문 문서 -------------------------------------------------------*/
+.prose {
+  max-width: var(--prose-max);
+}
+
+.prose h2 {
+  margin: var(--gap-xl) 0 var(--gap-md);
+  font-size: 22px;
+}
+
+.prose h2:first-child {
+  margin-top: 0;
+}
+
+.prose p {
+  margin-bottom: var(--gap-md);
+  color: var(--muted);
+  font-size: 16px;
+}
+
+.prose strong {
+  color: var(--text);
+}
+
+.page-head {
+  padding: var(--gap-2xl) 0 var(--gap-xl);
+  background-color: var(--shell);
+  border-bottom: 1px solid var(--outline-subtle);
+}
+
+.page-title {
+  margin-bottom: var(--gap-sm);
+  font-size: clamp(28px, 4vw, 38px);
+}
+
+.page-desc {
+  max-width: var(--prose-max);
+  color: var(--muted);
+  font-size: 17px;
+}
+
+/* --- 11. CTA 밴드 --------------------------------------------------------*/
+.cta-band {
+  padding: var(--gap-2xl);
+  background-color: var(--halo);
+  border-radius: var(--radius-frame);
+  text-align: center;
+}
+
+.cta-title {
+  margin-bottom: var(--gap-md);
+  font-size: clamp(24px, 3.6vw, 34px);
+}
+
+.cta-desc {
+  margin: 0 auto var(--gap-xl);
+  max-width: 520px;
+  color: var(--muted);
+  font-size: 17px;
+}
+
+/* --- 12. 반응형 ----------------------------------------------------------*/
+@media (max-width: 900px) {
+  .theme-demo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dash-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 720px) {
+  .hero-inner,
+  .feature {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .feature-reverse .feature-media {
+    order: 0;
+  }
+
+  .hero-pet {
+    right: 0;
+    bottom: -20px;
+    width: 96px;
+  }
+
+  .price-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .status-strip {
+    flex-wrap: wrap;
+  }
+
+  .status-strip .btn,
+  .dl-row .btn {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .dl-row {
+    flex-wrap: wrap;
+  }
+
+  .tabs {
+    flex-direction: column;
+  }
+}
