@@ -2,6 +2,30 @@
 
 ## 자동 검사
 
+v0.2.2의 344개 테스트와 macOS·Windows 압축 배포본 검사는
+[v0.2.2 배포 검증](validation/2026-09-23-v0.2.2-distribution.md)에 기록했다.
+Apple Silicon 배포 실행 파일의 통합 진단과 기본 펫 50개 행동 검사도 포함한다.
+
+홈 펫 미리보기 복구와 미사용 효과음 사본 정리는
+[미리보기·효과음 복구 검증](validation/2026-09-23-preview-sound-recovery.md)에 기록했다.
+344개 Release 테스트와 macOS 화면 밖 렌더링·파일 정리 진단을 포함한다.
+
+펫 파일 로딩 실패 시 알림·조작 유지와 파일 복구 후 재시도는
+[알림 복구 검증](validation/2026-09-23-reminder-recovery.md)에 기록했다.
+329개 Release 테스트와 화면 밖 macOS 렌더링·버튼 이벤트 진단을 포함한다.
+
+호버 시간 표시 중 연속 클릭으로 창이 반복 확대·축소되던 문제는
+[연속 클릭 수정 검증](validation/2026-09-23-hover-click.md)에 기록했다.
+321개 테스트와 실제 macOS 보리·Mochi 각 20회 클릭의 창 크기·위치 기록을 포함한다.
+
+펫 호버의 현재 시각·남은 시간 말풍선은
+[호버 말풍선 검증](validation/2026-09-23-pet-hover.md)에 기록했다.
+318개 테스트와 화면 밖 macOS 렌더링 11장을 포함한다.
+
+macOS 전체화면·Space의 펫 표시는
+[macOS 펫 창 검증](validation/2026-09-23-macos-pet-spaces.md)에 기록했다.
+311개 테스트와 실제 Chrome 전체화면 전환에서 읽은 AppKit 창 상태를 구분해 남겼다.
+
 강아지·고슴도치·펭귄 세 팩의 원본 정렬, 278개 테스트와 다섯 펫 재생 진단은
 [세 동물 펫 팩 검증](validation/2026-09-22-companion-trio.md)에 기록했다.
 

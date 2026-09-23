@@ -6,7 +6,7 @@ namespace Unfold.Core;
 
 public enum ReminderSound { Due, Completed }
 
-public sealed class ReminderSounds(string directory)
+public sealed partial class ReminderSounds(string directory)
 {
     public string Import(string path)
     {

@@ -42,6 +42,8 @@ public sealed partial class PetWindow : Window
     private Avalonia.PixelPoint? down;
     private Avalonia.PixelPoint origin;
     private bool dragging, clickThrough;
+    private bool hoveringPet;
+    private bool ShowingHover => hoveringPet && IsVisible && ContextMenu?.IsOpen != true && !runtime.PresentedReminder.HasNotice;
     private long pressedAt;
     private int generation;
     private CancellationTokenSource? reactionCancellation;
@@ -64,10 +66,18 @@ public sealed partial class PetWindow : Window
             catch (Exception error) { await Ui.Error(this, error); }
         };
         menu.Items.Add(settings); menu.Items.Add(hide); ContextMenu = menu;
+        menu.Opened += (_, _) => RefreshSpeech();
+        menu.Closed += (_, _) => RefreshSpeech();
+        // Squash/bounce changes the animation's hit-test transform. Track hover in
+        // the stationary window coordinates so a pose cannot resize the window.
+        PointerEntered += (_, e) => UpdateHover(PetPoint(e.GetPosition(this)));
+        PointerMoved += (_, e) => UpdateHover(PetPoint(e.GetPosition(this)));
+        PointerExited += (_, _) => UpdateHover(null);
         animation.PointerPressed += (_, e) =>
         {
             if (!e.GetCurrentPoint(animation).Properties.IsLeftButtonPressed || !animation.OpaqueAt(e.GetPosition(animation))) return;
-            down = animation.PointToScreen(e.GetPosition(animation)); origin = Position; pressedAt = Stopwatch.GetTimestamp(); dragging = false;
+            down = animation.PointToScreen(e.GetPosition(animation));
+            origin = Position; pressedAt = Stopwatch.GetTimestamp(); dragging = false;
             BeginCompanionPress();
             e.Pointer.Capture(animation); e.Handled = true;
         };
@@ -84,9 +94,10 @@ public sealed partial class PetWindow : Window
             var clicked = !dragging && (HasOriginalBehavior || Stopwatch.GetElapsedTime(pressedAt).TotalSeconds <= 0.22);
             down = null; e.Pointer.Capture(null); ClampPosition(); runtime.SavePosition(PetAnchor);
             ReleaseCompanionPress(clicked);
+            UpdateHover(PetPoint(e.GetPosition(this))); RefreshSpeech();
             if (clicked) await React();
         };
-        animation.PointerCaptureLost += (_, _) => { if (down is not null) { down = null; ReleaseCompanionPress(false); } };
+        animation.PointerCaptureLost += (_, _) => { if (down is not null) { down = null; ReleaseCompanionPress(false); UpdateHover(null); } };
         hitTimer.Tick += (_, _) => { UpdateClickThrough(); TickCompanion(); };
         Opened += (_, _) =>
         {
@@ -95,22 +106,40 @@ public sealed partial class PetWindow : Window
             Position = runtime.Settings.PetX is int x && runtime.Settings.PetY is int y ? new(x, y) : new(work.Right - (int)(Width * DesktopScaling) - 24, work.Bottom - (int)(Height * DesktopScaling) - 24);
             ClampPosition(); hitTimer.Start();
         };
-        Closed += (_, _) => { InvalidatePlayback(); ResetCompanion(); hitTimer.Stop(); animation.Dispose(); };
+        Closed += (_, _) => { hoveringPet = false; InvalidatePlayback(); ResetCompanion(); hitTimer.Stop(); animation.Dispose(); };
     }
     public async Task SetCharacter()
     {
         var selected = runtime.Selected;
         if (character == selected) return;
         var current = InvalidatePlayback(); ResetCompanion();
-        var frames = await runtime.Clip("idle");
+        IReadOnlyList<AnimationFrame> frames;
+        try { frames = await runtime.Clip("idle"); }
+        catch (Exception error) when (current != generation &&
+            error is IOException or UnauthorizedAccessException or InvalidDataException)
+        { return; } // A superseded load must not replace a newer pet with its fallback.
         if (current != generation) return;
         character = selected; ActiveAnimation = "idle";
         if (selected?.HasOriginalBehavior == true && runtime.Reminder.Notice == PetNotice.Resting)
             originalStretchSession = runtime.Reminder.Session;
         animation.SetFrames(frames, true, selected?.Manifest.RenderStyle == "pixel", selected?.HasOriginalBehavior == true);
     }
+    internal void ShowReminderFallback(CharacterPackage selected)
+    {
+        InvalidatePlayback(); ResetCompanion(); character = null; ActiveAnimation = "idle";
+        var sprite = selected.Manifest.SpriteSheet;
+        var sheet = selected.Sheet;
+        var pixels = new uint[sprite.FrameWidth * sprite.FrameHeight];
+        for (var row = 0; row < sprite.FrameHeight; row++)
+            Array.Copy(sheet.Pixels, row * sheet.Width, pixels, row * sprite.FrameWidth, sprite.FrameWidth);
+        animation.SetFrames([new(new(sprite.FrameWidth, sprite.FrameHeight, pixels), TimeSpan.FromSeconds(1))],
+            true, selected.Manifest.RenderStyle == "pixel", selected.HasOriginalBehavior);
+        // Leave character unset so a later notice/focus request can retry the repaired GIF.
+    }
     internal async Task React(string? preferred = null)
     {
+        var current = generation;
+        string? key = null;
         try
         {
             var selected = runtime.Selected;
@@ -118,9 +147,9 @@ public sealed partial class PetWindow : Window
             // Stretch belongs to reminders. A plain click reacts only when the character
             // ships a click clip, and otherwise leaves the idle loop alone — so the early
             // return has to happen before generation moves, or it would cancel a stretch.
-            var key = preferred ?? (selected?.Manifest.Animations.ContainsKey("click") == true ? "click" : null);
+            key = preferred ?? (selected?.Manifest.Animations.ContainsKey("click") == true ? "click" : null);
             if (key is null || selected?.Manifest.Animations.ContainsKey(key) != true) return;
-            var current = InvalidatePlayback();
+            current = InvalidatePlayback();
             var cancellation = reactionCancellation = new CancellationTokenSource();
             var session = runtime.Reminder.Session;
             if (selected.HasOriginalBehavior && key == "stretch" && runtime.Reminder.Notice == PetNotice.Resting)
@@ -148,8 +177,16 @@ public sealed partial class PetWindow : Window
                 cancellation.Dispose();
             }
         }
-        catch (OperationCanceledException) { }
-        catch (Exception error) { AppPaths.Log(error); }
+        catch (OperationCanceledException) when (current != generation || !IsVisible) { }
+        catch (Exception error)
+        {
+            AppPaths.Log(error);
+            if (current != generation || !IsVisible) return;
+            reacting = false;
+            // Do not recursively replay a stretch that just failed to load.
+            if (key == "stretch") originalStretchSession = null;
+            await RestoreBaseAnimation(current);
+        }
     }
     private int InvalidatePlayback()
     {
@@ -158,23 +195,35 @@ public sealed partial class PetWindow : Window
     }
     public void ShowPet()
     {
+        MacPetWindow.Apply(this);
         Show(); RefreshSpeech(); lastCompanionTick = Stopwatch.GetTimestamp(); hitTimer.Start(); animation.SetRunning(true);
         if (originalStretchSession is not null && !reacting && !pressed) _ = React("stretch");
     }
-    public void HidePet() { InvalidatePlayback(); ResetCompanion(); character = null; Hide(); hitTimer.Stop(); animation.SetRunning(false); }
+    public void HidePet() { hoveringPet = false; InvalidatePlayback(); ResetCompanion(); character = null; Hide(); hitTimer.Stop(); animation.SetRunning(false); RefreshSpeech(); }
     public void ClosePet() { InvalidatePlayback(); ResetCompanion(); hitTimer.Stop(); Close(); }
     internal void FocusReminder() { Activate(); bubble.FocusAction(); }
     public void RefreshSpeech()
     {
         var reminder = runtime.PresentedReminder;
         RefreshCompanionContext();
-        bubble.Refresh(reminder, runtime.Settings.SnoozeMinutes);
+        var hover = ShowingHover;
+        var keepHoverLayout = hover && down is not null && bubble.IsVisible &&
+            bubble.Width == DesignSystem.SpeechHoverWidth && layoutScale == DesktopScaling;
+        if (hover) bubble.RefreshHover(DateTime.Now, runtime.Clock);
+        else bubble.Refresh(reminder, runtime.Settings.SnoozeMinutes);
+        // Clock ticks may update text while dragging, but must not flip the
+        // bubble's edge placement underneath a captured pointer.
+        if (keepHoverLayout) return;
         var petSize = DesignSystem.PetBaseSize * runtime.Settings.PetScalePercent / 100d;
         animation.Width = animation.Height = petSize;
-        var expanded = reminder.HasNotice;
-        var next = PetBubbleLayout.Create(runtime.Settings.BubbleDirection, expanded, bubble.Height, petSize);
-        if (layout.Size == next.Size && layout.Pet == next.Pet && bubble.IsVisible == expanded && layoutScale == DesktopScaling) return;
+        var expanded = reminder.HasNotice || hover;
         var anchor = PetAnchor;
+        var work = Screens.ScreenFromPoint(anchor)?.WorkingArea ?? Screens.Primary?.WorkingArea;
+        var next = hover && work is { } hoverArea && !runtime.DiagnosticMode
+            ? PetBubbleLayout.CreateHover(runtime.Settings.BubbleDirection, anchor, DesktopScaling, hoverArea, petSize)
+            : PetBubbleLayout.Create(runtime.Settings.BubbleDirection, expanded, bubble.Height, petSize, bubble.Width);
+        if (layout.Size == next.Size && layout.Pet == next.Pet && layout.Bubble == next.Bubble &&
+            bubble.IsVisible == expanded && layoutScale == DesktopScaling) return;
         layoutScale = DesktopScaling; layout = next; Width = layout.Size.Width; Height = layout.Size.Height;
         // Diagnostic minimums follow the live canvas instead of preventing a collapse.
         if (runtime.DiagnosticMode) { MinWidth = Width; MinHeight = Height; }
@@ -186,9 +235,23 @@ public sealed partial class PetWindow : Window
             ? new Avalonia.Collections.AvaloniaList<Point>([layout.Tail[0], layout.Tail[2], layout.Tail[1]])
             : new Avalonia.Collections.AvaloniaList<Point>();
         bubble.IsVisible = tail.IsVisible = tailOutline.IsVisible = expanded;
-        var work = Screens.ScreenFromPoint(anchor)?.WorkingArea ?? Screens.Primary?.WorkingArea;
         Position = runtime.DiagnosticMode ? new(-32000, -32000) : work is { } area
             ? layout.Position(anchor, DesktopScaling, area) : anchor;
+    }
+
+    private Point PetPoint(Point windowPoint) => windowPoint - new Vector(layout.Pet.X, layout.Pet.Y);
+
+    private void UpdateHover(Point? point)
+    {
+        if (down is not null) return;
+        // Enter on painted pixels, then retain hover over the stable pet area.
+        // Frame changes and click poses must not close/reopen the native surface.
+        var hovered = IsVisible && point is { } local && new Rect(animation.Bounds.Size).Contains(local) &&
+            (hoveringPet || animation.OpaqueAt(local));
+        if (hoveringPet == hovered) return;
+        hoveringPet = hovered;
+        // Finish the current pointer dispatch before changing its window coordinates.
+        Dispatcher.UIThread.Post(() => { if (IsVisible) RefreshSpeech(); }, DispatcherPriority.Background);
     }
 
     private void ClampPosition()
@@ -206,7 +269,9 @@ public sealed partial class PetWindow : Window
         if (!OperatingSystem.IsWindows() || down is not null) return;
         if (!GetCursorPos(out var point)) return;
         var cursor = new PixelPoint(point.X, point.Y);
-        var onBubble = bubble.IsVisible && new Rect(bubble.Bounds.Size).Contains(bubble.PointToClient(cursor));
+        // A click-through window may not receive Enter until the pointer moves again.
+        UpdateHover(PetPoint(this.PointToClient(cursor)));
+        var onBubble = bubble.IsVisible && bubble.IsHitTestVisible && new Rect(bubble.Bounds.Size).Contains(bubble.PointToClient(cursor));
         var ignore = !onBubble && !animation.OpaqueAt(animation.PointToClient(cursor));
         if (ignore == clickThrough) return;
         if (TryGetPlatformHandle()?.Handle is not nint hwnd || hwnd == 0) return;

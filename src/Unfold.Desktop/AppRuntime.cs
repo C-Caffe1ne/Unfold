@@ -76,10 +76,14 @@ public sealed class AppRuntime : IDisposable
         Library = new(Path.Combine(AppPaths.DataRoot, "Characters"), Directory.Exists(AppPaths.BuiltInRoot)
             ? Directory.EnumerateDirectories(AppPaths.BuiltInRoot).Select(path => Path.GetFileName(path)) : ["default-cat"]);
         Library.Warning += message => AppPaths.Log(new IOException(message));
-        try { Settings = AppSettings.Load(settingsFile); }
+        var backupSettings = false;
+        try { Settings = AppSettings.Load(settingsFile, out backupSettings); }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Text.Json.JsonException or InvalidDataException)
         {
-            AppPaths.Log(ex); Settings = new();
+            AppPaths.Log(ex); Settings = new(); backupSettings = true;
+        }
+        if (backupSettings)
+        {
             // Preserve the invalid file for inspection, but a failure to copy it (locked,
             // read-only, out of disk space) must not stop startup from recovering.
             if (File.Exists(settingsFile))
@@ -233,17 +237,27 @@ public sealed class AppRuntime : IDisposable
     {
         if (selected is null) return Task.FromResult<IReadOnlyList<AnimationFrame>>([]);
         var cacheKey = $"{selected.DirectoryPath}:{key}";
-        if (clips.TryGetValue(cacheKey, out var cached)) return cached;
+        if (clips.TryGetValue(cacheKey, out var cached) && !cached.IsFaulted && !cached.IsCanceled) return cached;
         // Sharing the in-flight task prevents the pet and settings preview
         // from decoding/uploading the same source independently on startup.
+        // Retry a failed decode on the next request. No completion callback may evict
+        // a newer task after Reload/character changes have replaced this cache entry.
         return clips[cacheKey] = Task.Run(() => selected.LoadAnimation(key));
     }
     private async Task UpdatePet()
     {
-        if (!ShouldShowPet || Selected is null) { pet?.HidePet(); return; }
+        if (disposed || !ShouldShowPet || Selected is not { } selected) { pet?.HidePet(); return; }
         var current = pet ??= new PetWindow(this);
         if (DiagnosticMode) PrepareDiagnosticWindow(current);
-        await current.SetCharacter();
+        try { await current.SetCharacter(); }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException)
+        {
+            if (disposed || pet != current || Selected != selected || !ShouldShowPet) return;
+            if (!PresentedReminder.HasNotice) throw;
+            // A damaged animation must not suppress the existing reminder controls.
+            // The package's already validated sheet provides a still image without IO.
+            AppPaths.Log(error); current.ShowReminderFallback(selected);
+        }
         // A concurrent hide or quit can complete while SetCharacter() is in flight
         // (Dispose() nulls pet, another UpdatePet() call flips ShowPet off): re-check
         // both before resurrecting a pet nobody asked for anymore.
@@ -287,6 +301,7 @@ public sealed class AppRuntime : IDisposable
     }
     public async Task ShowReminder()
     {
+        if (disposed || quitting) return;
         ClearReminderPreview();
         if (Reminder.Session is not null) { RefreshPetNotice(); return; }
         if (openingReminder || quitting) return;
@@ -298,17 +313,18 @@ public sealed class AppRuntime : IDisposable
             if (selected is null) return;
             var routine = Routines.FirstOrDefault(item => item.Id == Settings.BreakRoutineId) ?? BreakRoutines.All[0];
             var profile = Settings.WorkProfiles.FirstOrDefault(item => item.Id == Settings.ActiveProfileId);
-            await Clip(selected, "idle");
-            if (quitting || generation != reminderGeneration) return;
             var session = new BreakSession(routine, selected.Manifest.Id, profile, Settings.BreakDurationMinutes * 60);
             if (!Reminder.Invite(session)) return;
             petNoticeSuppressed = false;
-            await UpdatePet();
-            if (quitting || generation != reminderGeneration || Reminder.Session != session) return;
+            // Deliver the notice exactly once, independently of image decoding.
             PlayReminderSound(ReminderSound.Due);
-            ReactToBreak(session, "attention"); RefreshPetNotice(); Changed?.Invoke();
+            RefreshPetNotice(); Changed?.Invoke();
+            await UpdatePet();
+            if (disposed || quitting || generation != reminderGeneration || Reminder.Session != session) return;
+            if (Reminder.Notice == PetNotice.Invitation) ReactToBreak(session, "attention");
+            RefreshPetNotice(); Changed?.Invoke();
         }
-        catch (Exception error) { if (quitting || generation != reminderGeneration) return; if (DiagnosticMode) throw; AppPaths.Log(error); }
+        catch (Exception error) { if (disposed || quitting || generation != reminderGeneration) return; if (DiagnosticMode) throw; AppPaths.Log(error); }
         finally { openingReminder = false; }
     }
     public void StartBreak() { Reminder.Start(monotonic.Elapsed); RefreshPetNotice(); Changed?.Invoke(); }

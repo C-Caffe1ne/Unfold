@@ -86,6 +86,26 @@ public class SettingsReliabilityTests
     }
 
     [AvaloniaTheory]
+    [InlineData("{\"intervalMinutes\":37,\"idleMinutes\":9,\"petScalePercent\":\"broken\"}")]
+    [InlineData("{\"intervalMinutes\":37,\"idleMinutes\":9,\"additionalRoutines\":[null]}")]
+    public void PartialRecoveryBacksUpTheExactOriginalAndKeepsHealthySettings(string contents)
+    {
+        using var temp = new TempDirectory();
+        var (lifetime, env) = IsolatedDataRoot(temp.Path);
+        using (env) using (lifetime)
+        {
+            var path = Path.Combine(temp.Path, "settings.json"); File.WriteAllText(path, contents);
+            using var runtime = new AppRuntime(lifetime);
+            Assert.Equal(37, runtime.Settings.IntervalMinutes); Assert.Equal(9, runtime.Settings.IdleMinutes);
+            var backup = Assert.Single(Directory.EnumerateFiles(temp.Path, "settings.json.invalid-*"));
+            Assert.Equal(contents, File.ReadAllText(backup)); Assert.Equal(contents, File.ReadAllText(path));
+            runtime.Settings.Save(path);
+            Assert.Equal(contents, File.ReadAllText(backup));
+            Assert.Equal(37, AppSettings.Load(path).IntervalMinutes);
+        }
+    }
+
+    [AvaloniaTheory]
     [InlineData("null")]
     public void UnreadableSettingsDoNotPreventStartup(string contents)
     {

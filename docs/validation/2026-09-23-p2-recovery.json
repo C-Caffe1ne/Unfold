@@ -1,0 +1,34 @@
+{
+  "scope": [
+    "AUD-01",
+    "AUD-02"
+  ],
+  "baseCommit": "d9267bc",
+  "focused": {
+    "total": 71,
+    "passed": 71,
+    "failed": 0,
+    "notExecuted": 0
+  },
+  "full": {
+    "total": 306,
+    "passed": 306,
+    "failed": 0,
+    "notExecuted": 0
+  },
+  "nativeMac": {
+    "success": true,
+    "pets": [
+      "bori-rabbit",
+      "penguin",
+      "default-cat",
+      "puppy-dog",
+      "hedgehog"
+    ],
+    "clips": 50,
+    "images": 115,
+    "physicalInput": false,
+    "offScreen": true,
+    "desktopMovement": false
+  }
+}

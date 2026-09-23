@@ -98,6 +98,7 @@ public sealed partial class SettingsWindow
                 {
                     if (previewCancellation == cancellation)
                     { previewCancellation = null; playing = null; RefreshPlaybackButtons(); }
+                    CleanupImportedSounds();
                 }
             };
             var import = Ui.AsyncButton("파일 가져오기", async () =>
@@ -113,9 +114,9 @@ public sealed partial class SettingsWindow
                             FileTypeFilter = [new FilePickerFileType("WAV 효과음") { Patterns = ["*.wav"] }] });
                         path = files.FirstOrDefault()?.TryGetLocalPath();
                     }
-                    if (path is null) return;
-                    var library = new ReminderSounds(Path.Combine(AppPaths.DataRoot, "Sounds"));
-                    var id = await Task.Run(() => library.Import(path));
+                    if (path is null || disposed) return;
+                    var id = await Task.Run(() => importedSounds.Import(path));
+                    if (disposed) return;
                     stopSoundPreview();
                     var fileName = Path.GetFileName(path);
                     if (kind == ReminderSound.Due) { dueSoundId = id; dueSoundName = fileName; }
@@ -123,7 +124,7 @@ public sealed partial class SettingsWindow
                     RefreshLabel(); PreferencesEdited();
                 }
                 catch (Exception error) { ShowPreferencesError(error is InvalidDataException ? error.Message : "효과음을 가져오지 못했어요."); AppPaths.Log(error); }
-                finally { soundImports--; RefreshPreferencesState(); }
+                finally { soundImports--; RefreshPreferencesState(); CleanupImportedSounds(); }
             });
             import.Name = kind == ReminderSound.Due ? "ImportDueSound" : "ImportCompletionSound";
             import.Width = DesignSystem.SettingsImportWidth;
@@ -133,7 +134,7 @@ public sealed partial class SettingsWindow
                 stopSoundPreview();
                 if (kind == ReminderSound.Due) { dueSoundId = null; dueSoundName = null; }
                 else { completedSoundId = null; completedSoundName = null; }
-                RefreshLabel(); PreferencesEdited();
+                RefreshLabel(); PreferencesEdited(); CleanupImportedSounds();
             });
             reset.Name = kind == ReminderSound.Due ? "ResetDueSound" : "ResetCompletionSound";
             reset.Width = DesignSystem.SettingsResetWidth; reset.Classes.Add("settings-reset");

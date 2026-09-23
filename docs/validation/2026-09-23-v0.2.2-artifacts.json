@@ -1,0 +1,89 @@
+{
+  "version": "0.2.2",
+  "success": true,
+  "sourceInputsUnchanged": true,
+  "previousArchivesUnchanged": true,
+  "artifacts": [
+    {
+      "rid": "osx-arm64",
+      "file": "Unfold-v0.2.2-osx-arm64.zip",
+      "bytes": 69758519,
+      "sha256": "6a432b4619914f9017e3e9908f0bcf311bf1e0300a0ce17f901a61a4730652f2",
+      "version": "0.2.2",
+      "frameworks": [
+        {
+          "name": "Microsoft.NETCore.App",
+          "version": "10.0.12"
+        }
+      ],
+      "pets": [
+        "bori-rabbit",
+        "default-cat",
+        "hedgehog",
+        "penguin",
+        "puppy-dog"
+      ],
+      "petAssetsMatch": true,
+      "archiveIntegrity": true,
+      "executable": "Mach-O 64-bit executable arm64"
+    },
+    {
+      "rid": "osx-x64",
+      "file": "Unfold-v0.2.2-osx-x64.zip",
+      "bytes": 73651563,
+      "sha256": "64555746f1c29010fb7e8303faaf49bf2afa291db18d191ef3611be1a7ae2f40",
+      "version": "0.2.2",
+      "frameworks": [
+        {
+          "name": "Microsoft.NETCore.App",
+          "version": "10.0.12"
+        }
+      ],
+      "pets": [
+        "bori-rabbit",
+        "default-cat",
+        "hedgehog",
+        "penguin",
+        "puppy-dog"
+      ],
+      "petAssetsMatch": true,
+      "archiveIntegrity": true,
+      "executable": "Mach-O 64-bit executable x86_64"
+    },
+    {
+      "rid": "win-x64",
+      "file": "Unfold-v0.2.2-win-x64.zip",
+      "bytes": 100964536,
+      "sha256": "dc0eca295c9b0efb1e9dbff3bcda2879b2bf73cbbd7a88a75e2733f0cd008c70",
+      "version": "0.2.2",
+      "frameworks": [
+        {
+          "name": "Microsoft.NETCore.App",
+          "version": "10.0.12"
+        }
+      ],
+      "pets": [
+        "bori-rabbit",
+        "default-cat",
+        "hedgehog",
+        "penguin",
+        "puppy-dog"
+      ],
+      "petAssetsMatch": true,
+      "archiveIntegrity": true,
+      "executable": "PE32+ executable (GUI) x86-64, for MS Windows"
+    },
+    {
+      "file": "Unfold-v0.2.2-osx-arm64.tar.gz",
+      "bytes": 69410909,
+      "sha256": "87f0313bfb55910cf7a704322fac7a294cfa9b398769a259d30df610595d5f6e",
+      "archiveIntegrity": true
+    },
+    {
+      "file": "Unfold-v0.2.2-osx-x64.tar.gz",
+      "bytes": 73300212,
+      "sha256": "8b7d12a1780cc48016f43ea43982121a3804b765d81e8d62ee3a177ad68990a1",
+      "archiveIntegrity": true
+    }
+  ]
+}

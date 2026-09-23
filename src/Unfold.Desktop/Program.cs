@@ -62,6 +62,10 @@ internal static class Program
     {
         if (OperatingSystem.IsMacOS())
         {
+            // Match the bundle's LSUIElement menu-bar app policy. Avalonia's default
+            // changes it back to a regular Dock app, preventing the pet NSWindow
+            // from joining another app's full-screen Space even with auxiliary flags.
+            builder.With(new MacOSPlatformOptions { ShowInDock = false });
             // Metal leaves transient previous-frame silhouettes in the transparent pet
             // window during rapid pose changes. Keep GPU rendering through OpenGL,
             // with a software fallback for Macs where OpenGL cannot initialize.

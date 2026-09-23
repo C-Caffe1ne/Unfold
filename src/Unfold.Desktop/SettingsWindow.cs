@@ -34,7 +34,7 @@ public sealed partial class SettingsWindow : Window, IDisposable
         Foreground = DesignSystem.Muted, IsVisible = false };
     private int displayedInterval, displayedBreakDuration;
     private bool? intervalEditingAvailable;
-    private CharacterPackage? previewCharacter;
+    private bool disposed;
     private bool updating;
     private bool savingHomeTiming;
     public SettingsWindow(AppRuntime runtime)
@@ -129,13 +129,14 @@ public sealed partial class SettingsWindow : Window, IDisposable
                 if (e.Property == NumericUpDown.ValueProperty || e.Property == NumericUpDown.TextProperty) PreferencesEdited();
             };
         Closing += (_, e) => { e.Cancel = true; HideToTray(); };
-        Opened += (_, _) => preview.SetRunning(true);
+        previewRetry.Tick += (_, _) => { previewRetry.Stop(); _ = RefreshPreview(); };
+        Opened += (_, _) => ResumePreview();
         runtime.Changed += Refresh; Closed += (_, _) => Dispose();
         Refresh();
+        CleanupImportedSounds();
     }
-    public void Dispose() { runtime.Changed -= Refresh; runtime.CloseReminderPreview(); stopSoundPreview?.Invoke(); settingsSoundPlayer.Dispose(); preview.Dispose(); petPage?.Dispose(); }
-    public void HideToTray() { runtime.CloseReminderPreview(); stopSoundPreview?.Invoke(); Hide(); preview.SetRunning(false); }
-    public void ResumePreview() => preview.SetRunning(true);
+    public void Dispose() { if (disposed) return; disposed = true; SuspendPreview(); runtime.Changed -= Refresh; runtime.CloseReminderPreview(); stopSoundPreview?.Invoke(); settingsSoundPlayer.Dispose(); CleanupImportedSounds(); preview.Dispose(); petPage?.Dispose(); }
+    public void HideToTray() { runtime.CloseReminderPreview(); stopSoundPreview?.Invoke(); SuspendPreview(); Hide(); }
     private void TimingEdited()
     {
         if (updating) return;
@@ -194,10 +195,9 @@ public sealed partial class SettingsWindow : Window, IDisposable
         { AppPaths.Log(error); homeTimingStatus.Foreground = DesignSystem.Error; homeTimingStatus.Text = "저장하지 못했어요."; homeTimingStatus.IsVisible = true; }
         finally { savingHomeTiming = false; RefreshHomeTimingState(); }
     }
-    private async void Refresh()
+    private void Refresh()
     {
-        if (updating) return; updating = true;
-        CharacterPackage? loadPreview = null;
+        if (disposed || updating) return; updating = true;
         try
         {
             countdown.Text = $"{(int)runtime.Clock.Remaining.TotalMinutes:00}:{runtime.Clock.Remaining.Seconds:00}";
@@ -252,10 +252,6 @@ public sealed partial class SettingsWindow : Window, IDisposable
             SyncPreferencesFromRuntime(); RefreshDebugPreviewStatus();
             if (!ReferenceEquals(characters.ItemsSource, runtime.Characters)) characters.ItemsSource = runtime.Characters;
             characters.SelectedItem = runtime.Selected;
-            if (runtime.Selected is { } selected && previewCharacter != selected)
-            {
-                previewCharacter = selected; loadPreview = selected;
-            }
         }
         catch (Exception error)
         {
@@ -264,14 +260,6 @@ public sealed partial class SettingsWindow : Window, IDisposable
             ToolTip.SetTip(timerStateBadge, Ui.ErrorText(error));
         }
         finally { updating = false; }
-        if (loadPreview is null) return;
-        try
-        {
-            var frames = await runtime.Clip("idle");
-            if (runtime.Selected == loadPreview && previewCharacter == loadPreview)
-                preview.SetFrames(frames, true, loadPreview.Manifest.RenderStyle == "pixel", loadPreview.HasOriginalBehavior);
-            if (!IsVisible) preview.SetRunning(false);
-        }
-        catch (Exception error) { AppPaths.Log(error); }
+        _ = RefreshPreview();
     }
 }

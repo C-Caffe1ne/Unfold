@@ -46,16 +46,16 @@ public sealed partial class PetWindow
     {
         pressed = releasing = false; poseSeconds = 0; animation.SetPose(PetPose.Neutral);
     }
-    private async Task RestoreBaseAnimation(int current)
+    private async Task RestoreBaseAnimation(int current, bool idleOnly = false)
     {
         try
         {
             if (current != generation || !IsVisible) return;
             var selected = runtime.Selected;
-            if (originalStretchSession is not null && originalStretchSession == runtime.Reminder.Session &&
+            if (!idleOnly && originalStretchSession is not null && originalStretchSession == runtime.Reminder.Session &&
                 runtime.Reminder.Notice == PetNotice.Resting && !pressed)
             { await React("stretch"); return; }
-            var key = IsRoaming ? "walk" : "idle";
+            var key = !idleOnly && IsRoaming ? "walk" : "idle";
             var frames = await runtime.Clip(key);
             if (current != generation || !IsVisible) return;
             reacting = false; ActiveAnimation = key;
@@ -63,7 +63,19 @@ public sealed partial class PetWindow
             animation.SetFrames(frames, true, selected?.Manifest.RenderStyle == "pixel", selected?.HasOriginalBehavior == true);
             if (key != "walk") wander.Reset();
         }
-        catch (Exception error) { AppPaths.Log(error); }
+        catch (Exception error)
+        {
+            AppPaths.Log(error);
+            if (current != generation || !IsVisible) return;
+            reacting = false; walkingSession = originalStretchSession = null;
+            ActiveAnimation = "idle"; wander.Reset(); CancelCompanionPose();
+            // A broken walk clip may still have a healthy idle. Bound the fallback
+            // so a broken idle cannot recurse or keep a completed reaction active.
+            if (!idleOnly) await RestoreBaseAnimation(current, idleOnly: true);
+            else if (runtime.PresentedReminder.HasNotice && runtime.Selected is { } selected)
+                ShowReminderFallback(selected);
+            else animation.SetFrames([], true);
+        }
     }
     private void RefreshCompanionContext()
     {

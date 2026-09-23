@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <title>계정 화면 미리보기 — Unfold</title>
-<meta name="description" content="Google 로그인 후 사용할 Unfold 계정과 다운로드 화면의 목업입니다.">
+<meta name="description" content="Google 로그인 후 사용할 Unfold 계정과 다운로드 화면 미리보기입니다. 실제 다운로드와 결제는 준비 중입니다.">
 <link rel="stylesheet" href="styles/main.css">
 <link rel="stylesheet" href="styles/pages.css">
 </head>
@@ -64,7 +64,7 @@
         <h2 class="card-title">다운로드</h2>
         <p class="card-desc stack-top">
           서명·공증과 실제 OS 확인을 마친 공개 파일만 제공할 예정입니다.
-          지금 보이는 항목은 다운로드 영역의 레이아웃을 확인하기 위한 목업입니다.
+          현재는 다운로드 화면 미리보기이며, 아직 파일을 내려받을 수 없습니다.
         </p>
 
         <ul class="dl-list stack-top">
@@ -73,16 +73,17 @@
               <div class="dl-info">
                 <strong>macOS · Apple Silicon</strong>
                 <span>공개 파일 준비 중 · macOS 12 이상</span>
-                <span class="dl-hint" data-os-hint hidden>이 컴퓨터용 공개 파일이 여기에 표시됩니다</span>
+                <span class="dl-hint" data-os-hint hidden>Mac으로 접속 중입니다. 칩 종류를 확인해 주세요.</span>
               </div>
               <button class="btn btn-secondary" type="button" disabled>준비 중</button>
             </div>
           </li>
           <li>
-            <div class="dl-row">
+            <div class="dl-row" data-os="mac">
               <div class="dl-info">
                 <strong>macOS · Intel</strong>
                 <span>공개 파일 준비 중 · macOS 12 이상</span>
+                <span class="dl-hint" data-os-hint hidden>Mac으로 접속 중입니다. 칩 종류를 확인해 주세요.</span>
               </div>
               <button class="btn btn-secondary" type="button" disabled>준비 중</button>
             </div>
@@ -92,7 +93,7 @@
               <div class="dl-info">
                 <strong>Windows · x64</strong>
                 <span>공개 파일 준비 중 · Windows 10 이상</span>
-                <span class="dl-hint" data-os-hint hidden>이 컴퓨터용 공개 파일이 여기에 표시됩니다</span>
+                <span class="dl-hint" data-os-hint hidden>Windows로 접속 중입니다. 시스템 종류가 x64인지 확인해 주세요.</span>
               </div>
               <button class="btn btn-secondary" type="button" disabled>준비 중</button>
             </div>
@@ -104,7 +105,7 @@
         <div class="notice notice-warning stack-top">
           <span class="notice-icon" aria-hidden="true">⚠</span>
           <div>
-            <strong>처음 실행할 때 경고가 뜹니다</strong>
+            <strong>공개 파일의 준비 상태를 확인해 주세요</strong>
             <p>
               현재 테스트 배포본은 운영체제 경고가 나타날 수 있습니다.
               공개 전에 서명·공증 상태와 <a href="install.html">설치 안내</a>를 함께 갱신합니다.
@@ -125,7 +126,7 @@
 
     <aside>
       <section class="card side-card">
-        <h2 class="card-title">구매 준비</h2>
+        <h2 class="card-title">구매 안내</h2>
         <p class="card-desc">
           가격은 아직 정하지 않았습니다. 확정 후 Lemon Squeezy 결제 창으로 연결합니다.
         </p>
@@ -147,7 +148,7 @@
       <section class="card side-card">
         <h2 class="card-title">도움이 필요하신가요</h2>
         <p class="card-desc">
-          설치가 막히거나 결제에 문제가 있으면 알려 주세요.
+          운영체제별 설치 절차와 데이터 저장 위치를 확인해 보세요.
         </p>
         <a class="btn btn-quiet btn-block stack-top" href="install.html">설치 안내 보기</a>
       </section>

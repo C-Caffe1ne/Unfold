@@ -28,7 +28,8 @@ public static partial class DesignSystem
         PetPreviewOptionWidth = 148, PetPreviewWidth = 520, PetActionWidth = 128, PetActionHeight = 148;
     public const double SpeechBubbleWidth = 320, SpeechAdvanceHeight = 96, SpeechInvitationHeight = 159,
         SpeechRestingHeight = 196, SpeechCompletedHeight = 113, SpeechControlHeight = 40,
-        SpeechTimerSize = 40, SpeechGap = 6, PetBaseSize = 192, PetBubbleGap = 12;
+        SpeechTimerSize = 40, SpeechGap = 6, SpeechHoverWidth = 240, SpeechHoverHeight = 96,
+        PetBaseSize = 192, PetBubbleGap = 12;
     /// <summary>Clear space a page frame keeps between itself and its window edge.</summary>
     public const double FrameMargin = 12;
     /// <summary>Total transparent space a modal window keeps around its frame. The frame margin is

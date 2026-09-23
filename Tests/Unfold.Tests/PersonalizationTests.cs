@@ -51,11 +51,13 @@ public class PersonalizationTests
         Assert.Null(settings.ApplyReminder(45, 5, BreakRoutines.DefaultId).ActiveProfileId);
     }
     [Fact]
-    public void InvalidLibraryAndDanglingProfileAreRejectedWithoutChangingFile()
+    public void LoadingDropsDanglingProfilesButEditingStillRejectsInvalidLibraries()
     {
         using var temp = new TempDirectory(); var file = Path.Combine(temp.Path, "settings.json");
         var json = "{\"workProfiles\":[{\"id\":\"work\",\"name\":\"Work\",\"intervalMinutes\":30,\"idleMinutes\":5,\"routineId\":\"missing\"}]}";
-        File.WriteAllText(file, json); Assert.Throws<InvalidDataException>(() => AppSettings.Load(file)); Assert.Equal(json, File.ReadAllText(file));
+        File.WriteAllText(file, json);
+        Assert.Empty(AppSettings.Load(file, out var needsBackup).WorkProfiles);
+        Assert.True(needsBackup); Assert.Equal(json, File.ReadAllText(file));
         Assert.Throws<ArgumentException>(() => (new AppSettings { AdditionalRoutines = [Routine("WRITING"), Routine("writing")] }).ValidatePersonalization());
         Assert.Throws<ArgumentException>(() => new AppSettings().SaveRoutine(Routine(BreakRoutines.DefaultId)));
         Assert.Throws<ArgumentException>(() => (new AppSettings { AdditionalRoutines = Enumerable.Range(0, 20).Select(i => Routine($"routine-{i}")).ToArray() }).ValidatePersonalization());

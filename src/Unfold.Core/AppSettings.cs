@@ -27,25 +27,16 @@ public sealed partial record AppSettings
     public string? CompletionSoundName { get; init; }
     public int? PetX { get; init; }
     public int? PetY { get; init; }
-    public static AppSettings Load(string path)
+    public static AppSettings Load(string path) => Load(path, out _);
+    public static AppSettings Load(string path, out bool needsBackup)
     {
+        needsBackup = false;
         if (!File.Exists(path)) return new();
-        var value = JsonSerializer.Deserialize<AppSettings>(ImageCodec.ReadBounded(path, 256 * 1024), CharacterLibrary.JsonOptions) ?? throw new InvalidDataException("Missing settings.");
+        var value = ReadFields(ImageCodec.ReadBounded(path, 256 * 1024), out needsBackup);
         // An unknown theme must not discard otherwise valid timer or pet settings.
         if (!Enum.IsDefined(value.Theme)) value = value with { Theme = AppTheme.OatLatte };
         value = Recover(value);
-        if (value.CustomRoutine is { } custom)
-        {
-            try
-            {
-                custom.Validate();
-                if (custom.Id != BreakRoutines.CustomId || custom.Steps.Count > 3) throw new ArgumentException("Invalid custom routine.");
-                value = value with { CustomRoutine = custom with { Steps = Array.AsReadOnly(custom.Steps.ToArray()) } };
-            }
-            catch (ArgumentException) { value = value with { CustomRoutine = null }; }
-        }
-        try { value = value.ValidatePersonalization(); }
-        catch (ArgumentException error) { throw new InvalidDataException("Invalid routine library or work profiles.", error); }
+        value = value.RecoverPersonalization(ref needsBackup);
         if (!BreakRoutines.ForSettings(value).Any(routine => routine.Id == value.BreakRoutineId))
             value = value with { BreakRoutineId = BreakRoutines.DefaultId };
         if (value.ActiveProfileId is { } active && !value.WorkProfiles.Any(profile => profile.Id == active &&

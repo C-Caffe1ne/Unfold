@@ -3,7 +3,7 @@
 Unfold is a C#/.NET 10 and Avalonia stretch reminder with desktop pets. Published
 packages include .NET. Swift, Xcode, and the Piskel web runtime are not required.
 
-Version 0.2.1 includes Mochi (cat), 보리 (rabbit), 강아지 (dog), 고슴도치 (hedgehog)
+Version 0.2.2 includes Mochi (cat), 보리 (rabbit), 강아지 (dog), 고슴도치 (hedgehog)
 and 펭귄 (penguin). Choose them from Home without installing separate packs.
 Release notes are included as `RELEASE-NOTES.md` at the Windows portable folder's
 top level and inside `Unfold.app/Contents/Resources/` on macOS.

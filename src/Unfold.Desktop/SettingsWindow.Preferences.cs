@@ -26,6 +26,7 @@ public sealed partial class SettingsWindow
     private Action? refreshSoundNames;
     private int soundImports;
     private bool savingPreferences, restoringPreferences;
+    private readonly ReminderSounds importedSounds = new(Path.Combine(AppPaths.DataRoot, "Sounds"));
 
     private sealed record PreferencesValues(BubbleDirection Direction, bool SoundsEnabled, int VolumePercent,
         string? DueId, string? CompletedId, string? DueName, string? CompletedName, int Idle, int Snooze, bool DebugTools)
@@ -87,7 +88,7 @@ public sealed partial class SettingsWindow
             if (!saved.DebugTools) runtime.CloseReminderPreview();
         }
         finally { restoringPreferences = false; }
-        preferencesStatus.IsVisible = false; RefreshPreferencesState();
+        preferencesStatus.IsVisible = false; RefreshPreferencesState(); CleanupImportedSounds();
     }
 
     private void SyncPreferencesFromRuntime()
@@ -125,7 +126,16 @@ public sealed partial class SettingsWindow
         {
             AppPaths.Log(error); ShowPreferencesError("설정을 저장하지 못했어요. " + Ui.ErrorText(error));
         }
-        finally { savingPreferences = false; RefreshPreferencesState(); }
+        finally { savingPreferences = false; RefreshPreferencesState(); CleanupImportedSounds(); }
+    }
+
+    private void CleanupImportedSounds()
+    {
+        // Imports run off-thread: wait until their IDs have joined the draft before collecting.
+        if (soundImports > 0) return;
+        var retained = new List<string?> { runtime.Settings.ReminderSoundId, runtime.Settings.CompletionSoundId };
+        if (!disposed && observedPreferences is not null) { retained.Add(dueSoundId); retained.Add(completedSoundId); }
+        importedSounds.RemoveUnused(retained, AppPaths.Log);
     }
 
     private Control BuildPreferencesFooter()

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <title>프라이버시 — Unfold</title>
-<meta name="description" content="Unfold가 서버로 보내는 것과 보내지 않는 것을 전부 적었습니다.">
+<meta name="description" content="Unfold의 로컬 데이터 저장 방식과 출시 후 Google 로그인·결제 연동에 관한 개인정보 처리 계획을 안내합니다.">
 <link rel="stylesheet" href="styles/main.css">
 <link rel="stylesheet" href="styles/pages.css">
 </head>
@@ -31,7 +31,7 @@
         <button class="theme-swatch" type="button" data-theme-value="midnight" data-value="midnight" aria-pressed="false" aria-label="밤의 버터 테마"></button>
         <button class="theme-swatch" type="button" data-theme-value="plum" data-value="plum" aria-pressed="false" aria-label="유연한 라일락 테마"></button>
       </div>
-      <a class="btn btn-primary" href="signup.html">출시 알림 받기</a>
+      <a class="btn btn-primary" href="signup.html">가입 안내</a>
       <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="메뉴 열기">☰</button>
     </div>
   </div>
@@ -51,9 +51,17 @@
   <section class="section">
     <div class="wrap prose">
 
-      <h2>출시 후 서버에서 다룰 정보</h2>
+      <div class="notice notice-info">
+        <span class="notice-icon" aria-hidden="true">ℹ</span>
+        <div>
+          <strong>출시 전 개인정보 처리 계획입니다</strong>
+          <p>현재 웹사이트에는 로그인·결제가 연결되어 있지 않습니다. 아래에서 현재 앱의 저장 방식과 향후 연동 계획을 구분해 안내합니다. 최종 처리방침은 서비스 시작 전에 공개합니다.</p>
+        </div>
+      </div>
+
+      <h2>계정·결제 연결 계획</h2>
       <table class="data-table">
-        <caption>Google 로그인과 라이선스 확인에 필요한 최소 정보입니다.</caption>
+        <caption>아래는 예정된 항목입니다. 실제 수집 항목과 보관 기간은 서비스 시작 전에 안내합니다.</caption>
         <thead>
           <tr>
             <th scope="col">항목</th>
@@ -69,30 +77,22 @@
             <td>구매·체험 상태</td>
             <td>체험 남은 기간과 결제 여부 확인</td>
           </tr>
-          <tr>
-            <td>기기 식별 해시</td>
-            <td>기기 수 제한과 체험 초기화 방지. 원본 값이 아니라 해시만 저장합니다</td>
-          </tr>
-          <tr>
-            <td>운영체제 종류</td>
-            <td>맞는 다운로드 파일 제공</td>
-          </tr>
         </tbody>
       </table>
 
-      <h2>보내지 않는 것</h2>
+      <h2>현재 앱이 내 컴퓨터에 저장하는 정보</h2>
       <table class="data-table">
-        <caption>아래는 전부 사용자의 컴퓨터에만 있습니다.</caption>
+        <caption>아래 데이터는 앱이 서버로 전송하지 않습니다.</caption>
         <thead>
           <tr>
             <th scope="col">항목</th>
-            <th scope="col">어디에 있나</th>
+            <th scope="col">저장 방식</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td>휴식 완료 기록</td>
-            <td><code>break-history.json</code>. 90일까지만 두고 자동으로 지웁니다</td>
+            <td><code>break-history.json</code>. 새 기록을 저장할 때 90일이 지난 기록을 정리하며, 최대 2,000건을 보관합니다</td>
           </tr>
           <tr>
             <td>타이머·알림 설정</td>
@@ -104,7 +104,7 @@
           </tr>
           <tr>
             <td>커스텀 펫으로 넣은 영상·GIF</td>
-            <td>변환도 사용자의 컴퓨터에서 합니다. 원본을 올리지 않습니다</td>
+            <td>내 컴퓨터에서 변환합니다. 원본 파일을 서버에 업로드하지 않습니다</td>
           </tr>
           <tr>
             <td>CSV로 내보낸 기록</td>
@@ -113,7 +113,7 @@
         </tbody>
       </table>
 
-      <h2>하지 않는 것</h2>
+      <h2>현재 앱의 데이터 사용 방식</h2>
       <p>
         <strong>사용 행태를 추적하지 않습니다.</strong> 어떤 화면을 봤는지,
         얼마나 자주 썼는지 수집하는 코드가 없습니다.
@@ -127,9 +127,13 @@
         <strong>광고와 제3자 분석 도구를 넣지 않습니다.</strong>
       </p>
       <p>
-        <strong>완료 기록은 운동량이 아닙니다.</strong> 사용자가 완료 버튼을 누른
-        시각과 시간일 뿐이고, 건강 정보로 다루지 않습니다.
+        <strong>완료 기록은 운동량을 측정한 값이 아닙니다.</strong>
+        완료 버튼을 누른 시각과 앱에서 진행한 휴식 시간을 기록합니다.
       </p>
+
+      <h2>이 웹사이트에 저장되는 설정</h2>
+      <p>선택한 색상 테마는 이 브라우저에 저장됩니다. 계정 정보와 연결하지 않으며, 브라우저의 사이트 데이터를 지우면 초기화됩니다.</p>
+      <p>다운로드 화면의 운영체제 안내는 브라우저 안에서 처리합니다. Mac의 칩 종류는 자동으로 판단하지 않습니다.</p>
 
       <h2>결제 정보</h2>
       <p>
@@ -138,19 +142,20 @@
         열리도록 설계합니다. 실제 수집 항목과 보관 기간은 서비스 공개 전에 확정합니다.
       </p>
 
-      <h2>계정을 지우고 싶다면</h2>
+      <h2>계정과 데이터 삭제 안내</h2>
       <p>
-        출시 전 계정 삭제 방법과 처리 기한을 확정해 이곳에 안내합니다. 계정을 삭제해도
-        컴퓨터에 있는 기록과 설정은 자동으로 지워지지 않으므로, 로컬 데이터 삭제 방법도
-        <a href="install.html">설치 안내</a>에 함께 제공합니다.
+        현재는 이 사이트에서 계정을 만들 수 없습니다. 계정 삭제 방법과 처리 기한은
+        가입 기능을 공개하기 전에 안내하겠습니다. 앱의 로컬 데이터 위치는
+        <a href="install.html">설치 안내</a>에서 확인할 수 있습니다.
       </p>
 
       <div class="notice notice-info stack-top">
         <span class="notice-icon" aria-hidden="true">ℹ</span>
         <div>
-          <strong>이 페이지는 목업입니다</strong>
+          <strong>서비스 공개 전에 더 안내하겠습니다</strong>
           <p>
-            실제 서비스 시작 전에 법적 검토를 거친 개인정보 처리 방침으로 교체해야 합니다.
+            개인정보 처리 주체, 문의처, 수집 항목, 보관 기간과 삭제 절차는
+            실제 연동 내용에 맞춘 최종 개인정보 처리방침에 명시할 예정입니다.
           </p>
         </div>
       </div>

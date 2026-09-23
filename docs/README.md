@@ -7,6 +7,8 @@
 |---|---|
 | [에이전트 작업 안내](../AGENTS.md) | Codex·Claude 공통 프로젝트 지침. Claude는 `CLAUDE.md`에서 가져온다. |
 | [프로젝트 README](../README.md) | 사용자 소개, 빠른 실행, 저장소 구조 |
+| [v0.2.2 배포 검증](validation/2026-09-23-v0.2.2-distribution.md) | 최신 복구 수정 포함, macOS·Windows 배포 파일, 해시·버전·게시 앱 검사 |
+| [v0.2.2 변경 사항](releases/v0.2.2.md) | macOS 펫 표시, 호버 시계, 알림·미리보기·효과음 복구 |
 | [v0.2.1 패치노트](releases/v0.2.1.md) | 기본 펫 5종, 상호작용, UI·타이머·알림 개선과 업데이트 안내 |
 | [v0.2.1 배포 검증](validation/2026-09-22-v0.2.1-distribution.md) | macOS·Windows 배포 파일, 기본 펫 포함·체크섬·게시 앱 검사와 실기 한계 |
 | [MVP 범위](mvp.md) | 제품 목적, 구현된 동작, 제외 범위, 변경 원칙 |

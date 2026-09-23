@@ -64,7 +64,7 @@ public sealed class ReminderSoundPlayer : IDisposable
             var volume = Math.Clamp(settings.ReminderVolumePercent, 0, 100);
             if (volume == 0) return;
             var id = sound == ReminderSound.Due ? settings.ReminderSoundId : settings.CompletionSoundId;
-            var path = sounds.Resolve(sound, id, strict);
+            using var lease = sounds.AcquirePlayback(sound, id, strict, out var path);
             var data = ImageCodec.ReadBounded(path, 5 * 1024 * 1024);
             var duration = ReminderSounds.Duration(data);
             if (volume < 100)

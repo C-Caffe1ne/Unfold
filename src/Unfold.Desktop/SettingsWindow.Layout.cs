@@ -265,6 +265,7 @@ public sealed partial class SettingsWindow
         var keyboard = FocusManager?.GetFocusedElement() is Control focused && focused.Classes.Contains(":focus-visible");
         if (key != "settings") { stopSoundPreview?.Invoke(); runtime.CloseReminderPreview(); }
         settingsPageHost.Content = page; SelectNavigation(key);
+        if (key == "dashboard") ResumePreview(); else SuspendPreview();
         Dispatcher.UIThread.Post(() =>
         {
             if (!IsVisible || settingsPageHost.Content != page) return;

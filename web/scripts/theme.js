@@ -42,6 +42,10 @@ function syncPreview(theme) {
   const shots = document.querySelectorAll('[data-theme-shot]');
   shots.forEach((shot) => {
     shot.hidden = shot.dataset.themeShot !== theme;
+    if (!shot.hidden) {
+      const link = shot.closest('[data-theme-lightbox]');
+      if (link) link.href = shot.src;
+    }
   });
 }
 
