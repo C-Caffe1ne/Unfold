@@ -40,6 +40,7 @@ public sealed partial class PetWindow : Window
     internal AnimationView PetView => animation;
     private readonly DispatcherTimer hitTimer = new() { Interval = TimeSpan.FromMilliseconds(40) };
     private Avalonia.PixelPoint? down;
+    private IPointer? pressedPointer;
     private Avalonia.PixelPoint origin;
     private bool dragging, clickThrough;
     private bool hoveringPet;
@@ -56,6 +57,7 @@ public sealed partial class PetWindow : Window
         ShowInTaskbar = false; Topmost = true; ShowActivated = false;
         bubble = new(runtime.StartBreak, runtime.SnoozeBreak, runtime.CompleteBreak);
         canvas.Children.Add(animation); canvas.Children.Add(bubble); canvas.Children.Add(tail); canvas.Children.Add(tailOutline); Content = canvas;
+        animation.Completed += PointerClipCompleted;
         bubble.IsVisible = tail.IsVisible = tailOutline.IsVisible = false;
         var menu = new ContextMenu();
         var settings = new MenuItem { Header = "설정" }; settings.Click += (_, _) => runtime.ShowSettings();
@@ -75,29 +77,34 @@ public sealed partial class PetWindow : Window
         PointerExited += (_, _) => UpdateHover(null);
         animation.PointerPressed += (_, e) =>
         {
-            if (!e.GetCurrentPoint(animation).Properties.IsLeftButtonPressed || !animation.OpaqueAt(e.GetPosition(animation))) return;
+            if (down is not null || !e.GetCurrentPoint(animation).Properties.IsLeftButtonPressed || !animation.OpaqueAt(e.GetPosition(animation))) return;
             down = animation.PointToScreen(e.GetPosition(animation));
             origin = Position; pressedAt = Stopwatch.GetTimestamp(); dragging = false;
             BeginCompanionPress();
-            e.Pointer.Capture(animation); e.Handled = true;
+            pressedPointer = e.Pointer; e.Pointer.Capture(animation); e.Handled = true;
         };
         animation.PointerMoved += (_, e) =>
         {
             if (down is not { } start) return;
             var current = animation.PointToScreen(e.GetPosition(animation)); var delta = current - start;
             if (Math.Sqrt((double)delta.X * delta.X + (double)delta.Y * delta.Y) >= 5) dragging = true;
-            if (dragging) { CancelCompanionPose(); Position = new(origin.X + delta.X, origin.Y + delta.Y); }
+            if (dragging) Position = new(origin.X + delta.X, origin.Y + delta.Y);
         };
         animation.PointerReleased += async (_, e) =>
         {
-            if (down is null) return;
+            if (down is null || e.InitialPressMouseButton != MouseButton.Left) return;
             var clicked = !dragging && (HasOriginalBehavior || Stopwatch.GetElapsedTime(pressedAt).TotalSeconds <= 0.22);
-            down = null; e.Pointer.Capture(null); ClampPosition(); runtime.SavePosition(PetAnchor);
-            ReleaseCompanionPress(clicked);
+            down = null; pressedPointer = null; e.Pointer.Capture(null); ClampPosition(); runtime.SavePosition(PetAnchor);
+            var deferred = ReleaseCompanionPress(clicked);
             UpdateHover(PetPoint(e.GetPosition(this))); RefreshSpeech();
-            if (clicked) await React();
+            if (clicked && !deferred) await React();
         };
-        animation.PointerCaptureLost += (_, _) => { if (down is not null) { down = null; ReleaseCompanionPress(false); UpdateHover(null); } };
+        animation.PointerCaptureLost += (_, _) =>
+        {
+            if (down is null) return;
+            down = null; pressedPointer = null; dragging = false;
+            CancelCompanionPress(); UpdateHover(null);
+        };
         hitTimer.Tick += (_, _) => { UpdateClickThrough(); TickCompanion(); };
         Opened += (_, _) =>
         {
@@ -113,12 +120,15 @@ public sealed partial class PetWindow : Window
         var selected = runtime.Selected;
         if (character == selected) return;
         var current = InvalidatePlayback(); ResetCompanion();
+        pointerClips = null;
         IReadOnlyList<AnimationFrame> frames;
         try { frames = await runtime.Clip("idle"); }
         catch (Exception error) when (current != generation &&
             error is IOException or UnauthorizedAccessException or InvalidDataException)
         { return; } // A superseded load must not replace a newer pet with its fallback.
+        var loadedPointerClips = await LoadPointerArt(selected);
         if (current != generation) return;
+        pointerClips = loadedPointerClips;
         character = selected; ActiveAnimation = "idle";
         if (selected?.HasOriginalBehavior == true && runtime.Reminder.Notice == PetNotice.Resting)
             originalStretchSession = runtime.Reminder.Session;
@@ -144,6 +154,7 @@ public sealed partial class PetWindow : Window
         {
             var selected = runtime.Selected;
             if (!IsVisible) return;
+            if (DeferPointerReaction(preferred)) return;
             // Stretch belongs to reminders. A plain click reacts only when the character
             // ships a click clip, and otherwise leaves the idle loop alone — so the early
             // return has to happen before generation moves, or it would cancel a stretch.

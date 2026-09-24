@@ -7,7 +7,7 @@
   "spriteSheet": {
     "file": "spritesheet.png",
     "columns": 4,
-    "rows": 6,
+    "rows": 8,
     "frameWidth": 256,
     "frameHeight": 256
   },
@@ -145,6 +145,36 @@
       ],
       "fps": 7,
       "loop": true
+    },
+    "pickup": {
+      "frames": [
+        0,
+        24,
+        25,
+        26
+      ],
+      "fps": 12,
+      "loop": false
+    },
+    "held": {
+      "frames": [
+        26,
+        26,
+        27,
+        26
+      ],
+      "fps": 2,
+      "loop": true
+    },
+    "land": {
+      "frames": [
+        28,
+        29,
+        30,
+        0
+      ],
+      "fps": 10,
+      "loop": false
     }
   }
 }

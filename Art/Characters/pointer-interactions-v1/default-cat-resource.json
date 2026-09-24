@@ -1,0 +1,101 @@
+{
+  "id": "default-cat",
+  "contentVersion": "2.1.0",
+  "source": "Art/Characters/pointer-interactions-v1/source/default-cat-pointer.png",
+  "sourceSha256": "28b5d09228bed39a8cb200d16dbdba4474da0118f0c3452875bfc8a62267401f",
+  "baseSpriteSha256": "757c36941310927ffd618fa507b63936659d07ba5a77b5cc84d177322e14d51c",
+  "runtimeSha256": "208a944f644ee13ece59e86d9b2755b11137858c1a77e5b86d7bb8809ec8bf87",
+  "sourceBoxes": [
+    [
+      86,
+      100,
+      394,
+      449
+    ],
+    [
+      511,
+      63,
+      796,
+      441
+    ],
+    [
+      957,
+      67,
+      1240,
+      440
+    ],
+    [
+      1406,
+      69,
+      1689,
+      437
+    ],
+    [
+      95,
+      569,
+      404,
+      840
+    ],
+    [
+      544,
+      556,
+      853,
+      842
+    ],
+    [
+      991,
+      559,
+      1264,
+      845
+    ],
+    [
+      1405,
+      548,
+      1671,
+      847
+    ]
+  ],
+  "uniformScale": 0.5026455026455027,
+  "cellOffsets": [
+    [
+      50,
+      55
+    ],
+    [
+      56,
+      40
+    ],
+    [
+      57,
+      43
+    ],
+    [
+      57,
+      45
+    ],
+    [
+      50,
+      94
+    ],
+    [
+      50,
+      86
+    ],
+    [
+      59,
+      86
+    ],
+    [
+      61,
+      80
+    ]
+  ],
+  "createdWith": "built-in image_gen",
+  "promptRecord": "generation.md",
+  "originalRowsPreserved": true,
+  "newKeys": [
+    "pickup",
+    "held",
+    "land"
+  ]
+}

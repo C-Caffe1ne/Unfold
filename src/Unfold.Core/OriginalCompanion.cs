@@ -6,6 +6,7 @@ public static class OriginalCompanion
     public const string Profile = "unfold-original-v1";
     public static IReadOnlyList<string> RequiredClips { get; } = Array.AsReadOnly(new[]
         { "idle", "attention", "stretch", "celebrate", "click", "sleep", "look", "yawn", "sulk", "walk" });
+    public static IReadOnlyList<string> PointerClips { get; } = Array.AsReadOnly(new[] { "pickup", "held", "land" });
 }
 
 /// <summary>Only eligible idle time accrues; interruptions never queue a burst of behaviors.</summary>

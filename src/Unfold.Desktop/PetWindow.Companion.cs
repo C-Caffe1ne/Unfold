@@ -10,9 +10,9 @@ public sealed partial class PetWindow
     private readonly PetWanderMotion wander = new(Random.Shared);
     private BreakSession? walkingSession;
     private BreakSession? originalStretchSession;
-    private bool reacting, pressed, releasing;
+    private bool reacting, pressed, releasing, landing;
     private double poseSeconds;
-    private PetPose releasedPose;
+    private PetPose pressedPose, releasedPose;
     private long lastCompanionTick = Stopwatch.GetTimestamp();
     internal bool HasOriginalBehavior => runtime.Selected?.HasOriginalBehavior == true;
     internal string ActiveAnimation { get; private set; } = "idle";
@@ -21,6 +21,7 @@ public sealed partial class PetWindow
 
     private void ResetCompanion()
     {
+        down = null; dragging = false; pressedPointer?.Capture(null); pressedPointer = null;
         walkingSession = originalStretchSession = null; idleSchedule.Reset(); wander.Reset(); CancelCompanionPose();
         lastCompanionTick = Stopwatch.GetTimestamp();
     }
@@ -28,23 +29,30 @@ public sealed partial class PetWindow
     {
         if (!HasOriginalBehavior) return;
         // Wake a sleeping pet immediately. Pointer motion is applied to the image, never its window.
-        pressed = true; releasing = false; poseSeconds = 0; idleSchedule.Reset();
+        pressedPose = animation.Pose;
+        pressed = true; releasing = landing = false; poseSeconds = 0; idleSchedule.Reset();
+        if (HasPointerArt) { BeginPointerArt(); return; }
         var current = InvalidatePlayback(); _ = RestoreBaseAnimation(current);
     }
-    internal void ReleaseCompanionPress(bool clicked)
+    internal bool ReleaseCompanionPress(bool clicked)
     {
-        if (!HasOriginalBehavior) { CancelCompanionPose(); return; }
-        if (!clicked)
-        {
-            CancelCompanionPose();
-            _ = RestoreBaseAnimation(generation);
-            return;
-        }
+        if (!HasOriginalBehavior) { CancelCompanionPose(); return false; }
+        if (!pressed) return false;
+        if (HasPointerArt) { ReleasePointerArt(clicked); return true; }
+        landing = !clicked || poseSeconds > PetPose.LiftDelay;
         releasedPose = animation.Pose; pressed = false; releasing = true; poseSeconds = 0;
+        if (!clicked) _ = RestoreBaseAnimation(generation);
+        return false;
+    }
+    private void CancelCompanionPress()
+    {
+        CancelCompanionPose();
+        if (HasOriginalBehavior) _ = RestoreBaseAnimation(generation);
     }
     private void CancelCompanionPose()
     {
-        pressed = releasing = false; poseSeconds = 0; animation.SetPose(PetPose.Neutral);
+        ResetPointerArt();
+        pressed = releasing = landing = false; poseSeconds = 0; animation.SetPose(PetPose.Neutral);
     }
     private async Task RestoreBaseAnimation(int current, bool idleOnly = false)
     {
@@ -81,7 +89,8 @@ public sealed partial class PetWindow
     {
         if (walkingSession is not null && !IsRoaming)
         {
-            walkingSession = null; wander.Reset(); animation.SetPose(PetPose.Neutral);
+            walkingSession = null; wander.Reset();
+            if (PointerPhase == PetPointerPhase.None) animation.SetPose(PetPose.Neutral);
             if (ActiveAnimation == "walk") _ = RestoreBaseAnimation(InvalidatePlayback());
         }
         // Stop/cancel can occur before the one-shot stretch finishes.
@@ -101,10 +110,12 @@ public sealed partial class PetWindow
     internal void AdvanceCompanion(double seconds)
     {
         if (!HasOriginalBehavior || !IsVisible || !double.IsFinite(seconds) || seconds <= 0 || seconds > .25) return;
-        if (pressed || releasing)
+        if (PointerPhase != PetPointerPhase.None) AdvancePointerArt(seconds);
+        else if (pressed || releasing)
         {
             poseSeconds += seconds;
-            animation.SetPose(pressed ? PetPose.Press(poseSeconds) : PetPose.Release(poseSeconds, releasedPose));
+            animation.SetPose(pressed ? PetPose.Hold(poseSeconds, pressedPose)
+                : landing ? PetPose.Land(poseSeconds, releasedPose) : PetPose.Release(poseSeconds, releasedPose));
             if (releasing && poseSeconds >= .44) { releasing = false; animation.SetPose(PetPose.Neutral); }
         }
         var blocked = down is not null || pressed || releasing || reacting || IsPointerOver || ContextMenu?.IsOpen == true;

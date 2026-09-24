@@ -50,11 +50,39 @@ internal static class OriginalCompanionDiagnostics
                     if (pet.ActiveAnimation != "idle") throw new InvalidOperationException("One-shot did not restore idle.");
                     clips.Add(new { key, frames = frames.Count, elapsedMs = elapsed.Elapsed.TotalMilliseconds });
                 }
-                pet.BeginCompanionPress(); pet.AdvanceCompanion(.1);
-                Capture(pet.PetView, Path.Combine(directory, id + "-pressed.png"));
-                pet.ReleaseCompanionPress(true); pet.AdvanceCompanion(.12);
-                Capture(pet.PetView, Path.Combine(directory, id + "-released.png"));
+                var windowSize = new Size(pet.Width, pet.Height); var windowPosition = pet.Position;
+                if (!pet.HasPointerArt) throw new InvalidOperationException("Pointer art did not load.");
+                pet.BeginCompanionPress(); await Until(() => pet.PointerPhase == PetPointerPhase.Held);
                 pet.AdvanceCompanion(.2); pet.AdvanceCompanion(.2);
+                var heldFrames = await runtime.Clip("held");
+                preview.SetFrames([heldFrames[0]], true, false, true);
+                var held = pet.PetView.Pose;
+                if (held.Lift <= 0) throw new InvalidOperationException("Held pet did not lift.");
+                preview.SetPose(held); label.Text = character.Manifest.Name + " · 들어 올림";
+                Capture(review, Path.Combine(directory, id + "-held.png"));
+                for (var tick = 0; tick < 50; tick++) pet.AdvanceCompanion(.2);
+                if (pet.PetView.Pose != held) throw new InvalidOperationException("Held pose was not maintained.");
+                pet.ReleaseCompanionPress(false); pet.AdvanceCompanion(.16);
+                preview.SetPose(pet.PetView.Pose); label.Text = character.Manifest.Name + " · 첫 접촉";
+                Capture(review, Path.Combine(directory, id + "-contact.png"));
+                pet.AdvanceCompanion(.18);
+                if (pet.PointerPhase != PetPointerPhase.Bouncing || pet.ActiveAnimation != "held" || pet.PetView.Pose.Lift <= held.Lift)
+                    throw new InvalidOperationException("Held art changed before the bounce apex.");
+                preview.SetPose(pet.PetView.Pose); label.Text = character.Manifest.Name + " · 한 번 튕김";
+                Capture(review, Path.Combine(directory, id + "-bounce.png"));
+                pet.AdvanceCompanion(.18); pet.AdvanceCompanion(.12);
+                if (pet.PointerPhase != PetPointerPhase.Recovering || pet.ActiveAnimation != "land")
+                    throw new InvalidOperationException("Recovery did not wait for final landing.");
+                var landFrames = await runtime.Clip("land");
+                preview.SetFrames([landFrames[1]], true, false, true);
+                preview.SetPose(PetPose.Neutral); label.Text = character.Manifest.Name + " · 자세 복귀";
+                Capture(review, Path.Combine(directory, id + "-recovering.png"));
+                await Until(() => pet.PointerPhase == PetPointerPhase.None && pet.ActiveAnimation == "idle");
+                preview.SetFrames(await runtime.Clip("idle"), true, false, true);
+                preview.SetPose(pet.PetView.Pose); label.Text = character.Manifest.Name + " · 복귀";
+                Capture(review, Path.Combine(directory, id + "-landed.png"));
+                if (pet.PetView.Pose != PetPose.Neutral || new Size(pet.Width, pet.Height) != windowSize || pet.Position != windowPosition)
+                    throw new InvalidOperationException("Landing did not restore pose within the unchanged window.");
                 for (var i = 1; i <= 3; i++)
                 {
                     await runtime.ShowReminder(); runtime.SnoozeBreak();
@@ -69,7 +97,8 @@ internal static class OriginalCompanionDiagnostics
                 await Until(() => pet.ActiveAnimation == "idle");
                 await runtime.ShowReminder(); runtime.StartBreak(); await runtime.HidePet();
                 if (pet.IsVisible || pet.IsRoaming) throw new InvalidOperationException("Hidden pet continued walking.");
-                results.Add(new { id, clips, pointerPoseCaptured = true, thirdSnoozeVerified = true,
+                results.Add(new { id, clips, pointerPoseCaptured = true, heldAndLandingVerified = true,
+                    pointerArt = OriginalCompanion.PointerClips, singleBounceBeforeRecovery = true, thirdSnoozeVerified = true,
                     stretchBeforeWalkVerified = true, completionAndHideStopWalking = true });
                 review.Close(); review = null;
             }

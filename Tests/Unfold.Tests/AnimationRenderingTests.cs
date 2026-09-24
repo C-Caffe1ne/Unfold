@@ -33,7 +33,10 @@ public class AnimationRenderingTests
             var idle = character.LoadAnimation("idle")[0];
             var click = character.LoadAnimation("click");
             var poses = new[] { PetPose.Neutral, PetPose.Press(.1), PetPose.Release(.06, PetPose.Press(.1)),
-                PetPose.Release(.12, PetPose.Press(.1)), PetPose.Release(.3, PetPose.Press(.1)), PetPose.Neutral };
+                PetPose.Release(.12, PetPose.Press(.1)), PetPose.Release(.3, PetPose.Press(.1)), PetPose.Neutral,
+                PetPose.Hold(.2, PetPose.Neutral), PetPose.Hold(5, PetPose.Neutral),
+                PetPose.Land(.08, PetPose.Hold(5, PetPose.Neutral)), PetPose.Land(.16, PetPose.Hold(5, PetPose.Neutral)),
+                PetPose.Land(.28, PetPose.Hold(5, PetPose.Neutral)), PetPose.Neutral };
             view.SetFrames([idle], true, false, true);
             foreach (var pose in poses)
             {
@@ -47,6 +50,16 @@ public class AnimationRenderingTests
                 view.SetFrames([frame], false, false, true);
                 AssertMatchesFreshFrame(window);
             }
+            foreach (var key in OriginalCompanion.PointerClips)
+                foreach (var frame in character.LoadAnimation(key))
+                {
+                    view.SetFrames([frame], false, false, true);
+                    foreach (var pose in new[] { PetPose.Pickup(.4, PetPose.Neutral),
+                        PetPose.BounceOnce(.16, PetPose.Neutral), PetPose.BounceOnce(.34, PetPose.Neutral), PetPose.Neutral })
+                    {
+                        view.SetPose(pose); AssertMatchesFreshFrame(window);
+                    }
+                }
         }
         finally { window.Close(); }
     }

@@ -1,0 +1,101 @@
+{
+  "id": "hedgehog",
+  "contentVersion": "0.2.0",
+  "source": "Art/Characters/pointer-interactions-v1/source/hedgehog-pointer.png",
+  "sourceSha256": "67cd950e7de637f46979ebcbce2b0075904761461b29e54ec7ebe9918727fd6b",
+  "baseSpriteSha256": "5f0c8deb306e05f87f15868d753cda14edc3ea30f7983da39783817b63a77f19",
+  "runtimeSha256": "67bd448dd08da27d2fd8535cc7bc1a21fbb646dc984bcde4118d9ae1f402f7c4",
+  "sourceBoxes": [
+    [
+      61,
+      85,
+      404,
+      398
+    ],
+    [
+      505,
+      90,
+      842,
+      409
+    ],
+    [
+      938,
+      84,
+      1265,
+      400
+    ],
+    [
+      1383,
+      81,
+      1711,
+      400
+    ],
+    [
+      58,
+      519,
+      385,
+      824
+    ],
+    [
+      505,
+      510,
+      841,
+      829
+    ],
+    [
+      937,
+      503,
+      1275,
+      827
+    ],
+    [
+      1380,
+      496,
+      1725,
+      824
+    ]
+  ],
+  "uniformScale": 0.5792682926829268,
+  "cellOffsets": [
+    [
+      28,
+      49
+    ],
+    [
+      30,
+      45
+    ],
+    [
+      33,
+      47
+    ],
+    [
+      33,
+      45
+    ],
+    [
+      33,
+      53
+    ],
+    [
+      30,
+      45
+    ],
+    [
+      30,
+      42
+    ],
+    [
+      28,
+      40
+    ]
+  ],
+  "createdWith": "built-in image_gen",
+  "promptRecord": "generation.md",
+  "originalRowsPreserved": true,
+  "newKeys": [
+    "pickup",
+    "held",
+    "land"
+  ]
+}

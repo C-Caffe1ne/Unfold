@@ -12,6 +12,9 @@
 | [v0.2.1 패치노트](releases/v0.2.1.md) | 기본 펫 5종, 상호작용, UI·타이머·알림 개선과 업데이트 안내 |
 | [v0.2.1 배포 검증](validation/2026-09-22-v0.2.1-distribution.md) | macOS·Windows 배포 파일, 기본 펫 포함·체크섬·게시 앱 검사와 실기 한계 |
 | [MVP 범위](mvp.md) | 제품 목적, 구현된 동작, 제외 범위, 변경 원칙 |
+| [펫 들어 올리기·착지 검증](validation/2026-09-24-pet-lift.md) | 기본 펫 5종의 누름 유지·착지, 기존 클릭·드래그·입력 취소와 렌더링 검사 |
+| [펫 공 모양·매달림·바운스 검증](validation/2026-09-24-pointer-art.md) | 고슴도치 말기·펴기, 4종 매달림, 바닥에서 한 번 튕긴 후 기존 클릭 반응 연결 |
+| [포인터 전용 펫 제작 원장](../Art/Characters/pointer-interactions-v1/README.md) | 5종 원본·프롬프트·기존 셀 보존·추가 자세와 재생 계약 |
 | [보리·Mochi 확장 행동 계획](plans/2026-09-22-original-companions.md) | 랜덤 행동, 클릭·미루기 반응, 스트레칭 후 이동과 커스텀 팩 호환 계약 |
 | [보리·Mochi 제작 원장](../Art/Characters/original-companions-v2/README.md) | 새 PNG 원본, 프롬프트, 팩 버전과 생성 방법 |
 | [강아지·고슴도치·펭귄 제작 원장](../Art/Characters/original-companions-v3/README.md) | 세 팩의 원본 보존, 16개 자세 정렬, 행동 타임라인과 재생성 |

@@ -17,6 +17,7 @@ public sealed class CharacterPackage
     public bool IsBuiltIn { get; }
     public bool HasOriginalBehavior => Manifest.BehaviorProfile == OriginalCompanion.Profile &&
         OriginalCompanion.RequiredClips.All(Manifest.Animations.ContainsKey);
+    public bool HasPointerArt => HasOriginalBehavior && OriginalCompanion.PointerClips.All(Manifest.Animations.ContainsKey);
     private readonly Lazy<PixelImage> sheet;
     public PixelImage Sheet => sheet.Value;
     public override string ToString() => Manifest.Name;

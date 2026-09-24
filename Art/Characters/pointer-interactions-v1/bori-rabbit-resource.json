@@ -1,0 +1,101 @@
+{
+  "id": "bori-rabbit",
+  "contentVersion": "0.3.0",
+  "source": "Art/Characters/pointer-interactions-v1/source/bori-rabbit-pointer.png",
+  "sourceSha256": "5db6a0073a70b74497e67506e253eb0d7216c5e713ab9b43ac5810486b5b8b81",
+  "baseSpriteSha256": "aa1201af303d70cff6b8b543f3280168e979a7279ed83a4e98cab27f1be7f75a",
+  "runtimeSha256": "8e026a21453629532ca88d39ded381f27f26a8d8d77c0ca3a01e8688e139e283",
+  "sourceBoxes": [
+    [
+      127,
+      115,
+      399,
+      436
+    ],
+    [
+      548,
+      72,
+      809,
+      420
+    ],
+    [
+      936,
+      102,
+      1238,
+      431
+    ],
+    [
+      1400,
+      102,
+      1702,
+      430
+    ],
+    [
+      90,
+      566,
+      383,
+      828
+    ],
+    [
+      522,
+      596,
+      828,
+      824
+    ],
+    [
+      981,
+      506,
+      1214,
+      824
+    ],
+    [
+      1468,
+      507,
+      1653,
+      825
+    ]
+  ],
+  "uniformScale": 0.5459770114942529,
+  "cellOffsets": [
+    [
+      53,
+      55
+    ],
+    [
+      56,
+      40
+    ],
+    [
+      45,
+      50
+    ],
+    [
+      45,
+      51
+    ],
+    [
+      48,
+      87
+    ],
+    [
+      44,
+      106
+    ],
+    [
+      64,
+      56
+    ],
+    [
+      77,
+      56
+    ]
+  ],
+  "createdWith": "built-in image_gen",
+  "promptRecord": "generation.md",
+  "originalRowsPreserved": true,
+  "newKeys": [
+    "pickup",
+    "held",
+    "land"
+  ]
+}

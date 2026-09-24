@@ -1,0 +1,101 @@
+{
+  "id": "puppy-dog",
+  "contentVersion": "0.2.0",
+  "source": "Art/Characters/pointer-interactions-v1/source/puppy-dog-pointer.png",
+  "sourceSha256": "19a9899af3aaefac6ca5dbd480bcdede966fc0542cfb55b9d873b6d4f66ce051",
+  "baseSpriteSha256": "c8b605eed4f30c4ae51b5f1e2a03e100bfe326ffd364c0fc8e1367522a69161c",
+  "runtimeSha256": "e565bf46b3481221c65ab3f3c7d3793bdfc9951711d528d03c2e1effda654f5f",
+  "sourceBoxes": [
+    [
+      78,
+      79,
+      371,
+      449
+    ],
+    [
+      528,
+      62,
+      820,
+      433
+    ],
+    [
+      958,
+      41,
+      1256,
+      436
+    ],
+    [
+      1402,
+      41,
+      1700,
+      435
+    ],
+    [
+      58,
+      594,
+      410,
+      832
+    ],
+    [
+      512,
+      627,
+      870,
+      832
+    ],
+    [
+      954,
+      551,
+      1290,
+      833
+    ],
+    [
+      1409,
+      542,
+      1696,
+      834
+    ]
+  ],
+  "uniformScale": 0.4810126582278481,
+  "cellOffsets": [
+    [
+      57,
+      52
+    ],
+    [
+      58,
+      52
+    ],
+    [
+      56,
+      40
+    ],
+    [
+      56,
+      40
+    ],
+    [
+      43,
+      116
+    ],
+    [
+      42,
+      131
+    ],
+    [
+      47,
+      94
+    ],
+    [
+      59,
+      90
+    ]
+  ],
+  "createdWith": "built-in image_gen",
+  "promptRecord": "generation.md",
+  "originalRowsPreserved": true,
+  "newKeys": [
+    "pickup",
+    "held",
+    "land"
+  ]
+}

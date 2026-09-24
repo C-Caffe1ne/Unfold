@@ -1,0 +1,101 @@
+{
+  "id": "penguin",
+  "contentVersion": "0.2.0",
+  "source": "Art/Characters/pointer-interactions-v1/source/penguin-pointer.png",
+  "sourceSha256": "873d9aefd6c8c4cfa5da029cc5324cd0beb54f44f34fd06c38310bffc5afed3e",
+  "baseSpriteSha256": "44b4db94148f76d2c448946f8899ebe3578cb90731bd15c01cbbfa5e9d8ab5ad",
+  "runtimeSha256": "e85d4fa9cc404255dc3a5bedca280f66628c08499d352cddac79d8af2758bb57",
+  "sourceBoxes": [
+    [
+      97,
+      97,
+      335,
+      435
+    ],
+    [
+      540,
+      93,
+      778,
+      434
+    ],
+    [
+      981,
+      82,
+      1217,
+      431
+    ],
+    [
+      1425,
+      83,
+      1660,
+      430
+    ],
+    [
+      105,
+      586,
+      347,
+      828
+    ],
+    [
+      546,
+      605,
+      793,
+      824
+    ],
+    [
+      984,
+      520,
+      1229,
+      823
+    ],
+    [
+      1428,
+      520,
+      1673,
+      824
+    ]
+  ],
+  "uniformScale": 0.5444126074498568,
+  "cellOffsets": [
+    [
+      63,
+      46
+    ],
+    [
+      63,
+      44
+    ],
+    [
+      64,
+      40
+    ],
+    [
+      64,
+      41
+    ],
+    [
+      62,
+      98
+    ],
+    [
+      61,
+      111
+    ],
+    [
+      61,
+      65
+    ],
+    [
+      61,
+      64
+    ]
+  ],
+  "createdWith": "built-in image_gen",
+  "promptRecord": "generation.md",
+  "originalRowsPreserved": true,
+  "newKeys": [
+    "pickup",
+    "held",
+    "land"
+  ]
+}

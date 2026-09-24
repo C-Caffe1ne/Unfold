@@ -1,13 +1,13 @@
 {
-  "id": "default-cat",
-  "name": "Mochi",
+  "id": "bori-rabbit",
+  "name": "보리",
   "version": 1,
   "renderStyle": "smooth",
   "behaviorProfile": "unfold-original-v1",
   "spriteSheet": {
     "file": "spritesheet.png",
     "columns": 4,
-    "rows": 8,
+    "rows": 6,
     "frameWidth": 256,
     "frameHeight": 256
   },
@@ -42,10 +42,9 @@
         0,
         9,
         9,
-        10,
-        10,
-        10,
-        10,
+        9,
+        9,
+        9,
         9,
         0
       ],
@@ -139,43 +138,13 @@
     },
     "walk": {
       "frames": [
-        18,
-        19,
+        20,
+        21,
         20,
         21
       ],
       "fps": 7,
       "loop": true
-    },
-    "pickup": {
-      "frames": [
-        0,
-        24,
-        25,
-        26
-      ],
-      "fps": 12,
-      "loop": false
-    },
-    "held": {
-      "frames": [
-        26,
-        26,
-        27,
-        26
-      ],
-      "fps": 2,
-      "loop": true
-    },
-    "land": {
-      "frames": [
-        28,
-        29,
-        30,
-        0
-      ],
-      "fps": 10,
-      "loop": false
     }
   }
 }
