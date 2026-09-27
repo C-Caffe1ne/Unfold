@@ -1,0 +1,7 @@
+{
+  "default-cat": ["default-cat/rig.svg"],
+  "bori-rabbit": ["bori-rabbit/rig.svg"],
+  "puppy-dog": ["puppy-dog/rig.svg"],
+  "hedgehog": ["hedgehog/rig.svg"],
+  "penguin": ["penguin/rig.svg"]
+}

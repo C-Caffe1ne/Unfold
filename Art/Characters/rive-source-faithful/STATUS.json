@@ -1,0 +1,68 @@
+{
+  "status": "incomplete-rive-editor-unresponsive",
+  "updatedUtc": "2026-09-27T08:26:09Z",
+  "requestedOutcome": "Source-matching SVG design followed by interactive Rive rigging; no export",
+  "local": {
+    "sourceDerivedVectorPoses": 122,
+    "petCount": 5,
+    "sourceAnimationPlans": 65,
+    "sourceAnimationFrameOrderAndDurationChecks": "passed",
+    "originalPngAndManifestHashes": "unchanged",
+    "rasterEmbeddedInSvg": false,
+    "pixelIdenticalToSource": false,
+    "anatomicalPartsSeparated": false,
+    "boneAndSkinRigCompleted": false,
+    "rigPlanType": "pose-switching with root transforms; not a skeletal rig",
+    "comparison": ["comparison-idle.png", "comparison-pointer.png"],
+    "verification": "verification.json"
+  },
+  "rive": {
+    "fileUrl": "https://editor.rive.app/file/unfoldpet/2612379",
+    "oldDraftPreserved": true,
+    "createdArtboards": {
+      "default-cat": "0-1035",
+      "bori-rabbit": "0-29333",
+      "puppy-dog": "0-29345",
+      "hedgehog": "0-29357",
+      "penguin": "0-29369"
+    },
+    "approvedTestGroupsDeleted": ["0-72996", "0-776988"],
+    "preservedDenseTrialSvgFiles": "Each pet's import-N.svg files; these are NOT the compact rig.svg files",
+    "compactSvgAssets": {
+      "default-cat": "0-1016540",
+      "bori-rabbit": "0-1016541",
+      "puppy-dog": "0-1016542",
+      "hedgehog": "0-1016543",
+      "penguin": "0-1016544"
+    },
+    "lastConfirmedCompactImport": {"pet": "default-cat", "nodeId": "0-1016569"},
+    "followingImportStatus": "Unconfirmed: stopped orchestration; an already-dispatched import may still finish",
+    "stateMachineConnectionsCompleted": false,
+    "nativePlaybackVerified": false,
+    "exported": false,
+    "published": false,
+    "requires": "User checks saving status and reopens the Rive file; re-inspect actual hierarchy before further mutations"
+  },
+  "recoveryAttempt": {
+    "requestedAction": "Inspect and restore the latest revision before dense SVG additions",
+    "revisionRestored": false,
+    "editorVersionObserved": "BETA 0.9.19",
+    "desktopObserved": "Loading reached 100 percent but the editor did not open; revision history was inaccessible",
+    "webObserved": "File browser opened; the file reached 96 percent loading before browser control timed out",
+    "fileBrowserObserved": "Download Revision is marked Upgrade; no restore action was available in the file context menu",
+    "webLoadingCleanup": "Navigation back to home was attempted but timed out; completion is unverified",
+    "additionalUploads": false,
+    "additionalCloudDeletions": false,
+    "exportedOrDownloaded": false,
+    "paidUpgrade": false,
+    "forceQuitOrRestart": false,
+    "nextStep": "Rive-side recovery assistance or access to a responsive revision-history UI is required; do not add more SVG content"
+  },
+  "knownLimitations": [
+    "Current SVGs approximate the raster texture and antialiased edges; silhouette IoU is not overall visual identity.",
+    "Local pose-switch timeline plans do not provide the requested anatomical bone/weight rig.",
+    "Bounce plan starts at the full held lift; exact early-release deformation needs a live controller before acceptance.",
+    "Pointer Lua files are local drafts, not installed or compiled in Rive.",
+    "No runtime integration or target-OS input validation was performed."
+  ]
+}

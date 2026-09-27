@@ -31,6 +31,7 @@ public sealed partial class PetWindow
         // Wake a sleeping pet immediately. Pointer motion is applied to the image, never its window.
         pressedPose = animation.Pose;
         pressed = true; releasing = landing = false; poseSeconds = 0; idleSchedule.Reset();
+        lastCompanionTick = Stopwatch.GetTimestamp();
         if (HasPointerArt) { BeginPointerArt(); return; }
         var current = InvalidatePlayback(); _ = RestoreBaseAnimation(current);
     }
@@ -39,10 +40,10 @@ public sealed partial class PetWindow
         if (!HasOriginalBehavior) { CancelCompanionPose(); return false; }
         if (!pressed) return false;
         if (HasPointerArt) { ReleasePointerArt(clicked); return true; }
-        landing = !clicked || poseSeconds > PetPose.LiftDelay;
+        landing = !clicked || poseSeconds >= PetPose.LiftDelay;
         releasedPose = animation.Pose; pressed = false; releasing = true; poseSeconds = 0;
-        if (!clicked) _ = RestoreBaseAnimation(generation);
-        return false;
+        if (landing) _ = RestoreBaseAnimation(generation);
+        return landing;
     }
     private void CancelCompanionPress()
     {

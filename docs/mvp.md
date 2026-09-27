@@ -59,12 +59,13 @@ library, cloud sync, AI chat, achievements, XP, in-app shop, multiplayer, or
 coding-agent integration. Weekly review/export remains available; routine-library and work-profile data
 are retained only for backward compatibility and internal diagnostics. [Compatibility and review guide](personalization.md)
 
-Accounts, sign-in, the three-day trial and Lemon Squeezy payment are **planned but not implemented**.
-The current build makes no network calls at all: there is no account, no trial clock, no entitlement
-check and no payment lock, and every feature runs locally without signing in. Under that plan,
-completion history, settings and pet files still stay on the device. The single-product commercial
-boundary is recorded in [product direction](product-direction.md) and must not be described here as
-shipped behavior.
+The commercial plan is free download, Google sign-in, then one-time payment: KRW 4,900 in Korea
+or US$3.99 overseas, with **no free trial**. Supabase manages accounts and purchase entitlements.
+Account/payment foundation code is being prepared separately; the running desktop app still has
+no sign-in or purchase gate and all current features work locally. Account UI, secure session
+storage, real OAuth, provider checkout and offline purchase recovery are not connected yet.
+Completion history, settings and pet files remain local. See the
+[paid launch plan](plans/2026-09-27-paid-launch.md) for staged acceptance criteria.
 
 The C# editor, pixel model, and Piskel codec remain because regression tests and
 `--smoke-test` exercise authoring/save/reopen behavior. They are not advertised as

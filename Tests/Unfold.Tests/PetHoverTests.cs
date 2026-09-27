@@ -175,6 +175,50 @@ public class PetHoverTests
         Assert.False(scope.Bubble.IsVisible);
     }
 
+    [AvaloniaTheory]
+    [InlineData(BubbleDirection.Top)] [InlineData(BubbleDirection.Bottom)]
+    [InlineData(BubbleDirection.Left)] [InlineData(BubbleDirection.Right)]
+    public async Task HoverWindowMovesOnlyAfterThePetVisualHasItsNewOffset(BubbleDirection direction)
+    {
+        using var scope = new Scope(); await scope.Load(original: true); var pet = scope.Pet;
+        await scope.Runtime.UpdateSettings(scope.Runtime.Settings with { BubbleDirection = direction });
+        Layout(pet);
+        PixelPoint VisualOrigin()
+        {
+            var local = pet.PetView.TranslatePoint(default, pet)!.Value;
+            return new(pet.Position.X + (int)Math.Round(local.X * pet.DesktopScaling),
+                pet.Position.Y + (int)Math.Round(local.Y * pet.DesktopScaling));
+        }
+        var expected = VisualOrigin();
+        var intermediate = new List<PixelPoint>();
+        pet.PositionChanged += (_, _) => intermediate.Add(VisualOrigin());
+        for (var i = 0; i < 3; i++)
+        {
+            scope.Hover();
+            pet.MouseMove(new(-10, -10)); Layout(pet);
+            Assert.Equal(expected, VisualOrigin());
+        }
+        Assert.All(intermediate, actual => Assert.Equal(expected, actual));
+    }
+
+    [AvaloniaFact]
+    public async Task PressBeforeQueuedHoverLayoutDoesNotJumpWhenDraggingStarts()
+    {
+        using var scope = new Scope(); await scope.Load(original: true); var pet = scope.Pet;
+        await scope.Runtime.UpdateSettings(scope.Runtime.Settings with { BubbleDirection = BubbleDirection.Top });
+        Layout(pet);
+        var before = pet.PetAnchor;
+        var point = pet.PetView.TranslatePoint(new(96, 96), pet)!.Value;
+        // Enter queues the hover layout; pressing may arrive before that callback.
+        pet.MouseDown(point, MouseButton.Left);
+        Layout(pet);
+        Assert.True(scope.Bubble.IsVisible);
+        var movedPoint = pet.PetView.TranslatePoint(new(121, 96), pet)!.Value;
+        pet.MouseMove(movedPoint); Layout(pet);
+        Assert.Equal(new PixelPoint(before.X + 25, before.Y), pet.PetAnchor);
+        pet.MouseUp(movedPoint, MouseButton.Left);
+    }
+
     private static TextBlock Text(Window window, string name) => window.GetVisualDescendants().OfType<TextBlock>().Single(text => text.Name == name);
     private static void Layout(Window window) { Dispatcher.UIThread.RunJobs(); window.UpdateLayout(); }
 

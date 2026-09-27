@@ -2,12 +2,11 @@ using Unfold.Core;
 
 namespace Unfold.Desktop;
 
-internal enum PetPointerPhase { None, Pickup, Held, Bouncing, Recovering }
+internal enum PetPointerPhase { None, Pending, Pickup, Held, Bouncing, Recovering }
 
 public sealed partial class PetWindow
 {
     private IReadOnlyList<AnimationFrame>[]? pointerClips;
-    private bool pointerClickPending;
     private (string Key, BreakSession? Session, PetNotice Notice)? deferredPointerReaction;
     internal PetPointerPhase PointerPhase { get; private set; }
     internal bool HasPointerArt => pointerClips is not null && character == runtime.Selected;
@@ -29,23 +28,42 @@ public sealed partial class PetWindow
 
     private void BeginPointerArt()
     {
-        pointerClickPending = false;
+        // Every click begins with pointer-down. Wait for a hold or drag before
+        // changing to the curled/hanging artwork.
+        PointerPhase = PetPointerPhase.Pending;
+        animation.SetPose(PetPose.Neutral); pressedPose = PetPose.Neutral;
+        _ = RestoreBaseAnimation(InvalidatePlayback());
+    }
+
+    private void StartPointerHold()
+    {
+        if (!pressed || PointerPhase != PetPointerPhase.Pending) return;
+        poseSeconds = 0;
         InvalidatePlayback(); SetPointerClip(0, PetPointerPhase.Pickup);
     }
 
     private void ReleasePointerArt(bool clicked)
     {
-        pointerClickPending = clicked;
+        if (clicked && PointerPhase == PetPointerPhase.Pending)
+        {
+            FinishPointerArt(clicked: true);
+            return;
+        }
+        InvalidatePlayback();
         releasedPose = animation.Pose; pressed = false; releasing = true; poseSeconds = 0;
-        // Finish curling even after a very quick click, and keep that exact held
-        // silhouette through the bounce. Uncurl only after the final landing.
+        // A hold/drag ends with landing only, never an additional click reaction.
+        // Keep the held silhouette through the bounce and uncurl after landing.
         SetPointerClip(1, PetPointerPhase.Bouncing, firstFrameOnly: true);
     }
 
     private void AdvancePointerArt(double seconds)
     {
         poseSeconds += seconds;
-        if (PointerPhase is PetPointerPhase.Pickup or PetPointerPhase.Held)
+        if (PointerPhase == PetPointerPhase.Pending)
+        {
+            if (poseSeconds >= PetPose.LiftDelay) StartPointerHold();
+        }
+        else if (PointerPhase is PetPointerPhase.Pickup or PetPointerPhase.Held)
             animation.SetPose(PetPose.Pickup(poseSeconds, pressedPose));
         else if (PointerPhase == PetPointerPhase.Bouncing)
         {
@@ -63,14 +81,17 @@ public sealed partial class PetWindow
         if (PointerPhase == PetPointerPhase.Pickup && pressed)
             SetPointerClip(1, PetPointerPhase.Held);
         else if (PointerPhase == PetPointerPhase.Recovering)
-        {
-            var click = pointerClickPending; var deferred = deferredPointerReaction;
-            CancelCompanionPose();
-            if (deferred is { } next && runtime.PresentedReminder.Session == next.Session && runtime.PresentedReminder.Notice == next.Notice)
-                _ = React(next.Key);
-            else if (click) _ = React();
-            else _ = RestoreBaseAnimation(generation);
-        }
+            FinishPointerArt(clicked: false);
+    }
+
+    private void FinishPointerArt(bool clicked)
+    {
+        var deferred = deferredPointerReaction;
+        InvalidatePlayback(); CancelCompanionPose();
+        if (deferred is { } next && runtime.PresentedReminder.Session == next.Session && runtime.PresentedReminder.Notice == next.Notice)
+            _ = React(next.Key);
+        else if (clicked) _ = React();
+        else _ = RestoreBaseAnimation(generation);
     }
 
     private bool DeferPointerReaction(string? key)
@@ -78,13 +99,13 @@ public sealed partial class PetWindow
         if (PointerPhase == PetPointerPhase.None) return false;
         if (key == "stretch" && runtime.Reminder.Notice == PetNotice.Resting)
             originalStretchSession = runtime.Reminder.Session;
-        if (key is null or "click") pointerClickPending = true;
-        else deferredPointerReaction = (key, runtime.PresentedReminder.Session, runtime.PresentedReminder.Notice);
+        if (key is not (null or "click"))
+            deferredPointerReaction = (key, runtime.PresentedReminder.Session, runtime.PresentedReminder.Notice);
         return true;
     }
 
     private void ResetPointerArt()
     {
-        PointerPhase = PetPointerPhase.None; pointerClickPending = false; deferredPointerReaction = null;
+        PointerPhase = PetPointerPhase.None; deferredPointerReaction = null;
     }
 }

@@ -24,7 +24,7 @@ class Page(HTMLParser):
         self.nodes.append((tag, dict(attrs)))
 
 
-pages = {path.resolve(): Page(path) for path in WEB.glob("*.html")}
+pages = {path.resolve(): Page(path) for path in WEB.rglob("*.html")}
 link_count = 0
 for path, page in pages.items():
     for tag, attrs in page.nodes:

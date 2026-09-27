@@ -1,0 +1,772 @@
+{
+  "note": "Geometry and palette comparison, not a claim of pixel-identical vector reconstruction. No Rive export.",
+  "pets": {
+    "default-cat": {
+      "poseCount": 28,
+      "animationCount": 13,
+      "sourceHashesMatch": true,
+      "records": [
+        {
+          "pose": 0,
+          "silhouetteIoU": 0.9908232826428947,
+          "subjectRgbMae": 10.202014479388913,
+          "compoundPaths": 82
+        },
+        {
+          "pose": 1,
+          "silhouetteIoU": 0.9911644467888698,
+          "subjectRgbMae": 9.809463376538734,
+          "compoundPaths": 70
+        },
+        {
+          "pose": 2,
+          "silhouetteIoU": 0.9903507938016922,
+          "subjectRgbMae": 10.564917326689718,
+          "compoundPaths": 69
+        },
+        {
+          "pose": 3,
+          "silhouetteIoU": 0.9910595396614038,
+          "subjectRgbMae": 9.806788956147914,
+          "compoundPaths": 74
+        },
+        {
+          "pose": 4,
+          "silhouetteIoU": 0.9897351581940989,
+          "subjectRgbMae": 9.7045730722643,
+          "compoundPaths": 70
+        },
+        {
+          "pose": 5,
+          "silhouetteIoU": 0.9922775999593558,
+          "subjectRgbMae": 9.948418246193825,
+          "compoundPaths": 63
+        },
+        {
+          "pose": 6,
+          "silhouetteIoU": 0.9925809238274302,
+          "subjectRgbMae": 9.927357021367362,
+          "compoundPaths": 73
+        },
+        {
+          "pose": 7,
+          "silhouetteIoU": 0.9915484186646502,
+          "subjectRgbMae": 10.27710580873668,
+          "compoundPaths": 74
+        },
+        {
+          "pose": 8,
+          "silhouetteIoU": 0.9892238558527114,
+          "subjectRgbMae": 10.55730969088454,
+          "compoundPaths": 72
+        },
+        {
+          "pose": 9,
+          "silhouetteIoU": 0.9903659976387249,
+          "subjectRgbMae": 10.316460680136963,
+          "compoundPaths": 71
+        },
+        {
+          "pose": 10,
+          "silhouetteIoU": 0.9908100905206084,
+          "subjectRgbMae": 9.896964056338637,
+          "compoundPaths": 69
+        },
+        {
+          "pose": 12,
+          "silhouetteIoU": 0.9916860951040338,
+          "subjectRgbMae": 10.011680120659127,
+          "compoundPaths": 74
+        },
+        {
+          "pose": 13,
+          "silhouetteIoU": 0.9907611276604931,
+          "subjectRgbMae": 10.163240789412397,
+          "compoundPaths": 69
+        },
+        {
+          "pose": 14,
+          "silhouetteIoU": 0.9906496778256867,
+          "subjectRgbMae": 9.92267981138896,
+          "compoundPaths": 76
+        },
+        {
+          "pose": 15,
+          "silhouetteIoU": 0.9910984939614108,
+          "subjectRgbMae": 10.188463358844572,
+          "compoundPaths": 75
+        },
+        {
+          "pose": 16,
+          "silhouetteIoU": 0.9918666329881283,
+          "subjectRgbMae": 10.23234856626558,
+          "compoundPaths": 80
+        },
+        {
+          "pose": 17,
+          "silhouetteIoU": 0.991313789359392,
+          "subjectRgbMae": 9.897731933885398,
+          "compoundPaths": 75
+        },
+        {
+          "pose": 18,
+          "silhouetteIoU": 0.9885687293339631,
+          "subjectRgbMae": 10.281470943278762,
+          "compoundPaths": 71
+        },
+        {
+          "pose": 19,
+          "silhouetteIoU": 0.98979015714689,
+          "subjectRgbMae": 9.893887132968727,
+          "compoundPaths": 74
+        },
+        {
+          "pose": 20,
+          "silhouetteIoU": 0.9900055268975682,
+          "subjectRgbMae": 10.438806286450681,
+          "compoundPaths": 67
+        },
+        {
+          "pose": 21,
+          "silhouetteIoU": 0.990130664442591,
+          "subjectRgbMae": 10.325292803306866,
+          "compoundPaths": 70
+        },
+        {
+          "pose": 24,
+          "silhouetteIoU": 0.99009401224052,
+          "subjectRgbMae": 12.062945766352627,
+          "compoundPaths": 80
+        },
+        {
+          "pose": 25,
+          "silhouetteIoU": 0.9905426252599101,
+          "subjectRgbMae": 11.347235889009374,
+          "compoundPaths": 82
+        },
+        {
+          "pose": 26,
+          "silhouetteIoU": 0.9879812731465306,
+          "subjectRgbMae": 12.73311877192766,
+          "compoundPaths": 74
+        },
+        {
+          "pose": 27,
+          "silhouetteIoU": 0.9879052106040362,
+          "subjectRgbMae": 12.322219234830813,
+          "compoundPaths": 76
+        },
+        {
+          "pose": 28,
+          "silhouetteIoU": 0.988353133007221,
+          "subjectRgbMae": 11.223875620592372,
+          "compoundPaths": 80
+        },
+        {
+          "pose": 29,
+          "silhouetteIoU": 0.9886308267013155,
+          "subjectRgbMae": 12.086644034472725,
+          "compoundPaths": 73
+        },
+        {
+          "pose": 30,
+          "silhouetteIoU": 0.9896409931994307,
+          "subjectRgbMae": 12.277285953653216,
+          "compoundPaths": 84
+        }
+      ]
+    },
+    "bori-rabbit": {
+      "poseCount": 25,
+      "animationCount": 13,
+      "sourceHashesMatch": true,
+      "records": [
+        {
+          "pose": 0,
+          "silhouetteIoU": 0.9912409692474906,
+          "subjectRgbMae": 10.006652450635015,
+          "compoundPaths": 72
+        },
+        {
+          "pose": 1,
+          "silhouetteIoU": 0.9914813654870028,
+          "subjectRgbMae": 10.072122146279332,
+          "compoundPaths": 75
+        },
+        {
+          "pose": 2,
+          "silhouetteIoU": 0.9911954365079365,
+          "subjectRgbMae": 9.815813848686718,
+          "compoundPaths": 69
+        },
+        {
+          "pose": 3,
+          "silhouetteIoU": 0.990451441348885,
+          "subjectRgbMae": 10.088609786896901,
+          "compoundPaths": 72
+        },
+        {
+          "pose": 4,
+          "silhouetteIoU": 0.990523601031608,
+          "subjectRgbMae": 10.21697707812137,
+          "compoundPaths": 71
+        },
+        {
+          "pose": 5,
+          "silhouetteIoU": 0.9905204793417993,
+          "subjectRgbMae": 10.666067508900396,
+          "compoundPaths": 75
+        },
+        {
+          "pose": 6,
+          "silhouetteIoU": 0.9906504299647948,
+          "subjectRgbMae": 10.281345484077093,
+          "compoundPaths": 73
+        },
+        {
+          "pose": 7,
+          "silhouetteIoU": 0.9906298802706923,
+          "subjectRgbMae": 10.35546777447685,
+          "compoundPaths": 66
+        },
+        {
+          "pose": 8,
+          "silhouetteIoU": 0.990046694519538,
+          "subjectRgbMae": 10.015960305641931,
+          "compoundPaths": 75
+        },
+        {
+          "pose": 9,
+          "silhouetteIoU": 0.9915002346560985,
+          "subjectRgbMae": 10.703203013140385,
+          "compoundPaths": 68
+        },
+        {
+          "pose": 12,
+          "silhouetteIoU": 0.991086186540732,
+          "subjectRgbMae": 10.09585812286259,
+          "compoundPaths": 78
+        },
+        {
+          "pose": 13,
+          "silhouetteIoU": 0.9911832128372421,
+          "subjectRgbMae": 10.589348475924604,
+          "compoundPaths": 71
+        },
+        {
+          "pose": 14,
+          "silhouetteIoU": 0.9911493981590748,
+          "subjectRgbMae": 10.217368004553014,
+          "compoundPaths": 74
+        },
+        {
+          "pose": 15,
+          "silhouetteIoU": 0.9903535086171402,
+          "subjectRgbMae": 10.270406008411928,
+          "compoundPaths": 79
+        },
+        {
+          "pose": 16,
+          "silhouetteIoU": 0.9908315814062135,
+          "subjectRgbMae": 9.959034524032415,
+          "compoundPaths": 74
+        },
+        {
+          "pose": 17,
+          "silhouetteIoU": 0.9904535987040037,
+          "subjectRgbMae": 9.66516004071856,
+          "compoundPaths": 71
+        },
+        {
+          "pose": 20,
+          "silhouetteIoU": 0.9882290562036055,
+          "subjectRgbMae": 10.060923488518373,
+          "compoundPaths": 66
+        },
+        {
+          "pose": 21,
+          "silhouetteIoU": 0.9906950442113921,
+          "subjectRgbMae": 9.624105927242436,
+          "compoundPaths": 73
+        },
+        {
+          "pose": 24,
+          "silhouetteIoU": 0.9887023680347227,
+          "subjectRgbMae": 9.994656183785612,
+          "compoundPaths": 84
+        },
+        {
+          "pose": 25,
+          "silhouetteIoU": 0.9897106109324759,
+          "subjectRgbMae": 10.21730945926055,
+          "compoundPaths": 78
+        },
+        {
+          "pose": 26,
+          "silhouetteIoU": 0.9902261028213983,
+          "subjectRgbMae": 11.21440489316647,
+          "compoundPaths": 88
+        },
+        {
+          "pose": 27,
+          "silhouetteIoU": 0.9910340314136126,
+          "subjectRgbMae": 11.227733463367725,
+          "compoundPaths": 76
+        },
+        {
+          "pose": 28,
+          "silhouetteIoU": 0.9916677515948444,
+          "subjectRgbMae": 9.116875185607832,
+          "compoundPaths": 80
+        },
+        {
+          "pose": 29,
+          "silhouetteIoU": 0.9910352805089647,
+          "subjectRgbMae": 9.505171204784949,
+          "compoundPaths": 82
+        },
+        {
+          "pose": 30,
+          "silhouetteIoU": 0.9901896664486592,
+          "subjectRgbMae": 9.580309418538272,
+          "compoundPaths": 81
+        }
+      ]
+    },
+    "puppy-dog": {
+      "poseCount": 23,
+      "animationCount": 13,
+      "sourceHashesMatch": true,
+      "records": [
+        {
+          "pose": 0,
+          "silhouetteIoU": 0.9930245417038833,
+          "subjectRgbMae": 9.00148799769176,
+          "compoundPaths": 72
+        },
+        {
+          "pose": 1,
+          "silhouetteIoU": 0.9925483096871974,
+          "subjectRgbMae": 8.598338455493446,
+          "compoundPaths": 78
+        },
+        {
+          "pose": 2,
+          "silhouetteIoU": 0.9927573719606829,
+          "subjectRgbMae": 8.91320849774681,
+          "compoundPaths": 69
+        },
+        {
+          "pose": 3,
+          "silhouetteIoU": 0.9928401984041406,
+          "subjectRgbMae": 8.776080263749895,
+          "compoundPaths": 75
+        },
+        {
+          "pose": 4,
+          "silhouetteIoU": 0.9926171399807039,
+          "subjectRgbMae": 8.63223240216908,
+          "compoundPaths": 70
+        },
+        {
+          "pose": 5,
+          "silhouetteIoU": 0.9923409453998684,
+          "subjectRgbMae": 8.999181240644388,
+          "compoundPaths": 82
+        },
+        {
+          "pose": 6,
+          "silhouetteIoU": 0.994384765625,
+          "subjectRgbMae": 9.248320589086173,
+          "compoundPaths": 66
+        },
+        {
+          "pose": 7,
+          "silhouetteIoU": 0.9928595151112587,
+          "subjectRgbMae": 8.566624718081957,
+          "compoundPaths": 74
+        },
+        {
+          "pose": 8,
+          "silhouetteIoU": 0.9909366927992024,
+          "subjectRgbMae": 10.23864031435967,
+          "compoundPaths": 76
+        },
+        {
+          "pose": 9,
+          "silhouetteIoU": 0.9942107455226988,
+          "subjectRgbMae": 8.529902736605603,
+          "compoundPaths": 67
+        },
+        {
+          "pose": 10,
+          "silhouetteIoU": 0.9938930663453949,
+          "subjectRgbMae": 9.02307720922585,
+          "compoundPaths": 71
+        },
+        {
+          "pose": 11,
+          "silhouetteIoU": 0.993253436138116,
+          "subjectRgbMae": 9.114233269573399,
+          "compoundPaths": 69
+        },
+        {
+          "pose": 12,
+          "silhouetteIoU": 0.9906279287722587,
+          "subjectRgbMae": 9.711824791829006,
+          "compoundPaths": 71
+        },
+        {
+          "pose": 13,
+          "silhouetteIoU": 0.9907463724042054,
+          "subjectRgbMae": 9.63336280728306,
+          "compoundPaths": 77
+        },
+        {
+          "pose": 14,
+          "silhouetteIoU": 0.9909817497969825,
+          "subjectRgbMae": 9.581895785197876,
+          "compoundPaths": 71
+        },
+        {
+          "pose": 15,
+          "silhouetteIoU": 0.9909518009396207,
+          "subjectRgbMae": 9.945706256518116,
+          "compoundPaths": 76
+        },
+        {
+          "pose": 16,
+          "silhouetteIoU": 0.991011984021305,
+          "subjectRgbMae": 10.426202884171571,
+          "compoundPaths": 62
+        },
+        {
+          "pose": 17,
+          "silhouetteIoU": 0.9913265649162912,
+          "subjectRgbMae": 10.4029301682343,
+          "compoundPaths": 68
+        },
+        {
+          "pose": 18,
+          "silhouetteIoU": 0.9901743051349351,
+          "subjectRgbMae": 10.849766717822382,
+          "compoundPaths": 67
+        },
+        {
+          "pose": 19,
+          "silhouetteIoU": 0.991271066944202,
+          "subjectRgbMae": 10.05608863926449,
+          "compoundPaths": 64
+        },
+        {
+          "pose": 20,
+          "silhouetteIoU": 0.9910621658287447,
+          "subjectRgbMae": 10.781841425421375,
+          "compoundPaths": 65
+        },
+        {
+          "pose": 21,
+          "silhouetteIoU": 0.988644902730233,
+          "subjectRgbMae": 11.056539085534045,
+          "compoundPaths": 66
+        },
+        {
+          "pose": 22,
+          "silhouetteIoU": 0.9917313039660471,
+          "subjectRgbMae": 10.627541467828069,
+          "compoundPaths": 68
+        }
+      ]
+    },
+    "hedgehog": {
+      "poseCount": 23,
+      "animationCount": 13,
+      "sourceHashesMatch": true,
+      "records": [
+        {
+          "pose": 0,
+          "silhouetteIoU": 0.9944377948320777,
+          "subjectRgbMae": 7.282920436122101,
+          "compoundPaths": 75
+        },
+        {
+          "pose": 1,
+          "silhouetteIoU": 0.9940873946051849,
+          "subjectRgbMae": 7.531359217816943,
+          "compoundPaths": 80
+        },
+        {
+          "pose": 2,
+          "silhouetteIoU": 0.994569695153921,
+          "subjectRgbMae": 6.755125488139983,
+          "compoundPaths": 71
+        },
+        {
+          "pose": 3,
+          "silhouetteIoU": 0.9942268041237113,
+          "subjectRgbMae": 6.649100930468959,
+          "compoundPaths": 67
+        },
+        {
+          "pose": 4,
+          "silhouetteIoU": 0.9943372121128414,
+          "subjectRgbMae": 7.824851857342759,
+          "compoundPaths": 64
+        },
+        {
+          "pose": 5,
+          "silhouetteIoU": 0.9951063829787234,
+          "subjectRgbMae": 6.578554693366301,
+          "compoundPaths": 77
+        },
+        {
+          "pose": 6,
+          "silhouetteIoU": 0.995578947368421,
+          "subjectRgbMae": 7.776763811488383,
+          "compoundPaths": 78
+        },
+        {
+          "pose": 7,
+          "silhouetteIoU": 0.9949792243767313,
+          "subjectRgbMae": 7.512221543279939,
+          "compoundPaths": 69
+        },
+        {
+          "pose": 8,
+          "silhouetteIoU": 0.9934392127055247,
+          "subjectRgbMae": 7.339874248961293,
+          "compoundPaths": 73
+        },
+        {
+          "pose": 9,
+          "silhouetteIoU": 0.9952273123149277,
+          "subjectRgbMae": 7.278846503705665,
+          "compoundPaths": 77
+        },
+        {
+          "pose": 10,
+          "silhouetteIoU": 0.9946324786324786,
+          "subjectRgbMae": 7.564058722975647,
+          "compoundPaths": 79
+        },
+        {
+          "pose": 11,
+          "silhouetteIoU": 0.995017338315995,
+          "subjectRgbMae": 7.393267905641975,
+          "compoundPaths": 73
+        },
+        {
+          "pose": 12,
+          "silhouetteIoU": 0.9922809569996767,
+          "subjectRgbMae": 7.492154062831877,
+          "compoundPaths": 72
+        },
+        {
+          "pose": 13,
+          "silhouetteIoU": 0.9922740042968105,
+          "subjectRgbMae": 7.520507116523919,
+          "compoundPaths": 70
+        },
+        {
+          "pose": 14,
+          "silhouetteIoU": 0.993178663493952,
+          "subjectRgbMae": 7.222889166241521,
+          "compoundPaths": 76
+        },
+        {
+          "pose": 15,
+          "silhouetteIoU": 0.9931716225336457,
+          "subjectRgbMae": 7.707286949874183,
+          "compoundPaths": 75
+        },
+        {
+          "pose": 16,
+          "silhouetteIoU": 0.9942960752464776,
+          "subjectRgbMae": 7.308241298508378,
+          "compoundPaths": 74
+        },
+        {
+          "pose": 17,
+          "silhouetteIoU": 0.9942185820701923,
+          "subjectRgbMae": 5.8464325759228615,
+          "compoundPaths": 69
+        },
+        {
+          "pose": 18,
+          "silhouetteIoU": 0.9943347234243449,
+          "subjectRgbMae": 4.197415088991658,
+          "compoundPaths": 68
+        },
+        {
+          "pose": 19,
+          "silhouetteIoU": 0.995052948906238,
+          "subjectRgbMae": 4.0395701946221445,
+          "compoundPaths": 68
+        },
+        {
+          "pose": 20,
+          "silhouetteIoU": 0.9937593107058018,
+          "subjectRgbMae": 4.206451054337004,
+          "compoundPaths": 64
+        },
+        {
+          "pose": 21,
+          "silhouetteIoU": 0.9942726231386025,
+          "subjectRgbMae": 6.267762342963787,
+          "compoundPaths": 68
+        },
+        {
+          "pose": 22,
+          "silhouetteIoU": 0.9956572942735169,
+          "subjectRgbMae": 6.801430442142095,
+          "compoundPaths": 67
+        }
+      ]
+    },
+    "penguin": {
+      "poseCount": 23,
+      "animationCount": 13,
+      "sourceHashesMatch": true,
+      "records": [
+        {
+          "pose": 0,
+          "silhouetteIoU": 0.9920095205712343,
+          "subjectRgbMae": 7.132923030934793,
+          "compoundPaths": 74
+        },
+        {
+          "pose": 1,
+          "silhouetteIoU": 0.9938983336138697,
+          "subjectRgbMae": 7.191015189667331,
+          "compoundPaths": 71
+        },
+        {
+          "pose": 2,
+          "silhouetteIoU": 0.993858837385379,
+          "subjectRgbMae": 6.776444470834914,
+          "compoundPaths": 69
+        },
+        {
+          "pose": 3,
+          "silhouetteIoU": 0.9931716603211389,
+          "subjectRgbMae": 6.289882534703845,
+          "compoundPaths": 72
+        },
+        {
+          "pose": 4,
+          "silhouetteIoU": 0.993773752729037,
+          "subjectRgbMae": 6.694283437207224,
+          "compoundPaths": 76
+        },
+        {
+          "pose": 5,
+          "silhouetteIoU": 0.9934034321991866,
+          "subjectRgbMae": 7.75269052699207,
+          "compoundPaths": 72
+        },
+        {
+          "pose": 6,
+          "silhouetteIoU": 0.9935319013016051,
+          "subjectRgbMae": 6.8167513474525885,
+          "compoundPaths": 75
+        },
+        {
+          "pose": 7,
+          "silhouetteIoU": 0.994274045006807,
+          "subjectRgbMae": 6.815612681630461,
+          "compoundPaths": 73
+        },
+        {
+          "pose": 8,
+          "silhouetteIoU": 0.9924177220377884,
+          "subjectRgbMae": 6.7757159232105835,
+          "compoundPaths": 72
+        },
+        {
+          "pose": 9,
+          "silhouetteIoU": 0.9941673124770567,
+          "subjectRgbMae": 7.029917722820534,
+          "compoundPaths": 74
+        },
+        {
+          "pose": 10,
+          "silhouetteIoU": 0.9943437562238598,
+          "subjectRgbMae": 6.709950443428892,
+          "compoundPaths": 74
+        },
+        {
+          "pose": 11,
+          "silhouetteIoU": 0.9940370668815471,
+          "subjectRgbMae": 7.0046498975605695,
+          "compoundPaths": 70
+        },
+        {
+          "pose": 12,
+          "silhouetteIoU": 0.9931339106096387,
+          "subjectRgbMae": 6.972009530945624,
+          "compoundPaths": 69
+        },
+        {
+          "pose": 13,
+          "silhouetteIoU": 0.9927010489510489,
+          "subjectRgbMae": 7.013167249415495,
+          "compoundPaths": 73
+        },
+        {
+          "pose": 14,
+          "silhouetteIoU": 0.9932467088391178,
+          "subjectRgbMae": 6.5191816488363745,
+          "compoundPaths": 67
+        },
+        {
+          "pose": 15,
+          "silhouetteIoU": 0.9913909889437573,
+          "subjectRgbMae": 6.716419958416966,
+          "compoundPaths": 71
+        },
+        {
+          "pose": 16,
+          "silhouetteIoU": 0.992277276658841,
+          "subjectRgbMae": 7.675729529835438,
+          "compoundPaths": 65
+        },
+        {
+          "pose": 17,
+          "silhouetteIoU": 0.9930383195108663,
+          "subjectRgbMae": 7.310950155632968,
+          "compoundPaths": 72
+        },
+        {
+          "pose": 18,
+          "silhouetteIoU": 0.9916201117318436,
+          "subjectRgbMae": 8.027851387790303,
+          "compoundPaths": 67
+        },
+        {
+          "pose": 19,
+          "silhouetteIoU": 0.9929001849531651,
+          "subjectRgbMae": 7.730391942389284,
+          "compoundPaths": 72
+        },
+        {
+          "pose": 20,
+          "silhouetteIoU": 0.9926775873782743,
+          "subjectRgbMae": 7.7999295437955345,
+          "compoundPaths": 69
+        },
+        {
+          "pose": 21,
+          "silhouetteIoU": 0.9933355548150616,
+          "subjectRgbMae": 7.910676506523701,
+          "compoundPaths": 71
+        },
+        {
+          "pose": 22,
+          "silhouetteIoU": 0.9945459994006592,
+          "subjectRgbMae": 6.789451681581142,
+          "compoundPaths": 60
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "default-cat": [
+    "default-cat/import-1.svg",
+    "default-cat/import-2.svg",
+    "default-cat/import-3.svg",
+    "default-cat/import-4.svg"
+  ],
+  "bori-rabbit": [
+    "bori-rabbit/import-1.svg",
+    "bori-rabbit/import-2.svg",
+    "bori-rabbit/import-3.svg"
+  ],
+  "puppy-dog": [
+    "puppy-dog/import-1.svg",
+    "puppy-dog/import-2.svg",
+    "puppy-dog/import-3.svg"
+  ],
+  "hedgehog": [
+    "hedgehog/import-1.svg",
+    "hedgehog/import-2.svg",
+    "hedgehog/import-3.svg"
+  ],
+  "penguin": [
+    "penguin/import-1.svg",
+    "penguin/import-2.svg"
+  ]
+}

@@ -14,7 +14,7 @@ namespace Unfold.Desktop;
 public sealed partial class PetWindow : Window
 {
     private readonly AppRuntime runtime;
-    private readonly Canvas canvas = new();
+    private readonly Canvas canvas = new() { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
     private readonly PetSpeechBubble bubble;
     private readonly Avalonia.Controls.Shapes.Polygon tail = new()
     {
@@ -41,7 +41,7 @@ public sealed partial class PetWindow : Window
     private readonly DispatcherTimer hitTimer = new() { Interval = TimeSpan.FromMilliseconds(40) };
     private Avalonia.PixelPoint? down;
     private IPointer? pressedPointer;
-    private Avalonia.PixelPoint origin;
+    private Avalonia.PixelPoint dragAnchor;
     private bool dragging, clickThrough;
     private bool hoveringPet;
     private bool ShowingHover => hoveringPet && IsVisible && ContextMenu?.IsOpen != true && !runtime.PresentedReminder.HasNotice;
@@ -78,26 +78,31 @@ public sealed partial class PetWindow : Window
         animation.PointerPressed += (_, e) =>
         {
             if (down is not null || !e.GetCurrentPoint(animation).Properties.IsLeftButtonPressed || !animation.OpaqueAt(e.GetPosition(animation))) return;
-            down = animation.PointToScreen(e.GetPosition(animation));
-            origin = Position; pressedAt = Stopwatch.GetTimestamp(); dragging = false;
+            down = PointerScreenPosition(e);
+            dragAnchor = PetAnchor; pressedAt = Stopwatch.GetTimestamp(); dragging = false;
             BeginCompanionPress();
             pressedPointer = e.Pointer; e.Pointer.Capture(animation); e.Handled = true;
         };
         animation.PointerMoved += (_, e) =>
         {
             if (down is not { } start) return;
-            var current = animation.PointToScreen(e.GetPosition(animation)); var delta = current - start;
+            var current = PointerScreenPosition(e); var delta = current - start;
             if (Math.Sqrt((double)delta.X * delta.X + (double)delta.Y * delta.Y) >= 5) dragging = true;
-            if (dragging) Position = new(origin.X + delta.X, origin.Y + delta.Y);
+            if (dragging)
+            {
+                StartPointerHold();
+                Position = new(dragAnchor.X + delta.X - (int)Math.Round(layout.Pet.X * DesktopScaling),
+                    dragAnchor.Y + delta.Y - (int)Math.Round(layout.Pet.Y * DesktopScaling));
+            }
         };
         animation.PointerReleased += async (_, e) =>
         {
             if (down is null || e.InitialPressMouseButton != MouseButton.Left) return;
-            var clicked = !dragging && (HasOriginalBehavior || Stopwatch.GetElapsedTime(pressedAt).TotalSeconds <= 0.22);
+            var clicked = !dragging && Stopwatch.GetElapsedTime(pressedAt).TotalSeconds < PetPose.LiftDelay;
             down = null; pressedPointer = null; e.Pointer.Capture(null); ClampPosition(); runtime.SavePosition(PetAnchor);
-            var deferred = ReleaseCompanionPress(clicked);
+            var handled = ReleaseCompanionPress(clicked);
             UpdateHover(PetPoint(e.GetPosition(this))); RefreshSpeech();
-            if (clicked && !deferred) await React();
+            if (clicked && !handled) await React();
         };
         animation.PointerCaptureLost += (_, _) =>
         {
@@ -246,11 +251,23 @@ public sealed partial class PetWindow : Window
             ? new Avalonia.Collections.AvaloniaList<Point>([layout.Tail[0], layout.Tail[2], layout.Tail[1]])
             : new Avalonia.Collections.AvaloniaList<Point>();
         bubble.IsVisible = tail.IsVisible = tailOutline.IsVisible = expanded;
+        // Canvas offsets are deferred until arrange. Commit them before moving
+        // the native surface, otherwise it briefly carries the old pet position.
+        UpdateLayout();
         Position = runtime.DiagnosticMode ? new(-32000, -32000) : work is { } area
             ? layout.Position(anchor, DesktopScaling, area) : anchor;
     }
 
     private Point PetPoint(Point windowPoint) => windowPoint - new Vector(layout.Pet.X, layout.Pet.Y);
+
+    private PixelPoint PointerScreenPosition(PointerEventArgs e)
+    {
+        // The undecorated window origin is stable across sprite transforms. Keep
+        // drag distances in desktop pixels even if a queued bubble layout runs.
+        var point = e.GetPosition(this);
+        return new(Position.X + (int)Math.Round(point.X * DesktopScaling),
+            Position.Y + (int)Math.Round(point.Y * DesktopScaling));
+    }
 
     private void UpdateHover(Point? point)
     {

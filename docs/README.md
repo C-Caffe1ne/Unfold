@@ -21,8 +21,8 @@
 | [강아지·고슴도치·펭귄 검증](validation/2026-09-22-companion-trio.md) | 세 팩 추가, 자산·패키징·재생 검사와 검증 한계 |
 | [동일 콘셉트 펫 생성·적용 가이드](pet-generation-guide.md) | 손그림풍 스타일, 참조 원본·프롬프트 재사용, 시트 정렬·10개 행동, 번들 적용과 잔상 검수 |
 | [보리·Mochi 확장 행동 검증](validation/2026-09-22-original-companions.md) | 상태·포인터·이동 경계 검사, 실제 시간 재생과 검증 한계 |
-| [방향 및 BM 초안](business-model.md) | 포지셔닝, 단일 유료 앱 + 3일 체험 가설, 검증 순서와 판정선 |
-| [제품 방향](product-direction.md) | 초기 고객, 경쟁 판단, 단일 유료 앱과 3일 무료 체험 구성 |
+| [방향 및 BM 초안](business-model.md) | 포지셔닝, 무료 다운로드·국내 4,900원/해외 US$3.99 일회성 구매·체험 제외 |
+| [제품 방향](product-direction.md) | 초기 고객, 경쟁 판단, 단일 유료 앱·계정과 로컬 데이터 경계 |
 | [UI 한글화](localization.md) | 한국어 적용 범위, 표시 용어, 기존 데이터 보존과 검증 한계 |
 | [UI 한글화 검증](validation/2026-09-14-korean-ui.md) | 127개 테스트, macOS 게시 앱 진단과 한글 화면 캡처 |
 | [브랜드 팔레트 교체 검증](validation/2026-09-21-brand-palettes.md) | 승인된 네 시안의 색상, 다정한 오트 기본값, 저장 ID 호환과 Windows 자동 캡처 |
@@ -40,6 +40,9 @@
 | [설정 대시보드](settings-ui.md) | 참고 이미지 기반 카드 배치, 바로가기와 창 크기 대응 |
 | [설정 대시보드 검증](validation/2026-09-14-settings-dashboard.md) | 130개 테스트, 기본·최소 크기 캡처와 설정 회귀 검증 |
 | [사이드바 탭 전환 검증](validation/2026-09-15-navigation-tabs.md) | 같은 창의 타이머·루틴·기록 탭, 펫 팩 항목 제거와 macOS 렌더링 검증 |
+| [유료 출시 계획](plans/2026-09-27-paid-launch.md) | 도메인 없이 진행할 계정·Supabase·구매 권한·시안과 운영 전환 순서 |
+| [계정·구매 기반 1차 검증](validation/2026-09-27-paid-foundation.md) | 로그인·구매 시안, Supabase RLS·이벤트 처리, C# 클라이언트와 391개 Release 검사 |
+| [Supabase 연결 안내](../supabase/README.md) | 로컬 설정·테스트, 서버 API·앱 계약과 실제 연결 전 조건 |
 | [개발 계획](development-plan.md) | 구현 단계, 완료 조건과 후속 범위 |
 | [설정 탭 UI 개편 계획](plans/2026-09-18-settings-ui-redesign.md) | UI 우선·UX 후속 순서, 드롭다운·텍스트 위계·간격·레이아웃 검수와 구현 기준 |
 | [설정 탭 UI 개편 검증](validation/2026-09-18-settings-ui-redesign.md) | 하단 취소·저장, 변경 상태·오류 복구, 설정 전용 드롭다운, 202개 테스트와 macOS 캡처 |
