@@ -7,7 +7,8 @@ using Unfold.Core;
 
 namespace Unfold.Desktop;
 
-internal sealed record AccountConnection(Uri ProjectUrl, string PublishableKey, int CallbackPort, AccountEnvironment Environment)
+internal sealed record AccountConnection(Uri ProjectUrl, string PublishableKey, int CallbackPort,
+    AccountEnvironment Environment, string[] CheckoutMarkets)
 {
     public static AccountConnection? Load()
     {
@@ -21,7 +22,10 @@ internal sealed record AccountConnection(Uri ProjectUrl, string PublishableKey, 
             if (url is not null) config = config with { ProjectUrl = new Uri(url) };
             if (key is not null) config = config with { PublishableKey = key };
             if (config.ProjectUrl is null || config.CallbackPort is < 1024 or > 65535
-                || string.IsNullOrWhiteSpace(config.PublishableKey) || !config.PublishableKey.StartsWith("sb_publishable_", StringComparison.Ordinal)) return null;
+                || string.IsNullOrWhiteSpace(config.PublishableKey) || !config.PublishableKey.StartsWith("sb_publishable_", StringComparison.Ordinal)
+                || config.CheckoutMarkets is not { Length: > 0 and <= 2 }
+                || config.CheckoutMarkets.Any(item => item is not ("KR" or "GLOBAL"))
+                || config.CheckoutMarkets.Distinct(StringComparer.Ordinal).Count() != config.CheckoutMarkets.Length) return null;
             // Validate with the same origin/key contract as the HTTP client, without making a request.
             using var check = new SupabaseAccountClient(config.ProjectUrl, config.PublishableKey, config.Environment);
             return config;
@@ -35,13 +39,19 @@ internal sealed class DesktopAccountService : IAccountScreenService
     private readonly AccountConnection? config;
     private readonly SupabaseAccountClient? client;
     private readonly string browserReturn;
+    private readonly HashSet<string> checkoutMarkets = new(StringComparer.Ordinal);
     public bool CanSignIn => client is not null;
     public DesktopAccountService(AccountScreenContent content)
     {
         browserReturn = content.Copy.BrowserReturn;
         config = AccountConnection.Load();
-        if (config is not null) client = new(config.ProjectUrl, config.PublishableKey, config.Environment);
+        if (config is not null)
+        {
+            client = new(config.ProjectUrl, config.PublishableKey, config.Environment);
+            checkoutMarkets.UnionWith(config.CheckoutMarkets);
+        }
     }
+    public bool CanCheckout(string market) => client is not null && checkoutMarkets.Contains(market);
     public async Task<AccountSession> SignInAsync(CancellationToken token)
     {
         if (client is null || config is null) throw new AccountException(AccountFailure.Unavailable);
@@ -59,6 +69,14 @@ internal sealed class DesktopAccountService : IAccountScreenService
     }
     public Task<PurchaseAccess> CheckPurchaseAsync(AccountSession session, CancellationToken token) =>
         client?.GetEntitlementAsync(session, token) ?? Task.FromException<PurchaseAccess>(new AccountException(AccountFailure.Unavailable));
+    public async Task StartCheckoutAsync(AccountSession session, string market, Guid requestId, CancellationToken token)
+    {
+        if (client is null || !CanCheckout(market)) throw new AccountException(AccountFailure.Unavailable);
+        var checkout = await client.CreateCheckoutAsync(session, market, requestId, token);
+        try { using var browser = Process.Start(new ProcessStartInfo(checkout.CheckoutUri.AbsoluteUri) { UseShellExecute = true }); }
+        catch (Exception error) when (error is System.ComponentModel.Win32Exception or InvalidOperationException)
+        { throw new AccountException(AccountFailure.Unavailable); }
+    }
     public void Dispose() => client?.Dispose();
 }
 

@@ -2,5 +2,6 @@
   "projectUrl": "https://xrelgkdawkogrwxmwkcx.supabase.co",
   "publishableKey": "sb_publishable_uA7MGqDXgJpsOS_I4x-ELQ_E9Jod0dO",
   "callbackPort": 43821,
-  "environment": "test"
+  "environment": "test",
+  "checkoutMarkets": ["KR"]
 }

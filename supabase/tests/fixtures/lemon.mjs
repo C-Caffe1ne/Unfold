@@ -6,9 +6,11 @@ const scale = currency => currency === 'KRW' ? 100 : 1;
 const providerAmount = (order, amount) => amount * scale(order.currency);
 export function variant(order) {
   return { data: { type: 'variants', id: order.provider_price_id, attributes: {
-    product_id: Number(order.provider_product_id), status: 'published', test_mode: true,
+    product_id: Number(order.provider_product_id), status: 'pending', test_mode: true,
     is_subscription: false, has_free_trial: false, pay_what_you_want: false,
-  } } };
+  } }, included: [{ type: 'products', id: order.provider_product_id, attributes: {
+    store_id: Number(order.provider_store_id), status: 'published', test_mode: true,
+  } }] };
 }
 export function checkout(order, number = 1, tax = order.currency === 'KRW' ? 490 : 0) {
   const id = `00000000-0000-4000-8000-${String(number).padStart(12, '0')}`;

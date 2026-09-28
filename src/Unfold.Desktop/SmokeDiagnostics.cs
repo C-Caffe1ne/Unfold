@@ -264,7 +264,8 @@ internal static class SmokeDiagnostics
         if (scroll.Extent.Width > scroll.Viewport.Width + 1) throw new InvalidOperationException("Account form overflows horizontally.");
         Capture(window, Path.Combine(directory, "account-login-minimum.png"));
         Press(window, "AccountOpenApp");
-        if (window.IsVisible || desktop.MainWindow?.IsVisible != true || !File.Exists(Path.Combine(AppPaths.DataRoot, "account-welcome-seen")))
+        if (window.IsVisible || desktop.MainWindow?.IsVisible != true ||
+            !AppRuntime.HasSeenCurrentAccountWelcome(Path.Combine(AppPaths.DataRoot, "account-welcome-seen")))
             throw new InvalidOperationException("Opening the local app from welcome did not persist dismissal.");
         return new { contentLoaded = true, dismissToApp = true, duplicatePrevented = true, noHorizontalOverflow = true,
             authenticationPerformed = false, paymentPerformed = false };

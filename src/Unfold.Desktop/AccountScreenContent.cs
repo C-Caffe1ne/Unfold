@@ -29,6 +29,8 @@ public sealed record AccountScreenCopy
     public required string CancelButton { get; init; }
     public required string RetryButton { get; init; }
     public required string CheckingButton { get; init; }
+    public required string OpeningCheckoutButton { get; init; }
+    public required string CheckPurchaseButton { get; init; }
     public required string SigningInButton { get; init; }
     public required string BrowserWaiting { get; init; }
     public required string BrowserReturn { get; init; }
@@ -37,6 +39,8 @@ public sealed record AccountScreenCopy
     public required string SignInUnavailable { get; init; }
     public required string PurchaseUnavailable { get; init; }
     public required string CheckoutUnavailable { get; init; }
+    public required string CheckoutWaiting { get; init; }
+    public required string PurchaseNotFound { get; init; }
     public required string SignedInLabel { get; init; }
     public required string ReadyStatus { get; init; }
     public required string AccountSection { get; init; }

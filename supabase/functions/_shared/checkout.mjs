@@ -2,13 +2,15 @@ import { ServiceError } from './entitlement.mjs';
 import { PaymentError, requirePayment, uuidPattern, readJson, safeFailure, sandboxOnly } from './payment-http.mjs';
 import { validateVariant, validateCheckout, checkoutLink } from './lemon.mjs';
 
-export function createCheckoutHandler({ reader, store, lemon, environment, allowedOrigins = [], enabled = true, now = Date.now }) {
+export function createCheckoutHandler({ reader, store, lemon, environment, allowedOrigins = [], enabled = true,
+  now = Date.now, report = () => {} }) {
   sandboxOnly(environment);
   return async request => {
     const headers = { 'Cache-Control': 'no-store', Vary: 'Origin' };
     const reply = (status, body) => Response.json(body, { status, headers });
     let acquiredOrder;
     let createAttempted = false;
+    let stage = 'request';
     try {
       const origin = request.headers.get('Origin');
       requirePayment(!origin || allowedOrigins.includes(origin), 'origin_not_allowed', 403);
@@ -24,6 +26,7 @@ export function createCheckoutHandler({ reader, store, lemon, environment, allow
       const body = await readJson(request, 2048);
       requirePayment(body && !Array.isArray(body) && Object.keys(body).length === 2
         && ['KR', 'GLOBAL'].includes(body.market) && uuidPattern.test(body.request_id ?? ''), 'invalid_checkout_request', 400);
+      stage = 'reserve';
       const reserved = await store.reserve(userId, body.market === 'KR' ? 'unfold-kr' : 'unfold-global', body.request_id);
       const order = reserved?.order;
       requirePayment(order?.user_id === userId && order.provider === 'lemon' && order.environment === 'test'
@@ -32,17 +35,22 @@ export function createCheckoutHandler({ reader, store, lemon, environment, allow
       let checkout;
       if (reserved.acquired) {
         acquiredOrder = order.id;
+        stage = 'variant';
         validateVariant(await lemon.variant(order.provider_price_id), order);
         createAttempted = true;
+        stage = 'create';
         checkout = await lemon.create(order);
+        stage = 'checkout';
         const data = validateCheckout(checkout, order, now());
         checkoutLink(checkout, order);
+        stage = 'bind';
         await store.bind(order.id, data.id);
         acquiredOrder = undefined;
       } else {
+        stage = 'resume';
         requirePayment(order.checkout_state === 'ready' && order.provider_checkout_id, 'checkout_pending', 409);
         checkout = await lemon.checkout(order.provider_checkout_id);
-        validateCheckout(checkout, order, now());
+        validateCheckout(checkout, order, now(), false);
       }
       const data = checkout.data;
       return reply(200, { schema_version: 1, order_id: order.id, checkout_id: data.id,
@@ -50,6 +58,7 @@ export function createCheckoutHandler({ reader, store, lemon, environment, allow
     } catch (error) {
       if (acquiredOrder) await (createAttempted ? store.uncertain(acquiredOrder) : store.release(acquiredOrder)).catch(() => {});
       if (error instanceof ServiceError) error = new PaymentError(error.message, error.status);
+      report(`${stage}:${error instanceof PaymentError ? error.message : 'service_unavailable'}`);
       return safeFailure(error, headers);
     }
   };

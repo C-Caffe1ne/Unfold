@@ -31,17 +31,40 @@ test('checkout requires a caller, exact input and allowed origin before reservin
   assert.throws(() => makeCheckout({ environment: 'live' }), /requires/);
 });
 
+test('checkout diagnostics record only a bounded public error code', async () => {
+  const reports = [];
+  const handle = makeCheckout({
+    reader: { user: async () => { throw new Error('server-secret'); } },
+    report: code => reports.push(code),
+  });
+  const response = await handle(checkoutRequest({ market: 'KR', request_id: crypto.randomUUID() }));
+  assert.equal(response.status, 503);
+  assert.deepEqual(reports, ['request:service_unavailable']);
+  assert.equal(JSON.stringify(reports).includes('server-secret'), false);
+});
+
 test('variant, preview and hosted checkout validation reject subscriptions, discounts and redirects', () => {
   for (const change of [{ is_subscription: true }, { has_free_trial: true }, { pay_what_you_want: true }, { test_mode: false }, { status: 'draft' }, { product_id: 99 }]) {
     const value = variant(order); Object.assign(value.data.attributes, change);
     assert.throws(() => validateVariant(value, order));
   }
+  for (const change of [{ status: 'draft' }, { test_mode: false }, { store_id: 99 }]) {
+    const value = variant(order); Object.assign(value.included[0].attributes, change);
+    assert.throws(() => validateVariant(value, order), error => error.message === 'checkout_not_ready' && error.status === 503);
+  }
+  const missingProduct = variant(order); delete missingProduct.included;
+  assert.throws(() => validateVariant(missingProduct, order), error => error.message === 'checkout_not_ready');
   for (const mutate of [
     value => { value.data.attributes.preview.discount_total = 1; },
     value => { value.data.attributes.preview.currency = 'USD'; },
     value => { value.data.attributes.custom_price = 1; },
     value => { value.data.attributes.test_mode = false; },
   ]) { const value = checkout(order); mutate(value); assert.throws(() => validateCheckout(value, order, now)); }
+  const resumed = checkout(order); delete resumed.data.attributes.preview;
+  assert.throws(() => validateCheckout(resumed, order, now));
+  assert.doesNotThrow(() => validateCheckout(resumed, order, now, false));
+  const partialPreview = checkout(order); partialPreview.data.attributes.preview = {};
+  assert.doesNotThrow(() => validateCheckout(partialPreview, order, now, false));
   for (const url of ['https://evil.test/checkout/custom/x', `https://${checkoutHost}/other`,
     `https://${checkoutHost}/checkout/custom/${checkout(order).data.id}?redirect=evil`]) {
     const value = checkout(order); value.data.attributes.url = url;
@@ -51,11 +74,12 @@ test('variant, preview and hosted checkout validation reject subscriptions, disc
 
 test('Lemon adapter uses server mappings, one-time quantity and no customer identity', async () => {
   const calls = [];
-  const client = createLemonClient({ apiKey, environment: 'test', now: () => now, fetcher: async (url, init) => {
+  const client = createLemonClient({ apiKey: `\n${apiKey} \t`, environment: 'test', now: () => now, fetcher: async (url, init) => {
     calls.push([url, init]); return Response.json(checkout(order));
   } });
   await client.create(order);
   assert.equal(calls[0][0].origin, 'https://api.lemonsqueezy.com');
+  assert.equal(calls[0][1].headers.Authorization, `Bearer ${apiKey}`);
   const body = JSON.parse(calls[0][1].body).data.attributes;
   assert.equal(body.custom_price, 490000);
   assert.deepEqual(body.checkout_data.variant_quantities, [{ variant_id: 20, quantity: 1 }]);
@@ -63,7 +87,18 @@ test('Lemon adapter uses server mappings, one-time quantity and no customer iden
   assert.equal(body.checkout_options.skip_trial, true);
   assert.equal(body.checkout_data.custom.order_id, order.id);
   assert.equal(body.checkout_data.email, undefined);
-  assert.throws(() => createLemonClient({ apiKey: 'short', environment: 'test' }));
+  assert.throws(() => createLemonClient({ apiKey: '', environment: 'test' }), /missing/);
+  const longKeyCalls = [];
+  const longKey = 'x'.repeat(1024);
+  const longKeyClient = createLemonClient({ apiKey: longKey, environment: 'test', fetcher: async (url, init) => {
+    longKeyCalls.push([url, init]); return Response.json(checkout(order));
+  } });
+  await longKeyClient.variant('20');
+  assert.equal(longKeyCalls[0][0].pathname, '/v1/variants/20');
+  assert.equal(longKeyCalls[0][0].searchParams.get('include'), 'product');
+  assert.equal(longKeyCalls[0][1].headers.Authorization, `Bearer ${longKey}`);
+  assert.throws(() => createLemonClient({ apiKey: 'x'.repeat(16385), environment: 'test' }), /too long/);
+  assert.throws(() => createLemonClient({ apiKey: 'test api key with spaces', environment: 'test' }), /contains whitespace/);
   assert.throws(() => createLemonClient({ apiKey, environment: 'live' }));
 });
 

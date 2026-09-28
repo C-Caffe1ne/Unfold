@@ -13,13 +13,14 @@
 | 다른 펫 이미지 | `Assets/Account/`에 PNG 추가 후 `companionImage` 변경 | 폴더 없이 파일명만 지정. 빌드·재실행 |
 | 레이아웃·간격·글자 크기 | `src/Unfold.Desktop/AccountWindow.axaml` | XAML 수정 후 빌드 |
 | 전체 색상·공통 버튼·모서리 | `DesignSystem.Themes.cs`, `DesignSystem.cs` | 기존 4개 테마를 공유. 계정 화면용 별도 팔레트 없음 |
-| Supabase 프로젝트·공개 키·콜백 포트·환경 | `Assets/Account/connection.json` | 빌드·재실행. 비밀 키는 넣지 않음 |
+| Supabase 프로젝트·공개 키·콜백 포트·환경·판매 시장 | `Assets/Account/connection.json` | `checkoutMarkets`로 노출 시장 관리. 비밀 키는 넣지 않음 |
 | 화면 상태·버튼 동작 | `AccountScreenModel.cs` | 로그인·구매 확인과 시각 표현을 분리 |
 | 브라우저 인증 연결 | `DesktopAccountService.cs` | 시스템 브라우저, 콜백 수신, Supabase 클라이언트 호출 |
 
 예: `welcomeTitle`의 `\n`은 줄바꿈이다. `markets`의 `amountMinor`는 최소 통화 단위다.
 KRW `4900` / `minorUnitDigits: 0` → `4,900원`, USD `399` / `minorUnitDigits: 2` → `US$3.99`.
-표시 통화 선택은 가격 미리보기 용도이며, 결제 국가 판정이나 주문 생성이 아니다.
+`entry-screen.json`에는 후속 Global 표시값도 남아 있지만, 현재 `connection.json`의
+`checkoutMarkets`는 `KR`만 허용하므로 실제 화면과 주문 생성에는 한국 가격만 나타난다.
 
 JSON과 이미지가 출력·게시 폴더에 복사된다. 개발 중 해당 출력 JSON을 직접 수정하면 재컴파일 없이
 재실행으로 확인할 수 있지만, 다음 빌드에는 원본 파일을 사용한다. 배포용 수정은 원본에서 하고 다시 빌드·서명한다.
@@ -31,17 +32,24 @@ JSON과 이미지가 출력·게시 폴더에 복사된다. 개발 중 해당 �
 - 새 로컬 프로필의 첫 일반 실행에서 계정 화면을 연다. `앱 열기` 또는 창 닫기로 홈에 진입한다.
 - 이후에는 설정 탭 → 계정 → `로그인 · 구매`에서 다시 연다. 중복 창을 만들지 않는다.
 - `account-welcome-seen`은 안내를 닫았다는 기록일 뿐, 로그인·구매 권한을 뜻하지 않는다.
+  파일에는 현재 안내 화면의 버전이 저장된다. 로그인·결제 흐름처럼 최초 화면이 크게 바뀌면
+  이전 버전의 종료 기록은 사용하지 않고 새 화면을 한 번 다시 표시한다.
 - 백그라운드 자동실행에서는 계정 창을 띄우지 않는다. 현재 접근 제어는 적용하지 않는다.
 - Google 버튼은 기본 브라우저로 PKCE 인증을 시작한다. 5분 시간 제한, 취소, 중복 클릭 방지,
   포트 점유 시 오류 복구가 있다. 콜백은 `127.0.0.1`에만 바인딩한다.
 - 로그인 성공 후 서버에서 구매 권한을 조회한다. 조회 실패는 미구매로 간주하지 않고 `다시 확인`을 제공한다.
-- 주문 생성 API·결제사는 아직 연결하지 않았다. 미구매 상태에서 `구매하기`는 비활성이고 `결제 준비 중`을 표시한다.
+- 미구매 상태의 `구매하기`는 인증된 `create-checkout`을 호출한다. 앱은 서버가 반환한 Lemon Squeezy
+  HTTPS 호스트·Checkout ID·서명 쿼리를 검사한 뒤 시스템 브라우저로 연다.
+- 결제창을 연 뒤 `구매 확인`으로 서버 권한을 다시 조회한다. 브라우저를 여러 번 열지 않으며,
+  확인 전에는 앱 접근 권한을 임의로 활성화하지 않는다.
 - 인증 토큰·이메일은 파일에 쓰지 않는다. 계정 창을 닫으면 세션을 폐기하므로 다시 열 때 로그인해야 한다.
   자동 로그인·OS 보안 저장소·오프라인 권한·결제 완료 후 사용 잠금은 후속 작업이다.
 
 `connection.json`은 현재 테스트 환경이다. 공개 `sb_publishable_` 키만 허용한다.
 `UNFOLD_SUPABASE_URL`, `UNFOLD_SUPABASE_PUBLISHABLE_KEY` 환경 변수가 있으면 해당 연결 값을 우선한다.
-콜백 포트 변경 시 Supabase의 허용 반환 URL도 일치시켜야 한다. 원격 설정은 이 작업에서 변경하지 않았다.
+콜백 포트 변경 시 Supabase의 허용 반환 URL도 일치시켜야 한다. 현재 원격 Test mode에는
+한국 Checkout과 Lemon 웹훅이 배포돼 있다.
+Global을 추가할 때는 서버 카탈로그 매핑을 먼저 배포한 뒤 `checkoutMarkets`에 `GLOBAL`을 추가한다.
 
 ## 실행과 검증
 

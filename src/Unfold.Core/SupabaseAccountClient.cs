@@ -29,6 +29,8 @@ public sealed class AccountSession(Guid userId, string accessToken, string refre
     public override string ToString() => nameof(AccountSession);
 }
 
+public sealed record AccountCheckout(Guid OrderId, Guid CheckoutId, Uri CheckoutUri);
+
 public sealed class GoogleSignInAttempt
 {
     internal GoogleSignInAttempt(Guid owner, Uri authorizationUri, Uri redirectUri, string verifier)
@@ -46,6 +48,8 @@ public sealed class GoogleSignInAttempt
 /// <summary>Explicit account actions only. A returned session is not an app-access decision.</summary>
 public sealed class SupabaseAccountClient : IDisposable
 {
+    private static readonly TimeSpan DefaultRequestTimeout = TimeSpan.FromSeconds(10);
+    private static readonly TimeSpan CheckoutRequestTimeout = TimeSpan.FromSeconds(35);
     private readonly HttpClient http;
     private readonly Uri projectUrl;
     private readonly string publicKey;
@@ -61,7 +65,7 @@ public sealed class SupabaseAccountClient : IDisposable
         if (publicKey.Any(char.IsWhiteSpace)) throw new ArgumentException("Invalid public key.", nameof(publicKey));
         this.environment = environment switch { AccountEnvironment.Test => "test", AccountEnvironment.Live => "live", _ => throw new ArgumentOutOfRangeException(nameof(environment)) };
         this.projectUrl = projectUrl; this.publicKey = publicKey;
-        http = new HttpClient(transport ?? new HttpClientHandler { AllowAutoRedirect = false }) { Timeout = TimeSpan.FromSeconds(10) };
+        http = new HttpClient(transport ?? new HttpClientHandler { AllowAutoRedirect = false }) { Timeout = Timeout.InfiniteTimeSpan };
     }
 
     public GoogleSignInAttempt BeginGoogleSignIn(Uri redirectUri)
@@ -118,7 +122,35 @@ public sealed class SupabaseAccountClient : IDisposable
         };
     }
 
-    private async Task<JsonElement> SendAsync(HttpMethod method, string path, string? token, object? body, CancellationToken cancellationToken)
+    public async Task<AccountCheckout> CreateCheckoutAsync(AccountSession session, string market, Guid requestId,
+        CancellationToken cancellationToken = default)
+    {
+        if (market is not ("KR" or "GLOBAL") || requestId == Guid.Empty)
+            throw new ArgumentException("Invalid checkout request.");
+        var json = await SendAsync(HttpMethod.Post, "functions/v1/create-checkout", session.AccessToken,
+            new { market, request_id = requestId }, cancellationToken, CheckoutRequestTimeout);
+        CheckoutResponse? result;
+        try { result = json.Deserialize<CheckoutResponse>(); }
+        catch (JsonException) { throw new AccountException(AccountFailure.InvalidResponse); }
+        if (result is null || result.Version != 1 || result.OrderId == Guid.Empty || result.CheckoutId == Guid.Empty
+            || result.Environment != environment || !Uri.TryCreate(result.CheckoutUrl, UriKind.Absolute, out var checkout)
+            || checkout.Scheme != "https" || !checkout.IsDefaultPort || checkout.UserInfo.Length != 0 || checkout.Fragment.Length != 0
+            || !checkout.Host.EndsWith(".lemonsqueezy.com", StringComparison.Ordinal)
+            || checkout.Host.Length <= ".lemonsqueezy.com".Length
+            || checkout.AbsolutePath != $"/checkout/custom/{result.CheckoutId}")
+            throw new AccountException(AccountFailure.InvalidResponse);
+        var parameters = checkout.Query.TrimStart('?').Split('&', StringSplitOptions.RemoveEmptyEntries)
+            .Select(item => item.Split('=', 2)).ToArray();
+        var keys = parameters.Select(item => Uri.UnescapeDataString(item[0])).ToArray();
+        if (parameters.Any(item => item.Length != 2 || string.IsNullOrWhiteSpace(item[1]))
+            || keys.Length != 2 || keys.Distinct(StringComparer.Ordinal).Count() != 2
+            || !keys.Contains("expires", StringComparer.Ordinal) || !keys.Contains("signature", StringComparer.Ordinal))
+            throw new AccountException(AccountFailure.InvalidResponse);
+        return new(result.OrderId, result.CheckoutId, checkout);
+    }
+
+    private async Task<JsonElement> SendAsync(HttpMethod method, string path, string? token, object? body,
+        CancellationToken cancellationToken, TimeSpan? requestTimeout = null)
     {
         using var request = new HttpRequestMessage(method, new Uri(projectUrl, path));
         request.Headers.Add("apikey", publicKey);
@@ -126,7 +158,7 @@ public sealed class SupabaseAccountClient : IDisposable
         if (token is not null) request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         if (body is not null) request.Content = JsonContent.Create(body);
         using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        deadline.CancelAfter(TimeSpan.FromSeconds(10));
+        deadline.CancelAfter(requestTimeout ?? DefaultRequestTimeout);
         try
         {
             using var response = await http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, deadline.Token);
@@ -185,4 +217,10 @@ public sealed class SupabaseAccountClient : IDisposable
         [property: JsonPropertyName("product_id")] string ProductId,
         [property: JsonPropertyName("environment")] string Environment,
         [property: JsonPropertyName("status")] string Status);
+    private sealed record CheckoutResponse(
+        [property: JsonPropertyName("schema_version")] int Version,
+        [property: JsonPropertyName("order_id")] Guid OrderId,
+        [property: JsonPropertyName("checkout_id")] Guid CheckoutId,
+        [property: JsonPropertyName("environment")] string Environment,
+        [property: JsonPropertyName("checkout_url")] string CheckoutUrl);
 }

@@ -13,19 +13,30 @@ export function validateVariant(result, order) {
   requirePayment(data.id === order.provider_price_id && String(value.product_id) === order.provider_product_id
     && value.test_mode === true && value.is_subscription === false && value.has_free_trial === false
     && value.pay_what_you_want === false && ['pending', 'published'].includes(value.status));
+  const product = result.included?.find(item => item?.type === 'products' && item.id === order.provider_product_id);
+  requirePayment(product?.attributes?.status === 'published' && product.attributes.test_mode === true
+    && String(product.attributes.store_id) === order.provider_store_id, 'checkout_not_ready', 503);
   return data;
 }
 
-export function validateCheckout(result, order, now = Date.now()) {
+export function validateCheckout(result, order, now = Date.now(), requirePreview = true) {
   const data = jsonApi(result, 'checkouts');
   const value = data.attributes;
   const preview = value.preview;
   const providerAmount = toLemonAmount(order.currency, order.amount_minor);
   requirePayment(uuidPattern.test(data.id) && String(value.store_id) === order.provider_store_id
-    && String(value.variant_id) === order.provider_price_id && value.custom_price === providerAmount
-    && value.test_mode === true && preview?.currency === order.currency
-    && integerMinor(preview.subtotal) === providerAmount && integerMinor(preview.discount_total) === 0
-    && integerMinor(preview.tax) >= 0 && integerMinor(preview.total) === preview.subtotal + preview.tax);
+    && String(value.variant_id) === order.provider_price_id, 'checkout_identity_mismatch', 422);
+  requirePayment(value.custom_price === providerAmount, 'checkout_amount_mismatch', 422);
+  requirePayment(value.test_mode === true, 'checkout_environment_mismatch', 422);
+  // Lemon guarantees preview totals only on the create response. A later GET
+  // can omit them or return a partial placeholder, so resume validation uses
+  // the persisted checkout identity, amount, environment and expiry instead.
+  if (requirePreview) {
+    requirePayment(preview?.currency === order.currency
+      && integerMinor(preview.subtotal) === providerAmount && integerMinor(preview.discount_total) === 0
+      && integerMinor(preview.tax) >= 0 && integerMinor(preview.total) === preview.subtotal + preview.tax,
+    'checkout_preview_mismatch', 422);
+  }
   if (value.expires_at != null) requirePayment(Number.isFinite(Date.parse(value.expires_at)) && Date.parse(value.expires_at) > now,
     'checkout_closed', 409);
   return data;
@@ -43,20 +54,23 @@ export function checkoutLink(result, order) {
 
 export function createLemonClient({ environment, apiKey, fetcher = fetch, now = Date.now }) {
   sandboxOnly(environment);
-  if (typeof apiKey !== 'string' || apiKey.length < 16 || apiKey.length > 512 || /\s/.test(apiKey)) {
-    throw new Error('Lemon Squeezy API key required');
-  }
+  const token = typeof apiKey === 'string' ? apiKey.trim() : '';
+  if (!token) throw new Error('Lemon Squeezy API key missing');
+  if (/\s/.test(token)) throw new Error('Lemon Squeezy API key contains whitespace');
+  // Lemon Squeezy does not publish an API-key length contract. Keep only a
+  // defensive HTTP-header ceiling and let the provider validate the token.
+  if (token.length > 16384) throw new Error('Lemon Squeezy API key too long');
   async function call(path, method = 'GET', body) {
     const response = await fetcher(new URL(path, 'https://api.lemonsqueezy.com'), {
-      method, redirect: 'error', signal: AbortSignal.timeout(8000),
-      headers: { Accept: 'application/vnd.api+json', 'Content-Type': 'application/vnd.api+json', Authorization: `Bearer ${apiKey}` },
+      method, redirect: 'error', signal: AbortSignal.timeout(15000),
+      headers: { Accept: 'application/vnd.api+json', 'Content-Type': 'application/vnd.api+json', Authorization: `Bearer ${token}` },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
     if (!response.ok) throw new PaymentError('payment_provider_unavailable');
     return readJson(response, 65536);
   }
   return {
-    variant(id) { requirePayment(positiveId(id)); return call(`/v1/variants/${id}`); },
+    variant(id) { requirePayment(positiveId(id)); return call(`/v1/variants/${id}?include=product`); },
     checkout(id) { requirePayment(uuidPattern.test(id)); return call(`/v1/checkouts/${id}`); },
     create(order) {
       requirePayment(positiveId(order.provider_store_id) && positiveId(order.provider_price_id));

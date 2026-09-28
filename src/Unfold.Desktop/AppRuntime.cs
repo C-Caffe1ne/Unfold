@@ -23,6 +23,7 @@ public readonly record struct TrayReminderStatus(string Status, string ToolTip)
 
 public sealed class AppRuntime : IDisposable
 {
+    internal const string AccountWelcomeRevision = "account-checkout-kr-v1";
     public AppSettings Settings { get; private set; }
     public CharacterLibrary Library { get; }
     public StretchClock Clock { get; }
@@ -143,7 +144,7 @@ public sealed class AppRuntime : IDisposable
             await UpdatePet();
             if (!background)
             {
-                if (!diagnostic && !File.Exists(accountWelcomeFile)) ShowAccount();
+                if (!diagnostic && !HasSeenCurrentAccountWelcome(accountWelcomeFile)) ShowAccount();
                 else ShowSettings();
             }
         }
@@ -203,6 +204,16 @@ public sealed class AppRuntime : IDisposable
     public void Reset() { CancelReminder(); Clock.Reset(monotonic.Elapsed); Changed?.Invoke(); }
     private void CancelReminder() { reminderGeneration++; Reminder.Cancel(); RefreshPetNotice(); }
     public void ShowSettings() { if (settingsWindow is null) return; settingsWindow.Show(); settingsWindow.ResumePreview(); settingsWindow.WindowState = WindowState.Normal; if (!DiagnosticMode) settingsWindow.Activate(); }
+    internal static bool HasSeenCurrentAccountWelcome(string path)
+    {
+        if (!File.Exists(path)) return false;
+        try { return File.ReadAllText(path).Trim() == AccountWelcomeRevision; }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+        {
+            AppPaths.Log(error);
+            return false;
+        }
+    }
     public void ShowAccount()
     {
         if (disposed) return;
@@ -214,7 +225,7 @@ public sealed class AppRuntime : IDisposable
             accountWindow = null;
             if (disposed || quitting) return;
             // This records only dismissal of a welcome screen, never authentication or purchase.
-            try { File.WriteAllText(accountWelcomeFile, "1"); }
+            try { File.WriteAllText(accountWelcomeFile, AccountWelcomeRevision); }
             catch (Exception error) when (error is IOException or UnauthorizedAccessException) { AppPaths.Log(error); }
             ShowSettings();
         };

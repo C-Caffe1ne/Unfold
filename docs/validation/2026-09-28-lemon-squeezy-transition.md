@@ -28,7 +28,7 @@ Supabase 프로젝트 `xrelgkdawkogrwxmwkcx`에 다음 상태를 적용하고 �
 | 클라이언트 권한 | `anon` 예약 RPC, `authenticated` 결제 반영 RPC 실행 권한 없음 |
 | 상품 매핑 | `unfold-kr` 1건. Store `485125`, Product `1393777`, Variant `2176689` |
 | 판매 가격 | KR/Global 모두 `live_enabled=false` |
-| Edge Function | `create-checkout` 버전 7/JWT 필수, `lemon-webhook` 버전 3/HMAC 필수, Active |
+| Edge Function | `create-checkout` 버전 27/JWT 필수, `get-entitlement` 버전 10/JWT 필수, `lemon-webhook` 버전 9/HMAC 필수, Active |
 | 기존 Paddle 함수 | `paddle-webhook` 제거 |
 | 인증 없는 결제 생성 | HTTP 401 |
 | 서명 없는 Lemon 웹훅 | HTTP 401 |
@@ -38,7 +38,7 @@ Supabase 프로젝트 `xrelgkdawkogrwxmwkcx`에 다음 상태를 적용하고 �
 
 `supabase` 폴더에서 Node.js 24.16으로 `npm test`를 실행했다.
 
-- 29개 통과, 실패·건너뜀 0.
+- 30개 통과, 실패·건너뜀 0.
 - PGlite에서 다섯 마이그레이션, RLS와 PL/pgSQL 함수를 실제 실행했다.
 - KRW 4,900원과 USD 3.99 원금, 세금 별도 합계, 서명 검증, 중복 결제를 검사했다.
 - 부분 환불 누적, 전체 환불, 환불 후 늦은 결제, 복수 주문의 권한 보존을 검사했다.
@@ -47,7 +47,9 @@ Supabase 프로젝트 `xrelgkdawkogrwxmwkcx`에 다음 상태를 적용하고 �
 
 등록된 테스트 API 키로 실제 Store/Product/Variant를 조회했고, Lemon API가 만든 Checkout 미리보기에서
 `₩4,900`, 할인 0, 합계 `₩4,900`, Test mode를 확인했다. 위치 정보가 없는 미리보기여서 세금은 0이었다.
-실제 Google 로그인 사용자의 결제 화면 완료, 카드 승인, 웹훅 수신, 환불 재전송과 운영 승인 상태는 미검증이다.
+실제 macOS 앱에서 Google 로그인 후 구매하기를 실행해 API custom Checkout이 기본 브라우저에 열리고,
+게시된 `Unfold 이용권`, `₩4,900`, Test mode 결제 폼이 표시되는 것까지 확인했다. 카드 승인,
+웹훅 수신, 환불 재전송과 운영 승인 상태는 미검증이다.
 
 ## 완료된 외부 설정
 
@@ -60,21 +62,51 @@ Supabase 프로젝트 `xrelgkdawkogrwxmwkcx`에 다음 상태를 적용하고 �
 https://xrelgkdawkogrwxmwkcx.supabase.co/functions/v1/lemon-webhook
 ```
 
-5. Paddle Dashboard의 기존 알림 목적지를 비활성화했다.
+5. Paddle Dashboard의 기존 알림 목적지를 비활성화하고 Supabase의 Paddle API Secret과
+   이전 고정 Checkout URL 설정을 제거했다.
 
-Product는 현재 Test mode `draft`이고 단일 기본 Variant는 `pending`이다. API custom Checkout은
-정상 생성되지만 공개 Share URL은 404다. 운영 전 Product를 게시하고 Live mode로 복사해야 한다.
-Global Store/Product/Variant는 사용자가 준비할 때 별도 마이그레이션으로 추가한다.
+Product `1393777`은 Test mode에서 게시됐다. 공개 Checkout UUID
+`33a0b33e-7a8c-4022-9b79-2ab02113ede1`로 열린 Share Checkout에서도 `Unfold 이용권`,
+`₩4,900`, Test mode를 확인했다. 이 UUID는 공유 Checkout 주소의 식별자이며 Lemon API가 요구하는
+숫자 Variant ID가 아니므로 서버 카탈로그에는 Variant `2176689`를 계속 사용한다.
+Global Store/Product/Variant와 Live mode 상품은 사용자가 준비할 때 별도 마이그레이션으로 추가한다.
 
 ## 다음 검증
 
-앱의 구매 버튼은 아직 Checkout API를 호출하지 않는다. 다음 단계에서 한국 시장으로 고정한 앱 요청을
-연결하고, 실제 Google 로그인 계정으로 테스트 결제, 중복 클릭, 결제 중 앱 종료, 부분·전체 환불,
-웹훅 재전송과 재로그인 복원을 확인한다. 앱 사용 잠금은 이 검증 이후 별도 단계에서 적용한다.
+앱 구매 버튼은 한국 시장으로 고정한 Checkout API를 호출한다. 다음 단계에서 테스트 카드 결제,
+중복 클릭, 결제 중 앱 종료, 부분·전체 환불, 웹훅 재전송과 재로그인 복원을 확인한다.
+앱 사용 잠금은 이 검증 이후 별도 단계에서 적용한다.
+
+실제 앱 호출에서 Supabase의 `LEMONSQUEEZY_TEST_API_KEY`가 서버 형식 검사를 통과하지 못해
+`create-checkout`이 부팅 중 500으로 종료되는 문제를 확인했다. 원인은 Lemon Squeezy가 공개하지 않은
+API 키 길이 계약을 서버가 임의의 512자로 제한한 것이었다. 앞뒤 공백은 제거하고 내부 공백과
+16 KiB를 넘는 비정상 HTTP 헤더만 거부하며, 실제 키 유효성은 Lemon API가 판정하도록 수정했다.
+1,024자 키가 손실 없이 Authorization 헤더에 전달되는 회귀 검사를 추가했다.
+
+Secret 교체 뒤 실제 앱 요청은 기존 Lemon API 8초 제한까지 대기한 다음 실패했다. Variant 확인과
+Checkout 생성이 순차 실행되는 계약에 맞춰 Lemon 요청 제한을 각각 15초로, 앱의 Checkout 전체
+요청 제한을 35초로 조정했다. 로그인·권한 조회의 10초 제한은 유지한다.
+
+긴 키 허용 후 처음 생성한 custom Checkout은 Product `1393777`이 `draft`였을 때 만들어져 404를
+반환했다. `create-checkout`은 Variant 조회에 Product를 포함해 Store/Product/Test mode와
+`published` 상태를 함께 검증하도록 바꿨다. 미게시 상품은 사용할 수 없는 URL을 앱에 반환하지 않고
+`503 checkout_not_ready`로 차단한다.
+
+상품 게시 뒤 기존 요청을 재사용하면 Lemon의 Checkout 조회 응답에 생성 시점 전용 `preview`가 없거나
+부분 값만 들어와 `payment_mismatch`가 발생했다. 생성 응답에서는 금액·상품·환경·만료·호스트를 모두
+검증하고, 재조회에서는 주문에 저장된 Checkout ID와 URL을 기준으로 상품·환경·만료·호스트를 검증하도록
+분리했다. 결제 생성·재개 실패 로그는 비밀값 없이 `단계:공개 오류 코드`만 남긴다.
+
+원격 `create-checkout` 버전 27에 이 수정이 적용됐고 Active 상태를 확인했다. 새 요청으로 실제 macOS
+앱의 Google 로그인 → 구매하기를 실행해 서명된 `dokhustudio.lemonsqueezy.com/checkout/custom/...`
+주소가 기본 브라우저에서 정상 결제 폼으로 열리는 것까지 검증했다. 결제는 제출하지 않았다.
 
 ## 공식 계약
 
 - [Checkout 생성](https://docs.lemonsqueezy.com/api/checkouts/create-checkout)
+- [Checkout 객체와 생성 시점 preview](https://docs.lemonsqueezy.com/api/checkouts/the-checkout-object)
+- [Test mode 상품 게시 조건](https://docs.lemonsqueezy.com/help/getting-started/test-mode)
+- [상품 공유 Checkout](https://docs.lemonsqueezy.com/help/products/sharing-products)
 - [Custom data 전달](https://docs.lemonsqueezy.com/help/checkout/passing-custom-data)
 - [웹훅 서명](https://docs.lemonsqueezy.com/help/webhooks/signing-requests)
 - [웹훅 이벤트](https://docs.lemonsqueezy.com/help/webhooks/event-types)

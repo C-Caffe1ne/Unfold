@@ -81,6 +81,40 @@ public class AccountClientTests
         Assert.Equal(expected, await client.GetEntitlementAsync(Session, TestContext.Current.CancellationToken));
     }
 
+    [Fact]
+    public async Task CheckoutUsesAuthenticatedServerPriceAndAcceptsOnlyLemonHostedUrl()
+    {
+        var requestId = Guid.Parse("22222222-2222-4222-8222-222222222222");
+        var orderId = Guid.Parse("33333333-3333-4333-8333-333333333333");
+        var checkoutId = Guid.Parse("44444444-4444-4444-8444-444444444444");
+        using var client = Client(async (request, token) => {
+            Assert.Equal("/functions/v1/create-checkout", request.RequestUri!.AbsolutePath);
+            Assert.Equal("private-access", request.Headers.Authorization!.Parameter);
+            Assert.Equal("public-key", Assert.Single(request.Headers.GetValues("apikey")));
+            var body = JsonDocument.Parse(await request.Content!.ReadAsStringAsync(token)).RootElement;
+            Assert.Equal("KR", body.GetProperty("market").GetString());
+            Assert.Equal(requestId, body.GetProperty("request_id").GetGuid());
+            return Json(new { schema_version = 1, order_id = orderId, checkout_id = checkoutId, environment = "live",
+                checkout_url = $"https://dokhustudio.lemonsqueezy.com/checkout/custom/{checkoutId}?expires=1&signature=abc" });
+        });
+        var result = await client.CreateCheckoutAsync(Session, "KR", requestId, TestContext.Current.CancellationToken);
+        Assert.Equal(orderId, result.OrderId); Assert.Equal(checkoutId, result.CheckoutId);
+        Assert.Equal("dokhustudio.lemonsqueezy.com", result.CheckoutUri.Host);
+    }
+
+    [Theory]
+    [InlineData("https://evil.test/checkout/custom/44444444-4444-4444-8444-444444444444?expires=1&signature=x")]
+    [InlineData("https://dokhustudio.lemonsqueezy.com/checkout/custom/55555555-5555-4555-8555-555555555555?expires=1&signature=x")]
+    [InlineData("https://dokhustudio.lemonsqueezy.com/checkout/custom/44444444-4444-4444-8444-444444444444?redirect=evil&signature=x")]
+    public async Task CheckoutRejectsUntrustedOrMismatchedUrls(string url)
+    {
+        var checkoutId = Guid.Parse("44444444-4444-4444-8444-444444444444");
+        using var client = Client((_, _) => Task.FromResult(Json(new { schema_version = 1, order_id = Guid.NewGuid(),
+            checkout_id = checkoutId, environment = "live", checkout_url = url })));
+        var error = await Assert.ThrowsAsync<AccountException>(() => client.CreateCheckoutAsync(Session, "KR", Guid.NewGuid(), TestContext.Current.CancellationToken));
+        Assert.Equal(AccountFailure.InvalidResponse, error.Failure);
+    }
+
     [Theory]
     [InlineData("test", "unfold", "active", 1)]
     [InlineData("live", "other", "active", 1)]

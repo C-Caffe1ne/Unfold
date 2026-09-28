@@ -50,6 +50,7 @@
               <TextBlock Text="{Binding Copy.ProductLabel}" Classes="account-caption" />
               <TextBlock Name="AccountPrice" Text="{Binding Price}" FontSize="32" FontWeight="SemiBold" />
               <ComboBox Name="AccountMarket" ItemsSource="{Binding Markets}" SelectedItem="{Binding SelectedMarket, Mode=TwoWay}"
+                        IsEnabled="{Binding CanChangeMarket}"
                         AutomationProperties.Name="{Binding Copy.MarketLabel}" HorizontalAlignment="Left" MaxWidth="210">
                 <ComboBox.ItemTemplate><DataTemplate x:DataType="local:AccountMarket"><TextBlock Text="{Binding Label}" /></DataTemplate></ComboBox.ItemTemplate>
               </ComboBox>

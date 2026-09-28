@@ -53,8 +53,8 @@ Supabase 전체 스택, PostgREST 실제 연결, JWT 게이트웨이, 운영 동
 | Supabase Auth에 허용할 앱 반환 URL | `http://127.0.0.1:43821/auth/callback` |
 | 앱 공개키 | 로컬 `.env.client`에 저장. 공유 예시는 `client.env.example` 사용 |
 
-원격에는 `202609280002`~`202609280004` Lemon Squeezy 마이그레이션과 `create-checkout` 버전 7,
-`lemon-webhook` 버전 3이 적용됐다. `lemon_prices`에는 한국 매핑 1건만 있으며 Global 매핑은 없다.
+원격에는 `202609280002`~`202609280004` Lemon Squeezy 마이그레이션과 `create-checkout` 버전 27,
+`get-entitlement` 버전 10, `lemon-webhook` 버전 9가 적용됐다. `lemon_prices`에는 한국 매핑 1건만 있으며 Global 매핑은 없다.
 공개 판매 가격의 `live_enabled`는 모두 false다. RLS가 켜져 있고 `anon`과
 `authenticated`는 예약·결제 반영 RPC를 실행할 수 없다. 인증 없는 결제 생성 요청은 HTTP 401이다.
 아래 설정값은 개발 테스트용이다.
@@ -66,15 +66,29 @@ Supabase 전체 스택, PostgREST 실제 연결, JWT 게이트웨이, 운영 동
 한국 Store `485125`, Product `1393777`, Variant `2176689`, Host
 `dokhustudio.lemonsqueezy.com`을 서버 카탈로그에 등록했다. 실제 Lemon API 미리보기는 `₩4,900`,
 할인 0, Test mode로 생성됐다. `UNFOLD_CHECKOUT_ENABLED=true`이지만 한국 매핑만 있으므로
-`market=GLOBAL` 요청은 `checkout_not_ready`로 실패한다. Product는 아직 Test mode `draft`다.
+`market=GLOBAL` 요청은 `checkout_not_ready`로 실패한다. Product는 Test mode에서 게시됐고,
+실제 macOS 앱의 Google 로그인 사용자가 만든 API custom Checkout이 브라우저의 `₩4,900`
+Test mode 결제 폼으로 열리는 것까지 확인했다. 결제 제출과 웹훅 권한 반영은 아직 검증하지 않았다.
+
+공개 Share Checkout UUID는 `33a0b33e-7a8c-4022-9b79-2ab02113ede1`이다. 이 값은 수동 검증과
+공유 주소에만 쓰며 Lemon API Variant ID가 아니다. 런타임 카탈로그와 웹훅 검증은 숫자 Variant
+`2176689`를 사용한다.
 
 테스트 API 키와 웹훅 Secret은 Supabase Secrets에 있고, 웹훅은
 `https://xrelgkdawkogrwxmwkcx.supabase.co/functions/v1/lemon-webhook`에서
 `order_created`, `order_refunded`를 받는다. Secret 값은 앱·문서·Git에 저장하지 않는다.
+API 키는 서버에서 앞뒤 공백과 복사 시 붙은 줄바꿈만 제거한 뒤 사용하며, 값 내부의 공백이나
+16 KiB를 넘는 비정상 HTTP 헤더는 거부한다. Lemon이 공개하지 않은 최소 길이나 512자 제한은
+적용하지 않고 실제 키 유효성은 공급자가 판정한다. Variant 조회 시 연결된 Product가 같은 Store의
+게시된 Test mode 상품인지도 확인해 미게시 상품의 깨진 Checkout URL을 앱에 전달하지 않는다.
+Checkout은 Variant 확인과 생성 요청을 순서대로 수행하므로 Lemon 요청은 각각 최대 15초,
+앱의 Checkout 전체 요청은 최대 35초를 허용한다. 일반 로그인·권한 조회는 기존 10초 제한을 유지한다.
+Checkout 생성 응답은 금액·상품·환경·만료·호스트를 모두 검증한다. 이미 저장한 Checkout을 재개할 때는
+Lemon 조회 응답에서 생성 시점 전용 `preview`가 생략될 수 있으므로 주문에 저장한 Checkout ID와 URL을
+기준으로 상품·환경·만료·호스트를 다시 확인한다.
 
-현재 원격 `paddle-webhook` 함수는 제거됐다. Paddle Dashboard의 기존 알림 목적지는 비활성화해
-실패 재전송을 막는다. Lemon 테스트 검증이 끝나면 Supabase에 남겨 둔 Paddle API Secret과
-사용하지 않는 Checkout URL 설정을 제거한다.
+현재 원격 `paddle-webhook` 함수, Paddle API Secret과 사용하지 않는 고정 Checkout URL 설정은 제거됐다.
+Paddle Dashboard의 기존 알림 목적지도 비활성화해 실패 재전송을 막았다.
 
 ### Google 로그인 확인 사항
 
@@ -127,7 +141,7 @@ supabase functions serve get-entitlement --env-file supabase/.env
 - 본문은 `{"market":"KR|GLOBAL","request_id":"UUID"}`만 허용한다.
 - 응답의 `checkout_url`은 검증된 Lemon Squeezy 호스팅 결제 주소다.
 - 한국 매핑은 활성화돼 있다. Global은 매핑이 없어 `503 checkout_not_ready`를 반환한다.
-- 현재 Avalonia 구매 버튼은 이 API를 아직 호출하지 않는다.
+- 현재 Avalonia 구매 버튼은 한국 시장만 이 API로 호출한다. Global은 UI에서도 숨긴다.
 
 `POST /functions/v1/lemon-webhook`
 
@@ -164,5 +178,7 @@ supabase functions serve get-entitlement --env-file supabase/.env
 - [RLS](https://supabase.com/docs/guides/database/postgres/row-level-security)
 - [PGlite](https://pglite.dev/docs/)
 - [Lemon Squeezy 결제 생성](https://docs.lemonsqueezy.com/api/checkouts/create-checkout)
+- [Lemon Squeezy Checkout 객체](https://docs.lemonsqueezy.com/api/checkouts/the-checkout-object)
+- [Lemon Squeezy 상품 공유](https://docs.lemonsqueezy.com/help/products/sharing-products)
 - [Lemon Squeezy 웹훅 서명](https://docs.lemonsqueezy.com/help/webhooks/signing-requests)
 - [Lemon Squeezy 웹훅 이벤트](https://docs.lemonsqueezy.com/help/webhooks/event-types)

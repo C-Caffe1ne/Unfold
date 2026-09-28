@@ -18,6 +18,18 @@ namespace Unfold.Tests;
 public class AccountPresentationTests
 {
     [Fact]
+    public void UpdatedWelcomeAppearsOnceEvenWhenLegacyDismissalExists()
+    {
+        using var dir = new TempDirectory();
+        var marker = Path.Combine(dir.Path, "account-welcome-seen");
+        Assert.False(AppRuntime.HasSeenCurrentAccountWelcome(marker));
+        File.WriteAllText(marker, "1");
+        Assert.False(AppRuntime.HasSeenCurrentAccountWelcome(marker));
+        File.WriteAllText(marker, AppRuntime.AccountWelcomeRevision);
+        Assert.True(AppRuntime.HasSeenCurrentAccountWelcome(marker));
+    }
+
+    [Fact]
     public void EditedCopyAndIndependentCurrencyPricesLoadWithoutCodeChanges()
     {
         using var dir = new TempDirectory();
@@ -56,11 +68,30 @@ public class AccountPresentationTests
         service.PurchaseError = null;
         await model.PrimaryAsync();
         Assert.Equal(1, service.SignInCalls); Assert.Equal(2, service.PurchaseCalls);
-        Assert.False(model.PurchaseUnknown); Assert.False(model.PurchaseReady); Assert.False(model.CanPrimary);
+        Assert.False(model.PurchaseUnknown); Assert.False(model.PurchaseReady); Assert.True(model.CanPrimary);
         Assert.Equal(model.Copy.PurchaseButton, model.PrimaryText);
-        Assert.Equal(model.Copy.CheckoutUnavailable, model.Status);
+        Assert.Equal("", model.Status);
         model.Secondary();
         Assert.True(model.IsLogin); Assert.False(model.PurchaseUnknown); Assert.False(model.PurchaseReady);
+    }
+
+    [Fact]
+    public async Task KoreanCheckoutOpensOnceThenPurchaseIsCheckedExplicitly()
+    {
+        var service = new FakeAccountService();
+        using var model = new AccountScreenModel(AccountScreenContent.Load(), service);
+        await model.PrimaryAsync();
+        Assert.True(model.IsPurchase); Assert.Equal(model.Copy.PurchaseButton, model.PrimaryText);
+        await model.PrimaryAsync();
+        Assert.Equal(1, service.CheckoutCalls); Assert.True(model.CheckoutStarted);
+        Assert.Equal(model.Copy.CheckPurchaseButton, model.PrimaryText);
+        Assert.Equal(model.Copy.CheckoutWaiting, model.Status);
+        await model.PrimaryAsync();
+        Assert.Equal(2, service.PurchaseCalls); Assert.Equal(model.Copy.PurchaseNotFound, model.Status);
+        Assert.Equal(1, service.CheckoutCalls);
+        service.Purchase = PurchaseAccess.Active;
+        await model.PrimaryAsync();
+        Assert.True(model.PurchaseReady); Assert.Equal(model.Copy.ReadyStatus, model.Status);
     }
 
     [Fact]
@@ -107,11 +138,15 @@ internal sealed class FakeAccountService : IAccountScreenService
     public bool CanSignIn { get; set; } = true;
     public int SignInCalls { get; private set; }
     public int PurchaseCalls { get; private set; }
+    public int CheckoutCalls { get; private set; }
     public bool Disposed { get; private set; }
     public PurchaseAccess Purchase { get; set; } = PurchaseAccess.Unowned;
     public AccountException? SignInError { get; set; }
     public AccountException? PurchaseError { get; set; }
+    public AccountException? CheckoutError { get; set; }
     public Func<CancellationToken, Task<AccountSession>>? SignIn { get; set; }
+    public HashSet<string> EnabledMarkets { get; } = ["KR", "GLOBAL"];
+    public bool CanCheckout(string market) => EnabledMarkets.Contains(market);
     public Task<AccountSession> SignInAsync(CancellationToken token)
     {
         SignInCalls++;
@@ -121,6 +156,13 @@ internal sealed class FakeAccountService : IAccountScreenService
     {
         PurchaseCalls++;
         return PurchaseError is not null ? Task.FromException<PurchaseAccess>(PurchaseError) : Task.FromResult(Purchase);
+    }
+    public Task StartCheckoutAsync(AccountSession session, string market, Guid requestId, CancellationToken token)
+    {
+        CheckoutCalls++;
+        Assert.NotEqual(Guid.Empty, requestId);
+        Assert.Contains(market, EnabledMarkets);
+        return CheckoutError is not null ? Task.FromException(CheckoutError) : Task.CompletedTask;
     }
     public void Dispose() => Disposed = true;
 }
@@ -160,7 +202,7 @@ public class AccountWindowTests
                 Capture(window, "login-" + theme.Id);
                 await model.PrimaryAsync(); Layout();
                 Assert.Equal(model.Copy.PurchaseTitle, window.FindControl<TextBlock>("AccountHeading")!.Text);
-                Assert.False(window.FindControl<Button>("AccountPrimary")!.IsEnabled);
+                Assert.True(window.FindControl<Button>("AccountPrimary")!.IsEnabled);
                 Assert.Equal("4,900원", window.FindControl<TextBlock>("AccountPrice")!.Text);
                 Capture(window, "purchase-" + theme.Id);
                 window.FindControl<ComboBox>("AccountMarket")!.SelectedItem = model.Markets[1]; Layout();
