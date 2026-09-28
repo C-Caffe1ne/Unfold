@@ -1,0 +1,76 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Unfold.Desktop"
+        x:Class="Unfold.Desktop.AccountWindow" x:DataType="local:AccountScreenModel" x:CompileBindings="True"
+        Width="940" Height="620" MinWidth="640" MinHeight="560"
+        Title="{Binding Copy.WindowTitle}" WindowStartupLocation="CenterScreen"
+        WindowDecorations="None" Classes="unfold-page">
+  <!-- Layout lives here; copy and display prices live in Assets/Account/entry-screen.json.
+       Brushes refer to the same mutable theme tokens as the rest of the desktop app. -->
+  <Window.Styles>
+    <Style Selector="TextBlock.account-heading">
+      <Setter Property="FontSize" Value="30" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+    <Style Selector="Window.compact TextBlock.account-heading"><Setter Property="FontSize" Value="24" /></Style>
+    <Style Selector="TextBlock.account-caption">
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="Foreground" Value="{x:Static local:DesignSystem.Muted}" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+    <Style Selector="Image.account-pet"><Setter Property="Width" Value="220" /><Setter Property="Height" Value="220" /></Style>
+    <Style Selector="Window.compact Image.account-pet"><Setter Property="Width" Value="160" /><Setter Property="Height" Value="160" /></Style>
+    <Style Selector="Button.account-primary"><Setter Property="Height" Value="48" /><Setter Property="HorizontalAlignment" Value="Stretch" /></Style>
+  </Window.Styles>
+  <Border Name="AccountFrame" Margin="12" Padding="24" CornerRadius="{x:Static local:DesignSystem.FrameRadius}"
+          Background="{x:Static local:DesignSystem.Shell}" BorderBrush="{x:Static local:DesignSystem.Outline}" BorderThickness="1">
+    <Grid RowDefinitions="Auto,24,*,20,Auto">
+      <Grid Name="AccountDragHandle" ColumnDefinitions="*,Auto" Height="30">
+        <TextBlock Text="{Binding Content.Brand}" FontWeight="SemiBold" FontSize="21" VerticalAlignment="Center" />
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+          <TextBlock Text="{Binding Step}" Classes="account-caption" VerticalAlignment="Center" />
+          <Ellipse Width="7" Height="7" Fill="{x:Static local:DesignSystem.Accent}" />
+          <Ellipse Width="7" Height="7" Fill="{x:Static local:DesignSystem.OutlineStrong}" Opacity="0.4" IsVisible="{Binding IsLogin}" />
+        </StackPanel>
+      </Grid>
+      <Grid Grid.Row="2" ColumnDefinitions="*,24,*">
+        <Border Background="{x:Static local:DesignSystem.Raised}" CornerRadius="{x:Static local:DesignSystem.CardRadius}" Padding="16">
+          <StackPanel Spacing="24" VerticalAlignment="Center">
+            <Image Name="AccountCompanion" Classes="account-pet" Stretch="Uniform" HorizontalAlignment="Center" />
+            <TextBlock Text="{Binding Content.CompanionText}" FontSize="24" TextAlignment="Center" TextWrapping="Wrap" LineHeight="36" />
+          </StackPanel>
+        </Border>
+        <ScrollViewer Name="AccountFormScroll" Grid.Column="2" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+          <StackPanel Name="AccountForm" Spacing="18" Margin="8,24" VerticalAlignment="Center">
+            <TextBlock Text="{Binding Step}" Classes="account-caption" />
+            <TextBlock Name="AccountHeading" Text="{Binding Heading}" Classes="account-heading" />
+            <TextBlock Text="{Binding Email}" Classes="account-caption" IsVisible="{Binding IsPurchase}" MaxLines="2" TextTrimming="CharacterEllipsis" />
+            <StackPanel Spacing="8" IsVisible="{Binding IsPurchase}">
+              <TextBlock Text="{Binding Copy.ProductLabel}" Classes="account-caption" />
+              <TextBlock Name="AccountPrice" Text="{Binding Price}" FontSize="32" FontWeight="SemiBold" />
+              <ComboBox Name="AccountMarket" ItemsSource="{Binding Markets}" SelectedItem="{Binding SelectedMarket, Mode=TwoWay}"
+                        AutomationProperties.Name="{Binding Copy.MarketLabel}" HorizontalAlignment="Left" MaxWidth="210">
+                <ComboBox.ItemTemplate><DataTemplate x:DataType="local:AccountMarket"><TextBlock Text="{Binding Label}" /></DataTemplate></ComboBox.ItemTemplate>
+              </ComboBox>
+            </StackPanel>
+            <TextBlock Name="AccountStatus" Text="{Binding Status}" Classes="account-caption" IsVisible="{Binding HasStatus}" />
+            <Button Name="AccountPrimary" IsEnabled="{Binding CanPrimary}" Classes="unfold-action account-primary"
+                    Classes.primary="{Binding IsPurchase}" Classes.quiet="{Binding IsLogin}">
+              <StackPanel Orientation="Horizontal" Spacing="12">
+                <TextBlock Text="G" FontSize="19" FontWeight="Bold" IsVisible="{Binding IsLogin}" VerticalAlignment="Center" />
+                <TextBlock Text="{Binding PrimaryText}" VerticalAlignment="Center" />
+              </StackPanel>
+            </Button>
+            <Button Name="AccountSecondary" Content="{Binding SecondaryText}" IsVisible="{Binding ShowSecondary}" Classes="unfold-action quiet" HorizontalAlignment="Stretch" />
+          </StackPanel>
+        </ScrollViewer>
+      </Grid>
+      <Grid Grid.Row="4" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16">
+        <TextBlock Text="{Binding Copy.Copyright}" Classes="account-caption" VerticalAlignment="Center" />
+        <TextBlock Grid.Column="1" Name="AccountFooterPrice" Text="{Binding FooterPrice}" Classes="account-caption" VerticalAlignment="Center" HorizontalAlignment="Right" />
+        <Button Grid.Column="2" Name="AccountOpenApp" Content="{Binding Copy.OpenAppButton}" Classes="unfold-action quiet" />
+      </Grid>
+    </Grid>
+  </Border>
+</Window>

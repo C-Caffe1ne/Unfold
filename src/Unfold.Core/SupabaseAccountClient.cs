@@ -19,12 +19,13 @@ public sealed class AccountException(AccountFailure failure) : Exception($"Accou
 
 // Kept in memory only here. OS credential storage belongs to the later desktop integration.
 // Not records: generated ToString() must not expose tokens or PKCE verifiers.
-public sealed class AccountSession(Guid userId, string accessToken, string refreshToken, DateTimeOffset expiresAt)
+public sealed class AccountSession(Guid userId, string accessToken, string refreshToken, DateTimeOffset expiresAt, string? email = null)
 {
     public Guid UserId { get; } = userId;
     public string AccessToken { get; } = accessToken;
     public string RefreshToken { get; } = refreshToken;
     public DateTimeOffset ExpiresAt { get; } = expiresAt;
+    public string? Email { get; } = email;
     public override string ToString() => nameof(AccountSession);
 }
 
@@ -42,7 +43,7 @@ public sealed class GoogleSignInAttempt
     public override string ToString() => nameof(GoogleSignInAttempt);
 }
 
-/// <summary>Opt-in network client; not wired into AppRuntime until account UI and secure storage are ready.</summary>
+/// <summary>Explicit account actions only. A returned session is not an app-access decision.</summary>
 public sealed class SupabaseAccountClient : IDisposable
 {
     private readonly HttpClient http;
@@ -147,6 +148,7 @@ public sealed class SupabaseAccountClient : IDisposable
             return JsonSerializer.Deserialize<JsonElement>(bytes.AsSpan(0, length));
         }
         catch (HttpRequestException) { throw new AccountException(AccountFailure.Unavailable); }
+        catch (IOException) { throw new AccountException(AccountFailure.Unavailable); }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested) { throw new AccountException(AccountFailure.Unavailable); }
         catch (JsonException) { throw new AccountException(AccountFailure.InvalidResponse); }
     }
@@ -160,7 +162,10 @@ public sealed class SupabaseAccountClient : IDisposable
                 || string.IsNullOrWhiteSpace(session.AccessToken) || string.IsNullOrWhiteSpace(session.RefreshToken)
                 || session.ExpiresIn is <= 0 or > 86400)
                 throw new AccountException(AccountFailure.InvalidResponse);
-            return new(session.User.Id, session.AccessToken, session.RefreshToken, DateTimeOffset.UtcNow.AddSeconds(session.ExpiresIn));
+            var email = session.User.Email;
+            if (email is not null && (email.Length > 320 || email.Any(char.IsControl)))
+                throw new AccountException(AccountFailure.InvalidResponse);
+            return new(session.User.Id, session.AccessToken, session.RefreshToken, DateTimeOffset.UtcNow.AddSeconds(session.ExpiresIn), email);
         }
         catch (JsonException) { throw new AccountException(AccountFailure.InvalidResponse); }
     }
@@ -172,7 +177,8 @@ public sealed class SupabaseAccountClient : IDisposable
         [property: JsonPropertyName("refresh_token")] string RefreshToken,
         [property: JsonPropertyName("expires_in")] int ExpiresIn,
         [property: JsonPropertyName("user")] UserResponse User);
-    private sealed record UserResponse([property: JsonPropertyName("id")] Guid Id, [property: JsonPropertyName("is_anonymous")] bool Anonymous);
+    private sealed record UserResponse([property: JsonPropertyName("id")] Guid Id, [property: JsonPropertyName("is_anonymous")] bool Anonymous,
+        [property: JsonPropertyName("email")] string? Email);
     private sealed record EntitlementResponse(
         [property: JsonPropertyName("schema_version")] int Version,
         [property: JsonPropertyName("user_id")] Guid UserId,

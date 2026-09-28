@@ -7,6 +7,9 @@
 |---|---|
 | [에이전트 작업 안내](../AGENTS.md) | Codex·Claude 공통 프로젝트 지침. Claude는 `CLAUDE.md`에서 가져온다. |
 | [프로젝트 README](../README.md) | 사용자 소개, 빠른 실행, 저장소 구조 |
+| [A안 계정 화면 편집](account-screen.md) | 최초 로그인·구매 화면의 JSON·XAML·테마 편집 위치와 현재 연결 범위 |
+| [Lemon Squeezy 전환 구현·검증](validation/2026-09-28-lemon-squeezy-transition.md) | 결제 생성·웹훅·누적 환불, Supabase 적용 상태와 사용자가 준비할 외부 설정 |
+| [Paddle 샌드박스 이력](validation/2026-09-28-paddle-onboarding.md) | 공급자 전환 전 수행한 샌드박스 검증 기록. 현재 결제 경로에서는 사용하지 않음 |
 | [v0.2.2 배포 검증](validation/2026-09-23-v0.2.2-distribution.md) | 최신 복구 수정 포함, macOS·Windows 배포 파일, 해시·버전·게시 앱 검사 |
 | [v0.2.2 변경 사항](releases/v0.2.2.md) | macOS 펫 표시, 호버 시계, 알림·미리보기·효과음 복구 |
 | [v0.2.1 패치노트](releases/v0.2.1.md) | 기본 펫 5종, 상호작용, UI·타이머·알림 개선과 업데이트 안내 |
@@ -42,6 +45,7 @@
 | [사이드바 탭 전환 검증](validation/2026-09-15-navigation-tabs.md) | 같은 창의 타이머·루틴·기록 탭, 펫 팩 항목 제거와 macOS 렌더링 검증 |
 | [유료 출시 계획](plans/2026-09-27-paid-launch.md) | 도메인 없이 진행할 계정·Supabase·구매 권한·시안과 운영 전환 순서 |
 | [계정·구매 기반 1차 검증](validation/2026-09-27-paid-foundation.md) | 로그인·구매 시안, Supabase RLS·이벤트 처리, C# 클라이언트와 391개 Release 검사 |
+| [Supabase 공개키 연결 검사](validation/2026-09-28-supabase-connection.md) | 실제 Auth 응답, Google 비활성·상품/함수 준비 상태와 다음 서버 설정 |
 | [Supabase 연결 안내](../supabase/README.md) | 로컬 설정·테스트, 서버 API·앱 계약과 실제 연결 전 조건 |
 | [개발 계획](development-plan.md) | 구현 단계, 완료 조건과 후속 범위 |
 | [설정 탭 UI 개편 계획](plans/2026-09-18-settings-ui-redesign.md) | UI 우선·UX 후속 순서, 드롭다운·텍스트 위계·간격·레이아웃 검수와 구현 기준 |

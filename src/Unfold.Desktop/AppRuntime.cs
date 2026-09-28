@@ -56,6 +56,9 @@ public sealed class AppRuntime : IDisposable
     private TrayIcon? tray;
     private NativeMenuItem? trayStatus, trayPause, trayPet, trayFocusReminder;
     private SettingsWindow? settingsWindow;
+    private AccountWindow? accountWindow;
+    internal AccountScreenContent AccountContent { get; } = AccountScreenContent.Load();
+    private readonly string accountWelcomeFile = Path.Combine(AppPaths.DataRoot, "account-welcome-seen");
     private EditorWindow? editor;
     private PetWindow? pet;
     private readonly ReminderSoundPlayer soundPlayer = new();
@@ -122,7 +125,11 @@ public sealed class AppRuntime : IDisposable
     {
         DiagnosticMode = diagnostic;
         settingsWindow = new(this); desktop.MainWindow = settingsWindow;
-        instanceActivation = new SingleInstance(ShowSettings);
+        instanceActivation = new SingleInstance(() =>
+        {
+            if (accountWindow is { IsVisible: true }) { accountWindow.WindowState = WindowState.Normal; accountWindow.Activate(); }
+            else ShowSettings();
+        });
         if (diagnostic) PrepareDiagnosticWindow(settingsWindow);
         try
         {
@@ -134,7 +141,11 @@ public sealed class AppRuntime : IDisposable
             });
             await Reload(); BuildTray(); timer.Start(); Clock.Start(monotonic.Elapsed);
             await UpdatePet();
-            if (!background) ShowSettings();
+            if (!background)
+            {
+                if (!diagnostic && !File.Exists(accountWelcomeFile)) ShowAccount();
+                else ShowSettings();
+            }
         }
         catch (Exception error) { if (diagnostic) throw; ShowSettings(); await Ui.Error(settingsWindow, error); }
     }
@@ -192,6 +203,24 @@ public sealed class AppRuntime : IDisposable
     public void Reset() { CancelReminder(); Clock.Reset(monotonic.Elapsed); Changed?.Invoke(); }
     private void CancelReminder() { reminderGeneration++; Reminder.Cancel(); RefreshPetNotice(); }
     public void ShowSettings() { if (settingsWindow is null) return; settingsWindow.Show(); settingsWindow.ResumePreview(); settingsWindow.WindowState = WindowState.Normal; if (!DiagnosticMode) settingsWindow.Activate(); }
+    public void ShowAccount()
+    {
+        if (disposed) return;
+        if (accountWindow is not null) { accountWindow.WindowState = WindowState.Normal; accountWindow.Activate(); return; }
+        var window = new AccountWindow(new(AccountContent, new DesktopAccountService(AccountContent)));
+        accountWindow = window;
+        window.Closed += (_, _) =>
+        {
+            accountWindow = null;
+            if (disposed || quitting) return;
+            // This records only dismissal of a welcome screen, never authentication or purchase.
+            try { File.WriteAllText(accountWelcomeFile, "1"); }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException) { AppPaths.Log(error); }
+            ShowSettings();
+        };
+        if (DiagnosticMode) PrepareDiagnosticWindow(window);
+        window.Show();
+    }
     internal void HideSettingsForDiagnostics() => settingsWindow?.HideToTray();
     public Task UpdateSettings(AppSettings value) => UpdateSettings(value, false);
     public Task HidePet() => UpdateSettings(Settings with { ShowPet = false }, true);
@@ -479,7 +508,7 @@ public sealed class AppRuntime : IDisposable
         }
         return Ui.Confirm(owner, title, message, choices);
     }
-    public void Dispose() { if (disposed) return; disposed = true; timer.Stop(); noticeExpiryTimer.Stop(); scheduledNoticeExpiry = null; settingsWindow?.Dispose(); instanceActivation?.Dispose(); instanceActivation = null; tray?.Dispose(); tray = null; pet?.ClosePet(); pet = null; soundPlayer.Dispose(); }
+    public void Dispose() { if (disposed) return; disposed = true; accountWindow?.Close(); timer.Stop(); noticeExpiryTimer.Stop(); scheduledNoticeExpiry = null; settingsWindow?.Dispose(); instanceActivation?.Dispose(); instanceActivation = null; tray?.Dispose(); tray = null; pet?.ClosePet(); pet = null; soundPlayer.Dispose(); }
     internal static void PrepareDiagnosticWindow(Window window)
     {
         // macOS can constrain an off-screen window down to 1x1 without explicit minimums.

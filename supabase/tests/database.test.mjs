@@ -1,6 +1,6 @@
 import { before, after, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import { PGlite } from '@electric-sql/pglite';
 
 const a = '11111111-1111-4111-8111-111111111111';
@@ -16,7 +16,9 @@ before(async () => {
     grant usage on schema public, auth to anon, authenticated, service_role;
     grant execute on function auth.uid() to anon, authenticated, service_role;
     insert into auth.users values ('${a}'), ('${b}');`);
-  await db.exec(await readFile(new URL('../migrations/202609270001_paid_app.sql', import.meta.url), 'utf8'));
+  for (const file of (await readdir(new URL('../migrations/', import.meta.url))).filter(file => file.endsWith('.sql')).sort()) {
+    await db.exec(await readFile(new URL(`../migrations/${file}`, import.meta.url), 'utf8'));
+  }
 });
 after(async () => { await db?.close(); });
 async function asRole(role, subject, operation) {

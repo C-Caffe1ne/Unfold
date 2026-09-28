@@ -33,7 +33,7 @@ public class AccountClientTests
             var body = JsonDocument.Parse(await request.Content!.ReadAsStringAsync(token)).RootElement;
             Assert.Equal("one-time-code", body.GetProperty("auth_code").GetString());
             verifier = body.GetProperty("code_verifier").GetString();
-            return Json(new { access_token = "private-access", refresh_token = "private-refresh", expires_in = 3600, user = new { id = UserId } });
+            return Json(new { access_token = "private-access", refresh_token = "private-refresh", expires_in = 3600, user = new { id = UserId, email = "person@example.test" } });
         });
         var attempt = client.BeginGoogleSignIn(Callback);
         var query = Query(attempt.AuthorizationUri);
@@ -41,10 +41,12 @@ public class AccountClientTests
         Assert.Equal(Callback.AbsoluteUri, query["redirect_to"]);
         var session = await client.CompleteGoogleSignInAsync(attempt, new(Callback + "?code=one-time-code"), TestContext.Current.CancellationToken);
         Assert.Equal(UserId, session.UserId);
+        Assert.Equal("person@example.test", session.Email);
         var expected = Convert.ToBase64String(SHA256.HashData(Encoding.ASCII.GetBytes(verifier!))).TrimEnd('=').Replace('+', '-').Replace('/', '_');
         Assert.Equal(expected, query["code_challenge"]);
         Assert.DoesNotContain(verifier!, attempt.AuthorizationUri.AbsoluteUri);
         Assert.DoesNotContain("private-", session.ToString());
+        Assert.DoesNotContain("person@", session.ToString());
         await Assert.ThrowsAsync<AccountException>(() => client.CompleteGoogleSignInAsync(attempt, new(Callback + "?code=one-time-code"), TestContext.Current.CancellationToken));
         Assert.Equal(1, calls);
         Assert.NotEqual(query["code_challenge"], Query(client.BeginGoogleSignIn(Callback).AuthorizationUri)["code_challenge"]);
@@ -116,6 +118,10 @@ public class AccountClientTests
         Assert.Equal(AccountFailure.InvalidResponse, (await Assert.ThrowsAsync<AccountException>(() => malformed.GetEntitlementAsync(Session, TestContext.Current.CancellationToken))).Failure);
         using var offline = Client((_, _) => throw new HttpRequestException("private-access"));
         Assert.Equal(AccountFailure.Unavailable, (await Assert.ThrowsAsync<AccountException>(() => offline.GetEntitlementAsync(Session, TestContext.Current.CancellationToken))).Failure);
+        using var disconnected = Client((_, _) => throw new IOException("private-provider-details"));
+        var unavailable = await Assert.ThrowsAsync<AccountException>(() => disconnected.GetEntitlementAsync(Session, TestContext.Current.CancellationToken));
+        Assert.Equal(AccountFailure.Unavailable, unavailable.Failure);
+        Assert.DoesNotContain("private-", unavailable.Message);
     }
 
     [Fact]

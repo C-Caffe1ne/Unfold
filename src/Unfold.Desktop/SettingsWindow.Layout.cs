@@ -236,7 +236,7 @@ public sealed partial class SettingsWindow
 
     private Control BuildPreferencesPage()
     {
-        preferencesSections = Ui.Column(BuildNotificationSettingsCard(), BuildTimerSettingsCard(), BuildAppBehaviorCard(), BuildDebugSettingsCard());
+        preferencesSections = Ui.Column(BuildNotificationSettingsCard(), BuildTimerSettingsCard(), BuildAppBehaviorCard(), BuildAccountCard(), BuildDebugSettingsCard());
         preferencesSections.Name = "SettingsPreferencesSections"; preferencesSections.Spacing = Inset;
         var body = Ui.CenteredBody(preferencesSections, SettingsContentWidth, "SettingsPreferencesBody");
         var scroll = Ui.PageBodyScroll(body); scroll.Name = "SettingsPreferencesScroll";
@@ -258,6 +258,16 @@ public sealed partial class SettingsWindow
         var body = Ui.Column(SettingsHeading("앱 동작"), options);
         body.Spacing = Inset; body.Margin = new(Inset);
         return Card("SettingsAppBehaviorCard", body, Surface, new(28));
+    }
+
+    private Border BuildAccountCard()
+    {
+        var copy = runtime.AccountContent.Copy;
+        var open = Ui.Button(copy.AccountButton, runtime.ShowAccount);
+        open.Name = "OpenAccount"; open.HorizontalAlignment = HorizontalAlignment.Right;
+        var body = new Grid { ColumnDefinitions = new("*,Auto"), Margin = new(Inset) };
+        body.Children.Add(SettingsHeading(copy.AccountSection)); Grid.SetColumn(open, 1); body.Children.Add(open);
+        return Card("SettingsAccountCard", body, Surface, new(28));
     }
 
     private void ShowPage(string key, Control page)

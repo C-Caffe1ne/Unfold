@@ -34,3 +34,10 @@ skip_nonce_check = false
 
 [functions.get-entitlement]
 verify_jwt = true
+
+[functions.create-checkout]
+verify_jwt = true
+
+# Lemon Squeezy authenticates with HMAC, not a Supabase user JWT.
+[functions.lemon-webhook]
+verify_jwt = false

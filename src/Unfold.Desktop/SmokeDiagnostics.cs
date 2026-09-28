@@ -29,6 +29,7 @@ internal static class SmokeDiagnostics
             Capture(desktop.MainWindow!, Path.Combine(directory, "settings.png"));
             Capture(runtime.ActivePet, Path.Combine(directory, "pet.png"));
             var settings = desktop.MainWindow!;
+            var accountScreen = await VerifyAccountScreen(runtime, desktop, directory);
             var settingsLayout = await VerifySettingsLayout(settings, directory);
             await VerifyResponsiveLayout(settings, directory);
             await VerifyActionConfirmations(runtime, settings, directory);
@@ -234,7 +235,7 @@ internal static class SmokeDiagnostics
                 soundRequestsVerified = true, hiddenPetNoticeVerified = true, stopWhileOpening,
                 petPackInstallUpdateRepairVerified = true, simulatedPackPicker = true, settingsLayout, weeklyReview, reviewLayout, themes,
                 customPetGifAuthoringVerified = true, petCardPreviewVerified = true,
-                sharedDesignDialogsVerified = true, pinnedPageActionsVerified = true,
+                sharedDesignDialogsVerified = true, pinnedPageActionsVerified = true, accountScreen,
                 responsiveMinimum = new { width = 640, height = 560, verified = true }, actionConfirmationCancelVerified = true,
                 idleSeconds = PlatformServices.IdleTime().TotalSeconds, os = Environment.OSVersion.ToString(), framework = Environment.Version.ToString() };
             AtomicFile.Write(Path.Combine(directory, "smoke.json"), JsonSerializer.SerializeToUtf8Bytes(report, CharacterLibrary.JsonOptions));
@@ -245,6 +246,28 @@ internal static class SmokeDiagnostics
             AtomicFile.Write(Path.Combine(directory, "smoke.json"), JsonSerializer.SerializeToUtf8Bytes(new { success = false, error = error.ToString() }, CharacterLibrary.JsonOptions));
             AppPaths.Log(error); runtime.Dispose(); desktop.Shutdown(1);
         }
+    }
+    private static async Task<object> VerifyAccountScreen(AppRuntime runtime, IClassicDesktopStyleApplicationLifetime desktop, string directory)
+    {
+        runtime.ShowAccount();
+        var window = desktop.Windows.OfType<AccountWindow>().Single();
+        runtime.ShowAccount();
+        if (desktop.Windows.OfType<AccountWindow>().Count() != 1) throw new InvalidOperationException("Duplicate account windows.");
+        await Task.Delay(100); window.UpdateLayout();
+        if (window.FindControl<TextBlock>("AccountHeading")!.Text != runtime.AccountContent.Copy.WelcomeTitle
+            || window.FindControl<Image>("AccountCompanion")!.Source is null)
+            throw new InvalidOperationException("Account presentation did not load its content/assets.");
+        Capture(window, Path.Combine(directory, "account-login.png"));
+        window.MinWidth = 640; window.MinHeight = 560; window.Width = 640; window.Height = 560;
+        await Task.Delay(100); window.UpdateLayout();
+        var scroll = window.FindControl<ScrollViewer>("AccountFormScroll")!;
+        if (scroll.Extent.Width > scroll.Viewport.Width + 1) throw new InvalidOperationException("Account form overflows horizontally.");
+        Capture(window, Path.Combine(directory, "account-login-minimum.png"));
+        Press(window, "AccountOpenApp");
+        if (window.IsVisible || desktop.MainWindow?.IsVisible != true || !File.Exists(Path.Combine(AppPaths.DataRoot, "account-welcome-seen")))
+            throw new InvalidOperationException("Opening the local app from welcome did not persist dismissal.");
+        return new { contentLoaded = true, dismissToApp = true, duplicatePrevented = true, noHorizontalOverflow = true,
+            authenticationPerformed = false, paymentPerformed = false };
     }
     private static void VerifySpeechBubble(PetWindow window, string expectedTitle, double expectedHeight, params string[] forbiddenBodyText)
     {
