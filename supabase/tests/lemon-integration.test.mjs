@@ -19,7 +19,9 @@ before(async () => {
     await db.exec(await readFile(new URL(`../migrations/${file}`, import.meta.url), 'utf8'));
   }
   await db.query(`insert into public.lemon_prices(price_id,environment,store_id,variant_id,product_id,checkout_host)
-    values ('unfold-kr','test','10','20','30',$1),('unfold-global','test','11','21','31',$1)`, [checkoutHost]);
+    values ('unfold-kr','test','10','20','30',$1),('unfold-global','test','11','21','31',$1)
+    on conflict (price_id,environment) do update set store_id=excluded.store_id,variant_id=excluded.variant_id,
+      product_id=excluded.product_id,checkout_host=excluded.checkout_host`, [checkoutHost]);
 });
 after(async () => db?.close());
 const query = (sql, args) => db.query(sql, args);

@@ -2,8 +2,8 @@
 
 무료 다운로드, 무료 체험 없음, KRW 4,900 / USD 3.99 일회성 구매를 위한 서버 기반이다.
 2026-09-28에 결제 공급자를 Lemon Squeezy로 전환했다. 가격은 **세금 별도**이며,
-Supabase 테스트 프로젝트에는 스키마와 인증 필수 `create-checkout` 함수만 배포했다.
-Lemon Squeezy 상품 매핑과 비밀키가 없으므로 결제 생성은 계속 비활성화돼 있다.
+Supabase 테스트 프로젝트에는 한국 상품 매핑과 인증 필수 `create-checkout`, 서명 필수
+`lemon-webhook`을 배포했다. 한국 Test mode Checkout만 활성화돼 있고 Global은 아직 사용할 수 없다.
 [전환 구현·검증](../docs/validation/2026-09-28-lemon-squeezy-transition.md).
 
 ## 구현한 범위
@@ -17,8 +17,10 @@ Lemon Squeezy 상품 매핑과 비밀키가 없으므로 결제 생성은 계속
   요청이 지정한 사용자나 테스트/운영 구분을 신뢰하지 않는다.
 - `create-checkout` Edge Function: 테스트 Variant를 확인한 뒤 30분짜리 호스팅 결제 URL을 생성한다.
   할인·체험·수량 변경·클라이언트 금액을 허용하지 않는다.
-- `lemon-webhook` 소스: 원문 HMAC SHA-256 서명, 주문·상품·통화·원금·세금 모드를 확인하고
-  결제와 누적 환불을 원자적으로 권한에 반영한다. 비밀키 등록 전에는 배포하지 않는다.
+- `lemon-webhook`: 원문 HMAC SHA-256 서명, 주문·상품·통화·원금·세금 모드를 확인하고
+  결제와 누적 환불을 원자적으로 권한에 반영한다.
+- Lemon API의 KRW 정수 금액과 내부 원 단위를 서버 경계에서 변환한다. DB 가격은 4,900,
+  Lemon API `custom_price`와 웹훅 금액은 490,000으로 검증한다.
 - Node 테스트: PGlite의 실제 PostgreSQL SQL/RLS/함수 실행과 HTTP 핸들러 검사.
 
 `apply_verified_payment`는 공개 웹훅이 아니라 검증 완료 후 서버 어댑터만 호출하는 내부 RPC다.
@@ -51,28 +53,24 @@ Supabase 전체 스택, PostgREST 실제 연결, JWT 게이트웨이, 운영 동
 | Supabase Auth에 허용할 앱 반환 URL | `http://127.0.0.1:43821/auth/callback` |
 | 앱 공개키 | 로컬 `.env.client`에 저장. 공유 예시는 `client.env.example` 사용 |
 
-원격에는 `202609280002`, `202609280003` Lemon Squeezy 마이그레이션과 `create-checkout` 버전 2가 적용됐다.
-`lemon_prices` 매핑은 0건, 공개 판매 가격은 모두 비활성이다. RLS가 켜져 있고 `anon`과
+원격에는 `202609280002`~`202609280004` Lemon Squeezy 마이그레이션과 `create-checkout` 버전 7,
+`lemon-webhook` 버전 3이 적용됐다. `lemon_prices`에는 한국 매핑 1건만 있으며 Global 매핑은 없다.
+공개 판매 가격의 `live_enabled`는 모두 false다. RLS가 켜져 있고 `anon`과
 `authenticated`는 예약·결제 반영 RPC를 실행할 수 없다. 인증 없는 결제 생성 요청은 HTTP 401이다.
 아래 설정값은 개발 테스트용이다.
 공개키는 앱용이며, Secret key와 `service_role` 키는 앱·웹 설정에 넣지 않는다.
 [공개키 확인 안내](https://supabase.com/docs/guides/getting-started/api-keys).
 
-### Lemon Squeezy 연결에 필요한 사용자 작업
+### Lemon Squeezy 테스트 연결 상태
 
-1. Test mode에서 원화 스토어와 USD 스토어를 준비한다. 한 스토어는 하나의 스토어 통화를 사용하므로
-   국내 4,900원과 해외 US$3.99를 고정하려면 각각의 Store/Product/Variant가 필요하다.
-2. 각 Product를 **Single payment**, 무료 체험 없음, Pay what you want 꺼짐으로 설정한다.
-3. 두 스토어의 General Settings에서 tax-inclusive pricing을 꺼 세금을 별도 부과한다.
-4. Store ID, Product ID, Variant ID, 결제 호스트를 전달한다. 비밀이 아닌 식별자만 전달하면 된다.
-5. Lemon Squeezy 테스트 API 키와 웹훅 서명 Secret은 Supabase Secrets에 직접 등록한다.
-   Secret 이름은 `LEMONSQUEEZY_TEST_API_KEY`, `LEMONSQUEEZY_WEBHOOK_SECRET`이다.
-6. 웹훅 URL을 `https://xrelgkdawkogrwxmwkcx.supabase.co/functions/v1/lemon-webhook`으로 만들고
-   `order_created`, `order_refunded` 이벤트를 선택한다.
+한국 Store `485125`, Product `1393777`, Variant `2176689`, Host
+`dokhustudio.lemonsqueezy.com`을 서버 카탈로그에 등록했다. 실제 Lemon API 미리보기는 `₩4,900`,
+할인 0, Test mode로 생성됐다. `UNFOLD_CHECKOUT_ENABLED=true`이지만 한국 매핑만 있으므로
+`market=GLOBAL` 요청은 `checkout_not_ready`로 실패한다. Product는 아직 Test mode `draft`다.
 
-식별자를 확인한 뒤 관리자가 `public.lemon_prices`에 KR/Global 두 매핑을 넣고 `lemon-webhook`을
-배포한다. 테스트 구매·부분/전체 환불·재전송이 모두 통과하기 전에는
-`UNFOLD_CHECKOUT_ENABLED`와 `prices.live_enabled`를 켜지 않는다.
+테스트 API 키와 웹훅 Secret은 Supabase Secrets에 있고, 웹훅은
+`https://xrelgkdawkogrwxmwkcx.supabase.co/functions/v1/lemon-webhook`에서
+`order_created`, `order_refunded`를 받는다. Secret 값은 앱·문서·Git에 저장하지 않는다.
 
 현재 원격 `paddle-webhook` 함수는 제거됐다. Paddle Dashboard의 기존 알림 목적지는 비활성화해
 실패 재전송을 막는다. Lemon 테스트 검증이 끝나면 Supabase에 남겨 둔 Paddle API Secret과
@@ -128,7 +126,8 @@ supabase functions serve get-entitlement --env-file supabase/.env
 - 사용자 access token과 Supabase 공개키가 필요하다.
 - 본문은 `{"market":"KR|GLOBAL","request_id":"UUID"}`만 허용한다.
 - 응답의 `checkout_url`은 검증된 Lemon Squeezy 호스팅 결제 주소다.
-- 현재는 비활성 상태이므로 인증된 요청도 `503 checkout_not_ready`를 반환한다.
+- 한국 매핑은 활성화돼 있다. Global은 매핑이 없어 `503 checkout_not_ready`를 반환한다.
+- 현재 Avalonia 구매 버튼은 이 API를 아직 호출하지 않는다.
 
 `POST /functions/v1/lemon-webhook`
 

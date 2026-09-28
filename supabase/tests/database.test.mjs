@@ -42,6 +42,15 @@ test('catalog has exact prices and live checkout is disabled', async () => {
   await assert.rejects(create(a, 'unfold-kr', 'toss', 'live'), /Live checkout is not configured/);
 });
 
+test('Lemon Squeezy test catalog is configured for Korea only', async () => {
+  const rows = (await db.query(`select price_id,environment,store_id,variant_id,product_id,checkout_host
+    from public.lemon_prices order by price_id`)).rows;
+  assert.deepEqual(rows, [{
+    price_id: 'unfold-kr', environment: 'test', store_id: '485125', variant_id: '2176689',
+    product_id: '1393777', checkout_host: 'dokhustudio.lemonsqueezy.com',
+  }]);
+});
+
 test('users cannot write orders, prices or entitlements, call trusted functions, or read event receipts', async () => {
   for (const role of ['anon', 'authenticated']) {
     for (const sql of [

@@ -2,6 +2,8 @@ export const apiKey = 'ls_test_api_key_not_a_real_secret';
 export const webhookSecret = 'lemon-test-webhook-secret';
 export const now = 1790575200000;
 export const checkoutHost = 'unfold-test.lemonsqueezy.com';
+const scale = currency => currency === 'KRW' ? 100 : 1;
+const providerAmount = (order, amount) => amount * scale(order.currency);
 export function variant(order) {
   return { data: { type: 'variants', id: order.provider_price_id, attributes: {
     product_id: Number(order.provider_product_id), status: 'published', test_mode: true,
@@ -12,9 +14,9 @@ export function checkout(order, number = 1, tax = order.currency === 'KRW' ? 490
   const id = `00000000-0000-4000-8000-${String(number).padStart(12, '0')}`;
   return { data: { type: 'checkouts', id, attributes: {
     store_id: Number(order.provider_store_id), variant_id: Number(order.provider_price_id),
-    custom_price: order.amount_minor, test_mode: true,
-    preview: { currency: order.currency, subtotal: order.amount_minor, discount_total: 0,
-      tax, total: order.amount_minor + tax },
+    custom_price: providerAmount(order, order.amount_minor), test_mode: true,
+    preview: { currency: order.currency, subtotal: providerAmount(order, order.amount_minor), discount_total: 0,
+      tax: providerAmount(order, tax), total: providerAmount(order, order.amount_minor + tax) },
     expires_at: new Date(now + 30 * 60 * 1000).toISOString(),
     url: `https://${order.provider_checkout_host}/checkout/custom/${id}?expires=1790577000&signature=${'a'.repeat(64)}`,
   } } };
@@ -25,11 +27,13 @@ export function orderEvent(order, providerOrderId = 1, refundedAmount = 0, tax =
   const name = refundedAmount > 0 ? 'order_refunded' : 'order_created';
   return { meta: { event_name: name, custom_data: { source: 'unfold-server', order_id: order.id, environment: 'test' } },
     data: { type: 'orders', id: String(providerOrderId), attributes: {
-      store_id: Number(order.provider_store_id), currency: order.currency, subtotal: order.amount_minor,
-      discount_total: 0, tax, total, tax_inclusive: false, status: refunded ? 'refunded' : 'paid',
-      refunded, refunded_amount: refundedAmount, test_mode: true,
+      store_id: Number(order.provider_store_id), currency: order.currency,
+      subtotal: providerAmount(order, order.amount_minor), discount_total: 0,
+      tax: providerAmount(order, tax), total: providerAmount(order, total), tax_inclusive: false,
+      status: refunded ? 'refunded' : 'paid', refunded,
+      refunded_amount: providerAmount(order, refundedAmount), test_mode: true,
       first_order_item: { product_id: Number(order.provider_product_id), variant_id: Number(order.provider_price_id),
-        price: order.amount_minor, test_mode: true },
+        price: providerAmount(order, order.amount_minor), test_mode: true },
     } } };
 }
 export async function signature(raw, secret = webhookSecret) {

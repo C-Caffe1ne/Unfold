@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createCheckoutHandler } from '../functions/_shared/checkout.mjs';
 import { createLemonClient, validateVariant, validateCheckout, checkoutLink } from '../functions/_shared/lemon.mjs';
+import { fromLemonAmount, toLemonAmount } from '../functions/_shared/lemon-money.mjs';
 import { createPaymentStore, supabasePublicKey, supabaseServerKey } from '../functions/_shared/payment-store.mjs';
 import { createLemonWebhookHandler } from '../functions/_shared/lemon-webhook.mjs';
 import { apiKey, webhookSecret, now, checkoutHost, variant, checkout, orderEvent, signature, webhookRequest, checkoutRequest } from './fixtures/lemon.mjs';
@@ -56,7 +57,7 @@ test('Lemon adapter uses server mappings, one-time quantity and no customer iden
   await client.create(order);
   assert.equal(calls[0][0].origin, 'https://api.lemonsqueezy.com');
   const body = JSON.parse(calls[0][1].body).data.attributes;
-  assert.equal(body.custom_price, 4900);
+  assert.equal(body.custom_price, 490000);
   assert.deepEqual(body.checkout_data.variant_quantities, [{ variant_id: 20, quantity: 1 }]);
   assert.equal(body.checkout_options.discount, false);
   assert.equal(body.checkout_options.skip_trial, true);
@@ -64,6 +65,15 @@ test('Lemon adapter uses server mappings, one-time quantity and no customer iden
   assert.equal(body.checkout_data.email, undefined);
   assert.throws(() => createLemonClient({ apiKey: 'short', environment: 'test' }));
   assert.throws(() => createLemonClient({ apiKey, environment: 'live' }));
+});
+
+test('Lemon money units preserve won and dollar prices', () => {
+  assert.equal(toLemonAmount('KRW', 4900), 490000);
+  assert.equal(fromLemonAmount('KRW', 490000), 4900);
+  assert.equal(toLemonAmount('USD', 399), 399);
+  assert.equal(fromLemonAmount('USD', 399), 399);
+  assert.throws(() => fromLemonAmount('KRW', 490001));
+  assert.throws(() => toLemonAmount('EUR', 399));
 });
 
 test('webhook HMAC verifies raw bytes and rejects tampering before DB access', async () => {

@@ -1,4 +1,5 @@
 import { PaymentError, requirePayment, positiveId, integerMinor, boundedBytes, safeFailure, sandboxOnly, uuidPattern } from './payment-http.mjs';
+import { fromLemonAmount, toLemonAmount } from './lemon-money.mjs';
 
 export async function verifyLemonSignature(bytes, signature, secret) {
   requirePayment(typeof signature === 'string' && /^[a-f0-9]{64}$/i.test(signature), 'invalid_signature', 401);
@@ -12,24 +13,32 @@ function fact(event, order) {
   const data = event.data;
   const value = data?.attributes;
   const item = value?.first_order_item;
+  const providerSubtotal = integerMinor(value?.subtotal);
+  const providerTax = integerMinor(value?.tax);
+  const providerTotal = integerMinor(value?.total);
+  const providerRefunded = integerMinor(value?.refunded_amount ?? 0);
+  const expectedSubtotal = toLemonAmount(order.currency, order.amount_minor);
   requirePayment(data?.type === 'orders' && positiveId(data.id) && value && typeof value === 'object'
     && value.test_mode === true && String(value.store_id) === order.provider_store_id
     && item?.test_mode === true && String(item.product_id) === order.provider_product_id
     && String(item.variant_id) === order.provider_price_id
     && value.currency === order.currency && value.tax_inclusive === false
-    && integerMinor(value.subtotal) === order.amount_minor && integerMinor(value.discount_total) === 0
-    && integerMinor(value.tax) >= 0 && integerMinor(value.total) === value.subtotal + value.tax);
+    && providerSubtotal === expectedSubtotal && integerMinor(value.discount_total) === 0
+    && providerTotal === providerSubtotal + providerTax);
+  const subtotal = fromLemonAmount(order.currency, providerSubtotal);
+  const tax = fromLemonAmount(order.currency, providerTax);
+  const total = fromLemonAmount(order.currency, providerTotal);
+  const refundedTotal = fromLemonAmount(order.currency, providerRefunded);
   if (name === 'order_created') {
-    requirePayment(value.status === 'paid' && !value.refunded && (value.refunded_amount == null || value.refunded_amount === 0));
+    requirePayment(value.status === 'paid' && !value.refunded && providerRefunded === 0);
     return { key: `order_created:${data.id}`, providerOrderId: data.id, kind: 'paid',
-      subtotal: value.subtotal, tax: value.tax, total: value.total, refundedTotal: 0 };
+      subtotal, tax, total, refundedTotal: 0 };
   }
   requirePayment(name === 'order_refunded' && ['paid', 'refunded'].includes(value.status));
-  const refundedTotal = integerMinor(value.refunded_amount);
-  requirePayment(refundedTotal > 0 && refundedTotal <= value.total
-    && (value.refunded === true) === (refundedTotal === value.total));
+  requirePayment(providerRefunded > 0 && providerRefunded <= providerTotal
+    && (value.refunded === true) === (providerRefunded === providerTotal));
   return { key: `order_refunded:${data.id}:${refundedTotal}`, providerOrderId: data.id, kind: 'refund',
-    subtotal: value.subtotal, tax: value.tax, total: value.total, refundedTotal };
+    subtotal, tax, total, refundedTotal };
 }
 
 export function createLemonWebhookHandler({ store, secret, environment }) {

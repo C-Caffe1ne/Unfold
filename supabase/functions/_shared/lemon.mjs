@@ -1,4 +1,5 @@
 import { PaymentError, requirePayment, positiveId, uuidPattern, integerMinor, readJson, sandboxOnly } from './payment-http.mjs';
+import { toLemonAmount } from './lemon-money.mjs';
 
 function jsonApi(result, type) {
   requirePayment(result?.data?.type === type && result.data.attributes && typeof result.data.attributes === 'object',
@@ -19,10 +20,11 @@ export function validateCheckout(result, order, now = Date.now()) {
   const data = jsonApi(result, 'checkouts');
   const value = data.attributes;
   const preview = value.preview;
+  const providerAmount = toLemonAmount(order.currency, order.amount_minor);
   requirePayment(uuidPattern.test(data.id) && String(value.store_id) === order.provider_store_id
-    && String(value.variant_id) === order.provider_price_id && value.custom_price === order.amount_minor
+    && String(value.variant_id) === order.provider_price_id && value.custom_price === providerAmount
     && value.test_mode === true && preview?.currency === order.currency
-    && integerMinor(preview.subtotal) === order.amount_minor && integerMinor(preview.discount_total) === 0
+    && integerMinor(preview.subtotal) === providerAmount && integerMinor(preview.discount_total) === 0
     && integerMinor(preview.tax) >= 0 && integerMinor(preview.total) === preview.subtotal + preview.tax);
   if (value.expires_at != null) requirePayment(Number.isFinite(Date.parse(value.expires_at)) && Date.parse(value.expires_at) > now,
     'checkout_closed', 409);
@@ -59,7 +61,7 @@ export function createLemonClient({ environment, apiKey, fetcher = fetch, now = 
     create(order) {
       requirePayment(positiveId(order.provider_store_id) && positiveId(order.provider_price_id));
       return call('/v1/checkouts', 'POST', { data: { type: 'checkouts', attributes: {
-        custom_price: order.amount_minor,
+        custom_price: toLemonAmount(order.currency, order.amount_minor),
         product_options: { enabled_variants: [Number(order.provider_price_id)] },
         checkout_options: { embed: false, discount: false, skip_trial: true },
         checkout_data: { custom: { source: 'unfold-server', order_id: order.id, environment: 'test' },
