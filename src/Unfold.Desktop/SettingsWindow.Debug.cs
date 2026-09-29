@@ -11,6 +11,7 @@ public sealed partial class SettingsWindow
     private readonly TextBlock debugPreviewStatus = new() { Name = "DebugPreviewStatus", FontSize = DesignSystem.Caption,
         Foreground = DesignSystem.Muted, TextWrapping = Avalonia.Media.TextWrapping.Wrap };
     private StackPanel? debugToolsBody;
+    private Border? debugSettingsCard;
 
     private Border BuildDebugSettingsCard()
     {
@@ -51,13 +52,22 @@ public sealed partial class SettingsWindow
         debugToolsBody = Ui.Column(actions, debugPreviewStatus); debugToolsBody.Spacing = DesignSystem.Space;
         var body = Ui.Column(SettingsHeading("디버그 도구"), debugToolsEnabled, debugToolsBody);
         body.Spacing = DesignSystem.Inset; body.Margin = new(DesignSystem.Inset);
+        debugSettingsCard = Card("SettingsDebugToolsCard", body, DesignSystem.Surface, new(28));
         RefreshDebugToolsVisibility();
-        return Card("SettingsDebugToolsCard", body, DesignSystem.Surface, new(28));
+        return debugSettingsCard;
     }
 
     private void RefreshDebugToolsVisibility()
     {
-        if (debugToolsBody is not null) debugToolsBody.IsVisible = debugToolsEnabled.IsChecked == true;
+        if (!runtime.CanUseDebugTools && debugToolsEnabled.IsChecked == true)
+        {
+            var wasRestoring = restoringPreferences;
+            restoringPreferences = true;
+            debugToolsEnabled.IsChecked = false;
+            restoringPreferences = wasRestoring;
+        }
+        if (debugSettingsCard is not null) debugSettingsCard.IsVisible = runtime.CanUseDebugTools;
+        if (debugToolsBody is not null) debugToolsBody.IsVisible = runtime.CanUseDebugTools && debugToolsEnabled.IsChecked == true;
     }
 
     private void RefreshDebugPreviewStatus()

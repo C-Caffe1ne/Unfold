@@ -36,6 +36,14 @@ export function createSupabaseReader({ url, publicKey, allowLocalGateway = false
       }
       return rows[0]?.status ?? 'unowned';
     },
+    async role(token, userId) {
+      const query = new URLSearchParams({ select: 'role', user_id: `eq.${userId}`, limit: '2' });
+      const rows = await read(`/rest/v1/account_roles?${query}`, token);
+      if (!Array.isArray(rows) || rows.length > 1 || (rows.length && rows[0]?.role !== 'admin')) {
+        throw new ServiceError('service_unavailable', 503);
+      }
+      return rows.length === 1 ? 'admin' : 'member';
+    },
   };
 }
 
@@ -59,7 +67,8 @@ export function createEntitlementHandler({ reader, environment, allowedOrigins =
     try {
       const userId = await reader.user(token);
       const status = await reader.entitlement(token, userId, environment);
-      return reply(200, { schema_version: 1, user_id: userId, product_id: 'unfold', environment, status });
+      const role = await reader.role(token, userId);
+      return reply(200, { schema_version: 1, user_id: userId, product_id: 'unfold', environment, status, role });
     } catch (error) {
       // Never return provider errors, tokens or payloads to a caller or logs.
       return reply(error instanceof ServiceError ? error.status : 503,

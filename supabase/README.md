@@ -14,13 +14,16 @@ Supabase 테스트 프로젝트에는 한국 상품 매핑과 인증 필수 `cre
 - 서버 전용 `apply_verified_payment`: 원자적 반영, 중복 처리, 위조 금액/통화/환경 거절,
   환불 뒤 늦은 결제 이벤트 차단, 다른 유효 주문 보존. **전체 환불**만 다룬다.
 - `get-entitlement` Edge Function: Supabase Auth로 사용자 검증 후 같은 토큰의 RLS를 적용해 조회.
-  요청이 지정한 사용자나 테스트/운영 구분을 신뢰하지 않는다.
+  요청이 지정한 사용자나 테스트/운영 구분을 신뢰하지 않는다. 서버 관리 `account_roles`에서
+  본인 역할만 함께 읽으며, 역할이 없으면 일반 사용자로 처리한다.
 - `create-checkout` Edge Function: 테스트 Variant를 확인한 뒤 30분짜리 호스팅 결제 URL을 생성한다.
   할인·체험·수량 변경·클라이언트 금액을 허용하지 않는다.
 - `lemon-webhook`: 원문 HMAC SHA-256 서명, 주문·상품·통화·원금·세금 모드를 확인하고
   결제와 누적 환불을 원자적으로 권한에 반영한다.
-- Lemon API의 KRW 정수 금액과 내부 원 단위를 서버 경계에서 변환한다. DB 가격은 4,900,
-  Lemon API `custom_price`와 웹훅 금액은 490,000으로 검증한다.
+- Lemon API의 KRW 금액과 내부 원 단위를 서버 경계에서 변환한다. DB 가격은 4,900이고
+  Lemon API `custom_price` 및 주문 항목 계약가는 490,000으로 검증한다. Lemon은 표시 통화를
+  USD로 처리하면서 실제 주문 subtotal·tax·total에 환율 소수값을 반환할 수 있으므로, 서명된
+  주문 합계는 계약가와 분리해 소수 단위까지 저장한다.
 - Node 테스트: PGlite의 실제 PostgreSQL SQL/RLS/함수 실행과 HTTP 핸들러 검사.
 
 `apply_verified_payment`는 공개 웹훅이 아니라 검증 완료 후 서버 어댑터만 호출하는 내부 RPC다.
@@ -53,8 +56,10 @@ Supabase 전체 스택, PostgREST 실제 연결, JWT 게이트웨이, 운영 동
 | Supabase Auth에 허용할 앱 반환 URL | `http://127.0.0.1:43821/auth/callback` |
 | 앱 공개키 | 로컬 `.env.client`에 저장. 공유 예시는 `client.env.example` 사용 |
 
-원격에는 `202609280002`~`202609280004` Lemon Squeezy 마이그레이션과 `create-checkout` 버전 27,
-`get-entitlement` 버전 10, `lemon-webhook` 버전 9가 적용됐다. `lemon_prices`에는 한국 매핑 1건만 있으며 Global 매핑은 없다.
+원격에는 `202609280002`~`202609290004` 마이그레이션과 `create-checkout` 버전 27,
+`get-entitlement` 버전 11, `lemon-webhook` 버전 11이 적용됐다. 개인·회사 관리자 Auth 사용자 ID
+두 개는 `account_roles`에 할당됐으며 후속 검증 마이그레이션이 두 행의 존재를 확인했다.
+`lemon_prices`에는 한국 매핑 1건만 있으며 Global 매핑은 없다.
 공개 판매 가격의 `live_enabled`는 모두 false다. RLS가 켜져 있고 `anon`과
 `authenticated`는 예약·결제 반영 RPC를 실행할 수 없다. 인증 없는 결제 생성 요청은 HTTP 401이다.
 아래 설정값은 개발 테스트용이다.
@@ -68,7 +73,8 @@ Supabase 전체 스택, PostgREST 실제 연결, JWT 게이트웨이, 운영 동
 할인 0, Test mode로 생성됐다. `UNFOLD_CHECKOUT_ENABLED=true`이지만 한국 매핑만 있으므로
 `market=GLOBAL` 요청은 `checkout_not_ready`로 실패한다. Product는 Test mode에서 게시됐고,
 실제 macOS 앱의 Google 로그인 사용자가 만든 API custom Checkout이 브라우저의 `₩4,900`
-Test mode 결제 폼으로 열리는 것까지 확인했다. 결제 제출과 웹훅 권한 반영은 아직 검증하지 않았다.
+Test mode 결제 폼으로 열리는 것을 확인했다. 승인된 실제 Test mode 주문을 웹훅으로 재전송해
+HTTP 200, 이벤트 저장, `active` 권한 반영, 같은 구매 사용자의 앱 메인 화면 진입까지 확인했다.
 
 공개 Share Checkout UUID는 `33a0b33e-7a8c-4022-9b79-2ab02113ede1`이다. 이 값은 수동 검증과
 공유 주소에만 쓰며 Lemon API Variant ID가 아니다. 런타임 카탈로그와 웹훅 검증은 숫자 Variant
@@ -127,11 +133,14 @@ supabase functions serve get-entitlement --env-file supabase/.env
   "user_id": "11111111-1111-4111-8111-111111111111",
   "product_id": "unfold",
   "environment": "test",
-  "status": "active"
+  "status": "active",
+  "role": "admin"
 }
 ```
 
-상태는 `active`, `unowned`, `revoked`. `401`은 재인증, `503`은 일시적 확인 실패다.
+상태는 `active`, `unowned`, `revoked`, 역할은 `member`, `admin`이다. 역할 행은 서비스 역할만
+추가·변경할 수 있고 로그인 사용자는 RLS로 자신의 행만 읽는다. 역할 행이 없으면 `member`다.
+`401`은 재인증, `503`은 일시적 확인 실패다.
 오류를 `unowned`로 바꾸지 않는다. 응답은 `Cache-Control: no-store`이고 오프라인 라이선스가 아니다.
 앱 클라이언트는 사용자·상품·환경·스키마를 다시 대조한다. 테스트 권한을 운영 권한으로 쓰지 않는다.
 
@@ -155,8 +164,12 @@ supabase functions serve get-entitlement --env-file supabase/.env
 
 - PKCE 인증 시도 생성, Google 인증 URL, 코드 교환, 세션 갱신, 구매 권한 조회.
 - 인증 시도 재사용/다른 콜백 차단, 토큰의 문자열 출력 방지, HTTP/응답 오류 구분.
-- Desktop에서 시스템 브라우저 실행과 IPv4 loopback 콜백을 연결했다. 실제 Google 계정 인증 완료는 별도 검증이 필요하다.
-- 세션은 계정 창이 열린 동안 메모리에만 둔다. macOS Keychain/Windows 자격 증명 저장소와 재실행 시 복원은 후속 작업이다.
+- Desktop에서 시스템 브라우저 실행과 IPv4 loopback 콜백을 연결했다. macOS에서 실제 Google 계정 인증,
+  Test 권한 조회와 메인 화면 진입을 확인했다.
+- 인증 토큰 세션은 계정 창이 열린 동안 메모리에만 둔다. macOS Keychain/Windows 자격 증명 저장소와 재실행 시 복원은 후속 작업이다.
+- 구매 확인이 끝난 뒤 토큰은 폐기하고 사용자 ID·이메일·검증된 역할만 앱 종료까지 메모리에 둔다.
+  디버그 설정 카드와 알림 미리보기 실행은 `admin` 역할에서만 허용한다. 로컬 `settings.json`의
+  `DebugToolsEnabled`를 직접 바꿔도 일반 계정에서는 저장·실행할 수 없다.
 
 사용자 결정에 따라 이번 단계에서는 앱 사용을 잠그지 않는다. 결제 연결·세션 보관·오프라인 정책을 갖춘 뒤 사용 잠금을 적용한다.
 계정 변경과 로그아웃에서 로컬 설정·휴식 기록·펫 파일을 삭제하지 않는다.
@@ -165,7 +178,7 @@ supabase functions serve get-entitlement --env-file supabase/.env
 ## 운영 전 조건
 
 - Lemon Squeezy 스토어 승인·국내외 통화 결제, 세금 별도 표시, 국가 판정, 기기 수·업데이트·오프라인 정책 확정.
-- 실제 Google 로그인, 결제·취소·환불·중복 알림·복원, PostgREST RLS와 테스트/운영 분리 검증.
+- Windows 실제 Google 로그인·결제 확인, 운영 주문·취소·환불·복원, 테스트/운영 분리 검증.
 - 결제 어댑터 구성 및 검증 후에만 필요한 가격의 `live_enabled`를 서버 관리자가 변경.
 - 분리된 운영 프로젝트, 비밀키 등록, 운영 OAuth URL·정책 페이지·서명된 설치 파일 검증.
 

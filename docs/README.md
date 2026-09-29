@@ -9,6 +9,8 @@
 | [프로젝트 README](../README.md) | 사용자 소개, 빠른 실행, 저장소 구조 |
 | [A안 계정 화면 편집](account-screen.md) | 최초 로그인·구매 화면의 JSON·XAML·테마 편집 위치와 현재 연결 범위 |
 | [Lemon Squeezy 전환 구현·검증](validation/2026-09-28-lemon-squeezy-transition.md) | 결제 생성·웹훅·누적 환불, Supabase 적용 상태와 사용자가 준비할 외부 설정 |
+| [Lemon 구매 승인 복구](validation/2026-09-29-lemon-purchase-recovery.md) | 환율 환산 주문의 422 원인, 웹훅·DB 수정과 원격 배포·재전송 경계 |
+| [관리자 전용 디버그 도구](validation/2026-09-29-admin-debug-tools.md) | Supabase 역할·앱 세션·설정 UI·직접 실행 차단과 배포 대기 항목 |
 | [Paddle 샌드박스 이력](validation/2026-09-28-paddle-onboarding.md) | 공급자 전환 전 수행한 샌드박스 검증 기록. 현재 결제 경로에서는 사용하지 않음 |
 | [v0.2.2 배포 검증](validation/2026-09-23-v0.2.2-distribution.md) | 최신 복구 수정 포함, macOS·Windows 배포 파일, 해시·버전·게시 앱 검사 |
 | [v0.2.2 변경 사항](releases/v0.2.2.md) | macOS 펫 표시, 호버 시계, 알림·미리보기·효과음 복구 |

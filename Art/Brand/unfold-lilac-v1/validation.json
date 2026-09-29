@@ -1,0 +1,441 @@
+{
+  "status": "pass",
+  "icns_encoder": "Pillow",
+  "native_iconutil_result": "unavailable or rejected iconset; used decoded Pillow container",
+  "scope": "Asset encoding, dimensions, transparency, SVG geometry, palette, manifest references and icon decoding",
+  "wordmark_reference_iou": 0.9987165613911468,
+  "checks": [
+    {
+      "file": "png/symbol/symbol-lilac-16.png",
+      "status": "pass",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "file": "png/app-icon/unfold-16.png",
+      "status": "pass",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "file": "png/symbol/symbol-lilac-24.png",
+      "status": "pass",
+      "size": [
+        24,
+        24
+      ]
+    },
+    {
+      "file": "png/app-icon/unfold-24.png",
+      "status": "pass",
+      "size": [
+        24,
+        24
+      ]
+    },
+    {
+      "file": "png/symbol/symbol-lilac-32.png",
+      "status": "pass",
+      "size": [
+        32,
+        32
+      ]
+    },
+    {
+      "file": "png/app-icon/unfold-32.png",
+      "status": "pass",
+      "size": [
+        32,
+        32
+      ]
+    },
+    {
+      "file": "png/symbol/symbol-lilac-48.png",
+      "status": "pass",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "file": "png/app-icon/unfold-48.png",
+      "status": "pass",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "file": "png/symbol/symbol-lilac-64.png",
+      "status": "pass",
+      "size": [
+        64,
+        64
+      ]
+    },
+    {
+      "file": "png/app-icon/unfold-64.png",
+      "status": "pass",
+      "size": [
+        64,
+        64
+      ]
+    },
+    {
+      "file": "png/symbol/symbol-lilac-96.png",
+      "status": "pass",
+      "size": [
+        96,
+        96
+      ]
+    },
+    {
+      "file": "png/app-icon/unfold-96.png",
+      "status": "pass",
+      "size": [
+        96,
+        96
+      ]
+    },
+    {
+      "file": "png/symbol/symbol-lilac-128.png",
+      "status": "pass",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "png/app-icon/unfold-128.png",
+      "status": "pass",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "png/symbol/symbol-lilac-192.png",
+      "status": "pass",
+      "size": [
+        192,
+        192
+      ]
+    },
+    {
+      "file": "png/app-icon/unfold-192.png",
+      "status": "pass",
+      "size": [
+        192,
+        192
+      ]
+    },
+    {
+      "file": "png/symbol/symbol-lilac-256.png",
+      "status": "pass",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "png/app-icon/unfold-256.png",
+      "status": "pass",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "png/symbol/symbol-lilac-512.png",
+      "status": "pass",
+      "size": [
+        512,
+        512
+      ]
+    },
+    {
+      "file": "png/app-icon/unfold-512.png",
+      "status": "pass",
+      "size": [
+        512,
+        512
+      ]
+    },
+    {
+      "file": "png/symbol/symbol-lilac-1024.png",
+      "status": "pass",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "png/app-icon/unfold-1024.png",
+      "status": "pass",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "png/logo/logo-lilac-320.png",
+      "status": "pass",
+      "size": [
+        320,
+        88
+      ]
+    },
+    {
+      "file": "png/logo/logo-light-320.png",
+      "status": "pass",
+      "size": [
+        320,
+        88
+      ]
+    },
+    {
+      "file": "png/logo/logo-lilac-640.png",
+      "status": "pass",
+      "size": [
+        640,
+        176
+      ]
+    },
+    {
+      "file": "png/logo/logo-light-640.png",
+      "status": "pass",
+      "size": [
+        640,
+        176
+      ]
+    },
+    {
+      "file": "png/logo/logo-lilac-1280.png",
+      "status": "pass",
+      "size": [
+        1280,
+        353
+      ]
+    },
+    {
+      "file": "png/logo/logo-light-1280.png",
+      "status": "pass",
+      "size": [
+        1280,
+        353
+      ]
+    },
+    {
+      "file": "png/logo/logo-lilac-2560.png",
+      "status": "pass",
+      "size": [
+        2560,
+        705
+      ]
+    },
+    {
+      "file": "png/logo/logo-light-2560.png",
+      "status": "pass",
+      "size": [
+        2560,
+        705
+      ]
+    },
+    {
+      "file": "web/favicon-16x16.png",
+      "status": "pass",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "file": "web/favicon-24x24.png",
+      "status": "pass",
+      "size": [
+        24,
+        24
+      ]
+    },
+    {
+      "file": "web/favicon-32x32.png",
+      "status": "pass",
+      "size": [
+        32,
+        32
+      ]
+    },
+    {
+      "file": "web/favicon-48x48.png",
+      "status": "pass",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "file": "web/favicon-64x64.png",
+      "status": "pass",
+      "size": [
+        64,
+        64
+      ]
+    },
+    {
+      "file": "web/favicon-128x128.png",
+      "status": "pass",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "web/favicon-256x256.png",
+      "status": "pass",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "web/apple-touch-icon.png",
+      "status": "pass",
+      "size": [
+        180,
+        180
+      ]
+    },
+    {
+      "file": "web/android-chrome-192x192.png",
+      "status": "pass",
+      "size": [
+        192,
+        192
+      ]
+    },
+    {
+      "file": "web/android-chrome-512x512.png",
+      "status": "pass",
+      "size": [
+        512,
+        512
+      ]
+    },
+    {
+      "file": "web/maskable-icon-512x512.png",
+      "status": "pass",
+      "size": [
+        512,
+        512
+      ]
+    },
+    {
+      "file": "preview.png",
+      "status": "pass",
+      "size": [
+        1600,
+        1050
+      ]
+    },
+    {
+      "file": "web/favicon.ico",
+      "status": "pass",
+      "frames": [
+        16,
+        24,
+        32,
+        48,
+        64,
+        128,
+        256
+      ]
+    },
+    {
+      "file": "desktop/unfold.ico",
+      "status": "pass",
+      "frames": [
+        16,
+        24,
+        32,
+        48,
+        64,
+        128,
+        256
+      ]
+    },
+    {
+      "file": "desktop/unfold.icns",
+      "status": "pass",
+      "representations": [
+        [
+          512,
+          512,
+          2
+        ],
+        [
+          512,
+          512,
+          1
+        ],
+        [
+          256,
+          256,
+          2
+        ],
+        [
+          256,
+          256,
+          1
+        ],
+        [
+          128,
+          128,
+          2
+        ],
+        [
+          128,
+          128,
+          1
+        ],
+        [
+          32,
+          32,
+          2
+        ],
+        [
+          16,
+          16,
+          2
+        ]
+      ]
+    },
+    {
+      "check": "SVG files contain real geometry, no embedded raster, scripts or external fonts",
+      "status": "pass"
+    },
+    {
+      "check": "Logo opaque pixels match the three Plum colors exactly",
+      "status": "pass"
+    },
+    {
+      "check": "Manifest dimensions and maskable center safe area",
+      "status": "pass",
+      "maximum_foreground_radius": 192.64604849308486,
+      "safe_radius": 204.8
+    },
+    {
+      "check": "Symbol, app icon and wordmark SVG geometry unchanged; all four logo alpha masks unchanged",
+      "status": "pass"
+    }
+  ],
+  "visual_review": "preview.png, logo-lilac-640.png and favicon-32x32.png inspected in this session",
+  "not_verified": [
+    "Installed Windows or macOS app icon behavior",
+    "Browser favicon cache and installed PWA behavior",
+    "Live website deployment"
+  ]
+}

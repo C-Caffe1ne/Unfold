@@ -44,7 +44,8 @@ export function createPaymentStore({ url, secretKey, allowLocalGateway = false, 
     apply(order, event, signal) {
       requirePayment(positiveId(event.providerOrderId));
       return rpc('apply_lemon_event', { p_order_id: order.id, p_event_key: event.key, p_provider_order_id: event.providerOrderId,
-        p_kind: event.kind, p_currency: order.currency, p_subtotal: event.subtotal, p_tax: event.tax,
+        p_kind: event.kind, p_currency: order.currency, p_item_price: event.itemPrice,
+        p_subtotal: event.subtotal, p_tax: event.tax,
         p_total: event.total, p_refunded_total: event.refundedTotal }, signal);
     },
   };

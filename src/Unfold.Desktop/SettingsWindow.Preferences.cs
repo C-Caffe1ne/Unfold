@@ -43,7 +43,7 @@ public sealed partial class SettingsWindow
             decimal.Truncate(number) == number && decimal.TryParse(input.Text, NumberStyles.Number, CultureInfo.CurrentCulture, out var text) && text == number;
         if (bubbleDirection.SelectedItem is not BubbleDirection direction || !ValidMinutes(idle) || !ValidMinutes(snooze)) return false;
         value = new(direction, soundsEnabled.IsChecked == true, (int)Math.Round(soundVolume.Value), dueSoundId, completedSoundId, dueSoundName, completedSoundName,
-            (int)idle.Value!.Value, (int)snooze.Value!.Value, debugToolsEnabled.IsChecked == true);
+            (int)idle.Value!.Value, (int)snooze.Value!.Value, runtime.CanUseDebugTools && debugToolsEnabled.IsChecked == true);
         return true;
     }
 
@@ -77,7 +77,7 @@ public sealed partial class SettingsWindow
         {
             bubbleDirection.SelectedItem = saved.Direction; soundsEnabled.IsChecked = saved.SoundsEnabled;
             soundVolume.Value = saved.VolumePercent;
-            debugToolsEnabled.IsChecked = saved.DebugTools;
+            debugToolsEnabled.IsChecked = runtime.CanUseDebugTools && saved.DebugTools;
             idle.Value = saved.Idle; snooze.Value = saved.Snooze;
             // Restore raw invalid/empty text too, including when the numeric Value has not changed.
             idle.Text = saved.Idle.ToString(CultureInfo.CurrentCulture); snooze.Text = saved.Snooze.ToString(CultureInfo.CurrentCulture);
@@ -85,7 +85,7 @@ public sealed partial class SettingsWindow
             dueSoundName = saved.DueName; completedSoundName = saved.CompletedName;
             refreshSoundNames?.Invoke(); observedPreferences = saved;
             RefreshDebugToolsVisibility();
-            if (!saved.DebugTools) runtime.CloseReminderPreview();
+            if (!runtime.CanUseDebugTools || !saved.DebugTools) runtime.CloseReminderPreview();
         }
         finally { restoringPreferences = false; }
         preferencesStatus.IsVisible = false; RefreshPreferencesState(); CleanupImportedSounds();

@@ -32,11 +32,14 @@ public sealed class AppRuntime : IDisposable
     public event Action? Changed;
     public string? ActivityError { get; private set; }
     public bool DiagnosticMode { get; private set; }
+    public AccountIdentity? CurrentAccount { get; private set; }
+    public bool CanUseDebugTools => DiagnosticMode || CurrentAccount?.Role == AccountRole.Admin;
     public BreakHistory BreakHistory { get; private set; }
     public IReadOnlyList<BreakRoutine> Routines { get; private set; }
     public string? BreakHistoryError { get; private set; }
     public bool CanEditTimerInterval => Clock.Paused || Clock.Stopped;
     internal EditorWindow? ActiveEditor => editor;
+    internal AccountWindow? ActiveAccount => accountWindow;
     public PetReminder Reminder { get; } = new();
     internal PetReminder PresentedReminder => Reminder.HasNotice ? Reminder : reminderPreview ?? Reminder;
     public PetNotice? PreviewNotice => reminderPreview?.Notice;
@@ -218,7 +221,7 @@ public sealed class AppRuntime : IDisposable
     {
         if (disposed) return;
         if (accountWindow is not null) { accountWindow.WindowState = WindowState.Normal; accountWindow.Activate(); return; }
-        var window = new AccountWindow(new(AccountContent, new DesktopAccountService(AccountContent)));
+        var window = new AccountWindow(new(AccountContent, new DesktopAccountService(AccountContent)), Quit, ApplyVerifiedAccount);
         accountWindow = window;
         window.Closed += (_, _) =>
         {
@@ -238,6 +241,7 @@ public sealed class AppRuntime : IDisposable
     private async Task UpdateSettings(AppSettings value, bool hideCurrentNotice)
     {
         value = value.ValidatePersonalization();
+        if (!CanUseDebugTools && value.DebugToolsEnabled) value = value with { DebugToolsEnabled = false };
         var reschedulesTimer = value.IntervalMinutes != Settings.IntervalMinutes ||
             (value.ActiveProfileId is not null && value.ActiveProfileId != Settings.ActiveProfileId);
         if (reschedulesTimer && !CanEditTimerInterval)
@@ -372,6 +376,8 @@ public sealed class AppRuntime : IDisposable
     public void CompleteBreak() { Reminder.Complete(monotonic.Elapsed); RefreshPetNotice(); Changed?.Invoke(); }
     public async Task ShowReminderPreview(PetNotice notice)
     {
+        if (!DiagnosticMode && (!CanUseDebugTools || !Settings.DebugToolsEnabled))
+            throw new InvalidOperationException("관리자 계정에서 디버그 도구를 활성화해 주세요.");
         if (notice == PetNotice.None) { CloseReminderPreview(); return; }
         if (Reminder.HasNotice) throw new InvalidOperationException("진행 중인 알림을 먼저 완료하거나 미뤄 주세요.");
         var routine = Routines.FirstOrDefault(item => item.Id == Settings.BreakRoutineId) ?? BreakRoutines.All[0];
@@ -397,6 +403,22 @@ public sealed class AppRuntime : IDisposable
         reminderPreview = null; RefreshPetNotice(); Changed?.Invoke();
     }
     private void ClearReminderPreview() => reminderPreview = null;
+    internal Task ApplyVerifiedAccount(AccountIdentity? account)
+    {
+        CurrentAccount = account;
+        if (!CanUseDebugTools)
+        {
+            ClearReminderPreview();
+            if (Settings.DebugToolsEnabled)
+            {
+                Settings = Settings with { DebugToolsEnabled = false };
+                try { Settings.Save(settingsFile); }
+                catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException) { AppPaths.Log(error); }
+            }
+        }
+        Changed?.Invoke();
+        return Task.CompletedTask;
+    }
     public async Task FocusReminder()
     {
         if (Reminder.Session is null) return;
@@ -507,7 +529,7 @@ public sealed class AppRuntime : IDisposable
     private Task<int> ConfirmAction(string title, string message, params string[] choices)
     {
         if (ConfirmActionOverride is { } confirm) return confirm(title, message, choices);
-        var owner = (Window?)settingsWindow ?? desktop.MainWindow ?? pet;
+        var owner = accountWindow is { IsVisible: true } ? accountWindow : (Window?)settingsWindow ?? desktop.MainWindow ?? pet;
         if (owner is null)
         {
             settingsWindow = new(this); desktop.MainWindow = settingsWindow; owner = settingsWindow;

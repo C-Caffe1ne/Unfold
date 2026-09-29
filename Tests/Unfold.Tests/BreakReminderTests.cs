@@ -188,6 +188,8 @@ public class BreakReminderTests
         try
         {
             pet.Show();
+            await runtime.ApplyVerifiedAccount(new(Guid.NewGuid(), "admin@example.test", AccountRole.Admin));
+            await runtime.UpdateSettings(runtime.Settings with { DebugToolsEnabled = true });
             var remaining = runtime.Clock.Remaining;
             var history = runtime.BreakHistory.Completions.Count;
             var dueSounds = runtime.DueSoundRequests;

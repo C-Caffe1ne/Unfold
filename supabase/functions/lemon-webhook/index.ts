@@ -8,4 +8,5 @@ Deno.serve(createLemonWebhookHandler({
   environment,
   secret: get('LEMONSQUEEZY_WEBHOOK_SECRET'),
   store: createPaymentStore({ url, secretKey: supabaseServerKey(get), allowLocalGateway: environment === 'test' }),
+  report: code => console.error(`lemon-webhook failed: ${code}`),
 }));

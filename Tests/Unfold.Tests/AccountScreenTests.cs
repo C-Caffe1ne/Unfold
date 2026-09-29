@@ -92,6 +92,7 @@ public class AccountPresentationTests
         service.Purchase = PurchaseAccess.Active;
         await model.PrimaryAsync();
         Assert.True(model.PurchaseReady); Assert.Equal(model.Copy.ReadyStatus, model.Status);
+        Assert.Equal(AccountRole.Member, model.VerifiedAccount!.Role);
     }
 
     [Fact]
@@ -141,6 +142,7 @@ internal sealed class FakeAccountService : IAccountScreenService
     public int CheckoutCalls { get; private set; }
     public bool Disposed { get; private set; }
     public PurchaseAccess Purchase { get; set; } = PurchaseAccess.Unowned;
+    public AccountRole Role { get; set; } = AccountRole.Member;
     public AccountException? SignInError { get; set; }
     public AccountException? PurchaseError { get; set; }
     public AccountException? CheckoutError { get; set; }
@@ -152,10 +154,10 @@ internal sealed class FakeAccountService : IAccountScreenService
         SignInCalls++;
         return SignInError is not null ? Task.FromException<AccountSession>(SignInError) : SignIn?.Invoke(token) ?? Task.FromResult(Session);
     }
-    public Task<PurchaseAccess> CheckPurchaseAsync(AccountSession session, CancellationToken token)
+    public Task<AccountAccess> CheckPurchaseAsync(AccountSession session, CancellationToken token)
     {
         PurchaseCalls++;
-        return PurchaseError is not null ? Task.FromException<PurchaseAccess>(PurchaseError) : Task.FromResult(Purchase);
+        return PurchaseError is not null ? Task.FromException<AccountAccess>(PurchaseError) : Task.FromResult(new AccountAccess(Purchase, Role));
     }
     public Task StartCheckoutAsync(AccountSession session, string market, Guid requestId, CancellationToken token)
     {
@@ -209,27 +211,71 @@ public class AccountWindowTests
                 Assert.Equal("US$3.99", model.Price);
                 Assert.Equal("US$3.99", window.FindControl<TextBlock>("AccountPrice")!.Text);
                 window.Width = 640; window.Height = 560; Layout();
-                AssertInside(window, window.FindControl<Button>("AccountOpenApp")!);
+                AssertInside(window, window.FindControl<Button>("AccountQuit")!);
+                Assert.Null(window.FindControl<TextBlock>("AccountFooterPrice"));
+                Assert.Null(window.FindControl<Button>("AccountOpenApp"));
                 var scroll = window.FindControl<ScrollViewer>("AccountFormScroll")!;
                 Assert.True(scroll.Extent.Width <= scroll.Viewport.Width + 1);
                 scroll.ScrollToEnd(); Layout();
                 AssertInside(window, window.FindControl<Button>("AccountPrimary")!);
                 AssertInside(window, window.FindControl<Button>("AccountSecondary")!);
                 Capture(window, "minimum-" + theme.Id);
-                window.FindControl<Button>("AccountOpenApp")!.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-                Assert.False(window.IsVisible);
+                window.Close();
             }
         }
         finally { DesignSystem.ApplyTheme(previous); }
     }
 
     [AvaloniaFact]
-    public void UnconfiguredSignInHasAnErrorAndStillAllowsOpeningTheLocalApp()
+    public async Task VerifiedPurchaseClosesTheAccountScreenWithoutASeparateOpenButton()
+    {
+        var service = new FakeAccountService { Purchase = PurchaseAccess.Active, Role = AccountRole.Admin };
+        AccountIdentity? verified = null;
+        var window = new AccountWindow(new(AccountScreenContent.Load(), service), accountChanged: account =>
+        {
+            verified = account; return Task.CompletedTask;
+        });
+        window.Show(); Layout();
+        Assert.Null(window.FindControl<Button>("AccountOpenApp"));
+        window.FindControl<Button>("AccountPrimary")!.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        for (var i = 0; i < 100 && window.IsVisible; i++)
+        {
+            Layout();
+            await Task.Delay(10, TestContext.Current.CancellationToken);
+        }
+        Assert.True(window.Model.PurchaseReady);
+        Assert.Equal(AccountRole.Admin, verified!.Role);
+        Assert.Equal(FakeAccountService.Session.Email, verified.Email);
+        Assert.False(window.IsVisible);
+    }
+
+    [AvaloniaFact]
+    public async Task QuitButtonRequestsTheHostActionWithoutClosingWhenItIsCancelled()
+    {
+        var requests = 0;
+        var window = new AccountWindow(new(AccountScreenContent.Load(), new FakeAccountService()), () =>
+        {
+            requests++;
+            return Task.CompletedTask;
+        });
+        window.Show(); Layout();
+        var quit = window.FindControl<Button>("AccountQuit")!;
+        Assert.Equal(window.Model.Copy.QuitButton, quit.Content);
+        quit.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        await Task.Yield(); Layout();
+        Assert.Equal(1, requests);
+        Assert.True(window.IsVisible);
+        window.Close();
+    }
+
+    [AvaloniaFact]
+    public void UnconfiguredSignInHasAnErrorAndStillAllowsQuitting()
     {
         var service = new FakeAccountService { CanSignIn = false };
         var window = new AccountWindow(new(AccountScreenContent.Load(), service)); window.Show(); Layout();
         Assert.False(window.FindControl<Button>("AccountPrimary")!.IsEnabled);
-        Assert.True(window.FindControl<Button>("AccountOpenApp")!.IsEnabled);
+        Assert.True(window.FindControl<Button>("AccountQuit")!.IsEnabled);
+        Assert.Null(window.FindControl<Button>("AccountOpenApp"));
         Assert.Equal(window.Model.Copy.SignInUnavailable, window.FindControl<TextBlock>("AccountStatus")!.Text);
         window.Close(); Assert.True(service.Disposed);
     }

@@ -262,12 +262,20 @@ internal static class SmokeDiagnostics
         await Task.Delay(100); window.UpdateLayout();
         var scroll = window.FindControl<ScrollViewer>("AccountFormScroll")!;
         if (scroll.Extent.Width > scroll.Viewport.Width + 1) throw new InvalidOperationException("Account form overflows horizontally.");
+        var quit = window.FindControl<Button>("AccountQuit")!;
+        var quitOrigin = quit.TranslatePoint(default, window);
+        if (!quit.IsVisible || quitOrigin is null || quit.Bounds.Width <= 0 || quit.Bounds.Height <= 0
+            || quitOrigin.Value.X < 0 || quitOrigin.Value.Y < 0
+            || quitOrigin.Value.X + quit.Bounds.Width > window.ClientSize.Width + 1
+            || quitOrigin.Value.Y + quit.Bounds.Height > window.ClientSize.Height + 1)
+            throw new InvalidOperationException("Account quit action is outside the minimum window.");
         Capture(window, Path.Combine(directory, "account-login-minimum.png"));
-        Press(window, "AccountOpenApp");
+        window.Close();
         if (window.IsVisible || desktop.MainWindow?.IsVisible != true ||
             !AppRuntime.HasSeenCurrentAccountWelcome(Path.Combine(AppPaths.DataRoot, "account-welcome-seen")))
-            throw new InvalidOperationException("Opening the local app from welcome did not persist dismissal.");
-        return new { contentLoaded = true, dismissToApp = true, duplicatePrevented = true, noHorizontalOverflow = true,
+            throw new InvalidOperationException("Diagnostic account dismissal did not persist.");
+        return new { contentLoaded = true, diagnosticDismissal = true, duplicatePrevented = true, noHorizontalOverflow = true, quitAvailable = true,
+            footerBypassRemoved = true,
             authenticationPerformed = false, paymentPerformed = false };
     }
     private static void VerifySpeechBubble(PetWindow window, string expectedTitle, double expectedHeight, params string[] forbiddenBodyText)

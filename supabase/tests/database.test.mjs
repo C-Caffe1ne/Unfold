@@ -57,11 +57,20 @@ test('users cannot write orders, prices or entitlements, call trusted functions,
       "update public.prices set amount_minor = 1",
       "update public.orders set status = 'paid'",
       "update public.entitlements set status = 'active'",
+      `insert into public.account_roles(user_id, role) values ('${a}', 'admin')`,
       'select * from public.payment_events',
       `select public.create_pending_order('${a}', 'unfold-kr', 'toss', 'test')`,
       `select public.apply_verified_payment('${a}', 'toss', 'test', 'fake', 'fake', 'paid', 'KRW', 4900)`,
     ]) await assert.rejects(asRole(role, a, () => db.exec(sql)), /permission denied/);
   }
+});
+
+test('account roles are server-managed and visible only to their owner', async () => {
+  await asRole('service_role', null, () => db.exec(`insert into public.account_roles(user_id, role) values ('${a}', 'admin')`));
+  const own = await asRole('authenticated', a, () => db.query('select user_id,role from public.account_roles'));
+  assert.deepEqual(own.rows, [{ user_id: a, role: 'admin' }]);
+  assert.equal((await asRole('authenticated', b, () => db.query('select * from public.account_roles'))).rows.length, 0);
+  assert.equal((await asRole('anon', null, () => db.query('select * from public.account_roles')).catch(error => error)).message.includes('permission denied'), true);
 });
 
 test('RLS isolates accounts, pending orders never grant entitlement', async () => {

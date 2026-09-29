@@ -72,7 +72,8 @@ public class ResponsiveLayoutTests
             AssertNoHorizontalOverflow(window);
             AssertInWindow(Find<Button>(window, "SavePreferences"), window);
             var scroll = Find<ScrollViewer>(window, "SettingsPreferencesScroll");
-            scroll.ScrollToEnd(); Layout(window); AssertInWindow(Find<CheckBox>(window, "DebugToolsEnabled"), window);
+            scroll.ScrollToEnd(); Layout(window);
+            Assert.False(Find<Border>(window, "SettingsDebugToolsCard").IsEffectivelyVisible);
         }
         Press(window, "SettingsNavReview"); AssertNoHorizontalOverflow(window);
         AssertInWindow(Find<Button>(window, "ReviewExport"), window);

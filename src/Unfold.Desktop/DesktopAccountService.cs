@@ -67,8 +67,8 @@ internal sealed class DesktopAccountService : IAccountScreenService
         catch (Exception error) when (error is SocketException or IOException or System.ComponentModel.Win32Exception or InvalidOperationException)
         { throw new AccountException(AccountFailure.Unavailable); }
     }
-    public Task<PurchaseAccess> CheckPurchaseAsync(AccountSession session, CancellationToken token) =>
-        client?.GetEntitlementAsync(session, token) ?? Task.FromException<PurchaseAccess>(new AccountException(AccountFailure.Unavailable));
+    public Task<AccountAccess> CheckPurchaseAsync(AccountSession session, CancellationToken token) =>
+        client?.GetAccountAccessAsync(session, token) ?? Task.FromException<AccountAccess>(new AccountException(AccountFailure.Unavailable));
     public async Task StartCheckoutAsync(AccountSession session, string market, Guid requestId, CancellationToken token)
     {
         if (client is null || !CanCheckout(market)) throw new AccountException(AccountFailure.Unavailable);

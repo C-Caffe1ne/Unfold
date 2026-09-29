@@ -8,7 +8,7 @@ internal interface IAccountScreenService : IDisposable
     bool CanSignIn { get; }
     bool CanCheckout(string market);
     Task<AccountSession> SignInAsync(CancellationToken token);
-    Task<PurchaseAccess> CheckPurchaseAsync(AccountSession session, CancellationToken token);
+    Task<AccountAccess> CheckPurchaseAsync(AccountSession session, CancellationToken token);
     Task StartCheckoutAsync(AccountSession session, string market, Guid requestId, CancellationToken token);
 }
 
@@ -37,12 +37,12 @@ public sealed class AccountScreenModel : INotifyPropertyChanged, IDisposable
         }
     }
     public string Price => market.DisplayPrice;
-    public string FooterPrice => Price + " · " + Copy.PurchaseTerm;
     public bool IsBusy => operation is not null;
     public bool IsPurchase => session is not null;
     public bool IsLogin => !IsPurchase;
     public bool PurchaseUnknown { get; private set; }
     public bool PurchaseReady { get; private set; }
+    public AccountIdentity? VerifiedAccount { get; private set; }
     public bool CheckoutStarted => checkoutStarted;
     public bool CanChangeMarket => !IsBusy && !checkoutStarted && Markets.Length > 1;
     public string Email => session?.Email ?? Copy.SignedInLabel;
@@ -131,13 +131,14 @@ public sealed class AccountScreenModel : INotifyPropertyChanged, IDisposable
         var access = await service.CheckPurchaseAsync(session!, token);
         token.ThrowIfCancellationRequested();
         if (disposed) return;
-        PurchaseUnknown = false; PurchaseReady = access == PurchaseAccess.Active;
+        PurchaseUnknown = false; PurchaseReady = access.Purchase == PurchaseAccess.Active;
+        VerifiedAccount = PurchaseReady ? new(session!.UserId, session.Email, access.Role) : null;
         Status = PurchaseReady ? Copy.ReadyStatus : afterCheckout ? Copy.PurchaseNotFound : "";
     }
     public void Secondary()
     {
         if (IsBusy) { operation?.Cancel(); return; }
-        session = null; PurchaseUnknown = PurchaseReady = checkoutStarted = false; checkoutRequestId = Guid.NewGuid();
+        session = null; VerifiedAccount = null; PurchaseUnknown = PurchaseReady = checkoutStarted = false; checkoutRequestId = Guid.NewGuid();
         Status = service.CanSignIn ? "" : Copy.SignInUnavailable; Notify();
     }
     private void Notify() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));

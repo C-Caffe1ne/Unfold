@@ -67,11 +67,10 @@
           </StackPanel>
         </ScrollViewer>
       </Grid>
-      <Grid Grid.Row="4" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16">
+      <StackPanel Grid.Row="4" Orientation="Horizontal" Spacing="16">
+        <Button Name="AccountQuit" Content="{Binding Copy.QuitButton}" Classes="unfold-action quiet" />
         <TextBlock Text="{Binding Copy.Copyright}" Classes="account-caption" VerticalAlignment="Center" />
-        <TextBlock Grid.Column="1" Name="AccountFooterPrice" Text="{Binding FooterPrice}" Classes="account-caption" VerticalAlignment="Center" HorizontalAlignment="Right" />
-        <Button Grid.Column="2" Name="AccountOpenApp" Content="{Binding Copy.OpenAppButton}" Classes="unfold-action quiet" />
-      </Grid>
+      </StackPanel>
     </Grid>
   </Border>
 </Window>

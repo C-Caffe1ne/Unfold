@@ -10,7 +10,11 @@ namespace Unfold.Core;
 
 public enum AccountEnvironment { Test, Live }
 public enum PurchaseAccess { Unowned, Active, Revoked }
+public enum AccountRole { Member, Admin }
 public enum AccountFailure { AuthenticationRequired, Unavailable, InvalidResponse, InvalidCallback }
+
+public sealed record AccountAccess(PurchaseAccess Purchase, AccountRole Role);
+public sealed record AccountIdentity(Guid UserId, string? Email, AccountRole Role);
 
 public sealed class AccountException(AccountFailure failure) : Exception($"Account request failed: {failure}")
 {
@@ -107,7 +111,7 @@ public sealed class SupabaseAccountClient : IDisposable
         return refreshed;
     }
 
-    public async Task<PurchaseAccess> GetEntitlementAsync(AccountSession session, CancellationToken cancellationToken = default)
+    public async Task<AccountAccess> GetAccountAccessAsync(AccountSession session, CancellationToken cancellationToken = default)
     {
         var json = await SendAsync(HttpMethod.Get, "functions/v1/get-entitlement", session.AccessToken, null, cancellationToken);
         EntitlementResponse? result;
@@ -116,11 +120,19 @@ public sealed class SupabaseAccountClient : IDisposable
         if (result is null || result.Version != 1 || result.UserId != session.UserId || session.UserId == Guid.Empty
             || result.ProductId != "unfold" || result.Environment != environment)
             throw new AccountException(AccountFailure.InvalidResponse);
-        return result.Status switch {
+        var purchase = result.Status switch {
             "active" => PurchaseAccess.Active, "unowned" => PurchaseAccess.Unowned, "revoked" => PurchaseAccess.Revoked,
             _ => throw new AccountException(AccountFailure.InvalidResponse),
         };
+        var role = result.Role switch {
+            "member" => AccountRole.Member, "admin" => AccountRole.Admin,
+            _ => throw new AccountException(AccountFailure.InvalidResponse),
+        };
+        return new(purchase, role);
     }
+
+    public async Task<PurchaseAccess> GetEntitlementAsync(AccountSession session, CancellationToken cancellationToken = default) =>
+        (await GetAccountAccessAsync(session, cancellationToken)).Purchase;
 
     public async Task<AccountCheckout> CreateCheckoutAsync(AccountSession session, string market, Guid requestId,
         CancellationToken cancellationToken = default)
@@ -216,7 +228,8 @@ public sealed class SupabaseAccountClient : IDisposable
         [property: JsonPropertyName("user_id")] Guid UserId,
         [property: JsonPropertyName("product_id")] string ProductId,
         [property: JsonPropertyName("environment")] string Environment,
-        [property: JsonPropertyName("status")] string Status);
+        [property: JsonPropertyName("status")] string Status,
+        [property: JsonPropertyName("role")] string Role);
     private sealed record CheckoutResponse(
         [property: JsonPropertyName("schema_version")] int Version,
         [property: JsonPropertyName("order_id")] Guid OrderId,

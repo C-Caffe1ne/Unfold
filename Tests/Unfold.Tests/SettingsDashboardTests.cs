@@ -357,10 +357,19 @@ public class SettingsDashboardTests
     }
 
     [AvaloniaFact]
-    public void DebugPreviewButtonsAreOptInAndDoNotChangeLiveState()
+    public async Task DebugToolsAreHiddenAndRejectedUntilAnAdminAccountIsVerified()
     {
         using var scope = new Scope(); var window = scope.Window;
         Click(window, "SettingsNavSettings"); Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+        var card = Find<Border>(window, "SettingsDebugToolsCard");
+        Assert.False(card.IsEffectivelyVisible);
+        await scope.Runtime.UpdateSettings(scope.Runtime.Settings with { DebugToolsEnabled = true });
+        Assert.False(scope.Runtime.Settings.DebugToolsEnabled);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => scope.Runtime.ShowReminderPreview(PetNotice.Advance));
+
+        await scope.Runtime.ApplyVerifiedAccount(new(Guid.NewGuid(), "admin@example.test", AccountRole.Admin));
+        Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+        Assert.True(card.IsEffectivelyVisible);
         var toggle = Find<CheckBox>(window, "DebugToolsEnabled");
         var firstPreview = Find<Button>(window, "DebugPreviewAdvance");
         Assert.False(toggle.IsChecked); Assert.False(firstPreview.IsEffectivelyVisible);
@@ -394,6 +403,16 @@ public class SettingsDashboardTests
         Click(window, "DebugPreviewClose"); Dispatcher.UIThread.RunJobs();
         Assert.Null(scope.Runtime.PreviewNotice);
         Assert.Equal("미리보기 대기 중", Find<TextBlock>(window, "DebugPreviewStatus").Text);
+
+        await scope.Runtime.ApplyVerifiedAccount(new(Guid.NewGuid(), "member@example.test", AccountRole.Member));
+        Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+        Assert.False(card.IsEffectivelyVisible); Assert.False(toggle.IsChecked); Assert.False(scope.Runtime.Settings.DebugToolsEnabled);
+        Assert.False(AppSettings.Load(Path.Combine(scope.Root, "settings.json")).DebugToolsEnabled);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => scope.Runtime.ShowReminderPreview(PetNotice.Advance));
+
+        await scope.Runtime.ApplyVerifiedAccount(new(Guid.NewGuid(), "admin@example.test", AccountRole.Admin));
+        Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+        Assert.True(card.IsEffectivelyVisible); Assert.False(toggle.IsChecked); Assert.False(firstPreview.IsEffectivelyVisible);
     }
 
     private sealed class Scope : IDisposable

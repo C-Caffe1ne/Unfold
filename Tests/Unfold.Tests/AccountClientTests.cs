@@ -76,9 +76,20 @@ public class AccountClientTests
             Assert.Equal("", request.RequestUri.Query);
             Assert.Equal("private-access", request.Headers.Authorization!.Parameter);
             Assert.Equal("public-key", Assert.Single(request.Headers.GetValues("apikey")));
-            return Task.FromResult(Json(new { schema_version = 1, user_id = UserId, product_id = "unfold", environment = "live", status }));
+            return Task.FromResult(Json(new { schema_version = 1, user_id = UserId, product_id = "unfold", environment = "live", status, role = "member" }));
         });
         Assert.Equal(expected, await client.GetEntitlementAsync(Session, TestContext.Current.CancellationToken));
+    }
+
+    [Theory]
+    [InlineData("member", AccountRole.Member)]
+    [InlineData("admin", AccountRole.Admin)]
+    public async Task ServerRoleIsVerifiedWithThePurchaseState(string role, AccountRole expected)
+    {
+        using var client = Client((_, _) => Task.FromResult(Json(new { schema_version = 1, user_id = UserId,
+            product_id = "unfold", environment = "live", status = "active", role })));
+        var access = await client.GetAccountAccessAsync(Session, TestContext.Current.CancellationToken);
+        Assert.Equal(PurchaseAccess.Active, access.Purchase); Assert.Equal(expected, access.Role);
     }
 
     [Fact]
@@ -122,7 +133,7 @@ public class AccountClientTests
     [InlineData("live", "unfold", "active", 2)]
     public async Task InvalidOrTestEntitlementNeverUnlocksLiveApp(string environment, string product, string status, int version)
     {
-        using var client = Client((_, _) => Task.FromResult(Json(new { schema_version = version, user_id = UserId, product_id = product, environment, status })));
+        using var client = Client((_, _) => Task.FromResult(Json(new { schema_version = version, user_id = UserId, product_id = product, environment, status, role = "member" })));
         var error = await Assert.ThrowsAsync<AccountException>(() => client.GetEntitlementAsync(Session, TestContext.Current.CancellationToken));
         Assert.Equal(AccountFailure.InvalidResponse, error.Failure);
     }
@@ -130,8 +141,19 @@ public class AccountClientTests
     [Fact]
     public async Task AnotherUsersEntitlementIsRejected()
     {
-        using var client = Client((_, _) => Task.FromResult(Json(new { schema_version = 1, user_id = Guid.NewGuid(), product_id = "unfold", environment = "live", status = "active" })));
+        using var client = Client((_, _) => Task.FromResult(Json(new { schema_version = 1, user_id = Guid.NewGuid(), product_id = "unfold", environment = "live", status = "active", role = "admin" })));
         Assert.Equal(AccountFailure.InvalidResponse, (await Assert.ThrowsAsync<AccountException>(() => client.GetEntitlementAsync(Session, TestContext.Current.CancellationToken))).Failure);
+    }
+
+    [Theory]
+    [InlineData("owner")]
+    [InlineData("")]
+    public async Task UnknownRolesCannotGrantDebugAccess(string role)
+    {
+        using var client = Client((_, _) => Task.FromResult(Json(new { schema_version = 1, user_id = UserId,
+            product_id = "unfold", environment = "live", status = "active", role })));
+        Assert.Equal(AccountFailure.InvalidResponse,
+            (await Assert.ThrowsAsync<AccountException>(() => client.GetAccountAccessAsync(Session, TestContext.Current.CancellationToken))).Failure);
     }
 
     [Theory]

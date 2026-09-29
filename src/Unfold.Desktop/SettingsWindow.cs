@@ -249,7 +249,7 @@ public sealed partial class SettingsWindow : Window, IDisposable
             if (displayedInterval != runtime.Settings.IntervalMinutes) interval.Value = displayedInterval = runtime.Settings.IntervalMinutes;
             if (displayedBreakDuration != runtime.Settings.BreakDurationMinutes) breakDuration.Value = displayedBreakDuration = runtime.Settings.BreakDurationMinutes;
             RefreshHomeTimingState();
-            SyncPreferencesFromRuntime(); RefreshDebugPreviewStatus();
+            SyncPreferencesFromRuntime(); RefreshDebugToolsVisibility(); RefreshDebugPreviewStatus();
             if (!ReferenceEquals(characters.ItemsSource, runtime.Characters)) characters.ItemsSource = runtime.Characters;
             characters.SelectedItem = runtime.Selected;
         }

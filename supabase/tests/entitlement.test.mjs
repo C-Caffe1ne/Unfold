@@ -11,14 +11,15 @@ test('authenticated subject and server environment override all URL inputs', asy
   const calls = [];
   const reader = createSupabaseReader({ url: 'https://example.supabase.co', publicKey: 'public-key', fetcher: async (url, options) => {
     calls.push([url, options]);
-    return Response.json(calls.length === 1 ? { id: userId } : [{ status: 'active' }]);
+    return Response.json(calls.length === 1 ? { id: userId } : calls.length === 2 ? [{ status: 'active' }] : [{ role: 'admin' }]);
   }});
   const handle = createEntitlementHandler({ reader, environment: 'live' });
   const response = await handle(request('?user_id=other&environment=test&isPaid=true'));
   assert.equal(response.status, 200);
-  assert.deepEqual(await response.json(), { schema_version: 1, user_id: userId, product_id: 'unfold', environment: 'live', status: 'active' });
+  assert.deepEqual(await response.json(), { schema_version: 1, user_id: userId, product_id: 'unfold', environment: 'live', status: 'active', role: 'admin' });
   assert.equal(calls[1][0].searchParams.get('user_id'), `eq.${userId}`);
   assert.equal(calls[1][0].searchParams.get('environment'), 'eq.live');
+  assert.equal(calls[2][0].searchParams.get('user_id'), `eq.${userId}`);
   assert.ok(calls.every(([, options]) => options.headers.Authorization === 'Bearer user-token'));
   assert.ok(calls.every(([, options]) => options.redirect === 'error'));
   assert.equal(response.headers.get('cache-control'), 'no-store');
@@ -29,7 +30,7 @@ test('unknown orders are unowned, revoked remains distinct from connectivity fai
     const reader = { user: async () => userId, entitlement: async () => {
       if (status === 'failure') throw new Error('secret-token-provider-payload');
       return status;
-    }};
+    }, role: async () => 'member' };
     const response = await createEntitlementHandler({ reader, environment: 'test' })(request());
     assert.equal(response.status, expected);
     const body = await response.text();
@@ -40,7 +41,7 @@ test('unknown orders are unowned, revoked remains distinct from connectivity fai
 
 test('missing token, invalid session and disallowed origin cannot query purchases', async () => {
   let reads = 0;
-  const reader = { user: async () => { throw new ServiceError('unauthorized', 401); }, entitlement: async () => { reads++; } };
+  const reader = { user: async () => { throw new ServiceError('unauthorized', 401); }, entitlement: async () => { reads++; }, role: async () => { reads++; } };
   const handle = createEntitlementHandler({ reader, environment: 'test' });
   assert.equal((await handle(request('', { headers: {} }))).status, 401);
   assert.equal((await handle(request())).status, 401);
@@ -68,4 +69,18 @@ test('upstream malformed data and non-401 errors never become an unowned account
   assert.throws(() => createSupabaseReader({ url: 'http://kong:8000', publicKey: 'key' }), /HTTPS/);
   assert.doesNotThrow(() => createSupabaseReader({ url: 'http://kong:8000', publicKey: 'key', allowLocalGateway: true }));
   assert.throws(() => createSupabaseReader({ url: 'http://remote.test', publicKey: 'key', allowLocalGateway: true }), /HTTPS/);
+});
+
+test('role lookup grants only an isolated admin row and rejects malformed data', async () => {
+  const admin = createSupabaseReader({ url: 'https://example.supabase.co', publicKey: 'key',
+    fetcher: async () => Response.json([{ role: 'admin' }]) });
+  const member = createSupabaseReader({ url: 'https://example.supabase.co', publicKey: 'key',
+    fetcher: async () => Response.json([]) });
+  assert.equal(await admin.role('token', userId), 'admin');
+  assert.equal(await member.role('token', userId), 'member');
+  for (const rows of [[{ role: 'owner' }], [{ role: 'admin' }, { role: 'admin' }], {}]) {
+    const malformed = createSupabaseReader({ url: 'https://example.supabase.co', publicKey: 'key',
+      fetcher: async () => Response.json(rows) });
+    await assert.rejects(malformed.role('token', userId));
+  }
 });

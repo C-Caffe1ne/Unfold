@@ -105,9 +105,10 @@ test('Lemon adapter uses server mappings, one-time quantity and no customer iden
 test('Lemon money units preserve won and dollar prices', () => {
   assert.equal(toLemonAmount('KRW', 4900), 490000);
   assert.equal(fromLemonAmount('KRW', 490000), 4900);
+  assert.equal(fromLemonAmount('KRW', 489416), 4894.16);
+  assert.equal(fromLemonAmount('KRW', 1499.985), 14.99985);
   assert.equal(toLemonAmount('USD', 399), 399);
   assert.equal(fromLemonAmount('USD', 399), 399);
-  assert.throws(() => fromLemonAmount('KRW', 490001));
   assert.throws(() => toLemonAmount('EUR', 399));
 });
 
@@ -132,8 +133,9 @@ test('webhook HMAC verifies raw bytes and rejects tampering before DB access', a
 });
 
 test('webhook rejects malformed events, ignores unrelated events and hides store failures', async () => {
+  const reports = [];
   const handle = createLemonWebhookHandler({ environment: 'test', secret: webhookSecret,
-    store: { find: async () => { throw new Error('secret-value'); } } });
+    store: { find: async () => { throw new Error('secret-value'); } }, report: code => reports.push(code) });
   assert.equal((await handle(await webhookRequest('x'.repeat(262145)))).status, 413);
   assert.equal((await handle(await webhookRequest('{'))).status, 400);
   const other = { meta: { event_name: 'customer_updated' }, data: {} };
@@ -141,6 +143,8 @@ test('webhook rejects malformed events, ignores unrelated events and hides store
   const failed = await handle(await webhookRequest(orderEvent(order)));
   assert.equal(failed.status, 503);
   assert.equal((await failed.text()).includes('secret-value'), false);
+  assert.deepEqual(reports.at(-1), 'order:service_unavailable');
+  assert.equal(JSON.stringify(reports).includes('secret-value'), false);
   assert.throws(() => createLemonWebhookHandler({ environment: 'live', secret: webhookSecret }));
   assert.throws(() => createLemonWebhookHandler({ environment: 'test', secret: 'bad' }));
 });

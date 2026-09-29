@@ -21,11 +21,10 @@ public sealed record AccountScreenCopy
     public required string PurchaseTitle { get; init; }
     public required string ReadyTitle { get; init; }
     public required string ProductLabel { get; init; }
-    public required string PurchaseTerm { get; init; }
     public required string GoogleButton { get; init; }
     public required string PurchaseButton { get; init; }
     public required string ChangeAccountButton { get; init; }
-    public required string OpenAppButton { get; init; }
+    public required string QuitButton { get; init; }
     public required string CancelButton { get; init; }
     public required string RetryButton { get; init; }
     public required string CheckingButton { get; init; }
