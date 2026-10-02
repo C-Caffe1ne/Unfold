@@ -32,7 +32,7 @@ public class PetTabsUiTests
     }
 
     [AvaloniaFact]
-    public async Task WholeCardPreviewUsesPointerAndKeyboardWithoutInterceptingFileActions()
+    public async Task RowPreviewUsesPointerAndKeyboardWithoutInterceptingFileActions()
     {
         using var data = new DataScope(); var picks = 0;
         var owner = new Window { Width = 860, Height = 680 };
@@ -48,32 +48,32 @@ public class PetTabsUiTests
             foreach (var key in CustomPetDraft.Actions)
             {
                 var preview = Find<Button>(owner, "CustomPetPreview_" + key);
-                Assert.IsNotType<PathIcon>(preview.Content);
-                Assert.Equal(2, Find<StackPanel>(owner, "CustomPetActions_" + key).Children.Count);
+                Assert.IsType<PathIcon>(preview.Content);
+                Assert.Equal(3, Find<StackPanel>(owner, "CustomPetActions_" + key).Children.Count);
             }
             Click(owner, Find<Button>(owner, "CustomPetFile_idle"));
-            await Until(() => !view.IsBusy && Selected().Contains("쉬는 모습"));
+            await Until(() => !view.IsBusy && Selected().Contains("기본"));
             Assert.Equal(1, picks); Assert.Equal(0, idleClicks);
             Click(owner, Find<Button>(owner, "CustomPetFile_stretch"));
-            await Until(() => !view.IsBusy && Selected().Contains("스트레칭"));
+            await Until(() => !view.IsBusy && Selected().Contains("휴식"));
             Assert.Equal(2, picks);
-            Click(owner, Find<Border>(owner, "CustomPetSlot_idle"), new Point(14, 14));
-            await Until(() => Selected().Contains("쉬는 모습"));
+            Click(owner, idlePreview);
+            await Until(() => Selected().Contains("기본"));
             Assert.Equal(1, idleClicks); Assert.Equal(2, picks);
             Assert.Equal(DesignSystem.Cream, Find<Border>(owner, "CustomPetSlot_idle").BorderBrush);
-            Click(owner, Find<Border>(owner, "CustomPetSlot_attention"), new Point(14, 14));
-            Assert.Contains("쉬는 모습", Selected()); Assert.Equal(2, picks);
+            Press(owner, "CustomPetPreview_attention");
+            Assert.Contains("기본", Selected()); Assert.Equal(2, picks);
             stretchPreview.Focus();
             owner.KeyPress(Key.Enter, RawInputModifiers.None, PhysicalKey.Enter, null);
             owner.KeyRelease(Key.Enter, RawInputModifiers.None, PhysicalKey.Enter, null);
-            await Until(() => Selected().Contains("스트레칭"));
+            await Until(() => Selected().Contains("휴식"));
             idlePreview.Focus();
             owner.KeyPress(Key.Space, RawInputModifiers.None, PhysicalKey.Space, " ");
             owner.KeyRelease(Key.Space, RawInputModifiers.None, PhysicalKey.Space, " ");
-            await Until(() => Selected().Contains("쉬는 모습"));
+            await Until(() => Selected().Contains("기본"));
             var beforeRemove = idleClicks;
             Click(owner, Find<Button>(owner, "CustomPetRemove_stretch"));
-            Assert.Contains("쉬는 모습", Selected()); Assert.False(stretchPreview.IsEnabled);
+            Assert.Contains("기본", Selected()); Assert.False(stretchPreview.IsEnabled);
             Assert.Equal(beforeRemove, idleClicks); Assert.Equal(2, picks);
             Click(owner, Find<Button>(owner, "CustomPetRemove_idle"));
             Assert.False(Find<TextBlock>(owner, "CustomPetPreviewHint").IsVisible);
@@ -83,7 +83,7 @@ public class PetTabsUiTests
     }
 
     [AvaloniaFact]
-    public void MinimumSettingsWindowShowsAllFiveCardsAndKeepsTheCreateActionPinned()
+    public void SettingsWindowScrollsEightRowsAndKeepsTheCreateActionPinned()
     {
         using var data = new DataScope(); using var lifetime = new ClassicDesktopStyleApplicationLifetime();
         using var runtime = new AppRuntime(lifetime);
@@ -95,20 +95,20 @@ public class PetTabsUiTests
             foreach (var dimensions in new[] { new Size(860, 680), new Size(1120, 800) })
             {
                 window.Width = dimensions.Width; window.Height = dimensions.Height; Layout(window);
-                var slots = Find<WrapPanel>(window, "CustomPetActionSlots");
+                var slots = Find<StackPanel>(window, "CustomPetActionSlots");
                 var scroll = Find<ScrollViewer>(window, "PageBodyScroll");
-                Assert.Single(slots.Children.Select(card => Math.Round(card.Bounds.Y, 1)).Distinct());
+                Assert.Equal(8, slots.Children.Count);
                 Assert.True(scroll.Extent.Width <= scroll.Viewport.Width + 1);
                 foreach (var key in CustomPetDraft.Actions)
                 {
                     var add = Find<Button>(window, "CustomPetFile_" + key);
                     var location = add.TranslatePoint(default, scroll)!.Value;
-                    Assert.InRange(location.Y, 0, scroll.Viewport.Height - add.Bounds.Height);
+                    Assert.True(location.Y >= 0);
                     Assert.True(location.X + add.Bounds.Width <= scroll.Viewport.Width);
                 }
                 var geometry = slots.Children.Select(card => card.Bounds).ToArray();
                 foreach (var key in CustomPetDraft.Actions)
-                    Find<TextBlock>(window, "CustomPetLabel_" + key).Text = "2048 × 2048px\n512프레임 · 999.99초";
+                    Find<TextBlock>(window, "CustomPetLabel_" + key).Text = "very-long-filename-that-must-be-trimmed.gif";
                 Layout(window); Assert.Equal(geometry, slots.Children.Select(card => card.Bounds).ToArray());
                 var create = Find<Button>(window, "CreateCustomPetPack");
                 var before = create.TranslatePoint(default, window)!.Value;
@@ -122,7 +122,7 @@ public class PetTabsUiTests
     }
 
     [AvaloniaFact]
-    public async Task ImportedMetadataDoesNotResizeCardsAndSelectionSurvivesTabChanges()
+    public async Task ImportedFilenameDoesNotResizeCardsAndSelectionSurvivesTabChanges()
     {
         using var data = new DataScope(); var owner = new Window { Width = 860, Height = 680 };
         using var view = new PetManagementView(owner, new CharacterLibrary(Path.Combine(data.Root, "library")),
@@ -137,12 +137,12 @@ public class PetTabsUiTests
             await Until(() => Find<Button>(owner, "CreateCustomPetPack").IsEnabled); Layout(owner);
             Assert.Equal(before, card.Bounds);
             var label = Find<TextBlock>(owner, "CustomPetLabel_idle").Text;
-            Assert.Contains("프레임", label); Assert.Contains("초", label); Assert.Contains("px", label);
-            Assert.DoesNotContain(".gif", label);
+            Assert.EndsWith(".gif", label);
+            Assert.Equal(label, ToolTip.GetTip(Find<TextBlock>(owner, "CustomPetLabel_idle")));
             tabs.SelectedIndex = 0; Layout(owner); tabs.SelectedIndex = 1; Layout(owner);
             Assert.Equal("카드 선택 유지", Find<TextBox>(owner, "CustomPetName").Text);
             Assert.Equal(DesignSystem.Cream, card.BorderBrush);
-            Assert.Contains("쉬는 모습", Find<TextBlock>(owner, "CustomPetPreviewAction").Text);
+            Assert.Contains("기본", Find<TextBlock>(owner, "CustomPetPreviewAction").Text);
         }
         finally { owner.Close(); }
     }

@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createCheckoutHandler } from '../functions/_shared/checkout.mjs';
 import { createLemonClient, validateVariant, validateCheckout, checkoutLink } from '../functions/_shared/lemon.mjs';
-import { fromLemonAmount, toLemonAmount } from '../functions/_shared/lemon-money.mjs';
+import { fromLemonAmount, toLemonAmount, lemonAmountMicros } from '../functions/_shared/lemon-money.mjs';
 import { createPaymentStore, supabasePublicKey, supabaseServerKey } from '../functions/_shared/payment-store.mjs';
 import { createLemonWebhookHandler } from '../functions/_shared/lemon-webhook.mjs';
 import { apiKey, webhookSecret, now, checkoutHost, variant, checkout, orderEvent, signature, webhookRequest, checkoutRequest } from './fixtures/lemon.mjs';
@@ -161,4 +161,34 @@ test('Supabase adapter keeps server key private and uses Lemon-specific RPCs', a
   const config = { SUPABASE_SECRET_KEYS: '{"default":"sb_secret_example"}', SUPABASE_PUBLISHABLE_KEYS: '{"default":"sb_publishable_example"}' };
   assert.equal(supabaseServerKey(name => config[name]), 'sb_secret_example');
   assert.equal(supabasePublicKey(name => config[name]), 'sb_publishable_example');
+});
+
+
+test('provider decimals retain six-digit precision without binary scaling residue', () => {
+  for (const [amount, micros] of [[539000.04, 539000040000], [539000.000005, 539000000005],
+    [0.000001, 1], [2147483647, 2147483647000000]]) {
+    assert.equal(lemonAmountMicros(amount), micros);
+  }
+  for (let cents = 0; cents < 10000; cents++) {
+    assert.equal(lemonAmountMicros(539000 + cents / 100), 539000000000 + cents * 10000);
+  }
+  for (const invalid of [-1, NaN, Infinity, '539000.04', 2147483647.01, 0.0000001, 539000.0000001]) {
+    assert.throws(() => lemonAmountMicros(invalid), /payment_mismatch/);
+  }
+});
+
+test('signed webhook accepts fractional tax totals and still rejects excess precision', async () => {
+  const applied = [];
+  const handle = createLemonWebhookHandler({ environment: 'test', secret: webhookSecret,
+    store: { find: async () => order, apply: async (_, fact) => { applied.push(fact); return true; } } });
+  for (const [tax, total] of [[49000, 539000], [49000.04, 539000.04], [49000.000005, 539000.000005]]) {
+    const event = orderEvent(order);
+    Object.assign(event.data.attributes, { tax, total });
+    assert.equal((await handle(await webhookRequest(event))).status, 200);
+  }
+  assert.equal(applied.length, 3);
+  const invalid = orderEvent(order);
+  Object.assign(invalid.data.attributes, { tax: 49000.0000001, total: 539000.0000001 });
+  assert.equal((await handle(await webhookRequest(invalid))).status, 422);
+  assert.equal(applied.length, 3);
 });

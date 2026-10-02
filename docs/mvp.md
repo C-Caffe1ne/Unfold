@@ -10,7 +10,8 @@ This document defines the current **Cat MVP with break sessions and local review
 The application is the C#/.NET 10 and Avalonia solution. The 2026-09-13 product
 development request extends the reminder into a guided pause with local completion
 records. [Product direction](product-direction.md) and [development plan](development-plan.md)
-describe the paid-value hypotheses. No payment flow or store is implemented.
+describe the paid-value hypotheses. The account screen connects Google sign-in,
+server purchase checks, and browser checkout; no in-app store is implemented.
 
 ## Core loop and implemented behavior
 
@@ -61,9 +62,13 @@ are retained only for backward compatibility and internal diagnostics. [Compatib
 
 The commercial plan is free download, Google sign-in, then one-time payment: KRW 4,900 in Korea
 or US$3.99 overseas, with **no free trial**. Supabase manages accounts and purchase entitlements.
-Account/payment foundation code is being prepared separately; the running desktop app still has
-no sign-in or purchase gate and all current features work locally. Account UI, secure session
-storage, real OAuth, provider checkout and offline purchase recovery are not connected yet.
+The first-run account screen connects Google PKCE sign-in, server purchase checks,
+and Lemon Squeezy browser checkout. Verified purchase closes that screen and opens Home.
+Previously dismissed profiles and background startup are not protected by a global
+purchase gate. Authentication sessions are held in memory and discarded when the
+account window closes; automatic login, secure session storage, and offline
+entitlements remain unimplemented. The [account guide](account-screen.md) describes
+the current connection and runtime boundaries.
 Completion history, settings and pet files remain local. See the
 [paid launch plan](plans/2026-09-27-paid-launch.md) for staged acceptance criteria.
 

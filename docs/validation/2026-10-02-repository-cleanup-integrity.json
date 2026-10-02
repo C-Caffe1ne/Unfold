@@ -1,0 +1,15 @@
+{
+  "existingChangesPreserved": 24,
+  "protectedFiles": 4731,
+  "unexpectedContentChanges": [],
+  "markdownFiles": 142,
+  "localLinks": 673,
+  "missingLinks": [],
+  "launcherContract": {
+    "checkoutAnchoring": true,
+    "release": true,
+    "spacedArguments": true,
+    "freshProfiles": true,
+    "explicitProfile": true
+  }
+}

@@ -4,17 +4,21 @@ A small desktop companion that reminds you to stretch while you work.
 
 Unfold runs in the Windows tray or macOS menu bar. A timer counts active computer
 use, pauses while you are away, and invites you to a short break with Mochi the cat.
-Choose a routine, start when ready, or snooze for five minutes. Mochi stretches
+Start when ready, or snooze for five minutes. Mochi stretches
 when you start. Confirming the finished routine saves a local completion record.
 
 ## Run
 
-For development, install .NET SDK 10 and run:
+For development, install .NET SDK 10 and run from this checkout on macOS:
 
 ```sh
-dotnet restore Unfold.slnx --locked-mode
-dotnet run --project src/Unfold.Desktop
+bash Scripts/run-desktop.sh
 ```
+
+On Windows, use `./Scripts/run-desktop.ps1` in PowerShell. These launchers build
+and run the current Release source with a new temporary data directory on each
+run. Set `UNFOLD_DATA_DIR` explicitly to reuse a development profile. Edit source
+under `src/` and `Assets/`; build and published copies are generated output.
 
 For a Windows portable build, extract the entire `Unfold-v<version>-win-x64.zip`
 archive and double-click `win-x64/Unfold.cmd`. Keep the `app` folder next to it; the
@@ -24,17 +28,14 @@ Closing Settings keeps Unfold running. Use **Unfold 종료** in the tray menu to
 
 ## Features
 
-- Desktop Mochi with idle animation, dragging, saved position, and Show/Hide controls.
-- Automatic stretch reminders. Mochi has no click animation, so a plain
-  click leaves its current animation alone.
-- Three timed pause routines (20, 60, or 90 seconds), snooze, skip, and explicit completion.
-- A library of up to 20 personal routines with your own prompts and timings.
-- Up to 10 work profiles combining a routine, reminder interval, and away threshold; apply them manually.
+- Five bundled pets with idle and pointer reactions, dragging, saved position, and Show/Hide controls.
+- Automatic stretch reminders with a 1–10 minute break duration, snooze, and explicit completion.
+- Existing routine and work-profile data remains readable for compatibility; their setup UI is no longer exposed.
 - Today's confirmed breaks, seven-day reviews, and local CSV export.
 - Local pet packs: preview animations, install, update, and reinstall from a saved `.unfoldpet` file.
-- A 5–240 minute timer with one-minute adjustment while paused or stopped, followed by an explicit Apply action.
-- A clear running/paused/stopped state badge and icon controls for Play/Pause and Stop. Stop clears the countdown to 00:00; Play starts the saved full interval.
-- An in-app reminder window and Windows/macOS system notification adapters.
+- A 5–240 minute timer with one-minute adjustment while paused or stopped, followed by **저장**.
+- A clear running/paused/stopped state badge and icon controls for Play/Pause and Stop. Stop displays the saved full interval; Play starts it.
+- Pet speech bubbles for break invitations, progress, and completion notices.
 - Opt-in launch at login; configure it from the published app in its final location.
 
 Transparent-pixel click-through is implemented only for Windows. Actual OS behavior
@@ -43,8 +44,10 @@ and distribution readiness are tracked separately from automated tests in the
 
 The pixel editor is retained for diagnostics and regression tests. It has no
 user-facing entry point in this MVP. See [MVP scope](docs/mvp.md) for the full boundary.
-The personalization demo has no payment or entitlement checks. See the
-[routine, profile, and review guide](docs/personalization.md) for usage and compatibility.
+Google sign-in and server purchase checks are connected through the first-run account
+screen. Global access enforcement, automatic login, and offline entitlements remain
+future work; see the [account guide](docs/account-screen.md). See the
+[routine, profile, and review guide](docs/personalization.md) for compatibility.
 The [pet pack guide](docs/pet-packs.md) explains local installation and recovery. No store or purchase recovery is included.
 
 ## Build and verify

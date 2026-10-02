@@ -113,9 +113,9 @@ internal sealed class PetPackView : UserControl, IDisposable
     }
     private static string ClipName(string? key) => key switch
     {
-        "idle" => "쉬는 모습", "attention" => "휴식 안내", "stretch" => "스트레칭",
+        "idle" => "기본", "attention" => "알림", "stretch" => "휴식",
         "celebrate" => "휴식 완료", "click" => "클릭 반응", "sleep" => "잠자기",
-        "look" => "두리번거리기", "yawn" => "하품", "sulk" => "삐지기", "walk" => "걷기", _ => key ?? ""
+        "look" => "두리번거리기", "yawn" => "하품", "sulk" => "삐지기", "walk" => "걷기", "hover" => "마우스 호버", "pointerDown" => "마우스 눌림", "pointerUp" => "마우스 뗌", _ => key ?? ""
     };
     private void UpdatePlayback()
     {
@@ -195,11 +195,11 @@ internal sealed class PetPackView : UserControl, IDisposable
         {
             var frames = await Task.Run(() => current.Character.LoadAnimation(key));
             if (closed || request != generation || pack != current) return;
-            preview.SetFrames(frames, current.Character.Manifest.Animations[key].Loop, current.Character.Manifest.RenderStyle == "pixel", current.Character.HasOriginalBehavior);
+            preview.SetFrames(frames, current.Character.Manifest.Animations[key].Loop, current.Character.Manifest.RenderStyle == "pixel", current.Character.HasOriginalBehavior, current.Character.Manifest.Animations[key].PingPong);
             previewReady = true;
             status.Foreground = DesignSystem.Muted;
-            playbackStatus.Text = returnTo is not null ? "쉬는 모습" :
-                $"{ClipName(key)} · {frames.Sum(frame => frame.Duration.TotalSeconds):0.###}초 · {(current.Character.Manifest.Animations[key].Loop ? "반복" : "1회")}";
+            playbackStatus.Text = returnTo is not null ? "기본" :
+                $"{ClipName(key)} · {frames.Sum(frame => frame.Duration.TotalSeconds):0.###}초 · {(current.Character.Manifest.Animations[key].PingPong ? "핑퐁" : current.Character.Manifest.Animations[key].Loop ? "반복" : "한 번")}";
         }
         catch (Exception error) { AppPaths.Log(error); if (!closed && request == generation) { previewReady = false; status.Foreground = DesignSystem.Error; status.Text = "미리보기를 재생하지 못했어요. " + Ui.ErrorText(error); install.IsEnabled = false; } }
         finally { if (!closed && request == generation) { loadingPreview = false; UpdatePlayback(); } }

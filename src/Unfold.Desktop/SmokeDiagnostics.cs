@@ -436,13 +436,12 @@ internal static class SmokeDiagnostics
             Press(window, "CustomPetFile_click"); await Until(() => Create().IsEnabled);
             Press(window, "CustomPetPreview_idle");
             await Until(() => window.GetVisualDescendants().OfType<TextBlock>()
-                .Single(text => text.Name == "CustomPetPreviewAction").Text == "미리보기 · 쉬는 모습");
+                .Single(text => text.Name == "CustomPetPreviewAction").Text == "미리보기 · 기본");
             window.UpdateLayout();
             var selectedCard = window.GetVisualDescendants().OfType<Border>().Single(card => card.Name == "CustomPetSlot_idle");
             var cardPreview = window.GetVisualDescendants().OfType<Button>().Single(button => button.Name == "CustomPetPreview_idle");
-            if (selectedCard.BorderBrush != DesignSystem.Cream || cardPreview.Content is PathIcon ||
-                Math.Abs(cardPreview.Bounds.Width - selectedCard.Bounds.Width + 2) > 1)
-                throw new InvalidOperationException("The selected action does not use a full-card preview control.");
+            if (selectedCard.BorderBrush != DesignSystem.Cream || cardPreview.Content is not PathIcon)
+                throw new InvalidOperationException("The selected action does not use a row preview button.");
             Capture(window, Path.Combine(directory, "custom-pet-editor.png"));
             VerifyBodyScrollGutter(window, PetBuilderControls);
             VerifyPetActionCards(window, expectWrap: true);
@@ -604,13 +603,11 @@ internal static class SmokeDiagnostics
     {
         if (window.GetVisualDescendants().OfType<ScrollViewer>().Any(view => view.Name == "CustomPetActionSlotsScroll"))
             throw new InvalidOperationException("The pet action cards still use a horizontal scrollbar.");
-        var slots = window.GetVisualDescendants().OfType<WrapPanel>()
+        var slots = window.GetVisualDescendants().OfType<StackPanel>()
             .Single(panel => panel.Name == "CustomPetActionSlots");
         var rows = slots.Children.Select(card => Math.Round(card.Bounds.Y, 1)).Distinct().Count();
-        if (expectWrap && rows <= 1)
-            throw new InvalidOperationException("The pet action cards did not wrap at a narrow window size.");
-        if (!expectWrap && rows != 1)
-            throw new InvalidOperationException("The five pet action cards do not fit on one row.");
+        if (rows != CustomPetDraft.Actions.Count)
+            throw new InvalidOperationException("The pet actions do not form eight separate rows.");
         foreach (var card in slots.Children)
             if (card.Bounds.X < -.5 || card.Bounds.Right > slots.Bounds.Width + .5)
                 throw new InvalidOperationException($"The pet action card {card.Name} overflows horizontally.");
@@ -684,13 +681,13 @@ internal static class SmokeDiagnostics
             {
                 var add = window.GetVisualDescendants().OfType<Button>().Single(control => control.Name == "CustomPetFile_" + key);
                 var location = add.TranslatePoint(default, petScroll)!.Value;
-                if (location.Y < 0 || location.Y + add.Bounds.Height > petScroll.Viewport.Height + 1)
-                    throw new InvalidOperationException($"The {key} action needs scrolling at the minimum settings size.");
+                if (location.X < 0 || location.X + add.Bounds.Width > petScroll.Viewport.Width + 1)
+                    throw new InvalidOperationException($"The {key} action overflows the row horizontally.");
             }
             VerifyBodyScrollGutter(window, PetBuilderControls);
             petScroll.ScrollToEnd(); await Task.Delay(100); window.UpdateLayout();
             VerifyBodyScrollGutter(window, PetBuilderControls);
-            var lastSlot = window.GetVisualDescendants().OfType<Button>().Single(control => control.Name == "CustomPetFile_click");
+            var lastSlot = window.GetVisualDescendants().OfType<Button>().Single(control => control.Name == "CustomPetFile_pointerUp");
             var lastSlotOrigin = lastSlot.TranslatePoint(default, window)!.Value;
             if (lastSlotOrigin.Y < 0 || lastSlotOrigin.Y + lastSlot.Bounds.Height > window.ClientSize.Height)
                 throw new InvalidOperationException("The last pet action cannot be reached by scrolling.");

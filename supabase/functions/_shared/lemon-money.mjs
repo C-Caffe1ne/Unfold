@@ -19,7 +19,9 @@ export function toLemonAmount(currency, amount) {
 export function lemonAmountMicros(amount) {
   requirePayment(typeof amount === 'number' && Number.isFinite(amount) && amount >= 0 && amount <= 2147483647);
   const value = Math.round(amount * decimalScale);
-  requirePayment(Number.isSafeInteger(value) && Math.abs((amount * decimalScale) - value) < 0.000001);
+  // Scaling a valid decimal can introduce binary residue at larger amounts.
+  // Round-trip the integer micros instead, preserving the six-decimal limit.
+  requirePayment(Number.isSafeInteger(value) && value / decimalScale === amount);
   return value;
 }
 

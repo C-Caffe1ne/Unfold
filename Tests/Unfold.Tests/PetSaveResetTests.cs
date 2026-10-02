@@ -79,7 +79,7 @@ public class PetSaveResetTests
                 Assert.Equal("stretch", action.SelectedItem);
                 Assert.Equal(originalMetadata, Find<TextBlock>(owner, "CustomPetLabel_idle").Text);
                 Assert.Equal(originalPending, Find<TextBlock>(owner, "CustomPetPending").Text);
-                Assert.Contains("쉬는 모습", Find<TextBlock>(owner, "CustomPetPreviewAction").Text);
+                Assert.Contains("기본", Find<TextBlock>(owner, "CustomPetPreviewAction").Text);
                 Assert.True(Find<Button>(owner, "AssignPetMedia").IsEnabled);
                 Assert.True(Find<Button>(owner, "CreateCustomPetPack").IsEnabled);
             }

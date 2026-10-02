@@ -16,6 +16,25 @@ namespace Unfold.Tests;
 [Collection("Timer settings")]
 public class PetHoverTests
 {
+    [Theory]
+    [InlineData("HWND", 1, true)]
+    [InlineData("HWND", 0, false)]
+    [InlineData("Headless", 1, false)]
+    [InlineData("NSWindow", 1, false)]
+    public void CursorPollingRequiresANonzeroWindowsNativeHandle(string descriptor, int value, bool expected)
+    {
+        Assert.Equal(expected, PetWindow.HasWindowsHandle(new Avalonia.Platform.PlatformHandle((nint)value, descriptor)));
+        Assert.False(PetWindow.HasWindowsHandle(null));
+    }
+
+    [AvaloniaFact]
+    public async Task HeadlessPetNeverQualifiesForNativeCursorPolling()
+    {
+        using var scope = new Scope(); await scope.Load();
+        Assert.False(PetWindow.HasWindowsHandle(scope.Pet.TryGetPlatformHandle()));
+        scope.Hover(); Assert.True(scope.Bubble.IsVisible);
+    }
+
     [AvaloniaFact]
     public void TimeAndCountdownRefreshAndShowPausedStoppedAndIdleStates()
     {

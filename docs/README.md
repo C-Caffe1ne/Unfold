@@ -3,10 +3,18 @@
 현재 제품은 `release/mvp`의 **휴식 세션·로컬 회고를 포함한 C#·Avalonia 기반 Cat MVP**다. 아래 문서가 현재
 구현·범위·실행 방법을 설명한다. 과거 Swift 구현과 Garden 실험은 보관 자료다.
 
+개발 실행은 macOS `bash Scripts/run-desktop.sh`, Windows `./Scripts/run-desktop.ps1`을 사용한다.
+현재 체크아웃의 Release 소스를 빌드하며 기본값은 실행마다 새 임시 데이터 경로다.
+원본은 `src/`, `Assets/` 등 프로젝트의 빌드 입력에서 수정한다. `bin/`, `obj/`, `artifacts/`,
+`.build/`, `build/`의 이전 앱·복사 자산은 수정 대상이 아니다.
+프로젝트 버전 번호가 같아도 코드와 배포물의 기능이 같다는 뜻은 아니다.
+아래 날짜별 계획·검증은 해당 시점의 기록이며 현재 구현과 검증 통과는 코드와 새 검사로 확인한다.
+
 | 문서 | 역할 |
 |---|---|
 | [에이전트 작업 안내](../AGENTS.md) | Codex·Claude 공통 프로젝트 지침. Claude는 `CLAUDE.md`에서 가져온다. |
 | [프로젝트 README](../README.md) | 사용자 소개, 빠른 실행, 저장소 구조 |
+| [저장소 정리 계획·검증](validation/2026-10-02-repository-cleanup.md) | 용량 조사, 사전 오류 검사, 생성물 정리와 현재 소스 실행 경계 |
 | [A안 계정 화면 편집](account-screen.md) | 최초 로그인·구매 화면의 JSON·XAML·테마 편집 위치와 현재 연결 범위 |
 | [Lemon Squeezy 전환 구현·검증](validation/2026-09-28-lemon-squeezy-transition.md) | 결제 생성·웹훅·누적 환불, Supabase 적용 상태와 사용자가 준비할 외부 설정 |
 | [Lemon 구매 승인 복구](validation/2026-09-29-lemon-purchase-recovery.md) | 환율 환산 주문의 422 원인, 웹훅·DB 수정과 원격 배포·재전송 경계 |

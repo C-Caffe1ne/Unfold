@@ -98,9 +98,9 @@ public class UiAuditRegressionTests
             Press(owner, "CustomPetFile_stretch"); await Until(() => !view.IsBusy);
             var hint = Find<TextBlock>(owner, "CustomPetPreviewHint");
             Assert.False(hint.IsVisible);
-            Assert.Contains("스트레칭", Find<TextBlock>(owner, "CustomPetPreviewAction").Text);
+            Assert.Contains("휴식", Find<TextBlock>(owner, "CustomPetPreviewAction").Text);
             Press(owner, "CustomPetRemove_idle"); Assert.False(hint.IsVisible);
-            Assert.Contains("스트레칭", Find<TextBlock>(owner, "CustomPetPreviewAction").Text);
+            Assert.Contains("휴식", Find<TextBlock>(owner, "CustomPetPreviewAction").Text);
             Press(owner, "CustomPetRemove_stretch"); Assert.False(hint.IsVisible);
         }
         finally { owner.Close(); }

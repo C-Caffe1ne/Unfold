@@ -81,6 +81,7 @@ public sealed partial class PetWindow : Window
             down = PointerScreenPosition(e);
             dragAnchor = PetAnchor; pressedAt = Stopwatch.GetTimestamp(); dragging = false;
             BeginCompanionPress();
+            if (!HasOriginalBehavior) _ = React("pointerDown");
             pressedPointer = e.Pointer; e.Pointer.Capture(animation); e.Handled = true;
         };
         animation.PointerMoved += (_, e) =>
@@ -102,13 +103,20 @@ public sealed partial class PetWindow : Window
             down = null; pressedPointer = null; e.Pointer.Capture(null); ClampPosition(); runtime.SavePosition(PetAnchor);
             var handled = ReleaseCompanionPress(clicked);
             UpdateHover(PetPoint(e.GetPosition(this))); RefreshSpeech();
-            if (clicked && !handled) await React();
+            if (!HasOriginalBehavior && runtime.Selected?.Manifest.Animations.ContainsKey("pointerUp") == true) await React("pointerUp");
+            else
+            {
+                if (!HasOriginalBehavior && ActiveAnimation == "pointerDown") await RestoreBaseAnimation(InvalidatePlayback());
+                if (clicked && !handled) await React();
+            }
         };
         animation.PointerCaptureLost += (_, _) =>
         {
             if (down is null) return;
             down = null; pressedPointer = null; dragging = false;
-            CancelCompanionPress(); UpdateHover(null);
+            CancelCompanionPress();
+            if (!HasOriginalBehavior && ActiveAnimation == "pointerDown") _ = RestoreBaseAnimation(InvalidatePlayback());
+            UpdateHover(null);
         };
         hitTimer.Tick += (_, _) => { UpdateClickThrough(); TickCompanion(); };
         Opened += (_, _) =>
@@ -137,7 +145,7 @@ public sealed partial class PetWindow : Window
         character = selected; ActiveAnimation = "idle";
         if (selected?.HasOriginalBehavior == true && runtime.Reminder.Notice == PetNotice.Resting)
             originalStretchSession = runtime.Reminder.Session;
-        animation.SetFrames(frames, true, selected?.Manifest.RenderStyle == "pixel", selected?.HasOriginalBehavior == true);
+        animation.SetFrames(frames, selected?.Manifest.Animations["idle"].Loop ?? true, selected?.Manifest.RenderStyle == "pixel", selected?.HasOriginalBehavior == true, selected?.Manifest.Animations["idle"].PingPong == true);
     }
     internal void ShowReminderFallback(CharacterPackage selected)
     {
@@ -178,7 +186,8 @@ public sealed partial class PetWindow : Window
             {
                 var frames = await runtime.Clip(key); if (current != generation) return;
                 animation.SetRunning(true);
-                animation.SetFrames(frames, false, selected.Manifest.RenderStyle == "pixel", selected.HasOriginalBehavior);
+                var definition = selected.Manifest.Animations[key];
+                animation.SetFrames(frames, !selected.HasOriginalBehavior && definition.Loop, selected.Manifest.RenderStyle == "pixel", selected.HasOriginalBehavior, definition.PingPong);
                 await completed.Task.WaitAsync(cancellation.Token);
                 if (current != generation) return;
                 if (selected.HasOriginalBehavior && key == "stretch" && session is not null &&
@@ -278,6 +287,11 @@ public sealed partial class PetWindow : Window
             (hoveringPet || animation.OpaqueAt(local));
         if (hoveringPet == hovered) return;
         hoveringPet = hovered;
+        if (!HasOriginalBehavior && !runtime.PresentedReminder.HasNotice)
+        {
+            if (hovered) _ = React("hover");
+            else if (ActiveAnimation == "hover") _ = RestoreBaseAnimation(InvalidatePlayback());
+        }
         // Finish the current pointer dispatch before changing its window coordinates.
         Dispatcher.UIThread.Post(() => { if (IsVisible) RefreshSpeech(); }, DispatcherPriority.Background);
     }
@@ -292,9 +306,17 @@ public sealed partial class PetWindow : Window
     [DllImport("user32.dll")] [return: MarshalAs(UnmanagedType.Bool)] private static extern bool GetCursorPos(out CursorPoint point);
     [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW")] private static extern nint GetWindowLong(nint hwnd, int index);
     [DllImport("user32.dll", EntryPoint = "SetWindowLongPtrW")] private static extern nint SetWindowLong(nint hwnd, int index, nint value);
+    internal static bool HasWindowsHandle(Avalonia.Platform.IPlatformHandle? handle) =>
+        handle is { HandleDescriptor: "HWND" } && handle.Handle != 0;
+
     private void UpdateClickThrough()
     {
         if (!OperatingSystem.IsWindows() || down is not null) return;
+        // Only native Windows surfaces may poll the OS pointer or mutate styles.
+        // Headless surfaces route synthetic input independently of the desktop cursor.
+        var handle = TryGetPlatformHandle();
+        if (!HasWindowsHandle(handle)) return;
+        var hwnd = handle!.Handle;
         if (!GetCursorPos(out var point)) return;
         var cursor = new PixelPoint(point.X, point.Y);
         // A click-through window may not receive Enter until the pointer moves again.
@@ -302,7 +324,6 @@ public sealed partial class PetWindow : Window
         var onBubble = bubble.IsVisible && bubble.IsHitTestVisible && new Rect(bubble.Bounds.Size).Contains(bubble.PointToClient(cursor));
         var ignore = !onBubble && !animation.OpaqueAt(animation.PointToClient(cursor));
         if (ignore == clickThrough) return;
-        if (TryGetPlatformHandle()?.Handle is not nint hwnd || hwnd == 0) return;
         var style = (long)GetWindowLong(hwnd, -20);
         SetWindowLong(hwnd, -20, (nint)(ignore ? style | 0x20 : style & ~0x20)); clickThrough = ignore;
     }

@@ -5,7 +5,7 @@ using System.Text.Json;
 namespace Unfold.Core;
 
 public sealed record SheetDefinition(string File, int Columns, int Rows, int FrameWidth, int FrameHeight);
-public sealed record AnimationDefinition(int[]? Frames = null, double? Fps = null, string? Gif = null, bool Loop = true);
+public sealed record AnimationDefinition(int[]? Frames = null, double? Fps = null, string? Gif = null, bool Loop = true, bool PingPong = false);
 public sealed record CharacterManifest(string Id, string Name, int Version, SheetDefinition SpriteSheet,
     Dictionary<string, AnimationDefinition> Animations, string? ThumbnailSymbol = null, string? RenderStyle = null,
     string? BehaviorProfile = null);

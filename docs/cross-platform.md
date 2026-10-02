@@ -136,8 +136,16 @@ dotnet restore Unfold.slnx --locked-mode
 # MP4 import: use the matching RID (win-x64, win-arm64, osx-arm64, osx-x64).
 dotnet run --project tools/Unfold.MediaSetup -- osx-arm64 .
 dotnet test Unfold.slnx -c Release --no-restore
-dotnet run --project src/Unfold.Desktop
+# macOS: build this checkout and launch with a separate development profile.
+bash Scripts/run-desktop.sh
+# Windows PowerShell: ./Scripts/run-desktop.ps1
 ```
+
+The development launchers use Release and create a new temporary `UNFOLD_DATA_DIR`
+by default. Set that variable to a dedicated development directory to retain test
+settings between runs. Do not point it at your installed app's profile: a running
+app using the same profile can receive activation instead of the new executable.
+Edit `src/` and `Assets/` originals; `bin/`, `obj/`, and `artifacts/` are generated copies.
 
 On Windows, publish using PowerShell:
 

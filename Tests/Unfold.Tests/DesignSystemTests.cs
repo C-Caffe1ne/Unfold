@@ -144,8 +144,8 @@ public class DesignSystemTests
                 Assert.DoesNotContain(window.GetVisualDescendants().OfType<Button>(), button => button.Name == "ImportPetMedia");
                 var slotOrigins = CustomPetDraft.Actions.Select(key =>
                     Find<Border>(window, "CustomPetSlot_" + key).TranslatePoint(default, window)!.Value).ToArray();
-                Assert.All(slotOrigins, origin => Assert.InRange(Math.Abs(origin.Y - slotOrigins[0].Y), 0, .5));
-                for (var index = 1; index < slotOrigins.Length; index++) Assert.True(slotOrigins[index].X > slotOrigins[index - 1].X);
+                Assert.All(slotOrigins, origin => Assert.InRange(Math.Abs(origin.X - slotOrigins[0].X), 0, .5));
+                for (var index = 1; index < slotOrigins.Length; index++) Assert.True(slotOrigins[index].Y > slotOrigins[index - 1].Y);
                 var preview = Find<Border>(window, "CustomPetPreviewSurface");
                 var previewOrigin = preview.TranslatePoint(default, window)!.Value;
                 Assert.True(previewOrigin.Y + preview.Bounds.Height < slotOrigins[0].Y);
@@ -155,7 +155,7 @@ public class DesignSystemTests
                 {
                     var remove = Find<Button>(window, "CustomPetRemove_" + key);
                     var removeOrigin = remove.TranslatePoint(default, window)!.Value;
-                    Assert.True(removeOrigin.Y + remove.Bounds.Height <= bodyOrigin.Y + bodyScroll.Viewport.Height + .5,
+                    Assert.True(removeOrigin.X + remove.Bounds.Width <= bodyOrigin.X + bodyScroll.Viewport.Width + .5,
                         $"{key} action controls are clipped in the default settings layout.");
                 }
             }

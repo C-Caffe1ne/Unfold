@@ -443,7 +443,7 @@ public class OriginalCompanionTests
         Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
         pet.ReleaseCompanionPress(true); pet.AdvanceCompanion(.2);
         Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
-        Assert.Equal(new[] { "idle", "attention", "stretch", "celebrate", "click" }, CustomPetDraft.Actions);
+        Assert.Equal(new[] { "idle", "attention", "stretch", "celebrate", "click", "hover", "pointerDown", "pointerUp" }, CustomPetDraft.Actions);
         scope.Runtime.Stop(); await scope.Runtime.ShowReminder(); scope.Runtime.StartBreak();
         await Until(() => pet.ActiveAnimation == "idle"); Assert.False(pet.IsRoaming);
         Assert.Equal("idle", pet.ActiveAnimation);
