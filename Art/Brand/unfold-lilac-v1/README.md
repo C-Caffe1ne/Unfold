@@ -45,4 +45,3 @@ ICNS는 Pillow로 인코딩·디코딩 확인했으며 iconset 원본도 있습�
 node scripts/build-brand.cjs
 python3 scripts/package-brand.py
 ```
-
