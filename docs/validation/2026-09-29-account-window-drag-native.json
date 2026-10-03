@@ -1,0 +1,323 @@
+{
+  "date": "2026-09-29",
+  "os": "macOS",
+  "input": "CUA native drag",
+  "sameDesktopAssembly": true,
+  "desktopAssemblySha256": "0958abb6f2f5c9ce47d233f34638f7ccfaac6aa8b6c1c4e94beb6c9bf2db76f0",
+  "before": [
+    {
+      "kind": "opened",
+      "position": {
+        "x": 490,
+        "y": 245
+      },
+      "size": {
+        "width": 940,
+        "height": 620
+      },
+      "source": null,
+      "pointer": null,
+      "DesktopScaling": 1,
+      "RenderScaling": 1,
+      "time": "2026-09-29T06:37:36.447093+00:00"
+    },
+    {
+      "kind": "down",
+      "position": {
+        "x": 490,
+        "y": 245
+      },
+      "size": {
+        "width": 940,
+        "height": 620
+      },
+      "source": "AccountFrame",
+      "pointer": "470, 22",
+      "DesktopScaling": 1,
+      "RenderScaling": 1,
+      "time": "2026-09-29T06:37:57.56177+00:00"
+    },
+    {
+      "kind": "up",
+      "position": {
+        "x": 490,
+        "y": 245
+      },
+      "size": {
+        "width": 940,
+        "height": 620
+      },
+      "source": "AccountFrame",
+      "pointer": "570, 82",
+      "DesktopScaling": 1,
+      "RenderScaling": 1,
+      "time": "2026-09-29T06:37:57.568096+00:00"
+    },
+    {
+      "kind": "down",
+      "position": {
+        "x": 490,
+        "y": 245
+      },
+      "size": {
+        "width": 940,
+        "height": 620
+      },
+      "source": "AccountDragHandle",
+      "pointer": "470, 52",
+      "DesktopScaling": 1,
+      "RenderScaling": 1,
+      "time": "2026-09-29T06:37:58.286141+00:00"
+    },
+    {
+      "kind": "up",
+      "position": {
+        "x": 490,
+        "y": 245
+      },
+      "size": {
+        "width": 940,
+        "height": 620
+      },
+      "source": "AccountDragHandle",
+      "pointer": "590, 112",
+      "DesktopScaling": 1,
+      "RenderScaling": 1,
+      "time": "2026-09-29T06:37:58.298401+00:00"
+    }
+  ],
+  "after": [
+    {
+      "kind": "opened",
+      "position": {
+        "x": 490,
+        "y": 245
+      },
+      "size": {
+        "width": 940,
+        "height": 620
+      },
+      "source": null,
+      "pointer": null,
+      "left": null,
+      "update": null,
+      "captured": null,
+      "state": "Normal",
+      "DesktopScaling": 1,
+      "RenderScaling": 1,
+      "time": "2026-09-29T06:51:24.901826+00:00"
+    },
+    {
+      "kind": "down",
+      "position": {
+        "x": 490,
+        "y": 245
+      },
+      "size": {
+        "width": 940,
+        "height": 620
+      },
+      "source": "AccountDragRegion",
+      "pointer": "470, 5",
+      "left": true,
+      "update": "LeftButtonPressed",
+      "captured": "AccountDragRegion",
+      "state": "Normal",
+      "DesktopScaling": 1,
+      "RenderScaling": 1,
+      "time": "2026-09-29T06:51:41.865805+00:00"
+    },
+    {
+      "kind": "position",
+      "position": {
+        "x": 590,
+        "y": 305
+      },
+      "size": {
+        "width": 940,
+        "height": 620
+      },
+      "source": null,
+      "pointer": null,
+      "left": null,
+      "update": null,
+      "captured": null,
+      "state": "Normal",
+      "DesktopScaling": 1,
+      "RenderScaling": 1,
+      "time": "2026-09-29T06:51:41.874854+00:00"
+    },
+    {
+      "kind": "up",
+      "position": {
+        "x": 590,
+        "y": 305
+      },
+      "size": {
+        "width": 940,
+        "height": 620
+      },
+      "source": "AccountDragRegion",
+      "pointer": "470, 5",
+      "left": false,
+      "update": "LeftButtonReleased",
+      "captured": "AccountDragRegion",
+      "state": "Normal",
+      "DesktopScaling": 1,
+      "RenderScaling": 1,
+      "time": "2026-09-29T06:51:41.875766+00:00"
+    },
+    {
+      "kind": "down",
+      "position": {
+        "x": 590,
+        "y": 305
+      },
+      "size": {
+        "width": 940,
+        "height": 620
+      },
+      "source": "AccountDragRegion",
+      "pointer": "470, 52",
+      "left": true,
+      "update": "LeftButtonPressed",
+      "captured": "AccountDragRegion",
+      "state": "Normal",
+      "DesktopScaling": 1,
+      "RenderScaling": 1,
+      "time": "2026-09-29T06:51:42.321078+00:00"
+    },
+    {
+      "kind": "position",
+      "position": {
+        "x": 670,
+        "y": 345
+      },
+      "size": {
+        "width": 940,
+        "height": 620
+      },
+      "source": null,
+      "pointer": null,
+      "left": null,
+      "update": null,
+      "captured": null,
+      "state": "Normal",
+      "DesktopScaling": 1,
+      "RenderScaling": 1,
+      "time": "2026-09-29T06:51:42.325156+00:00"
+    },
+    {
+      "kind": "up",
+      "position": {
+        "x": 670,
+        "y": 345
+      },
+      "size": {
+        "width": 940,
+        "height": 620
+      },
+      "source": "AccountDragRegion",
+      "pointer": "470, 52",
+      "left": false,
+      "update": "LeftButtonReleased",
+      "captured": "AccountDragRegion",
+      "state": "Normal",
+      "DesktopScaling": 1,
+      "RenderScaling": 1,
+      "time": "2026-09-29T06:51:42.326231+00:00"
+    },
+    {
+      "kind": "minimum",
+      "position": {
+        "x": 670,
+        "y": 345
+      },
+      "size": {
+        "width": 640,
+        "height": 560
+      },
+      "source": null,
+      "pointer": null,
+      "left": null,
+      "update": null,
+      "captured": null,
+      "state": "Normal",
+      "DesktopScaling": 1,
+      "RenderScaling": 1,
+      "time": "2026-09-29T06:51:42.863095+00:00"
+    },
+    {
+      "kind": "down",
+      "position": {
+        "x": 670,
+        "y": 345
+      },
+      "size": {
+        "width": 640,
+        "height": 560
+      },
+      "source": "AccountDragRegion",
+      "pointer": "320, 5",
+      "left": true,
+      "update": "LeftButtonPressed",
+      "captured": "AccountDragRegion",
+      "state": "Normal",
+      "DesktopScaling": 1,
+      "RenderScaling": 1,
+      "time": "2026-09-29T06:51:43.393494+00:00"
+    },
+    {
+      "kind": "position",
+      "position": {
+        "x": 580,
+        "y": 395
+      },
+      "size": {
+        "width": 640,
+        "height": 560
+      },
+      "source": null,
+      "pointer": null,
+      "left": null,
+      "update": null,
+      "captured": null,
+      "state": "Normal",
+      "DesktopScaling": 1,
+      "RenderScaling": 1,
+      "time": "2026-09-29T06:51:43.394418+00:00"
+    },
+    {
+      "kind": "up",
+      "position": {
+        "x": 580,
+        "y": 395
+      },
+      "size": {
+        "width": 640,
+        "height": 560
+      },
+      "source": "AccountDragRegion",
+      "pointer": "320, 5",
+      "left": false,
+      "update": "LeftButtonReleased",
+      "captured": "AccountDragRegion",
+      "state": "Normal",
+      "DesktopScaling": 1,
+      "RenderScaling": 1,
+      "time": "2026-09-29T06:51:43.394772+00:00"
+    }
+  ],
+  "beforeScope": "CUA drags at 06:37:57-58 did not move; later independent inputs moved the narrow header but not the outer padding. This does not establish universal AppKit failure.",
+  "verified": [
+    "outer top margin y=5 drag (100,60)",
+    "header drag (80,40)",
+    "minimum 640x560 y=5 drag (-90,50)"
+  ],
+  "unverified": [
+    "Windows native movement",
+    "multiple monitors and DPI changes",
+    "purchase service integration"
+  ],
+  "beforeLaterPositionEvents": 15
+}

@@ -124,7 +124,7 @@ public class TimerControlTests
         var settingsControls = scope.Window.GetVisualDescendants().OfType<NumericUpDown>().ToArray();
         settingsControls.Single(input => input.Name == "ReminderIdle").Value = 12;
         settingsControls.Single(input => input.Name == "SnoozeMinutes").Value = 9;
-        Press(scope.Window, "SavePreferences"); Dispatcher.UIThread.RunJobs();
+        Dispatcher.UIThread.RunJobs();
         Assert.Equal(12, scope.Runtime.Settings.IdleMinutes); Assert.Equal(9, scope.Runtime.Settings.SnoozeMinutes);
         Assert.Equal(12, settingsControls.Single(input => input.Name == "ReminderIdle").Value);
     }
@@ -160,19 +160,22 @@ public class TimerControlTests
         Assert.DoesNotContain(scope.Window.GetVisualDescendants().OfType<Button>(), button => button.Name == "TimerReset");
         foreach (var name in new[] { "TimerToggle", "TimerStop" })
         {
-            var button = Button(scope.Window, name); Assert.IsType<PathIcon>(button.Content);
+            var button = Button(scope.Window, name);
+            Assert.Equal(name == "TimerStop" ? PlaybackGlyph.Stop : PlaybackGlyph.Pause,
+                button.GetVisualDescendants().OfType<PlaybackIcon>().Single().Glyph);
             Assert.False(string.IsNullOrWhiteSpace(AutomationProperties.GetName(button))); Assert.NotNull(ToolTip.GetTip(button));
             var position = button.TranslatePoint(default, scope.Window)!.Value;
             Assert.True(position.X >= 0 && position.X + button.Bounds.Width <= scope.Window.ClientSize.Width);
             Assert.True(position.Y >= 0 && position.Y + button.Bounds.Height <= scope.Window.ClientSize.Height);
         }
         Press(scope.Window, "TimerToggle"); Assert.True(scope.Runtime.Clock.Paused);
+        Assert.Equal(PlaybackGlyph.Play, Button(scope.Window, "TimerToggle").GetVisualDescendants().OfType<PlaybackIcon>().Single().Glyph);
         Assert.StartsWith("일시정지", scope.Window.GetVisualDescendants().OfType<TextBlock>().Single(text => text.Name == "TimerStateText").Text);
         Assert.Equal(DesignSystem.Warning, scope.Window.GetVisualDescendants().OfType<Avalonia.Controls.Shapes.Ellipse>().Single(dot => dot.Name == "TimerStateIndicator").Fill);
         Assert.Equal("타이머 계속", AutomationProperties.GetName(Button(scope.Window, "TimerToggle")));
         Press(scope.Window, "TimerStop"); Assert.True(scope.Runtime.Clock.Stopped);
         Assert.Equal(scope.Runtime.Clock.Interval, scope.Runtime.Clock.Remaining);
-        Assert.Equal("60:00", scope.Window.GetVisualDescendants().OfType<TextBlock>().Single(text => text.Name == "TimerCountdown").Text);
+        Assert.Equal("60:00", scope.Window.GetVisualDescendants().OfType<AnimatedCountdown>().Single(text => text.Name == "TimerCountdown").Text);
         Assert.StartsWith("중지됨", scope.Window.GetVisualDescendants().OfType<TextBlock>().Single(text => text.Name == "TimerStateText").Text);
         Assert.DoesNotContain(scope.Window.GetVisualDescendants().OfType<TextBlock>(), text => text.Name == "TimerStateDetail");
         Assert.Equal(DesignSystem.Stopped, scope.Window.GetVisualDescendants().OfType<Avalonia.Controls.Shapes.Ellipse>().Single(dot => dot.Name == "TimerStateIndicator").Fill);
@@ -181,6 +184,57 @@ public class TimerControlTests
         scope.Window.KeyPress(Key.Space, RawInputModifiers.None, PhysicalKey.Space, " ");
         scope.Window.KeyRelease(Key.Space, RawInputModifiers.None, PhysicalKey.Space, " ");
         Assert.False(scope.Runtime.Clock.Paused); Assert.Equal(scope.Runtime.Clock.Interval, scope.Runtime.Clock.Remaining);
+        Assert.Equal(PlaybackGlyph.Pause, play.GetVisualDescendants().OfType<PlaybackIcon>().Single().Glyph);
+    }
+    [AvaloniaFact]
+    public void CenteredPlayerKeepsButtonSurfacesSteadyAndDimsOnlyTheInactiveCountdown()
+    {
+        using var scope = new SettingsScope();
+        scope.Window.Width = scope.Window.MinWidth; scope.Window.Height = scope.Window.MinHeight;
+        Dispatcher.UIThread.RunJobs(); scope.Window.UpdateLayout();
+        var countdown = scope.Window.GetVisualDescendants().OfType<AnimatedCountdown>().Single();
+        var badge = scope.Window.GetVisualDescendants().OfType<Border>().Single(control => control.Name == "TimerStateBadge");
+        var play = Button(scope.Window, "TimerToggle");
+        var presenter = play.GetVisualDescendants().OfType<Avalonia.Controls.Presenters.ContentPresenter>()
+            .Single(control => control.Name == "PART_ContentPresenter");
+        var bounds = play.Bounds;
+        var point = play.TranslatePoint(new Point(10, 10), scope.Window)!.Value;
+        scope.Window.MouseMove(point); Dispatcher.UIThread.RunJobs();
+        Assert.Equal(DesignSystem.Accent, presenter.Background);
+        scope.Window.MouseDown(point, MouseButton.Left); Dispatcher.UIThread.RunJobs();
+        Assert.Equal(DesignSystem.Accent, presenter.Background); Assert.Equal(bounds, play.Bounds);
+        scope.Window.MouseUp(point, MouseButton.Left); Dispatcher.UIThread.RunJobs();
+        Assert.True(scope.Runtime.Clock.Paused);
+        Assert.Equal(.55, countdown.Opacity); Assert.Equal(1, badge.Opacity);
+        Assert.False(countdown.HasDigitMotion);
+        Assert.Contains(play.GetVisualDescendants().OfType<TextBlock>(), text => text.Text == "계속");
+        Press(scope.Window, "TimerStop");
+        Assert.Equal("60:00", countdown.Text); Assert.Equal(.55, countdown.Opacity);
+        Assert.False(Button(scope.Window, "TimerStop").IsEnabled);
+        Assert.Contains(play.GetVisualDescendants().OfType<TextBlock>(), text => text.Text == "시작");
+        Press(scope.Window, "TimerToggle");
+        Assert.Equal(1, countdown.Opacity); Assert.True(Button(scope.Window, "TimerStop").IsEnabled);
+        Assert.Contains(play.GetVisualDescendants().OfType<TextBlock>(), text => text.Text == "일시정지");
+        foreach (var palette in DesignSystem.Themes)
+        {
+            scope.Runtime.SetTheme(palette.Id);
+            Press(scope.Window, "TimerToggle"); Assert.Equal(.55, countdown.Opacity);
+            Assert.Equal(DesignSystem.Cream, countdown.Foreground);
+            Press(scope.Window, "TimerToggle"); Assert.Equal(1, countdown.Opacity);
+        }
+    }
+    [AvaloniaFact]
+    public async Task StoppedTimerStillAllowsCancellingAnActiveBreak()
+    {
+        using var scope = new SettingsScope();
+        Press(scope.Window, "TimerStop");
+        Assert.True(scope.Runtime.Clock.Stopped); Assert.False(Button(scope.Window, "TimerStop").IsEnabled);
+        scope.Runtime.Reminder.Invite(new(BreakRoutines.All[0], "default-cat"));
+        await scope.Runtime.UpdateSettings(scope.Runtime.Settings);
+        Assert.NotNull(scope.Runtime.ActiveReminder); Assert.True(Button(scope.Window, "TimerStop").IsEnabled);
+        Press(scope.Window, "TimerStop");
+        Assert.Null(scope.Runtime.ActiveReminder); Assert.True(scope.Runtime.Clock.Stopped);
+        Assert.False(Button(scope.Window, "TimerStop").IsEnabled);
     }
     private sealed class SettingsScope : IDisposable
     {

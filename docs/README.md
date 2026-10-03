@@ -7,7 +7,18 @@
 |---|---|
 | [에이전트 작업 안내](../AGENTS.md) | Codex·Claude 공통 프로젝트 지침. Claude는 `CLAUDE.md`에서 가져온다. |
 | [프로젝트 README](../README.md) | 사용자 소개, 빠른 실행, 저장소 구조 |
+| [Beta v1.0.2 Mac 공증 배포](validation/2026-10-01-macos-notarization.md) | Developer ID·Apple 공증·티켓·웹 ZIP 교체, Gatekeeper 검사와 첫 실행 미확인 항목 |
+| [Beta v1.0.2 재패키징·웹 배포](validation/2026-10-01-v1.0.2-release.md) | 브랜드 수정 포함, 설치 파일·공개 다운로드·브라우저 저장 검증 |
+| [Beta v1.0.2 릴리스 노트](releases/v1.0.2-beta.md) | 브랜드 트레이 아이콘·최초 계정 화면 변경과 설치 안내 |
+| [Beta v1.0.1 설치 파일](validation/2026-10-01-installers.md) | Windows 설치 마법사·Mac DMG, 파일 해시, 실행 검사와 실기·게시 한계 |
+| [Beta v1.0.1 웹 다운로드 배포](validation/2026-10-01-web-installers.md) | 설치 ZIP 공개 릴리스·웹 연결, 다운로드 버튼 저장·해시와 서버 검사 |
+| [Beta v1.0.1 릴리스 노트](releases/v1.0.1-beta.md) | 설치 형식과 로그인 유지 변경, 설치·업데이트 안내 |
+| [판매 시작 안내](releases/beta-v1.0.0-launch.md) | Live 상품·Secret·서버 전환, 실결제 검증과 macOS 서명·공증 순서 |
+| [Beta v1.0.0 검증](validation/2026-09-30-beta-v1.0.0.md) | 구매 잠금·결제 서버·패키지 검사와 판매 시작 전 남은 조건 |
+| [Beta v1.0.0 릴리스 노트](releases/v1.0.0-beta.md) | 판매용 구매 잠금, 현재 기능, 설치·업데이트와 운영 미연결 경계 |
 | [A안 계정 화면 편집](account-screen.md) | 최초 로그인·구매 화면의 JSON·XAML·테마 편집 위치와 현재 연결 범위 |
+| [로그인 유지 검증](validation/2026-10-01-session-persistence.md) | OS 보안 저장, 재실행 복원·토큰 갱신, 로그아웃 삭제와 실기 검증 한계 |
+| [설정 이동·계정 로그아웃 검증](validation/2026-09-30-settings-account.md) | 미저장 변경 확인, Google 이메일 표시, 메모리 세션·로그아웃과 검증 한계 |
 | [Lemon Squeezy 전환 구현·검증](validation/2026-09-28-lemon-squeezy-transition.md) | 결제 생성·웹훅·누적 환불, Supabase 적용 상태와 사용자가 준비할 외부 설정 |
 | [Paddle 샌드박스 이력](validation/2026-09-28-paddle-onboarding.md) | 공급자 전환 전 수행한 샌드박스 검증 기록. 현재 결제 경로에서는 사용하지 않음 |
 | [v0.2.2 배포 검증](validation/2026-09-23-v0.2.2-distribution.md) | 최신 복구 수정 포함, macOS·Windows 배포 파일, 해시·버전·게시 앱 검사 |
@@ -33,6 +44,8 @@
 | [반응형·메뉴·확인 동작 검증](validation/2026-09-21-responsive-actions.md) | 640×560 반응형, 펫 숨기기, 중지·종료 확인, 설정·펫 열기 배치와 Release 254개 통과 |
 | [색상 테마 초기 구현·검증](validation/2026-09-20-themes.md) | 최초 네 가지 테마의 선택·저장·초안 보존과 당시 네이티브 캡처 |
 | [디자인 시스템](design-system.md) | 공통 시각 토큰, 페이지·버튼·입력 규칙과 중첩 창 적용 범위 |
+| [내비게이션 명칭·아이콘 검증](validation/2026-09-29-navigation-icons.md) | Figma 현재 페이지의 아이콘 6종, 명칭 통일, 원본 SVG·테마·크기 검증 |
+| [방향 아이콘 교체 검증](validation/2026-09-30-direction-icons.md) | 사용자 SVG 4종, 입력·드롭다운·기록·스크롤바 적용과 회귀 검사 |
 | [Figma 디자인 시스템](figma-design-system.md) | 편집 가능한 Figma 파일, 변수·Variant 구성과 로컬 빌더 실행 방법 |
 | [디자인 시스템 검증](validation/2026-09-14-design-system.md) | 135개 테스트, 최종 변경 영역 13개 재검사와 macOS 화면 24장 |
 | [입력 필드 상태 검증](validation/2026-09-14-input-fields.md) | 호버·포커스 강조 제거, 숫자 왼쪽 정렬과 화살표 모서리, 전체 136개 테스트 |
@@ -46,6 +59,8 @@
 | [유료 출시 계획](plans/2026-09-27-paid-launch.md) | 도메인 없이 진행할 계정·Supabase·구매 권한·시안과 운영 전환 순서 |
 | [계정·구매 기반 1차 검증](validation/2026-09-27-paid-foundation.md) | 로그인·구매 시안, Supabase RLS·이벤트 처리, C# 클라이언트와 391개 Release 검사 |
 | [Supabase 공개키 연결 검사](validation/2026-09-28-supabase-connection.md) | 실제 Auth 응답, Google 비활성·상품/함수 준비 상태와 다음 서버 설정 |
+| [계정별 무료 이용 코드](access-codes.md) | Google 로그인 후 코드 등록, 권한 복원, 운영자 코드 발급·회수 |
+| [무료 이용 코드 검증](validation/2026-09-30-access-codes.md) | 앱 모달·RLS·코드 제한과 실제 Supabase 반영 |
 | [Supabase 연결 안내](../supabase/README.md) | 로컬 설정·테스트, 서버 API·앱 계약과 실제 연결 전 조건 |
 | [개발 계획](development-plan.md) | 구현 단계, 완료 조건과 후속 범위 |
 | [설정 탭 UI 개편 계획](plans/2026-09-18-settings-ui-redesign.md) | UI 우선·UX 후속 순서, 드롭다운·텍스트 위계·간격·레이아웃 검수와 구현 기준 |
@@ -63,7 +78,10 @@
 | [UI 설명 문구 제거 검증](validation/2026-09-20-ui-copy-cleanup.md) | 홈·설정·기록·펫 추가·말풍선의 고정 설명 제거, Release 215개와 자동 캡처 |
 | [기존 루틴·프로필 호환과 회고](personalization.md) | 제거된 설정 UI의 데이터 보존 경계와 현재 주간 회고/CSV |
 | [펫 리소스 관리](pet-resources.md) | 제작 원장, 런타임 계약, 품질 기준과 검사 명령 |
-| [펫 추가·커스텀 팩 만들기](pet-packs.md) | GIF·MP4 동작 배정, 팩 생성·미리보기·설치·업데이트·재설치, ZIP/버전/해시 계약 |
+| [펫 추가·커스텀 팩 만들기](pet-packs.md) | 이미지·GIF·MP4 동작 배정, 팩 생성·미리보기·설치·업데이트·재설치, ZIP/버전/해시 계약 |
+| [이미지·MP3 가져오기 검증](validation/2026-09-30-media-import.md) | 정지 이미지·사진·효과음 확장, 464개 검사와 macOS 변환·재생 확인 |
+| [전체·개별 소리 크기 검증](validation/2026-09-30-sound-mixer.md) | 세 슬라이더·개별 미리듣기, 저장 호환성, 474개 검사와 macOS 재생 확인 |
+| [소리 아이콘 검증](validation/2026-09-30-sound-icons.md) | 재생·중지 전환, 세 음량 아이콘, 퍼센트 제거와 최종 477개 검사 |
 | [커스텀 펫 검증](validation/2026-09-16-custom-pet.md) | 147개 테스트, 실제 MP4 변환, 동작별 팩 생성·설치, macOS 렌더링 검증 |
 | [펫 페이지 탭 검증](validation/2026-09-16-pet-tabs.md) | 사이드바 펫 추가, 열기·만들기 탭, 초안 유지와 최소 크기 렌더링 |
 | [UI/UX 전수 감사와 작업 계획](validation/2026-09-16-ui-ux-audit.md) | 현재 전체 화면의 시각·흐름·접근성 감사, P1/P2 우선순위와 단계별 수정·검증 계획 |

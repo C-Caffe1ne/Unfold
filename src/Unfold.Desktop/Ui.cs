@@ -210,7 +210,9 @@ public static class Ui
         return bitmap;
     }
 
-    public static async Task<int> Confirm(Window owner, string title, string message, params string[] choices)
+    public static Task<int> Confirm(Window owner, string title, string message, params string[] choices) =>
+        Confirm(owner, title, message, false, choices);
+    private static async Task<int> Confirm(Window owner, string title, string message, bool centered, string[] choices)
     {
         var dialog = ModalWindow(title, 460);
         var result = -1;
@@ -224,7 +226,9 @@ public static class Ui
             return button;
         }).ToArray();
         var messageText = Text(message); messageText.TextWrapping = TextWrapping.Wrap;
-        dialog.Content = ModalPage(dialog, title, "확인", ModalBody(messageText), Actions(buttons));
+        var actions = Actions(buttons);
+        if (centered) actions.HorizontalAlignment = HorizontalAlignment.Center;
+        dialog.Content = ModalPage(dialog, title, "확인", ModalBody(messageText), actions);
         dialog.Opened += (_, _) => (buttons.FirstOrDefault(button => button.IsCancel) ?? buttons.FirstOrDefault())?.Focus();
         LockModalSize(dialog);
         // Showing a modal while the originating pointer event is still unwinding can make macOS
@@ -273,5 +277,55 @@ public static class Ui
         LockModalSize(dialog);
         await Dispatcher.UIThread.InvokeAsync(static () => { }, DispatcherPriority.Background);
         return await dialog.ShowDialog<string?>(owner);
+    }
+
+    internal static async Task<bool> PromptCode(Window owner, string title, string label, string confirmText,
+        string cancelText, Func<string, CancellationToken, Task<string?>> redeem)
+    {
+        var dialog = ModalWindow(title, 420); dialog.Name = "AccessCodeDialog";
+        var input = new TextBox { Name = "AccessCodeInput", MaxLength = 64, PasswordChar = '●' };
+        using var lifetime = new CancellationTokenSource();
+        var busy = false;
+        var closed = false;
+        dialog.Closed += (_, _) => { closed = true; lifetime.Cancel(); };
+        var error = Caption(""); error.Name = "AccessCodeError";
+        error.Foreground = DesignSystem.Error; error.TextWrapping = TextWrapping.Wrap; error.IsVisible = false;
+        var cancel = Quiet(ModalButton(Button(cancelText, () => dialog.Close(false))));
+        cancel.Name = "AccessCodeCancel"; cancel.IsCancel = true;
+        var confirm = Primary(ModalButton(new Button { Content = confirmText }));
+        confirm.Click += async (_, _) =>
+        {
+            if (busy || string.IsNullOrWhiteSpace(input.Text)) return;
+            busy = true; confirm.IsEnabled = false; input.IsEnabled = false;
+            try
+            {
+                var message = await redeem(input.Text.Trim(), lifetime.Token);
+                if (closed) return;
+                if (message is null) dialog.Close(true);
+                else { error.Text = message; error.IsVisible = true; }
+            }
+            finally
+            {
+                busy = false;
+                if (!closed)
+                {
+                    input.IsEnabled = true; confirm.IsEnabled = !string.IsNullOrWhiteSpace(input.Text);
+                    input.Focus(); input.SelectAll();
+                }
+            }
+        };
+        confirm.Name = "AccessCodeConfirm"; confirm.IsDefault = true; confirm.IsEnabled = false;
+        input.TextChanged += (_, _) =>
+        {
+            error.IsVisible = false;
+            confirm.IsEnabled = !busy && !string.IsNullOrWhiteSpace(input.Text);
+        };
+        var body = Column(Field(label, input), new Border { MinHeight = 32, Child = error }); body.Spacing = 8;
+        dialog.Content = ModalPage(dialog, title, "코드", ModalBody(body), Actions(cancel, confirm));
+        dialog.Opened += (_, _) => input.Focus();
+        LockModalSize(dialog);
+        await Dispatcher.UIThread.InvokeAsync(static () => { }, DispatcherPriority.Background);
+        if (!owner.IsVisible) return false;
+        return await dialog.ShowDialog<bool>(owner);
     }
 }

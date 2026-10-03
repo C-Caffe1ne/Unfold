@@ -1,0 +1,56 @@
+[
+  {
+    "file": "home.svg",
+    "label": "홈",
+    "figmaFile": "blkEPmylT7Brsr0js13vHH",
+    "nodeId": "26:32",
+    "width": "24",
+    "height": "24",
+    "sha256": "d8a1df34be1fcf09bf4692aa13f62d629f32545a02d02adc896e3e630997a9ad"
+  },
+  {
+    "file": "pet-add.svg",
+    "label": "펫 추가",
+    "figmaFile": "blkEPmylT7Brsr0js13vHH",
+    "nodeId": "21:5",
+    "width": "24",
+    "height": "24",
+    "sha256": "f9a29458d2b6a34e035ba12eadac613e9faad1e1541f44f787c1c5657a967dcc"
+  },
+  {
+    "file": "history.svg",
+    "label": "기록",
+    "figmaFile": "blkEPmylT7Brsr0js13vHH",
+    "nodeId": "24:22",
+    "width": "24",
+    "height": "24",
+    "sha256": "f24ccb88720b84d21c0231fb6fda67ad7ae23c7c6716f30cffa0f90c04b630ad"
+  },
+  {
+    "file": "settings.svg",
+    "label": "설정",
+    "figmaFile": "blkEPmylT7Brsr0js13vHH",
+    "nodeId": "26:38",
+    "width": "24",
+    "height": "24",
+    "sha256": "e9d897f66ec283ce279e4d73e3eb771ee65b04fe689dbab07c57d3cce3eb652d"
+  },
+  {
+    "file": "theme.svg",
+    "label": "테마",
+    "figmaFile": "blkEPmylT7Brsr0js13vHH",
+    "nodeId": "23:15",
+    "width": "24",
+    "height": "24",
+    "sha256": "48e9af8963a129d43845655da39f91c580f65356a5c7efc2760a358ded4462ab"
+  },
+  {
+    "file": "exit.svg",
+    "label": "종료",
+    "figmaFile": "blkEPmylT7Brsr0js13vHH",
+    "nodeId": "35:60",
+    "width": "18",
+    "height": "19.6691",
+    "sha256": "11319c0055e5de57d839a9d192221f6f687a869fb2de1fc16a56230256964b81"
+  }
+]

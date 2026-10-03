@@ -8,6 +8,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
 using Avalonia.Interactivity;
+using Avalonia.Svg;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Unfold.Core;
@@ -139,6 +140,17 @@ internal sealed class FakeAccountService : IAccountScreenService
     public int SignInCalls { get; private set; }
     public int PurchaseCalls { get; private set; }
     public int CheckoutCalls { get; private set; }
+    public int RedeemCalls { get; private set; }
+    public Func<AccountSession, string, CancellationToken, Task<AccessCodeResult>>? Redeem { get; set; }
+    public int SignOutCalls { get; private set; }
+    public int RefreshCalls { get; private set; }
+    public int RestoreCalls { get; private set; }
+    public int ClearCalls { get; private set; }
+    public Func<CancellationToken, Task<AccountSession?>>? RestoreSession { get; set; }
+    public Func<Task>? ClearSavedSession { get; set; }
+    public Func<AccountSession, CancellationToken, Task>? SignOut { get; set; }
+    public Func<AccountSession, CancellationToken, Task<AccountSession>>? RefreshSession { get; set; }
+    public Func<AccountSession, CancellationToken, Task<PurchaseAccess>>? PurchaseCheck { get; set; }
     public bool Disposed { get; private set; }
     public PurchaseAccess Purchase { get; set; } = PurchaseAccess.Unowned;
     public AccountException? SignInError { get; set; }
@@ -155,8 +167,30 @@ internal sealed class FakeAccountService : IAccountScreenService
     public Task<PurchaseAccess> CheckPurchaseAsync(AccountSession session, CancellationToken token)
     {
         PurchaseCalls++;
-        return PurchaseError is not null ? Task.FromException<PurchaseAccess>(PurchaseError) : Task.FromResult(Purchase);
+        return PurchaseError is not null ? Task.FromException<PurchaseAccess>(PurchaseError)
+            : PurchaseCheck?.Invoke(session, token) ?? Task.FromResult(Purchase);
     }
+    public Task<AccessCodeResult> RedeemCodeAsync(AccountSession session, string code, CancellationToken token)
+    {
+        RedeemCalls++;
+        return Redeem?.Invoke(session, code, token) ?? Task.FromResult(AccessCodeResult.InvalidCode);
+    }
+    public Task SignOutAsync(AccountSession session, CancellationToken token)
+    {
+        SignOutCalls++;
+        return SignOut?.Invoke(session, token) ?? Task.CompletedTask;
+    }
+    public Task<AccountSession> RefreshSessionAsync(AccountSession session, CancellationToken token)
+    {
+        RefreshCalls++;
+        return RefreshSession?.Invoke(session, token) ?? Task.FromResult(new AccountSession(session.UserId, "refreshed-access", "refreshed-refresh", DateTimeOffset.UtcNow.AddHours(1), session.Email));
+    }
+    public Task<AccountSession?> RestoreSessionAsync(CancellationToken token)
+    {
+        RestoreCalls++;
+        return RestoreSession?.Invoke(token) ?? Task.FromResult<AccountSession?>(null);
+    }
+    public Task ClearSavedSessionAsync() { ClearCalls++; return ClearSavedSession?.Invoke() ?? Task.CompletedTask; }
     public Task StartCheckoutAsync(AccountSession session, string market, Guid requestId, CancellationToken token)
     {
         CheckoutCalls++;
@@ -198,38 +232,90 @@ public class AccountWindowTests
                 var window = new AccountWindow(model); window.Show(); Layout();
                 Assert.Equal(model.Copy.WelcomeTitle, window.FindControl<TextBlock>("AccountHeading")!.Text);
                 Assert.Same(DesignSystem.Shell, window.FindControl<Border>("AccountFrame")!.Background);
-                Assert.NotNull(window.FindControl<Image>("AccountCompanion")!.Source);
+                var companion = Assert.IsType<Image>(window.FindControl<Border>("AccountPetPanel")!.Child);
+                Assert.Same(window.FindControl<Image>("AccountCompanion"), companion);
+                Assert.NotNull(companion.Source);
+                var brandLogo = window.FindControl<Image>("AccountBrandLogo")!;
+                Assert.Equal(new PixelSize(640, 176), Assert.IsType<Avalonia.Media.Imaging.Bitmap>(brandLogo.Source).PixelSize);
+                AssertInside(window, brandLogo);
+                var googleIcon = window.FindControl<Image>("AccountGoogleIcon")!;
+                Assert.IsType<SvgImage>(googleIcon.Source);
+                Assert.True(googleIcon.IsVisible);
+                Assert.Equal(new Size(24, 24), googleIcon.Bounds.Size);
                 Capture(window, "login-" + theme.Id);
                 await model.PrimaryAsync(); Layout();
+                Assert.False(googleIcon.IsVisible);
                 Assert.Equal(model.Copy.PurchaseTitle, window.FindControl<TextBlock>("AccountHeading")!.Text);
                 Assert.True(window.FindControl<Button>("AccountPrimary")!.IsEnabled);
                 Assert.Equal("4,900원", window.FindControl<TextBlock>("AccountPrice")!.Text);
+                Assert.Null(window.FindControl<ComboBox>("AccountMarket"));
                 Capture(window, "purchase-" + theme.Id);
-                window.FindControl<ComboBox>("AccountMarket")!.SelectedItem = model.Markets[1]; Layout();
+                model.SelectedMarket = model.Markets[1]; Layout();
                 Assert.Equal("US$3.99", model.Price);
                 Assert.Equal("US$3.99", window.FindControl<TextBlock>("AccountPrice")!.Text);
                 window.Width = 640; window.Height = 560; Layout();
-                AssertInside(window, window.FindControl<Button>("AccountOpenApp")!);
+                AssertInside(window, window.FindControl<Button>("AccountQuit")!);
+                var codeButton = window.FindControl<Button>("AccountCode")!;
+                Assert.True(codeButton.IsVisible);
+                AssertInside(window, codeButton);
+                Assert.Null(window.FindControl<TextBlock>("AccountFooterPrice"));
+                Assert.Null(window.FindControl<Button>("AccountOpenApp"));
                 var scroll = window.FindControl<ScrollViewer>("AccountFormScroll")!;
                 Assert.True(scroll.Extent.Width <= scroll.Viewport.Width + 1);
                 scroll.ScrollToEnd(); Layout();
                 AssertInside(window, window.FindControl<Button>("AccountPrimary")!);
                 AssertInside(window, window.FindControl<Button>("AccountSecondary")!);
                 Capture(window, "minimum-" + theme.Id);
-                window.FindControl<Button>("AccountOpenApp")!.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-                Assert.False(window.IsVisible);
+                window.Close();
             }
         }
         finally { DesignSystem.ApplyTheme(previous); }
     }
 
     [AvaloniaFact]
-    public void UnconfiguredSignInHasAnErrorAndStillAllowsOpeningTheLocalApp()
+    public async Task VerifiedPurchaseClosesTheAccountScreenWithoutASeparateOpenButton()
+    {
+        var service = new FakeAccountService { Purchase = PurchaseAccess.Active };
+        var window = new AccountWindow(new(AccountScreenContent.Load(), service));
+        window.Show(); Layout();
+        Assert.Null(window.FindControl<Button>("AccountOpenApp"));
+        window.FindControl<Button>("AccountPrimary")!.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        for (var i = 0; i < 100 && window.IsVisible; i++)
+        {
+            Layout();
+            await Task.Delay(10, TestContext.Current.CancellationToken);
+        }
+        Assert.True(window.Model.PurchaseReady);
+        Assert.False(window.IsVisible);
+    }
+
+    [AvaloniaFact]
+    public async Task QuitButtonRequestsTheHostActionWithoutClosingWhenItIsCancelled()
+    {
+        var requests = 0;
+        var window = new AccountWindow(new(AccountScreenContent.Load(), new FakeAccountService()), () =>
+        {
+            requests++;
+            return Task.CompletedTask;
+        });
+        window.Show(); Layout();
+        var quit = window.FindControl<Button>("AccountQuit")!;
+        Assert.Equal(window.Model.Copy.QuitButton, quit.Content);
+        quit.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        await Task.Yield(); Layout();
+        Assert.Equal(1, requests);
+        Assert.True(window.IsVisible);
+        window.Close();
+    }
+
+    [AvaloniaFact]
+    public void UnconfiguredSignInHasAnErrorAndStillAllowsQuitting()
     {
         var service = new FakeAccountService { CanSignIn = false };
         var window = new AccountWindow(new(AccountScreenContent.Load(), service)); window.Show(); Layout();
         Assert.False(window.FindControl<Button>("AccountPrimary")!.IsEnabled);
-        Assert.True(window.FindControl<Button>("AccountOpenApp")!.IsEnabled);
+        Assert.True(window.FindControl<Button>("AccountQuit")!.IsEnabled);
+        Assert.Null(window.FindControl<Button>("AccountOpenApp"));
         Assert.Equal(window.Model.Copy.SignInUnavailable, window.FindControl<TextBlock>("AccountStatus")!.Text);
         window.Close(); Assert.True(service.Disposed);
     }

@@ -13,48 +13,48 @@ namespace Unfold.Tests;
 public class SoundCleanupTests
 {
     [AvaloniaFact]
-    public async Task CancelAndReplacementRemoveOnlyUnusedCopies()
+    public async Task ResetAndReplacementRemoveOnlyUnusedCopies()
     {
         using var scope = new Scope();
         var first = await scope.Import("ImportDueSound", ReminderSound.Due);
         var second = await scope.Import("ImportDueSound", ReminderSound.Completed);
         Assert.False(File.Exists(first)); Assert.True(File.Exists(second));
-        scope.Click("CancelPreferences"); Assert.False(File.Exists(second));
+        scope.Click("ResetDueSound"); Assert.False(File.Exists(second));
         Assert.True(File.Exists(scope.Source(ReminderSound.Due))); Assert.True(File.Exists(scope.Source(ReminderSound.Completed)));
     }
 
     [AvaloniaFact]
-    public async Task SharedSavedSoundSurvivesResetAndCancelUntilBothReferencesAreSavedAway()
+    public async Task SharedSoundSurvivesUntilBothReferencesAreReset()
     {
         using var scope = new Scope();
         var shared = await scope.Import("ImportDueSound", ReminderSound.Due);
-        await scope.Import("ImportCompletionSound", ReminderSound.Due); scope.Click("SavePreferences");
+        await scope.Import("ImportCompletionSound", ReminderSound.Due);
         Assert.Equal(scope.Runtime.Settings.ReminderSoundId, scope.Runtime.Settings.CompletionSoundId);
-        scope.Click("ResetDueSound"); scope.Click("SavePreferences"); Assert.True(File.Exists(shared));
-        scope.Click("ResetCompletionSound"); Assert.True(File.Exists(shared));
-        scope.Click("CancelPreferences"); Assert.True(File.Exists(shared));
-        scope.Click("ResetCompletionSound"); scope.Click("SavePreferences"); Assert.False(File.Exists(shared));
+        scope.Click("ResetDueSound"); Assert.True(File.Exists(shared));
+        scope.Click("ResetCompletionSound"); Assert.False(File.Exists(shared));
     }
 
     [AvaloniaFact]
-    public async Task FailedSaveKeepsSavedAndDraftFilesAndCancelKeepsOnlySaved()
+    public async Task FailedAutomaticSaveKeepsTheSavedFileAndDisposalRemovesOnlyTheUnappliedReplacement()
     {
         using var scope = new Scope();
-        var saved = await scope.Import("ImportDueSound", ReminderSound.Due); scope.Click("SavePreferences");
-        var draft = await scope.Import("ImportDueSound", ReminderSound.Completed);
+        var saved = await scope.Import("ImportDueSound", ReminderSound.Due);
         var settingsPath = Path.Combine(scope.Root, "settings.json"); File.Delete(settingsPath); Directory.CreateDirectory(settingsPath);
-        scope.Click("SavePreferences"); Assert.True(scope.Find<TextBlock>("PreferencesStatus").IsVisible);
-        Assert.True(File.Exists(saved)); Assert.True(File.Exists(draft));
-        scope.Click("CancelPreferences"); Assert.True(File.Exists(saved)); Assert.False(File.Exists(draft));
+        var pending = await scope.Import("ImportDueSound", ReminderSound.Completed);
+        Assert.True(scope.Find<TextBlock>("PreferencesStatus").IsVisible);
+        Assert.True(File.Exists(saved)); Assert.True(File.Exists(pending));
+        scope.Window.Dispose(); Assert.True(File.Exists(saved)); Assert.False(File.Exists(pending));
     }
 
     [AvaloniaFact]
-    public async Task HiddenDraftIsRetainedAndDisposalDiscardsIt()
+    public async Task NavigationHidingAndDisposalKeepTheAutomaticallySavedSound()
     {
-        using var scope = new Scope(); var draft = await scope.Import("ImportDueSound", ReminderSound.Due);
-        scope.Click("SettingsNavTimer"); scope.Window.HideToTray(); Assert.True(File.Exists(draft));
-        scope.Window.Show(); scope.Click("SettingsNavSettings"); Assert.True(scope.Find<Button>("SavePreferences").IsEnabled);
-        scope.Window.Dispose(); Assert.False(File.Exists(draft));
+        using var scope = new Scope(); var saved = await scope.Import("ImportDueSound", ReminderSound.Due);
+        scope.Click("SettingsNavTimer"); Assert.Empty(scope.Window.OwnedWindows);
+        scope.Window.HideToTray(); Assert.True(File.Exists(saved));
+        scope.Window.Show(); scope.Click("SettingsNavSettings");
+        Assert.NotNull(scope.Runtime.Settings.ReminderSoundId);
+        scope.Window.Dispose(); Assert.True(File.Exists(saved));
     }
 
     [AvaloniaFact]
@@ -91,7 +91,7 @@ public class SoundCleanupTests
         public async Task<string> Import(string button, ReminderSound kind)
         {
             Window.ChooseSoundFile = _ => Task.FromResult<string?>(Source(kind)); Click(button);
-            await Until(() => Find<Button>("CancelPreferences").IsEnabled);
+            await Until(() => Find<Button>(button).IsEnabled);
             var id = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(Source(kind))));
             var path = Path.Combine(Sounds, id + ".wav"); Assert.True(File.Exists(path)); return path;
         }

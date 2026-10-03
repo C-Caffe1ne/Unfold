@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using System.Security;
 using Microsoft.Win32;
 using Unfold.Core;
+using Velopack.Locators;
 
 namespace Unfold.Desktop;
 
@@ -46,6 +47,8 @@ public static class PlatformServices
             throw new IOException("설치된 Unfold 앱에서 로그인 시 자동 실행을 설정해 주세요.");
         if (OperatingSystem.IsWindows())
         {
+            var locator = VelopackLocator.IsCurrentSet ? VelopackLocator.Current : VelopackLocator.CreateDefaultForPlatform();
+            exe = LoginExecutable(exe, locator.AppId == AppUpdateConfiguration.PackageId ? locator.RootAppDir : null);
             using var key = Registry.CurrentUser.CreateSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run");
             if (enabled) key.SetValue("Unfold", $"\"{exe}\" --background"); else key.DeleteValue("Unfold", false);
         }
@@ -66,4 +69,32 @@ public static class PlatformServices
         }
         else throw new PlatformNotSupportedException("로그인 시 자동 실행은 Windows와 macOS에서 사용할 수 있어요.");
     }
+    internal static string LoginExecutable(string processPath, string? managedRoot)
+    {
+        if (managedRoot is null) return processPath;
+        var stub = Path.Combine(managedRoot, "Unfold.exe");
+        return File.Exists(stub) ? stub : processPath;
+    }
+    internal static void MigrateStartAtLogin()
+    {
+        // Preserve the existing opt-in; never enable login launch for a new user.
+        try { if (StartsAtLogin()) SetStartAtLogin(true); }
+        catch (Exception error) { AppPaths.Log(error); }
+    }
+    internal static bool MatchesManagedLogin(string? command, string? managedRoot) =>
+        managedRoot is not null && string.Equals(command, $"\"{Path.Combine(managedRoot, "Unfold.exe")}\" --background",
+            StringComparison.OrdinalIgnoreCase);
+    internal static void RemoveManagedStartAtLogin()
+    {
+        if (!OperatingSystem.IsWindows()) return;
+        try
+        {
+            var locator = VelopackLocator.Current;
+            if (locator.AppId != AppUpdateConfiguration.PackageId) return;
+            using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true);
+            if (MatchesManagedLogin(key?.GetValue("Unfold") as string, locator.RootAppDir)) key?.DeleteValue("Unfold", false);
+        }
+        catch (Exception error) { AppPaths.Log(error); }
+    }
+
 }

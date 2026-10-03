@@ -20,6 +20,49 @@ public class SoundVolumeTests
         }
     }
 
+    [Fact]
+    public void LegacyMasterVolumeIsKeptAndIndividualVolumesDefaultAndRoundTripIndependently()
+    {
+        using var temp = new TempDirectory(); var path = Path.Combine(temp.Path, "settings.json");
+        File.WriteAllText(path, "{\"intervalMinutes\":37,\"reminderVolumePercent\":42}");
+        var old = AppSettings.Load(path);
+        Assert.Equal(42, old.ReminderVolumePercent); Assert.Equal(100, old.ReminderSoundVolumePercent); Assert.Equal(100, old.CompletionSoundVolumePercent);
+        var saved = old with { ReminderSoundVolumePercent = 25, CompletionSoundVolumePercent = 80 };
+        saved.Save(path); Assert.Equal(saved, AppSettings.Load(path));
+        File.WriteAllText(path, "{\"reminderVolumePercent\":42,\"reminderSoundVolumePercent\":25,\"completionSoundVolumePercent\":\"bad\"}");
+        var recovered = AppSettings.Load(path, out var needsBackup);
+        Assert.True(needsBackup); Assert.Equal(42, recovered.ReminderVolumePercent); Assert.Equal(25, recovered.ReminderSoundVolumePercent);
+        Assert.Equal(100, recovered.CompletionSoundVolumePercent);
+    }
+
+    [Theory]
+    [InlineData(-1)] [InlineData(101)]
+    public void DamagedIndividualVolumeDoesNotDiscardTheOtherSoundAndInvalidSaveDoesNotOverwrite(int value)
+    {
+        using var temp = new TempDirectory(); var path = Path.Combine(temp.Path, "settings.json");
+        foreach (var due in new[] { true, false })
+        {
+            File.WriteAllText(path, $"{{\"reminderVolumePercent\":42,\"reminderSoundVolumePercent\":{(due ? value : 25)},\"completionSoundVolumePercent\":{(due ? 80 : value)}}}");
+            var recovered = AppSettings.Load(path); var before = File.ReadAllText(path);
+            Assert.Equal(42, recovered.ReminderVolumePercent);
+            Assert.Equal(due ? 100 : 25, recovered.ReminderSoundVolumePercent); Assert.Equal(due ? 80 : 100, recovered.CompletionSoundVolumePercent);
+            Assert.Throws<InvalidDataException>(() => (due ? recovered with { ReminderSoundVolumePercent = value }
+                : recovered with { CompletionSoundVolumePercent = value }).Save(path));
+            Assert.Equal(before, File.ReadAllText(path));
+        }
+    }
+
+    [Theory]
+    [InlineData(8)] [InlineData(16)]
+    public void FractionalCombinedGainIsNotRoundedToAnIntegerPercentage(int bits)
+    {
+        var source = Wave(bits, 1); var quiet = ReminderSounds.WithVolume(source, 12.5);
+        var values = DataChunks(quiet).SelectMany(chunk => Enumerable.Range(0, chunk.Length / (bits / 8))
+            .Select(index => bits == 8 ? (int)quiet[chunk.Offset + index] : BinaryPrimitives.ReadInt16LittleEndian(quiet.AsSpan(chunk.Offset + index * 2, 2)))).ToArray();
+        Assert.Equal(bits == 8 ? new[] { 112, 120, 128, 136, 143, 128 } : new[] { -4096, -2048, 0, 2048, 4095, 0 }, values);
+        Assert.Equal(ReminderSounds.Duration(source), ReminderSounds.Duration(quiet));
+    }
+
     [Theory]
     [InlineData(-1)]
     [InlineData(101)]
@@ -92,14 +135,15 @@ public class SoundVolumeTests
             played.Add((path, File.ReadAllBytes(path), duration));
             return Task.CompletedTask;
         });
-        var settings = new AppSettings { ReminderVolumePercent = 37, ReminderSoundId = id, CompletionSoundId = id };
+        var settings = new AppSettings { ReminderVolumePercent = 50, ReminderSoundVolumePercent = 25,
+            CompletionSoundVolumePercent = 80, ReminderSoundId = id, CompletionSoundId = id };
         await player.Preview(sound, settings, TestContext.Current.CancellationToken);
         player.Play(sound, settings);
         Assert.Equal(2, played.Count);
         Assert.All(played, item =>
         {
             Assert.False(File.Exists(item.Path));
-            Assert.Equal(ReminderSounds.WithVolume(original, 37), item.Data);
+            Assert.Equal(ReminderSounds.WithVolume(original, sound == ReminderSound.Due ? 12.5 : 40), item.Data);
             Assert.Equal(ReminderSounds.Duration(original), item.Duration);
         });
         Assert.Equal(original, File.ReadAllBytes(library.Resolve(sound, id)));
@@ -117,6 +161,21 @@ public class SoundVolumeTests
         Assert.Equal(0, calls); Assert.Empty(Directory.EnumerateFiles(temp.Path));
         await player.Preview(ReminderSound.Due, new() { ReminderSoundsEnabled = false }, TestContext.Current.CancellationToken);
         Assert.Equal(1, calls);
+    }
+
+    [Theory]
+    [InlineData(ReminderSound.Due)] [InlineData(ReminderSound.Completed)]
+    public async Task MutingOneIndividualVolumeKeepsTheOtherSoundPlaying(ReminderSound muted)
+    {
+        using var temp = new TempDirectory(); var calls = 0;
+        using var player = new ReminderSoundPlayer(new(temp.Path), (_, _, _) => { calls++; return Task.CompletedTask; });
+        var settings = new AppSettings { ReminderSoundVolumePercent = muted == ReminderSound.Due ? 0 : 100,
+            CompletionSoundVolumePercent = muted == ReminderSound.Completed ? 0 : 100 };
+        await player.Preview(muted, settings, TestContext.Current.CancellationToken); player.Play(muted, settings);
+        Assert.Equal(0, calls);
+        var other = muted == ReminderSound.Due ? ReminderSound.Completed : ReminderSound.Due;
+        await player.Preview(other, settings, TestContext.Current.CancellationToken); player.Play(other, settings);
+        Assert.Equal(2, calls);
     }
 
     [Fact]

@@ -23,11 +23,13 @@
     <Style Selector="Window.compact Image.account-pet"><Setter Property="Width" Value="160" /><Setter Property="Height" Value="160" /></Style>
     <Style Selector="Button.account-primary"><Setter Property="Height" Value="48" /><Setter Property="HorizontalAlignment" Value="Stretch" /></Style>
   </Window.Styles>
+  <Grid>
   <Border Name="AccountFrame" Margin="12" Padding="24" CornerRadius="{x:Static local:DesignSystem.FrameRadius}"
           Background="{x:Static local:DesignSystem.Shell}" BorderBrush="{x:Static local:DesignSystem.Outline}" BorderThickness="1">
     <Grid RowDefinitions="Auto,24,*,20,Auto">
-      <Grid Name="AccountDragHandle" ColumnDefinitions="*,Auto" Height="30">
-        <TextBlock Text="{Binding Content.Brand}" FontWeight="SemiBold" FontSize="21" VerticalAlignment="Center" />
+      <Grid Name="AccountDragHandle" ColumnDefinitions="*,Auto" Height="30" Background="Transparent">
+        <Image Name="AccountBrandLogo" Width="110" Height="30" Stretch="Uniform"
+               HorizontalAlignment="Left" VerticalAlignment="Center" AutomationProperties.Name="{Binding Content.Brand}" />
         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
           <TextBlock Text="{Binding Step}" Classes="account-caption" VerticalAlignment="Center" />
           <Ellipse Width="7" Height="7" Fill="{x:Static local:DesignSystem.Accent}" />
@@ -35,11 +37,9 @@
         </StackPanel>
       </Grid>
       <Grid Grid.Row="2" ColumnDefinitions="*,24,*">
-        <Border Background="{x:Static local:DesignSystem.Raised}" CornerRadius="{x:Static local:DesignSystem.CardRadius}" Padding="16">
-          <StackPanel Spacing="24" VerticalAlignment="Center">
-            <Image Name="AccountCompanion" Classes="account-pet" Stretch="Uniform" HorizontalAlignment="Center" />
-            <TextBlock Text="{Binding Content.CompanionText}" FontSize="24" TextAlignment="Center" TextWrapping="Wrap" LineHeight="36" />
-          </StackPanel>
+        <Border Name="AccountPetPanel" Background="{x:Static local:DesignSystem.Raised}" CornerRadius="{x:Static local:DesignSystem.CardRadius}" Padding="16">
+          <Image Name="AccountCompanion" Classes="account-pet" Stretch="Uniform"
+                 HorizontalAlignment="Center" VerticalAlignment="Center" />
         </Border>
         <ScrollViewer Name="AccountFormScroll" Grid.Column="2" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
           <StackPanel Name="AccountForm" Spacing="18" Margin="8,24" VerticalAlignment="Center">
@@ -49,17 +49,13 @@
             <StackPanel Spacing="8" IsVisible="{Binding IsPurchase}">
               <TextBlock Text="{Binding Copy.ProductLabel}" Classes="account-caption" />
               <TextBlock Name="AccountPrice" Text="{Binding Price}" FontSize="32" FontWeight="SemiBold" />
-              <ComboBox Name="AccountMarket" ItemsSource="{Binding Markets}" SelectedItem="{Binding SelectedMarket, Mode=TwoWay}"
-                        IsEnabled="{Binding CanChangeMarket}"
-                        AutomationProperties.Name="{Binding Copy.MarketLabel}" HorizontalAlignment="Left" MaxWidth="210">
-                <ComboBox.ItemTemplate><DataTemplate x:DataType="local:AccountMarket"><TextBlock Text="{Binding Label}" /></DataTemplate></ComboBox.ItemTemplate>
-              </ComboBox>
             </StackPanel>
             <TextBlock Name="AccountStatus" Text="{Binding Status}" Classes="account-caption" IsVisible="{Binding HasStatus}" />
             <Button Name="AccountPrimary" IsEnabled="{Binding CanPrimary}" Classes="unfold-action account-primary"
                     Classes.primary="{Binding IsPurchase}" Classes.quiet="{Binding IsLogin}">
               <StackPanel Orientation="Horizontal" Spacing="12">
-                <TextBlock Text="G" FontSize="19" FontWeight="Bold" IsVisible="{Binding IsLogin}" VerticalAlignment="Center" />
+                <Image Name="AccountGoogleIcon" Width="24" Height="24" Stretch="Uniform"
+                       IsVisible="{Binding IsLogin}" VerticalAlignment="Center" />
                 <TextBlock Text="{Binding PrimaryText}" VerticalAlignment="Center" />
               </StackPanel>
             </Button>
@@ -67,11 +63,16 @@
           </StackPanel>
         </ScrollViewer>
       </Grid>
-      <Grid Grid.Row="4" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16">
-        <TextBlock Text="{Binding Copy.Copyright}" Classes="account-caption" VerticalAlignment="Center" />
-        <TextBlock Grid.Column="1" Name="AccountFooterPrice" Text="{Binding FooterPrice}" Classes="account-caption" VerticalAlignment="Center" HorizontalAlignment="Right" />
-        <Button Grid.Column="2" Name="AccountOpenApp" Content="{Binding Copy.OpenAppButton}" Classes="unfold-action quiet" />
+      <Grid Grid.Row="4" ColumnDefinitions="*,16,Auto">
+        <StackPanel Orientation="Horizontal" Spacing="16">
+          <Button Name="AccountQuit" Content="{Binding Copy.QuitButton}" Classes="unfold-action quiet" />
+          <TextBlock Text="{Binding Copy.Copyright}" Classes="account-caption" VerticalAlignment="Center" />
+        </StackPanel>
+        <Button Name="AccountCode" Grid.Column="2" IsVisible="{Binding ShowCode}" IsEnabled="{Binding CanRedeemCode}" Content="{Binding Copy.CodeButton}" Classes="unfold-action quiet" />
       </Grid>
     </Grid>
   </Border>
+  <!-- Include the outer top margin as well as the header; no form controls occupy this band. -->
+  <Border Name="AccountDragRegion" Height="90" VerticalAlignment="Top" Background="Transparent" />
+  </Grid>
 </Window>

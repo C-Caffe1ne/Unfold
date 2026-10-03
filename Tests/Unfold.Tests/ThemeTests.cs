@@ -6,6 +6,7 @@ using Avalonia.Headless.XUnit;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.LogicalTree;
 using Avalonia.Styling;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
@@ -18,15 +19,15 @@ namespace Unfold.Tests;
 public class ThemeTests
 {
     [Fact]
-    public void MissingLegacyAndUnknownThemesUseOatWithoutLosingSettings()
+    public void MissingLegacyAndUnknownThemesUseLilacWithoutLosingSettings()
     {
         using var temp = new TempDirectory(); var path = Path.Combine(temp.Path, "settings.json");
-        Assert.Equal(AppTheme.OatLatte, AppSettings.Load(path).Theme);
+        Assert.Equal(AppTheme.Plum, AppSettings.Load(path).Theme);
         foreach (var json in new[] { "{\"intervalMinutes\":37}", "{\"theme\":99,\"intervalMinutes\":37}" })
         {
             File.WriteAllText(path, json);
             var value = AppSettings.Load(path);
-            Assert.Equal(AppTheme.OatLatte, value.Theme); Assert.Equal(37, value.IntervalMinutes);
+            Assert.Equal(AppTheme.Plum, value.Theme); Assert.Equal(37, value.IntervalMinutes);
         }
         foreach (var theme in Enum.GetValues<AppTheme>())
         {
@@ -47,11 +48,13 @@ public class ThemeTests
         Assert.True(themeY + themeButton.Bounds.Height < quit.TranslatePoint(default, window)!.Value.Y);
         Assert.True(quit.TranslatePoint(default, window)!.Value.Y + quit.Bounds.Height < window.ClientSize.Height);
         var flyout = (Flyout)themeButton.Flyout!;
+        Assert.Equal(new[] { "ThemePlum", "ThemeOatLatte", "ThemeSage", "ThemeMidnightBlue" },
+            ((Control)flyout.Content!).GetLogicalDescendants().OfType<Button>().Select(button => button.Name));
         var point = themeButton.TranslatePoint(new Point(23, 23), window)!.Value;
         window.MouseMove(point); window.MouseDown(point, MouseButton.Left); window.MouseUp(point, MouseButton.Left); Layout(window);
         Assert.True(flyout.IsOpen);
         // Dismissing the picker without choosing must not persist a different theme.
-        flyout.Hide(); Assert.Equal(AppTheme.OatLatte, scope.Runtime.Settings.Theme);
+        flyout.Hide(); Assert.Equal(AppTheme.Plum, scope.Runtime.Settings.Theme);
         Press(Find<Button>(window, "TimerToggle"));
         var interval = Find<NumericUpDown>(window, "ReminderInterval"); interval.Value = 37;
         Press(Find<Button>(window, "SettingsNavSettings"));
@@ -63,16 +66,16 @@ public class ThemeTests
             Choose(window, palette.Id);
             Assert.Same(page, host.Content); Assert.Same(surface, Find<Border>(window, "SettingsTimerSettingsCard").Background);
             Assert.Equal(Color.Parse(palette.Surface), ((ISolidColorBrush)surface!).Color);
-            Assert.Equal(Color.Parse(palette.Canvas), ((ISolidColorBrush)window.Background!).Color);
+            Assert.Equal(Colors.Transparent, ((ISolidColorBrush)window.Background!).Color);
+            Assert.Equal(Color.Parse(palette.Canvas), ((ISolidColorBrush)Find<Border>(window, "SettingsWindowSurface").Background!).Color);
             Assert.Equal(palette.IsDark ? ThemeVariant.Dark : ThemeVariant.Light, window.ActualThemeVariant);
             Assert.Equal(palette.Id, scope.Runtime.Settings.Theme);
             // The default choice does not need to write a new file.
             Assert.Equal(palette.Id, AppSettings.Load(scope.Path).Theme);
             Assert.True(scope.Runtime.Clock.Paused); Assert.Equal(19, idle.Value);
-            Assert.Equal(37, interval.Value); Assert.True(Find<Button>(window, "SavePreferences").IsEnabled);
+            Assert.Equal(37, interval.Value); Assert.Equal(19, scope.Runtime.Settings.IdleMinutes);
         }
-        Press(Find<Button>(window, "SavePreferences"));
-        Assert.Equal(AppTheme.Plum, AppSettings.Load(scope.Path).Theme); Assert.Equal(19, AppSettings.Load(scope.Path).IdleMinutes);
+        Assert.Equal(AppTheme.MidnightBlue, AppSettings.Load(scope.Path).Theme); Assert.Equal(19, AppSettings.Load(scope.Path).IdleMinutes);
         Press(Find<Button>(window, "SettingsNavPacks"));
         var preview = Find<Border>(window, "PackPreviewSurface");
         Assert.DoesNotContain(window.GetVisualDescendants().OfType<ComboBox>(), control => control.Name == "PackBackground");
@@ -96,14 +99,14 @@ public class ThemeTests
     public void FailedThemeSaveKeepsOldColorsAndAllowsRetry()
     {
         using var scope = new Scope(); Directory.CreateDirectory(scope.Path);
-        Choose(scope.Window, AppTheme.Plum);
-        Assert.Equal(AppTheme.OatLatte, scope.Runtime.Settings.Theme); Assert.Equal(AppTheme.OatLatte, DesignSystem.CurrentTheme);
+        Choose(scope.Window, AppTheme.OatLatte);
+        Assert.Equal(AppTheme.Plum, scope.Runtime.Settings.Theme); Assert.Equal(AppTheme.Plum, DesignSystem.CurrentTheme);
         var flyout = (Flyout)Find<Button>(scope.Window, "SettingsTheme").Flyout!;
         Assert.True(Find<TextBlock>((Control)flyout.Content!, "ThemeSaveError").IsVisible);
         Assert.True(flyout.IsOpen);
         Directory.Delete(scope.Path);
-        Choose(scope.Window, AppTheme.Plum);
-        Assert.Equal(AppTheme.Plum, AppSettings.Load(scope.Path).Theme); Assert.False(flyout.IsOpen);
+        Choose(scope.Window, AppTheme.OatLatte);
+        Assert.Equal(AppTheme.OatLatte, AppSettings.Load(scope.Path).Theme); Assert.False(flyout.IsOpen);
     }
 
     [Fact]
@@ -135,7 +138,7 @@ public class ThemeTests
                 Assert.True(Contrast(palette.Stopped, background) >= 4.5,
                     $"{palette.Name}: {palette.Stopped} / {background} = {Contrast(palette.Stopped, background):0.00}");
         }
-        DesignSystem.ApplyTheme(AppTheme.OatLatte);
+        DesignSystem.ApplyTheme(AppSettings.DefaultTheme);
     }
 
     private static double Contrast(string foreground, string background)
@@ -174,7 +177,7 @@ public class ThemeTests
         {
             Window.HideToTray(); Window.Dispose(); Runtime.Dispose(); lifetime.Dispose();
             Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", previous); temp.Dispose();
-            DesignSystem.ApplyTheme(AppTheme.OatLatte);
+            DesignSystem.ApplyTheme(AppSettings.DefaultTheme);
         }
     }
 }

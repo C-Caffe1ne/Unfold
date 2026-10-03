@@ -10,14 +10,15 @@ namespace Unfold.Core;
 
 public enum AccountEnvironment { Test, Live }
 public enum PurchaseAccess { Unowned, Active, Revoked }
-public enum AccountFailure { AuthenticationRequired, Unavailable, InvalidResponse, InvalidCallback }
+public enum AccessCodeResult { Redeemed, InvalidCode, RateLimited }
+public enum AccountFailure { AuthenticationRequired, Unavailable, InvalidResponse, InvalidCallback, SessionStorageUnavailable }
 
 public sealed class AccountException(AccountFailure failure) : Exception($"Account request failed: {failure}")
 {
     public AccountFailure Failure { get; } = failure;
 }
 
-// Kept in memory only here. OS credential storage belongs to the later desktop integration.
+// The desktop integration persists only the refresh credential in the OS credential store.
 // Not records: generated ToString() must not expose tokens or PKCE verifiers.
 public sealed class AccountSession(Guid userId, string accessToken, string refreshToken, DateTimeOffset expiresAt, string? email = null)
 {
@@ -107,9 +108,28 @@ public sealed class SupabaseAccountClient : IDisposable
         return refreshed;
     }
 
+    public async Task SignOutAsync(AccountSession session, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await SendAsync(HttpMethod.Post, "auth/v1/logout?scope=local", session.AccessToken, null,
+                cancellationToken, expectJson: false);
+        }
+        catch (AccountException error) when (error.Failure == AccountFailure.AuthenticationRequired)
+        { /* An invalid server session is already signed out. */ }
+    }
+
     public async Task<PurchaseAccess> GetEntitlementAsync(AccountSession session, CancellationToken cancellationToken = default)
     {
-        var json = await SendAsync(HttpMethod.Get, "functions/v1/get-entitlement", session.AccessToken, null, cancellationToken);
+        return await ReadAccessAsync(session, "get-entitlement", cancellationToken);
+    }
+
+    public Task<PurchaseAccess> GetAppAccessAsync(AccountSession session, CancellationToken cancellationToken = default) =>
+        ReadAccessAsync(session, "get-app-access", cancellationToken);
+
+    private async Task<PurchaseAccess> ReadAccessAsync(AccountSession session, string endpoint, CancellationToken cancellationToken)
+    {
+        var json = await SendAsync(HttpMethod.Get, "functions/v1/" + endpoint, session.AccessToken, null, cancellationToken);
         EntitlementResponse? result;
         try { result = json.Deserialize<EntitlementResponse>(); }
         catch (JsonException) { throw new AccountException(AccountFailure.InvalidResponse); }
@@ -118,6 +138,26 @@ public sealed class SupabaseAccountClient : IDisposable
             throw new AccountException(AccountFailure.InvalidResponse);
         return result.Status switch {
             "active" => PurchaseAccess.Active, "unowned" => PurchaseAccess.Unowned, "revoked" => PurchaseAccess.Revoked,
+            _ => throw new AccountException(AccountFailure.InvalidResponse),
+        };
+    }
+
+    public async Task<AccessCodeResult> RedeemAccessCodeAsync(AccountSession session, string code, CancellationToken cancellationToken = default)
+    {
+        code = code.Trim();
+        if (code.Length is < 1 or > 64 || code.Any(c => !(char.IsAsciiLetterOrDigit(c) || c is '-' or '_')))
+            return AccessCodeResult.InvalidCode;
+        var json = await SendAsync(HttpMethod.Post, "functions/v1/redeem-access-code", session.AccessToken,
+            new { code }, cancellationToken);
+        EntitlementResponse? result;
+        try { result = json.Deserialize<EntitlementResponse>(); }
+        catch (JsonException) { throw new AccountException(AccountFailure.InvalidResponse); }
+        if (result is null || result.Version != 1 || result.UserId != session.UserId || session.UserId == Guid.Empty
+            || result.ProductId != "unfold" || result.Environment != environment)
+            throw new AccountException(AccountFailure.InvalidResponse);
+        return result.Status switch {
+            "redeemed" => AccessCodeResult.Redeemed, "invalid_code" => AccessCodeResult.InvalidCode,
+            "rate_limited" => AccessCodeResult.RateLimited,
             _ => throw new AccountException(AccountFailure.InvalidResponse),
         };
     }
@@ -150,7 +190,7 @@ public sealed class SupabaseAccountClient : IDisposable
     }
 
     private async Task<JsonElement> SendAsync(HttpMethod method, string path, string? token, object? body,
-        CancellationToken cancellationToken, TimeSpan? requestTimeout = null)
+        CancellationToken cancellationToken, TimeSpan? requestTimeout = null, bool expectJson = true)
     {
         using var request = new HttpRequestMessage(method, new Uri(projectUrl, path));
         request.Headers.Add("apikey", publicKey);
@@ -166,6 +206,7 @@ public sealed class SupabaseAccountClient : IDisposable
                 || (path.StartsWith("auth/v1/token", StringComparison.Ordinal) && response.StatusCode == HttpStatusCode.BadRequest))
                 throw new AccountException(AccountFailure.AuthenticationRequired);
             if (!response.IsSuccessStatusCode) throw new AccountException(AccountFailure.Unavailable);
+            if (!expectJson) return default;
             if (response.Content.Headers.ContentLength > 64 * 1024) throw new AccountException(AccountFailure.InvalidResponse);
             await using var stream = await response.Content.ReadAsStreamAsync(deadline.Token);
             var bytes = new byte[64 * 1024 + 1];

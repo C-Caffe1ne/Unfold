@@ -21,7 +21,7 @@ internal sealed record AccountConnection(Uri ProjectUrl, string PublishableKey, 
             if (config is null) return null;
             if (url is not null) config = config with { ProjectUrl = new Uri(url) };
             if (key is not null) config = config with { PublishableKey = key };
-            if (config.ProjectUrl is null || config.CallbackPort is < 1024 or > 65535
+            if (config.Environment != AccountEnvironment.Live || config.ProjectUrl is null || config.CallbackPort is < 1024 or > 65535
                 || string.IsNullOrWhiteSpace(config.PublishableKey) || !config.PublishableKey.StartsWith("sb_publishable_", StringComparison.Ordinal)
                 || config.CheckoutMarkets is not { Length: > 0 and <= 2 }
                 || config.CheckoutMarkets.Any(item => item is not ("KR" or "GLOBAL"))
@@ -38,6 +38,7 @@ internal sealed class DesktopAccountService : IAccountScreenService
 {
     private readonly AccountConnection? config;
     private readonly SupabaseAccountClient? client;
+    private readonly AccountSessionVault? vault;
     private readonly string browserReturn;
     private readonly HashSet<string> checkoutMarkets = new(StringComparer.Ordinal);
     public bool CanSignIn => client is not null;
@@ -48,8 +49,16 @@ internal sealed class DesktopAccountService : IAccountScreenService
         if (config is not null)
         {
             client = new(config.ProjectUrl, config.PublishableKey, config.Environment);
+            vault = AccountSessionVault.For(config, AppPaths.DataRoot);
             checkoutMarkets.UnionWith(config.CheckoutMarkets);
         }
+    }
+    internal DesktopAccountService(AccountScreenContent content, AccountConnection config,
+        SupabaseAccountClient client, AccountSessionVault vault)
+    {
+        browserReturn = content.Copy.BrowserReturn;
+        this.config = config; this.client = client; this.vault = vault;
+        checkoutMarkets.UnionWith(config.CheckoutMarkets);
     }
     public bool CanCheckout(string market) => client is not null && checkoutMarkets.Contains(market);
     public async Task<AccountSession> SignInAsync(CancellationToken token)
@@ -62,13 +71,88 @@ internal sealed class DesktopAccountService : IAccountScreenService
             var attempt = client.BeginGoogleSignIn(callback.RedirectUri);
             using var browser = Process.Start(new ProcessStartInfo(attempt.AuthorizationUri.AbsoluteUri) { UseShellExecute = true });
             var uri = await callback.ReceiveAsync(token);
-            return await client.CompleteGoogleSignInAsync(attempt, uri, token);
+            var session = await client.CompleteGoogleSignInAsync(attempt, uri, token);
+            await vault!.Gate.WaitAsync(token);
+            try { token.ThrowIfCancellationRequested(); await vault.SaveAsync(session); }
+            finally { vault.Gate.Release(); }
+            return session;
         }
         catch (Exception error) when (error is SocketException or IOException or System.ComponentModel.Win32Exception or InvalidOperationException)
         { throw new AccountException(AccountFailure.Unavailable); }
     }
     public Task<PurchaseAccess> CheckPurchaseAsync(AccountSession session, CancellationToken token) =>
-        client?.GetEntitlementAsync(session, token) ?? Task.FromException<PurchaseAccess>(new AccountException(AccountFailure.Unavailable));
+        client?.GetAppAccessAsync(session, token) ?? Task.FromException<PurchaseAccess>(new AccountException(AccountFailure.Unavailable));
+    public Task<AccessCodeResult> RedeemCodeAsync(AccountSession session, string code, CancellationToken token) =>
+        client?.RedeemAccessCodeAsync(session, code, token) ?? Task.FromException<AccessCodeResult>(new AccountException(AccountFailure.Unavailable));
+    public async Task<AccountSession?> RestoreSessionAsync(CancellationToken token)
+    {
+        if (client is null || vault is null) return null;
+        await vault.Gate.WaitAsync(token);
+        try
+        {
+            var saved = await vault.LoadAsync();
+            token.ThrowIfCancellationRequested();
+            return saved is null ? null : await RefreshSavedSession(saved, token);
+        }
+        catch (AccountException error) when (error.Failure == AccountFailure.AuthenticationRequired)
+        { return null; }
+        finally { vault.Gate.Release(); }
+    }
+    public async Task<AccountSession> RefreshSessionAsync(AccountSession session, CancellationToken token)
+    {
+        if (client is null || vault is null) throw new AccountException(AccountFailure.Unavailable);
+        await vault.Gate.WaitAsync(token);
+        try
+        {
+            // Use the newest rotated credential, and never recreate a session deleted by logout.
+            var saved = await vault.LoadAsync();
+            if (saved is null || saved.UserId != session.UserId) throw new AccountException(AccountFailure.AuthenticationRequired);
+            return await RefreshSavedSession(saved, token);
+        }
+        finally { vault.Gate.Release(); }
+    }
+    private async Task<AccountSession> RefreshSavedSession(AccountSession saved, CancellationToken token)
+    {
+        try
+        {
+            var refreshed = await client!.RefreshAsync(saved, token);
+            // Save a rotated token even if cancellation arrives after the server accepted the refresh.
+            await vault!.SaveAsync(refreshed);
+            return refreshed;
+        }
+        catch (AccountException error) when (error.Failure == AccountFailure.AuthenticationRequired)
+        { await vault!.ClearAsync(); throw; }
+    }
+    public async Task ClearSavedSessionAsync()
+    {
+        if (vault is null) return;
+        await vault.Gate.WaitAsync();
+        try { await vault.ClearAsync(); }
+        finally { vault.Gate.Release(); }
+    }
+    public async Task SignOutAsync(AccountSession session, CancellationToken token)
+    {
+        // Local logout must survive a network failure or application shutdown during server revocation.
+        if (vault is not null)
+        {
+            await vault.Gate.WaitAsync();
+            try
+            {
+                AccountSession? latest = null;
+                try { latest = await vault.LoadAsync(); }
+                finally { await vault.ClearAsync(); }
+                if (latest?.UserId == session.UserId && latest.RefreshToken != session.RefreshToken) session = latest;
+            }
+            finally { vault.Gate.Release(); }
+        }
+        if (client is null) throw new AccountException(AccountFailure.Unavailable);
+        if (session.ExpiresAt <= DateTimeOffset.UtcNow.AddSeconds(30))
+        {
+            try { session = await client.RefreshAsync(session, token); }
+            catch (AccountException error) when (error.Failure == AccountFailure.AuthenticationRequired) { return; }
+        }
+        await client.SignOutAsync(session, token);
+    }
     public async Task StartCheckoutAsync(AccountSession session, string market, Guid requestId, CancellationToken token)
     {
         if (client is null || !CanCheckout(market)) throw new AccountException(AccountFailure.Unavailable);

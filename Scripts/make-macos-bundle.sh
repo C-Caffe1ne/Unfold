@@ -4,12 +4,20 @@ export AVALONIA_TELEMETRY_OPTOUT=1 DOTNET_CLI_TELEMETRY_OPTOUT=1
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 RID="${1:-osx-arm64}"
 case "$RID" in osx-arm64|osx-x64) ;; *) echo "Use osx-arm64 or osx-x64" >&2; exit 1;; esac
+if [ -n "${UNFOLD_NOTARY_PROFILE:-}" ] && { [ -z "${UNFOLD_CODESIGN_IDENTITY:-}" ] || [ "${UNFOLD_CODESIGN_IDENTITY:-}" = "-" ]; }; then
+  echo "Notarization requires UNFOLD_CODESIGN_IDENTITY" >&2; exit 1
+fi
 dotnet run --project "$ROOT/tools/Unfold.MediaSetup" -- "$RID" "$ROOT"
 CSPROJ="$ROOT/src/Unfold.Desktop/Unfold.Desktop.csproj"
 # The csproj <Version> is the single source of truth so the bundle and the
 # published archive name can never drift out of sync with each other.
 VERSION="$(grep -m1 -oE '<Version>[^<]+</Version>' "$CSPROJ" | sed -E 's#</?Version>##g')"
 if [ -z "$VERSION" ]; then echo "Could not read <Version> from $CSPROJ" >&2; exit 1; fi
+BUNDLE_VERSION="${VERSION%%-*}"
+IFS=. read -r VERSION_MAJOR VERSION_MINOR VERSION_PATCH <<< "$BUNDLE_VERSION"
+BUILD_NUMBER=$((10#$VERSION_MAJOR * 1000000 + 10#$VERSION_MINOR * 1000 + 10#$VERSION_PATCH))
+DISPLAY_NAME="Unfold"
+case "$VERSION" in *-beta) DISPLAY_NAME="Unfold Beta v$BUNDLE_VERSION" ;; esac
 OUT="$ROOT/artifacts/$RID"
 # A deleted or renamed pet must not survive in the next published bundle.
 if [ -L "$OUT" ]; then echo "Refusing linked publish directory: $OUT" >&2; exit 1; fi
@@ -23,6 +31,7 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp -R "$OUT/." "$APP/Contents/MacOS/"
 cp "$ROOT/THIRD-PARTY-NOTICES.md" "$APP/Contents/Resources/"
 cp "$ROOT/docs/cross-platform.md" "$APP/Contents/Resources/README.md"
+cp "$ROOT/Art/Brand/unfold-lilac-v1/desktop/unfold.icns" "$APP/Contents/Resources/Unfold.icns"
 if [ -f "$ROOT/docs/releases/v$VERSION.md" ]; then
   cp "$ROOT/docs/releases/v$VERSION.md" "$APP/Contents/Resources/RELEASE-NOTES.md"
 fi
@@ -32,38 +41,27 @@ cat > "$APP/Contents/Info.plist" <<PLIST
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
 <key>CFBundleName</key><string>Unfold</string>
-<key>CFBundleDisplayName</key><string>Unfold</string>
+<key>CFBundleDisplayName</key><string>$DISPLAY_NAME</string>
 <key>CFBundleIdentifier</key><string>app.unfold.desktop</string>
 <key>CFBundleExecutable</key><string>Unfold</string>
 <key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleShortVersionString</key><string>$VERSION</string>
-<key>CFBundleVersion</key><string>5</string>
+<key>CFBundleShortVersionString</key><string>$BUNDLE_VERSION</string>
+<key>CFBundleVersion</key><string>$BUILD_NUMBER</string>
+<key>CFBundleIconFile</key><string>Unfold.icns</string>
+<key>UnfoldReleaseVersion</key><string>$VERSION</string>
 <key>LSMinimumSystemVersion</key><string>13.0</string>
 <key>LSUIElement</key><true/>
 <key>NSHighResolutionCapable</key><true/>
 </dict></plist>
 PLIST
-# Ad hoc by default, so a local build needs no certificate. Export
-# UNFOLD_CODESIGN_IDENTITY="Developer ID Application: ..." to produce a release
-# bundle that notarization can accept.
-if [ -n "${UNFOLD_CODESIGN_IDENTITY:-}" ]; then
-  ENTITLEMENTS="$ROOT/Packaging/Unfold.Desktop.entitlements"
-  # Apple does not support --deep for Developer ID: sign the nested Mach-O files
-  # first, then the bundle. Entitlements belong to the main executable only.
-  while IFS= read -r -d '' binary; do
-    if [ "$binary" = "$APP/Contents/MacOS/Unfold" ]; then continue; fi
-    case "$(file -b "$binary")" in Mach-O*) ;; *) continue;; esac
-    codesign --force --options runtime --timestamp --sign "$UNFOLD_CODESIGN_IDENTITY" "$binary"
-  done < <(find "$APP/Contents/MacOS" -type f -print0)
-  codesign --force --options runtime --timestamp --entitlements "$ENTITLEMENTS" \
-    --sign "$UNFOLD_CODESIGN_IDENTITY" "$APP"
-  codesign --verify --strict --verbose=2 "$APP"
-else
-  codesign --force --deep --sign - "$APP"
-fi
+# The updater-enabled bundle includes Velopack's metadata and native helper.
+# Tool version is pinned in .config/dotnet-tools.json.
+dotnet tool restore
+python3 "$ROOT/Scripts/package-updates.py" --runtime "$RID" --payload "$APP"
 tar -czf "$ROOT/artifacts/Unfold-v$VERSION-$RID.tar.gz" -C "$ROOT/artifacts" Unfold.app
 # notarytool takes .zip, .dmg or .pkg; ditto is the only zip that keeps the
 # signature and symlinks intact.
 rm -f "$ROOT/artifacts/Unfold-v$VERSION-$RID.zip"
 ditto -c -k --keepParent "$APP" "$ROOT/artifacts/Unfold-v$VERSION-$RID.zip"
+bash "$ROOT/Scripts/package-macos-dmg.sh" "$RID" "$APP"
 echo "$APP"

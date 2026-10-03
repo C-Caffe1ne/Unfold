@@ -98,9 +98,9 @@ public class UiAuditRegressionTests
             Press(owner, "CustomPetFile_stretch"); await Until(() => !view.IsBusy);
             var hint = Find<TextBlock>(owner, "CustomPetPreviewHint");
             Assert.False(hint.IsVisible);
-            Assert.Contains("스트레칭", Find<TextBlock>(owner, "CustomPetPreviewAction").Text);
+            Assert.Contains("휴식", Find<TextBlock>(owner, "CustomPetPreviewAction").Text);
             Press(owner, "CustomPetRemove_idle"); Assert.False(hint.IsVisible);
-            Assert.Contains("스트레칭", Find<TextBlock>(owner, "CustomPetPreviewAction").Text);
+            Assert.Contains("휴식", Find<TextBlock>(owner, "CustomPetPreviewAction").Text);
             Press(owner, "CustomPetRemove_stretch"); Assert.False(hint.IsVisible);
         }
         finally { owner.Close(); }
@@ -166,7 +166,7 @@ public class UiAuditRegressionTests
     }
 
     [AvaloniaFact]
-    public async Task SoundsArePendingUntilApplyAndPreviewCancelsPreviousPlayback()
+    public async Task SoundsApplyAfterImportAndPreviewCancelsPreviousPlayback()
     {
         using var scope = new SettingsScope(); var window = scope.Window;
         var path = Path.Combine(scope.Root, "내 알림.wav"); File.WriteAllBytes(path, ReminderSounds.Default(ReminderSound.Due));
@@ -175,16 +175,17 @@ public class UiAuditRegressionTests
         window.PlaySoundPreview = (_, _, token) => { tokens.Add(token); return Task.Delay(Timeout.Infinite, token); };
         Press(window, "SettingsNavSettings"); Layout(window);
         Press(window, "ImportDueSound"); await Until(() => Find<Button>(window, "ImportDueSound").IsEnabled);
-        Assert.Null(scope.Runtime.Settings.ReminderSoundId);
+        Assert.NotNull(scope.Runtime.Settings.ReminderSoundId);
         Assert.Equal("내 알림.wav", Find<TextBlock>(window, "DueSoundName").Text);
-        Assert.True(Find<Button>(window, "SavePreferences").IsEnabled);
         Assert.False(Find<TextBlock>(window, "PreferencesStatus").IsVisible);
-        Press(window, "PreviewDueSound"); Assert.Equal("정지", Find<Button>(window, "PreviewDueSound").Content);
+        Press(window, "PreviewDueSound"); Assert.True(Assert.IsType<SoundPreviewIcon>(Find<Button>(window, "PreviewDueSound").Content).IsPlaying);
         Press(window, "PreviewCompletionSound"); Assert.True(tokens[0].IsCancellationRequested); Assert.False(tokens[1].IsCancellationRequested);
-        Press(window, "SavePreferences"); Assert.NotNull(scope.Runtime.Settings.ReminderSoundId);
+        Assert.False(Assert.IsType<SoundPreviewIcon>(Find<Button>(window, "PreviewDueSound").Content).IsPlaying);
+        Assert.True(Assert.IsType<SoundPreviewIcon>(Find<Button>(window, "PreviewCompletionSound").Content).IsPlaying);
+        Assert.NotNull(scope.Runtime.Settings.ReminderSoundId);
         Assert.Equal("내 알림.wav", AppSettings.Load(Path.Combine(scope.Root, "settings.json")).ReminderSoundName);
-        Press(window, "ResetDueSound"); Assert.NotNull(scope.Runtime.Settings.ReminderSoundId); Assert.True(tokens[1].IsCancellationRequested);
-        Press(window, "SavePreferences"); Assert.Null(scope.Runtime.Settings.ReminderSoundId);
+        Press(window, "ResetDueSound"); Assert.Null(scope.Runtime.Settings.ReminderSoundId); Assert.True(tokens[1].IsCancellationRequested);
+        Assert.Null(scope.Runtime.Settings.ReminderSoundId);
         window.PlaySoundPreview = (_, _, _) => throw new IOException("device unavailable");
         Press(window, "PreviewDueSound"); Assert.Equal(DesignSystem.Error, Find<TextBlock>(window, "PreferencesStatus").Foreground);
         window.PlaySoundPreview = (_, _, token) => { tokens.Add(token); return Task.Delay(Timeout.Infinite, token); };

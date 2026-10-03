@@ -1,6 +1,7 @@
 using Avalonia;
 using System.Text.Json;
 using Unfold.Core;
+using Velopack;
 
 namespace Unfold.Desktop;
 
@@ -9,6 +10,17 @@ internal static class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        // Hooks must run before the user profile and single-instance lock are opened.
+        var updater = VelopackApp.Build().SetArgs(args).SetAutoApplyOnStartup(false)
+            .OnFirstRun(_ => PlatformServices.MigrateStartAtLogin());
+        if (OperatingSystem.IsWindows())
+            updater.OnBeforeUninstallFastCallback(_ => PlatformServices.RemoveManagedStartAtLogin());
+        updater.Run();
+        if (args is ["--version"])
+        {
+            Console.WriteLine($"Unfold {AppRelease.DisplayVersion} ({AppRelease.Version})");
+            return 0;
+        }
         if (args.Length > 0 && args[0] == "--review-original-pets")
         {
             if (args.Length != 1) { Console.Error.WriteLine("Usage: --review-original-pets"); return 2; }

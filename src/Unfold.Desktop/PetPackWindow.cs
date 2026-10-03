@@ -27,8 +27,6 @@ public sealed class PetPackWindow : Window
 
 internal sealed class PetPackView : UserControl, IDisposable
 {
-    private static readonly Geometry PauseIcon = Geometry.Parse("M 6,4 H 10 V 20 H 6 Z M 14,4 H 18 V 20 H 14 Z");
-    private static readonly Geometry PlayIcon = Geometry.Parse("M 7,4 L 21,12 L 7,20 Z");
     private static readonly Geometry ReplayIcon = Geometry.Parse("M 12,5 V 1 L 7,6 L 12,11 V 7 C 15.3,7 18,9.7 18,13 C 18,16.3 15.3,19 12,19 C 8.7,19 6,16.3 6,13 H 4 C 4,17.4 7.6,21 12,21 C 16.4,21 20,17.4 20,13 C 20,8.6 16.4,5 12,5 Z");
     private readonly CharacterLibrary library;
     private readonly Func<CharacterPackage, Task> installed;
@@ -60,8 +58,8 @@ internal sealed class PetPackView : UserControl, IDisposable
         install = Ui.Button("저장", () => _ = InstallPack()); install.Name = "InstallPetPack"; install.IsEnabled = false;
         pause = Ui.Button("", () => { paused = !paused; UpdatePlayback(); }); pause.Name = "PausePackPreview";
         replay = Ui.Button("", () => { paused = false; _ = PlayClip(); }); replay.Name = "ReplayPackPreview";
-        ConfigurePreviewButton(pause, PauseIcon, "미리보기 일시정지");
-        ConfigurePreviewButton(replay, ReplayIcon, "선택한 동작 다시 재생");
+        ConfigurePreviewButton(pause, new PlaybackIcon(PlaybackGlyph.Pause), "미리보기 일시정지");
+        ConfigurePreviewButton(replay, new PathIcon { Data = ReplayIcon, Width = 20, Height = 20 }, "선택한 동작 다시 재생");
         ToolTip.SetTip(replay, "선택한 동작을 처음부터 다시 재생");
         AutomationProperties.SetName(clips, "미리 볼 동작");
         AutomationProperties.SetName(size, "미리보기 크기");
@@ -113,23 +111,24 @@ internal sealed class PetPackView : UserControl, IDisposable
     }
     private static string ClipName(string? key) => key switch
     {
-        "idle" => "쉬는 모습", "attention" => "휴식 안내", "stretch" => "스트레칭",
+        "idle" => "기본", "attention" => "알림", "stretch" => "휴식",
         "celebrate" => "휴식 완료", "click" => "클릭 반응", "sleep" => "잠자기",
-        "look" => "두리번거리기", "yawn" => "하품", "sulk" => "삐지기", "walk" => "걷기", _ => key ?? ""
+        "look" => "두리번거리기", "yawn" => "하품", "sulk" => "삐지기", "walk" => "걷기", "hover" => "마우스 호버", "pointerDown" => "마우스 눌림", "pointerUp" => "마우스 뗌", _ => key ?? ""
     };
     private void UpdatePlayback()
     {
         previewHint.IsVisible = false;
         pause.IsEnabled = replay.IsEnabled = previewReady && !loadingPreview && !closed;
-        ((PathIcon)pause.Content!).Data = paused ? PlayIcon : PauseIcon;
+        ((PlaybackIcon)pause.Content!).Glyph = paused ? PlaybackGlyph.Play : PlaybackGlyph.Pause;
         var label = paused ? "미리보기 계속" : "미리보기 일시정지";
         AutomationProperties.SetName(pause, label); ToolTip.SetTip(pause, label);
         preview.SetRunning(TopLevel.GetTopLevel(this) is not null && owner.IsVisible && !closed && previewReady && !loadingPreview && !paused);
     }
-    private static void ConfigurePreviewButton(Button button, Geometry icon, string label)
+    private static void ConfigurePreviewButton(Button button, Control icon, string label)
     {
-        button.Content = new PathIcon { Data = icon, Width = 20, Height = 20 };
-        button.Width = 44; button.Height = 44; button.MinHeight = 44; button.Padding = new Thickness(10);
+        button.Content = icon;
+        button.Width = 44; button.Height = 44; button.MinHeight = 44;
+        button.Padding = new Thickness(icon is PlaybackIcon ? 8 : 10);
         button.HorizontalContentAlignment = HorizontalAlignment.Center;
         button.VerticalContentAlignment = VerticalAlignment.Center;
         AutomationProperties.SetName(button, label); ToolTip.SetTip(button, label); ToolTip.SetShowDelay(button, 500);
@@ -195,11 +194,11 @@ internal sealed class PetPackView : UserControl, IDisposable
         {
             var frames = await Task.Run(() => current.Character.LoadAnimation(key));
             if (closed || request != generation || pack != current) return;
-            preview.SetFrames(frames, current.Character.Manifest.Animations[key].Loop, current.Character.Manifest.RenderStyle == "pixel", current.Character.HasOriginalBehavior);
+            preview.SetFrames(frames, current.Character.Manifest.Animations[key].Loop, current.Character.Manifest.RenderStyle == "pixel", current.Character.HasOriginalBehavior, current.Character.Manifest.Animations[key].PingPong);
             previewReady = true;
             status.Foreground = DesignSystem.Muted;
-            playbackStatus.Text = returnTo is not null ? "쉬는 모습" :
-                $"{ClipName(key)} · {frames.Sum(frame => frame.Duration.TotalSeconds):0.###}초 · {(current.Character.Manifest.Animations[key].Loop ? "반복" : "1회")}";
+            playbackStatus.Text = returnTo is not null ? "기본" :
+                $"{ClipName(key)} · {frames.Sum(frame => frame.Duration.TotalSeconds):0.###}초 · {(current.Character.Manifest.Animations[key].PingPong ? "핑퐁" : current.Character.Manifest.Animations[key].Loop ? "반복" : "한 번")}";
         }
         catch (Exception error) { AppPaths.Log(error); if (!closed && request == generation) { previewReady = false; status.Foreground = DesignSystem.Error; status.Text = "미리보기를 재생하지 못했어요. " + Ui.ErrorText(error); install.IsEnabled = false; } }
         finally { if (!closed && request == generation) { loadingPreview = false; UpdatePlayback(); } }

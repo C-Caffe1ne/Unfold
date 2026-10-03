@@ -21,7 +21,8 @@ public static partial class DesignSystem
         SettingsNumberWidth = 160, SettingsRowGap = 16, SettingsActionWidth = 80,
         SettingsPreviewWidth = 80, SettingsImportWidth = 104, SettingsResetWidth = 64;
     public const double FocusRingWidth = 2, FocusRingOffset = 2;
-    public const double HomeTimerHeight = 196, HomeControlHeight = 40, HomeChoiceWidth = 200,
+    public static readonly FontFamily AppFont = new("avares://Unfold/Assets/Fonts#눈누 기초고딕 Regular");
+    public const double HomeTimerHeight = 216, HomeControlHeight = 40, HomeChoiceWidth = 200,
         HomeNumberWidth = 160, HomeActionWidth = 80, HomePetScaleWidth = 280;
     public const double ReviewContentWidth = 760, ReviewControlHeight = 40, ReviewDateHeight = 44;
     public const double PetContentWidth = 760, PetControlHeight = 40, PetChoiceWidth = 200,
@@ -45,6 +46,10 @@ public static partial class DesignSystem
         ApplyFluentPalette(app, fluent, Themes.Single(item => item.Id == CurrentTheme));
         app.Styles.Add(fluent);
         var styles = new Styles();
+        styles.Add(new Style(s => s.OfType<TemplatedControl>()) { Setters =
+        { new Setter(TemplatedControl.FontFamilyProperty, AppFont) }});
+        styles.Add(new Style(s => s.OfType<TextBlock>()) { Setters =
+        { new Setter(TextBlock.FontFamilyProperty, AppFont) }});
         styles.Add(new Style(s => s.OfType<FlyoutPresenter>().Class("theme-picker")) { Setters =
         {
             new Setter(TemplatedControl.BackgroundProperty, Surface), new Setter(TemplatedControl.ForegroundProperty, Cream),
@@ -82,6 +87,14 @@ public static partial class DesignSystem
         AddButtonState(styles, "primary", ":pressed", Accent, Ink);
         AddButtonState(styles, "danger", ":pointerover", Hover, Error);
         AddButtonState(styles, "danger", ":pressed", OutlineSubtle, Error);
+        // Timer controls keep a steady surface on hover/press; keyboard focus remains visible.
+        foreach (var state in new[] { ":pointerover", ":pressed" })
+        {
+            AddButtonState(styles, "timer-control", state, Raised, Cream);
+            styles.Add(new Style(s => s.OfType<Button>().Class("unfold-action").Class("timer-control")
+                .Class("primary").Class(state).Template().OfType<ContentPresenter>().Name("PART_ContentPresenter"))
+            { Setters = { new Setter(ContentPresenter.BackgroundProperty, Accent), new Setter(ContentPresenter.ForegroundProperty, Ink) } });
+        }
         AddButtonState(styles, null, ":disabled", DisabledFill, DisabledText);
         styles.Add(new Style(s => s.OfType<Button>().Class("unfold-action").Class(":disabled")) { Setters =
         { new Setter(Visual.OpacityProperty, 1d) }});
@@ -224,9 +237,15 @@ public static partial class DesignSystem
         AddChoiceStyles(styles, "pet-choice", PetChoiceWidth);
         AddChoiceStyles(styles, "pet-preview-choice", PetPreviewOptionWidth);
         AddThumbHoverSliderStyles(styles);
+        AddDirectionStyles(styles);
         styles.Add(new Style(s => s.OfType<Button>().Class("settings-reset")) { Setters =
         { new Setter(TemplatedControl.BackgroundProperty, Brushes.Transparent), new Setter(TemplatedControl.ForegroundProperty, Muted) }});
         AddPetCardStyles(styles);
+        foreach (var type in new[] { typeof(Button), typeof(ToggleButton), typeof(CheckBox), typeof(RadioButton),
+                     typeof(TextBox), typeof(NumericUpDown), typeof(ComboBox), typeof(ComboBoxItem),
+                     typeof(ListBoxItem), typeof(TabItem), typeof(MenuItem) })
+            styles.Add(new Style(s => s.Is(type)) { Setters =
+            { new Setter(TemplatedControl.FontFamilyProperty, AppFont) }});
         app.Styles.Add(styles);
     }
 

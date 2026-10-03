@@ -1,0 +1,13 @@
+Noonnu Basic Gothic Regular / 눈누 기초고딕 Regular
+
+Font copyright notice from the supplied font's name table:
+2024 (C) Project Noonnu, All Rights Reserved.
+Typeface designer: Rabbit's Typo. Foundry / 토끼네활자공장
+
+Published license source: https://noonnu.cc/font_page/1496
+Verified on 2026-09-30. This is a summary of the published terms, not a replacement license.
+
+The publisher permits personal and commercial use, modification, redistribution,
+and embedding the font in programs and games without a license fee. Selling the
+font itself is prohibited. Unfold embeds the original, unmodified font; the font
+is not sold separately. Consult the source page for the full usage terms.

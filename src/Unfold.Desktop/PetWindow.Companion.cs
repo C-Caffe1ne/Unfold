@@ -69,7 +69,7 @@ public sealed partial class PetWindow
             if (current != generation || !IsVisible) return;
             reacting = false; ActiveAnimation = key;
             animation.SetRunning(true);
-            animation.SetFrames(frames, true, selected?.Manifest.RenderStyle == "pixel", selected?.HasOriginalBehavior == true);
+            animation.SetFrames(frames, selected?.Manifest.Animations.GetValueOrDefault(key)?.Loop ?? true, selected?.Manifest.RenderStyle == "pixel", selected?.HasOriginalBehavior == true, selected?.Manifest.Animations.GetValueOrDefault(key)?.PingPong == true);
             if (key != "walk") wander.Reset();
         }
         catch (Exception error)

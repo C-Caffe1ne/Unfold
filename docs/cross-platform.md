@@ -3,18 +3,38 @@
 Unfold is a C#/.NET 10 and Avalonia stretch reminder with desktop pets. Published
 packages include .NET. Swift, Xcode, and the Piskel web runtime are not required.
 
-Version 0.2.2 includes Mochi (cat), 보리 (rabbit), 강아지 (dog), 고슴도치 (hedgehog)
+Beta v1.0.3 (`1.0.3-beta`) includes Mochi (cat), 보리 (rabbit), 강아지 (dog), 고슴도치 (hedgehog)
 and 펭귄 (penguin). Choose them from Home without installing separate packs.
-Release notes are included as `RELEASE-NOTES.md` at the Windows portable folder's
-top level and inside `Unfold.app/Contents/Resources/` on macOS.
+Release notes are included as `RELEASE-NOTES.md` in the Windows portable/installed
+`current` folder and inside `Unfold.app/Contents/Resources/` on macOS.
+This beta requires Google sign-in and a verified Live purchase or valid free grant before
+starting the timer, desktop pet, or settings. After sign-in, testers can use the bottom-right
+code button to redeem `admin`; the server saves a free grant for that account.
+After the first sign-in in this build, the refresh credential is kept in the OS credential
+store. Restart restores the session and verifies server access without another Google
+sign-in or code entry. Logout deletes the stored credential. Network failure preserves it
+for retry but does not grant offline access.
+Live server activation and Windows code signing are pending. Mac notarized distribution
+is provided separately from the older ad-hoc artifacts. See [beta release notes](releases/v1.0.2-beta.md)
+for the previous public release's distribution limits. The updater-enabled v1.0.3 build
+requires its own signing, notarization and publication. `Unfold --version` prints the release identity without opening the app
+or creating a user profile.
 
 ## Windows installation
 
-Extract the entire `Unfold-v<version>-win-x64.zip` and double-click `win-x64/Unfold.cmd`.
-It launches `win-x64/app/Unfold.exe`. Keep the `app` folder next to the launcher;
-it holds the executable, DLLs, and `Assets` directory. The local portable build is
-unsigned. Launch at login registers the real path inside `app`, so login launch
-keeps working even without the launcher after the first run.
+Run `Unfold-v<version>-win-x64-setup.exe` and follow the installation wizard.
+It installs for the current user into `%LOCALAPPDATA%\DokhuStudio.Unfold.Updates`, creates a
+Start menu shortcut and registers Windows app removal. The stable root `Unfold.exe` launcher
+starts the versioned payload in `current/` and survives updates.
+Quit the running app before installing or removing it. The updater closes and restarts its managed
+app when applying an update. An already enabled login launch is migrated to the stable launcher
+on the new app's first run; it is never enabled for a user who has opted out.
+Uninstall removes the managed app files and its startup entry; settings, break history,
+custom pets and saved login credentials remain in their separate user locations.
+
+The ZIP remains available as a portable alternative: extract the entire
+`Unfold-v<version>-win-x64.zip` and run the root `Unfold.exe`. Keep the extracted folder intact.
+Both forms currently lack a Windows code signature.
 
 Closing Settings hides it to the tray. Run the app again or use the tray menu to
 open Settings. **Unfold 종료** exits the process. The app uses one instance per data
@@ -27,15 +47,22 @@ the new location. A checked setting does not prove an actual login launch worked
 
 ## macOS installation
 
-Place `Unfold.app` in its final location and open it. Settings closes to the menu
+Open the matching `Unfold-v<version>-osx-arm64.dmg` or `osx-x64.dmg`, drag `Unfold.app`
+to the included `Applications` link, then open the copied app and eject the disk image.
+Quit the existing app before replacing it. ZIP and tar.gz archives remain build outputs.
+Settings closes to the menu
 bar; **Unfold 종료** exits. Login launch uses
 `~/Library/LaunchAgents/app.unfold.desktop.plist` and starts the app with
-`--background`, keeping Settings hidden.
+`--background`. Saved login is restored and access is verified before starting paid features.
 
-The default local bundle is signed ad hoc. Public distribution needs a separate
-Developer ID signing and notarization process. The bundle script supports a
-signing identity through `UNFOLD_CODESIGN_IDENTITY`; it does not submit to
-notarization or staple a ticket.
+The default local bundle is signed ad hoc. Public distribution uses Developer ID
+signing and notarization. Set `UNFOLD_CODESIGN_IDENTITY` to select the certificate
+and `UNFOLD_NOTARY_PROFILE` to select a local notarytool keychain profile. The bundle
+script signs all nested native files, submits the app and staples its ticket, then
+creates, notarizes and staples the DMG. Rejection stops packaging. Credentials are
+never stored in the repository. `UNFOLD_NOTARY_LOG_DIR` selects the diagnostic log folder.
+Use the `-notarized-installer.zip` Mac assets for the signed Beta v1.0.2 distribution;
+the earlier Mac installer ZIPs remain available as historical ad-hoc builds.
 
 ## Visible controls
 
@@ -45,7 +72,7 @@ notarization or staple a ticket.
 - Settings: the timer home contains stretch interval and break duration; a separate settings tab contains idle time, snooze time, stretch/completion sounds and bubble position; character selection, pet visibility,
   launch at login, **Review & export**, **펫 추가**, today's confirmed breaks, and timer controls.
 - Pet speech reminder: **n분 뒤에**, **휴식 시작**, and **완료**. The bubble remains visible while its reminder state is active.
-  Settings offers four bubble positions, 1–60 minute snooze, and due/completion WAV effects.
+  Settings offers four bubble positions, 1–60 minute snooze, and due/completion WAV or MP3 effects.
   There is no separate reminder window or OS toast.
   **완료** is available from the start of a break. Overtime caps at +60:00 without auto-completion.
   Snooze counts active time, not time away.
@@ -62,7 +89,7 @@ minutes and may be changed while working because it applies to the next break. A
 does not change behavior until the home card's **저장** is pressed. The Settings tab uses its own
 **취소·저장** for idle/snooze time and notification preferences. Saving a new stretch interval keeps Pause or Stop intact.
 
-All five bundled pets provide ten behaviors. Eligible idle time triggers sleep, looking around
+All five bundled pets provide the original reactions plus pointer hold/release behaviors. Eligible idle time triggers sleep, looking around
 or yawning; a short click squashes, bounces and plays surprise followed by looking around.
 The third consecutive snooze triggers sulking. Starting a break plays one stretch before walking
 inside the current monitor's work area; completion, stop, hiding or selecting another pet ends movement.
@@ -117,15 +144,21 @@ The **저장** action installs a new ID, updates a newer content version, or rei
 the same version. Reinstall restores damaged/missing runtime images from a saved pack.
 Built-in companions and existing user-authored IDs cannot be replaced. Invalid archives,
 hash/decoder failures and changed installed files are rejected. Successful installation selects
-the companion without resuming a paused timer. There is no store, automatic download, or
-account purchase recovery. See the [pet pack guide](pet-packs.md).
+the companion without resuming a paused timer. There is no pet store or automatic pet download.
+See the [pet pack guide](pet-packs.md).
 
 The sidebar **펫 추가** page switches between **펫 팩 열기** and **펫 팩 만들기** in place.
-The action cards on the create tab import GIF/MP4 files. Drafts survive tab navigation and hiding the settings window.
+The action cards on the create tab import GIF/MP4 files and still PNG/JPG/JPEG/WEBP/BMP images. Drafts survive tab navigation and hiding the settings window.
 Assign files to five supported actions (idle required), preview each, then save a `.unfoldpet`
 and install it through the same preview page. MP4 conversion is local, silent, limited to
 10 seconds/128 MiB, and resized proportionally to at most 192px at 12 fps. GIF import preserves
 source pixels/timing. Opaque video backgrounds remain visible; there is no background removal.
+Still images retain aspect ratio and transparency, apply photo EXIF orientation, and shrink to at
+most 512px without enlarging small images. Inputs are bounded to 32 MiB, 8192px per side,
+and 16,777,216 pixels. They use single-frame PNG sheet clips in the existing version-1 pack format.
+MP3 effects are converted locally to mono/44.1 kHz/16-bit PCM WAV for the existing preview,
+volume, save/cancel and playback paths. Both source files and stored effects must be at most
+5 MiB; effects over 30 seconds are rejected rather than shortened. Source files are unchanged.
 
 ## Development and packaging
 
@@ -133,7 +166,7 @@ Run these commands from the repository with .NET SDK 10 installed:
 
 ```sh
 dotnet restore Unfold.slnx --locked-mode
-# MP4 import: use the matching RID (win-x64, win-arm64, osx-arm64, osx-x64).
+# MP4 / MP3 import: use the matching RID (win-x64, win-arm64, osx-arm64, osx-x64).
 dotnet run --project tools/Unfold.MediaSetup -- osx-arm64 .
 dotnet test Unfold.slnx -c Release --no-restore
 dotnet run --project src/Unfold.Desktop
@@ -147,6 +180,23 @@ On Windows, publish using PowerShell:
 ./Scripts/publish-desktop.ps1 -Runtime win-arm64
 ```
 
+For the Windows x64 installation wizard, install NSIS 3 and Python 3, then package
+the published x64 payload:
+
+```powershell
+python Scripts/package-windows-installer.py --compiler "${env:ProgramFiles(x86)}\NSIS\makensis.exe"
+```
+
+This creates `artifacts/Unfold-v1.0.2-beta-win-x64-setup.exe`. It installs for the
+current user without requesting administrator privileges. The existing ZIP remains
+available as a portable alternative. The installer intentionally retains the user's
+settings, pet packs and saved credentials when uninstalling.
+
+Without PowerShell, prepare the matching media tools, publish Windows into
+`artifacts/win-x64/app`, then run `python3 Scripts/package-windows.py win-x64`.
+This copies the launcher and instructions from the canonical PowerShell script;
+cross-publishing does not verify execution on Windows.
+
 On macOS:
 
 ```sh
@@ -155,8 +205,17 @@ bash Scripts/make-macos-bundle.sh osx-arm64
 bash Scripts/make-macos-bundle.sh osx-x64
 ```
 
+The macOS script creates a `.app`, ZIP, tar.gz and a compressed DMG for the selected
+architecture. The DMG contains Unfold and a shortcut to Applications. A Developer ID
+certificate and notarization are still required for a Gatekeeper-trusted public release;
+the default local build uses ad-hoc signing.
+
 The CI matrix builds/tests Windows x64 and macOS arm64, then packages them. The Windows
-job also defines an isolated packaged smoke run. This is automated diagnostic coverage,
+job also defines an isolated packaged smoke run and a silent installer verification
+(`Scripts/verify-windows-installer.ps1`) covering installation, payload hashes, running-app
+protection, startup-entry migration, uninstall and data retention. Run this verifier only
+in a disposable environment; it refuses an existing installation or startup entry.
+This is automated diagnostic coverage,
 not physical OS interaction or evidence that the current workflow has already passed.
 Other supported script arguments are not proof of tested architectures.
 
@@ -165,7 +224,7 @@ The setup tool verifies fixed SHA-256 checksums before extraction and retains up
 source provenance, and Windows support DLLs. The first preparation needs network access; cached
 archives are reverified on later runs. Normal builds copy prepared files into `Tools/`. The app
 does not download software at runtime. `UNFOLD_FFMPEG_PATH` can point to an absolute FFmpeg path
-for development; the bundled executable and then `PATH` are the fallbacks. GIF import needs no
+for development; the bundled executable and then `PATH` are the fallbacks. GIF and still-image import need no
 FFmpeg. Windows Arm uses the x64 FFmpeg process via Windows x64 emulation; actual Windows/Arm
 execution still needs target-OS testing.
 
@@ -200,3 +259,32 @@ See [pet resource management](pet-resources.md).
 A successful smoke run verifies that diagnostic path only. It does not verify real
 notification delivery, physical dragging, login startup, full animation playback,
 long-term resource use, or whether a person actually stretches.
+
+## App updates
+
+Use **업데이트 확인** in the tray/menu bar. A new release is downloaded inside Unfold;
+**재시작하여 적용** applies it after the user chooses to restart. Active breaks and unsaved
+pet/editor drafts must be resolved before applying. Closing the update window leaves the
+download running. Startup does not auto-apply a previously downloaded update.
+
+The app reads the public `C-Caffe1ne/Unfold` GitHub Releases. Each release must include
+the matching `releases.<runtime>-beta.json` (or `-stable.json`) and its referenced `.nupkg`.
+Windows x64/Arm64 and Mac arm64/x64 have distinct feeds. No GitHub token is included in the app.
+After publishing Windows, `python Scripts/package-updates.py --runtime win-x64` prepares
+these assets without uploading them. On Mac, `bash Scripts/make-macos-bundle.sh <rid>`
+creates a fresh bundle, update feed, ZIP and DMG; do not repack an already managed `.app`.
+The Velopack SDK and local `vpk` tool are pinned to 1.2.0.
+
+Existing Beta v1.0.2 and older apps have no updater. They must install this updater-enabled
+build once after fully quitting the previous process. On Windows the new install and uninstall
+registration are separate from the old NSIS installation; verify the new app before removing
+the old one. User data remains at `%LOCALAPPDATA%\Unfold` /
+`~/Library/Application Support/Unfold`; credentials keep the existing OS vault and bundle identity.
+
+Public Mac update packages must be signed and notarized. Windows signing is recommended.
+Local unsigned/ad-hoc build verification does not establish Windows execution or public trust.
+Mac packaging preserves the existing resource/symlink layout and minimal app entitlement.
+Developer ID builds pre-sign native libraries and let Velopack sign its helper and completed
+bundle. Without an identity, the local validation bundle uses ad-hoc signing without hardened
+runtime; its complete `.nupkg` and feed hashes are resealed together. These local packages
+are not substitutes for signed and notarized public releases.

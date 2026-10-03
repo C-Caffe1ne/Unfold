@@ -1,0 +1,310 @@
+{
+  "version": 1,
+  "palette": {
+    "accent": "#685187",
+    "secondary": "#C8BAE6",
+    "ink": "#32283E",
+    "light": "#F7F4FB",
+    "canvas": "#F1EDF7"
+  },
+  "wordmark": {
+    "contours": 8,
+    "referenceMaskIoU": 0.9987165613911468
+  },
+  "png": [
+    {
+      "file": "png/symbol/symbol-lilac-16.png",
+      "width": 16,
+      "height": 16,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "png/app-icon/unfold-16.png",
+      "width": 16,
+      "height": 16,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "png/symbol/symbol-lilac-24.png",
+      "width": 24,
+      "height": 24,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "png/app-icon/unfold-24.png",
+      "width": 24,
+      "height": 24,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "png/symbol/symbol-lilac-32.png",
+      "width": 32,
+      "height": 32,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "png/app-icon/unfold-32.png",
+      "width": 32,
+      "height": 32,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "png/symbol/symbol-lilac-48.png",
+      "width": 48,
+      "height": 48,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "png/app-icon/unfold-48.png",
+      "width": 48,
+      "height": 48,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "png/symbol/symbol-lilac-64.png",
+      "width": 64,
+      "height": 64,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "png/app-icon/unfold-64.png",
+      "width": 64,
+      "height": 64,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "png/symbol/symbol-lilac-96.png",
+      "width": 96,
+      "height": 96,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "png/app-icon/unfold-96.png",
+      "width": 96,
+      "height": 96,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "png/symbol/symbol-lilac-128.png",
+      "width": 128,
+      "height": 128,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "png/app-icon/unfold-128.png",
+      "width": 128,
+      "height": 128,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "png/symbol/symbol-lilac-192.png",
+      "width": 192,
+      "height": 192,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "png/app-icon/unfold-192.png",
+      "width": 192,
+      "height": 192,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "png/symbol/symbol-lilac-256.png",
+      "width": 256,
+      "height": 256,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "png/app-icon/unfold-256.png",
+      "width": 256,
+      "height": 256,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "png/symbol/symbol-lilac-512.png",
+      "width": 512,
+      "height": 512,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "png/app-icon/unfold-512.png",
+      "width": 512,
+      "height": 512,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "png/symbol/symbol-lilac-1024.png",
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "png/app-icon/unfold-1024.png",
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "png/logo/logo-lilac-320.png",
+      "width": 320,
+      "height": 88,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "png/logo/logo-light-320.png",
+      "width": 320,
+      "height": 88,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "png/logo/logo-lilac-640.png",
+      "width": 640,
+      "height": 176,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "png/logo/logo-light-640.png",
+      "width": 640,
+      "height": 176,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "png/logo/logo-lilac-1280.png",
+      "width": 1280,
+      "height": 353,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "png/logo/logo-light-1280.png",
+      "width": 1280,
+      "height": 353,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "png/logo/logo-lilac-2560.png",
+      "width": 2560,
+      "height": 705,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "png/logo/logo-light-2560.png",
+      "width": 2560,
+      "height": 705,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "web/favicon-16x16.png",
+      "width": 16,
+      "height": 16,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "web/favicon-24x24.png",
+      "width": 24,
+      "height": 24,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "web/favicon-32x32.png",
+      "width": 32,
+      "height": 32,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "web/favicon-48x48.png",
+      "width": 48,
+      "height": 48,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "web/favicon-64x64.png",
+      "width": 64,
+      "height": 64,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "web/favicon-128x128.png",
+      "width": 128,
+      "height": 128,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "web/favicon-256x256.png",
+      "width": 256,
+      "height": 256,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "web/apple-touch-icon.png",
+      "width": 180,
+      "height": 180,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "web/android-chrome-192x192.png",
+      "width": 192,
+      "height": 192,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "web/android-chrome-512x512.png",
+      "width": 512,
+      "height": 512,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "web/maskable-icon-512x512.png",
+      "width": 512,
+      "height": 512,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "preview.png",
+      "width": 1600,
+      "height": 1050,
+      "format": "png",
+      "alpha": true
+    }
+  ]
+}

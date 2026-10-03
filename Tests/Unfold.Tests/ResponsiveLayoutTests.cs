@@ -6,6 +6,7 @@ using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Unfold.Desktop;
+using Unfold.Core;
 
 namespace Unfold.Tests;
 
@@ -45,6 +46,8 @@ public class ResponsiveLayoutTests
                 Assert.Equal(timerPoint.Y, timingPoint.Y);
                 Assert.True(timingPoint.X > timerPoint.X + timer.Bounds.Width);
             }
+            AssertInWindow(Find<Button>(window, "SettingsTheme"), window);
+            AssertInWindow(Find<Button>(window, "SettingsNavSettings"), window);
             AssertInWindow(Find<Button>(window, "SettingsQuit"), window);
         }
         window.Width = 1120; window.Height = 800; Layout(window);
@@ -59,7 +62,7 @@ public class ResponsiveLayoutTests
     {
         using var scope = new Scope(); var window = scope.Window;
         var links = Find<StackPanel>(window, "SettingsNavigationLinks");
-        Assert.Equal(new[] { "SettingsNavTimer", "SettingsNavPacks", "SettingsNavReview", "SettingsNavSettings" },
+        Assert.Equal(new[] { "SettingsNavTimer", "SettingsNavPacks", "SettingsNavReview", "SettingsTheme" },
             links.Children.OfType<Button>().Select(button => button.Name).ToArray());
         Assert.Equal(2, Find<Grid>(window, "SettingsNavigationRail").Children.Count);
         Press(window, "SettingsNavSettings");
@@ -68,9 +71,8 @@ public class ResponsiveLayoutTests
         {
             window.Width = width; window.Height = 560; Layout(window);
             Assert.Same(volume, Find<Slider>(window, "ReminderVolumePercent")); Assert.Equal(37, volume.Value);
-            Assert.True(Find<Button>(window, "SavePreferences").IsEnabled);
+            Assert.Equal(37, AppSettings.Load(Path.Combine(AppPaths.DataRoot, "settings.json")).ReminderVolumePercent);
             AssertNoHorizontalOverflow(window);
-            AssertInWindow(Find<Button>(window, "SavePreferences"), window);
             var scroll = Find<ScrollViewer>(window, "SettingsPreferencesScroll");
             scroll.ScrollToEnd(); Layout(window); AssertInWindow(Find<CheckBox>(window, "DebugToolsEnabled"), window);
         }

@@ -1,0 +1,30 @@
+{
+  "source": "User-provided SVG in conversation, 2026-09-30",
+  "figmaFileKey": "blkEPmylT7Brsr0js13vHH",
+  "viewport": {
+    "width": 24,
+    "height": 24
+  },
+  "assets": [
+    {
+      "file": "up.svg",
+      "figmaNodeId": "27:75",
+      "sha256": "e2d34b86ec13f0ea9c48d13759ec995372dfdc2ce3d4f7c2fc0afc30d500aa9a"
+    },
+    {
+      "file": "down.svg",
+      "figmaNodeId": "27:85",
+      "sha256": "0a7a42aaac44f239d830736bcabc75a8f2a79da9d5a80d242dce6006c328f56c"
+    },
+    {
+      "file": "left.svg",
+      "figmaNodeId": "27:90",
+      "sha256": "9627587c33f029322ccaf4d7fe90b7d18b042211b48e403e85422eecf935e58e"
+    },
+    {
+      "file": "right.svg",
+      "figmaNodeId": "27:80",
+      "sha256": "47a8d53ad210f4c5011ab0c4da72526521ed6ffffb7dc0fb352be3845988f2b0"
+    }
+  ]
+}

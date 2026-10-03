@@ -47,6 +47,12 @@ public class UiTests
     {
         using var temp = new TempDirectory(); var session = new EditorSession(new PixelDocument(8, 8));
         var window = new EditorWindow(new(temp.Path), session, _ => { }); window.Show(); Dispatcher.UIThread.RunJobs();
+        var playback = window.GetVisualDescendants().OfType<Button>().Single(b => b.Name == "EditorPlayback");
+        Assert.Equal(PlaybackGlyph.Play, Assert.IsType<PlaybackIcon>(playback.Content).Glyph);
+        playback.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+        Assert.Equal(PlaybackGlyph.Pause, Assert.IsType<PlaybackIcon>(playback.Content).Glyph);
+        playback.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+        Assert.Equal(PlaybackGlyph.Play, Assert.IsType<PlaybackIcon>(playback.Content).Glyph);
         var duplicate = window.GetVisualDescendants().OfType<Button>().Single(b => Equals(b.Content, "Duplicate"));
         duplicate.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
         Assert.Equal(2, session.Document.FrameCount); Assert.Equal(1, session.Frame);

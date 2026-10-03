@@ -165,6 +165,31 @@ public class AccountClientTests
         Assert.Equal(AccountFailure.InvalidResponse, (await Assert.ThrowsAsync<AccountException>(() => client.RefreshAsync(Session, TestContext.Current.CancellationToken))).Failure);
     }
 
+    [Theory]
+    [InlineData(204)]
+    [InlineData(401)]
+    public async Task SignOutTargetsOnlyTheCurrentSessionAndAcceptsAnEmptyResponse(int status)
+    {
+        using var client = Client((request, _) =>
+        {
+            Assert.Equal(HttpMethod.Post, request.Method);
+            Assert.Equal("/auth/v1/logout", request.RequestUri!.AbsolutePath);
+            Assert.Equal("?scope=local", request.RequestUri.Query);
+            Assert.Equal("private-access", request.Headers.Authorization!.Parameter);
+            Assert.Equal("public-key", Assert.Single(request.Headers.GetValues("apikey")));
+            Assert.Null(request.Content);
+            return Task.FromResult(new HttpResponseMessage((HttpStatusCode)status));
+        });
+        await client.SignOutAsync(Session, TestContext.Current.CancellationToken);
+    }
+
+    [Fact]
+    public async Task SignOutDoesNotReportAnUnavailableServerAsSuccessful()
+    {
+        using var client = Client((_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)));
+        Assert.Equal(AccountFailure.Unavailable, (await Assert.ThrowsAsync<AccountException>(() => client.SignOutAsync(Session, TestContext.Current.CancellationToken))).Failure);
+    }
+
     [Fact]
     public void RemoteHttpAndCredentialBearingUrlsAreRejected()
     {
@@ -173,4 +198,47 @@ public class AccountClientTests
         using var client = Client((_, _) => throw new NotImplementedException());
         Assert.Throws<ArgumentException>(() => client.BeginGoogleSignIn(new("https://example.test/auth/callback")));
     }
+    [Fact]
+    public async Task AppAccessUsesMergedEndpointAndCodeRedemptionTransmitsNoClientAccountOrEnvironment()
+    {
+        var calls = 0;
+        using var client = Client(async (request, token) => {
+            calls++;
+            Assert.Equal("private-access", request.Headers.Authorization!.Parameter);
+            Assert.Equal("public-key", Assert.Single(request.Headers.GetValues("apikey")));
+            if (request.Method == HttpMethod.Get)
+            {
+                Assert.Equal("/functions/v1/get-app-access", request.RequestUri!.AbsolutePath);
+                return Json(new { schema_version = 1, user_id = UserId, product_id = "unfold", environment = "live", status = "active" });
+            }
+            Assert.Equal("/functions/v1/redeem-access-code", request.RequestUri!.AbsolutePath);
+            var body = JsonDocument.Parse(await request.Content!.ReadAsStringAsync(token)).RootElement;
+            Assert.Equal("code", Assert.Single(body.EnumerateObject()).Name);
+            Assert.Equal("admin", body.GetProperty("code").GetString());
+            return Json(new { schema_version = 1, user_id = UserId, product_id = "unfold", environment = "live", status = "redeemed" });
+        });
+        Assert.Equal(AccessCodeResult.Redeemed, await client.RedeemAccessCodeAsync(Session, " admin ", TestContext.Current.CancellationToken));
+        Assert.Equal(PurchaseAccess.Active, await client.GetAppAccessAsync(Session, TestContext.Current.CancellationToken));
+        Assert.Equal(2, calls);
+    }
+
+    [Theory]
+    [InlineData("test", "unfold", "redeemed")]
+    [InlineData("live", "other", "redeemed")]
+    [InlineData("live", "unfold", "active")]
+    public async Task CodeRedemptionRejectsWrongProductEnvironmentOrStatus(string environment, string product, string status)
+    {
+        using var client = Client((_, _) => Task.FromResult(Json(new { schema_version = 1, user_id = UserId, product_id = product, environment, status })));
+        var error = await Assert.ThrowsAsync<AccountException>(() => client.RedeemAccessCodeAsync(Session, "admin", TestContext.Current.CancellationToken));
+        Assert.Equal(AccountFailure.InvalidResponse, error.Failure);
+    }
+
+    [Fact]
+    public async Task CodeRedemptionRejectsAnotherAccountsResponse()
+    {
+        using var client = Client((_, _) => Task.FromResult(Json(new { schema_version = 1, user_id = Guid.NewGuid(), product_id = "unfold", environment = "live", status = "redeemed" })));
+        var error = await Assert.ThrowsAsync<AccountException>(() => client.RedeemAccessCodeAsync(Session, "admin", TestContext.Current.CancellationToken));
+        Assert.Equal(AccountFailure.InvalidResponse, error.Failure);
+    }
+
 }

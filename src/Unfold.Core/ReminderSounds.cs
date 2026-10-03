@@ -13,6 +13,11 @@ public sealed partial class ReminderSounds(string directory)
         byte[] data;
         try { data = ImageCodec.ReadBounded(path, 5 * 1024 * 1024); }
         catch (InvalidDataException error) { throw new InvalidDataException("효과음 파일은 5 MiB 이하로 선택해 주세요.", error); }
+        return ImportPcmWav(data);
+    }
+    public string ImportPcmWav(byte[] bytes)
+    {
+        var data = bytes.ToArray();
         Validate(data);
         var id = Convert.ToHexStringLower(SHA256.HashData(data));
         AtomicFile.Write(Path.Combine(directory, id + ".wav"), data);
@@ -48,8 +53,10 @@ public sealed partial class ReminderSounds(string directory)
         return TimeSpan.FromSeconds(length / (double)rate);
     }
     /// <summary>Returns a PCM copy at the requested gain, preserving every chunk and the original duration.</summary>
-    public static byte[] WithVolume(ReadOnlySpan<byte> data, int percent)
+    public static byte[] WithVolume(ReadOnlySpan<byte> data, int percent) => WithVolume(data, (double)percent);
+    public static byte[] WithVolume(ReadOnlySpan<byte> data, double percent)
     {
+        if (!double.IsFinite(percent)) throw new ArgumentOutOfRangeException(nameof(percent));
         ArgumentOutOfRangeException.ThrowIfNegative(percent);
         ArgumentOutOfRangeException.ThrowIfGreaterThan(percent, 100);
         Validate(data);
@@ -72,7 +79,7 @@ public sealed partial class ReminderSounds(string directory)
                 if (bits == 8)
                 {
                     for (var sample = 0; sample < samples.Length; sample++)
-                        samples[sample] = (byte)(128 + (samples[sample] - 128) * percent / 100);
+                        samples[sample] = (byte)(128 + (int)((samples[sample] - 128) * percent / 100));
                 }
                 else
                 {

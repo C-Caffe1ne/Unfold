@@ -7,6 +7,7 @@ using Avalonia.Media;
 using Avalonia.Input;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
+using Avalonia.Svg;
 using Unfold.Core;
 using static Unfold.Desktop.DesignSystem;
 
@@ -24,10 +25,14 @@ public sealed partial class SettingsWindow
     private Control? preferencesPage;
     private BreakReviewView? reviewPage;
     private PetManagementView? petPage;
+    private string selectedPage = "dashboard";
+    private TextBlock? accountEmail;
+    private Image? accountGoogleIcon;
+    private Button? accountSignOut;
 
     private Control BuildDashboard()
     {
-        Background = DesignSystem.Canvas;
+        Background = Brushes.Transparent;
         Classes.Add("unfold-page");
         var main = new Grid { Name = "SettingsMain", RowDefinitions = new($"{HomeTimerHeight},{Inset},*") };
         main.Children.Add(BuildTimerCard());
@@ -65,25 +70,36 @@ public sealed partial class SettingsWindow
         dashboardPage = dashboardScroll; settingsPageHost.Content = dashboardScroll;
         var frame = new Grid { ColumnDefinitions = new("64,16,*") };
         frame.Children.Add(BuildNavigation()); Grid.SetColumn(settingsPageHost, 2); frame.Children.Add(settingsPageHost);
-        return new Border { Name = "SettingsFrame", Margin = new(16), Padding = new(14), CornerRadius = new(32),
-            Background = Shell, BorderBrush = Outline, BorderThickness = new(1), Child = frame };
+        var layout = new Grid { RowDefinitions = new("24,*") };
+        layout.Children.Add(BuildWindowControls()); Grid.SetRow(frame, 1); layout.Children.Add(frame);
+        // Use the existing top inset for window controls; keep the page's content bounds.
+        var content = new Border { Name = "SettingsFrame", Margin = new(16, 4, 16, 16), Padding = new(15, 3, 15, 15),
+            Background = Brushes.Transparent, Child = layout };
+        var surface = new Border { Name = "SettingsWindowSurface", Background = DesignSystem.Canvas, CornerRadius = FrameRadius,
+            ClipToBounds = true, Child = content };
+        PropertyChanged += (_, args) =>
+        {
+            if (args.Property == WindowStateProperty)
+                surface.CornerRadius = WindowState is WindowState.Maximized or WindowState.FullScreen ? new(0) : FrameRadius;
+        };
+        return surface;
     }
 
     private Border BuildNavigation()
     {
         var rail = new Grid { Name = "SettingsNavigationRail", RowDefinitions = new("*,Auto"), Margin = new(7, 12) };
-        var timer = Nav("SettingsNavTimer", "타이머 탭", "M12,2 A10,10 0 1 0 12,22 A10,10 0 1 0 12,2 M11,6 H13 V11 H17 V13 H11 Z", OpenDashboard);
-        var settings = Nav("SettingsNavSettings", "설정 탭", "M19.4,13 A7.8,7.8 0 0 0 19.45,11 L21.1,9.7 L19.1,6.3 L17.05,7.1 A8,8 0 0 0 15.35,6.1 L15,3.9 H11 L10.65,6.1 A8,8 0 0 0 8.95,7.1 L6.9,6.3 L4.9,9.7 L6.55,11 A7.8,7.8 0 0 0 6.6,13 L4.9,14.3 L6.9,17.7 L8.95,16.9 A8,8 0 0 0 10.65,17.9 L11,20.1 H15 L15.35,17.9 A8,8 0 0 0 17.05,16.9 L19.1,17.7 L21.1,14.3 Z M13,10 A3,3 0 1 1 13,16 A3,3 0 1 1 13,10 Z", OpenPreferences);
-        var review = Nav("SettingsNavReview", "기록 · 내보내기 탭", "M3,14 H7 V21 H3 Z M10,8 H14 V21 H10 Z M17,3 H21 V21 H17 Z", OpenReview);
-        var pets = Nav("SettingsNavPacks", "펫 추가 탭", "M10,3 H14 V10 H21 V14 H14 V21 H10 V14 H3 V10 H10 Z", OpenPetPacks);
+        var timer = Nav("SettingsNavTimer", "홈", "home", OpenDashboard);
+        var settings = Nav("SettingsNavSettings", "설정", "settings", OpenPreferences);
+        var review = Nav("SettingsNavReview", "기록", "history", OpenReview);
+        var pets = Nav("SettingsNavPacks", "펫 추가", "pet-add", OpenPetPacks);
         navigationItems["pets"] = pets;
         navigationItems["dashboard"] = timer; navigationItems["settings"] = settings;
         navigationItems["review"] = review;
         SelectNavigation("dashboard");
-        var links = Ui.Column(timer, pets, review, settings); links.Name = "SettingsNavigationLinks";
+        var links = Ui.Column(timer, pets, review, BuildThemeButton()); links.Name = "SettingsNavigationLinks";
         links.Spacing = 12; rail.Children.Add(links);
-        var quit = Nav("SettingsQuit", "Unfold 종료", "M11,2 H13 V12 H11 Z M7,4 L8,6 A8,8 0 1 0 16,6 L17,4 A10,10 0 1 1 7,4 Z", runtime.Quit);
-        var bottom = Ui.Column(BuildThemeButton(), quit); bottom.Spacing = 12;
+        var quit = Nav("SettingsQuit", "종료", "exit", runtime.Quit);
+        var bottom = Ui.Column(settings, quit); bottom.Spacing = 12;
         Grid.SetRow(bottom, 1); rail.Children.Add(bottom);
         return new Border { Background = Surface, CornerRadius = new(28), Child = rail };
     }
@@ -126,26 +142,21 @@ public sealed partial class SettingsWindow
 
     private Border BuildTimerCard()
     {
-        countdown.FontSize = 64; countdown.Foreground = Cream; countdown.FontWeight = FontWeight.Light;
-        countdown.LineHeight = 70;
+        countdown.FontSize = 64; countdown.Foreground = Cream; countdown.FontWeight = FontWeight.Normal;
+        countdown.LineHeight = 74;
+        countdown.HorizontalAlignment = HorizontalAlignment.Center; countdown.VerticalAlignment = VerticalAlignment.Center;
         state.Foreground = Muted; state.FontSize = Caption;
-        foreach (var button in timerControls.Children.OfType<Button>())
-        {
-            button.Classes.Add("timer-control");
-        }
-        var toggle = timerControls.Children.OfType<Button>().First(); toggle.Classes.Add("primary");
         var header = new Grid { ColumnDefinitions = new("*,Auto") };
         header.Children.Add(Label("다음 휴식까지", Body, Cream)); Grid.SetColumn(intervalHint, 1); header.Children.Add(intervalHint);
-        var footer = new Grid { ColumnDefinitions = new("*,12,Auto") };
         var statusContent = new Grid { ColumnDefinitions = new("Auto,7,*") };
         statusContent.Children.Add(timerStateDot); Grid.SetColumn(state, 2); statusContent.Children.Add(state);
-        timerStateBadge.Child = statusContent; timerStateBadge.HorizontalAlignment = HorizontalAlignment.Left;
-        timerStateBadge.VerticalAlignment = VerticalAlignment.Bottom; footer.Children.Add(timerStateBadge);
-        timerControls.VerticalAlignment = VerticalAlignment.Bottom;
-        Grid.SetColumn(timerControls, 2); footer.Children.Add(timerControls);
-        var body = new Grid { RowDefinitions = new("Auto,*,Auto"), Margin = new(Inset) };
-        body.Children.Add(header); Grid.SetRow(countdown, 1); body.Children.Add(countdown);
-        Grid.SetRow(footer, 2); body.Children.Add(footer);
+        timerStateBadge.Child = statusContent; timerStateBadge.HorizontalAlignment = HorizontalAlignment.Center;
+        timerStateBadge.VerticalAlignment = VerticalAlignment.Center;
+        timerControls.HorizontalAlignment = HorizontalAlignment.Center;
+        var body = new Grid { RowDefinitions = new("Auto,8,Auto,*,Auto"), Margin = new(Inset) };
+        body.Children.Add(header); Grid.SetRow(timerStateBadge, 2); body.Children.Add(timerStateBadge);
+        Grid.SetRow(countdown, 3); body.Children.Add(countdown);
+        Grid.SetRow(timerControls, 4); body.Children.Add(timerControls);
         return Card("SettingsTimerCard", body, Surface, CardRadius);
     }
 
@@ -219,19 +230,22 @@ public sealed partial class SettingsWindow
     {
         preferencesPage ??= BuildPreferencesPage();
         ShowPage("settings", preferencesPage);
+        PreferencesEdited();
         return Task.CompletedTask;
     }
     private Task OpenReview()
     {
         reviewPage ??= new BreakReviewView(this, runtime.BreakHistory.Review,
             () => runtime.BreakHistoryError, showHeader: false);
-        reviewPage.Refresh(); ShowPage("review", reviewPage); return Task.CompletedTask;
+        reviewPage.Refresh(); ShowPage("review", reviewPage);
+        return Task.CompletedTask;
     }
     private Task OpenPetPacks()
     {
         petPage ??= new PetManagementView(this, runtime.Library, runtime.SelectInstalledCharacter,
             showPageHeaders: false);
-        ShowPage("pets", petPage); return Task.CompletedTask;
+        ShowPage("pets", petPage);
+        return Task.CompletedTask;
     }
 
     private Control BuildPreferencesPage()
@@ -242,7 +256,8 @@ public sealed partial class SettingsWindow
         var scroll = Ui.PageBodyScroll(body); scroll.Name = "SettingsPreferencesScroll";
         var page = new Grid { Name = "SettingsPreferencesPage", RowDefinitions = new("*,Auto") };
         page.Children.Add(scroll);
-        var footer = BuildPreferencesFooter(); Grid.SetRow(footer, 1); page.Children.Add(footer);
+        preferencesStatus.Margin = new(0, 24, 0, 0);
+        Grid.SetRow(preferencesStatus, 1); page.Children.Add(preferencesStatus);
         RestorePreferences(PreferencesValues.From(runtime.Settings));
         return page;
     }
@@ -263,11 +278,31 @@ public sealed partial class SettingsWindow
     private Border BuildAccountCard()
     {
         var copy = runtime.AccountContent.Copy;
-        var open = Ui.Button(copy.AccountButton, runtime.ShowAccount);
-        open.Name = "OpenAccount"; open.HorizontalAlignment = HorizontalAlignment.Right;
-        var body = new Grid { ColumnDefinitions = new("*,Auto"), Margin = new(Inset) };
-        body.Children.Add(SettingsHeading(copy.AccountSection)); Grid.SetColumn(open, 1); body.Children.Add(open);
+        accountSignOut = Ui.Quiet(Ui.Action(copy.SignOutButton));
+        accountSignOut.Click += async (_, _) => { await runtime.SignOut(); RefreshAccount(); };
+        accountSignOut.Name = "SignOutAccount"; accountSignOut.Width = SettingsActionWidth; accountSignOut.Height = SettingsControlHeight;
+        accountEmail = SettingsLabel(""); accountEmail.Name = "SettingsAccountEmail";
+        accountEmail.TextWrapping = TextWrapping.NoWrap; accountEmail.TextTrimming = TextTrimming.CharacterEllipsis;
+        accountGoogleIcon = new Image { Name = "SettingsAccountGoogleIcon", Width = 24, Height = 24, Stretch = Stretch.Uniform,
+            Source = new SvgImage { Source = SvgSource.Load("avares://Unfold/Assets/Icons/Google/google.svg", null) } };
+        var identity = new Grid { Name = "SettingsAccountIdentity", ColumnDefinitions = new("Auto,10,*"), VerticalAlignment = VerticalAlignment.Center };
+        identity.Children.Add(accountGoogleIcon); Grid.SetColumn(accountEmail, 2); identity.Children.Add(accountEmail);
+        var body = new Grid { ColumnDefinitions = new("*,16,Auto"), RowDefinitions = new("Auto,16,Auto"), Margin = new(Inset) };
+        var heading = SettingsHeading(copy.AccountSection); body.Children.Add(heading); Grid.SetColumnSpan(heading, 3);
+        Grid.SetRow(identity, 2); body.Children.Add(identity);
+        Grid.SetRow(accountSignOut, 2); Grid.SetColumn(accountSignOut, 2); body.Children.Add(accountSignOut);
+        RefreshAccount();
         return Card("SettingsAccountCard", body, Surface, new(28));
+    }
+
+    private void RefreshAccount()
+    {
+        if (accountEmail is null || accountSignOut is null || accountGoogleIcon is null) return;
+        var session = runtime.AccountSession;
+        accountEmail.Text = session is null ? runtime.AccountContent.Copy.SignedOutLabel : session.Email ?? runtime.AccountContent.Copy.SignedInLabel;
+        ToolTip.SetTip(accountEmail, accountEmail.Text);
+        accountGoogleIcon.IsVisible = session is not null;
+        accountSignOut.IsEnabled = !runtime.AccountSignOutPending;
     }
 
     private void ShowPage(string key, Control page)
@@ -292,6 +327,7 @@ public sealed partial class SettingsWindow
     }
     private void SelectNavigation(string key)
     {
+        selectedPage = key;
         foreach (var item in navigationItems)
         {
             item.Value.Classes.Remove("primary");
@@ -313,13 +349,13 @@ public sealed partial class SettingsWindow
         var button = Ui.AsyncButton(label, action); button.Classes.Add("compact");
         button.HorizontalAlignment = HorizontalAlignment.Stretch; return button;
     }
-    private static Button Nav(string name, string label, string path, Func<Task> action)
+    private static Button Nav(string name, string label, string icon, Func<Task> action)
     {
         var button = ActionButton(label, action); button.Name = name;
         button.Classes.Add("navigation");
         button.Tag = label;
-        button.Content = new PathIcon { Data = Geometry.Parse(path), Width = 20, Height = 20 };
-        button.Width = 46; button.Height = 46; button.Padding = new(10);
+        button.Content = new NavigationIcon(icon);
+        button.Width = 46; button.Height = 46; button.Padding = new(9);
         button.HorizontalContentAlignment = HorizontalAlignment.Center; button.VerticalContentAlignment = VerticalAlignment.Center;
         AutomationProperties.SetName(button, label); ToolTip.SetTip(button, label); ToolTip.SetShowDelay(button, 500);
         return button;

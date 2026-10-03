@@ -28,12 +28,14 @@ public class NotificationLayoutTests
         AssertRightAligned(Find<Grid>(window, "ReminderVolumeRow"), volumeControls);
         Assert.Equal(stacked ? 2 : 0, Grid.GetRow(direction));
         Assert.Equal(stacked ? 2 : 0, Grid.GetRow(volumeControls));
-        Assert.InRange(volume.Bounds.Width, 200, 240);
-        var value = Find<TextBlock>(window, "ReminderVolumeValue");
+        Assert.InRange(volume.Bounds.Width, 200, 280);
+        foreach (var name in new[] { "ReminderSoundVolumePercent", "CompletionSoundVolumePercent" })
+            Assert.Equal(volume.Bounds.Width, Find<Slider>(window, name).Bounds.Width, 1);
+        var icon = Find<SoundVolumeIcon>(window, "ReminderVolumeIcon");
         var sliderOrigin = volume.TranslatePoint(default, volumeControls)!.Value;
-        var valueOrigin = value.TranslatePoint(default, volumeControls)!.Value;
-        Assert.True(valueOrigin.X >= sliderOrigin.X + volume.Bounds.Width);
-        Assert.True(valueOrigin.X + value.Bounds.Width <= volumeControls.Bounds.Width + 1);
+        var iconOrigin = icon.TranslatePoint(default, volumeControls)!.Value;
+        Assert.True(iconOrigin.X >= 0);
+        Assert.True(iconOrigin.X + icon.Bounds.Width <= sliderOrigin.X);
         foreach (var (rowName, buttonName) in new[] { ("DueSoundRow", "ResetDueSound"), ("CompletionSoundRow", "ResetCompletionSound") })
             AssertRightAligned(Find<Grid>(window, rowName), Find<Button>(window, buttonName));
         foreach (var control in card.GetVisualDescendants().OfType<Control>().Where(item =>
@@ -46,7 +48,7 @@ public class NotificationLayoutTests
     }
 
     [AvaloniaFact]
-    public void ResizingNotificationRowsPreservesDraftAndReturnsToTheWideLayout()
+    public void ResizingNotificationRowsPreservesAppliedValuesAndReturnsToTheWideLayout()
     {
         using var scope = new Scope(); var window = scope.Window;
         var card = Find<Border>(window, "SettingsNotificationCard");
@@ -57,13 +59,13 @@ public class NotificationLayoutTests
         {
             card.Width = width; Layout(window);
             Assert.Equal(BubbleDirection.Right, direction.SelectedItem); Assert.Equal(42, volume.Value);
-            Assert.Equal("42%", Find<TextBlock>(window, "ReminderVolumeValue").Text);
-            Assert.True(Find<Button>(window, "SavePreferences").IsEnabled);
+            Assert.Equal(SoundVolumeGlyph.Low, Find<SoundVolumeIcon>(window, "ReminderVolumeIcon").Glyph);
+            Assert.Equal(42, scope.Runtime.Settings.ReminderVolumePercent);
             Assert.Equal(width < 528 ? 2 : 0, Grid.GetRow(direction));
             AssertRightAligned(Find<Grid>(window, "BubbleDirectionRow"), direction);
         }
-        Assert.Equal(BubbleDirection.Top, scope.Runtime.Settings.BubbleDirection);
-        Assert.Equal(100, scope.Runtime.Settings.ReminderVolumePercent);
+        Assert.Equal(BubbleDirection.Right, scope.Runtime.Settings.BubbleDirection);
+        Assert.Equal(42, scope.Runtime.Settings.ReminderVolumePercent);
     }
 
     private static void AssertRightAligned(Control row, Control editor)

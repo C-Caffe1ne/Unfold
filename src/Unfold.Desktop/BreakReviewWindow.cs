@@ -63,9 +63,9 @@ internal sealed class BreakReviewView : UserControl
         this.getToday = getToday ?? (() => currentDay ?? DateOnly.FromDateTime(DateTime.Now));
         today = this.getToday(); endDay = today; Review = read(endDay);
         Name = "ReviewView";
-        previous = PeriodButton("ReviewPrevious", "이전 7일", "M15,4 L7,12 L15,20 L17,18 L11,12 L17,6 Z", () => Navigate(-7));
-        next = PeriodButton("ReviewNext", "다음 7일", "M7,4 L15,12 L7,20 L5,18 L11,12 L5,6 Z", () => Navigate(7));
-        var refresh = Ui.Quiet(PeriodButton("ReviewRefresh", "새로고침", "M20,3 V10 H13 L15.6,7.4 A7,7 0 1 0 18.9,13 H21 A9,9 0 1 1 17,6 Z", Refresh));
+        previous = PeriodButton("ReviewPrevious", "이전 7일", new DirectionIcon(IconDirection.Left), () => Navigate(-7));
+        next = PeriodButton("ReviewNext", "다음 7일", new DirectionIcon(IconDirection.Right), () => Navigate(7));
+        var refresh = Ui.Quiet(PeriodButton("ReviewRefresh", "새로고침", Icon("M20,3 V10 H13 L15.6,7.4 A7,7 0 1 0 18.9,13 H21 A9,9 0 1 1 17,6 Z"), Refresh));
         var save = Ui.AsyncButton("CSV 내보내기", async () =>
         {
             try
@@ -185,7 +185,7 @@ internal sealed class BreakReviewView : UserControl
         void UpdateExpansion()
         {
             var expanded = toggle.IsChecked == true;
-            details.IsVisible = expanded; chevron.Text = expanded ? "▴" : "▾";
+            details.IsVisible = expanded; chevron.Direction = expanded ? IconDirection.Up : IconDirection.Down;
             if (expanded) expandedDates.Add(day.Date); else expandedDates.Remove(day.Date);
             AutomationProperties.SetName(toggle, DateAutomationName(day, expanded));
         }
@@ -225,14 +225,15 @@ internal sealed class BreakReviewView : UserControl
             .Template().OfType<ContentPresenter>().Name("PART_ContentPresenter"), DesignSystem.Hover));
     }
 
-    private static Grid DateHeader(BreakDay day, bool expandable, out TextBlock chevron)
+    private static Grid DateHeader(BreakDay day, bool expandable, out DirectionIcon chevron)
     {
-        var grid = new Grid { ColumnDefinitions = new("*,48,116,16"), ColumnSpacing = DesignSystem.Gap };
+        var grid = new Grid { ColumnDefinitions = new("*,48,116,24"), ColumnSpacing = DesignSystem.Gap };
         var date = Ui.Text(day.Date.ToString("M월 d일 (ddd)", CultureInfo.GetCultureInfo("ko-KR")));
         var count = Ui.Text($"{day.Count}회");
         var duration = Ui.Text($"{day.Seconds / 60}분 {day.Seconds % 60}초");
         count.TextAlignment = duration.TextAlignment = TextAlignment.Right;
-        chevron = Ui.Text(expandable ? "▾" : ""); chevron.Foreground = DesignSystem.TextTertiary;
+        chevron = new DirectionIcon(IconDirection.Down) { IsVisible = expandable,
+            Foreground = DesignSystem.TextTertiary, VerticalAlignment = VerticalAlignment.Center };
         Grid.SetColumn(count, 1); Grid.SetColumn(duration, 2); Grid.SetColumn(chevron, 3);
         grid.Children.Add(date); grid.Children.Add(count); grid.Children.Add(duration); grid.Children.Add(chevron);
         return grid;
@@ -261,10 +262,10 @@ internal sealed class BreakReviewView : UserControl
 
     private static PathIcon Icon(string path) => new() { Width = 16, Height = 16, Data = Geometry.Parse(path) };
 
-    private static Button PeriodButton(string name, string label, string path, Action action)
+    private static Button PeriodButton(string name, string label, Control icon, Action action)
     {
-        var button = Ui.Button(label, action); button.Name = name; button.Content = Icon(path);
-        button.Width = button.Height = DesignSystem.ReviewControlHeight; button.Padding = new(10);
+        var button = Ui.Button(label, action); button.Name = name; button.Content = icon;
+        button.Width = button.Height = DesignSystem.ReviewControlHeight; button.Padding = new(icon is DirectionIcon ? 6 : 10);
         AutomationProperties.SetName(button, label); ToolTip.SetTip(button, label); ToolTip.SetShowDelay(button, 500);
         return button;
     }

@@ -21,7 +21,7 @@ public readonly record struct TrayReminderStatus(string Status, string ToolTip)
     }
 }
 
-public sealed class AppRuntime : IDisposable
+public sealed partial class AppRuntime : IDisposable
 {
     internal const string AccountWelcomeRevision = "account-checkout-kr-v1";
     public AppSettings Settings { get; private set; }
@@ -37,6 +37,10 @@ public sealed class AppRuntime : IDisposable
     public string? BreakHistoryError { get; private set; }
     public bool CanEditTimerInterval => Clock.Paused || Clock.Stopped;
     internal EditorWindow? ActiveEditor => editor;
+    internal AccountWindow? ActiveAccount => accountWindow;
+    internal AccountSession? AccountSession => accountSession;
+    internal bool AccountSignOutPending { get; private set; }
+    internal Func<IAccountScreenService>? AccountServiceFactory { get; set; }
     public PetReminder Reminder { get; } = new();
     internal PetReminder PresentedReminder => Reminder.HasNotice ? Reminder : reminderPreview ?? Reminder;
     public PetNotice? PreviewNotice => reminderPreview?.Notice;
@@ -58,6 +62,8 @@ public sealed class AppRuntime : IDisposable
     private NativeMenuItem? trayStatus, trayPause, trayPet, trayFocusReminder;
     private SettingsWindow? settingsWindow;
     private AccountWindow? accountWindow;
+    private AccountSession? accountSession;
+    private readonly CancellationTokenSource accountLifetime = new();
     internal AccountScreenContent AccountContent { get; } = AccountScreenContent.Load();
     private readonly string accountWelcomeFile = Path.Combine(AppPaths.DataRoot, "account-welcome-seen");
     private EditorWindow? editor;
@@ -66,6 +72,7 @@ public sealed class AppRuntime : IDisposable
     internal int DueSoundRequests { get; private set; }
     internal int CompletionSoundRequests { get; private set; }
     private bool quitting;
+    private bool backgroundStart;
     private bool disposed;
     private bool quitPending, stopPending, openingEditor;
     private bool petNoticeSuppressed;
@@ -125,6 +132,8 @@ public sealed class AppRuntime : IDisposable
     public async Task Start(bool background, bool diagnostic = false)
     {
         DiagnosticMode = diagnostic;
+        backgroundStart = background;
+        purchaseGateEnabled = !diagnostic;
         settingsWindow = new(this); desktop.MainWindow = settingsWindow;
         instanceActivation = new SingleInstance(() =>
         {
@@ -140,15 +149,27 @@ public sealed class AppRuntime : IDisposable
                 foreach (var directory in Directory.EnumerateDirectories(AppPaths.BuiltInRoot)) builtIns.Add(CharacterLibrary.LoadPackage(directory, true));
                 if (builtIns.Count == 0) throw new InvalidDataException("기본 펫을 찾지 못했어요. Unfold를 다시 설치해 주세요.");
             });
-            await Reload(); BuildTray(); timer.Start(); Clock.Start(monotonic.Elapsed);
-            await UpdatePet();
-            if (!background)
+            await Reload(); BuildTray();
+            if (purchaseGateEnabled)
             {
-                if (!diagnostic && !HasSeenCurrentAccountWelcome(accountWelcomeFile)) ShowAccount();
-                else ShowSettings();
+                Clock.Stop(monotonic.Elapsed);
+                ShowAccount();
+                var entry = accountWindow!;
+                await entry.Model.RestoreAsync();
+                if (!disposed && !quitting && accountWindow == entry && entry.Model.PurchaseReady) entry.Close();
+            }
+            else
+            {
+                timer.Start(); Clock.Start(monotonic.Elapsed); await UpdatePet();
+                if (!background) ShowSettings();
             }
         }
-        catch (Exception error) { if (diagnostic) throw; ShowSettings(); await Ui.Error(settingsWindow, error); }
+        catch (Exception error)
+        {
+            if (diagnostic) throw;
+            ShowSettings();
+            await Ui.Error((Window?)accountWindow ?? settingsWindow, error);
+        }
     }
     public async Task Reload()
     {
@@ -163,6 +184,8 @@ public sealed class AppRuntime : IDisposable
     }
     private void Tick()
     {
+        if (!AccessAllowed) return;
+        if (purchaseGateEnabled && DateTimeOffset.UtcNow >= nextAccessCheck) _ = RecheckPurchaseAccess();
         TimeSpan idle;
         try { idle = PlatformServices.IdleTime(); ActivityError = null; }
         catch (Exception error) { idle = TimeSpan.FromDays(1); if (ActivityError != error.Message) AppPaths.Log(error); ActivityError = error.Message; }
@@ -184,15 +207,23 @@ public sealed class AppRuntime : IDisposable
         TrayStatus = TrayReminderStatus.Create(Reminder.Notice, remaining, clockState);
         if (tray is not null) tray.ToolTipText = TrayStatus.ToolTip;
         if (trayStatus is not null) trayStatus.Header = TrayStatus.Status;
-        if (trayFocusReminder is not null) trayFocusReminder.IsEnabled = Reminder.Session is not null;
+        if (trayFocusReminder is not null) trayFocusReminder.IsEnabled = AccessAllowed && Reminder.Session is not null;
+        if (trayPause is not null) trayPause.IsEnabled = AccessAllowed;
+        if (trayPet is not null) trayPet.IsEnabled = AccessAllowed;
+        if (!AccessAllowed)
+        {
+            TrayStatus = new("로그인·구매 확인 필요", "Unfold · 로그인·구매 확인 필요");
+            if (tray is not null) tray.ToolTipText = TrayStatus.ToolTip;
+            if (trayStatus is not null) trayStatus.Header = TrayStatus.Status;
+        }
         if (trayPause is not null) trayPause.Header = Clock.Stopped ? "시작" : Clock.Paused ? "계속" : "일시정지";
         if (trayPet is not null) trayPet.Header = Settings.ShowPet ? "펫 숨기기" : "펫 표시";
     }
-    public void TogglePause() { Clock.TogglePause(monotonic.Elapsed); Changed?.Invoke(); }
+    public void TogglePause() { if (!AccessAllowed) return; Clock.TogglePause(monotonic.Elapsed); Changed?.Invoke(); }
     public void Stop() { CancelReminder(); Clock.Stop(monotonic.Elapsed); Changed?.Invoke(); }
     public async Task RequestStop()
     {
-        if (quitting || disposed || stopPending || quitPending) return;
+        if (!AccessAllowed || quitting || disposed || stopPending || quitPending || updateRestartPending) return;
         stopPending = true;
         try
         {
@@ -201,9 +232,9 @@ public sealed class AppRuntime : IDisposable
         }
         finally { stopPending = false; }
     }
-    public void Reset() { CancelReminder(); Clock.Reset(monotonic.Elapsed); Changed?.Invoke(); }
+    public void Reset() { if (!AccessAllowed) return; CancelReminder(); Clock.Reset(monotonic.Elapsed); Changed?.Invoke(); }
     private void CancelReminder() { reminderGeneration++; Reminder.Cancel(); RefreshPetNotice(); }
-    public void ShowSettings() { if (settingsWindow is null) return; settingsWindow.Show(); settingsWindow.ResumePreview(); settingsWindow.WindowState = WindowState.Normal; if (!DiagnosticMode) settingsWindow.Activate(); }
+    public void ShowSettings() { if (!AccessAllowed) { ShowAccount(); return; } if (settingsWindow is null) return; settingsWindow.Show(); settingsWindow.ResumePreview(); settingsWindow.WindowState = WindowState.Normal; if (!DiagnosticMode) settingsWindow.Activate(); }
     internal static bool HasSeenCurrentAccountWelcome(string path)
     {
         if (!File.Exists(path)) return false;
@@ -216,14 +247,29 @@ public sealed class AppRuntime : IDisposable
     }
     public void ShowAccount()
     {
-        if (disposed) return;
+        if (disposed || quitting || AccountSignOutPending) return;
         if (accountWindow is not null) { accountWindow.WindowState = WindowState.Normal; accountWindow.Activate(); return; }
-        var window = new AccountWindow(new(AccountContent, new DesktopAccountService(AccountContent)));
-        accountWindow = window;
-        window.Closed += (_, _) =>
+        var model = new AccountScreenModel(AccountContent, CreateAccountService(), accountSession);
+        void SessionChanged(AccountSession? value)
         {
+            if (value is null || value.UserId != accountSession?.UserId) LockPurchaseAccess();
+            accountSession = value; Changed?.Invoke();
+        }
+        model.SessionChanged += SessionChanged;
+        var window = new AccountWindow(model, Quit, purchaseGateEnabled, () => disposed || quitting || AccountSignOutPending);
+        accountWindow = window;
+        window.Closed += async (_, _) =>
+        {
+            model.SessionChanged -= SessionChanged;
             accountWindow = null;
             if (disposed || quitting) return;
+            if (purchaseGateEnabled)
+            {
+                if (AccountSignOutPending) return;
+                if (model.PurchaseReady && accountSession is not null) await GrantPurchaseAccess(!model.RestoredAutomatically || !backgroundStart);
+                else ShowAccount();
+                return;
+            }
             // This records only dismissal of a welcome screen, never authentication or purchase.
             try { File.WriteAllText(accountWelcomeFile, AccountWelcomeRevision); }
             catch (Exception error) when (error is IOException or UnauthorizedAccessException) { AppPaths.Log(error); }
@@ -232,11 +278,47 @@ public sealed class AppRuntime : IDisposable
         if (DiagnosticMode) PrepareDiagnosticWindow(window);
         window.Show();
     }
+    private IAccountScreenService CreateAccountService() => AccountServiceFactory?.Invoke() ?? new DesktopAccountService(AccountContent);
+    public async Task SignOut()
+    {
+        if (disposed || AccountSignOutPending) return;
+        AccountSignOutPending = true;
+        LockPurchaseAccess();
+        var session = accountSession;
+        accountSession = null;
+        accountWindow?.Close();
+        Changed?.Invoke();
+        var failed = false;
+        var storageFailed = false;
+        try
+        {
+            using var service = CreateAccountService();
+            if (session is not null)
+            {
+                await service.SignOutAsync(session, accountLifetime.Token);
+            }
+            else await service.ClearSavedSessionAsync();
+        }
+        catch (OperationCanceledException) when (disposed) { }
+        catch (Exception error)
+        { AppPaths.Log(error); failed = true; storageFailed = error is AccountException { Failure: AccountFailure.SessionStorageUnavailable }; }
+        finally
+        {
+            AccountSignOutPending = false;
+            if (!disposed)
+            {
+                Changed?.Invoke(); ShowAccount();
+                if (failed) accountWindow?.Model.ReportSignOutFailure(storageFailed);
+                settingsWindow?.HideToTray();
+            }
+        }
+    }
     internal void HideSettingsForDiagnostics() => settingsWindow?.HideToTray();
     public Task UpdateSettings(AppSettings value) => UpdateSettings(value, false);
     public Task HidePet() => UpdateSettings(Settings with { ShowPet = false }, true);
     private async Task UpdateSettings(AppSettings value, bool hideCurrentNotice)
     {
+        if (!AccessAllowed) throw new AccountException(AccountFailure.AuthenticationRequired);
         value = value.ValidatePersonalization();
         var reschedulesTimer = value.IntervalMinutes != Settings.IntervalMinutes ||
             (value.ActiveProfileId is not null && value.ActiveProfileId != Settings.ActiveProfileId);
@@ -259,6 +341,7 @@ public sealed class AppRuntime : IDisposable
     }
     public void SetTheme(AppTheme theme)
     {
+        if (!AccessAllowed) return;
         if (Settings.Theme == theme) return;
         var value = Settings with { Theme = theme };
         value.Save(settingsFile);
@@ -303,10 +386,10 @@ public sealed class AppRuntime : IDisposable
         // both before resurrecting a pet nobody asked for anymore.
         if (pet == current && ShouldShowPet) current.ShowPet();
     }
-    private bool ShouldShowPet => Settings.ShowPet || (!petNoticeSuppressed && PresentedReminder.HasNotice);
+    private bool ShouldShowPet => AccessAllowed && (Settings.ShowPet || (!petNoticeSuppressed && PresentedReminder.HasNotice));
     public async Task OpenEditor(CharacterPackage? character = null)
     {
-        if (openingEditor || quitting) return;
+        if (!AccessAllowed || openingEditor || quitting) return;
         openingEditor = true;
         try
         {
@@ -324,6 +407,7 @@ public sealed class AppRuntime : IDisposable
                 session = new(opened.Document) { CharacterId = character.Manifest.Id, Revision = opened.Revision };
             }
             else session = new(new PixelDocument());
+            if (!AccessAllowed || disposed || quitting) return;
             editor?.CloseAfterApproval();
             editor = new EditorWindow(Library, session, SavedCharacter);
             if (DiagnosticMode) PrepareDiagnosticWindow(editor);
@@ -341,7 +425,7 @@ public sealed class AppRuntime : IDisposable
     }
     public async Task ShowReminder()
     {
-        if (disposed || quitting) return;
+        if (!AccessAllowed || disposed || quitting) return;
         ClearReminderPreview();
         if (Reminder.Session is not null) { RefreshPetNotice(); return; }
         if (openingReminder || quitting) return;
@@ -367,11 +451,12 @@ public sealed class AppRuntime : IDisposable
         catch (Exception error) { if (disposed || quitting || generation != reminderGeneration) return; if (DiagnosticMode) throw; AppPaths.Log(error); }
         finally { openingReminder = false; }
     }
-    public void StartBreak() { Reminder.Start(monotonic.Elapsed); RefreshPetNotice(); Changed?.Invoke(); }
-    public void SnoozeBreak() { Reminder.Snooze(); RefreshPetNotice(); Changed?.Invoke(); }
-    public void CompleteBreak() { Reminder.Complete(monotonic.Elapsed); RefreshPetNotice(); Changed?.Invoke(); }
+    public void StartBreak() { if (!AccessAllowed) return; Reminder.Start(monotonic.Elapsed); RefreshPetNotice(); Changed?.Invoke(); }
+    public void SnoozeBreak() { if (!AccessAllowed) return; Reminder.Snooze(); RefreshPetNotice(); Changed?.Invoke(); }
+    public void CompleteBreak() { if (!AccessAllowed) return; Reminder.Complete(monotonic.Elapsed); RefreshPetNotice(); Changed?.Invoke(); }
     public async Task ShowReminderPreview(PetNotice notice)
     {
+        if (!AccessAllowed) return;
         if (notice == PetNotice.None) { CloseReminderPreview(); return; }
         if (Reminder.HasNotice) throw new InvalidOperationException("진행 중인 알림을 먼저 완료하거나 미뤄 주세요.");
         var routine = Routines.FirstOrDefault(item => item.Id == Settings.BreakRoutineId) ?? BreakRoutines.All[0];
@@ -399,7 +484,7 @@ public sealed class AppRuntime : IDisposable
     private void ClearReminderPreview() => reminderPreview = null;
     public async Task FocusReminder()
     {
-        if (Reminder.Session is null) return;
+        if (!AccessAllowed || Reminder.Session is null) return;
         try { petNoticeSuppressed = false; await UpdatePet(); pet?.FocusReminder(); }
         catch (Exception error) { AppPaths.Log(error); }
     }
@@ -410,7 +495,7 @@ public sealed class AppRuntime : IDisposable
     }
     private void PlayReminderSound(ReminderSound sound)
     {
-        if (!Settings.ReminderSoundsEnabled) return;
+        if (!AccessAllowed || !Settings.ReminderSoundsEnabled) return;
         if (sound == ReminderSound.Due) DueSoundRequests++; else CompletionSoundRequests++;
         if (!DiagnosticMode) soundPlayer.Play(sound, Settings);
     }
@@ -470,12 +555,7 @@ public sealed class AppRuntime : IDisposable
     }
     private void BuildTray()
     {
-        var pixels = new uint[32 * 32];
-        for (var y = 3; y < 29; y++) for (var x = 3; x < 29; x++)
-            if (Math.Pow(x - 15.5, 2) + Math.Pow(y - 15.5, 2) < 160) pixels[y * 32 + x] = 0xFFF4B860;
-        for (var y = 8; y < 23; y++) for (var x = 10; x < 22; x++) if (x < 13 || x > 18 || y > 19) pixels[y * 32 + x] = 0xFF141820;
-        using var icon = Ui.Bitmap(new(32, 32, pixels));
-        tray = new TrayIcon { Icon = new WindowIcon(icon), ToolTipText = "Unfold", IsVisible = true };
+        tray = BrandTrayIcon.Create();
         var menu = new NativeMenu();
         trayStatus = new NativeMenuItem("다음 휴식") { IsEnabled = false }; menu.Items.Add(trayStatus);
         trayFocusReminder = new NativeMenuItem("휴식 알림으로 이동") { IsEnabled = false }; menu.Items.Add(trayFocusReminder);
@@ -486,20 +566,21 @@ public sealed class AppRuntime : IDisposable
         trayPet.Click += async (_, _) => { try { if (Settings.ShowPet) await HidePet(); else await UpdateSettings(Settings with { ShowPet = true }); } catch (Exception error) { AppPaths.Log(error); } };
         trayPause = new NativeMenuItem("일시정지"); trayPause.Click += (_, _) => TogglePause(); menu.Items.Add(trayPause);
         Item("타이머 중지", () => _ = RequestStop());
-        menu.Items.Add(new NativeMenuItemSeparator()); Item("Unfold 종료", () => _ = Quit());
+        menu.Items.Add(new NativeMenuItemSeparator()); InitializeUpdates(menu); Item("Unfold 종료", () => _ = Quit());
         tray.Menu = menu; tray.Clicked += (_, _) => ShowSettings();
         TrayIcon.SetIcons(Application.Current!, new TrayIcons { tray });
         RefreshTray();
     }
     public async Task Quit()
     {
-        if (quitting || disposed || quitPending || stopPending) return;
+        if (quitting || disposed || quitPending || stopPending || updateRestartPending) return;
         quitPending = true;
         try
         {
             if (await ConfirmAction("Unfold를 종료할까요?", "Unfold를 종료하면 타이머와 휴식 알림도 종료돼요.", "종료", "취소") != 0 || disposed) return;
-            if (settingsWindow is not null && !await settingsWindow.CanCloseDraft()) return;
-            if (editor is not null && !await editor.CanCloseDocument()) return;
+            var lockedOwner = AccessAllowed ? null : accountWindow;
+            if (settingsWindow is not null && !await settingsWindow.CanCloseDraft(lockedOwner)) return;
+            if (editor is not null && !await editor.CanCloseDocument(lockedOwner)) return;
             quitting = true; editor?.CloseAfterApproval(); Dispose(); desktop.Shutdown();
         }
         finally { quitPending = false; }
@@ -507,7 +588,7 @@ public sealed class AppRuntime : IDisposable
     private Task<int> ConfirmAction(string title, string message, params string[] choices)
     {
         if (ConfirmActionOverride is { } confirm) return confirm(title, message, choices);
-        var owner = (Window?)settingsWindow ?? desktop.MainWindow ?? pet;
+        var owner = accountWindow is { IsVisible: true } ? accountWindow : (Window?)settingsWindow ?? desktop.MainWindow ?? pet;
         if (owner is null)
         {
             settingsWindow = new(this); desktop.MainWindow = settingsWindow; owner = settingsWindow;
@@ -519,7 +600,7 @@ public sealed class AppRuntime : IDisposable
         }
         return Ui.Confirm(owner, title, message, choices);
     }
-    public void Dispose() { if (disposed) return; disposed = true; accountWindow?.Close(); timer.Stop(); noticeExpiryTimer.Stop(); scheduledNoticeExpiry = null; settingsWindow?.Dispose(); instanceActivation?.Dispose(); instanceActivation = null; tray?.Dispose(); tray = null; pet?.ClosePet(); pet = null; soundPlayer.Dispose(); }
+    public void Dispose() { if (disposed) return; disposed = true; DisposeUpdates(); accountLifetime.Cancel(); accountLifetime.Dispose(); accountSession = null; accountWindow?.Close(); timer.Stop(); noticeExpiryTimer.Stop(); scheduledNoticeExpiry = null; settingsWindow?.Dispose(); instanceActivation?.Dispose(); instanceActivation = null; tray?.Dispose(); tray = null; pet?.ClosePet(); pet = null; soundPlayer.Dispose(); }
     internal static void PrepareDiagnosticWindow(Window window)
     {
         // macOS can constrain an off-screen window down to 1x1 without explicit minimums.

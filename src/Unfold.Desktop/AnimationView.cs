@@ -47,11 +47,11 @@ public sealed class AnimationView : Control, IDisposable
         AttachedToVisualTree += (_, _) => { if (running && NeedsTimer) { elapsed.Start(); timer.Start(); } };
         DetachedFromVisualTree += (_, _) => { elapsed.Stop(); timer.Stop(); };
     }
-    public void SetFrames(IReadOnlyList<AnimationFrame> clip, bool repeat, bool pixel = true, bool alignCompanion = false)
+    public void SetFrames(IReadOnlyList<AnimationFrame> clip, bool repeat, bool pixel = true, bool alignCompanion = false, bool pingPong = false)
     {
         if (disposed) return;
         timer.Stop(); foreach (var bitmap in bitmaps) bitmap.Dispose();
-        frames = clip; bitmaps = frames.Select(f => Ui.Bitmap(f.Image)).ToArray(); loop = repeat;
+        frames = pingPong && clip.Count > 2 ? clip.Concat(clip.Skip(1).Take(clip.Count - 2).Reverse()).ToArray() : clip; bitmaps = frames.Select(f => Ui.Bitmap(f.Image)).ToArray(); loop = repeat;
         frameOffsets = alignCompanion ? frames.Select(frame => CompanionOffset(frame.Image)).ToArray() : [];
         totalMs = frames.Sum(f => f.Duration.TotalMilliseconds); index = 0; completed = false;
         RenderOptions.SetBitmapInterpolationMode(this, pixel ? BitmapInterpolationMode.None : BitmapInterpolationMode.HighQuality);

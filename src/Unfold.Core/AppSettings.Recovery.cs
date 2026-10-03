@@ -62,6 +62,8 @@ public sealed partial record AppSettings
             DebugToolsEnabled = Read(nameof(DebugToolsEnabled), defaults.DebugToolsEnabled),
             ReminderSoundsEnabled = Read(nameof(ReminderSoundsEnabled), defaults.ReminderSoundsEnabled),
             ReminderVolumePercent = Read(nameof(ReminderVolumePercent), defaults.ReminderVolumePercent),
+            ReminderSoundVolumePercent = Read(nameof(ReminderSoundVolumePercent), defaults.ReminderSoundVolumePercent),
+            CompletionSoundVolumePercent = Read(nameof(CompletionSoundVolumePercent), defaults.CompletionSoundVolumePercent),
             ReminderSoundId = Read(nameof(ReminderSoundId), defaults.ReminderSoundId),
             CompletionSoundId = Read(nameof(CompletionSoundId), defaults.CompletionSoundId),
             ReminderSoundName = Read(nameof(ReminderSoundName), defaults.ReminderSoundName),

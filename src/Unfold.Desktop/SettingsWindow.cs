@@ -12,7 +12,8 @@ namespace Unfold.Desktop;
 public sealed partial class SettingsWindow : Window, IDisposable
 {
     private readonly AppRuntime runtime;
-    private readonly TextBlock countdown = Ui.Text("60:00", 52, Ui.Accent), state = Ui.Text("진행 준비", 13);
+    private readonly AnimatedCountdown countdown = new();
+    private readonly TextBlock state = Ui.Text("진행 준비", 13);
     private readonly Avalonia.Controls.Shapes.Ellipse timerStateDot = new() { Name = "TimerStateIndicator", Width = 8, Height = 8, Fill = DesignSystem.Muted };
     private readonly Border timerStateBadge = new() { Name = "TimerStateBadge", Background = DesignSystem.Raised, CornerRadius = new(12), Padding = new(10, 6) };
     private readonly ComboBox characters = new() { Name = "CharacterPicker", MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch };
@@ -39,8 +40,14 @@ public sealed partial class SettingsWindow : Window, IDisposable
     private bool savingHomeTiming;
     public SettingsWindow(AppRuntime runtime)
     {
-        this.runtime = runtime; Title = "Unfold · 휴식 알림"; Width = 1120; Height = 800; MinWidth = 640; MinHeight = 560;
-        Background = Ui.Background;
+        this.runtime = runtime; Title = $"Unfold · 휴식 알림 · {AppRelease.DisplayVersion}"; Width = 1120; Height = 800; MinWidth = 640; MinHeight = 560;
+        // Keep native edge resizing; transparent client rendering defines the visible outline.
+        WindowDecorations = WindowDecorations.BorderOnly;
+        ExtendClientAreaToDecorationsHint = true;
+        ExtendClientAreaTitleBarHeightHint = 0;
+        TransparencyLevelHint = [WindowTransparencyLevel.Transparent];
+        TransparencyBackgroundFallback = DesignSystem.Canvas;
+        Background = Brushes.Transparent;
         interval = new NumericUpDown { Name = "ReminderInterval", Minimum = 5, Maximum = 240, Value = runtime.Settings.IntervalMinutes, Increment = 1, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch, FormatString = "0" };
         breakDuration = new NumericUpDown { Name = "BreakDurationMinutes", Minimum = 1, Maximum = 10, Value = runtime.Settings.BreakDurationMinutes, Increment = 1, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch, FormatString = "0" };
         idle = new NumericUpDown { Name = "ReminderIdle", Minimum = 1, Maximum = 60, Value = runtime.Settings.IdleMinutes, Increment = 1, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch, FormatString = "0" };
@@ -135,8 +142,8 @@ public sealed partial class SettingsWindow : Window, IDisposable
         Refresh();
         CleanupImportedSounds();
     }
-    public void Dispose() { if (disposed) return; disposed = true; SuspendPreview(); runtime.Changed -= Refresh; runtime.CloseReminderPreview(); stopSoundPreview?.Invoke(); settingsSoundPlayer.Dispose(); CleanupImportedSounds(); preview.Dispose(); petPage?.Dispose(); }
-    public void HideToTray() { runtime.CloseReminderPreview(); stopSoundPreview?.Invoke(); SuspendPreview(); Hide(); }
+    public void Dispose() { if (disposed) return; disposed = true; EndWindowMove(); countdown.Dispose(); soundImportCancellation.Cancel(); soundImportCancellation.Dispose(); SuspendPreview(); runtime.Changed -= Refresh; runtime.CloseReminderPreview(); stopSoundPreview?.Invoke(); settingsSoundPlayer.Dispose(); CleanupImportedSounds(); preview.Dispose(); petPage?.Dispose(); }
+    public void HideToTray() { EndWindowMove(); countdown.StopAnimation(); runtime.CloseReminderPreview(); stopSoundPreview?.Invoke(); SuspendPreview(); Hide(); }
     private void TimingEdited()
     {
         if (updating) return;
@@ -167,17 +174,20 @@ public sealed partial class SettingsWindow : Window, IDisposable
         if (companionPreviewStage is not null)
             companionPreviewStage.Width = companionPreviewStage.Height = actualSize;
     }
-    internal async Task<bool> CanCloseDraft()
+    internal async Task<bool> CanCloseDraft(Window? lockedOwner = null)
     {
         if (petPage is null) return true;
         if (petPage.IsBusy)
         {
-            Show(); Activate();
-            await Ui.Confirm(this, "파일 작업 중이에요", "파일을 확인하거나 저장하고 있어요. 작업이 끝난 뒤 종료해 주세요.", "확인");
+            if (lockedOwner is null) { Show(); Activate(); }
+            await Ui.Confirm(lockedOwner ?? this, "파일 작업 중이에요", "파일을 확인하거나 저장하고 있어요. 작업이 끝난 뒤 종료해 주세요.", "확인");
             return false;
         }
         if (!petPage.HasUnsavedDraft) return true;
+        if (lockedOwner is not null)
+            return await Ui.Confirm(lockedOwner, "저장하지 않은 펫이 있어요", "변경사항을 저장하지 않고 종료할까요?", "저장 안 함", "취소") == 0;
         Show(); Activate(); await OpenPetPacks();
+        if (selectedPage != "pets") return false;
         return await petPage.CanCloseDraft();
     }
     private async Task SaveHomeTimingSettings(int minutes, int rest)
@@ -200,7 +210,9 @@ public sealed partial class SettingsWindow : Window, IDisposable
         if (disposed || updating) return; updating = true;
         try
         {
-            countdown.Text = $"{(int)runtime.Clock.Remaining.TotalMinutes:00}:{runtime.Clock.Remaining.Seconds:00}";
+            var timerActive = runtime.ActivityError is null && !runtime.Clock.Stopped && !runtime.Clock.Paused &&
+                !runtime.Clock.IdlePaused && runtime.ActiveReminder is null;
+            countdown.UpdateTime(runtime.Clock.Remaining, timerActive);
             var stateBrush = DesignSystem.Success;
             state.Text = runtime.ActivityError is not null ? "상태 확인 필요" :
                 runtime.Reminder.Notice == PetNotice.Invitation ? "휴식 대기 중" :
@@ -221,7 +233,7 @@ public sealed partial class SettingsWindow : Window, IDisposable
             intervalHint.Text = $"{runtime.Settings.IntervalMinutes}분 간격";
             historyStatus.Text = runtime.BreakHistoryError ?? "";
             historyStatus.IsVisible = runtime.BreakHistoryError is not null;
-            timerControls.Refresh(runtime.Clock);
+            timerControls.Refresh(runtime.Clock, runtime.ActiveReminder is not null);
             var canEditInterval = runtime.CanEditTimerInterval;
             interval.IsEnabled = canEditInterval;
             var discardedInterval = !canEditInterval &&
@@ -249,7 +261,7 @@ public sealed partial class SettingsWindow : Window, IDisposable
             if (displayedInterval != runtime.Settings.IntervalMinutes) interval.Value = displayedInterval = runtime.Settings.IntervalMinutes;
             if (displayedBreakDuration != runtime.Settings.BreakDurationMinutes) breakDuration.Value = displayedBreakDuration = runtime.Settings.BreakDurationMinutes;
             RefreshHomeTimingState();
-            SyncPreferencesFromRuntime(); RefreshDebugPreviewStatus();
+            SyncPreferencesFromRuntime(); RefreshDebugPreviewStatus(); RefreshAccount();
             if (!ReferenceEquals(characters.ItemsSource, runtime.Characters)) characters.ItemsSource = runtime.Characters;
             characters.SelectedItem = runtime.Selected;
         }

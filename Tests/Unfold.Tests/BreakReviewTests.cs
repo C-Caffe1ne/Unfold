@@ -83,14 +83,19 @@ public class BreakReviewTests
             window.Show(); Layout(window);
             var header = Header(window, Today); var details = Find<StackPanel>(window, "ReviewDetails_20260917");
             Assert.False(header.IsChecked); Assert.False(details.IsVisible);
+            var direction = Assert.Single(header.GetVisualDescendants().OfType<DirectionIcon>());
+            Assert.Equal(IconDirection.Down, direction.Direction);
             header.Focus(); KeyPress(window, Key.Enter, PhysicalKey.Enter);
             Assert.True(header.IsChecked); Assert.True(details.IsVisible); Assert.True(header.IsFocused);
+            Assert.Equal(IconDirection.Up, direction.Direction);
             var texts = details.GetVisualDescendants().OfType<TextBlock>().Select(text => text.Text).ToArray();
             Assert.DoesNotContain("잠깐의 여유", texts); Assert.DoesNotContain("바로 돌아온 휴식", texts);
             Assert.Equal(4, texts.Length); Assert.Contains("09:42 완료", texts); Assert.Contains("실제 휴식 1분 05초", texts);
             Assert.Contains("실제 휴식 0초", texts);
             Assert.Contains("잠깐의 여유", System.Text.Encoding.UTF8.GetString(window.Review.Csv()));
             Assert.Contains("펼침", AutomationProperties.GetName(header));
+            KeyPress(window, Key.Enter, PhysicalKey.Enter);
+            Assert.False(details.IsVisible); Assert.Equal(IconDirection.Down, direction.Direction);
         }
         finally { window.Close(); }
     }
@@ -341,7 +346,9 @@ public class BreakReviewTests
                 var period = Find<TextBlock>(window, "ReviewPeriod");
                 foreach (var name in new[] { "ReviewPrevious", "ReviewNext", "ReviewRefresh" })
                 {
-                    var button = Find<Button>(window, name); Assert.IsType<PathIcon>(button.Content);
+                    var button = Find<Button>(window, name);
+                    if (name == "ReviewRefresh") Assert.IsType<PathIcon>(button.Content);
+                    else Assert.IsType<DirectionIcon>(button.Content);
                     Assert.Equal(new Size(40, 40), button.Bounds.Size);
                     Assert.NotNull(ToolTip.GetTip(button));
                     Assert.True(button.TranslatePoint(default, window)!.Value.X > period.TranslatePoint(default, window)!.Value.X + period.Bounds.Width);

@@ -144,7 +144,11 @@ public class OriginalCompanionTests
     [AvaloniaFact]
     public async Task HoldingDuringDragKeepsThePetLiftedAndReleaseLandsWithoutClicking()
     {
-        using var scope = new Scope(); await scope.Select(original: true); var pet = scope.Pet;
+        using var scope = new Scope();
+        // This test advances pose time explicitly. Diagnostic startup prevents the
+        // real window timer from advancing landing while MouseUp drains UI jobs.
+        await scope.Runtime.Start(true, true);
+        await scope.Select(original: true); var pet = scope.Pet;
         var point = new Point(96, 85);
         pet.MouseDown(point, MouseButton.Left);
         pet.AdvanceCompanion(.2); pet.AdvanceCompanion(.2);
@@ -172,6 +176,10 @@ public class OriginalCompanionTests
     public async Task OriginalPetsSeparateQuickClicksFromHoldingAndLanding(string id)
     {
         using var scope = new Scope(); await scope.SelectBuiltIn(id); var pet = scope.Pet;
+        // This test advances pose time explicitly. ShowPet starts the real pose
+        // timer even in diagnostic mode; MouseUp must not drain an extra tick.
+        ((DispatcherTimer)typeof(PetWindow).GetField("hitTimer",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(pet)!).Stop();
         var local = Enumerable.Range(40, 120).SelectMany(y => Enumerable.Range(40, 120).Select(x => new Point(x, y)))
             .First(pet.PetView.OpaqueAt);
         Point PointerPoint() => pet.PetView.TranslatePoint(local, pet)!.Value;
@@ -443,7 +451,7 @@ public class OriginalCompanionTests
         Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
         pet.ReleaseCompanionPress(true); pet.AdvanceCompanion(.2);
         Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
-        Assert.Equal(new[] { "idle", "attention", "stretch", "celebrate", "click" }, CustomPetDraft.Actions);
+        Assert.Equal(new[] { "idle", "attention", "stretch", "celebrate", "click", "hover", "pointerDown", "pointerUp" }, CustomPetDraft.Actions);
         scope.Runtime.Stop(); await scope.Runtime.ShowReminder(); scope.Runtime.StartBreak();
         await Until(() => pet.ActiveAnimation == "idle"); Assert.False(pet.IsRoaming);
         Assert.Equal("idle", pet.ActiveAnimation);

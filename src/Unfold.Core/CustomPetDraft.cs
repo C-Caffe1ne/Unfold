@@ -5,17 +5,18 @@ namespace Unfold.Core;
 /// <summary>Validated media snapshots. Source files can move after import without changing the draft.</summary>
 public sealed class ImportedPetClip
 {
-    private readonly byte[] gif;
+    private readonly byte[] media;
+    public bool IsStillImage { get; }
     public string FileName { get; }
     public int Width { get; }
     public int Height { get; }
     public int FrameCount { get; }
     public TimeSpan Duration { get; }
     public long DecodedBytes { get; }
-    internal int FileBytes => gif.Length;
-    private ImportedPetClip(string fileName, byte[] bytes, IReadOnlyList<AnimationFrame> frames)
+    internal int FileBytes => media.Length;
+    private ImportedPetClip(string fileName, byte[] bytes, IReadOnlyList<AnimationFrame> frames, bool isStillImage = false)
     {
-        FileName = fileName; gif = bytes; Width = frames[0].Image.Width; Height = frames[0].Image.Height;
+        FileName = fileName; media = bytes; IsStillImage = isStillImage; Width = frames[0].Image.Width; Height = frames[0].Image.Height;
         FrameCount = frames.Count; Duration = TimeSpan.FromTicks(frames.Sum(frame => frame.Duration.Ticks));
         DecodedBytes = frames.Sum(frame => (long)frame.Image.Width * frame.Image.Height * 4);
     }
@@ -30,20 +31,27 @@ public sealed class ImportedPetClip
             throw new InvalidDataException("완전히 투명한 프레임이 있어요. 모든 프레임에 펫이 보이는 파일을 선택해 주세요.");
         return new(Path.GetFileName(fileName), snapshot, frames);
     }
-    public IReadOnlyList<AnimationFrame> LoadFrames() => ImageCodec.DecodeGif(gif);
-    internal void Write(string path) => AtomicFile.Write(path, gif);
+    public static ImportedPetClip FromImage(string fileName, byte[] bytes)
+    {
+        var image = ImageCodec.DecodePetImage(bytes);
+        if (image.Pixels.All(pixel => pixel >> 24 == 0)) throw new InvalidDataException("완전히 투명한 이미지예요. 펫이 보이는 파일을 선택해 주세요.");
+        return new(Path.GetFileName(fileName), ImageCodec.EncodePng(image), [new(image, TimeSpan.FromSeconds(1))], true);
+    }
+    public IReadOnlyList<AnimationFrame> LoadFrames() => IsStillImage
+        ? [new(ImageCodec.DecodePng(media), TimeSpan.FromSeconds(1))] : ImageCodec.DecodeGif(media);
+    internal void Write(string path) => AtomicFile.Write(path, media);
 }
 
 public sealed class CustomPetDraft
 {
-    public static IReadOnlyList<string> Actions { get; } = Array.AsReadOnly(new[] { "idle", "attention", "stretch", "celebrate", "click" });
+    public static IReadOnlyList<string> Actions { get; } = Array.AsReadOnly(new[] { "idle", "attention", "stretch", "celebrate", "click", "hover", "pointerDown", "pointerUp" });
     private readonly Dictionary<string, ImportedPetClip> clips = [];
     public string Id { get; } = "custom-" + Guid.NewGuid().ToString("N");
     public IReadOnlyDictionary<string, ImportedPetClip> Clips => new System.Collections.ObjectModel.ReadOnlyDictionary<string, ImportedPetClip>(clips);
     public static string ActionName(string key) => key switch
     {
-        "idle" => "쉬는 모습", "attention" => "휴식 안내", "stretch" => "스트레칭",
-        "celebrate" => "휴식 완료", "click" => "클릭 반응", _ => key
+        "idle" => "기본", "attention" => "알림", "stretch" => "휴식",
+        "celebrate" => "휴식 완료", "click" => "클릭 반응", "hover" => "마우스 호버", "pointerDown" => "마우스 눌림", "pointerUp" => "마우스 뗌", _ => key
     };
     public void SetClip(string action, ImportedPetClip clip)
     {
@@ -55,21 +63,46 @@ public sealed class CustomPetDraft
             throw new InvalidDataException("펫 팩의 파일 용량이 너무 커요. 더 작은 파일을 선택해 주세요.");
         clips[action] = clip;
     }
-    public void RemoveClip(string action) => clips.Remove(action);
+    private readonly Dictionary<string, int> playback = [];
+    public int Playback(string action) => playback.GetValueOrDefault(action, action == "idle" ? 1 : 0);
+    public void SetPlayback(string action, int mode)
+    {
+        if (!Actions.Contains(action) || mode is < 0 or > 2) throw new ArgumentException("잘못된 재생 설정이에요.");
+        playback[action] = mode;
+    }
+    public void RemoveClip(string action) { clips.Remove(action); playback.Remove(action); }
     public void Export(string name, string outputPath)
     {
         if (string.IsNullOrWhiteSpace(name) || name.Trim().Length > 80)
             throw new ArgumentException("펫 이름을 1~80자로 입력해 주세요.");
-        if (!clips.TryGetValue("idle", out var idle)) throw new InvalidDataException("필수 동작인 ‘쉬는 모습’에 파일을 넣어 주세요.");
+        if (!clips.TryGetValue("idle", out var idle)) throw new InvalidDataException("필수 동작인 ‘기본’에 파일을 넣어 주세요.");
         var root = Path.Combine(Path.GetTempPath(), "Unfold-custom-" + Guid.NewGuid().ToString("N"));
         var directory = Path.Combine(root, Id); Directory.CreateDirectory(directory);
         try
         {
-            foreach (var (key, clip) in clips) clip.Write(Path.Combine(directory, key + ".gif"));
-            AtomicFile.Write(Path.Combine(directory, "spritesheet.png"), ImageCodec.EncodePng(idle.LoadFrames()[0].Image));
+            foreach (var (key, clip) in clips.Where(pair => !pair.Value.IsStillImage)) clip.Write(Path.Combine(directory, key + ".gif"));
+            var cells = new List<(string Key, PixelImage Image)> { ("idle", idle.LoadFrames()[0].Image) };
+            if (clips.Values.Any(clip => clip.IsStillImage))
+            {
+                // Keep the existing version-1 sheet/GIF contract; static actions use one sheet frame.
+                if (!idle.IsStillImage) cells[0] = ("idle", ImageCodec.DecodePetImage(ImageCodec.EncodePng(cells[0].Image)));
+                cells.AddRange(clips.Where(pair => pair.Key != "idle" && pair.Value.IsStillImage)
+                    .Select(pair => (pair.Key, pair.Value.LoadFrames()[0].Image)));
+            }
+            var width = cells.Max(cell => cell.Image.Width); var height = cells.Max(cell => cell.Image.Height);
+            var sheet = new PixelImage(width * cells.Count, height, new uint[width * cells.Count * height]);
+            for (var index = 0; index < cells.Count; index++)
+            {
+                var image = cells[index].Image; var x = index * width + (width - image.Width) / 2; var y = (height - image.Height) / 2;
+                for (var row = 0; row < image.Height; row++)
+                    Array.Copy(image.Pixels, row * image.Width, sheet.Pixels, (y + row) * sheet.Width + x, image.Width);
+            }
+            AtomicFile.Write(Path.Combine(directory, "spritesheet.png"), ImageCodec.EncodePng(sheet));
             var manifest = new CharacterManifest(Id, name.Trim(), 1,
-                new("spritesheet.png", 1, 1, idle.Width, idle.Height),
-                clips.ToDictionary(pair => pair.Key, pair => new AnimationDefinition(Gif: pair.Key + ".gif", Loop: pair.Key == "idle")),
+                new("spritesheet.png", cells.Count, 1, width, height),
+                clips.ToDictionary(pair => pair.Key, pair => pair.Value.IsStillImage
+                    ? new AnimationDefinition(Frames: [cells.FindIndex(cell => cell.Key == pair.Key)], Fps: 1, Loop: Playback(pair.Key) != 0, PingPong: Playback(pair.Key) == 2)
+                    : new AnimationDefinition(Gif: pair.Key + ".gif", Loop: Playback(pair.Key) != 0, PingPong: Playback(pair.Key) == 2)),
                 RenderStyle: "smooth");
             AtomicFile.Write(Path.Combine(directory, "character.json"), JsonSerializer.SerializeToUtf8Bytes(manifest, CharacterLibrary.JsonOptions));
             var archive = Path.Combine(root, "custom.unfoldpet");

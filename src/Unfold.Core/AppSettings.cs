@@ -4,7 +4,8 @@ namespace Unfold.Core;
 
 public sealed partial record AppSettings
 {
-    public AppTheme Theme { get; init; } = AppTheme.OatLatte;
+    public const AppTheme DefaultTheme = AppTheme.Plum;
+    public AppTheme Theme { get; init; } = DefaultTheme;
     public int IntervalMinutes { get; init; } = 60;
     public int BreakDurationMinutes { get; init; } = 1;
     public int IdleMinutes { get; init; } = 5;
@@ -21,6 +22,8 @@ public sealed partial record AppSettings
     public bool DebugToolsEnabled { get; init; }
     public bool ReminderSoundsEnabled { get; init; } = true;
     public int ReminderVolumePercent { get; init; } = 100;
+    public int ReminderSoundVolumePercent { get; init; } = 100;
+    public int CompletionSoundVolumePercent { get; init; } = 100;
     public string? ReminderSoundId { get; init; }
     public string? CompletionSoundId { get; init; }
     public string? ReminderSoundName { get; init; }
@@ -34,7 +37,7 @@ public sealed partial record AppSettings
         if (!File.Exists(path)) return new();
         var value = ReadFields(ImageCodec.ReadBounded(path, 256 * 1024), out needsBackup);
         // An unknown theme must not discard otherwise valid timer or pet settings.
-        if (!Enum.IsDefined(value.Theme)) value = value with { Theme = AppTheme.OatLatte };
+        if (!Enum.IsDefined(value.Theme)) value = value with { Theme = DefaultTheme };
         value = Recover(value);
         value = value.RecoverPersonalization(ref needsBackup);
         if (!BreakRoutines.ForSettings(value).Any(routine => routine.Id == value.BreakRoutineId))
@@ -63,6 +66,8 @@ public sealed partial record AppSettings
         if (!Enum.IsDefined(value.BubbleDirection)) value = value with { BubbleDirection = fallback.BubbleDirection };
         if (value.SnoozeMinutes is < 1 or > 60) value = value with { SnoozeMinutes = fallback.SnoozeMinutes };
         if (value.ReminderVolumePercent is < 0 or > 100) value = value with { ReminderVolumePercent = fallback.ReminderVolumePercent };
+        if (value.ReminderSoundVolumePercent is < 0 or > 100) value = value with { ReminderSoundVolumePercent = fallback.ReminderSoundVolumePercent };
+        if (value.CompletionSoundVolumePercent is < 0 or > 100) value = value with { CompletionSoundVolumePercent = fallback.CompletionSoundVolumePercent };
         // A damaged identifier drops its display name too, so the two never disagree.
         if (!ValidSoundId(value.ReminderSoundId)) value = value with { ReminderSoundId = null, ReminderSoundName = null };
         if (!ValidSoundId(value.CompletionSoundId)) value = value with { CompletionSoundId = null, CompletionSoundName = null };
@@ -77,6 +82,7 @@ public sealed partial record AppSettings
             !CharacterLibrary.SafeId(value.SelectedCharacterId))
             throw new InvalidDataException("Invalid settings values.");
         if (!Enum.IsDefined(value.BubbleDirection) || value.SnoozeMinutes is < 1 or > 60 || value.ReminderVolumePercent is < 0 or > 100 ||
+            value.ReminderSoundVolumePercent is < 0 or > 100 || value.CompletionSoundVolumePercent is < 0 or > 100 ||
             !ValidSoundId(value.ReminderSoundId) || !ValidSoundId(value.CompletionSoundId))
             throw new InvalidDataException("Invalid reminder settings.");
     }

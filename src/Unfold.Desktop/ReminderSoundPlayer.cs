@@ -61,7 +61,8 @@ public sealed class ReminderSoundPlayer : IDisposable
         try
         {
             request.Token.ThrowIfCancellationRequested();
-            var volume = Math.Clamp(settings.ReminderVolumePercent, 0, 100);
+            var individual = sound == ReminderSound.Due ? settings.ReminderSoundVolumePercent : settings.CompletionSoundVolumePercent;
+            var volume = Math.Clamp(settings.ReminderVolumePercent, 0, 100) * Math.Clamp(individual, 0, 100) / 100d;
             if (volume == 0) return;
             var id = sound == ReminderSound.Due ? settings.ReminderSoundId : settings.CompletionSoundId;
             using var lease = sounds.AcquirePlayback(sound, id, strict, out var path);

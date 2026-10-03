@@ -1,6 +1,7 @@
 using System.Globalization;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Automation;
 using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
@@ -38,7 +39,9 @@ public sealed class EditorWindow : Window
         Width = 1140; Height = 820; MinWidth = 980; MinHeight = 700; Background = Ui.Background;
         Title = "Unfold · Pixel Editor";
         undo = Ui.Button("Undo", () => Session.Undo()); redo = Ui.Button("Redo", () => Session.Redo());
-        play = Ui.Button("Play", () => { playing = !playing; if (playing) previewTimer.Start(); else previewTimer.Stop(); UpdatePreview(); });
+        play = Ui.Button("", () => { playing = !playing; if (playing) previewTimer.Start(); else previewTimer.Stop(); UpdatePreview(); });
+        play.Name = "EditorPlayback"; play.Content = new PlaybackIcon(PlaybackGlyph.Play);
+        play.Width = play.Height = 44; play.Padding = new Thickness(8);
         previewTimer.Tick += (_, _) => { previewFrame = (previewFrame + 1) % Session.Document.FrameCount; UpdatePreview(); };
         var header = Ui.Row(Ui.Text("PIXEL EDITOR", 18, Ui.Accent), undo, redo,
             Ui.AsyncButton("New", NewDocument), Ui.AsyncButton("Open…", OpenDocument),
@@ -69,7 +72,7 @@ public sealed class EditorWindow : Window
         var frameActions = Ui.Row(Ui.Text("FRAMES", 12, Ui.Accent),
             Ui.Button("+", () => AddFrame(false)), Ui.Button("Duplicate", () => AddFrame(true)),
             Ui.Button("Delete", () => Session.Edit(d => d.DeleteFrame(Session.Frame))),
-            Ui.Button("←", () => MoveFrame(-1)), Ui.Button("→", () => MoveFrame(1)));
+            DirectionButton("프레임 왼쪽으로 이동", IconDirection.Left, () => MoveFrame(-1)), DirectionButton("프레임 오른쪽으로 이동", IconDirection.Right, () => MoveFrame(1)));
         var framesPanel = Ui.Column(frameActions, new ScrollViewer { HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Auto, Content = timeline, Height = 94 });
         var center = new DockPanel(); DockPanel.SetDock(framesPanel, Dock.Bottom); center.Children.Add(framesPanel); center.Children.Add(canvasHost);
         var palette = new WrapPanel { MaxWidth = 200 };
@@ -93,7 +96,7 @@ public sealed class EditorWindow : Window
             Ui.Text("COLOR", 12, Ui.Accent), palette, Ui.Row(hex, setColor), Ui.Text("LAYERS", 12, Ui.Accent), layers,
             Ui.Row(Ui.Button("+", () => { Session.Edit(d => d.AddLayer()); Session.Layer = Session.Document.Layers.Count - 1; Refresh(); }),
                 Ui.Button("Delete", () => Session.Edit(d => { if (d.Layers.Count > 1) d.Layers.RemoveAt(Session.Layer); })),
-                Ui.Button("↑", () => MoveLayer(1)), Ui.Button("↓", () => MoveLayer(-1))), layerName, rename,
+                DirectionButton("레이어 위로 이동", IconDirection.Up, () => MoveLayer(1)), DirectionButton("레이어 아래로 이동", IconDirection.Down, () => MoveLayer(-1))), layerName, rename,
             Ui.Text("Opacity", 12), opacity);
         var content = new Grid { ColumnDefinitions = new("122,*,224"), ColumnSpacing = 10 };
         content.Children.Add(tools); Grid.SetColumn(center, 1); content.Children.Add(center);
@@ -112,6 +115,15 @@ public sealed class EditorWindow : Window
         Deactivated += (_, _) => { Session.EndStroke(); playing = false; previewTimer.Stop(); UpdatePreview(); };
         KeyDown += OnKey;
     }
+    private static Button DirectionButton(string label, IconDirection direction, Action action)
+    {
+        var button = Ui.Button("", action);
+        button.Content = new DirectionIcon(direction);
+        button.Width = button.Height = 40; button.Padding = new(6);
+        AutomationProperties.SetName(button, label); ToolTip.SetTip(button, label);
+        return button;
+    }
+
     private void OnKey(object? sender, KeyEventArgs e)
     {
         // Text boxes keep their own editing shortcuts.
@@ -189,7 +201,10 @@ public sealed class EditorWindow : Window
     {
         var doc = Session.Document; var index = playing ? previewFrame % doc.FrameCount : Session.Frame;
         if (thumbnails.Count > index) { preview.Source = thumbnails[index].Bitmap; }
-        RenderOptions.SetBitmapInterpolationMode(preview, BitmapInterpolationMode.None); play.Content = playing ? "Pause" : "Play";
+        RenderOptions.SetBitmapInterpolationMode(preview, BitmapInterpolationMode.None);
+        ((PlaybackIcon)play.Content!).Glyph = playing ? PlaybackGlyph.Pause : PlaybackGlyph.Play;
+        var label = playing ? "미리보기 일시정지" : "미리보기 재생";
+        AutomationProperties.SetName(play, label); ToolTip.SetTip(play, label);
     }
     private async Task NewDocument() { if (await CanCloseDocument()) Replace(new PixelDocument()); }
     private void Replace(PixelDocument doc)
@@ -200,9 +215,11 @@ public sealed class EditorWindow : Window
         Canvas = new(Session) { Zoom = zoom, Grid = grid, OnionSkin = onion }; canvasHost.Content = new Border { Padding = new Thickness(24), Child = Canvas, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
         Session.Changed += Refresh; Refresh();
     }
-    public async Task<bool> CanCloseDocument()
+    public async Task<bool> CanCloseDocument(Window? lockedOwner = null)
     {
         if (busy) return false; Session.EndStroke(); if (!Session.IsDirty) return true;
+        if (lockedOwner is not null)
+            return await Ui.Confirm(lockedOwner, "저장하지 않은 그림이 있어요", "변경사항을 저장하지 않고 종료할까요?", "저장 안 함", "취소") == 0;
         var choice = await Ui.Confirm(this, "Save your pixel art?", "Discarding changes cannot be undone after closing this document.", "Save", "Discard", "Cancel");
         return choice == 1 || choice == 0 && await SaveDocument();
     }

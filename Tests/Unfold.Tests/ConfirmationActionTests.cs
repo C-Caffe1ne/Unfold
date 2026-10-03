@@ -60,6 +60,19 @@ public class ConfirmationActionTests
     }
 
     [AvaloniaFact]
+    public async Task VisibleAccountWindowOwnsTheQuitConfirmation()
+    {
+        using var scope = new Scope();
+        scope.Runtime.ShowAccount();
+        var account = Assert.IsType<AccountWindow>(scope.Runtime.ActiveAccount);
+        var pending = scope.Runtime.Quit();
+        var dialog = await Dialog(account);
+        Assert.Empty(scope.Owner.OwnedWindows);
+        Choice(dialog, "취소"); await pending;
+        Assert.True(account.IsVisible);
+    }
+
+    [AvaloniaFact]
     public async Task QuitApprovalStillRunsTheUnsavedEditorGuard()
     {
         using var scope = new Scope(); var runtime = scope.Runtime;

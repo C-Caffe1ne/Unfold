@@ -48,7 +48,7 @@ public class SettingsDashboardTests
                 Assert.True(origin.Y >= 0 && origin.Y + control.Bounds.Height <= window.ClientSize.Height + 1, name);
             }
             var hero = Find<Border>(window, "SettingsCompanionCard"); var timer = Find<Border>(window, "SettingsTimerCard");
-            Assert.Equal(196, timer.Bounds.Height);
+            Assert.Equal(DesignSystem.HomeTimerHeight, timer.Bounds.Height);
             Assert.Equal(20, hero.Bounds.Top - timer.Bounds.Bottom);
             Assert.Equal(timer.TranslatePoint(default, window)!.Value.Y,
                 Find<Border>(window, "SettingsHomeTimingCard").TranslatePoint(default, window)!.Value.Y);
@@ -104,8 +104,9 @@ public class SettingsDashboardTests
                 Assert.Equal(actualSize, stage.Width); Assert.Equal(actualSize, stage.Height);
                 Assert.Equal($"{scale}%", value.Text);
                 Assert.True(previewScroll.Extent.Width <= previewScroll.Viewport.Width + 1);
-                Assert.Equal(size == new Size(860, 680) && scale == 150,
-                    previewScroll.Extent.Height > previewScroll.Viewport.Height + 1);
+                var expectsScroll = size == new Size(860, 680) && scale == 150;
+                Assert.True(expectsScroll == (previewScroll.Extent.Height > previewScroll.Viewport.Height + 1),
+                    $"Window={size}, scale={scale}, extent={previewScroll.Extent}, viewport={previewScroll.Viewport}");
             }
         }
         Assert.Equal("150%", value.Text); Assert.Equal(150, scope.Runtime.Settings.PetScalePercent);
@@ -138,7 +139,7 @@ public class SettingsDashboardTests
             Assert.True(point.Y >= 0 && point.Y + control.Bounds.Height <= card.Bounds.Height, pair.Item1);
         }
         Assert.Equal(2, name.MaxLines);
-        Assert.Equal(196, Find<Border>(window, "SettingsTimerCard").Bounds.Height);
+        Assert.Equal(DesignSystem.HomeTimerHeight, Find<Border>(window, "SettingsTimerCard").Bounds.Height);
     }
 
     [AvaloniaFact]
@@ -151,7 +152,12 @@ public class SettingsDashboardTests
             Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
             Assert.Equal(title, Find<TextBlock>(window, "TimerStateText").Text);
             var badge = Find<Border>(window, "TimerStateBadge"); var toggle = Find<Button>(window, "TimerToggle");
-            Assert.True(badge.TranslatePoint(default, window)!.Value.X + badge.Bounds.Width < toggle.TranslatePoint(default, window)!.Value.X);
+            var badgePoint = badge.TranslatePoint(default, window)!.Value;
+            var togglePoint = toggle.TranslatePoint(default, window)!.Value;
+            Assert.True(badgePoint.Y + badge.Bounds.Height < togglePoint.Y);
+            var countdown = Find<AnimatedCountdown>(window, "TimerCountdown");
+            Assert.True(badgePoint.Y + badge.Bounds.Height <= countdown.TranslatePoint(default, window)!.Value.Y);
+            Assert.True(countdown.TranslatePoint(default, window)!.Value.Y + countdown.Bounds.Height <= togglePoint.Y);
             Assert.DoesNotContain(window.GetVisualDescendants().OfType<TextBlock>(), text => text.Name == "TimerStateDetail");
         }
         AssertState("진행 중");
@@ -187,8 +193,8 @@ public class SettingsDashboardTests
         Assert.Equal(12, idle.Value); Assert.Equal(9, snooze.Value);
         window.Width = 1120; window.Height = 800; Dispatcher.UIThread.RunJobs();
         Assert.Equal(12, idle.Value); Assert.Equal(9, snooze.Value);
-        Assert.Equal(5, scope.Runtime.Settings.IdleMinutes);
-        Click(window, "SavePreferences"); Dispatcher.UIThread.RunJobs();
+        Assert.Equal(12, scope.Runtime.Settings.IdleMinutes);
+        Dispatcher.UIThread.RunJobs();
         var loaded = AppSettings.Load(Path.Combine(scope.Root, "settings.json"));
         Assert.Equal(12, loaded.IdleMinutes); Assert.Equal(9, loaded.SnoozeMinutes); Assert.Equal(3, loaded.BreakDurationMinutes);
         Assert.Equal(legacyRoutine.Id, loaded.BreakRoutineId);
@@ -197,27 +203,20 @@ public class SettingsDashboardTests
     }
 
     [AvaloniaFact]
-    public void PreferencesActionsStayBelowTheScrollableBodyAtBothWindowSizes()
+    public void PreferencesBodyUsesTheAvailableHeightWithoutSaveOrCancelActions()
     {
         using var scope = new Scope(); var window = scope.Window;
         Click(window, "SettingsNavSettings"); Dispatcher.UIThread.RunJobs();
-        foreach (var size in new[] { new Size(1120, 800), new Size(860, 680) })
+        foreach (var size in new[] { new Size(1120, 800), new Size(860, 680), new Size(640, 560) })
         {
             window.Width = size.Width; window.Height = size.Height; Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+            var page = Find<Grid>(window, "SettingsPreferencesPage");
             var scroll = Find<ScrollViewer>(window, "SettingsPreferencesScroll");
-            var save = Find<Button>(window, "SavePreferences"); var cancel = Find<Button>(window, "CancelPreferences");
-            var saveOrigin = save.TranslatePoint(default, window)!.Value;
-            var cancelOrigin = cancel.TranslatePoint(default, window)!.Value;
-            var bodyOrigin = scroll.TranslatePoint(default, window)!.Value;
-            Assert.True(saveOrigin.Y >= bodyOrigin.Y + scroll.Bounds.Height);
-            Assert.True(saveOrigin.Y + save.Bounds.Height <= window.ClientSize.Height);
-            Assert.True(cancelOrigin.X + cancel.Bounds.Width < saveOrigin.X);
-            Assert.Equal(cancelOrigin.Y, saveOrigin.Y);
+            Assert.Equal(page.Bounds.Height, scroll.Bounds.Height);
+            Assert.DoesNotContain(page.GetVisualDescendants().OfType<Button>(), button => button.Name is "SavePreferences" or "CancelPreferences");
             scroll.ScrollToEnd(); Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
-            Assert.Equal(saveOrigin, save.TranslatePoint(default, window)!.Value);
             Assert.True(scroll.Extent.Width <= scroll.Viewport.Width + 1);
         }
-        Assert.DoesNotContain(window.GetVisualDescendants().OfType<Button>(), button => button.Content as string == "적용");
     }
 
     [AvaloniaFact]
@@ -243,6 +242,13 @@ public class SettingsDashboardTests
         var navigation = window.GetVisualDescendants().OfType<Button>()
             .Where(button => button.Name?.StartsWith("SettingsNav", StringComparison.Ordinal) == true).ToArray();
         Assert.Equal(4, navigation.Length);
+        var railButtons = Find<Grid>(window, "SettingsNavigationRail").GetVisualDescendants().OfType<Button>().ToArray();
+        Assert.Equal(new[] { "홈", "펫 추가", "기록", "테마", "설정", "종료" }, railButtons.Select(ToolTip.GetTip));
+        var rail = Find<Grid>(window, "SettingsNavigationRail");
+        var upper = Assert.IsType<StackPanel>(rail.Children.Single(child => Grid.GetRow(child) == 0));
+        var lower = Assert.IsType<StackPanel>(rail.Children.Single(child => Grid.GetRow(child) == 1));
+        Assert.Equal(new[] { "홈", "펫 추가", "기록", "테마" }, upper.Children.OfType<Button>().Select(ToolTip.GetTip));
+        Assert.Equal(new[] { "설정", "종료" }, lower.Children.OfType<Button>().Select(ToolTip.GetTip));
         foreach (var removed in new[] { "SettingsNavRoutines", "SettingsEditRoutine", "ApplyRoutineSettings", "SettingsOpenLibrary" })
             Assert.DoesNotContain(window.GetVisualDescendants().OfType<Control>(), control => control.Name == removed);
         Assert.DoesNotContain(window.GetVisualDescendants().OfType<TabControl>(), control => control.Name == "PersonalizationTabs");
@@ -255,7 +261,7 @@ public class SettingsDashboardTests
         AssertNoTabPageHeader(window);
 
         var settings = Find<Button>(window, "SettingsNavSettings");
-        Assert.Equal("설정 탭", AutomationProperties.GetName(settings));
+        Assert.Equal("설정", AutomationProperties.GetName(settings));
         Click(window, "SettingsNavSettings"); Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
         Assert.Empty(window.OwnedWindows); Assert.Contains("primary", settings.Classes);
         Assert.Equal("SettingsPreferencesPage", Find<Grid>(window, "SettingsPreferencesPage").Name);
@@ -309,7 +315,7 @@ public class SettingsDashboardTests
         Assert.DoesNotContain(window.GetVisualDescendants().OfType<Button>(), button => button.Name == "SettingsInstallPack");
         Assert.Equal(200, Find<ComboBox>(window, "CharacterPicker").Bounds.Width);
         var nav = Find<Button>(window, "SettingsNavPacks");
-        Assert.Equal("펫 추가 탭", AutomationProperties.GetName(nav));
+        Assert.Equal("펫 추가", AutomationProperties.GetName(nav));
         Click(window, "SettingsNavPacks"); Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
         Assert.Empty(window.OwnedWindows); Assert.Contains("primary", nav.Classes);
         AssertNoTabPageHeader(window);
@@ -344,15 +350,15 @@ public class SettingsDashboardTests
         Click(window, "SettingsNavSettings"); Dispatcher.UIThread.RunJobs();
         Find<ComboBox>(window, "BubbleDirection").SelectedItem = BubbleDirection.Right;
         Find<CheckBox>(window, "ReminderSoundsEnabled").IsChecked = false;
-        Assert.Equal(BubbleDirection.Top, scope.Runtime.Settings.BubbleDirection);
+        Assert.Equal(BubbleDirection.Right, scope.Runtime.Settings.BubbleDirection);
         Find<NumericUpDown>(window, "SnoozeMinutes").Value = 12;
-        Click(window, "SavePreferences"); Dispatcher.UIThread.RunJobs();
+        Dispatcher.UIThread.RunJobs();
         var settings = AppSettings.Load(Path.Combine(scope.Root, "settings.json"));
         Assert.Equal(BubbleDirection.Right, settings.BubbleDirection); Assert.Equal(12, settings.SnoozeMinutes);
         Assert.False(settings.ReminderSoundsEnabled); Assert.Equal(remaining, scope.Runtime.Clock.Remaining);
         Assert.False(scope.Runtime.Clock.Paused);
         Find<NumericUpDown>(window, "SnoozeMinutes").Value = 2.5m;
-        Click(window, "SavePreferences"); Dispatcher.UIThread.RunJobs();
+        Dispatcher.UIThread.RunJobs();
         Assert.Equal(12, scope.Runtime.Settings.SnoozeMinutes);
     }
 
@@ -366,8 +372,8 @@ public class SettingsDashboardTests
         Assert.False(toggle.IsChecked); Assert.False(firstPreview.IsEffectivelyVisible);
 
         toggle.IsChecked = true; Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
-        Assert.True(firstPreview.IsEffectivelyVisible); Assert.True(Find<Button>(window, "SavePreferences").IsEnabled);
-        Click(window, "SavePreferences"); Dispatcher.UIThread.RunJobs();
+        Assert.True(firstPreview.IsEffectivelyVisible);
+        Dispatcher.UIThread.RunJobs();
         Assert.True(scope.Runtime.Settings.DebugToolsEnabled);
         Assert.True(AppSettings.Load(Path.Combine(scope.Root, "settings.json")).DebugToolsEnabled);
 

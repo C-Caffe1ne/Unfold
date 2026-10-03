@@ -1,11 +1,13 @@
 # Unfold
 
+**Beta v1.0.0** · C#/.NET 10 · Avalonia · macOS / Windows
+
 A small desktop companion that reminds you to stretch while you work.
 
 Unfold runs in the Windows tray or macOS menu bar. A timer counts active computer
-use, pauses while you are away, and invites you to a short break with Mochi the cat.
-Choose a routine, start when ready, or snooze for five minutes. Mochi stretches
-when you start. Confirming the finished routine saves a local completion record.
+use, pauses while you are away, and invites you to a short break with a pet.
+Choose one of five pets, start when ready, or snooze. The pet stretches when you
+start. Confirming the finished break saves a local completion record.
 
 ## Run
 
@@ -24,17 +26,17 @@ Closing Settings keeps Unfold running. Use **Unfold 종료** in the tray menu to
 
 ## Features
 
-- Desktop Mochi with idle animation, dragging, saved position, and Show/Hide controls.
-- Automatic stretch reminders. Mochi has no click animation, so a plain
-  click leaves its current animation alone.
-- Three timed pause routines (20, 60, or 90 seconds), snooze, skip, and explicit completion.
-- A library of up to 20 personal routines with your own prompts and timings.
-- Up to 10 work profiles combining a routine, reminder interval, and away threshold; apply them manually.
+- Five built-in pets with idle reactions, click/hold/release animations, dragging, saved position, size and Show/Hide controls.
+- Stretch reminders delivered in the pet's speech bubble, snooze and explicit break completion.
+- Separate stretch interval, break duration, away threshold and snooze settings.
 - Today's confirmed breaks, seven-day reviews, and local CSV export.
 - Local pet packs: preview animations, install, update, and reinstall from a saved `.unfoldpet` file.
-- A 5–240 minute timer with one-minute adjustment while paused or stopped, followed by an explicit Apply action.
-- A clear running/paused/stopped state badge and icon controls for Play/Pause and Stop. Stop clears the countdown to 00:00; Play starts the saved full interval.
-- An in-app reminder window and Windows/macOS system notification adapters.
+- A 5–240 minute timer with one-minute adjustment while paused or stopped, followed by Save.
+- A clear running/paused/stopped state badge and icon controls for Play/Pause and Stop. Stop shows the saved full interval.
+- Four color themes with Lilac as the default, Korean UI and custom SVG icons.
+- Custom pets from GIF/MP4 or still images; WAV/MP3 effects with master and separate notification volumes.
+- Google sign-in, checkout/purchase-confirmation screens, email display and sign-out.
+- Account-bound free access codes for testers, restored after sign-in without entering the code again.
 - Opt-in launch at login; configure it from the published app in its final location.
 
 Transparent-pixel click-through is implemented only for Windows. Actual OS behavior
@@ -43,9 +45,12 @@ and distribution readiness are tracked separately from automated tests in the
 
 The pixel editor is retained for diagnostics and regression tests. It has no
 user-facing entry point in this MVP. See [MVP scope](docs/mvp.md) for the full boundary.
-The personalization demo has no payment or entitlement checks. See the
+The beta requires Google sign-in and either a verified Live purchase or a valid account-bound free grant.
+Testers can redeem `admin` from the bottom-right code button after sign-in.
+Live server activation and public-distribution signing are pending. See the
 [routine, profile, and review guide](docs/personalization.md) for usage and compatibility.
-The [pet pack guide](docs/pet-packs.md) explains local installation and recovery. No store or purchase recovery is included.
+The [pet pack guide](docs/pet-packs.md) explains local installation and recovery.
+[Beta release notes](docs/releases/v1.0.0-beta.md) describe installation, included work and beta limitations.
 
 ## Build and verify
 

@@ -14,11 +14,10 @@ public sealed partial class SettingsWindow
         var button = Ui.Action("");
         button.Name = "SettingsTheme";
         button.Width = button.Height = 46;
-        button.Padding = new(10);
-        button.Content = new PathIcon { Width = 24, Height = 24,
-            Data = Geometry.Parse("M12,2 A10,10 0 1 0 12,22 H14 A3,3 0 0 0 14,16 H13 A1,1 0 0 1 13,14 H16 A6,6 0 0 0 16,2 Z M7,6 A1.5,1.5 0 1 1 7,9 A1.5,1.5 0 1 1 7,6 Z M12,4 A1.5,1.5 0 1 1 12,7 A1.5,1.5 0 1 1 12,4 Z M17,6 A1.5,1.5 0 1 1 17,9 A1.5,1.5 0 1 1 17,6 Z M5,11 A1.5,1.5 0 1 1 5,14 A1.5,1.5 0 1 1 5,11 Z") };
-        AutomationProperties.SetName(button, "테마 선택");
-        ToolTip.SetTip(button, "테마 선택"); ToolTip.SetShowDelay(button, 500);
+        button.Padding = new(9);
+        button.Content = new NavigationIcon("theme");
+        AutomationProperties.SetName(button, "테마");
+        ToolTip.SetTip(button, "테마"); ToolTip.SetShowDelay(button, 500);
         var error = Ui.Caption(""); error.Name = "ThemeSaveError"; error.Foreground = DesignSystem.Error; error.IsVisible = false;
         var content = Ui.Column(Ui.Text("테마", DesignSystem.Section), error);
         content.Name = "ThemeChoices"; content.Width = 232; content.Spacing = 8;

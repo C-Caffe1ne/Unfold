@@ -118,7 +118,9 @@ public class PetPackWindowTests
         {
             window.Show(); Assert.False(Button(window, "PausePackPreview").IsEnabled);
             Press(window, "OpenPetPack"); await Until(() => Button(window, "PausePackPreview").IsEnabled);
+            Assert.Equal(PlaybackGlyph.Pause, Assert.IsType<PlaybackIcon>(Button(window, "PausePackPreview").Content).Glyph);
             Press(window, "PausePackPreview");
+            Assert.Equal(PlaybackGlyph.Play, Assert.IsType<PlaybackIcon>(Button(window, "PausePackPreview").Content).Glyph);
             Assert.Equal("미리보기 계속", AutomationProperties.GetName(Button(window, "PausePackPreview")));
             Choice(window, "PackClip").SelectedItem = "stretch";
             await Until(() => Button(window, "PausePackPreview").IsEnabled && !Repeats(window));
@@ -126,6 +128,7 @@ public class PetPackWindowTests
             await Task.Delay(400, TestContext.Current.CancellationToken); Dispatcher.UIThread.RunJobs();
             Assert.Equal(0, completed); Assert.False(Repeats(window));
             Press(window, "PausePackPreview");
+            Assert.Equal(PlaybackGlyph.Pause, Assert.IsType<PlaybackIcon>(Button(window, "PausePackPreview").Content).Glyph);
             await Until(() => Repeats(window) && Button(window, "ReplayPackPreview").IsEnabled);
             Assert.Equal(1, completed); Assert.Equal("stretch", Choice(window, "PackClip").SelectedItem);
             Press(window, "PausePackPreview"); Press(window, "ReplayPackPreview");
@@ -278,7 +281,7 @@ public class PetPackWindowTests
 
             Assert.Contains(surface, playback.GetVisualAncestors());
             Assert.Equal(HorizontalAlignment.Center, playback.HorizontalAlignment);
-            Assert.IsType<PathIcon>(pause.Content);
+            Assert.Equal(PlaybackGlyph.Pause, Assert.IsType<PlaybackIcon>(pause.Content).Glyph);
             Assert.IsType<PathIcon>(replay.Content);
             Assert.Equal(44, pause.Bounds.Width); Assert.Equal(44, replay.Bounds.Width);
             var surfaceOrigin = surface.TranslatePoint(default, window)!.Value;

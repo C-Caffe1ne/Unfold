@@ -15,6 +15,9 @@ public static partial class DesignSystem
 {
     public static IReadOnlyList<ThemePalette> Themes { get; } = Array.AsReadOnly<ThemePalette>([
         // Keep the persisted IDs while replacing their visual identities with the approved brand palettes.
+        new(AppTheme.Plum, "유연한 라일락", false, "#F1EDF7", "#F7F4FB", "#FDFCFF", "#ECE5F4",
+            "#32283E", "#70627F", "#D5CADE", "#9785AA", "#685187", "#FFFFFF", "#C8BAE6", "#574171", "#E4DAF1", "#E4DAF1",
+            "#785515", "#9E3C50", "#3C6956", "#E8E1F0", "#82738F", "#B63750"),
         new(AppTheme.OatLatte, "다정한 오트", false, "#F5EFE6", "#FAF6EF", "#FFFCF7", "#F0E5D8",
             "#342D28", "#706154", "#D8CBBE", "#9A8674", "#985139", "#FFFFFF", "#E9B894", "#84432F", "#EDDDCC", "#EDDDCC",
             "#7B560B", "#9E3F38", "#3F6850", "#EAE1D6", "#807365", "#B63734"),
@@ -23,12 +26,9 @@ public static partial class DesignSystem
             "#765912", "#9F3D3D", "#365D4C", "#E3E8D9", "#73806E", "#B63734"),
         new(AppTheme.MidnightBlue, "밤의 버터", true, "#172133", "#1D293F", "#243047", "#2B3850",
             "#F0F1ED", "#B5C0D0", "#46546B", "#8395AD", "#E8CF91", "#263147", "#94ACC5", "#F0DBAE", "#303E55", "#303E55",
-            "#ECD09A", "#FFB4AE", "#AFD6BE", "#263248", "#91A0B7", "#FF888B"),
-        new(AppTheme.Plum, "유연한 라일락", false, "#F1EDF7", "#F7F4FB", "#FDFCFF", "#ECE5F4",
-            "#32283E", "#70627F", "#D5CADE", "#9785AA", "#685187", "#FFFFFF", "#C8BAE6", "#574171", "#E4DAF1", "#E4DAF1",
-            "#785515", "#9E3C50", "#3C6956", "#E8E1F0", "#82738F", "#B63750")
+            "#ECD09A", "#FFB4AE", "#AFD6BE", "#263248", "#91A0B7", "#FF888B")
     ]);
-    public static AppTheme CurrentTheme { get; private set; } = AppTheme.OatLatte;
+    public static AppTheme CurrentTheme { get; private set; } = AppSettings.DefaultTheme;
     // Keep brush identities stable: open popups, dialogs and unsaved pages update in place.
     public static readonly SolidColorBrush Canvas = new(), Shell = new(), Surface = new(), Raised = new(),
         Cream = new(), Ink = new(), Muted = new(), Hover = new(), Accent = new(), AccentHover = new(),
@@ -55,11 +55,11 @@ public static partial class DesignSystem
     private static BoxShadow Shadow(Color tint, double opacity, double offsetY, double blur) =>
         new() { Color = new Color((byte)Math.Round(opacity * 255), tint.R, tint.G, tint.B), OffsetY = offsetY, Blur = blur };
 
-    static DesignSystem() => ApplyTheme(AppTheme.OatLatte);
+    static DesignSystem() => ApplyTheme(AppSettings.DefaultTheme);
 
     public static void ApplyTheme(AppTheme theme)
     {
-        var palette = Themes.SingleOrDefault(item => item.Id == theme) ?? Themes[0];
+        var palette = Themes.SingleOrDefault(item => item.Id == theme) ?? Themes.Single(item => item.Id == AppSettings.DefaultTheme);
         CurrentTheme = palette.Id;
         (SolidColorBrush Brush, string Color)[] tokens = [
             (Canvas, palette.Canvas), (Shell, palette.Shell), (Surface, palette.Surface), (Raised, palette.Raised),
