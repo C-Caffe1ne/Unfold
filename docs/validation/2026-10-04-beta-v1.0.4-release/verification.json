@@ -1,0 +1,56 @@
+{
+  "sourceCommit": "8a42dafdf69465e0de225f81f4298d3a0406de6b",
+  "version": "1.0.4-beta",
+  "ciRun": "https://github.com/C-Caffe1ne/Unfold/actions/runs/37194303126",
+  "webCommit": "d4c8bfa",
+  "nativeSmoke": {
+    "osx-arm64": {
+      "success": true,
+      "imageFiles": 100,
+      "updaterInstalled": true,
+      "totalMs": 27722.0832
+    },
+    "osx-x64": {
+      "success": true,
+      "imageFiles": 100,
+      "updaterInstalled": true,
+      "totalMs": 38455.9418
+    },
+    "win-x64": {
+      "success": true,
+      "imageFiles": 100,
+      "updaterInstalled": true,
+      "totalMs": 26839.4425
+    }
+  },
+  "windowsInstaller": {
+    "success": true,
+    "version": "1.0.4-beta",
+    "checks": [
+      "silent-install",
+      "installed-payload-and-updater-metadata",
+      "installed-executable-version",
+      "installation-preserves-login-opt-out",
+      "reinstall",
+      "uninstall-with-preserved-user-data-and-startup-removal"
+    ]
+  },
+  "tests": {
+    "macOS": {
+      "passed": 605,
+      "failed": 0,
+      "skipped": 0
+    },
+    "Windows": {
+      "passed": 601,
+      "failed": 0,
+      "skipped": 4
+    },
+    "webCandidate": {
+      "passed": 69,
+      "failed": 0
+    },
+    "localWebRoutes": 106,
+    "publicWebChecks": 38
+  }
+}
