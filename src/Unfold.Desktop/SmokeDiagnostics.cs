@@ -324,7 +324,7 @@ internal static class SmokeDiagnostics
         var verified = new List<string>();
         try
         {
-            window.MinWidth = 860; window.MinHeight = 680;
+            window.MinWidth = 640; window.MinHeight = 560;
             window.Width = 860; window.Height = 680; await Task.Delay(100); window.UpdateLayout();
             var quit = window.GetVisualDescendants().OfType<Button>().Single(item => item.Name == "SettingsQuit");
             var origin = button.TranslatePoint(default, window)!.Value;
@@ -569,7 +569,7 @@ internal static class SmokeDiagnostics
     {
         var measurements = new List<object>();
         var day = DateOnly.FromDateTime(completed.CompletedAt.Date);
-        settings.MinWidth = 860; settings.MinHeight = 680;
+        settings.MinWidth = 640; settings.MinHeight = 560;
         Press(settings, "SettingsNavReview");
         compatibility.MinWidth = 560; compatibility.MinHeight = 600;
         foreach (var item in new[] { (settings, new Size(1120, 800), "review-default.png"),
@@ -693,7 +693,7 @@ internal static class SmokeDiagnostics
             Press(window, "SettingsNavPacks"); await Task.Delay(100); window.UpdateLayout();
             if (petTabs.SelectedIndex != 1 || petName.Text != "작성 중인 펫")
                 throw new InvalidOperationException("Pet draft was lost during sidebar navigation.");
-            window.MinWidth = 860; window.MinHeight = 680; window.Width = 860; window.Height = 680;
+            window.MinWidth = 640; window.MinHeight = 560; window.Width = 860; window.Height = 680;
             await Task.Delay(200); window.UpdateLayout();
             VerifyPetActionCards(window, expectWrap: false);
             Capture(window, Path.Combine(directory, "settings-pet-create-minimum.png"));
@@ -720,7 +720,7 @@ internal static class SmokeDiagnostics
             Capture(window, Path.Combine(directory, "settings-pet-open-minimum.png"));
             Press(window, "SettingsNavTimer"); await Task.Delay(100); window.UpdateLayout();
             VerifySettingsPageHeaderRemoved(window);
-            window.MinWidth = 860; window.MinHeight = 680; window.Width = 860; window.Height = 680;
+            window.MinWidth = 640; window.MinHeight = 560; window.Width = 860; window.Height = 680;
             await Task.Delay(200); window.UpdateLayout();
             if (Math.Abs(window.ClientSize.Width - 860) > 1 || Math.Abs(window.ClientSize.Height - 680) > 1)
                 throw new InvalidOperationException($"Settings did not reach the minimum diagnostic size: {window.ClientSize}.");
@@ -817,8 +817,9 @@ internal static class SmokeDiagnostics
     {
         T Find<T>(string name) where T : Control => window.GetVisualDescendants().OfType<T>().Single(control => control.Name == name);
         var measurements = new List<object>();
-        // PrepareDiagnosticWindow initially pins the minimum to the startup size.
-        window.MinWidth = 860; window.MinHeight = 680;
+        // Restore the real settings minimum before checking larger layouts.
+        // On Windows, an extended native frame can add to the minimum client height.
+        window.MinWidth = 640; window.MinHeight = 560;
         foreach (var size in new[] { new Size(1120, 800), new Size(860, 680) })
         {
             window.Width = size.Width; window.Height = size.Height; await Task.Delay(100); window.UpdateLayout();

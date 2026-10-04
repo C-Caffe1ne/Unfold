@@ -51,7 +51,8 @@ jobs:
           $version = [regex]::Match((Get-Content -Raw './src/Unfold.Desktop/Unfold.Desktop.csproj'), '<Version>([^<]+)</Version>').Groups[1].Value
           $portable = Join-Path $env:RUNNER_TEMP ('Unfold-portable-' + [guid]::NewGuid().ToString('N'))
           Expand-Archive -LiteralPath "./artifacts/Unfold-v$version-win-x64.zip" -DestinationPath $portable
-          $process = Start-Process -FilePath (Join-Path $portable 'Unfold.exe') -ArgumentList '--smoke-test' -WindowStyle Hidden -PassThru
+          # The stable launcher exits after starting the payload; wait for the diagnostic process itself.
+          $process = Start-Process -FilePath (Join-Path $portable 'current/Unfold.exe') -ArgumentList '--smoke-test' -WindowStyle Hidden -PassThru
           if (-not $process.WaitForExit(120000)) {
             $process.Kill()
             throw 'Smoke test did not exit within 120 seconds.'
