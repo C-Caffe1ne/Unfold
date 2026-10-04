@@ -125,10 +125,19 @@ public sealed partial class PetWindow
             animation.SetRunning(!blocked);
             if (!blocked && !runtime.DiagnosticMode)
             {
-                var work = Screens.ScreenFromWindow(this)?.WorkingArea ?? Screens.Primary?.WorkingArea;
-                if (work is { } area)
+                var screen = (OperatingSystem.IsMacOS() ? Screens.ScreenFromPoint(PetAnchor) : null)
+                    ?? Screens.ScreenFromWindow(this) ?? Screens.Primary;
+                if (screen is not null)
                 {
-                    Position = wander.Step(Position, layout.Size, area, DesktopScaling, seconds);
+                    var macOS = OperatingSystem.IsMacOS();
+                    var area = PlacementArea(screen.Bounds, screen.WorkingArea, macOS);
+                    if (macOS)
+                    {
+                        var anchor = PetAnchor;
+                        Position += wander.Step(anchor, new Size(animation.Width, animation.Height), area, DesktopScaling, seconds) - anchor;
+                        RefreshSpeech();
+                    }
+                    else Position = wander.Step(Position, layout.Size, area, DesktopScaling, seconds);
                     animation.SetPose(PetPose.Neutral, wander.FacingLeft);
                 }
             }

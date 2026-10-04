@@ -243,9 +243,10 @@ public sealed partial class PetWindow : Window
         animation.Width = animation.Height = petSize;
         var expanded = reminder.HasNotice || hover;
         var anchor = PetAnchor;
-        var work = Screens.ScreenFromPoint(anchor)?.WorkingArea ?? Screens.Primary?.WorkingArea;
-        var next = hover && work is { } hoverArea && !runtime.DiagnosticMode
-            ? PetBubbleLayout.CreateHover(runtime.Settings.BubbleDirection, anchor, DesktopScaling, hoverArea, petSize)
+        var screen = Screens.ScreenFromPoint(anchor) ?? Screens.Primary;
+        var work = screen is null ? (PixelRect?)null : PlacementArea(screen.Bounds, screen.WorkingArea, OperatingSystem.IsMacOS());
+        var next = expanded && work is { } area && !runtime.DiagnosticMode && (hover || OperatingSystem.IsMacOS())
+            ? PetBubbleLayout.CreateExpanded(runtime.Settings.BubbleDirection, anchor, DesktopScaling, area, petSize, bubble.Height, bubble.Width)
             : PetBubbleLayout.Create(runtime.Settings.BubbleDirection, expanded, bubble.Height, petSize, bubble.Width);
         if (layout.Size == next.Size && layout.Pet == next.Pet && layout.Bubble == next.Bubble &&
             bubble.IsVisible == expanded && layoutScale == DesktopScaling) return;
@@ -263,8 +264,8 @@ public sealed partial class PetWindow : Window
         // Canvas offsets are deferred until arrange. Commit them before moving
         // the native surface, otherwise it briefly carries the old pet position.
         UpdateLayout();
-        Position = runtime.DiagnosticMode ? new(-32000, -32000) : work is { } area
-            ? layout.Position(anchor, DesktopScaling, area) : anchor;
+        Position = runtime.DiagnosticMode ? new(-32000, -32000) : work is { } placementArea
+            ? layout.Position(anchor, DesktopScaling, placementArea) : anchor;
     }
 
     private Point PetPoint(Point windowPoint) => windowPoint - new Vector(layout.Pet.X, layout.Pet.Y);
@@ -296,9 +297,28 @@ public sealed partial class PetWindow : Window
         Dispatcher.UIThread.Post(() => { if (IsVisible) RefreshSpeech(); }, DispatcherPriority.Background);
     }
 
+    internal static PixelRect PlacementArea(PixelRect bounds, PixelRect workingArea, bool macOS)
+    {
+        if (!macOS) return workingArea;
+        // A user-positioned pet may overlap the Dock. Keep the menu bar excluded,
+        // but do not treat its transparent speech window as part of the pet.
+        var top = Math.Clamp(workingArea.Y, bounds.Y, bounds.Bottom);
+        return new(bounds.X, top, bounds.Width, bounds.Bottom - top);
+    }
+
     private void ClampPosition()
     {
-        var screen = Screens.ScreenFromWindow(this) ?? Screens.Primary; if (screen is null) return;
+        var screen = (OperatingSystem.IsMacOS() ? Screens.ScreenFromPoint(PetAnchor) : null)
+            ?? Screens.ScreenFromWindow(this) ?? Screens.Primary;
+        if (screen is null) return;
+        if (OperatingSystem.IsMacOS())
+        {
+            var area = PlacementArea(screen.Bounds, screen.WorkingArea, true);
+            var pet = PetBubbleLayout.Create(runtime.Settings.BubbleDirection, false, petSize: animation.Width);
+            var anchor = PetAnchor;
+            Position += pet.Position(anchor, DesktopScaling, area) - anchor;
+            return;
+        }
         var work = screen.WorkingArea; var width = (int)(Width * DesktopScaling); var height = (int)(Height * DesktopScaling);
         Position = new(Math.Clamp(Position.X, work.X, Math.Max(work.X, work.Right - width)), Math.Clamp(Position.Y, work.Y, Math.Max(work.Y, work.Bottom - height)));
     }

@@ -124,18 +124,22 @@ public sealed record PetBubbleLayout(Size Size, Point Pet, Point Bubble, IReadOn
         };
     }
     internal static PetBubbleLayout CreateHover(BubbleDirection preferred, PixelPoint anchor, double scale,
-        PixelRect work, double petSize)
+        PixelRect work, double petSize) => CreateExpanded(preferred, anchor, scale, work, petSize,
+            DesignSystem.SpeechHoverHeight, DesignSystem.SpeechHoverWidth);
+
+    internal static PetBubbleLayout CreateExpanded(BubbleDirection preferred, PixelPoint anchor, double scale,
+        PixelRect work, double petSize, double bubbleHeight, double bubbleWidth)
     {
         var opposite = preferred switch
         {
             BubbleDirection.Top => BubbleDirection.Bottom, BubbleDirection.Bottom => BubbleDirection.Top,
             BubbleDirection.Left => BubbleDirection.Right, _ => BubbleDirection.Left
         };
-        // Keep the pet under the pointer. Flip the bubble when its preferred side
-        // has no room, then slide its cross-axis alignment at the screen edges.
+        // Keep the pet at its screen anchor. Flip the bubble when its preferred
+        // side has no room, then slide its cross-axis alignment at the edges.
         foreach (var direction in new[] { preferred, opposite, BubbleDirection.Top, BubbleDirection.Bottom, BubbleDirection.Left, BubbleDirection.Right }.Distinct())
         {
-            var layout = Create(direction, true, DesignSystem.SpeechHoverHeight, petSize, DesignSystem.SpeechHoverWidth);
+            var layout = Create(direction, true, bubbleHeight, petSize, bubbleWidth);
             if (layout.Size.Width * scale > work.Width || layout.Size.Height * scale > work.Height) continue;
             var position = layout.Position(anchor, scale, work);
             var pet = new Point((anchor.X - position.X) / scale, (anchor.Y - position.Y) / scale);
@@ -145,7 +149,7 @@ public sealed record PetBubbleLayout(Size Size, Point Pet, Point Bubble, IReadOn
             var shift = pet - layout.Pet;
             return layout with { Pet = pet, Tail = layout.Tail.Select(point => point + shift).ToArray() };
         }
-        return Create(preferred, true, DesignSystem.SpeechHoverHeight, petSize, DesignSystem.SpeechHoverWidth);
+        return Create(preferred, true, bubbleHeight, petSize, bubbleWidth);
     }
     public PixelPoint Position(PixelPoint petAnchor, double scale, PixelRect work)
     {
