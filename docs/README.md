@@ -1,11 +1,14 @@
 # 문서 안내
 
-현재 제품은 `release/mvp`의 **휴식 세션·로컬 회고를 포함한 C#·Avalonia 기반 Cat MVP**다. 아래 문서가 현재
-구현·범위·실행 방법을 설명한다. 과거 Swift 구현과 Garden 실험은 보관 자료다.
+현재 제품은 **C#·Avalonia 기반 Unfold Beta**다. 2026-10-04 최신 개발 기준은 `codex/beta-v1.0.4`의 `1.0.4-beta`이며, `release/mvp`의 `0.2.2`는 이전 소스다.
+기능 구현 전에 [작업 안내](../AGENTS.md)에 따라 마지막 수정본의 브랜치·HEAD·미커밋 변경·프로젝트 버전과 실행 경로를 다시 확인한다. 아래 문서는 구현·범위·실행 방법을 설명하며 과거 Swift 구현과 Garden 실험은 보관 자료다.
 
 | 문서 | 역할 |
 |---|---|
 | [에이전트 작업 안내](../AGENTS.md) | Codex·Claude 공통 프로젝트 지침. Claude는 `CLAUDE.md`에서 가져온다. |
+| [GLB 확대 화질 검증](validation/2026-10-04-glb-resolution.md) | 표시 크기·Retina 배율 대응, 가장자리 처리와 실제 모델 전후 비교 |
+| [GLB 펫 사용법](glb-pets.md) | 모델 가져오기, 상황별 행동 지정, 몸 방향 고정과 지원 범위 |
+| [Beta v1.0.4 GLB 통합 검증](validation/2026-10-04-beta-glb-pets.md) | 최신 소스 기준, 회귀 검사와 macOS 재생·설정 화면 증거 |
 | [프로젝트 README](../README.md) | 사용자 소개, 빠른 실행, 저장소 구조 |
 | [Beta v1.0.2 Mac 공증 배포](validation/2026-10-01-macos-notarization.md) | Developer ID·Apple 공증·티켓·웹 ZIP 교체, Gatekeeper 검사와 첫 실행 미확인 항목 |
 | [Beta v1.0.2 재패키징·웹 배포](validation/2026-10-01-v1.0.2-release.md) | 브랜드 수정 포함, 설치 파일·공개 다운로드·브라우저 저장 검증 |

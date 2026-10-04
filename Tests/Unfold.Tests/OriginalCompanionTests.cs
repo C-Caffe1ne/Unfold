@@ -145,10 +145,12 @@ public class OriginalCompanionTests
     public async Task HoldingDuringDragKeepsThePetLiftedAndReleaseLandsWithoutClicking()
     {
         using var scope = new Scope();
-        // This test advances pose time explicitly. Diagnostic startup prevents the
-        // real window timer from advancing landing while MouseUp drains UI jobs.
+        // This test advances pose time explicitly. ShowPet starts the real timer
+        // even in diagnostic mode, so stop it before MouseUp drains UI jobs.
         await scope.Runtime.Start(true, true);
         await scope.Select(original: true); var pet = scope.Pet;
+        ((DispatcherTimer)typeof(PetWindow).GetField("hitTimer",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(pet)!).Stop();
         var point = new Point(96, 85);
         pet.MouseDown(point, MouseButton.Left);
         pet.AdvanceCompanion(.2); pet.AdvanceCompanion(.2);

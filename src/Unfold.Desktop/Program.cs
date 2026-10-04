@@ -21,6 +21,15 @@ internal static class Program
             Console.WriteLine($"Unfold {AppRelease.DisplayVersion} ({AppRelease.Version})");
             return 0;
         }
+        if (args.Length > 0 && args[0] == "--review-glb")
+        {
+            if (args.Length != 2) { Console.Error.WriteLine("Usage: --review-glb <file.glb>"); return 2; }
+            var profile = Environment.GetEnvironmentVariable("UNFOLD_DATA_DIR");
+            if (string.IsNullOrEmpty(profile))
+                Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", Path.Combine(Path.GetTempPath(), "Unfold-glb-" + Guid.NewGuid().ToString("N")));
+            else if (Directory.Exists(profile) && Directory.EnumerateFileSystemEntries(profile).Any())
+            { Console.Error.WriteLine("GLB review requires a new empty UNFOLD_DATA_DIR."); return 2; }
+        }
         if (args.Length > 0 && args[0] == "--review-original-pets")
         {
             if (args.Length != 1) { Console.Error.WriteLine("Usage: --review-original-pets"); return 2; }

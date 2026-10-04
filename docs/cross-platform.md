@@ -3,7 +3,7 @@
 Unfold is a C#/.NET 10 and Avalonia stretch reminder with desktop pets. Published
 packages include .NET. Swift, Xcode, and the Piskel web runtime are not required.
 
-Beta v1.0.3 (`1.0.3-beta`) includes Mochi (cat), 보리 (rabbit), 강아지 (dog), 고슴도치 (hedgehog)
+Beta v1.0.4 (`1.0.4-beta`) includes Mochi (cat), 보리 (rabbit), 강아지 (dog), 고슴도치 (hedgehog)
 and 펭귄 (penguin). Choose them from Home without installing separate packs.
 Release notes are included as `RELEASE-NOTES.md` in the Windows portable/installed
 `current` folder and inside `Unfold.app/Contents/Resources/` on macOS.
@@ -14,11 +14,15 @@ After the first sign-in in this build, the refresh credential is kept in the OS 
 store. Restart restores the session and verifies server access without another Google
 sign-in or code entry. Logout deletes the stored credential. Network failure preserves it
 for retry but does not grant offline access.
-Live server activation and Windows code signing are pending. Mac notarized distribution
-is provided separately from the older ad-hoc artifacts. See [beta release notes](releases/v1.0.2-beta.md)
-for the previous public release's distribution limits. The updater-enabled v1.0.3 build
-requires its own signing, notarization and publication. `Unfold --version` prints the release identity without opening the app
-or creating a user profile.
+Windows code signing is pending. Public Mac distribution uses Developer ID signing and
+Apple notarization. See the [current release notes](releases/v1.0.4-beta.md).
+Beta v1.0.3 and later managed installations can check for updates from the tray/menu bar;
+v1.0.2 and earlier require a one-time manual installation of a newer release.
+`Unfold --version` prints the release identity without opening the app or creating a user profile.
+
+Custom GLB 2.0 pets can be imported through **펫 추가 → GLB 펫**, with event-specific
+animation mappings and a fixed body direction. Rendering follows the displayed size and
+screen scale, up to 1024 pixels. See [GLB pets](glb-pets.md) for supported formats and limits.
 
 ## Windows installation
 
@@ -61,7 +65,7 @@ and `UNFOLD_NOTARY_PROFILE` to select a local notarytool keychain profile. The b
 script signs all nested native files, submits the app and staples its ticket, then
 creates, notarizes and staples the DMG. Rejection stops packaging. Credentials are
 never stored in the repository. `UNFOLD_NOTARY_LOG_DIR` selects the diagnostic log folder.
-Use the `-notarized-installer.zip` Mac assets for the signed Beta v1.0.2 distribution;
+Use the `-notarized-installer.zip` Mac assets for the signed Beta v1.0.4 distribution;
 the earlier Mac installer ZIPs remain available as historical ad-hoc builds.
 
 ## Visible controls
@@ -110,7 +114,8 @@ legacy data compatibility are described in the [compatibility guide](personaliza
   Interruption during focused work still needs actual user testing.
 - Windows/macOS login launch, multi-monitor dragging, display changes, suspend,
   full-screen behavior, and installation trust need tests on the target OS.
-- A portable build does not include an installer or an automatic updater.
+- Update availability requires the updater metadata and helper from a published managed package.
+  Running directly from source is not an installed update target.
 
 ## Data and compatibility
 

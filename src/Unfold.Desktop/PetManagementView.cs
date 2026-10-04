@@ -11,11 +11,17 @@ internal sealed class PetManagementView : UserControl, IDisposable
 {
     private readonly PetPackView packs;
     private readonly CustomPetView builder;
+    private readonly GlbPetView glb;
     private readonly TabControl tabs = new() { Name = "PetManagementTabs", Padding = new Thickness(0, 20, 0, 0),
         HorizontalContentAlignment = HorizontalAlignment.Stretch, VerticalContentAlignment = VerticalAlignment.Stretch };
-    public bool IsBusy => packs.IsBusy || builder.IsBusy;
-    internal bool HasUnsavedDraft => builder.HasUnsavedChanges;
-    internal Task<bool> CanCloseDraft() { tabs.SelectedIndex = 1; return builder.CanCloseDraft(); }
+    public bool IsBusy => packs.IsBusy || builder.IsBusy || glb.IsBusy;
+    internal bool HasUnsavedDraft => builder.HasUnsavedChanges || glb.HasUnsavedChanges;
+    internal async Task<bool> CanCloseDraft()
+    {
+        if (builder.HasUnsavedChanges) { tabs.SelectedIndex = 1; if (!await builder.CanCloseDraft()) return false; }
+        if (glb.HasUnsavedChanges) { tabs.SelectedIndex = 2; if (!await glb.CanCloseDraft()) return false; }
+        return true;
+    }
 
     public PetManagementView(Window owner, CharacterLibrary library, Func<CharacterPackage, Task> installed,
         Func<Task<string?>>? choosePack = null, Func<Task<string?>>? chooseMedia = null,
@@ -27,15 +33,18 @@ internal sealed class PetManagementView : UserControl, IDisposable
             tabs.SelectedIndex = 0;
             await packs.OpenPath(path);
         }, chooseMedia: chooseMedia, chooseOutput: chooseOutput, showHeader: showPageHeaders);
+        glb = new(owner, library, installed, showHeader: showPageHeaders);
         AutomationProperties.SetName(tabs, "펫 추가 방식");
         tabs.ItemsSource = new[]
         {
             Tab("펫 팩 열기", packs),
-            Tab("펫 팩 만들기", builder)
+            Tab("펫 팩 만들기", builder),
+            Tab("GLB 펫", glb)
         };
         tabs.SelectedIndex = 0;
         packs.BusyChanged += UpdateBusy;
         builder.BusyChanged += UpdateBusy;
+        glb.BusyChanged += UpdateBusy;
         Content = tabs;
     }
 
@@ -72,5 +81,5 @@ internal sealed class PetManagementView : UserControl, IDisposable
     }
 
     private void UpdateBusy() => tabs.IsEnabled = !IsBusy;
-    public void Dispose() { packs.Dispose(); builder.Dispose(); }
+    public void Dispose() { packs.Dispose(); builder.Dispose(); glb.Dispose(); }
 }

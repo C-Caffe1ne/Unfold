@@ -4,7 +4,7 @@ using System.Text.Json;
 namespace Unfold.Core;
 
 public sealed record CharacterClipAudit(string Key, int Frames, double DurationMs, int Width, int Height,
-    long DecodedBytes, int TransparentFrames, int EmptyFrames);
+    long DecodedBytes, int TransparentFrames, int EmptyFrames, int SampledFrames = 0);
 public sealed record CharacterFileAudit(string Path, long Bytes, string Sha256);
 public sealed record CharacterAudit(string Id, IReadOnlyList<CharacterClipAudit> Clips, IReadOnlyList<CharacterFileAudit> Files,
     IReadOnlyList<string> Errors, IReadOnlyList<string> Warnings);
@@ -46,11 +46,12 @@ public static class CharacterAssetAudit
             var package = CharacterLibrary.LoadPackage(directory, true); id = package.Manifest.Id;
             if (id != Path.GetFileName(directory)) errors.Add("Manifest ID differs from the directory name.");
             var paths = new HashSet<string>(StringComparer.Ordinal) { "character.json", package.Manifest.SpriteSheet.File };
+            if (package.Manifest.Model is { } model) paths.Add(model.File);
             foreach (var (key, definition) in package.Manifest.Animations.OrderBy(item => item.Key, StringComparer.Ordinal))
             {
                 if (!CharacterLibrary.SafeId(key)) errors.Add($"Invalid animation key: {key}");
                 if (package.HasOriginalBehavior && key == "idle" && !definition.Loop) errors.Add("The idle animation must loop.");
-                if (package.HasOriginalBehavior && OneShots.Contains(key) && definition.Loop) errors.Add($"The {key} event must not loop.");
+                if (package.HasOriginalBehavior && !package.IsGlb && OneShots.Contains(key) && definition.Loop) errors.Add($"The {key} event must not loop.");
                 if (package.HasPointerArt && (key is "pickup" or "land") && definition.Loop) errors.Add($"The {key} event must not loop.");
                 if (package.HasPointerArt && key == "held" && !definition.Loop) errors.Add("The held animation must loop.");
                 if (definition.Gif is not null) paths.Add(definition.Gif);
@@ -58,6 +59,14 @@ public static class CharacterAssetAudit
                 {
                     var frames = package.LoadAnimation(key);
                     var first = frames[0].Image;
+                    if (frames is GlbAnimationFrames live)
+                    {
+                        var samples = new[] { 0, live.Count / 2, live.Count - 1 }.Distinct().Select(i => live[i]).ToArray();
+                        if (samples.Any(f => f.Image.Pixels.All(p => p >> 24 == 0))) errors.Add($"{key}: GLB sample is invisible.");
+                        clips.Add(new(key, live.Count, live.DurationSeconds * 1000, first.Width, first.Height,
+                            ((long)first.Width * first.Height + (long)GlbAnimationFrames.MaxFrameSize * GlbAnimationFrames.MaxFrameSize) * 4, samples.Count(f => f.Image.Pixels.Any(p => p >> 24 == 0)), 0, samples.Length));
+                        continue;
+                    }
                     var transparent = frames.Count(frame => frame.Image.Pixels.Any(pixel => pixel >> 24 == 0));
                     var empty = frames.Count(frame => frame.Image.Pixels.All(pixel => pixel >> 24 == 0));
                     var bytes = frames.Sum(frame => (long)frame.Image.Width * frame.Image.Height * 4);

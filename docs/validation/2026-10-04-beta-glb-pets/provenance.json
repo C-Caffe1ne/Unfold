@@ -1,0 +1,22 @@
+{
+  "source": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+  "branch": "codex/beta-v1.0.4",
+  "baseHead": "f915738e5799f636e109b1a7efba3f146b40c663",
+  "projectVersion": "1.0.4-beta",
+  "sourceIncludesUncommittedGlbChanges": true,
+  "assembly": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/src/Unfold.Desktop/bin/Release/net10.0/Unfold.dll",
+  "assemblySha256": "4c1a4a8e5a8f85f9da5215e54194a2be6ec62c907c04c66ed21b8f007fa690a4",
+  "baselineTestsPassed": 587,
+  "finalTestsPassed": 596,
+  "finalTestsFailed": 0,
+  "finalTestsSkipped": 0,
+  "preexistingFilesPreserved": 22,
+  "dataRoot": "/tmp/unfold-beta104-glb-review-final-20261004",
+  "physicalPointerInputVerified": false,
+  "glbDiagnosticAssemblySha256": "be29950d3d074f12404c2c906dcb20e7406bca9390d804f328e83b77ae63f0dd",
+  "nativeSmokeSuccess": true,
+  "nativeSmokeScreenshots": 100,
+  "releaseBuildWarnings": 0,
+  "releaseBuildErrors": 0,
+  "diagnosticOnlyFollowup": "Updated SmokeDiagnostics to expect and inspect three pet tabs after the 596-test pass."
+}

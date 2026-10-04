@@ -2,6 +2,10 @@
 
 ## 자동 검사
 
+최신 Beta v1.0.4의 GLB 기능 통합과 기존 Beta 회귀 결과는
+[Beta GLB 통합 검증](validation/2026-10-04-beta-glb-pets.md)에 기록했다.
+
+
 클릭·호버 순간의 펫 배치와 드래그 기준 좌표 수정은
 [호버 위치 튐 검증](validation/2026-09-27-hover-jump.md)에 기록했다.
 371개 Release 검사와 macOS 네이티브 창 좌표·입력 확인을 포함한다.

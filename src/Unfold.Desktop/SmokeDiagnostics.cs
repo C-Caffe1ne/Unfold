@@ -663,13 +663,18 @@ internal static class SmokeDiagnostics
             Press(window, "SettingsNavPacks"); await Task.Delay(100); window.UpdateLayout();
             VerifySettingsPageHeaderRemoved(window);
             var petTabs = window.GetVisualDescendants().OfType<TabControl>().Single(control => control.Name == "PetManagementTabs");
-            if (window.OwnedWindows.Count != 0 || petTabs.ItemCount != 2)
-                throw new InvalidOperationException("Pet navigation did not open the two in-window tabs.");
+            if (window.OwnedWindows.Count != 0 || !petTabs.Items.OfType<TabItem>().Select(item => item.Header).SequenceEqual(new[] { "펫 팩 열기", "펫 팩 만들기", "GLB 펫" }))
+                throw new InvalidOperationException("Pet navigation did not open the three expected in-window tabs.");
             var packPreview = window.GetVisualDescendants().OfType<Border>().Single(control => control.Name == "PackPreviewSurface");
             var packClip = window.GetVisualDescendants().OfType<ComboBox>().Single(control => control.Name == "PackClip");
             if (Math.Abs(packPreview.Bounds.Width - 520) > 1 || Math.Abs(packClip.Bounds.Width - 200) > 1)
                 throw new InvalidOperationException("The pet pack preview or action picker is not compact.");
             Capture(window, Path.Combine(directory, "settings-pet-open-tab.png"));
+            petTabs.SelectedIndex = 2; await Task.Delay(100); window.UpdateLayout();
+            VerifySettingsPageHeaderRemoved(window);
+            if (!window.GetVisualDescendants().OfType<Button>().Any(button => button.Name == "OpenGlbPet" && button.IsEnabled))
+                throw new InvalidOperationException("The GLB pet tab did not expose its import action.");
+            Capture(window, Path.Combine(directory, "settings-glb-tab.png"));
             petTabs.SelectedIndex = 1; await Task.Delay(100); window.UpdateLayout();
             VerifySettingsPageHeaderRemoved(window);
             var petName = window.GetVisualDescendants().OfType<TextBox>().Single(control => control.Name == "CustomPetName");

@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using Unfold.Core;
 
 namespace Unfold.Desktop;
@@ -13,6 +14,15 @@ public sealed class AnimationView : Control, IDisposable
 {
     private IReadOnlyList<AnimationFrame> frames = [];
     private Bitmap[] bitmaps = [];
+    private GlbAnimationFrames? live;
+    private PixelImage? liveImage;
+    private bool renderingLive;
+    private int liveGeneration;
+    private int livePixelSize = 192;
+    private TopLevel? renderTopLevel;
+    internal int RenderedPixelSize => liveImage?.Width ?? 0;
+    internal int TargetPixelSize => livePixelSize;
+    public event Action<Exception>? PlaybackFailed;
     private readonly DispatcherTimer timer = new() { Interval = TimeSpan.FromMilliseconds(16) };
     private readonly Stopwatch elapsed = new();
     private double totalMs;
@@ -25,7 +35,7 @@ public sealed class AnimationView : Control, IDisposable
     internal void SetPose(PetPose value, bool mirror = false)
     {
         if (pose == value && facingLeft == mirror) return;
-        pose = value; facingLeft = mirror;
+        pose = value; facingLeft = live is null && mirror;
         UpdatePoseTransform();
     }
     // Whether playback is allowed to run: false while hidden (SetRunning(false))
@@ -41,16 +51,33 @@ public sealed class AnimationView : Control, IDisposable
     public AnimationView()
     {
         RenderTransformOrigin = RelativePoint.TopLeft;
-        SizeChanged += (_, _) => UpdatePoseTransform();
+        SizeChanged += (_, _) => { UpdatePoseTransform(); RefreshLiveResolution(); };
+        LayoutUpdated += (_, _) => RefreshLiveResolution();
         RenderOptions.SetBitmapInterpolationMode(this, BitmapInterpolationMode.None);
         timer.Tick += (_, _) => Advance();
-        AttachedToVisualTree += (_, _) => { if (running && NeedsTimer) { elapsed.Start(); timer.Start(); } };
-        DetachedFromVisualTree += (_, _) => { elapsed.Stop(); timer.Stop(); };
+        AttachedToVisualTree += (_, _) =>
+        {
+            renderTopLevel = TopLevel.GetTopLevel(this);
+            if (renderTopLevel is not null) renderTopLevel.ScalingChanged += OnScalingChanged;
+            RefreshLiveResolution();
+            if (running && NeedsTimer) { elapsed.Start(); timer.Start(); }
+        };
+        DetachedFromVisualTree += (_, _) => { DetachTopLevel(); liveGeneration++; elapsed.Stop(); timer.Stop(); };
     }
     public void SetFrames(IReadOnlyList<AnimationFrame> clip, bool repeat, bool pixel = true, bool alignCompanion = false, bool pingPong = false)
     {
         if (disposed) return;
-        timer.Stop(); foreach (var bitmap in bitmaps) bitmap.Dispose();
+        timer.Stop(); liveGeneration++; foreach (var bitmap in bitmaps) bitmap.Dispose();
+        live = clip as GlbAnimationFrames; liveImage = null;
+        if (live is not null)
+        {
+            frames = clip; liveImage = live[0].Image; bitmaps = [Ui.Bitmap(liveImage)]; loop = repeat;
+            frameOffsets = []; totalMs = live.DurationSeconds * 1000; index = 0; completed = false; facingLeft = false;
+            RenderOptions.SetBitmapInterpolationMode(this, BitmapInterpolationMode.HighQuality);
+            timer.Interval = live.FrameDuration;
+            if (running) { elapsed.Restart(); if (HasTopLevel() && NeedsTimer) timer.Start(); } else elapsed.Reset();
+            UpdatePoseTransform(); RefreshLiveResolution(); InvalidateVisual(); return;
+        }
         frames = pingPong && clip.Count > 2 ? clip.Concat(clip.Skip(1).Take(clip.Count - 2).Reverse()).ToArray() : clip; bitmaps = frames.Select(f => Ui.Bitmap(f.Image)).ToArray(); loop = repeat;
         frameOffsets = alignCompanion ? frames.Select(frame => CompanionOffset(frame.Image)).ToArray() : [];
         totalMs = frames.Sum(f => f.Duration.TotalMilliseconds); index = 0; completed = false;
@@ -65,10 +92,11 @@ public sealed class AnimationView : Control, IDisposable
         if (disposed) return;
         running = value;
         if (running && NeedsTimer && HasTopLevel()) { elapsed.Start(); timer.Start(); }
-        else { elapsed.Stop(); timer.Stop(); }
+        else { liveGeneration++; elapsed.Stop(); timer.Stop(); }
     }
     private void Advance()
     {
+        if (live is not null) { _ = AdvanceLive(); return; }
         if (frames.Count == 0 || totalMs <= 0) return;
         var ms = elapsed.Elapsed.TotalMilliseconds;
         if (!loop && ms >= totalMs)
@@ -81,6 +109,61 @@ public sealed class AnimationView : Control, IDisposable
         while (next < frames.Count - 1 && ms >= frames[next].Duration.TotalMilliseconds) ms -= frames[next++].Duration.TotalMilliseconds;
         timer.Interval = TimeSpan.FromMilliseconds(Math.Max(5, frames[next].Duration.TotalMilliseconds - ms));
         if (next != index) { index = next; InvalidateVisual(); }
+    }
+    private async Task AdvanceLive(bool refreshOnly = false)
+    {
+        if (renderingLive || live is not { } source || !HasTopLevel() || (!refreshOnly && (completed || !running))) return;
+        var ms = elapsed.Elapsed.TotalMilliseconds; var ended = !refreshOnly && !loop && ms >= totalMs;
+        var next = refreshOnly ? index : ended ? source.Count - 1 : Math.Min(source.Count - 1, (int)((ms % totalMs) / source.FrameDuration.TotalMilliseconds));
+        if (next == index && !ended && RenderedPixelSize == livePixelSize) return;
+        var request = liveGeneration; var pixels = livePixelSize; renderingLive = true; var failed = false;
+        try
+        {
+            var image = await Task.Run(() => source.GetFrame(next, pixels).Image);
+            if (disposed || request != liveGeneration) return;
+            var bitmap = Ui.Bitmap(image); foreach (var old in bitmaps) old.Dispose();
+            bitmaps = [bitmap]; liveImage = image; index = next; InvalidateVisual();
+            if (ended) { timer.Stop(); elapsed.Stop(); completed = true; Completed?.Invoke(); }
+        }
+        catch (Exception error)
+        {
+            failed = true;
+            if (!disposed && request == liveGeneration)
+            { timer.Stop(); elapsed.Stop(); completed = true; AppPaths.Log(error); PlaybackFailed?.Invoke(error); }
+        }
+        finally
+        {
+            renderingLive = false;
+            // A resize/clip swap during rendering must also refresh a paused or
+            // completed view, without advancing time or firing completion again.
+            if (!failed && !disposed && live is not null && HasTopLevel() && RenderedPixelSize != livePixelSize)
+                _ = AdvanceLive(refreshOnly: true);
+        }
+    }
+    internal static int PixelSizeFor(double logicalSize, double renderScaling)
+    {
+        var pixels = logicalSize * renderScaling;
+        if (!double.IsFinite(pixels) || pixels <= 0) return 192;
+        return (int)Math.Clamp(Math.Ceiling(pixels / 32) * 32, 64, GlbAnimationFrames.MaxFrameSize);
+    }
+    private void RefreshLiveResolution()
+    {
+        if (disposed || live is null || !HasTopLevel()) return;
+        var top = TopLevel.GetTopLevel(this)!;
+        // Include Viewbox/ancestor scaling; ignore the pet's own transient squash
+        // so a click does not allocate a different resolution on every pose tick.
+        var matrix = this.GetVisualParent()?.TransformToVisual(top) ?? Matrix.Identity;
+        var sx = Math.Sqrt(matrix.M11 * matrix.M11 + matrix.M12 * matrix.M12);
+        var sy = Math.Sqrt(matrix.M21 * matrix.M21 + matrix.M22 * matrix.M22);
+        var size = PixelSizeFor(Math.Min(Bounds.Width * sx, Bounds.Height * sy), top.RenderScaling);
+        if (size != livePixelSize) { livePixelSize = size; liveGeneration++; }
+        if (RenderedPixelSize != livePixelSize) _ = AdvanceLive(refreshOnly: true);
+    }
+    private void OnScalingChanged(object? sender, EventArgs e) => RefreshLiveResolution();
+    private void DetachTopLevel()
+    {
+        if (renderTopLevel is not null) renderTopLevel.ScalingChanged -= OnScalingChanged;
+        renderTopLevel = null;
     }
     private void UpdatePoseTransform()
     {
@@ -95,7 +178,7 @@ public sealed class AnimationView : Control, IDisposable
     private Rect ImageRect()
     {
         if (frames.Count == 0) return default;
-        var image = frames[index].Image; var scale = Math.Min(Bounds.Width / image.Width, Bounds.Height / image.Height);
+        var image = liveImage ?? frames[index].Image; var scale = Math.Min(Bounds.Width / image.Width, Bounds.Height / image.Height);
         var offset = frameOffsets.Length > index ? frameOffsets[index] : default;
         var x = (Bounds.Width - image.Width * scale) / 2 + offset.X * scale;
         var y = (Bounds.Height - image.Height * scale) / 2 + offset.Y * scale;
@@ -117,7 +200,7 @@ public sealed class AnimationView : Control, IDisposable
         // Pointer coordinates are already converted into this visual's local space
         // by Avalonia, including its scale, lift and facing direction.
         var rect = ImageRect(); if (!rect.Contains(point) || rect.Width <= 0) return false;
-        var image = frames[index].Image;
+        var image = liveImage ?? frames[index].Image;
         var x = (int)((point.X - rect.X) / rect.Width * image.Width); var y = (int)((point.Y - rect.Y) / rect.Height * image.Height);
         var radius = Math.Max(1, (int)Math.Ceiling(2 * image.Width / rect.Width));
         for (var py = Math.Max(0, y - radius); py <= Math.Min(image.Height - 1, y + radius); py++)
@@ -128,7 +211,7 @@ public sealed class AnimationView : Control, IDisposable
     public override void Render(DrawingContext context)
     {
         base.Render(context);
-        if (bitmaps.Length > 0) context.DrawImage(bitmaps[index], ImageRect());
+        if (bitmaps.Length > 0) context.DrawImage(bitmaps[live is null ? index : 0], ImageRect());
     }
-    public void Dispose() { disposed = true; running = false; timer.Stop(); foreach (var bitmap in bitmaps) bitmap.Dispose(); bitmaps = []; frames = []; }
+    public void Dispose() { DetachTopLevel(); disposed = true; liveGeneration++; live = null; liveImage = null; running = false; timer.Stop(); foreach (var bitmap in bitmaps) bitmap.Dispose(); bitmaps = []; frames = []; }
 }

@@ -5,17 +5,20 @@ using System.Text.Json;
 namespace Unfold.Core;
 
 public sealed record SheetDefinition(string File, int Columns, int Rows, int FrameWidth, int FrameHeight);
-public sealed record AnimationDefinition(int[]? Frames = null, double? Fps = null, string? Gif = null, bool Loop = true, bool PingPong = false);
+public sealed record AnimationDefinition(int[]? Frames = null, double? Fps = null, string? Gif = null, bool Loop = true, bool PingPong = false, string? ModelClip = null, double Speed = 1);
 public sealed record CharacterManifest(string Id, string Name, int Version, SheetDefinition SpriteSheet,
     Dictionary<string, AnimationDefinition> Animations, string? ThumbnailSymbol = null, string? RenderStyle = null,
-    string? BehaviorProfile = null);
+    string? BehaviorProfile = null, GlbDefinition? Model = null);
 
 public sealed class CharacterPackage
 {
     public string DirectoryPath { get; }
     public CharacterManifest Manifest { get; }
     public bool IsBuiltIn { get; }
-    public bool HasOriginalBehavior => Manifest.BehaviorProfile == OriginalCompanion.Profile &&
+    public bool IsGlb => Manifest.Model is not null;
+    private readonly Lazy<GlbModel> model;
+    public GlbModel Model => model.Value;
+    public bool HasOriginalBehavior => IsGlb || Manifest.BehaviorProfile == OriginalCompanion.Profile &&
         OriginalCompanion.RequiredClips.All(Manifest.Animations.ContainsKey);
     public bool HasPointerArt => HasOriginalBehavior && OriginalCompanion.PointerClips.All(Manifest.Animations.ContainsKey);
     private readonly Lazy<PixelImage> sheet;
@@ -24,11 +27,13 @@ public sealed class CharacterPackage
     internal CharacterPackage(string directory, CharacterManifest manifest, bool builtIn)
     {
         DirectoryPath = directory; Manifest = manifest; IsBuiltIn = builtIn;
+        model = new(() => GlbModel.Load(CharacterLibrary.AssetPath(directory, manifest.Model?.File ?? throw new InvalidDataException("Not a GLB pet."))));
         sheet = new(() => ImageCodec.DecodePng(ImageCodec.ReadBounded(CharacterLibrary.AssetPath(directory, manifest.SpriteSheet.File))));
     }
     public IReadOnlyList<AnimationFrame> LoadAnimation(string key)
     {
         if (!Manifest.Animations.TryGetValue(key, out var definition)) definition = Manifest.Animations["idle"];
+        if (IsGlb) return Model.CreateAnimation(definition.ModelClip!, Manifest.Model!, Manifest.Animations["idle"].ModelClip!, definition.Speed);
         if (definition.Gif is not null)
             return ImageCodec.DecodeGif(ImageCodec.ReadBounded(CharacterLibrary.AssetPath(DirectoryPath, definition.Gif)));
         var sprite = Manifest.SpriteSheet;
@@ -91,6 +96,21 @@ public sealed partial class CharacterLibrary
         var image = package.Sheet;
         if (image.Width != s.Columns * s.FrameWidth || image.Height != s.Rows * s.FrameHeight) throw new InvalidDataException("Sprite sheet dimensions do not match the manifest.");
         if (!manifest.Animations.ContainsKey("idle")) throw new InvalidDataException("A character needs an idle animation.");
+        if (manifest.Model is not null && manifest.Animations.Count > 16) throw new InvalidDataException("Pets support at most 16 event mappings.");
+        if (manifest.Model is { } model)
+        {
+            if (!float.IsFinite(model.Heading) || model.Heading is < -180 or > 180) throw new InvalidDataException("Invalid model heading.");
+            _ = AssetPath(directory, model.File);
+            var names = package.Model.Animations.Select(c => c.Name).ToHashSet(StringComparer.Ordinal);
+            foreach (var definition in manifest.Animations.Values)
+                if (definition is null || definition.ModelClip is null || !names.Contains(definition.ModelClip) || !double.IsFinite(definition.Speed) || definition.Speed is < .25 or > 3 || definition.PingPong)
+                    throw new InvalidDataException("Invalid GLB animation mapping.");
+            if (!manifest.Animations["idle"].Loop || manifest.Animations.Keys.Any(key => !GlbPetDraft.Actions.Contains(key))) throw new InvalidDataException("Invalid GLB pet events.");
+            foreach (var key in new[] { "pickup", "land" })
+                if (manifest.Animations.GetValueOrDefault(key)?.Loop == true) throw new InvalidDataException("GLB pickup and land must play once.");
+            if (manifest.Animations.TryGetValue("held", out var held) && !held.Loop) throw new InvalidDataException("GLB held must loop.");
+            return package;
+        }
         foreach (var animation in manifest.Animations.Values)
         {
             if (animation is null) throw new InvalidDataException("Missing animation.");
