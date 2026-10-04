@@ -5,7 +5,7 @@ RID="${1:-osx-arm64}"
 APP="${2:-$ROOT/artifacts/Unfold.app}"
 case "$RID" in osx-arm64|osx-x64) ;; *) echo "Use osx-arm64 or osx-x64" >&2; exit 1;; esac
 VERSION="$(/usr/libexec/PlistBuddy -c 'Print :UnfoldReleaseVersion' "$APP/Contents/Info.plist")"
-case "$VERSION" in *-beta) ;; *) echo "Expected a beta bundle" >&2; exit 1;; esac
+case "$VERSION" in *-beta|*-beta.[0-9]*) ;; *) echo "Expected a beta bundle" >&2; exit 1;; esac
 EXPECTED="$(grep -m1 -oE '<Version>[^<]+</Version>' "$ROOT/src/Unfold.Desktop/Unfold.Desktop.csproj" | sed -E 's#</?Version>##g')"
 if [ "$VERSION" != "$EXPECTED" ]; then echo "Bundle version does not match project" >&2; exit 1; fi
 case "$(file -b "$APP/Contents/MacOS/Unfold")" in

@@ -15,9 +15,14 @@ VERSION="$(grep -m1 -oE '<Version>[^<]+</Version>' "$CSPROJ" | sed -E 's#</?Vers
 if [ -z "$VERSION" ]; then echo "Could not read <Version> from $CSPROJ" >&2; exit 1; fi
 BUNDLE_VERSION="${VERSION%%-*}"
 IFS=. read -r VERSION_MAJOR VERSION_MINOR VERSION_PATCH <<< "$BUNDLE_VERSION"
-BUILD_NUMBER=$((10#$VERSION_MAJOR * 1000000 + 10#$VERSION_MINOR * 1000 + 10#$VERSION_PATCH))
+BETA_REVISION=0
+case "$VERSION" in *-beta.*) BETA_REVISION="${VERSION##*-beta.}" ;; esac
+if ! [[ "$BETA_REVISION" =~ ^[0-9]+$ ]] || [ "$BETA_REVISION" -gt 99 ]; then
+  echo "Expected a beta revision between 0 and 99" >&2; exit 1
+fi
+BUILD_NUMBER=$(((10#$VERSION_MAJOR * 1000000 + 10#$VERSION_MINOR * 1000 + 10#$VERSION_PATCH) * 100 + 10#$BETA_REVISION))
 DISPLAY_NAME="Unfold"
-case "$VERSION" in *-beta) DISPLAY_NAME="Unfold Beta v$BUNDLE_VERSION" ;; esac
+case "$VERSION" in *-beta|*-beta.[0-9]*) DISPLAY_NAME="Unfold Beta v$BUNDLE_VERSION" ;; esac
 OUT="$ROOT/artifacts/$RID"
 # A deleted or renamed pet must not survive in the next published bundle.
 if [ -L "$OUT" ]; then echo "Refusing linked publish directory: $OUT" >&2; exit 1; fi

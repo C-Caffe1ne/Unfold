@@ -18,7 +18,7 @@ def main():
     args = parser.parse_args()
     root = Path(__file__).resolve().parent.parent
     version = ET.parse(root / "src/Unfold.Desktop/Unfold.Desktop.csproj").findtext("PropertyGroup/Version")
-    if not version or not re.fullmatch(r"\d+\.\d+\.\d+-beta", version):
+    if not version or not re.fullmatch(r"\d+\.\d+\.\d+-beta(?:\.\d+)?", version):
         raise SystemExit("Expected a beta version in the project.")
     artifacts = root / "artifacts"
     notes = root / f"docs/releases/v{version}.md"
