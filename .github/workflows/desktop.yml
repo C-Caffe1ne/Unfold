@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: windows-latest
@@ -37,6 +38,10 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: ./Scripts/verify-windows-installer.ps1
+      - name: Prepare Windows CI display for native layout checks
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./Scripts/prepare-windows-ci-display.ps1
       - name: Run packaged Windows smoke test
         if: runner.os == 'Windows'
         shell: pwsh
