@@ -258,7 +258,7 @@ public class CustomPetWindowTests
         finally { foreach (var owned in window.OwnedWindows.ToArray()) owned.Close(); window.Close(); }
     }
     [AvaloniaFact]
-    public void ActionCardsWrapWithoutHorizontalScrollingAtEverySupportedWidth()
+    public void SelectedActionFitsWithoutHorizontalScrollingAtEverySupportedWidth()
     {
         var file = CustomPetDraftTests.Fixture();
         var window = new CustomPetWindow(file, () => Task.FromResult<string?>(file));
@@ -275,15 +275,16 @@ public class CustomPetWindowTests
                 Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
                 Assert.Equal(size.Width, window.ClientSize.Width, 0);
                 Assert.Equal(size.Height, window.ClientSize.Height, 0);
-                PageBodyScrollGeometry.ClearsScrollBar(window, controls);
+                if (PageBodyScrollGeometry.Scroll(window).Extent.Height > PageBodyScrollGeometry.Scroll(window).Viewport.Height + 1)
+                    PageBodyScrollGeometry.ClearsScrollBar(window, controls);
+                else PageBodyScrollGeometry.KeepsFullWidthWithoutScrollBar(window);
                 Assert.DoesNotContain(window.GetVisualDescendants().OfType<ScrollViewer>(),
                     view => view.Name == "CustomPetActionSlotsScroll");
                 var slots = Find<StackPanel>(window, "CustomPetActionSlots");
                 var pageScroll = PageBodyScrollGeometry.Scroll(window);
                 Assert.True(pageScroll.Extent.Width <= pageScroll.Viewport.Width + 1);
-                var slotRows = slots.Children.Select(card => Math.Round(card.Bounds.Y, 1)).Distinct().Count();
-                Assert.True(slotRows > 1, $"Action cards did not wrap at {size.Width}×{size.Height}.");
-                foreach (var card in slots.Children)
+                Assert.Single(slots.Children, card => card.IsVisible);
+                foreach (var card in slots.Children.Where(card => card.IsVisible))
                 {
                     Assert.True(card.Bounds.X >= -.5);
                     Assert.True(card.Bounds.Right <= slots.Bounds.Width + .5,
@@ -291,7 +292,9 @@ public class CustomPetWindowTests
                 }
                 PageBodyScrollGeometry.Scroll(window).ScrollToEnd();
                 Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
-                PageBodyScrollGeometry.ClearsScrollBar(window, controls);
+                if (PageBodyScrollGeometry.Scroll(window).Extent.Height > PageBodyScrollGeometry.Scroll(window).Viewport.Height + 1)
+                    PageBodyScrollGeometry.ClearsScrollBar(window, controls);
+                else PageBodyScrollGeometry.KeepsFullWidthWithoutScrollBar(window);
                 PageBodyScrollGeometry.Scroll(window).ScrollToHome();
                 Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
             }
@@ -323,8 +326,7 @@ public class CustomPetWindowTests
             Assert.DoesNotContain(parent.GetVisualDescendants().OfType<Button>(), button => button.Name == "ImportPetMedia");
             Assert.DoesNotContain(parent.GetVisualDescendants().OfType<ScrollViewer>(),
                 view => view.Name == "CustomPetActionSlotsScroll");
-            Assert.True(Find<StackPanel>(parent, "CustomPetActionSlots").Children
-                .Select(card => Math.Round(card.Bounds.Y, 1)).Distinct().Count() > 1);
+            Assert.Single(Find<StackPanel>(parent, "CustomPetActionSlots").Children, card => card.IsVisible);
             Assert.Empty(parent.OwnedWindows);
             tabs.SelectedIndex = 0; Dispatcher.UIThread.RunJobs();
             Assert.Equal(5, Find<ComboBox>(parent, "PackClip").ItemCount); Assert.True(Find<Button>(parent, "InstallPetPack").IsEnabled);
@@ -346,7 +348,7 @@ public class CustomPetWindowTests
             tabs.SelectedIndex = 1; Dispatcher.UIThread.RunJobs();
             Assert.Equal("", Find<TextBox>(parent, "CustomPetName").Text);
             Assert.False(Find<Button>(parent, "CreateCustomPetPack").IsEnabled);
-            Assert.Equal("", Find<TextBlock>(parent, "CustomPetPreviewAction").Text);
+            Assert.Equal("idle", Find<ComboBox>(parent, "CustomPetSelectedAction").SelectedItem);
             Assert.Equal("idle", Find<ComboBox>(parent, "CustomPetAction").SelectedItem);
             foreach (var key in CustomPetDraft.Actions)
             {

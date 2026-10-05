@@ -1,0 +1,26 @@
+{
+  "sourceBase": "717a63b68071b8ecb24c75bbfbbaa57e7256039d",
+  "branch": "codex/beta-v1.0.4",
+  "appVersion": "1.0.4-beta",
+  "published": false,
+  "focusedPassed": 29,
+  "fullPassed": 621,
+  "fullFailed": 0,
+  "fullSkipped": 0,
+  "baselineUxFailures": 3,
+  "nativeSuccess": true,
+  "nativeOs": "Unix 26.6.2",
+  "nativeCaptures": 30,
+  "windowsUiVerified": false,
+  "physicalInput": false,
+  "screenReaderVerified": false,
+  "isolatedProfile": "/tmp/unfold-glb-ux-verified-20261005",
+  "sourceSha256": {
+    "src/Unfold.Core/GlbPetDraft.cs": "b8b92acf3a3c5598607d6e396c8ea6c436f414697f758e4ee4a48e1c38c2ad93",
+    "src/Unfold.Desktop/GlbPetView.cs": "d60fec87f122ec9cef87ff1bc71f1c1589cace935b07269d25c72a6193555db5",
+    "src/Unfold.Desktop/GlbDiagnostics.cs": "7c7b0ab6f4759920644ce7109f80ae065c14b7b69aa9e1b6871f0f7460318959",
+    "Tests/Unfold.Tests/GlbTests.cs": "2b5c81b4598f64a9be4cf5dc61b90eba248c323f5d2482eea27225c0137817e3",
+    "Tests/Unfold.Tests/GlbEditorUxTests.cs": "54e2012ffbb8f48afe7230f3e389e19e08141bd94b0adc63dc404560b09afcd4"
+  },
+  "desktopAssemblySha256": "bd3cb1eeca2f0adc422c16fbdc0b514835d929f4e084318df94fb54b578149e4"
+}

@@ -17,10 +17,11 @@ for retry but does not grant offline access.
 Windows code signing is pending. Public Mac distribution uses Developer ID signing and
 Apple notarization. See the [current release notes](releases/v1.0.4-beta.md).
 Beta v1.0.3 and later managed installations can check for updates from the tray/menu bar;
+the current development build also provides **설정 → 앱 정보 → 업데이트 확인**.
 v1.0.2 and earlier require a one-time manual installation of a newer release.
 `Unfold --version` prints the release identity without opening the app or creating a user profile.
 
-Custom GLB 2.0 pets can be imported through **펫 추가 → GLB 펫**, with event-specific
+Custom GLB 2.0 pets can be imported through **펫 추가 → 펫 팩 만들기**, with event-specific
 animation mappings and a fixed body direction. Rendering follows the displayed size and
 screen scale, up to 1024 pixels. See [GLB pets](glb-pets.md) for supported formats and limits.
 
@@ -76,6 +77,7 @@ the earlier Mac installer ZIPs remain available as historical ad-hoc builds.
 - Settings: the timer home contains stretch interval and break duration; a separate settings tab contains idle time, snooze time, stretch/completion sounds and bubble position; character selection, pet visibility,
   launch at login, **Review & export**, **펫 추가**, today's confirmed breaks, and timer controls.
 - Pet speech reminder: **n분 뒤에**, **휴식 시작**, and **완료**. The bubble remains visible while its reminder state is active.
+  An unanswered invitation automatically snoozes after 30 seconds using the configured snooze time.
   Settings offers four bubble positions, 1–60 minute snooze, and due/completion WAV or MP3 effects.
   There is no separate reminder window or OS toast.
   **완료** is available from the start of a break. Overtime caps at +60:00 without auto-completion.
@@ -88,13 +90,13 @@ completion. Reset and Stretch now are no longer exposed.
 
 The timer state badge and tray status explicitly show running, paused, stopped, idle-paused,
 or break-held state. The home card's **스트레칭 시간 (분)** is disabled while running and accepts whole
-minutes from 5 to 240 in one-minute steps while paused or stopped. **휴식 시간 (분)** accepts 1–10
+minutes from 1 to 240 in one-minute steps while paused or stopped. **휴식 시간 (분)** accepts 1–10
 minutes and may be changed while working because it applies to the next break. A typed or stepped value
 does not change behavior until the home card's **저장** is pressed. The Settings tab uses its own
 **취소·저장** for idle/snooze time and notification preferences. Saving a new stretch interval keeps Pause or Stop intact.
 
 All five bundled pets provide the original reactions plus pointer hold/release behaviors. Eligible idle time triggers sleep, looking around
-or yawning; a short click squashes, bounces and plays surprise followed by looking around.
+or yawning; a short click plays its assigned reaction without moving or scaling the pet canvas.
 The third consecutive snooze triggers sulking. Starting a break plays one stretch before walking
 inside the current monitor's work area; completion, stop, hiding or selecting another pet ends movement.
 A hidden pet can appear temporarily for a new reminder without changing the saved visibility setting.
@@ -107,9 +109,10 @@ legacy data compatibility are described in the [compatibility guide](personaliza
 
 ## Platform limits
 
-- Transparent-pixel click-through is implemented for Windows only. macOS rejects
-  transparent pixels inside the app's hit test, but does not pass those clicks
-  through to another application's window.
+- Transparent-pixel click-through is implemented for Windows and macOS. The current
+  displayed frame determines the clickable pet pixels; held drags and reminder
+  controls retain input. Native macOS hit-test evidence and the physical-input /
+  Windows verification boundary are recorded in the [input review](validation/2026-10-05-pet-click-through.md).
 - Reminders use the pet speech bubble, not an OS notification or a separate reminder window.
   Interruption during focused work still needs actual user testing.
 - Windows/macOS login launch, multi-monitor dragging, display changes, suspend,

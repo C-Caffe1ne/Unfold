@@ -1,0 +1,345 @@
+{
+  "success": true,
+  "pets": [
+    {
+      "id": "bori-rabbit",
+      "clips": [
+        {
+          "key": "idle",
+          "frames": 8,
+          "elapsedMs": 2092.6412
+        },
+        {
+          "key": "attention",
+          "frames": 5,
+          "elapsedMs": 1010.8035
+        },
+        {
+          "key": "stretch",
+          "frames": 8,
+          "elapsedMs": 2008.5038
+        },
+        {
+          "key": "celebrate",
+          "frames": 6,
+          "elapsedMs": 1009.8586
+        },
+        {
+          "key": "click",
+          "frames": 8,
+          "elapsedMs": 1616.0432
+        },
+        {
+          "key": "sleep",
+          "frames": 14,
+          "elapsedMs": 7007.706
+        },
+        {
+          "key": "look",
+          "frames": 7,
+          "elapsedMs": 1757.693
+        },
+        {
+          "key": "yawn",
+          "frames": 7,
+          "elapsedMs": 1753.336
+        },
+        {
+          "key": "sulk",
+          "frames": 7,
+          "elapsedMs": 2342.3645
+        },
+        {
+          "key": "walk",
+          "frames": 4,
+          "elapsedMs": 573.2239
+        }
+      ],
+      "canvasStayedFixed": true,
+      "pointerPoseCaptured": true,
+      "heldAndLandingVerified": true,
+      "pointerArt": [
+        "pickup",
+        "held",
+        "land"
+      ],
+      "immediateLandWithoutCanvasMotion": true,
+      "thirdSnoozeVerified": true,
+      "stretchBeforeWalkVerified": true,
+      "completionAndHideStopWalking": true
+    },
+    {
+      "id": "penguin",
+      "clips": [
+        {
+          "key": "idle",
+          "frames": 8,
+          "elapsedMs": 2047.1462
+        },
+        {
+          "key": "attention",
+          "frames": 5,
+          "elapsedMs": 1006.2777
+        },
+        {
+          "key": "stretch",
+          "frames": 8,
+          "elapsedMs": 2010.3282
+        },
+        {
+          "key": "celebrate",
+          "frames": 6,
+          "elapsedMs": 1001.3906
+        },
+        {
+          "key": "click",
+          "frames": 8,
+          "elapsedMs": 1605.6837
+        },
+        {
+          "key": "sleep",
+          "frames": 14,
+          "elapsedMs": 7011.4507
+        },
+        {
+          "key": "look",
+          "frames": 7,
+          "elapsedMs": 1756.5114
+        },
+        {
+          "key": "yawn",
+          "frames": 7,
+          "elapsedMs": 1763.6302
+        },
+        {
+          "key": "sulk",
+          "frames": 7,
+          "elapsedMs": 2342.2851
+        },
+        {
+          "key": "walk",
+          "frames": 4,
+          "elapsedMs": 581.4805
+        }
+      ],
+      "canvasStayedFixed": true,
+      "pointerPoseCaptured": true,
+      "heldAndLandingVerified": true,
+      "pointerArt": [
+        "pickup",
+        "held",
+        "land"
+      ],
+      "immediateLandWithoutCanvasMotion": true,
+      "thirdSnoozeVerified": true,
+      "stretchBeforeWalkVerified": true,
+      "completionAndHideStopWalking": true
+    },
+    {
+      "id": "default-cat",
+      "clips": [
+        {
+          "key": "idle",
+          "frames": 8,
+          "elapsedMs": 2068.8058
+        },
+        {
+          "key": "attention",
+          "frames": 5,
+          "elapsedMs": 1006.3058
+        },
+        {
+          "key": "stretch",
+          "frames": 9,
+          "elapsedMs": 2259.6195
+        },
+        {
+          "key": "celebrate",
+          "frames": 6,
+          "elapsedMs": 1007.9808
+        },
+        {
+          "key": "click",
+          "frames": 8,
+          "elapsedMs": 1603.8649
+        },
+        {
+          "key": "sleep",
+          "frames": 14,
+          "elapsedMs": 7012.8334
+        },
+        {
+          "key": "look",
+          "frames": 7,
+          "elapsedMs": 1758.1745
+        },
+        {
+          "key": "yawn",
+          "frames": 7,
+          "elapsedMs": 1761.5187
+        },
+        {
+          "key": "sulk",
+          "frames": 7,
+          "elapsedMs": 2343.0861
+        },
+        {
+          "key": "walk",
+          "frames": 4,
+          "elapsedMs": 574.3956
+        }
+      ],
+      "canvasStayedFixed": true,
+      "pointerPoseCaptured": true,
+      "heldAndLandingVerified": true,
+      "pointerArt": [
+        "pickup",
+        "held",
+        "land"
+      ],
+      "immediateLandWithoutCanvasMotion": true,
+      "thirdSnoozeVerified": true,
+      "stretchBeforeWalkVerified": true,
+      "completionAndHideStopWalking": true
+    },
+    {
+      "id": "puppy-dog",
+      "clips": [
+        {
+          "key": "idle",
+          "frames": 8,
+          "elapsedMs": 2056.6241
+        },
+        {
+          "key": "attention",
+          "frames": 5,
+          "elapsedMs": 1006.938
+        },
+        {
+          "key": "stretch",
+          "frames": 8,
+          "elapsedMs": 2007.4074
+        },
+        {
+          "key": "celebrate",
+          "frames": 6,
+          "elapsedMs": 1003.3175
+        },
+        {
+          "key": "click",
+          "frames": 8,
+          "elapsedMs": 1608.3269
+        },
+        {
+          "key": "sleep",
+          "frames": 14,
+          "elapsedMs": 7008.6755
+        },
+        {
+          "key": "look",
+          "frames": 7,
+          "elapsedMs": 1758.5795
+        },
+        {
+          "key": "yawn",
+          "frames": 7,
+          "elapsedMs": 1753.7131
+        },
+        {
+          "key": "sulk",
+          "frames": 7,
+          "elapsedMs": 2341.9888
+        },
+        {
+          "key": "walk",
+          "frames": 4,
+          "elapsedMs": 577.8127
+        }
+      ],
+      "canvasStayedFixed": true,
+      "pointerPoseCaptured": true,
+      "heldAndLandingVerified": true,
+      "pointerArt": [
+        "pickup",
+        "held",
+        "land"
+      ],
+      "immediateLandWithoutCanvasMotion": true,
+      "thirdSnoozeVerified": true,
+      "stretchBeforeWalkVerified": true,
+      "completionAndHideStopWalking": true
+    },
+    {
+      "id": "hedgehog",
+      "clips": [
+        {
+          "key": "idle",
+          "frames": 8,
+          "elapsedMs": 2079.6168
+        },
+        {
+          "key": "attention",
+          "frames": 5,
+          "elapsedMs": 1006.0153
+        },
+        {
+          "key": "stretch",
+          "frames": 8,
+          "elapsedMs": 2008.2736
+        },
+        {
+          "key": "celebrate",
+          "frames": 6,
+          "elapsedMs": 1012.1288
+        },
+        {
+          "key": "click",
+          "frames": 8,
+          "elapsedMs": 1608.1792
+        },
+        {
+          "key": "sleep",
+          "frames": 14,
+          "elapsedMs": 7009.8236
+        },
+        {
+          "key": "look",
+          "frames": 7,
+          "elapsedMs": 1758.1907
+        },
+        {
+          "key": "yawn",
+          "frames": 7,
+          "elapsedMs": 1758.3167
+        },
+        {
+          "key": "sulk",
+          "frames": 7,
+          "elapsedMs": 2340.5231
+        },
+        {
+          "key": "walk",
+          "frames": 4,
+          "elapsedMs": 573.675
+        }
+      ],
+      "canvasStayedFixed": true,
+      "pointerPoseCaptured": true,
+      "heldAndLandingVerified": true,
+      "pointerArt": [
+        "pickup",
+        "held",
+        "land"
+      ],
+      "immediateLandWithoutCanvasMotion": true,
+      "thirdSnoozeVerified": true,
+      "stretchBeforeWalkVerified": true,
+      "completionAndHideStopWalking": true
+    }
+  ],
+  "physicalInput": false,
+  "offScreen": true,
+  "realTimePlayback": true,
+  "desktopMovement": false,
+  "images": 120
+}

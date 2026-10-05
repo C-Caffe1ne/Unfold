@@ -92,6 +92,9 @@ public static partial class DesignSystem
         {
             AddButtonState(styles, "timer-control", state, Raised, Cream);
             styles.Add(new Style(s => s.OfType<Button>().Class("unfold-action").Class("timer-control")
+                .Class("danger").Class(state).Template().OfType<ContentPresenter>().Name("PART_ContentPresenter"))
+            { Setters = { new Setter(ContentPresenter.BackgroundProperty, Raised), new Setter(ContentPresenter.ForegroundProperty, Error) } });
+            styles.Add(new Style(s => s.OfType<Button>().Class("unfold-action").Class("timer-control")
                 .Class("primary").Class(state).Template().OfType<ContentPresenter>().Name("PART_ContentPresenter"))
             { Setters = { new Setter(ContentPresenter.BackgroundProperty, Accent), new Setter(ContentPresenter.ForegroundProperty, Ink) } });
         }

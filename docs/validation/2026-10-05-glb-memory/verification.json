@@ -1,0 +1,81 @@
+{
+  "sourceBase": "717a63b68071b8ecb24c75bbfbbaa57e7256039d",
+  "branch": "codex/beta-v1.0.4",
+  "appVersion": "1.0.4-beta",
+  "published": false,
+  "os": "macOS 26.6.2",
+  "framework": ".NET 10.0.12",
+  "modelSha256": "f266ff476889d60a7bd0f9aaa65813c589a97610f072ae7028c07b8946693f09",
+  "coreBeforeSha256": "3473F98CF84AFB0151C39D7A05BB34B8CFD6534330F8C861A710B646EC5828BC",
+  "coreAfterSha256": "ECDEE6A356BDCA4ED8AB9399F8CCEF723AD3523CB10FBD03AB4BC822904B256F",
+  "sourceSha256": "ca340e1d5f18a47aaa8d048c69656043f209468fe76ae6343df77924df7beea5",
+  "renderer": [
+    {
+      "size": 192,
+      "beforeBytesPerFrame": 1897377,
+      "afterBytesPerFrame": 172651,
+      "reductionPercent": 90.90054322361871,
+      "pixelHashesEqual": true
+    },
+    {
+      "size": 384,
+      "beforeBytesPerFrame": 5881370,
+      "afterBytesPerFrame": 615030,
+      "reductionPercent": 89.54274259228717,
+      "pixelHashesEqual": true
+    },
+    {
+      "size": 576,
+      "beforeBytesPerFrame": 12520213,
+      "afterBytesPerFrame": 1352250,
+      "reductionPercent": 89.1994648972825,
+      "pixelHashesEqual": true
+    },
+    {
+      "size": 1024,
+      "beforeBytesPerFrame": 38321660,
+      "afterBytesPerFrame": 4219392,
+      "reductionPercent": 88.98953750959639,
+      "pixelHashesEqual": true
+    }
+  ],
+  "native": [
+    {
+      "scenario": "pet-100",
+      "beforeAverageMiB": 106.46875,
+      "afterAverageMiB": 112.078125,
+      "beforePeakMiB": 134.390625,
+      "afterPeakMiB": 190.5625
+    },
+    {
+      "scenario": "pet-150",
+      "beforeAverageMiB": 161.4501953125,
+      "afterAverageMiB": 102.81640625,
+      "beforePeakMiB": 218.4375,
+      "afterPeakMiB": 118.21875
+    },
+    {
+      "scenario": "pet-and-settings",
+      "beforeAverageMiB": 207.1572265625,
+      "afterAverageMiB": 122.0791015625,
+      "beforePeakMiB": 240.703125,
+      "afterPeakMiB": 151.75
+    },
+    {
+      "scenario": "hidden",
+      "beforeAverageMiB": 87.8525390625,
+      "afterAverageMiB": 51.755859375,
+      "beforePeakMiB": 98.71875,
+      "afterPeakMiB": 61.953125
+    }
+  ],
+  "tests": {
+    "baselineMemoryFailed": 4,
+    "baselineMemoryPassed": 1,
+    "focusedPassed": 23,
+    "fullPassed": 610,
+    "fullFailed": 0,
+    "fullSkipped": 0
+  },
+  "windowsMeasured": false
+}

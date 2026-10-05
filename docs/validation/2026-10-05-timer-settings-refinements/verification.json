@@ -1,0 +1,79 @@
+{
+  "baseline": {
+    "workspace": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "branch": "codex/beta-v1.0.4",
+    "head": "717a63b68071b8ecb24c75bbfbbaa57e7256039d",
+    "projectVersion": "1.0.4-beta",
+    "uncommittedChangesPreserved": true
+  },
+  "tests": {
+    "focusedBeforeFinal": 96,
+    "finalFocused": 19,
+    "fullPassed": 659,
+    "failed": 0,
+    "skipped": 0,
+    "timingDependentTestRepaired": "OriginalCompanionTests.QuickRepeatedClicksDoNotEnterPickupOrLanding"
+  },
+  "native": {
+    "profile": "/tmp/unfold-timer-refinements-final-native.22NBid",
+    "success": true,
+    "screenshotsGenerated": 112,
+    "measurements": {
+      "oneMinutePersisted": true,
+      "version": "Beta v1.0.4",
+      "sidebarSizes": [
+        "1120x800",
+        "640x560"
+      ],
+      "settingsUpdaterOpened": true,
+      "dangerColors": true,
+      "textMotion": {
+        "hoverFormat": "오후 01:08",
+        "hoverAnimated": true,
+        "restAnimated": true,
+        "durationMs": 180,
+        "windowGeometryStable": true
+      },
+      "autoSnoozeSeconds": 30.2894494,
+      "configuredSnoozeMinutes": 3,
+      "pausedStatePreserved": true,
+      "temporaryPetHidden": true,
+      "historyUnchanged": true
+    },
+    "physicalInputVerified": false,
+    "windowsHostVerified": false
+  },
+  "build": {
+    "warnings": 0,
+    "errors": 0,
+    "desktopDllSha256": "a7595c0337cc9387a7fb07c6f618cd9acf272ad697d3cfab54bba064f07dfac5"
+  },
+  "sourceSha256": {
+    "src/Unfold.Core/AppSettings.cs": "92d5057e3e631a06caf9b1c19f5c6bdff23f31692ab9ff8ce688394a7fb95a18",
+    "src/Unfold.Core/Personalization.cs": "261e01a80015e88202308e5c1739dfad2b417633dc084ae48cc8be50d1eebdf5",
+    "src/Unfold.Core/StretchClock.cs": "6d7b2a6224a7ecc2cf3f4c6d444717f566a0eb695630fe6badfd0a9e80ce9096",
+    "src/Unfold.Core/PetReminder.cs": "96bb2f66f835cbc4e3999c1991e2643f743ea8ba1ed0d0a886008ce462667b41",
+    "src/Unfold.Desktop/SettingsWindow.cs": "c974efe8be50c8fb77e32994d30f6bfb2d919941679827135c06054e8d3ac3ac",
+    "src/Unfold.Desktop/SettingsWindow.Layout.cs": "a3fe2bbdc82a94834fe6a8e026b5777f1699e3eeadb6695da75e602ec6ef2ad7",
+    "src/Unfold.Desktop/ProfileEditorWindow.cs": "0412ea91b2e6e6774fcc4cdd92e7a60a01bfac4d507cb304a6db138f20e5fccf",
+    "src/Unfold.Desktop/AccountWindow.axaml": "1748885e00b922386535c6c5a8434d7a9a51c10a05d1c6cd0c789c1126250a86",
+    "src/Unfold.Desktop/TimerControls.cs": "ba8e5fe5dbf52e6a3cf07643bd7e9b6377362db0a62b75d5098e3a81425a2d65",
+    "src/Unfold.Desktop/Ui.cs": "d09036836338fd745722f1a0643689200595b3135109b619d53f20d20f9efe40",
+    "src/Unfold.Desktop/DesignSystem.cs": "eb246c9d234fe08b73f60ef372c911d7e070898dc7e63abd7851da4942a37512",
+    "src/Unfold.Desktop/AppRuntime.cs": "ae276cd49845df99e6e1b7e036cad7e5347abedaffa28ffab56db1964b36c451",
+    "src/Unfold.Desktop/PetSpeechBubble.cs": "3c74d649c1f2b2ca47955d4969a208efbd360ce9c2091a380f8b2beff5067d4b",
+    "src/Unfold.Desktop/AnimatedTimeText.cs": "52eed01e4700d3d7e3cf28620e078bf2da75c74218667822e532261fb72f840e",
+    "Tests/Unfold.Tests/TimerRefinementTests.cs": "f95015a5d4c81605b43dfe6f54302946c5a66fdc6102241b1e15c0624e46b918",
+    "Tests/Unfold.Tests/PetHoverTests.cs": "4dad37f490e77f2dc9d7bb48dec0c8b37a7a2cac1cfbc45255237312e62d6fbd",
+    "Tests/Unfold.Tests/SettingsRecoveryTests.cs": "3c0b525ac8e4b8e17c1ea4af25bb9c908bbc5ee41b0e85284c45eb2576b08b88",
+    "Tests/Unfold.Tests/AccountScreenTests.cs": "dcd7d3586949f6f08a4c65aaa5930d2dd332c4caeb4fe7bb6fb322fef1ed52c3",
+    "Tests/Unfold.Tests/OriginalCompanionTests.cs": "d2744dd9b2a95026e33d8c0f1c489f39fc06e5554084c312d3b747b249261b60",
+    "src/Unfold.Desktop/SmokeDiagnostics.cs": "ff67ec8b527835aa3e4fa8192a2a8211742aa2edbb399d8df54a018d4fa2d7a3",
+    "src/Unfold.Desktop/SmokeDiagnostics.TimerRefinements.cs": "e273691db8d965f23e2cd053f8fbf9adb4a1b5c5d97e167701daa1bca65946cf"
+  },
+  "preservation": {
+    "preExistingDirtyFiles": 116,
+    "outOfScopeMatches": 111,
+    "unexpectedChanges": []
+  }
+}

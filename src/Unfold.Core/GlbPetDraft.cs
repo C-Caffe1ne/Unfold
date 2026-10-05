@@ -13,6 +13,12 @@ public sealed class GlbPetDraft
         "land" => "놓기", "attention" => "휴식 알림", "stretch" => "휴식 시작", "celebrate" => "휴식 완료",
         "walk" => "화면 위 걷기", "sleep" => "잠자기", "look" => "두리번거리기", "yawn" => "하품", "sulk" => "휴식 미루기", _ => key
     };
+    public static bool? RequiredLoop(string action) => action switch
+    {
+        "idle" or "held" or "walk" => true,
+        "pickup" or "land" => false,
+        _ => null
+    };
     private readonly byte[] bytes;
     private Version contentVersion = new(1, 0, 0);
     public GlbModel Model { get; }
@@ -49,8 +55,7 @@ public sealed class GlbPetDraft
         if (!Actions.Contains(action)) throw new InvalidDataException("Unknown GLB pet event.");
         if (clip is null) { if (action == "idle") throw new InvalidDataException("기본 대기 동작을 선택해 주세요."); Mappings.Remove(action); return; }
         if (!Model.Animations.Any(a => a.Name == clip) || !double.IsFinite(speed) || speed is < .25 or > 3) throw new InvalidDataException("Invalid GLB event mapping.");
-        if (action is "pickup" or "land") loop = false;
-        if (action is "idle" or "held" or "walk") loop = true;
+        loop = RequiredLoop(action) ?? loop;
         Mappings[action] = new(ModelClip: clip, Speed: speed, Loop: loop);
     }
     public GlbAnimationFrames Preview(string action)
@@ -59,6 +64,17 @@ public sealed class GlbPetDraft
         return Model.CreateAnimation(clip.ModelClip!, new("model.glb", Heading, RootNode), Mappings["idle"].ModelClip!, clip.Speed);
     }
     public CharacterPackage Save(CharacterLibrary library)
+    {
+        CharacterPackage? installed = null;
+        WritePack(archive =>
+        {
+            using var pack = CharacterPack.Open(archive);
+            installed = library.Install(pack, library.InspectInstall(pack).Revision);
+        });
+        return installed!;
+    }
+    public void Export(string path) => WritePack(archive => AtomicFile.Write(path, ImageCodec.ReadBounded(archive, CharacterPack.MaxArchiveBytes)));
+    private void WritePack(Action<string> complete)
     {
         if (string.IsNullOrWhiteSpace(Name) || Name.Length > 80) throw new InvalidDataException("펫 이름을 1~80자로 입력해 주세요.");
         var root = Path.Combine(Path.GetTempPath(), "Unfold-glb-" + Guid.NewGuid().ToString("N")); var directory = Path.Combine(root, Id);
@@ -76,8 +92,8 @@ public sealed class GlbPetDraft
                 RenderStyle: "smooth", Model: new("model.glb", Heading, RootNode));
             AtomicFile.Write(Path.Combine(directory, "character.json"), JsonSerializer.SerializeToUtf8Bytes(manifest, CharacterLibrary.JsonOptions));
             var archive = Path.Combine(root, "pet.unfoldpet"); CharacterPack.Create(directory, contentVersion.ToString(3), archive);
-            using var pack = CharacterPack.Open(archive); var installed = library.Install(pack, library.InspectInstall(pack).Revision);
-            contentVersion = new(contentVersion.Major, contentVersion.Minor, checked(contentVersion.Build + 1)); return installed;
+            complete(archive);
+            contentVersion = new(contentVersion.Major, contentVersion.Minor, checked(contentVersion.Build + 1));
         }
         finally { if (Directory.Exists(root)) Directory.Delete(root, true); }
     }

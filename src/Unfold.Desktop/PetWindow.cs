@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using Avalonia;
 using PixelPoint = Avalonia.PixelPoint;
 using Avalonia.Controls;
@@ -38,7 +37,7 @@ public sealed partial class PetWindow : Window
     // changes with the bubble layout. Diagnostics and tests read playback state and render
     // the pet through this contract instead of casting Content or walking the visual tree.
     internal AnimationView PetView => animation;
-    private readonly DispatcherTimer hitTimer = new() { Interval = TimeSpan.FromMilliseconds(40) };
+    private readonly DispatcherTimer hitTimer = new() { Interval = TimeSpan.FromMilliseconds(16) };
     private Avalonia.PixelPoint? down;
     private IPointer? pressedPointer;
     private Avalonia.PixelPoint dragAnchor;
@@ -69,16 +68,23 @@ public sealed partial class PetWindow : Window
             catch (Exception error) { await Ui.Error(this, error); }
         };
         menu.Items.Add(settings); menu.Items.Add(hide); ContextMenu = menu;
-        menu.Opened += (_, _) => RefreshSpeech();
-        menu.Closed += (_, _) => RefreshSpeech();
-        // Squash/bounce changes the animation's hit-test transform. Track hover in
-        // the stationary window coordinates so a pose cannot resize the window.
+        menu.Opened += (_, _) => { RefreshSpeech(); UpdateClickThrough(); };
+        menu.Closed += (_, _) => { RefreshSpeech(); UpdateClickThrough(); };
+        // Track hover in stationary window coordinates so animation frames
+        // cannot repeatedly open and close the hover surface.
         PointerEntered += (_, e) => UpdateHover(PetPoint(e.GetPosition(this)));
-        PointerMoved += (_, e) => UpdateHover(PetPoint(e.GetPosition(this)));
-        PointerExited += (_, _) => UpdateHover(null);
+        PointerMoved += (_, e) => { UpdateHover(PetPoint(e.GetPosition(this))); UpdateClickThrough(); };
+        PointerExited += (_, _) =>
+        {
+            // Native click-through can generate Exit while still over a
+            // transparent pixel inside the pet. Keep hover geometry stable.
+            UpdateHover(TryGetNativePointer(out var point) ? PetPoint(point) : null);
+        };
+        AddHandler(PointerPressedEvent, (_, e) => interactionPointer = e.Pointer, Avalonia.Interactivity.RoutingStrategies.Tunnel);
+        AddHandler(PointerReleasedEvent, (_, _) => interactionPointer = null, Avalonia.Interactivity.RoutingStrategies.Bubble, handledEventsToo: true);
         animation.PointerPressed += (_, e) =>
         {
-            if (down is not null || !e.GetCurrentPoint(animation).Properties.IsLeftButtonPressed || !animation.OpaqueAt(e.GetPosition(animation))) return;
+            if (down is not null || !e.GetCurrentPoint(animation).Properties.IsLeftButtonPressed || !animation.OpaqueAt(e.GetPosition(animation), includeEdgeTolerance: false)) return;
             down = PointerScreenPosition(e);
             dragAnchor = PetAnchor; pressedAt = Stopwatch.GetTimestamp(); dragging = false;
             BeginCompanionPress();
@@ -228,7 +234,7 @@ public sealed partial class PetWindow : Window
     public void ShowPet()
     {
         MacPetWindow.Apply(this);
-        Show(); RefreshSpeech(); lastCompanionTick = Stopwatch.GetTimestamp(); hitTimer.Start(); animation.SetRunning(true);
+        Show(); RefreshSpeech(); UpdateClickThrough(); lastCompanionTick = Stopwatch.GetTimestamp(); hitTimer.Start(); animation.SetRunning(true);
         if (originalStretchSession is not null && !reacting && !pressed) _ = React("stretch");
     }
     public void HidePet() { hoveringPet = false; InvalidatePlayback(); ResetCompanion(); character = null; Hide(); hitTimer.Stop(); animation.SetRunning(false); RefreshSpeech(); }
@@ -290,7 +296,7 @@ public sealed partial class PetWindow : Window
     {
         if (down is not null) return;
         // Enter on painted pixels, then retain hover over the stable pet area.
-        // Frame changes and click poses must not close/reopen the native surface.
+        // Frame changes must not close/reopen the native surface.
         var hovered = IsVisible && point is { } local && new Rect(animation.Bounds.Size).Contains(local) &&
             (hoveringPet || animation.OpaqueAt(local));
         if (hoveringPet == hovered) return;
@@ -328,30 +334,5 @@ public sealed partial class PetWindow : Window
         }
         var work = screen.WorkingArea; var width = (int)(Width * DesktopScaling); var height = (int)(Height * DesktopScaling);
         Position = new(Math.Clamp(Position.X, work.X, Math.Max(work.X, work.Right - width)), Math.Clamp(Position.Y, work.Y, Math.Max(work.Y, work.Bottom - height)));
-    }
-    [StructLayout(LayoutKind.Sequential)] private struct CursorPoint { public int X, Y; }
-    [DllImport("user32.dll")] [return: MarshalAs(UnmanagedType.Bool)] private static extern bool GetCursorPos(out CursorPoint point);
-    [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW")] private static extern nint GetWindowLong(nint hwnd, int index);
-    [DllImport("user32.dll", EntryPoint = "SetWindowLongPtrW")] private static extern nint SetWindowLong(nint hwnd, int index, nint value);
-    internal static bool HasWindowsHandle(Avalonia.Platform.IPlatformHandle? handle) =>
-        handle is { HandleDescriptor: "HWND" } && handle.Handle != 0;
-
-    private void UpdateClickThrough()
-    {
-        if (!OperatingSystem.IsWindows() || down is not null) return;
-        // Only native Windows surfaces may poll the OS pointer or mutate styles.
-        // Headless surfaces route synthetic input independently of the desktop cursor.
-        var handle = TryGetPlatformHandle();
-        if (!HasWindowsHandle(handle)) return;
-        var hwnd = handle!.Handle;
-        if (!GetCursorPos(out var point)) return;
-        var cursor = new PixelPoint(point.X, point.Y);
-        // A click-through window may not receive Enter until the pointer moves again.
-        UpdateHover(PetPoint(this.PointToClient(cursor)));
-        var onBubble = bubble.IsVisible && bubble.IsHitTestVisible && new Rect(bubble.Bounds.Size).Contains(bubble.PointToClient(cursor));
-        var ignore = !onBubble && !animation.OpaqueAt(animation.PointToClient(cursor));
-        if (ignore == clickThrough) return;
-        var style = (long)GetWindowLong(hwnd, -20);
-        SetWindowLong(hwnd, -20, (nint)(ignore ? style | 0x20 : style & ~0x20)); clickThrough = ignore;
     }
 }

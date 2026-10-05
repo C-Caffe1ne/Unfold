@@ -220,7 +220,7 @@ public static class Ui
         {
             var button = ModalButton(Button(choice, () => { result = index; dialog.Close(); }));
             if (choice is "취소" or "Cancel") { button.IsCancel = true; Quiet(button); }
-            if (choice.Contains("삭제") || choice is "버리기" or "Delete" or "Discard" or "Crop") Danger(button);
+            if (choice.Contains("삭제") || choice is "버리기" or "종료" or "중지" or "저장 안 함" or "초기화" or "Delete" or "Discard" or "Crop") Danger(button);
             else if (index == 0) Primary(button);
             if (choices.Length == 1) button.IsDefault = true;
             return button;

@@ -96,12 +96,11 @@ public class UiAuditRegressionTests
         {
             Press(owner, "CustomPetFile_idle"); await Until(() => !view.IsBusy);
             Press(owner, "CustomPetFile_stretch"); await Until(() => !view.IsBusy);
-            var hint = Find<TextBlock>(owner, "CustomPetPreviewHint");
-            Assert.False(hint.IsVisible);
-            Assert.Contains("휴식", Find<TextBlock>(owner, "CustomPetPreviewAction").Text);
-            Press(owner, "CustomPetRemove_idle"); Assert.False(hint.IsVisible);
-            Assert.Contains("휴식", Find<TextBlock>(owner, "CustomPetPreviewAction").Text);
-            Press(owner, "CustomPetRemove_stretch"); Assert.False(hint.IsVisible);
+            Assert.DoesNotContain(owner.GetVisualDescendants().OfType<TextBlock>(), text => text.Name == "CustomPetPreviewHint");
+            Assert.Equal("stretch", Find<ComboBox>(owner, "CustomPetSelectedAction").SelectedItem);
+            Press(owner, "CustomPetRemove_idle");
+            Assert.Equal("stretch", Find<ComboBox>(owner, "CustomPetSelectedAction").SelectedItem);
+            Press(owner, "CustomPetRemove_stretch");
         }
         finally { owner.Close(); }
     }

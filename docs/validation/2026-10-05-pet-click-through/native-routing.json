@@ -1,0 +1,86 @@
+[
+  {
+    "mode": "2D",
+    "local": {
+      "X": 5,
+      "Y": 5
+    },
+    "accepts": false,
+    "ignores": true,
+    "selected": 24773,
+    "petId": 24774,
+    "hostId": 24773,
+    "below": 24773,
+    "success": true
+  },
+  {
+    "mode": "2D",
+    "local": {
+      "X": 96,
+      "Y": 96
+    },
+    "accepts": false,
+    "ignores": true,
+    "selected": 24773,
+    "petId": 24774,
+    "hostId": 24773,
+    "below": 24773,
+    "success": true
+  },
+  {
+    "mode": "2D",
+    "local": {
+      "X": 60,
+      "Y": 60
+    },
+    "accepts": true,
+    "ignores": false,
+    "selected": 24774,
+    "petId": 24774,
+    "hostId": 24773,
+    "below": 24773,
+    "success": true
+  },
+  {
+    "mode": "GLB",
+    "local": {
+      "X": 5,
+      "Y": 5
+    },
+    "accepts": false,
+    "ignores": true,
+    "selected": 24773,
+    "petId": 24774,
+    "hostId": 24773,
+    "below": 24773,
+    "success": true
+  },
+  {
+    "mode": "GLB",
+    "local": {
+      "X": 96,
+      "Y": 96
+    },
+    "accepts": true,
+    "ignores": false,
+    "selected": 24774,
+    "petId": 24774,
+    "hostId": 24773,
+    "below": 24773,
+    "success": true
+  },
+  {
+    "mode": "GLB",
+    "local": {
+      "X": 73,
+      "Y": 60
+    },
+    "accepts": true,
+    "ignores": false,
+    "selected": 24774,
+    "petId": 24774,
+    "hostId": 24773,
+    "below": 24773,
+    "success": true
+  }
+]

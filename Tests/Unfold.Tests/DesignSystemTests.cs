@@ -159,31 +159,18 @@ public class DesignSystemTests
         Layout(window);
         Find<TabControl>(window, "PetManagementTabs").SelectedIndex = 1; Layout(window);
         string[] controls = ["CustomPetName", "CustomPetFile_idle", "CustomPetRemove_idle",
-            "CustomPetPreview_idle", "CustomPetFile_click"];
+            "CustomPetPreview_idle"];
         foreach (var size in new[] { new Size(1120, 800), new Size(990, 740), new Size(860, 680) })
         {
             window.Width = size.Width; window.Height = size.Height; Layout(window);
             Assert.Equal(size.Width, window.ClientSize.Width, 0); Assert.Equal(size.Height, window.ClientSize.Height, 0);
             if (size.Width == 1120)
             {
-                Assert.Equal(320, Find<TextBox>(window, "CustomPetName").Bounds.Width, 0);
-                Assert.DoesNotContain(window.GetVisualDescendants().OfType<Button>(), button => button.Name == "ImportPetMedia");
-                var slotOrigins = CustomPetDraft.Actions.Select(key =>
-                    Find<Border>(window, "CustomPetSlot_" + key).TranslatePoint(default, window)!.Value).ToArray();
-                Assert.All(slotOrigins, origin => Assert.InRange(Math.Abs(origin.X - slotOrigins[0].X), 0, .5));
-                for (var index = 1; index < slotOrigins.Length; index++) Assert.True(slotOrigins[index].Y > slotOrigins[index - 1].Y);
-                var preview = Find<Border>(window, "CustomPetPreviewSurface");
-                var previewOrigin = preview.TranslatePoint(default, window)!.Value;
-                Assert.True(previewOrigin.Y + preview.Bounds.Height < slotOrigins[0].Y);
-                var bodyScroll = Find<ScrollViewer>(window, "PageBodyScroll");
-                var bodyOrigin = bodyScroll.TranslatePoint(default, window)!.Value;
-                foreach (var key in CustomPetDraft.Actions)
-                {
-                    var remove = Find<Button>(window, "CustomPetRemove_" + key);
-                    var removeOrigin = remove.TranslatePoint(default, window)!.Value;
-                    Assert.True(removeOrigin.X + remove.Bounds.Width <= bodyOrigin.X + bodyScroll.Viewport.Width + .5,
-                        $"{key} action controls are clipped in the default settings layout.");
-                }
+                Assert.Single(Find<StackPanel>(window, "CustomPetActionSlots").Children, card => card.IsVisible);
+                var workspace = Find<PetEditorWorkspace>(window, "CustomPetWorkspace");
+                Assert.Equal(2, Grid.GetColumn(Find<StackPanel>(window, "CustomPetActionPane")));
+                Assert.True(Find<TextBox>(window, "CustomPetName").Bounds.Width >= workspace.Bounds.Width - 1);
+
             }
             var pageScroll = PageBodyScrollGeometry.Scroll(window);
             if (pageScroll.Extent.Height > pageScroll.Viewport.Height + 1)

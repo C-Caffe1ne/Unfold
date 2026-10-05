@@ -48,7 +48,7 @@ public sealed partial class SettingsWindow : Window, IDisposable
         TransparencyLevelHint = [WindowTransparencyLevel.Transparent];
         TransparencyBackgroundFallback = DesignSystem.Canvas;
         Background = Brushes.Transparent;
-        interval = new NumericUpDown { Name = "ReminderInterval", Minimum = 5, Maximum = 240, Value = runtime.Settings.IntervalMinutes, Increment = 1, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch, FormatString = "0" };
+        interval = new NumericUpDown { Name = "ReminderInterval", Minimum = 1, Maximum = 240, Value = runtime.Settings.IntervalMinutes, Increment = 1, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch, FormatString = "0" };
         breakDuration = new NumericUpDown { Name = "BreakDurationMinutes", Minimum = 1, Maximum = 10, Value = runtime.Settings.BreakDurationMinutes, Increment = 1, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch, FormatString = "0" };
         idle = new NumericUpDown { Name = "ReminderIdle", Minimum = 1, Maximum = 60, Value = runtime.Settings.IdleMinutes, Increment = 1, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch, FormatString = "0" };
         snooze = new NumericUpDown { Name = "SnoozeMinutes", Minimum = 1, Maximum = 60, Value = runtime.Settings.SnoozeMinutes, Increment = 1, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch, FormatString = "0" };
@@ -68,7 +68,7 @@ public sealed partial class SettingsWindow : Window, IDisposable
         homeTimingApply.Click += async (_, _) =>
         {
             if (savingHomeTiming || !homeTimingApply.IsEnabled ||
-                !TryReadHomeMinutes(interval, 5, 240, out var minutes) ||
+                !TryReadHomeMinutes(interval, 1, 240, out var minutes) ||
                 !TryReadHomeMinutes(breakDuration, 1, 10, out var rest)) return;
             await SaveHomeTimingSettings(minutes, rest);
         };
@@ -159,7 +159,7 @@ public sealed partial class SettingsWindow : Window, IDisposable
     }
     private void RefreshHomeTimingState()
     {
-        var validInterval = TryReadHomeMinutes(interval, 5, 240, out var minutes);
+        var validInterval = TryReadHomeMinutes(interval, 1, 240, out var minutes);
         var validRest = TryReadHomeMinutes(breakDuration, 1, 10, out var rest);
         var changed = !validInterval || !validRest || minutes != runtime.Settings.IntervalMinutes || rest != runtime.Settings.BreakDurationMinutes;
         homeTimingApply.Opacity = changed ? 1 : 0;
@@ -237,7 +237,7 @@ public sealed partial class SettingsWindow : Window, IDisposable
             var canEditInterval = runtime.CanEditTimerInterval;
             interval.IsEnabled = canEditInterval;
             var discardedInterval = !canEditInterval &&
-                (!TryReadHomeMinutes(interval, 5, 240, out var pendingInterval) || pendingInterval != runtime.Settings.IntervalMinutes);
+                (!TryReadHomeMinutes(interval, 1, 240, out var pendingInterval) || pendingInterval != runtime.Settings.IntervalMinutes);
             if (discardedInterval)
             {
                 interval.Value = runtime.Settings.IntervalMinutes;

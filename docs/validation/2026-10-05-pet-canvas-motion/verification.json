@@ -1,0 +1,57 @@
+{
+  "worktree": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+  "branch": "codex/beta-v1.0.4",
+  "head": "717a63b68071b8ecb24c75bbfbbaa57e7256039d",
+  "version": "1.0.4-beta",
+  "fullTests": {
+    "passed": 630,
+    "failed": 0,
+    "skipped": 0
+  },
+  "focusedTests": {
+    "passed": 8,
+    "failed": 0,
+    "skipped": 0
+  },
+  "preChangeRegressionFailures": 2,
+  "macOSNativeOriginals": {
+    "success": true,
+    "petCount": 5,
+    "canvasStayedFixed": true,
+    "physicalInput": false,
+    "offScreen": true
+  },
+  "macOSNativeGlb": {
+    "success": true,
+    "model": "Kazusa.glb",
+    "pointerCanvasVerified": true,
+    "physicalInput": false
+  },
+  "sourceAndAssemblySha256": {
+    "src/Unfold.Desktop/PetWindow.PointerArt.cs": "780b1513b0fb7a74efb1abd023bf0602b25541253247f5a78dc078ac6c512dc2",
+    "src/Unfold.Desktop/PetWindow.Companion.cs": "5d6e455e4df48efa15cacc37dea0581145b131fac4ead01d83f31165b7fe3be9",
+    "src/Unfold.Desktop/PetMotion.cs": "a29964db78df8065b7a64da4d07fa36a10d455ca2fd23fb5f0cdf0fc2c6508a4",
+    "src/Unfold.Desktop/PetWindow.cs": "ca93fd6e888b24f4b01d2defa3a48794f8e2922c9b6132efe09a7fcb5a7f490e",
+    "src/Unfold.Desktop/AnimationView.cs": "0b8eff6bacf7a04b43bf9b8e9cb1f181992f47408e45dadcc5a99d664e545277",
+    "src/Unfold.Desktop/OriginalCompanionDiagnostics.cs": "f89ccb00b6c7c83e2c0ecb6c02020e3b10457a4bb7efcbcb49605dee1ed08146",
+    "src/Unfold.Desktop/GlbDiagnostics.cs": "f0bbdf09053879314dc410b28d6faf5fe3d110bf7bf478ded56a35404ffbd95d",
+    "Tests/Unfold.Tests/OriginalCompanionTests.cs": "157bdf1d6a7bcc08ddb156853b3a9a28428268aab61348669e8162a01058794c",
+    "Tests/Unfold.Tests/GlbTests.cs": "aca2fe26fdd50849f46f9532d973a2d415df81170f9c8f25e930c2cc2145e9ea",
+    "Tests/Unfold.Tests/CustomPetInteractionTests.cs": "24ab3b005f3ce8fb75ba2114d1b570f74876837ad665cded84602e77d0692cb4",
+    "Tests/Unfold.Tests/AnimationRenderingTests.cs": "981b8e322c3eab0ab9cf021eed574c895cfb107b55a63970e28e079fa3721441",
+    "src/Unfold.Desktop/bin/Release/net10.0/Unfold.dll": "c6f284c28570208c9b09ce88c7b676a4d0220b81f3340f085d88623fcc10d4b4",
+    "src/Unfold.Core/bin/Release/net10.0/Unfold.Core.dll": "fd98257d98d81c4f0070f35c46c1da1bc1ebe2971d13de4fb0df80a42ff672ae",
+    "Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll": "5d4f94534ec09939dfa913458ef06e4da183103809afb4826eaa23c2615d5fe5"
+  },
+  "evidenceSha256": {
+    "original-pets.json": "c10413efb8c9ae1fde34a20a2b575593a55dabcd7adbb1913922c225c62c7701",
+    "glb-result.json": "28dd931820c8f6da4b35b8bb9a7f35cf390f90ecf8fd1c7905dd3891838bcf3e",
+    "glb-held.png": "f6da40dc3585140a01051cc2cb55abb07ba739679d448f77fd66c9f5e8f00cf2",
+    "glb-release.png": "b71689edf70b8c3d3349090df2c6237f91f2554beb854ea811add62d47a0edfc",
+    "bori-held.png": "aaa9ef7c3b658060d8858080d62dc9f5b38a32588000ddebdc4b1057423eefd2",
+    "bori-release.png": "00cbd5e17420ea1c40bd3c1cf0669be35d8e1ec41b30be0acbedebc6fdf20c72",
+    "before-tests.log": "8fc1b6afe43645948c19f25b7b7ccacca3028e379eb6f3a4186c4adc7cbf74ce",
+    "targeted-tests.log": "6ccd865c13fa17b680461eee7ed634e84974e2a1f386e437ff359b9c8d942128",
+    "full-tests.log": "4f1ffabe36a58046f226f09644c65b228df966f4cd3c5d7832583568d2b02eff"
+  }
+}

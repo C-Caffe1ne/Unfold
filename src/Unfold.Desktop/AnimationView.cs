@@ -167,8 +167,8 @@ public sealed class AnimationView : Control, IDisposable
     }
     private void UpdatePoseTransform()
     {
-        // Keep the recorded image geometry fixed. Let the compositor move the visual
-        // and invalidate its old and new extents, including during a press/release.
+        // Keep recorded frame geometry stable when changing the static pose or
+        // walking direction; pointer events never animate this transform.
         var sx = pose.ScaleX * (facingLeft ? -1 : 1);
         var anchorX = Bounds.Width / 2;
         var anchorY = Bounds.Height * .90;
@@ -194,7 +194,8 @@ public sealed class AnimationView : Control, IDisposable
                 { left = Math.Min(left, x); right = Math.Max(right, x); bottom = y; }
         return bottom < 0 ? default : new Point((image.Width - left - right - 1) / 2d, image.Height * .90 - bottom - 1);
     }
-    public bool OpaqueAt(Point point)
+    public bool OpaqueAt(Point point) => OpaqueAt(point, includeEdgeTolerance: true);
+    public bool OpaqueAt(Point point, bool includeEdgeTolerance)
     {
         if (frames.Count == 0) return false;
         // Pointer coordinates are already converted into this visual's local space
@@ -202,7 +203,7 @@ public sealed class AnimationView : Control, IDisposable
         var rect = ImageRect(); if (!rect.Contains(point) || rect.Width <= 0) return false;
         var image = liveImage ?? frames[index].Image;
         var x = (int)((point.X - rect.X) / rect.Width * image.Width); var y = (int)((point.Y - rect.Y) / rect.Height * image.Height);
-        var radius = Math.Max(1, (int)Math.Ceiling(2 * image.Width / rect.Width));
+        var radius = includeEdgeTolerance ? Math.Max(1, (int)Math.Ceiling(2 * image.Width / rect.Width)) : 0;
         for (var py = Math.Max(0, y - radius); py <= Math.Min(image.Height - 1, y + radius); py++)
             for (var px = Math.Max(0, x - radius); px <= Math.Min(image.Width - 1, x + radius); px++)
                 if (image.Pixels[py * image.Width + px] >> 24 >= 26) return true;

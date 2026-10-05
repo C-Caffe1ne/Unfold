@@ -1,0 +1,27 @@
+  Unfold.Core -> /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/src/Unfold.Core/bin/Release/net10.0/Unfold.Core.dll
+  Unfold.Desktop -> /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/src/Unfold.Desktop/bin/Release/net10.0/Unfold.dll
+  Unfold.Tests -> /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll
+/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll(.NETCoreApp,Version=v10.0)에 대한 테스트 실행
+지정된 패턴과 일치한 총 테스트 파일 수는 1개입니다.
+[xUnit.net 00:00:02.42]     Unfold.Tests.OriginalCompanionTests.PointerInteractionsKeepCanvasAtIdentity(pointerArt: False) [FAIL]
+[xUnit.net 00:00:02.45]     Unfold.Tests.OriginalCompanionTests.PointerInteractionsKeepCanvasAtIdentity(pointerArt: True) [FAIL]
+  실패 Unfold.Tests.OriginalCompanionTests.PointerInteractionsKeepCanvasAtIdentity(pointerArt: False) [339 ms]
+  오류 메시지:
+   Assert.Equal() Failure: Values differ
+Expected: PetPose { ScaleX = 1, ScaleY = 1, Lift = 0 }
+Actual:   PetPose { ScaleX = 1.12, ScaleY = 0.82, Lift = 0 }
+  스택 추적:
+     at Unfold.Tests.OriginalCompanionTests.<>c__DisplayClass20_0.<PointerInteractionsKeepCanvasAtIdentity>g__FixedCanvas|0() in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/OriginalCompanionTests.cs:line 472
+   at Unfold.Tests.OriginalCompanionTests.PointerInteractionsKeepCanvasAtIdentity(Boolean pointerArt) in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/OriginalCompanionTests.cs:line 477
+--- End of stack trace from previous location ---
+  실패 Unfold.Tests.OriginalCompanionTests.PointerInteractionsKeepCanvasAtIdentity(pointerArt: True) [25 ms]
+  오류 메시지:
+   Assert.Equal() Failure: Values differ
+Expected: PetPose { ScaleX = 1, ScaleY = 1, Lift = 0 }
+Actual:   PetPose { ScaleX = 1, ScaleY = 1, Lift = 0.048104956268221574 }
+  스택 추적:
+     at Unfold.Tests.OriginalCompanionTests.<>c__DisplayClass20_0.<PointerInteractionsKeepCanvasAtIdentity>g__FixedCanvas|0() in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/OriginalCompanionTests.cs:line 472
+   at Unfold.Tests.OriginalCompanionTests.PointerInteractionsKeepCanvasAtIdentity(Boolean pointerArt) in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/OriginalCompanionTests.cs:line 477
+--- End of stack trace from previous location ---
+
+실패!  - 실패:     2, 통과:     0, 건너뜀:     0, 전체:     2, 기간: 387 ms - Unfold.Tests.dll (net10.0)

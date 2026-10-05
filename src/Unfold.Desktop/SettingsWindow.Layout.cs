@@ -98,8 +98,13 @@ public sealed partial class SettingsWindow
         SelectNavigation("dashboard");
         var links = Ui.Column(timer, pets, review, BuildThemeButton()); links.Name = "SettingsNavigationLinks";
         links.Spacing = 12; rail.Children.Add(links);
-        var quit = Nav("SettingsQuit", "종료", "exit", runtime.Quit);
-        var bottom = Ui.Column(settings, quit); bottom.Spacing = 12;
+        var quit = Ui.Danger(Nav("SettingsQuit", "종료", "exit", runtime.Quit));
+        var version = new TextBlock { Name = "SidebarVersion", Text = AppRelease.DisplayVersion.Replace(" ", "\n"),
+            FontSize = 10, Foreground = Muted, TextAlignment = TextAlignment.Center,
+            HorizontalAlignment = HorizontalAlignment.Stretch, TextTrimming = TextTrimming.CharacterEllipsis };
+        AutomationProperties.SetName(version, AppRelease.DisplayVersion);
+        ToolTip.SetTip(version, AppRelease.DisplayVersion);
+        var bottom = Ui.Column(settings, quit, version); bottom.Spacing = 12;
         Grid.SetRow(bottom, 1); rail.Children.Add(bottom);
         return new Border { Background = Surface, CornerRadius = new(28), Child = rail };
     }
@@ -250,7 +255,7 @@ public sealed partial class SettingsWindow
 
     private Control BuildPreferencesPage()
     {
-        preferencesSections = Ui.Column(BuildNotificationSettingsCard(), BuildTimerSettingsCard(), BuildAppBehaviorCard(), BuildAccountCard(), BuildDebugSettingsCard());
+        preferencesSections = Ui.Column(BuildNotificationSettingsCard(), BuildTimerSettingsCard(), BuildAppBehaviorCard(), BuildAppInfoCard(), BuildAccountCard(), BuildDebugSettingsCard());
         preferencesSections.Name = "SettingsPreferencesSections"; preferencesSections.Spacing = Inset;
         var body = Ui.CenteredBody(preferencesSections, SettingsContentWidth, "SettingsPreferencesBody");
         var scroll = Ui.PageBodyScroll(body); scroll.Name = "SettingsPreferencesScroll";
@@ -275,10 +280,21 @@ public sealed partial class SettingsWindow
         return Card("SettingsAppBehaviorCard", body, Surface, new(28));
     }
 
+    private Border BuildAppInfoCard()
+    {
+        var version = SettingsLabel(AppRelease.DisplayVersion); version.Name = "SettingsAppVersion";
+        var update = Ui.Button("업데이트 확인", runtime.ShowUpdates); update.Name = "SettingsCheckUpdates";
+        update.Height = SettingsControlHeight;
+        var row = new Grid { ColumnDefinitions = new("*,16,Auto") };
+        row.Children.Add(version); Grid.SetColumn(update, 2); row.Children.Add(update);
+        var body = Ui.Column(SettingsHeading("앱 정보"), row); body.Spacing = Inset; body.Margin = new(Inset);
+        return Card("SettingsAppInfoCard", body, Surface, new(28));
+    }
+
     private Border BuildAccountCard()
     {
         var copy = runtime.AccountContent.Copy;
-        accountSignOut = Ui.Quiet(Ui.Action(copy.SignOutButton));
+        accountSignOut = Ui.Danger(Ui.Quiet(Ui.Action(copy.SignOutButton)));
         accountSignOut.Click += async (_, _) => { await runtime.SignOut(); RefreshAccount(); };
         accountSignOut.Name = "SignOutAccount"; accountSignOut.Width = SettingsActionWidth; accountSignOut.Height = SettingsControlHeight;
         accountEmail = SettingsLabel(""); accountEmail.Name = "SettingsAccountEmail";

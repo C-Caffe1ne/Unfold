@@ -11,12 +11,14 @@ namespace Unfold.Desktop;
 
 public sealed class PetSpeechBubble : Border
 {
-    private readonly TextBlock title = Ui.Text("", DesignSystem.Section), timer = Ui.Text("", DesignSystem.SpeechTimerSize);
+    private readonly TextBlock title = Ui.Text("", DesignSystem.Section);
+    private readonly AnimatedTimeText timer = new() { FontSize = DesignSystem.SpeechTimerSize };
     private readonly Button start, snooze, complete;
     private readonly Grid invitation = new() { ColumnDefinitions = new("*,8,*") };
     private readonly Grid reminderBody;
     private readonly StackPanel hoverBody;
-    private readonly TextBlock currentTime = Ui.Text("", DesignSystem.Title), remaining = Ui.Text("", DesignSystem.Body);
+    private readonly AnimatedTimeText currentTime = new() { FontSize = DesignSystem.Title, Foreground = DesignSystem.Cream },
+        remaining = new() { FontSize = DesignSystem.Body };
 
     public PetSpeechBubble(Action startBreak, Action snoozeBreak, Action completeBreak)
     {
@@ -50,9 +52,15 @@ public sealed class PetSpeechBubble : Border
         hoverBody.Children.Add(currentTime); hoverBody.Children.Add(remaining);
         var content = new Grid(); content.Children.Add(reminderBody); content.Children.Add(hoverBody);
         Child = content; AutomationProperties.SetName(this, "펫의 스트레칭 알림");
+        PropertyChanged += (_, e) =>
+        {
+            if (e.Property == IsVisibleProperty && !IsVisible)
+            { currentTime.StopMotion(); remaining.StopMotion(); timer.StopMotion(); }
+        };
     }
     public void Refresh(PetReminder reminder, int snoozeMinutes)
     {
+        currentTime.StopMotion(); remaining.StopMotion();
         Width = DesignSystem.SpeechBubbleWidth; reminderBody.IsVisible = true; hoverBody.IsVisible = false;
         IsHitTestVisible = true; AutomationProperties.SetName(this, "펫의 스트레칭 알림");
         Height = reminder.Notice switch
@@ -75,19 +83,20 @@ public sealed class PetSpeechBubble : Border
         complete.IsVisible = timer.IsVisible = reminder.Notice == PetNotice.Resting;
         complete.IsEnabled = session?.State is BreakSessionState.InProgress or BreakSessionState.AwaitingConfirmation;
         snooze.Content = $"{snoozeMinutes}분 뒤에";
-        timer.Text = session is null ? "" : PetReminder.TimerText(session);
+        timer.UpdateValue(session is null ? "" : PetReminder.TimerText(session), reminder.Notice == PetNotice.Resting);
         timer.Foreground = session?.Remaining < TimeSpan.Zero ? DesignSystem.Warning : DesignSystem.Cream;
         AutomationProperties.SetName(timer, "휴식 타이머 " + timer.Text);
     }
     internal void RefreshHover(DateTime now, StretchClock clock)
     {
+        timer.StopMotion();
         Width = DesignSystem.SpeechHoverWidth; Height = DesignSystem.SpeechHoverHeight;
         reminderBody.IsVisible = false; hoverBody.IsVisible = true; IsHitTestVisible = false;
-        currentTime.Text = now.ToString("HH:mm:ss", CultureInfo.InvariantCulture);
+        currentTime.UpdateValue(now.ToString("tt hh:mm", CultureInfo.GetCultureInfo("ko-KR")));
         var duration = clock.Stopped ? clock.Interval : clock.Remaining;
         var time = $"{(int)duration.TotalMinutes:00}:{duration.Seconds:00}";
         var state = clock.Stopped ? " · 중지" : clock.Paused ? " · 일시정지" : clock.IdlePaused ? " · 자리 비움" : "";
-        remaining.Text = $"스트레칭 {time}{state}";
+        remaining.UpdateValue($"스트레칭 {time}{state}", !clock.Stopped && !clock.Paused && !clock.IdlePaused);
         AutomationProperties.SetName(this, "현재 시각과 스트레칭 남은 시간");
     }
     internal void FocusAction() => (complete.IsVisible ? complete : start).Focus(Avalonia.Input.NavigationMethod.Tab);

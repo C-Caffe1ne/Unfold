@@ -46,11 +46,11 @@ public class PetHoverTests
             window.Show();
             var now = new DateTime(2026, 9, 23, 23, 59, 59);
             bubble.RefreshHover(now, clock); Layout(window);
-            Assert.Equal("23:59:59", Text(window, "PetHoverTime").Text);
+            Assert.Equal("오후 11:59", Text(window, "PetHoverTime").Text);
             Assert.Equal("스트레칭 240:00", Text(window, "PetHoverRemaining").Text);
             clock.Tick(TimeSpan.FromSeconds(1), TimeSpan.Zero, TimeSpan.FromMinutes(5));
             bubble.RefreshHover(now.AddSeconds(1), clock);
-            Assert.Equal("00:00:00", Text(window, "PetHoverTime").Text);
+            Assert.Equal("오전 12:00", Text(window, "PetHoverTime").Text);
             Assert.Equal("스트레칭 239:59", Text(window, "PetHoverRemaining").Text);
             clock.TogglePause(TimeSpan.FromSeconds(1));
             clock.Tick(TimeSpan.FromSeconds(5), TimeSpan.Zero, TimeSpan.FromMinutes(5));
@@ -227,12 +227,14 @@ public class PetHoverTests
         await scope.Runtime.UpdateSettings(scope.Runtime.Settings with { BubbleDirection = BubbleDirection.Top });
         Layout(pet);
         var before = pet.PetAnchor;
-        var point = pet.PetView.TranslatePoint(new(96, 96), pet)!.Value;
+        var local = (from y in Enumerable.Range(1, 191) from x in Enumerable.Range(1, 191)
+            let sample = new Point(x, y) where pet.PetView.OpaqueAt(sample, includeEdgeTolerance: false) select sample).First();
+        var point = pet.PetView.TranslatePoint(local, pet)!.Value;
         // Enter queues the hover layout; pressing may arrive before that callback.
         pet.MouseDown(point, MouseButton.Left);
         Layout(pet);
         Assert.True(scope.Bubble.IsVisible);
-        var movedPoint = pet.PetView.TranslatePoint(new(121, 96), pet)!.Value;
+        var movedPoint = pet.PetView.TranslatePoint(local + new Vector(25, 0), pet)!.Value;
         pet.MouseMove(movedPoint); Layout(pet);
         Assert.Equal(new PixelPoint(before.X + 25, before.Y), pet.PetAnchor);
         pet.MouseUp(movedPoint, MouseButton.Left);

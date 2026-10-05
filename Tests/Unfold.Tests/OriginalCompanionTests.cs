@@ -116,22 +116,25 @@ public class OriginalCompanionTests
         }
     }
 
-    [Theory]
+    [AvaloniaTheory]
     [InlineData(.06)] [InlineData(.10)] [InlineData(.18)] [InlineData(.22)]
-    public void ShortPressKeepsTheOriginalSquash(double seconds)
+    public async Task ShortPressKeepsTheCanvasFixed(double seconds)
     {
-        Assert.Equal(PetPose.Press(seconds), PetPose.Hold(seconds, PetPose.Neutral));
+        using var scope = new Scope(); await scope.Select(original: true);
+        scope.Pet.BeginCompanionPress(); scope.Pet.AdvanceCompanion(seconds);
+        Assert.Equal(PetPose.Neutral, scope.Pet.PetView.Pose);
+        Assert.Equal(Matrix.Identity, scope.Pet.PetView.RenderTransform?.Value ?? Matrix.Identity);
     }
 
     [AvaloniaFact]
-    public async Task PointerDownSquashesReleaseBouncesAndDragDoesNotReact()
+    public async Task PointerDownAndReleaseKeepCanvasFixedAndDragDoesNotClick()
     {
         using var scope = new Scope(); await scope.Select(original: true); var pet = scope.Pet;
         var point = new Point(96, 85);
         pet.MouseDown(point, MouseButton.Left); pet.AdvanceCompanion(.1);
-        Assert.True(pet.PetView.Pose.ScaleY < 1);
+        Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
         pet.MouseUp(point, MouseButton.Left); pet.AdvanceCompanion(.12);
-        Assert.Equal("click", pet.ActiveAnimation); Assert.True(pet.PetView.Pose.Lift > 0);
+        Assert.Equal("click", pet.ActiveAnimation); Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
         pet.AdvanceCompanion(.2); pet.AdvanceCompanion(.2);
         Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
         await Until(() => pet.ActiveAnimation == "idle");
@@ -142,7 +145,7 @@ public class OriginalCompanionTests
     }
 
     [AvaloniaFact]
-    public async Task HoldingDuringDragKeepsThePetLiftedAndReleaseLandsWithoutClicking()
+    public async Task HoldingAndReleasingKeepCanvasFixedWithoutClicking()
     {
         using var scope = new Scope();
         // This test advances pose time explicitly. ShowPet starts the real timer
@@ -154,16 +157,16 @@ public class OriginalCompanionTests
         var point = new Point(96, 85);
         pet.MouseDown(point, MouseButton.Left);
         pet.AdvanceCompanion(.2); pet.AdvanceCompanion(.2);
-        Assert.True(pet.PetView.Pose.Lift > 0);
+        Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
         pet.MouseMove(point + new Vector(25, 0));
-        Assert.True(pet.PetView.Pose.Lift > 0);
+        Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
         pet.AdvanceCompanion(.2);
         var held = pet.PetView.Pose;
         pet.MouseUp(point, MouseButton.Left);
         Assert.Equal(held, pet.PetView.Pose);
         Assert.Equal("idle", pet.ActiveAnimation);
         pet.AdvanceCompanion(.18);
-        Assert.True(pet.PetView.Pose.Lift < held.Lift);
+        Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
         pet.AdvanceCompanion(.2); pet.AdvanceCompanion(.2);
         Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
         Assert.Equal("idle", pet.ActiveAnimation);
@@ -183,7 +186,7 @@ public class OriginalCompanionTests
         ((DispatcherTimer)typeof(PetWindow).GetField("hitTimer",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(pet)!).Stop();
         var local = Enumerable.Range(40, 120).SelectMany(y => Enumerable.Range(40, 120).Select(x => new Point(x, y)))
-            .First(pet.PetView.OpaqueAt);
+            .First(point => pet.PetView.OpaqueAt(point, includeEdgeTolerance: false));
         Point PointerPoint() => pet.PetView.TranslatePoint(local, pet)!.Value;
         pet.MouseMove(PointerPoint()); Dispatcher.UIThread.RunJobs(); pet.UpdateLayout();
         // Diagnostic windows start off-screen; place the headless window inside
@@ -203,22 +206,19 @@ public class OriginalCompanionTests
         await Until(() => pet.PointerPhase == PetPointerPhase.Held);
         pet.AdvanceCompanion(.2); pet.AdvanceCompanion(.2);
         var held = pet.PetView.Pose;
-        Assert.True(held.Lift > 0);
+        Assert.Equal(PetPose.Neutral, held);
         for (var i = 0; i < 50; i++) pet.AdvanceCompanion(.2);
         Assert.Equal(held, pet.PetView.Pose);
         Assert.Equal(size, pet.ClientSize); Assert.Equal(position, pet.Position);
         pet.MouseUp(PointerPoint(), MouseButton.Left);
-        Assert.Equal(PetPointerPhase.Bouncing, pet.PointerPhase);
-        Assert.Equal("held", pet.ActiveAnimation);
-        pet.AdvanceCompanion(.16);
-        Assert.True(pet.PetView.Pose.Lift < held.Lift);
-        pet.AdvanceCompanion(.18);
-        Assert.True(pet.PetView.Pose.Lift > held.Lift);
-        Assert.Equal("held", pet.ActiveAnimation);
-        pet.AdvanceCompanion(.18); pet.AdvanceCompanion(.12);
-        Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
         Assert.Equal(PetPointerPhase.Recovering, pet.PointerPhase);
         Assert.Equal("land", pet.ActiveAnimation);
+        for (var i = 0; i < 65; i++)
+        {
+            pet.AdvanceCompanion(.01);
+            Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
+            Assert.Equal(Matrix.Identity, pet.PetView.RenderTransform?.Value ?? Matrix.Identity);
+        }
         await Until(() => pet.PointerPhase == PetPointerPhase.None);
         Assert.Equal("idle", pet.ActiveAnimation);
         Assert.Equal(PetPointerPhase.None, pet.PointerPhase);
@@ -226,16 +226,18 @@ public class OriginalCompanionTests
     }
 
     [AvaloniaFact]
-    public async Task QuickRepeatedClicksDoNotEnterPickupBounceOrLanding()
+    public async Task QuickRepeatedClicksDoNotEnterPickupOrLanding()
     {
         using var scope = new Scope(); await scope.Select(original: true, pointerArt: true); var pet = scope.Pet;
-        Point Point() => pet.PetView.TranslatePoint(new(96, 85), pet)!.Value;
+        // Drive the repeated short-click state directly: headless MouseDown renders
+        // before returning and can exceed the 220 ms hold threshold on a busy host.
+        // Routed input and hold/release timing are covered by the neighboring tests.
         for (var i = 0; i < 5; i++)
         {
-            pet.MouseDown(Point(), MouseButton.Left);
+            pet.BeginCompanionPress();
             Assert.Equal(PetPointerPhase.Pending, pet.PointerPhase);
             Assert.Equal("idle", pet.ActiveAnimation);
-            pet.MouseUp(Point(), MouseButton.Left);
+            Assert.True(pet.ReleaseCompanionPress(clicked: true));
             await Until(() => pet.ActiveAnimation == "click");
             Assert.Equal(PetPointerPhase.None, pet.PointerPhase);
             pet.AdvanceCompanion(.15);
@@ -276,31 +278,31 @@ public class OriginalCompanionTests
         pet.AdvanceCompanion(.25);
         pet.MouseUp(point, MouseButton.Left);
         Assert.Equal(PetPointerPhase.None, pet.PointerPhase);
+        // A newly selected custom pet may enter its own hover clip under the
+        // stationary pointer. The cancelled press must not trigger any press/release clip.
+        Assert.DoesNotContain(pet.ActiveAnimation, new[] { "click", "pickup", "held", "land", "pointerDown", "pointerUp" });
+        if (reason == "change") await Until(() => pet.ActiveAnimation == "idle");
         Assert.Equal("idle", pet.ActiveAnimation);
         Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
     }
 
     [AvaloniaFact]
-    public async Task HoldReleaseOnlyBouncesOnceAndDoesNotClick()
+    public async Task HoldReleaseStartsAssignedLandImmediatelyWithoutMovingCanvasOrClicking()
     {
         using var scope = new Scope(); await scope.Select(original: true, pointerArt: true); var pet = scope.Pet;
         pet.BeginCompanionPress(); pet.AdvanceCompanion(PetPose.LiftDelay);
         Assert.Equal("pickup", pet.ActiveAnimation);
         Assert.True(pet.ReleaseCompanionPress(true));
-        Assert.Equal("held", pet.ActiveAnimation);
-        var risingRuns = 0; var rising = false; var lift = pet.PetView.Pose.Lift;
-        for (var i = 0; i < 64; i++)
+        Assert.Equal("land", pet.ActiveAnimation);
+        Assert.Equal(PetPointerPhase.Recovering, pet.PointerPhase);
+        for (var i = 0; i < 65; i++)
         {
             pet.AdvanceCompanion(.01);
-            var next = pet.PetView.Pose.Lift; var increases = next > lift + .000001;
-            if (increases && !rising) risingRuns++;
-            rising = increases; lift = next;
+            Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
+            Assert.Equal(Matrix.Identity, pet.PetView.RenderTransform?.Value ?? Matrix.Identity);
         }
-        Assert.Equal(1, risingRuns);
-        Assert.Equal("land", pet.ActiveAnimation);
         await Until(() => pet.PointerPhase == PetPointerPhase.None);
         Assert.Equal("idle", pet.ActiveAnimation);
-        Assert.Equal(PetPointerPhase.None, pet.PointerPhase);
     }
 
     [AvaloniaFact]
@@ -320,7 +322,7 @@ public class OriginalCompanionTests
         Assert.Equal("idle", pet.ActiveAnimation);
         pet.MouseDown(Point(), MouseButton.Left); pet.AdvanceCompanion(PetPose.LiftDelay);
         pet.MouseUp(Point(), MouseButton.Left);
-        Assert.Equal(PetPointerPhase.Bouncing, pet.PointerPhase);
+        Assert.Equal(PetPointerPhase.Recovering, pet.PointerPhase);
         await scope.Runtime.HidePet();
         pet.AdvanceCompanion(.22); await Task.Delay(500, TestContext.Current.CancellationToken);
         Assert.Equal(PetPointerPhase.None, pet.PointerPhase);
@@ -330,7 +332,7 @@ public class OriginalCompanionTests
     }
 
     [AvaloniaFact]
-    public async Task RepressingDuringBounceRetainsDeferredStretchWithoutClicking()
+    public async Task RepressingDuringLandingRetainsDeferredStretchWithoutClicking()
     {
         using var scope = new Scope(); await scope.Select(original: true, pointerArt: true); var pet = scope.Pet;
         pet.BeginCompanionPress(); await Until(() => pet.PointerPhase == PetPointerPhase.Held);
@@ -387,7 +389,7 @@ public class OriginalCompanionTests
     }
 
     [AvaloniaFact]
-    public async Task PressingAgainDuringLandingStartsFromTheVisiblePose()
+    public async Task PressingAgainAfterReleaseKeepsTheCanvasFixed()
     {
         using var scope = new Scope(); await scope.Select(original: true); var pet = scope.Pet;
         pet.BeginCompanionPress(); pet.AdvanceCompanion(.2); pet.AdvanceCompanion(.2);
@@ -398,7 +400,7 @@ public class OriginalCompanionTests
         pet.AdvanceCompanion(.001);
         Assert.InRange(Math.Abs(pet.PetView.Pose.ScaleY - landingPose.ScaleY), 0, .001);
         pet.AdvanceCompanion(.2); pet.AdvanceCompanion(.2);
-        Assert.True(pet.PetView.Pose.Lift > 0);
+        Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
         pet.ReleaseCompanionPress(true); pet.AdvanceCompanion(.22); pet.AdvanceCompanion(.22);
         Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
     }
@@ -459,6 +461,28 @@ public class OriginalCompanionTests
         Assert.Equal("idle", pet.ActiveAnimation);
         for (var i = 0; i < 1000; i++) pet.AdvanceCompanion(.1);
         Assert.Equal("idle", pet.ActiveAnimation);
+    }
+
+    [AvaloniaTheory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task PointerInteractionsKeepCanvasAtIdentity(bool pointerArt)
+    {
+        using var scope = new Scope(); await scope.Select(original: true, pointerArt: pointerArt);
+        var pet = scope.Pet;
+        void FixedCanvas()
+        {
+            Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
+            Assert.Equal(Matrix.Identity, pet.PetView.RenderTransform?.Value ?? Matrix.Identity);
+        }
+        FixedCanvas();
+        pet.BeginCompanionPress();
+        foreach (var seconds in new[] { .1, .12, .2, .2 }) { pet.AdvanceCompanion(seconds); FixedCanvas(); }
+        if (pointerArt) await Until(() => pet.PointerPhase == PetPointerPhase.Held);
+        FixedCanvas();
+        pet.ReleaseCompanionPress(false); FixedCanvas();
+        if (pointerArt) { Assert.Equal("land", pet.ActiveAnimation); Assert.Equal(PetPointerPhase.Recovering, pet.PointerPhase); }
+        for (var i = 0; i < 65; i++) { pet.AdvanceCompanion(.01); FixedCanvas(); }
+        await Until(() => pet.ActiveAnimation == "idle"); FixedCanvas();
     }
 
     private static async Task Until(Func<bool> ready)

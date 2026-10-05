@@ -1,0 +1,443 @@
+{
+  "success": true,
+  "coreSha256": "ECDEE6A356BDCA4ED8AB9399F8CCEF723AD3523CB10FBD03AB4BC822904B256F",
+  "os": "macOS 26.6.2",
+  "phases": [
+    {
+      "scenario": "pet-100",
+      "renderPixels": 192,
+      "scale": 1,
+      "allocatedBytes": 56554840,
+      "genCollections": [
+        3,
+        2,
+        1
+      ],
+      "samples": [
+        {
+          "seconds": 1.0026692,
+          "workingSetBytes": 125730816,
+          "managedBytes": 278421848,
+          "committedBytes": 217481216
+        },
+        {
+          "seconds": 2.0088443,
+          "workingSetBytes": 116916224,
+          "managedBytes": 282058936,
+          "committedBytes": 217481216
+        },
+        {
+          "seconds": 3.010646,
+          "workingSetBytes": 101744640,
+          "managedBytes": 285157640,
+          "committedBytes": 217481216
+        },
+        {
+          "seconds": 4.0121514,
+          "workingSetBytes": 193609728,
+          "managedBytes": 150624728,
+          "committedBytes": 219267072
+        },
+        {
+          "seconds": 5.0134672,
+          "workingSetBytes": 199819264,
+          "managedBytes": 154261976,
+          "committedBytes": 219267072
+        },
+        {
+          "seconds": 6.0150395,
+          "workingSetBytes": 198328320,
+          "managedBytes": 157532176,
+          "committedBytes": 219267072
+        },
+        {
+          "seconds": 7.016351,
+          "workingSetBytes": 110608384,
+          "managedBytes": 161174256,
+          "committedBytes": 219267072
+        },
+        {
+          "seconds": 8.0182207,
+          "workingSetBytes": 103251968,
+          "managedBytes": 164985048,
+          "committedBytes": 219267072
+        },
+        {
+          "seconds": 9.0185869,
+          "workingSetBytes": 90374144,
+          "managedBytes": 168457984,
+          "committedBytes": 219267072
+        },
+        {
+          "seconds": 10.023595,
+          "workingSetBytes": 83378176,
+          "managedBytes": 171913088,
+          "committedBytes": 219267072
+        },
+        {
+          "seconds": 11.0250628,
+          "workingSetBytes": 88014848,
+          "managedBytes": 175713696,
+          "committedBytes": 219267072
+        },
+        {
+          "seconds": 12.0262635,
+          "workingSetBytes": 93552640,
+          "managedBytes": 179187640,
+          "committedBytes": 219267072
+        },
+        {
+          "seconds": 13.0513581,
+          "workingSetBytes": 91750400,
+          "managedBytes": 182636664,
+          "committedBytes": 219267072
+        },
+        {
+          "seconds": 14.0527892,
+          "workingSetBytes": 83804160,
+          "managedBytes": 185918840,
+          "committedBytes": 219267072
+        },
+        {
+          "seconds": 15.0539674,
+          "workingSetBytes": 91537408,
+          "managedBytes": 189724280,
+          "committedBytes": 219267072
+        },
+        {
+          "seconds": 16.0554387,
+          "workingSetBytes": 107937792,
+          "managedBytes": 185135376,
+          "committedBytes": 219234304
+        }
+      ]
+    },
+    {
+      "scenario": "pet-150",
+      "renderPixels": 288,
+      "scale": 1,
+      "allocatedBytes": 111674232,
+      "genCollections": [
+        4,
+        3,
+        3
+      ],
+      "samples": [
+        {
+          "seconds": 1.0012776,
+          "workingSetBytes": 106627072,
+          "managedBytes": 99446344,
+          "committedBytes": 133464064
+        },
+        {
+          "seconds": 2.0025732,
+          "workingSetBytes": 104726528,
+          "managedBytes": 106403408,
+          "committedBytes": 133464064
+        },
+        {
+          "seconds": 3.0037833,
+          "workingSetBytes": 112885760,
+          "managedBytes": 113719776,
+          "committedBytes": 133464064
+        },
+        {
+          "seconds": 4.0063935,
+          "workingSetBytes": 114573312,
+          "managedBytes": 119937560,
+          "committedBytes": 133464064
+        },
+        {
+          "seconds": 5.0079262,
+          "workingSetBytes": 122093568,
+          "managedBytes": 87940352,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 6.0092272,
+          "workingSetBytes": 119013376,
+          "managedBytes": 94529032,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 7.0105173,
+          "workingSetBytes": 123961344,
+          "managedBytes": 101125480,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 8.0117844,
+          "workingSetBytes": 93880320,
+          "managedBytes": 107710952,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 9.012485,
+          "workingSetBytes": 92225536,
+          "managedBytes": 115387312,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 10.0136896,
+          "workingSetBytes": 122060800,
+          "managedBytes": 74604256,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 11.0150015,
+          "workingSetBytes": 122699776,
+          "managedBytes": 81343128,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 12.0193356,
+          "workingSetBytes": 84983808,
+          "managedBytes": 88287488,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 13.0234537,
+          "workingSetBytes": 97812480,
+          "managedBytes": 95616296,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 14.0241352,
+          "workingSetBytes": 100761600,
+          "managedBytes": 102569776,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 15.0256296,
+          "workingSetBytes": 95223808,
+          "managedBytes": 109509672,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 16.0280179,
+          "workingSetBytes": 111443968,
+          "managedBytes": 80475480,
+          "committedBytes": 123518976
+        }
+      ]
+    },
+    {
+      "scenario": "pet-and-settings",
+      "renderPixels": 288,
+      "scale": 1,
+      "allocatedBytes": 223437592,
+      "genCollections": [
+        9,
+        6,
+        6
+      ],
+      "samples": [
+        {
+          "seconds": 1.001178,
+          "workingSetBytes": 153960448,
+          "managedBytes": 78558600,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 2.0063032,
+          "workingSetBytes": 153059328,
+          "managedBytes": 92855776,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 3.0079325,
+          "workingSetBytes": 117440512,
+          "managedBytes": 104105240,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 4.0085213,
+          "workingSetBytes": 147406848,
+          "managedBytes": 78575976,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 5.0097332,
+          "workingSetBytes": 159121408,
+          "managedBytes": 93938792,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 6.0107268,
+          "workingSetBytes": 98172928,
+          "managedBytes": 107132808,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 7.1387927,
+          "workingSetBytes": 98516992,
+          "managedBytes": 81499592,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 8.1401723,
+          "workingSetBytes": 122437632,
+          "managedBytes": 95435264,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 9.1403284,
+          "workingSetBytes": 138379264,
+          "managedBytes": 107589000,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 10.1414122,
+          "workingSetBytes": 129155072,
+          "managedBytes": 101469672,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 11.1427945,
+          "workingSetBytes": 143343616,
+          "managedBytes": 93555360,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 12.1442761,
+          "workingSetBytes": 143360000,
+          "managedBytes": 108548944,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 13.1537349,
+          "workingSetBytes": 128434176,
+          "managedBytes": 86994432,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 14.1550774,
+          "workingSetBytes": 90144768,
+          "managedBytes": 98707672,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 15.1565272,
+          "workingSetBytes": 104054784,
+          "managedBytes": 110159752,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 16.1578108,
+          "workingSetBytes": 121159680,
+          "managedBytes": 85141928,
+          "committedBytes": 123518976
+        }
+      ]
+    },
+    {
+      "scenario": "hidden",
+      "renderPixels": 288,
+      "scale": 1,
+      "allocatedBytes": 161880,
+      "genCollections": [
+        0,
+        0,
+        0
+      ],
+      "samples": [
+        {
+          "seconds": 1.0031526,
+          "workingSetBytes": 49856512,
+          "managedBytes": 85187176,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 2.0049263,
+          "workingSetBytes": 51625984,
+          "managedBytes": 85195400,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 3.0061391,
+          "workingSetBytes": 51642368,
+          "managedBytes": 85211848,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 4.0073754,
+          "workingSetBytes": 51806208,
+          "managedBytes": 85220072,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 5.008776,
+          "workingSetBytes": 46596096,
+          "managedBytes": 85228296,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 6.010861,
+          "workingSetBytes": 50151424,
+          "managedBytes": 85236520,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 7.0122777,
+          "workingSetBytes": 64585728,
+          "managedBytes": 85251840,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 8.0138901,
+          "workingSetBytes": 64962560,
+          "managedBytes": 85261160,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 9.015554,
+          "workingSetBytes": 53477376,
+          "managedBytes": 85269384,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 10.0169248,
+          "workingSetBytes": 57655296,
+          "managedBytes": 85285832,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 11.0183182,
+          "workingSetBytes": 58933248,
+          "managedBytes": 85294056,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 12.02321,
+          "workingSetBytes": 47185920,
+          "managedBytes": 85302280,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 13.0254652,
+          "workingSetBytes": 51347456,
+          "managedBytes": 85308040,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 14.0270662,
+          "workingSetBytes": 61079552,
+          "managedBytes": 85316544,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 15.0283952,
+          "workingSetBytes": 58769408,
+          "managedBytes": 85332968,
+          "committedBytes": 123518976
+        },
+        {
+          "seconds": 16.0303412,
+          "workingSetBytes": 48644096,
+          "managedBytes": 85341192,
+          "committedBytes": 123518976
+        }
+      ]
+    }
+  ]
+}

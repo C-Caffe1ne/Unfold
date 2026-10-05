@@ -14,16 +14,17 @@ internal static class GlbDiagnostics
     public static async Task Run(AppRuntime runtime, IClassicDesktopStyleApplicationLifetime desktop, string file)
     {
         var directory = Path.Combine(AppPaths.DataRoot, "verification", "glb"); Directory.CreateDirectory(directory);
-        Window? window = null; GlbPetView? page = null;
+        Window? window = null; PetBuilderView? page = null;
         try
         {
             runtime.ConfirmActionOverride = (_, _, _) => Task.FromResult(0);
             await runtime.Start(true, true); runtime.Reset();
             window = new Window { Width = 620, Height = 850, MinWidth = 480, MinHeight = 560, Background = Ui.Background };
-            page = new GlbPetView(window, runtime.Library, runtime.SelectInstalledCharacter, () => Task.FromResult<string?>(file));
+            page = new PetBuilderView(window, runtime.Library, runtime.SelectInstalledCharacter, _ => Task.CompletedTask, chooseMedia: () => Task.FromResult<string?>(file));
             window.Content = Ui.PageFrame(window, page, inset: 10); AppRuntime.PrepareDiagnosticWindow(window); window.Show();
             T Find<T>(string name) where T : Control => window.GetVisualDescendants().OfType<T>().Single(c => c.Name == name);
-            Find<Button>("OpenGlbPet").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await Task.Delay(100); window.UpdateLayout(); Capture(window, Path.Combine(directory, "glb-empty.png"));
+            Find<Button>("OpenPetBuilderFile").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
             await Until(() => !page.IsBusy && Find<Button>("SaveGlbPet").IsEnabled);
             await Task.Delay(250); window.UpdateLayout(); Capture(window, Path.Combine(directory, "glb-editor.png"));
             foreach (var scale in new[] { new Size(480, 560), new Size(860, 680) })
@@ -39,6 +40,7 @@ internal static class GlbDiagnostics
             await Until(() => !page.IsBusy && runtime.Selected?.IsGlb == true);
             var selected = runtime.Selected!; var pet = runtime.ActivePet!;
             await CaptureSettings(runtime, directory);
+            var pointerCanvasVerified = await VerifyPointerCanvas(pet, directory);
             var resolution = await VerifyResolution(selected, directory);
             var clips = new List<object>();
             foreach (var key in new[] { "idle", "click", "pickup", "held", "land", "walk" }.Where(selected.Manifest.Animations.ContainsKey))
@@ -67,7 +69,7 @@ internal static class GlbDiagnostics
                 throw new InvalidOperationException("GLB mapping did not persist.");
             AtomicFile.Write(Path.Combine(directory, "result.json"), JsonSerializer.SerializeToUtf8Bytes(new
             { success = true, appVersion = AppRelease.Version, displayVersion = AppRelease.DisplayVersion, model = Path.GetFileName(file), triangles = selected.Model.TriangleCount, animations = selected.Model.Animations,
-                playback = clips, resolution, importedThroughUi = true, persisted = true, integratedSettings = true, hiddenPetStayedHidden = true,
+                playback = clips, resolution, pointerCanvasVerified, importedThroughUi = true, persisted = true, integratedSettings = true, hiddenPetStayedHidden = true,
                 qualityWindowOnScreen = true, otherWindowsOffScreen = true, physicalInput = false, os = Environment.OSVersion.ToString() }, CharacterLibrary.JsonOptions));
             page.Dispose(); window.Close(); await runtime.Quit();
         }
@@ -116,6 +118,29 @@ internal static class GlbDiagnostics
         }
         finally { view.Dispose(); host.Close(); }
     }
+    private static async Task<bool> VerifyPointerCanvas(PetWindow pet, string directory)
+    {
+        if (!pet.HasPointerArt) return false;
+        var changed = false;
+        void Observe(object? sender, EventArgs args)
+        { if (pet.PetView.Pose != PetPose.Neutral || pet.PetView.RenderTransform?.Value != Matrix.Identity) changed = true; }
+        var timer = new Avalonia.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(10) };
+        timer.Tick += Observe; timer.Start();
+        try
+        {
+            pet.BeginCompanionPress(); pet.AdvanceCompanion(PetPose.LiftDelay);
+            await Until(() => pet.PointerPhase == PetPointerPhase.Held);
+            await Task.Delay(300); Capture(pet.PetView, Path.Combine(directory, "pointer-held-fixed.png"));
+            pet.ReleaseCompanionPress(false); Observe(null, EventArgs.Empty);
+            if (pet.PointerPhase != PetPointerPhase.Recovering || pet.ActiveAnimation != "land")
+                throw new InvalidOperationException("GLB release did not start the assigned land clip immediately.");
+            await Task.Delay(100); Capture(pet.PetView, Path.Combine(directory, "pointer-release-fixed.png"));
+            await Until(() => pet.PointerPhase == PetPointerPhase.None && pet.ActiveAnimation == "idle");
+            if (changed) throw new InvalidOperationException("GLB pointer interaction transformed the canvas.");
+            return true;
+        }
+        finally { timer.Stop(); timer.Tick -= Observe; }
+    }
     private static async Task CaptureSettings(AppRuntime runtime, string directory)
     {
         using var settings = new SettingsWindow(runtime);
@@ -125,11 +150,13 @@ internal static class GlbDiagnostics
         {
             Find<Button>("SettingsNavPacks").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
             await Task.Delay(100); settings.UpdateLayout();
-            Find<TabControl>("PetManagementTabs").SelectedIndex = 2;
+            Find<TabControl>("PetManagementTabs").SelectedIndex = 1;
+            await Task.Delay(100); settings.UpdateLayout();
+            Find<ComboBox>("PetBuilderFormat").SelectedIndex = 1;
             await Task.Delay(100); settings.UpdateLayout();
             Find<ComboBox>("GlbExistingPets").SelectedIndex = 0;
             var editor = settings.GetVisualDescendants().OfType<GlbPetView>().Single();
-            await Until(() => !editor.IsBusy && editor.HasUnsavedChanges);
+            await Until(() => !editor.IsBusy && editor.HasDraft && !editor.IsPreviewLoading);
             foreach (var size in new[] { new Size(1120, 800), new Size(860, 680), new Size(640, 560) })
             {
                 settings.MinWidth = size.Width; settings.MinHeight = size.Height;
@@ -143,6 +170,21 @@ internal static class GlbDiagnostics
                 scroll.Offset = new Vector(0, scroll.Extent.Height); settings.UpdateLayout();
                 Capture(settings, Path.Combine(directory, $"settings-mappings-{size.Width}-{size.Height}.png"));
                 scroll.Offset = default;
+                foreach (var action in new[] { "click", "held" })
+                {
+                    Find<ComboBox>("GlbPreviewAction").SelectedIndex = GlbPetDraft.Actions.ToList().IndexOf(action);
+                    await Until(() => !editor.IsPreviewLoading); settings.UpdateLayout();
+                    // Keep the chosen action's controls visible on short windows.
+                    Find<StackPanel>("GlbActionPane").BringIntoView(); await Task.Delay(100);
+                    Capture(settings, Path.Combine(directory, $"settings-{action}-{size.Width}-{size.Height}.png"));
+                }
+                Find<Expander>("GlbAdvanced").IsExpanded = true; settings.UpdateLayout();
+                scroll.Offset = new Vector(0, scroll.Extent.Height); await Task.Delay(100);
+                if (scroll.Extent.Width > scroll.Viewport.Width + 1) throw new InvalidOperationException("GLB advanced settings overflow horizontally.");
+                Capture(settings, Path.Combine(directory, $"settings-advanced-{size.Width}-{size.Height}.png"));
+                Find<Expander>("GlbAdvanced").IsExpanded = false;
+                Find<ComboBox>("GlbPreviewAction").SelectedIndex = 0;
+                await Until(() => !editor.IsPreviewLoading); scroll.Offset = default;
             }
         }
         finally { settings.Hide(); }

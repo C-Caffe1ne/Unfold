@@ -1,0 +1,34 @@
+  Unfold.Core -> /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/src/Unfold.Core/bin/Release/net10.0/Unfold.Core.dll
+  Unfold.Desktop -> /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/src/Unfold.Desktop/bin/Release/net10.0/Unfold.dll
+  Unfold.Tests -> /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll
+/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll(.NETCoreApp,Version=v10.0)에 대한 테스트 실행
+지정된 패턴과 일치한 총 테스트 파일 수는 1개입니다.
+[xUnit.net 00:00:00.01] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.12)
+[xUnit.net 00:00:01.93]   Discovering: Unfold.Tests
+[xUnit.net 00:00:03.26]   Discovered:  Unfold.Tests
+[xUnit.net 00:00:05.11]   Starting:    Unfold.Tests
+[xUnit.net 00:00:13.81]     Unfold.Tests.OriginalCompanionTests.QuickRepeatedClicksDoNotEnterPickupOrLanding [FAIL]
+[xUnit.net 00:00:13.85]       System.InvalidOperationException : iteration=0, downMs=547.4867, afterUpMs=621.2255, phase=Recovering, animation=land, finalPhase=None, finalAnimation=idle
+[xUnit.net 00:00:13.85]       ---- Companion did not reach the expected playback state.
+[xUnit.net 00:00:13.86]       Stack Trace:
+[xUnit.net 00:00:13.90]         /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/OriginalCompanionTests.cs(243,0): at Unfold.Tests.OriginalCompanionTests.QuickRepeatedClicksDoNotEnterPickupOrLanding()
+[xUnit.net 00:00:13.91]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:13.91]         ----- Inner Stack Trace -----
+[xUnit.net 00:00:13.91]         /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/OriginalCompanionTests.cs(497,0): at Unfold.Tests.OriginalCompanionTests.Until(Func`1 ready)
+[xUnit.net 00:00:13.92]         /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/OriginalCompanionTests.cs(242,0): at Unfold.Tests.OriginalCompanionTests.QuickRepeatedClicksDoNotEnterPickupOrLanding()
+[xUnit.net 00:00:13.99]   Finished:    Unfold.Tests
+  실패 Unfold.Tests.OriginalCompanionTests.QuickRepeatedClicksDoNotEnterPickupOrLanding [6 s]
+  오류 메시지:
+   System.InvalidOperationException : iteration=0, downMs=547.4867, afterUpMs=621.2255, phase=Recovering, animation=land, finalPhase=None, finalAnimation=idle
+---- Companion did not reach the expected playback state.
+  스택 추적:
+     at Unfold.Tests.OriginalCompanionTests.QuickRepeatedClicksDoNotEnterPickupOrLanding() in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/OriginalCompanionTests.cs:line 243
+--- End of stack trace from previous location ---
+----- Inner Stack Trace -----
+   at Unfold.Tests.OriginalCompanionTests.Until(Func`1 ready) in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/OriginalCompanionTests.cs:line 497
+   at Unfold.Tests.OriginalCompanionTests.QuickRepeatedClicksDoNotEnterPickupOrLanding() in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/OriginalCompanionTests.cs:line 242
+
+테스트 실행이 실패했습니다.
+총 테스트 수: 1
+     실패: 1
+ 총 시간: 16.8121 초

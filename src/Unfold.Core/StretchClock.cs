@@ -15,7 +15,7 @@ public sealed class StretchClock
     public StretchClock(TimeSpan interval) { SetInterval(interval); }
     public void SetInterval(TimeSpan interval)
     {
-        if (interval < TimeSpan.FromMinutes(5) || interval > TimeSpan.FromMinutes(240)) throw new ArgumentOutOfRangeException(nameof(interval));
+        if (interval < TimeSpan.FromMinutes(1) || interval > TimeSpan.FromMinutes(240)) throw new ArgumentOutOfRangeException(nameof(interval));
         Interval = interval; advanceWarned = false; AdvanceWarningDue = false; if (!Stopped) Remaining = interval; initialized = false;
     }
     public void Start(TimeSpan now) { if (Stopped) { Remaining = Interval; advanceWarned = false; } Stopped = false; Paused = false; last = now; initialized = true; }

@@ -49,19 +49,25 @@ public class CustomPetInteractionTests
             await runtime.UpdateSettings(runtime.Settings with { SelectedCharacterId = package.Manifest.Id, ShowPet = true, ReminderSoundsEnabled = false, BubbleDirection = BubbleDirection.Bottom });
             var pet = runtime.ActivePet!; pet.Position = new(500, 400); Layout(pet);
             Point Center() => pet.PetView.TranslatePoint(new(96, 96), pet)!.Value;
-            pet.MouseMove(Center()); await Until(() => pet.ActiveAnimation == "hover");
-            pet.MouseMove(new(-10, -10)); await Until(() => pet.ActiveAnimation == "idle");
-            pet.MouseMove(Center()); await Until(() => pet.ActiveAnimation == "hover");
-            pet.MouseDown(Center(), MouseButton.Left); await Until(() => pet.ActiveAnimation == "pointerDown");
-            pet.MouseUp(Center(), MouseButton.Left); await Until(() => pet.ActiveAnimation == "pointerUp");
+            void FixedCanvas()
+            {
+                pet.AdvanceCompanion(.2);
+                Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
+                Assert.Equal(Matrix.Identity, pet.PetView.RenderTransform?.Value ?? Matrix.Identity);
+            }
+            pet.MouseMove(Center()); await Until(() => pet.ActiveAnimation == "hover"); FixedCanvas();
+            pet.MouseMove(new(-10, -10)); await Until(() => pet.ActiveAnimation == "idle"); FixedCanvas();
+            pet.MouseMove(Center()); await Until(() => pet.ActiveAnimation == "hover"); FixedCanvas();
+            pet.MouseDown(Center(), MouseButton.Left); await Until(() => pet.ActiveAnimation == "pointerDown"); FixedCanvas();
+            pet.MouseUp(Center(), MouseButton.Left); await Until(() => pet.ActiveAnimation == "pointerUp"); FixedCanvas();
             pet.HidePet(); Assert.False(pet.IsVisible);
             var noRelease = manifest with { Animations = new(manifest.Animations) };
             noRelease.Animations.Remove("pointerUp"); noRelease.Animations.Remove("click");
             AtomicFile.Write(Path.Combine(package.DirectoryPath, "character.json"), JsonSerializer.SerializeToUtf8Bytes(noRelease, CharacterLibrary.JsonOptions));
             await runtime.Reload(); await runtime.UpdateSettings(runtime.Settings with { ShowPet = true }); Layout(pet);
-            pet.MouseMove(Center()); await Until(() => pet.ActiveAnimation == "hover");
-            pet.MouseDown(Center(), MouseButton.Left); await Until(() => pet.ActiveAnimation == "pointerDown");
-            pet.MouseUp(Center(), MouseButton.Left); await Until(() => pet.ActiveAnimation == "idle");
+            pet.MouseMove(Center()); await Until(() => pet.ActiveAnimation == "hover"); FixedCanvas();
+            pet.MouseDown(Center(), MouseButton.Left); await Until(() => pet.ActiveAnimation == "pointerDown"); FixedCanvas();
+            pet.MouseUp(Center(), MouseButton.Left); await Until(() => pet.ActiveAnimation == "idle"); FixedCanvas();
         }
         finally { Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", previous); }
     }

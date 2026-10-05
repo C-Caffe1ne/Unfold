@@ -56,7 +56,7 @@ public sealed partial record AppSettings
     private static AppSettings Recover(AppSettings value)
     {
         var fallback = new AppSettings();
-        if (value.IntervalMinutes is < 5 or > 240) value = value with { IntervalMinutes = fallback.IntervalMinutes };
+        if (value.IntervalMinutes is < 1 or > 240) value = value with { IntervalMinutes = fallback.IntervalMinutes };
         if (value.BreakDurationMinutes is < 1 or > 10) value = value with { BreakDurationMinutes = fallback.BreakDurationMinutes };
         if (value.IdleMinutes is < 1 or > 60) value = value with { IdleMinutes = fallback.IdleMinutes };
         if (value.PetScalePercent is < 50 or > 150 || value.PetScalePercent % 10 != 0)
@@ -77,7 +77,7 @@ public sealed partial record AppSettings
     private static void Validate(AppSettings value)
     {
         if (!Enum.IsDefined(value.Theme)) throw new InvalidDataException("Invalid theme.");
-        if (value.IntervalMinutes is < 5 or > 240 || value.BreakDurationMinutes is < 1 or > 10 ||
+        if (value.IntervalMinutes is < 1 or > 240 || value.BreakDurationMinutes is < 1 or > 10 ||
             value.IdleMinutes is < 1 or > 60 || value.PetScalePercent is < 50 or > 150 || value.PetScalePercent % 10 != 0 ||
             !CharacterLibrary.SafeId(value.SelectedCharacterId))
             throw new InvalidDataException("Invalid settings values.");

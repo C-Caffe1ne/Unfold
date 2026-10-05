@@ -39,7 +39,8 @@ Closing Settings keeps Unfold running. Use **Unfold 종료** in the tray menu to
 - Account-bound free access codes for testers, restored after sign-in without entering the code again.
 - Opt-in launch at login; configure it from the published app in its final location.
 
-Transparent-pixel click-through is implemented only for Windows. Actual OS behavior
+Transparent-pixel click-through is implemented for Windows and macOS. Visible pet pixels
+remain interactive; transparent pixels pass through to the window underneath. Actual OS behavior
 and distribution readiness are tracked separately from automated tests in the
 [verification guide](docs/verification.md).
 

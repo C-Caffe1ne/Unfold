@@ -13,7 +13,7 @@ using Unfold.Core;
 namespace Unfold.Desktop;
 
 /// <summary>Opt-in packaged-app verification with isolated data and off-screen windows.</summary>
-internal static class SmokeDiagnostics
+internal static partial class SmokeDiagnostics
 {
     public static async Task Run(AppRuntime runtime, IClassicDesktopStyleApplicationLifetime desktop)
     {
@@ -77,7 +77,8 @@ internal static class SmokeDiagnostics
             intervalInput.Value = 30; await Task.Delay(100);
             if (runtime.Settings.IntervalMinutes == 30 || !runtime.Clock.Stopped || runtime.Clock.Remaining != TimeSpan.FromMinutes(25))
                 throw new InvalidOperationException("Editing an interval applied early or restarted a stopped timer.");
-            Press(settings, "ApplyHomeTimingSettings"); await Task.Delay(100);
+            Press(settings, "ApplyHomeTimingSettings");
+            await Until(() => runtime.Settings.IntervalMinutes == 30 && runtime.Clock.Remaining == TimeSpan.FromMinutes(30));
             if (runtime.Settings.IntervalMinutes != 30 || !runtime.Clock.Stopped || runtime.Clock.Remaining != TimeSpan.FromMinutes(30))
                 throw new InvalidOperationException("Applying an interval changed the stopped state.");
             Press(settings, "TimerToggle");
@@ -234,6 +235,7 @@ internal static class SmokeDiagnostics
             editor.CloseAfterApproval();
             await VerifyPetPacks(runtime, saved, directory);
             await VerifyCustomPet(runtime, directory);
+            var timerRefinements = await VerifyTimerRefinements(runtime, settings, directory);
             runtime.HideSettingsForDiagnostics();
             await runtime.UpdateSettings(runtime.Settings with { SelectedCharacterId = "default-cat", ShowPet = true });
             await Task.Delay(1000);
@@ -247,7 +249,7 @@ internal static class SmokeDiagnostics
                 savedCustomRoutines = runtime.Settings.AdditionalRoutines.Count + (runtime.Settings.CustomRoutine is null ? 0 : 1),
                 workProfiles = runtime.Settings.WorkProfiles.Count, exportedBreaks = 1, simulatedExportDestination = true,
                 timerPausedApplyWaitSeconds = 1.2, timerStopWaitSeconds = 1.2, timerControlsVerified = true, timerDigitMotionVerified = true,
-                windowControlsVerified = true, roundedWindowVerified = true,
+                windowControlsVerified = true, roundedWindowVerified = true, timerRefinements,
                 appUpdateDialogVerified = true, updaterInstalled = runtime.Updates.State != AppUpdateState.UnsupportedInstall, petSpeechDirectionsVerified = true,
                 petContextMenuVerified = true, petScaleAndDebugPreviewVerified = true, speechTitleOnlyGeometryVerified = true,
                 soundRequestsVerified = true, hiddenPetNoticeVerified = true, stopWhileOpening,
@@ -281,6 +283,8 @@ internal static class SmokeDiagnostics
         var scroll = window.FindControl<ScrollViewer>("AccountFormScroll")!;
         if (scroll.Extent.Width > scroll.Viewport.Width + 1) throw new InvalidOperationException("Account form overflows horizontally.");
         var quit = window.FindControl<Button>("AccountQuit")!;
+        if (!quit.Classes.Contains("danger") || quit.Foreground is not Avalonia.Media.ISolidColorBrush quitColor || quitColor.Color != DesignSystem.Error.Color)
+            throw new InvalidOperationException("Account quit action lost its danger color.");
         var quitOrigin = quit.TranslatePoint(default, window);
         if (!quit.IsVisible || quitOrigin is null || quit.Bounds.Width <= 0 || quit.Bounds.Height <= 0
             || quitOrigin.Value.X < 0 || quitOrigin.Value.Y < 0
@@ -453,13 +457,13 @@ internal static class SmokeDiagnostics
             await Until(() => Create().IsEnabled);
             Press(window, "CustomPetFile_click"); await Until(() => Create().IsEnabled);
             Press(window, "CustomPetPreview_idle");
-            await Until(() => window.GetVisualDescendants().OfType<TextBlock>()
-                .Single(text => text.Name == "CustomPetPreviewAction").Text == "미리보기 · 기본");
+            await Until(() => Equals(window.GetVisualDescendants().OfType<ComboBox>()
+                .Single(choice => choice.Name == "CustomPetSelectedAction").SelectedItem, "idle"));
             window.UpdateLayout();
             var selectedCard = window.GetVisualDescendants().OfType<Border>().Single(card => card.Name == "CustomPetSlot_idle");
             var cardPreview = window.GetVisualDescendants().OfType<Button>().Single(button => button.Name == "CustomPetPreview_idle");
-            if (selectedCard.BorderBrush != DesignSystem.Cream || cardPreview.Content is not PathIcon)
-                throw new InvalidOperationException("The selected action does not use a row preview button.");
+            if (selectedCard.BorderBrush != DesignSystem.Cream || !Equals(cardPreview.Content, "처음부터 재생"))
+                throw new InvalidOperationException("The selected action does not expose its replay button.");
             Capture(window, Path.Combine(directory, "custom-pet-editor.png"));
             VerifyBodyScrollGutter(window, PetBuilderControls);
             VerifyPetActionCards(window, expectWrap: true);
@@ -623,10 +627,9 @@ internal static class SmokeDiagnostics
             throw new InvalidOperationException("The pet action cards still use a horizontal scrollbar.");
         var slots = window.GetVisualDescendants().OfType<StackPanel>()
             .Single(panel => panel.Name == "CustomPetActionSlots");
-        var rows = slots.Children.Select(card => Math.Round(card.Bounds.Y, 1)).Distinct().Count();
-        if (rows != CustomPetDraft.Actions.Count)
-            throw new InvalidOperationException("The pet actions do not form eight separate rows.");
-        foreach (var card in slots.Children)
+        if (slots.Children.Count(card => card.IsVisible) != 1)
+            throw new InvalidOperationException("The builder must show only the selected action.");
+        foreach (var card in slots.Children.Where(card => card.IsVisible))
             if (card.Bounds.X < -.5 || card.Bounds.Right > slots.Bounds.Width + .5)
                 throw new InvalidOperationException($"The pet action card {card.Name} overflows horizontally.");
         var page = window.GetVisualDescendants().OfType<ScrollViewer>().Single(view => view.Name == "PageBodyScroll");
@@ -663,22 +666,24 @@ internal static class SmokeDiagnostics
             Press(window, "SettingsNavPacks"); await Task.Delay(100); window.UpdateLayout();
             VerifySettingsPageHeaderRemoved(window);
             var petTabs = window.GetVisualDescendants().OfType<TabControl>().Single(control => control.Name == "PetManagementTabs");
-            if (window.OwnedWindows.Count != 0 || !petTabs.Items.OfType<TabItem>().Select(item => item.Header).SequenceEqual(new[] { "펫 팩 열기", "펫 팩 만들기", "GLB 펫" }))
-                throw new InvalidOperationException("Pet navigation did not open the three expected in-window tabs.");
+            if (window.OwnedWindows.Count != 0 || !petTabs.Items.OfType<TabItem>().Select(item => item.Header).SequenceEqual(new[] { "펫 팩 열기", "펫 팩 만들기" }))
+                throw new InvalidOperationException("Pet navigation did not open the two expected in-window tabs.");
             var packPreview = window.GetVisualDescendants().OfType<Border>().Single(control => control.Name == "PackPreviewSurface");
             var packClip = window.GetVisualDescendants().OfType<ComboBox>().Single(control => control.Name == "PackClip");
             if (Math.Abs(packPreview.Bounds.Width - 520) > 1 || Math.Abs(packClip.Bounds.Width - 200) > 1)
                 throw new InvalidOperationException("The pet pack preview or action picker is not compact.");
             Capture(window, Path.Combine(directory, "settings-pet-open-tab.png"));
-            petTabs.SelectedIndex = 2; await Task.Delay(100); window.UpdateLayout();
-            VerifySettingsPageHeaderRemoved(window);
-            if (!window.GetVisualDescendants().OfType<Button>().Any(button => button.Name == "OpenGlbPet" && button.IsEnabled))
-                throw new InvalidOperationException("The GLB pet tab did not expose its import action.");
-            Capture(window, Path.Combine(directory, "settings-glb-tab.png"));
             petTabs.SelectedIndex = 1; await Task.Delay(100); window.UpdateLayout();
+            var format = window.GetVisualDescendants().OfType<ComboBox>().Single(c => c.Name == "PetBuilderFormat");
+            format.SelectedIndex = 1; await Task.Delay(100); window.UpdateLayout();
+            VerifySettingsPageHeaderRemoved(window);
+            if (!window.GetVisualDescendants().OfType<Button>().Any(button => button.Name == "OpenPetBuilderFile" && button.IsEnabled))
+                throw new InvalidOperationException("The unified builder did not expose its import action.");
+            Capture(window, Path.Combine(directory, "settings-glb-tab.png"));
+            format.SelectedIndex = 0; await Task.Delay(100); window.UpdateLayout();
             VerifySettingsPageHeaderRemoved(window);
             var petName = window.GetVisualDescendants().OfType<TextBox>().Single(control => control.Name == "CustomPetName");
-            if (Math.Abs(petName.Bounds.Width - 320) > 1 ||
+            if (petName.Bounds.Width <= 0 ||
                 window.GetVisualDescendants().OfType<Button>().Any(button => button.Name == "ImportPetMedia"))
                 throw new InvalidOperationException("The pet name field is not compact or the removed import button remains.");
             petName.Text = "작성 중인 펫";
@@ -702,14 +707,19 @@ internal static class SmokeDiagnostics
                 throw new InvalidOperationException("Pet builder overflows horizontally.");
             foreach (var key in CustomPetDraft.Actions)
             {
+                window.GetVisualDescendants().OfType<ComboBox>().Single(c => c.Name == "CustomPetSelectedAction").SelectedItem = key;
+                window.UpdateLayout();
                 var add = window.GetVisualDescendants().OfType<Button>().Single(control => control.Name == "CustomPetFile_" + key);
                 var location = add.TranslatePoint(default, petScroll)!.Value;
                 if (location.X < 0 || location.X + add.Bounds.Width > petScroll.Viewport.Width + 1)
                     throw new InvalidOperationException($"The {key} action overflows the row horizontally.");
             }
+            window.GetVisualDescendants().OfType<ComboBox>().Single(c => c.Name == "CustomPetSelectedAction").SelectedIndex = 0;
+            window.UpdateLayout();
             VerifyBodyScrollGutter(window, PetBuilderControls);
+            window.GetVisualDescendants().OfType<ComboBox>().Single(c => c.Name == "CustomPetSelectedAction").SelectedItem = "pointerUp";
+            window.UpdateLayout();
             petScroll.ScrollToEnd(); await Task.Delay(100); window.UpdateLayout();
-            VerifyBodyScrollGutter(window, PetBuilderControls);
             var lastSlot = window.GetVisualDescendants().OfType<Button>().Single(control => control.Name == "CustomPetFile_pointerUp");
             var lastSlotOrigin = lastSlot.TranslatePoint(default, window)!.Value;
             if (lastSlotOrigin.Y < 0 || lastSlotOrigin.Y + lastSlot.Bounds.Height > window.ClientSize.Height)

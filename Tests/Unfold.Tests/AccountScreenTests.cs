@@ -301,6 +301,7 @@ public class AccountWindowTests
         window.Show(); Layout();
         var quit = window.FindControl<Button>("AccountQuit")!;
         Assert.Equal(window.Model.Copy.QuitButton, quit.Content);
+        Assert.Contains("danger", quit.Classes);
         quit.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
         await Task.Yield(); Layout();
         Assert.Equal(1, requests);

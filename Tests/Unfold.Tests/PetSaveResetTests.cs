@@ -56,7 +56,7 @@ public class PetSaveResetTests
             Assert.Equal(output, created); Assert.False(view.HasUnsavedChanges);
             Assert.Equal("", name.Text); Assert.Equal("idle", action.SelectedItem);
             Assert.Equal("", Find<TextBlock>(owner, "CustomPetPending").Text);
-            Assert.Equal("", Find<TextBlock>(owner, "CustomPetPreviewAction").Text);
+            Assert.Equal("idle", Find<ComboBox>(owner, "CustomPetSelectedAction").SelectedItem);
             Assert.False(Find<Button>(owner, "AssignPetMedia").IsEnabled);
             Assert.False(Find<Button>(owner, "CreateCustomPetPack").IsEnabled);
             foreach (var key in CustomPetDraft.Actions)
@@ -79,7 +79,7 @@ public class PetSaveResetTests
                 Assert.Equal("stretch", action.SelectedItem);
                 Assert.Equal(originalMetadata, Find<TextBlock>(owner, "CustomPetLabel_idle").Text);
                 Assert.Equal(originalPending, Find<TextBlock>(owner, "CustomPetPending").Text);
-                Assert.Contains("기본", Find<TextBlock>(owner, "CustomPetPreviewAction").Text);
+                Assert.Equal("idle", Find<ComboBox>(owner, "CustomPetSelectedAction").SelectedItem);
                 Assert.True(Find<Button>(owner, "AssignPetMedia").IsEnabled);
                 Assert.True(Find<Button>(owner, "CreateCustomPetPack").IsEnabled);
             }

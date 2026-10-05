@@ -6,6 +6,12 @@
 | 문서 | 역할 |
 |---|---|
 | [에이전트 작업 안내](../AGENTS.md) | Codex·Claude 공통 프로젝트 지침. Claude는 `CLAUDE.md`에서 가져온다. |
+| [버전 표시·타이머·알림 개선](validation/2026-10-05-timer-settings-refinements.md) | 설정 업데이트, Danger 색상, 최소 1분, 30초 자동 미루기와 시계·타이머 전환 |
+| [펫 투명 영역 클릭 통과](validation/2026-10-05-pet-click-through.md) | macOS 연결, 정확한 픽셀 판정과 입력 캡처 유지 검증 |
+| [펫 캔버스 효과 제거](validation/2026-10-05-pet-canvas-motion.md) | 포인터 업 바운스·누름/유지 변형 제거, 지정 동작과 입력 흐름 검증 |
+| [펫 팩 만들기 통합](validation/2026-10-05-unified-pet-builder.md) | GLB·GIF·MP4 통합 진입점, 공통 행동 편집 배치와 설명 문구 제거 |
+| [GLB 편집 UI/UX 개선](validation/2026-10-05-glb-editor-ux.md) | 행동 선택 중심 배치, 반복 규칙·재생·저장 상태와 반응형 화면 검증 |
+| [GLB 메모리 최적화 검증](validation/2026-10-05-glb-memory.md) | 프레임 버퍼 재사용, 화질 동일성, 메모리 전후 측정과 Windows 검증 범위 |
 | [GLB 확대 화질 검증](validation/2026-10-04-glb-resolution.md) | 표시 크기·Retina 배율 대응, 가장자리 처리와 실제 모델 전후 비교 |
 | [GLB 펫 사용법](glb-pets.md) | 모델 가져오기, 상황별 행동 지정, 몸 방향 고정과 지원 범위 |
 | [Beta v1.0.4 GLB 통합 검증](validation/2026-10-04-beta-glb-pets.md) | 최신 소스 기준, 회귀 검사와 macOS 재생·설정 화면 증거 |

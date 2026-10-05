@@ -65,7 +65,7 @@
       </Grid>
       <Grid Grid.Row="4" ColumnDefinitions="*,16,Auto">
         <StackPanel Orientation="Horizontal" Spacing="16">
-          <Button Name="AccountQuit" Content="{Binding Copy.QuitButton}" Classes="unfold-action quiet" />
+          <Button Name="AccountQuit" Content="{Binding Copy.QuitButton}" Classes="unfold-action quiet danger" />
           <TextBlock Text="{Binding Copy.Copyright}" Classes="account-caption" VerticalAlignment="Center" />
         </StackPanel>
         <Button Name="AccountCode" Grid.Column="2" IsVisible="{Binding ShowCode}" IsEnabled="{Binding CanRedeemCode}" Content="{Binding Copy.CodeButton}" Classes="unfold-action quiet" />

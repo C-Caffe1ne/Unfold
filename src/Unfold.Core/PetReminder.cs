@@ -7,12 +7,19 @@ public enum PetNotice { None, Advance, Invitation, Resting, Completed }
 public sealed class PetReminder
 {
     public static readonly TimeSpan NoticeDuration = TimeSpan.FromSeconds(5);
+    public static readonly TimeSpan InvitationTimeout = TimeSpan.FromSeconds(30);
+    private TimeSpan? invitationExpires;
     public PetNotice Notice { get; private set; }
     public BreakSession? Session { get; private set; }
     public int CompletedSeconds { get; private set; }
     public int ConsecutiveSnoozes { get; private set; }
     public bool HasNotice => Notice != PetNotice.None;
-    public TimeSpan? NoticeExpiresAt => Notice is PetNotice.Advance or PetNotice.Completed ? expires : null;
+    public TimeSpan? NoticeExpiresAt => Notice switch
+    {
+        PetNotice.Invitation => invitationExpires,
+        PetNotice.Advance or PetNotice.Completed => expires,
+        _ => null
+    };
     public event Action<BreakSession>? Started;
     public event Action<BreakSession>? Finished;
     private TimeSpan expires;
@@ -25,11 +32,17 @@ public sealed class PetReminder
     public bool Invite(BreakSession session)
     {
         if (Session is not null || session.State != BreakSessionState.Ready) return false;
-        Session = session; Notice = PetNotice.Invitation; return true;
+        Session = session; Notice = PetNotice.Invitation; invitationExpires = null; return true;
+    }
+    public void MarkInvitationPresented(TimeSpan now)
+    {
+        if (Notice == PetNotice.Invitation && Session?.State == BreakSessionState.Ready)
+            invitationExpires ??= now + InvitationTimeout;
     }
     public void Tick(TimeSpan now)
     {
         Session?.Tick(now);
+        if (Notice == PetNotice.Invitation && invitationExpires is { } deadline && now >= deadline) Snooze();
         if (Notice is PetNotice.Advance or PetNotice.Completed && now >= expires) Notice = PetNotice.None;
     }
     public bool Start(TimeSpan now)

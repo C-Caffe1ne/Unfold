@@ -320,7 +320,7 @@ public class SettingsDashboardTests
         Assert.Empty(window.OwnedWindows); Assert.Contains("primary", nav.Classes);
         AssertNoTabPageHeader(window);
         var tabs = Find<TabControl>(window, "PetManagementTabs");
-        Assert.Equal(new[] { "펫 팩 열기", "펫 팩 만들기", "GLB 펫" }, tabs.Items.OfType<TabItem>().Select(item => item.Header));
+        Assert.Equal(new[] { "펫 팩 열기", "펫 팩 만들기" }, tabs.Items.OfType<TabItem>().Select(item => item.Header));
         Assert.NotNull(Find<Button>(window, "OpenPetPack"));
         tabs.SelectedIndex = 1; Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
         AssertNoTabPageHeader(window);

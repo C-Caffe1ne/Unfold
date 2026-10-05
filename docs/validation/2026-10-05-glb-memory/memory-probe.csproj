@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!-- Reuse the existing test-only visibility contract; never ship this probe. -->
+    <AssemblyName>Unfold.Tests</AssemblyName>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <ProbeMode Condition="'$(ProbeMode)' == ''">Renderer</ProbeMode>
+    <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(ProbeMode)Probe.cs" />
+    <ProjectReference Include="../../../src/Unfold.Desktop/Unfold.Desktop.csproj" />
+  </ItemGroup>
+</Project>

@@ -136,7 +136,7 @@ public class SettingsRecoveryTests
     [
         ("{\"petScalePercent\":55,\"intervalMinutes\":37}", value =>
             { Assert.Equal(100, value.PetScalePercent); Assert.Equal(37, value.IntervalMinutes); }),
-        ("{\"intervalMinutes\":3,\"snoozeMinutes\":7}", value =>
+        ("{\"intervalMinutes\":0,\"snoozeMinutes\":7}", value =>
             { Assert.Equal(60, value.IntervalMinutes); Assert.Equal(7, value.SnoozeMinutes); }),
         ("{\"breakDurationMinutes\":99,\"idleMinutes\":9}", value =>
             { Assert.Equal(1, value.BreakDurationMinutes); Assert.Equal(9, value.IdleMinutes); }),

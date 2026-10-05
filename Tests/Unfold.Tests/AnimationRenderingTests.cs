@@ -32,18 +32,15 @@ public class AnimationRenderingTests
             var character = CharacterLibrary.LoadPackage(Path.Combine(AppContext.BaseDirectory, "Assets", "Characters", id));
             var idle = character.LoadAnimation("idle")[0];
             var click = character.LoadAnimation("click");
-            var poses = new[] { PetPose.Neutral, PetPose.Press(.1), PetPose.Release(.06, PetPose.Press(.1)),
-                PetPose.Release(.12, PetPose.Press(.1)), PetPose.Release(.3, PetPose.Press(.1)), PetPose.Neutral,
-                PetPose.Hold(.2, PetPose.Neutral), PetPose.Hold(5, PetPose.Neutral),
-                PetPose.Land(.08, PetPose.Hold(5, PetPose.Neutral)), PetPose.Land(.16, PetPose.Hold(5, PetPose.Neutral)),
-                PetPose.Land(.28, PetPose.Hold(5, PetPose.Neutral)), PetPose.Neutral };
+            var poses = new[] { PetPose.Neutral, new PetPose(1.12, .82, 0),
+                new PetPose(.94, 1.06, .07), new PetPose(1.06, .94, 0), PetPose.Neutral };
             view.SetFrames([idle], true, false, true);
             foreach (var pose in poses)
             {
                 view.SetPose(pose);
                 AssertMatchesFreshFrame(window);
             }
-            view.SetPose(PetPose.Press(.1), true); AssertMatchesFreshFrame(window);
+            view.SetPose(new PetPose(1.12, .82, 0), true); AssertMatchesFreshFrame(window);
             view.SetPose(PetPose.Neutral);
             foreach (var frame in click)
             {
@@ -54,8 +51,7 @@ public class AnimationRenderingTests
                 foreach (var frame in character.LoadAnimation(key))
                 {
                     view.SetFrames([frame], false, false, true);
-                    foreach (var pose in new[] { PetPose.Pickup(.4, PetPose.Neutral),
-                        PetPose.BounceOnce(.16, PetPose.Neutral), PetPose.BounceOnce(.34, PetPose.Neutral), PetPose.Neutral })
+                    foreach (var pose in new[] { new PetPose(1, 1, .06), new PetPose(1.10, .88, 0), PetPose.Neutral })
                     {
                         view.SetPose(pose); AssertMatchesFreshFrame(window);
                     }

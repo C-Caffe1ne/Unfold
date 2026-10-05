@@ -501,13 +501,17 @@ public sealed partial class AppRuntime : IDisposable
     }
     private void RefreshPetNotice()
     {
-        ScheduleNoticeExpiry();
         RefreshTray();
-        if (pet is not { } current) return;
-        current.RefreshSpeech();
-        if (ShouldShowPet)
-        { if (!current.IsVisible) current.ShowPet(); }
-        else if (current.IsVisible) current.HidePet();
+        if (pet is { } current)
+        {
+            current.RefreshSpeech();
+            if (ShouldShowPet)
+            { if (!current.IsVisible) current.ShowPet(); }
+            else if (current.IsVisible) current.HidePet();
+            if (current.IsVisible && !petNoticeSuppressed && reminderPreview is null)
+                Reminder.MarkInvitationPresented(monotonic.Elapsed);
+        }
+        ScheduleNoticeExpiry();
     }
     private void ScheduleNoticeExpiry()
     {

@@ -1,0 +1,47 @@
+  Unfold.Core -> /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/src/Unfold.Core/bin/Release/net10.0/Unfold.Core.dll
+  Unfold.Desktop -> /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/src/Unfold.Desktop/bin/Release/net10.0/Unfold.dll
+  Unfold.Tests -> /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll
+/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll(.NETCoreApp,Version=v10.0)에 대한 테스트 실행
+지정된 패턴과 일치한 총 테스트 파일 수는 1개입니다.
+[xUnit.net 00:00:02.97]     Unfold.Tests.GlbMemoryTests.WarmRenderingAllocatesOnlyTheOutputImageAndSmallPoseData(size: 1024) [FAIL]
+[xUnit.net 00:00:03.07]     Unfold.Tests.GlbMemoryTests.WarmRenderingAllocatesOnlyTheOutputImageAndSmallPoseData(size: 576) [FAIL]
+[xUnit.net 00:00:03.08]     Unfold.Tests.GlbMemoryTests.WarmRenderingAllocatesOnlyTheOutputImageAndSmallPoseData(size: 192) [FAIL]
+[xUnit.net 00:00:03.26]     Unfold.Tests.GlbMemoryTests.AlternatingPreviewAndPetSizesShareOneWarmWorkspaceAcrossClips [FAIL]
+  실패 Unfold.Tests.GlbMemoryTests.WarmRenderingAllocatesOnlyTheOutputImageAndSmallPoseData(size: 1024) [563 ms]
+  오류 메시지:
+   Assert.InRange() Failure: Value not in range
+Range:  (0 - 4259840)
+Actual: 34604518
+  스택 추적:
+     at Unfold.Tests.GlbMemoryTests.WarmRenderingAllocatesOnlyTheOutputImageAndSmallPoseData(Int32 size) in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/GlbMemoryTests.cs:line 19
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  실패 Unfold.Tests.GlbMemoryTests.WarmRenderingAllocatesOnlyTheOutputImageAndSmallPoseData(size: 576) [100 ms]
+  오류 메시지:
+   Assert.InRange() Failure: Value not in range
+Range:  (0 - 1392640)
+Actual: 10950248
+  스택 추적:
+     at Unfold.Tests.GlbMemoryTests.WarmRenderingAllocatesOnlyTheOutputImageAndSmallPoseData(Int32 size) in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/GlbMemoryTests.cs:line 19
+   at InvokeStub_GlbMemoryTests.WarmRenderingAllocatesOnlyTheOutputImageAndSmallPoseData(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  실패 Unfold.Tests.GlbMemoryTests.WarmRenderingAllocatesOnlyTheOutputImageAndSmallPoseData(size: 192) [16 ms]
+  오류 메시지:
+   Assert.InRange() Failure: Value not in range
+Range:  (0 - 212992)
+Actual: 1218114
+  스택 추적:
+     at Unfold.Tests.GlbMemoryTests.WarmRenderingAllocatesOnlyTheOutputImageAndSmallPoseData(Int32 size) in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/GlbMemoryTests.cs:line 19
+   at InvokeStub_GlbMemoryTests.WarmRenderingAllocatesOnlyTheOutputImageAndSmallPoseData(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  실패 Unfold.Tests.GlbMemoryTests.AlternatingPreviewAndPetSizesShareOneWarmWorkspaceAcrossClips [90 ms]
+  오류 메시지:
+   Assert.InRange() Failure: Value not in range
+Range:  (0 - 1605632)
+Actual: 11615258
+  스택 추적:
+     at Unfold.Tests.GlbMemoryTests.AlternatingPreviewAndPetSizesShareOneWarmWorkspaceAcrossClips() in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/GlbMemoryTests.cs:line 39
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+실패!  - 실패:     4, 통과:     1, 건너뜀:     0, 전체:     5, 기간: 887 ms - Unfold.Tests.dll (net10.0)

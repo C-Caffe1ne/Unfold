@@ -20,6 +20,7 @@ public sealed class TimerControls : StackPanel
         toggle.Classes.Add("primary");
         this.stop = ActionButton("TimerStop", "타이머 중지", new PlaybackIcon(PlaybackGlyph.Stop) { Width = 18, Height = 18 },
             new TextBlock { Text = "중지", VerticalAlignment = VerticalAlignment.Center }, stop);
+        Ui.Danger(this.stop);
         Children.Add(toggle); Children.Add(this.stop);
     }
     public void Refresh(StretchClock clock, bool hasActiveReminder = false)

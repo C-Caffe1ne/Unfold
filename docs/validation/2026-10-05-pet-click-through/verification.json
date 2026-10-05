@@ -1,0 +1,52 @@
+{
+  "worktree": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+  "branch": "codex/beta-v1.0.4",
+  "head": "717a63b68071b8ecb24c75bbfbbaa57e7256039d",
+  "version": "1.0.4-beta",
+  "tests": {
+    "focusedPassed": 89,
+    "finalInputAndCapturePassed": 32,
+    "fullPassed": 642,
+    "failed": 0,
+    "skipped": 0
+  },
+  "macOSNativeRouting": {
+    "passed": 6,
+    "failed": 0,
+    "models": [
+      "2D alpha fixture",
+      "Kazusa.glb"
+    ],
+    "cursorConversionVerified": true,
+    "pollingVerified": true,
+    "nativeMouseEventDeliveryVerified": false
+  },
+  "physicalInputVerified": false,
+  "windowsNativeVerified": false,
+  "sourceSha256": {
+    "src/Unfold.Desktop/MacPetWindow.cs": "56909eeb33a6d3369a04ce166546e5ba1fbb71f64d61f1c2aaafe2e383935bd9",
+    "src/Unfold.Desktop/PetWindow.cs": "e88ffa5276593bd3f84165eb0ed430e61dde8dba3807dcde8ccbd0891fef861d",
+    "src/Unfold.Desktop/PetWindow.Input.cs": "dd3fc638c562c4cdabb2860288e308b0ae6ce155bad2c6e46f89809f728b4070",
+    "src/Unfold.Desktop/AnimationView.cs": "a4db8f38078535768223bb7997054031e10c377c8147e22add5e3a89fb617645",
+    "Tests/Unfold.Tests/PetClickThroughTests.cs": "29a68e103b2b266fc9d1ed69481828c6e4d8f1be122f3ecd9a1b027cf653ede3",
+    "Tests/Unfold.Tests/OriginalCompanionTests.cs": "71b883c194f35abc4c2911918c2439137efc8cc7d0e34a9ace468e19f8fb7c46",
+    "Tests/Unfold.Tests/PetHoverTests.cs": "bb9c95926dba4b7159a836d4e3a719a5803b5545e567f628649d7bf2d2150a9f"
+  },
+  "testedDesktopDllSha256": "f7feade895731b6a166773129a6bb80a80c9412a23bbbd2ca66a6b272aae808e",
+  "probeUsesSameDesktopDll": true,
+  "modifiedPreexistingFiles": [
+    "Tests/Unfold.Tests/OriginalCompanionTests.cs",
+    "docs/README.md",
+    "docs/verification.md",
+    "src/Unfold.Desktop/AnimationView.cs",
+    "src/Unfold.Desktop/PetWindow.cs"
+  ],
+  "evidenceSha256": {
+    "native-routing.json": "faa1220202741b6127a039ce1121db2bfa6acd46da6ac65b29641a0214f00ae8",
+    "native-pointer.json": "a975b9a3b18e4cddd54aa41e0de3f2350deb1810a0901cb429b44ad47776a6c6",
+    "focused-tests.log": "ec7c8fd21edba77f314b66314c21862eac23692abaadf6ea68cfacf65c13a522",
+    "capture-tests.log": "cd8e24acc613aa1e363c1547820747c1ab572d0773b9bac59d6db14a3bcac32a",
+    "full-tests.log": "258ae211fc5ce156d87d5c4426c06cb7ce83c6110467e7deb1b7a04e4886e331",
+    "NativeInputProbe.cs": "01a31dad0667653906627d909a8574058040d1c9d58754ef971e9bb3748a8dfd"
+  }
+}

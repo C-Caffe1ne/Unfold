@@ -5,48 +5,7 @@ namespace Unfold.Desktop;
 internal readonly record struct PetPose(double ScaleX, double ScaleY, double Lift)
 {
     public const double LiftDelay = .22;
-    public const double BounceDuration = .64;
     public static PetPose Neutral => new(1, 1, 0);
-    public static PetPose Press(double seconds) => Between(Neutral, new(1.12, .82, 0), Math.Clamp(seconds / .10, 0, 1));
-    // A quick click keeps its original squash. Continuing to hold lifts the pet
-    // inside the existing canvas; no native window geometry changes are needed.
-    public static PetPose Hold(double seconds, PetPose start)
-    {
-        var squashed = Press(.10);
-        if (seconds <= .10) return Between(start, squashed, seconds / .10);
-        return Between(squashed, new(.96, 1.02, .06), (seconds - LiftDelay) / .18);
-    }
-    public static PetPose Land(double seconds, PetPose start)
-    {
-        var contact = new PetPose(1.10, .90, 0);
-        var rebound = new PetPose(.98, 1.02, .012);
-        if (seconds < .16) return Between(start, contact, seconds / .16);
-        if (seconds < .28) return Between(contact, rebound, (seconds - .16) / .12);
-        return Between(rebound, Neutral, (seconds - .28) / .16);
-    }
-    public static PetPose Pickup(double seconds, PetPose start) => Between(start, new(1, 1, .06), seconds / .28);
-    public static PetPose BounceOnce(double seconds, PetPose start)
-    {
-        var firstContact = new PetPose(1.10, .88, 0);
-        var apex = new PetPose(.98, 1.02, .10);
-        var finalContact = new PetPose(1.05, .94, 0);
-        if (seconds < .16) return Between(start, firstContact, seconds / .16);
-        if (seconds < .34) return Between(firstContact, apex, (seconds - .16) / .18);
-        if (seconds < .52) return Between(apex, finalContact, (seconds - .34) / .18);
-        return Between(finalContact, Neutral, (seconds - .52) / .12);
-    }
-    public static PetPose Release(double seconds, PetPose start)
-    {
-        if (seconds < .12) return Between(start, new(.94, 1.06, .07), seconds / .12);
-        if (seconds < .26) return Between(new(.94, 1.06, .07), new(1.06, .94, 0), (seconds - .12) / .14);
-        return Between(new(1.06, .94, 0), Neutral, Math.Clamp((seconds - .26) / .18, 0, 1));
-    }
-    private static PetPose Between(PetPose from, PetPose to, double t)
-    {
-        t = Math.Clamp(t, 0, 1); t = t * t * (3 - 2 * t);
-        return new(from.ScaleX + (to.ScaleX - from.ScaleX) * t,
-            from.ScaleY + (to.ScaleY - from.ScaleY) * t, from.Lift + (to.Lift - from.Lift) * t);
-    }
 }
 
 /// <summary>Physical-pixel movement bounded by the whole pet-and-bubble window.</summary>

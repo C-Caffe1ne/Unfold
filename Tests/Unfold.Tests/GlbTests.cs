@@ -193,7 +193,8 @@ public class GlbTests
             Press("SaveGlbPet"); await Until(() => !page.IsBusy && selected is not null);
             Assert.Equal("Mapped pet", selected!.Manifest.Name); Assert.Equal(.5, selected.Manifest.Animations["click"].Speed);
             Assert.True(selected.Manifest.Animations["click"].Loop); Assert.False(page.HasUnsavedChanges);
-            Find<ComboBox>("GlbExistingPets").SelectedIndex = 0; await Until(() => !page.IsBusy && page.HasUnsavedChanges);
+            Find<ComboBox>("GlbExistingPets").SelectedIndex = -1; Find<ComboBox>("GlbExistingPets").SelectedIndex = 0; await Until(() => !page.IsBusy && page.HasDraft);
+            Assert.False(page.HasUnsavedChanges);
             Find<TextBox>("GlbPetName").Text = "Edited pet"; Press("SaveGlbPet"); await Until(() => !page.IsBusy && selected.Manifest.Name == "Edited pet");
             Assert.Single(library.List());
         }
@@ -217,15 +218,28 @@ public class GlbTests
                 for (var i = 0; i < 300 && !ready(); i++) { await Task.Delay(10, TestContext.Current.CancellationToken); Dispatcher.UIThread.RunJobs(); }
                 Assert.True(ready(), pet.ActiveAnimation);
             }
+            void FixedCanvas()
+            {
+                Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
+                Assert.Equal(Matrix.Identity, pet.PetView.RenderTransform?.Value ?? Matrix.Identity);
+            }
             // Select a painted point in window coordinates, including the speech layout offset.
             var local = new Point(96, 130); var point = pet.PetView.TranslatePoint(local, pet)!.Value;
             pet.MouseDown(point, Avalonia.Input.MouseButton.Left); pet.MouseUp(point, Avalonia.Input.MouseButton.Left);
             await Until(() => pet.ActiveAnimation == "click"); await Until(() => pet.ActiveAnimation == "idle");
             point = pet.PetView.TranslatePoint(local, pet)!.Value;
             pet.MouseDown(point, Avalonia.Input.MouseButton.Left); pet.MouseMove(point + new Vector(20, 0));
-            Assert.Equal(PetPointerPhase.Pickup, pet.PointerPhase); await Until(() => pet.PointerPhase == PetPointerPhase.Held);
-            pet.MouseUp(point + new Vector(20, 0), Avalonia.Input.MouseButton.Left); pet.AdvanceCompanion(.2); pet.AdvanceCompanion(.2); pet.AdvanceCompanion(.2);
+            Assert.Equal(PetPointerPhase.Pickup, pet.PointerPhase); pet.AdvanceCompanion(.2); FixedCanvas();
+            await Until(() => pet.PointerPhase == PetPointerPhase.Held); pet.AdvanceCompanion(.2); FixedCanvas();
+            pet.MouseUp(point + new Vector(20, 0), Avalonia.Input.MouseButton.Left);
+            Assert.Equal("land", pet.ActiveAnimation); Assert.Equal(PetPointerPhase.Recovering, pet.PointerPhase); FixedCanvas();
+            for (var i = 0; i < 65; i++) { pet.AdvanceCompanion(.01); FixedCanvas(); }
             await Until(() => pet.ActiveAnimation == "idle"); Assert.Equal(PetPointerPhase.None, pet.PointerPhase);
+            foreach (var key in new[] { "hover", "click", "attention", "celebrate" })
+            {
+                var reaction = pet.React(key); FixedCanvas(); pet.AdvanceCompanion(.1); FixedCanvas();
+                await reaction; FixedCanvas();
+            }
             await runtime.ShowReminder(); runtime.StartBreak(); await Until(() => pet.ActiveAnimation == "walk");
             Assert.True(pet.IsRoaming); runtime.Stop(); await Until(() => pet.ActiveAnimation == "idle");
             await runtime.UpdateSettings(runtime.Settings with { ShowPet = false }); await pet.React("click"); Assert.False(pet.IsVisible);

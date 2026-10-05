@@ -5,6 +5,28 @@ namespace Unfold.Core;
 
 public sealed partial class GlbModel
 {
+    // One workspace per model, shared by all action clips and preview sizes.
+    // Only scratch storage is reused: returned PixelImages always own their pixels.
+    // Grow to the largest requested size rather than retaining a pool for every
+    // size/clip. Color + depth are bounded by the 2048px raster limit (32 MiB).
+    private readonly RenderWorkspace renderWorkspace = new();
+    private sealed class RenderWorkspace
+    {
+        private uint[] colors = [];
+        private float[] depth = [];
+        private Vector3[] vertices = [];
+        private Matrix4x4[] joints = [];
+        public Span<uint> Colors(int length) => Buffer(ref colors, length);
+        public Span<float> Depth(int length) => Buffer(ref depth, length);
+        public Span<Vector3> Vertices(int length) => Buffer(ref vertices, length);
+        public Span<Matrix4x4> Joints(int length) => Buffer(ref joints, length);
+        private static Span<T> Buffer<T>(ref T[] buffer, int length)
+        {
+            if (buffer.Length < length) buffer = new T[length];
+            return buffer.AsSpan(0, length);
+        }
+    }
+
     private static float[] Sample(Channel channel, float time)
     {
         var times = channel.Times; var cubic = channel.Interpolation == "CUBICSPLINE";
@@ -50,8 +72,19 @@ public sealed partial class GlbModel
     }
     private Vector3[] Vertices(int node, Primitive primitive, Matrix4x4[] world, float[] morphWeights)
     {
-        var n = nodes[node]; var result = new Vector3[primitive.Positions.Length];
-        Matrix4x4[] joints = n.Skin < 0 ? [] : skins[n.Skin].Joints.Select((j, i) => skins[n.Skin].Inverse[i] * world[j]).ToArray();
+        var result = new Vector3[primitive.Positions.Length];
+        var joints = new Matrix4x4[nodes[node].Skin < 0 ? 0 : skins[nodes[node].Skin].Joints.Length];
+        TransformVertices(node, primitive, world, morphWeights, result, joints);
+        return result;
+    }
+    private void TransformVertices(int node, Primitive primitive, Matrix4x4[] world, float[] morphWeights,
+        Span<Vector3> result, Span<Matrix4x4> joints)
+    {
+        if (nodes[node].Skin >= 0)
+        {
+            var skin = skins[nodes[node].Skin];
+            for (var i = 0; i < joints.Length; i++) joints[i] = skin.Inverse[i] * world[skin.Joints[i]];
+        }
         for (var i = 0; i < result.Length; i++)
         {
             var pos = primitive.Positions[i];
@@ -62,7 +95,6 @@ public sealed partial class GlbModel
                 (Vector3.Transform(pos, joints[(int)js.X]) * ws.X + Vector3.Transform(pos, joints[(int)js.Y]) * ws.Y +
                  Vector3.Transform(pos, joints[(int)js.Z]) * ws.Z + Vector3.Transform(pos, joints[(int)js.W]) * ws.W) / total;
         }
-        return result;
     }
     public GlbAnimationFrames CreateAnimation(string name, GlbDefinition definition, string referenceClip, double speed = 1)
         => new(this, name, definition, referenceClip, speed);
@@ -83,19 +115,62 @@ public sealed partial class GlbModel
         return (min, max);
     }
     public PixelImage Render(string name, double seconds, GlbDefinition definition, string referenceClip, int size = 192)
-        => Render(name, seconds, definition, referenceClip, Bounds(definition, referenceClip), size);
-    internal PixelImage Render(string name, double seconds, GlbDefinition definition, string referenceName, (Vector3 Min, Vector3 Max) bounds, int size)
     {
-        if (size is < 32 or > 2048 || !double.IsFinite(seconds) || !float.IsFinite(definition.Heading)) throw new InvalidDataException("Invalid GLB render settings.");
+        ValidateRender(size, seconds, definition);
+        var bounds = Bounds(definition, referenceClip);
+        var pixels = new uint[size * size];
+        lock (renderWorkspace) RenderInto(name, seconds, definition, referenceClip, bounds, size, pixels);
+        return new(size, size, pixels);
+    }
+    private static void ValidateRender(int size, double seconds, GlbDefinition definition)
+    {
+        if (size is < 32 or > 2048 || !double.IsFinite(seconds) || !float.IsFinite(definition.Heading))
+            throw new InvalidDataException("Invalid GLB render settings.");
+    }
+    internal PixelImage RenderAntialiased(string name, double seconds, GlbDefinition definition, string referenceName,
+        (Vector3 Min, Vector3 Max) bounds, int size)
+    {
+        if (size is < 32 or > GlbAnimationFrames.MaxFrameSize) throw new ArgumentOutOfRangeException(nameof(size));
+        var rasterSize = size * 2;
+        ValidateRender(rasterSize, seconds, definition);
+        var pixels = new uint[size * size];
+        lock (renderWorkspace)
+        {
+            var colors = renderWorkspace.Colors(rasterSize * rasterSize);
+            RenderInto(name, seconds, definition, referenceName, bounds, rasterSize, colors);
+            // Preserve the existing four coverage samples and premultiplied
+            // averaging so enlarged edges are identical to the original renderer.
+            for (var y = 0; y < size; y++) for (var x = 0; x < size; x++)
+            {
+                uint alpha = 0, red = 0, green = 0, blue = 0;
+                for (var dy = 0; dy < 2; dy++) for (var dx = 0; dx < 2; dx++)
+                {
+                    var color = colors[(y * 2 + dy) * rasterSize + x * 2 + dx]; var a = color >> 24;
+                    alpha += a; red += ((color >> 16) & 255) * a; green += ((color >> 8) & 255) * a; blue += (color & 255) * a;
+                }
+                if (alpha == 0) continue;
+                pixels[y * size + x] = ((alpha + 2) / 4) << 24 | ((red + alpha / 2) / alpha) << 16 |
+                    ((green + alpha / 2) / alpha) << 8 | (blue + alpha / 2) / alpha;
+            }
+        }
+        return new(size, size, pixels);
+    }
+    // Caller holds renderWorkspace until the raster has been copied/downsampled.
+    private void RenderInto(string name, double seconds, GlbDefinition definition, string referenceName,
+        (Vector3 Min, Vector3 Max) bounds, int size, Span<uint> pixels)
+    {
         var clip = FindClip(name); var reference = FindClip(referenceName);
         var pose = Pose(clip, clip.Start + (float)Math.Clamp(seconds, 0, clip.End - clip.Start), LockedRoot(definition), reference);
         var heading = Matrix4x4.CreateRotationY(definition.Heading * MathF.PI / 180);
         var width = bounds.Max.X - bounds.Min.X; var height = bounds.Max.Y - bounds.Min.Y;
         var scale = size * .78f / Math.Max(width, height); var center = (bounds.Min.X + bounds.Max.X) * .5f;
-        var pixels = new uint[size * size]; var depth = Enumerable.Repeat(float.NegativeInfinity, size * size).ToArray();
+        pixels.Clear();
+        var depth = renderWorkspace.Depth(size * size); depth.Fill(float.NegativeInfinity);
         foreach (var node in visible) foreach (var primitive in meshes[nodes[node].Mesh])
         {
-            var vertices = Vertices(node, primitive, pose.World, pose.Weights[node]);
+            var vertices = renderWorkspace.Vertices(primitive.Positions.Length);
+            var joints = renderWorkspace.Joints(nodes[node].Skin < 0 ? 0 : skins[nodes[node].Skin].Joints.Length);
+            TransformVertices(node, primitive, pose.World, pose.Weights[node], vertices, joints);
             for (var i = 0; i < vertices.Length; i++)
             { var v = Vector3.Transform(vertices[i], heading); vertices[i] = new((v.X - center) * scale + size / 2f, size * .90f - (v.Y - bounds.Min.Y) * scale, v.Z); }
             var material = materials[primitive.Material];
@@ -120,7 +195,6 @@ public sealed partial class GlbModel
                 }
             }
         }
-        return new(size, size, pixels);
     }
     private static float Edge(Vector3 a, Vector3 b, float x, float y) => (x - a.X) * (b.Y - a.Y) - (y - a.Y) * (b.X - a.X);
     private static float Wrap(float value, int mode) => mode == 33071 ? Math.Clamp(value, 0, 1) : mode == 33648 ? 1 - Math.Abs(value - 2 * MathF.Floor(value / 2) - 1) : value - MathF.Floor(value);
@@ -175,25 +249,7 @@ public sealed class GlbAnimationFrames : IReadOnlyList<AnimationFrame>
         }
     }
     private AnimationFrame RenderFrame(int index, int size)
-    {
-        // Four coverage samples per output pixel; average premultiplied colors so
-        // transparent edges stay clean on both light and dark desktop backgrounds.
-        var image = model.Render(name, index * FrameDuration.TotalSeconds * speed, definition, reference, bounds, size * 2);
-        var pixels = new uint[size * size];
-        for (var y = 0; y < size; y++) for (var x = 0; x < size; x++)
-        {
-            uint alpha = 0, red = 0, green = 0, blue = 0;
-            for (var dy = 0; dy < 2; dy++) for (var dx = 0; dx < 2; dx++)
-            {
-                var color = image.Pixels[(y * 2 + dy) * image.Width + x * 2 + dx]; var a = color >> 24;
-                alpha += a; red += ((color >> 16) & 255) * a; green += ((color >> 8) & 255) * a; blue += (color & 255) * a;
-            }
-            if (alpha == 0) continue;
-            pixels[y * size + x] = ((alpha + 2) / 4) << 24 | ((red + alpha / 2) / alpha) << 16 |
-                ((green + alpha / 2) / alpha) << 8 | (blue + alpha / 2) / alpha;
-        }
-        return new(new PixelImage(size, size, pixels), FrameDuration);
-    }
+        => new(model.RenderAntialiased(name, index * FrameDuration.TotalSeconds * speed, definition, reference, bounds, size), FrameDuration);
     public IEnumerator<AnimationFrame> GetEnumerator() { for (var i = 0; i < Count; i++) yield return this[i]; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

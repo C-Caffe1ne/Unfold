@@ -2,7 +2,7 @@ using Unfold.Core;
 
 namespace Unfold.Desktop;
 
-internal enum PetPointerPhase { None, Pending, Pickup, Held, Bouncing, Recovering }
+internal enum PetPointerPhase { None, Pending, Pickup, Held, Recovering }
 
 public sealed partial class PetWindow
 {
@@ -18,12 +18,12 @@ public sealed partial class PetWindow
         catch (Exception error) { AppPaths.Log(error); return null; }
     }
 
-    private void SetPointerClip(int index, PetPointerPhase phase, bool firstFrameOnly = false)
+    private void SetPointerClip(int index, PetPointerPhase phase)
     {
         PointerPhase = phase; ActiveAnimation = OriginalCompanion.PointerClips[index];
         var frames = pointerClips![index];
         animation.SetRunning(true);
-        animation.SetFrames(firstFrameOnly ? [frames[0]] : frames, index == 1, false, true);
+        animation.SetFrames(frames, index == 1, false, true);
     }
 
     private void BeginPointerArt()
@@ -31,7 +31,7 @@ public sealed partial class PetWindow
         // Every click begins with pointer-down. Wait for a hold or drag before
         // changing to the curled/hanging artwork.
         PointerPhase = PetPointerPhase.Pending;
-        animation.SetPose(PetPose.Neutral); pressedPose = PetPose.Neutral;
+        animation.SetPose(PetPose.Neutral);
         _ = RestoreBaseAnimation(InvalidatePlayback());
     }
 
@@ -50,30 +50,17 @@ public sealed partial class PetWindow
             return;
         }
         InvalidatePlayback();
-        releasedPose = animation.Pose; pressed = false; releasing = true; poseSeconds = 0;
-        // A hold/drag ends with landing only, never an additional click reaction.
-        // Keep the held silhouette through the bounce and uncurl after landing.
-        SetPointerClip(1, PetPointerPhase.Bouncing, firstFrameOnly: true);
+        pressed = false; poseSeconds = 0;
+        // Play the assigned release clip immediately, without moving or scaling
+        // the canvas and without inserting a held-frame bounce before it.
+        SetPointerClip(2, PetPointerPhase.Recovering);
     }
 
     private void AdvancePointerArt(double seconds)
     {
+        if (PointerPhase != PetPointerPhase.Pending) return;
         poseSeconds += seconds;
-        if (PointerPhase == PetPointerPhase.Pending)
-        {
-            if (poseSeconds >= PetPose.LiftDelay) StartPointerHold();
-        }
-        else if (PointerPhase is PetPointerPhase.Pickup or PetPointerPhase.Held)
-            animation.SetPose(PetPose.Pickup(poseSeconds, pressedPose));
-        else if (PointerPhase == PetPointerPhase.Bouncing)
-        {
-            animation.SetPose(PetPose.BounceOnce(poseSeconds, releasedPose));
-            if (poseSeconds >= PetPose.BounceDuration)
-            {
-                animation.SetPose(PetPose.Neutral);
-                SetPointerClip(2, PetPointerPhase.Recovering);
-            }
-        }
+        if (poseSeconds >= PetPose.LiftDelay) StartPointerHold();
     }
 
     private void PointerClipCompleted()
