@@ -66,7 +66,7 @@ public class ThemeTests
             Choose(window, palette.Id);
             Assert.Same(page, host.Content); Assert.Same(surface, Find<Border>(window, "SettingsTimerSettingsCard").Background);
             Assert.Equal(Color.Parse(palette.Surface), ((ISolidColorBrush)surface!).Color);
-            Assert.Equal(Colors.Transparent, ((ISolidColorBrush)window.Background!).Color);
+            Assert.Equal(Color.Parse(palette.Canvas), ((ISolidColorBrush)window.Background!).Color);
             Assert.Equal(Color.Parse(palette.Canvas), ((ISolidColorBrush)Find<Border>(window, "SettingsWindowSurface").Background!).Color);
             Assert.Equal(palette.IsDark ? ThemeVariant.Dark : ThemeVariant.Light, window.ActualThemeVariant);
             Assert.Equal(palette.Id, scope.Runtime.Settings.Theme);

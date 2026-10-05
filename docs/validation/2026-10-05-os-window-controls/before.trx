@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="9ae4cd76-ae0e-4e9a-8fd2-d2d9281b4d15" name="@hwanghyeonseong-ui-MacBookAir 2026-10-05 18:30:55" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-05T18:30:55.8220810+09:00" queuing="2026-10-05T18:30:55.8220810+09:00" start="2026-10-05T18:30:52.5814220+09:00" finish="2026-10-05T18:30:55.8250590+09:00" />
+  <TestSettings name="default" id="2d1a00a3-18d7-4227-b013-f05105b51c8a">
+    <Deployment runDeploymentRoot="_hwanghyeonseong-ui-MacBookAir_2026-10-05_18_30_55" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="5ab2ab68-8ddc-4936-91ff-d7eb6030e7f9" testId="215941ed-a2c7-1757-e4d6-7fb1081900aa" testName="Unfold.Tests.WindowControlTests.RoundedOuterSurfaceReplacesTheInnerFrameAndKeepsContentBounds" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.0618632" startTime="2026-10-05T18:30:55.5436330+09:00" endTime="2026-10-05T18:30:55.6055440+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5ab2ab68-8ddc-4936-91ff-d7eb6030e7f9" />
+    <UnitTestResult executionId="c7c9b6c2-d6bb-4011-84b5-c16eae4bb9e8" testId="cc20e5fd-76f4-d75b-816c-2a87f2bb839a" testName="Unfold.Tests.WindowControlTests.WindowButtonsMinimizeMaximizeRestoreAndCloseWithoutStoppingTheTimer" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.0536199" startTime="2026-10-05T18:30:55.4874730+09:00" endTime="2026-10-05T18:30:55.5411420+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c7c9b6c2-d6bb-4011-84b5-c16eae4bb9e8" />
+    <UnitTestResult executionId="5449912a-c03c-46aa-93af-62e44155f1b8" testId="6f51d2e5-9584-a408-c426-c50e28ab9940" testName="Unfold.Tests.WindowControlTests.WindowButtonsAndDragRegionStayAboveTheExistingPageAtBothWindowSizes" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.0716768" startTime="2026-10-05T18:30:55.4130190+09:00" endTime="2026-10-05T18:30:55.4847680+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5449912a-c03c-46aa-93af-62e44155f1b8" />
+    <UnitTestResult executionId="5a70dd3d-652e-43df-827c-8a4691df3e17" testId="aa1574a4-855c-addd-9384-ae1ea06676d7" testName="Unfold.Tests.WindowControlTests.MacHeaderDragMovesTheWindowAndStopsOnReleaseAndCaptureLoss" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.5902349" startTime="2026-10-05T18:30:54.8106330+09:00" endTime="2026-10-05T18:30:55.4047980+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5a70dd3d-652e-43df-827c-8a4691df3e17" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Unfold.Tests.WindowControlTests.RoundedOuterSurfaceReplacesTheInnerFrameAndKeepsContentBounds" storage="/users/hwanghyeonseong/.codex/worktrees/6bca/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="215941ed-a2c7-1757-e4d6-7fb1081900aa">
+      <Execution id="5ab2ab68-8ddc-4936-91ff-d7eb6030e7f9" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.WindowControlTests" name="RoundedOuterSurfaceReplacesTheInnerFrameAndKeepsContentBounds" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.WindowControlTests.WindowButtonsMinimizeMaximizeRestoreAndCloseWithoutStoppingTheTimer" storage="/users/hwanghyeonseong/.codex/worktrees/6bca/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="cc20e5fd-76f4-d75b-816c-2a87f2bb839a">
+      <Execution id="c7c9b6c2-d6bb-4011-84b5-c16eae4bb9e8" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.WindowControlTests" name="WindowButtonsMinimizeMaximizeRestoreAndCloseWithoutStoppingTheTimer" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.WindowControlTests.MacHeaderDragMovesTheWindowAndStopsOnReleaseAndCaptureLoss" storage="/users/hwanghyeonseong/.codex/worktrees/6bca/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="aa1574a4-855c-addd-9384-ae1ea06676d7">
+      <Execution id="5a70dd3d-652e-43df-827c-8a4691df3e17" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.WindowControlTests" name="MacHeaderDragMovesTheWindowAndStopsOnReleaseAndCaptureLoss" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.WindowControlTests.WindowButtonsAndDragRegionStayAboveTheExistingPageAtBothWindowSizes" storage="/users/hwanghyeonseong/.codex/worktrees/6bca/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="6f51d2e5-9584-a408-c426-c50e28ab9940">
+      <Execution id="5449912a-c03c-46aa-93af-62e44155f1b8" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.WindowControlTests" name="WindowButtonsAndDragRegionStayAboveTheExistingPageAtBothWindowSizes" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="215941ed-a2c7-1757-e4d6-7fb1081900aa" executionId="5ab2ab68-8ddc-4936-91ff-d7eb6030e7f9" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="cc20e5fd-76f4-d75b-816c-2a87f2bb839a" executionId="c7c9b6c2-d6bb-4011-84b5-c16eae4bb9e8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6f51d2e5-9584-a408-c426-c50e28ab9940" executionId="5449912a-c03c-46aa-93af-62e44155f1b8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="aa1574a4-855c-addd-9384-ae1ea06676d7" executionId="5a70dd3d-652e-43df-827c-8a4691df3e17" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="목록에 없는 결과" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="로드된 모든 결과" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="4" executed="4" passed="4" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.12)
+[xUnit.net 00:00:00.84]   Discovering: Unfold.Tests
+[xUnit.net 00:00:01.12]   Discovered:  Unfold.Tests
+[xUnit.net 00:00:01.60]   Starting:    Unfold.Tests
+[xUnit.net 00:00:02.56]   Finished:    Unfold.Tests
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

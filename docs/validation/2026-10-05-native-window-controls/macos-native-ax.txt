@@ -1,0 +1,95 @@
+Window: "Unfold · 휴식 알림 · Beta v1.0.4", App: Avalonia Application.
+0 standard window Unfold · 휴식 알림 · Beta v1.0.4, Secondary Actions: Raise
+	1 container WindowChrome, ID: AvaloniaWindowChrome
+	2 container
+		3 container
+			4 container
+				5 container SettingsNavigationRail
+					6 container SettingsNavigationLinks
+						7 button 홈 · 선택됨, Help: 현재 보고 있는 페이지예요., ID: SettingsNavTimer
+						8 button 펫 관리, Help: 이 페이지로 이동해요., ID: SettingsNavPacks
+						9 button 기록, Help: 이 페이지로 이동해요., ID: SettingsNavReview
+						10 button 테마, ID: SettingsTheme
+					11 container
+						12 button 설정, Help: 이 페이지로 이동해요., ID: SettingsNavSettings
+						13 button 종료, ID: SettingsQuit
+						14 text Help: Beta v1.0.4, ID: SidebarVersion, Value: Beta
+v1.0.4
+				15 scroll area SettingsDashboardScroll
+					16 container
+						17 container SettingsDashboard
+							18 container SettingsMain
+								19 container
+									20 text 다음 휴식까지
+									21 text 60분 간격
+									22 container
+										23 text Value: 일시정지, ID: TimerStateText
+									24 text Value: 남은 시간 53:54, ID: TimerCountdown
+									25 button 타이머 계속, ID: TimerToggle
+										26 container
+											27 text 계속
+									28 button 타이머 중지, ID: TimerStop
+										29 container
+											30 text 중지
+								31 container
+									32 scroll area CompanionPreviewScroll
+										33 container
+									34 container
+										35 text 함께하는 펫
+										36 text Value: Mochi, ID: CompanionName
+									37 container
+										38 text Value: 펫 크기, ID: PetScaleLabel
+										39 slider (settable, float) 펫 크기, 퍼센트, Value: 100, ID: PetScale
+											40 container PART_Track
+												41 button PART_DecreaseButton
+													42 container
+												43 button PART_IncreaseButton
+													44 container
+												45 handle thumb
+										46 text Value: 100%, ID: PetScaleValue
+									47 container
+										48 text 펫 선택
+										49 pop up button 함께할 펫, Value: Mochi, ID: CharacterPicker
+											50 container
+												51 text Mochi
+												52 unknown PART_Popup
+							53 scroll area SettingsDetailsScroll
+								54 container
+									55 container
+										56 container
+											57 text 시간 설정
+											58 button (disabled) 스트레칭과 휴식 시간 저장, Help: 변경한 스트레칭과 휴식 시간 저장, ID: ApplyHomeTimingSettings
+											59 text 스트레칭 알림 간격 (분)
+											60 stepper (settable, float) 스트레칭 알림 간격, 분 단위, Help: 1분 단위로 스트레칭 시간을 변경할 수 있어요., Value: 60, ID: ReminderInterval
+												61 container
+													62 container PART_SpinnerPanel
+														63 button Avalonia.Controls.PathIcon, ID: PART_IncreaseButton
+														64 button Avalonia.Controls.PathIcon, ID: PART_DecreaseButton
+													65 text field (settable) Value: 60, ID: PART_TextBox
+														66 container
+															67 container
+																68 scroll area PART_ScrollViewer
+																	69 container
+											70 text 휴식 시간 (분)
+											71 stepper (settable, float) 휴식 시간, 분 단위, Help: 다음 휴식의 목표 시간을 1~10분으로 설정해요., Value: 1, ID: BreakDurationMinutes
+												72 container
+													73 container PART_SpinnerPanel
+														74 button Avalonia.Controls.PathIcon, ID: PART_IncreaseButton
+														75 button (disabled) Avalonia.Controls.PathIcon, ID: PART_DecreaseButton
+													76 text field (settable) Value: 1, ID: PART_TextBox
+														77 container
+															78 container
+																79 scroll area PART_ScrollViewer
+																	80 container
+										81 container
+											82 text 오늘의 작은 쉼
+											83 text 0
+											84 text 회
+											85 button 기록 · 내보내기, ID: SettingsOpenReview
+	86 close button
+	87 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	88 minimize button
+89 menu bar
+	90 Avalonia Application
+
+The focused UI element is 25 button 타이머 계속, ID: TimerToggle

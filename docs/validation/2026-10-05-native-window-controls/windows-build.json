@@ -1,0 +1,11 @@
+{
+  "runtime": "win-x64",
+  "selfContained": false,
+  "executionVerified": false,
+  "command": "dotnet publish src/Unfold.Desktop/Unfold.Desktop.csproj -c Release -r win-x64 --self-contained false -p:NuGetAudit=false --ignore-failed-sources -o /private/tmp/unfold-native-window-controls-20261005/windows-publish",
+  "sha256": {
+    "Unfold.exe": "bf558aacf168f91eac51ade98a89f6fcacb6ee0ac3486255cdb8603daf3d9a4a",
+    "Unfold.dll": "75827c161aea1672bc22d664c0811ef3512d46507b7856677682e982e5ea996c",
+    "Unfold.deps.json": "242ef6b199d750b699da076e698fc22fd8e99c8e95573ab87f411644becdd955"
+  }
+}

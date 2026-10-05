@@ -1,0 +1,1 @@
+Decorations=Full; Extended=False; Margin=0,0,0,0; Position=80, 90; State=Normal; Client=640, 240

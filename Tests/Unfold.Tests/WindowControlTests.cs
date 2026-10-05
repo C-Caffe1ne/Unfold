@@ -1,10 +1,10 @@
 using Avalonia;
-using Avalonia.Automation;
 using Avalonia.Controls;
+using Avalonia.Controls.Chrome;
+using Avalonia.Input;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
-using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
@@ -16,122 +16,92 @@ namespace Unfold.Tests;
 public class WindowControlTests
 {
     [AvaloniaFact]
-    public void WindowButtonsMinimizeMaximizeRestoreAndCloseWithoutStoppingTheTimer()
+    public void MainWindowUsesNativeDecorationsWithoutDuplicateCaptionControls()
     {
         using var scope = new Scope();
         var window = scope.Window;
-        Assert.Equal(WindowDecorations.BorderOnly, window.WindowDecorations);
-        Assert.True(window.ExtendClientAreaToDecorationsHint);
-        Assert.True(window.CanResize);
-        Press(window, "SettingsWindowMinimize");
-        Assert.Equal(WindowState.Minimized, window.WindowState);
-        window.WindowState = WindowState.Normal;
-        Press(window, "SettingsWindowMaximize");
-        Assert.Equal(WindowState.Maximized, window.WindowState);
-        Assert.Equal(new CornerRadius(0), Find<Border>(window, "SettingsWindowSurface").CornerRadius);
-        Assert.Equal("복원", AutomationProperties.GetName(Find<Button>(window, "SettingsWindowMaximize")));
-        Press(window, "SettingsWindowMaximize");
-        Assert.Equal(WindowState.Normal, window.WindowState);
-        Assert.Equal(DesignSystem.FrameRadius, Find<Border>(window, "SettingsWindowSurface").CornerRadius);
-        Assert.Equal("최대화", AutomationProperties.GetName(Find<Button>(window, "SettingsWindowMaximize")));
-        var paused = scope.Runtime.Clock.Paused;
-        var stopped = scope.Runtime.Clock.Stopped;
-        Press(window, "SettingsWindowClose");
-        Assert.False(window.IsVisible);
-        Assert.Equal(paused, scope.Runtime.Clock.Paused);
-        Assert.Equal(stopped, scope.Runtime.Clock.Stopped);
-        window.Show(); Layout(window);
-        Assert.True(window.IsVisible);
-        Assert.Equal(3, Find<StackPanel>(window, "SettingsWindowControls").Children.Count);
-        window.CanResize = false;
-        Assert.False(Find<Button>(window, "SettingsWindowMaximize").IsEnabled);
-        window.CanMinimize = false;
-        Assert.False(Find<Button>(window, "SettingsWindowMinimize").IsEnabled);
+        Assert.Equal(WindowDecorations.Full, window.WindowDecorations);
+        Assert.Equal(OperatingSystem.IsMacOS(), window.ExtendClientAreaToDecorationsHint);
+        Assert.Equal(-1, window.ExtendClientAreaTitleBarHeightHint);
+        Assert.True(window.CanResize && window.CanMinimize && window.CanMaximize);
+        Assert.DoesNotContain(WindowTransparencyLevel.Transparent, window.TransparencyLevelHint);
+        Assert.DoesNotContain(window.GetVisualDescendants().OfType<Control>(), control => control.Name is
+            "SettingsWindowControls" or "SettingsWindowControlBar" or "SettingsWindowDragRegion" or
+            "SettingsWindowClose" or "SettingsWindowMinimize" or "SettingsWindowMaximize");
     }
 
-    [AvaloniaFact]
-    public void WindowButtonsAndDragRegionStayAboveTheExistingPageAtBothWindowSizes()
+    [AvaloniaTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void CloseRequestHidesAndReopensTheSameContentWithoutChangingTheTimer(bool paused)
     {
         using var scope = new Scope();
         var window = scope.Window;
-        foreach (var size in new[] { new Size(1120, 800), new Size(640, 560) })
+        if (scope.Runtime.Clock.Paused != paused) scope.Runtime.TogglePause();
+        var stopped = scope.Runtime.Clock.Stopped;
+        var content = window.Content;
+        var closed = false;
+        window.Closed += (_, _) => closed = true;
+        for (var attempt = 0; attempt < 2; attempt++)
         {
-            window.Width = size.Width; window.Height = size.Height; Layout(window);
-            var region = Find<Border>(window, "SettingsWindowDragRegion");
-            var point = region.TranslatePoint(new Point(200, 12), window)!.Value;
-            Assert.Same(region, window.InputHitTest(point));
-            var nav = Find<Button>(window, "SettingsNavTimer");
-            Assert.True(nav.TranslatePoint(default, window)!.Value.Y > point.Y);
-            foreach (var name in new[] { "SettingsWindowClose", "SettingsWindowMinimize", "SettingsWindowMaximize" })
+            window.Close(); Layout(window);
+            Assert.False(window.IsVisible);
+            Assert.False(closed);
+            Assert.Equal(paused, scope.Runtime.Clock.Paused);
+            Assert.Equal(stopped, scope.Runtime.Clock.Stopped);
+            window.Show(); Layout(window);
+            Assert.True(window.IsVisible);
+            Assert.Same(content, window.Content);
+            var preferences = Find<Button>(window, "SettingsNavSettings");
+            preferences.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Layout(window);
+            Assert.True(Find<ScrollViewer>(window, "SettingsPreferencesScroll").IsEffectivelyVisible);
+        }
+    }
+
+    [AvaloniaTheory]
+    [InlineData(1120, 800)]
+    [InlineData(860, 680)]
+    [InlineData(640, 560)]
+    public void NativeFrameFillsClientAreaAndKeepsContentBelowDecorationsAcrossStates(int width, int height)
+    {
+        using var scope = new Scope();
+        var window = scope.Window;
+        window.Width = width; window.Height = height;
+        foreach (var state in new[] { WindowState.Normal, WindowState.Minimized, WindowState.Normal,
+            WindowState.Maximized, WindowState.Normal, WindowState.FullScreen, WindowState.Normal })
+        {
+            // Headless state requests verify app layout/lifecycle, not native pointer input.
+            window.WindowState = state; Layout(window);
+            Assert.Equal(state, window.WindowState);
+            if (state == WindowState.Minimized) continue;
+            var surface = Find<Border>(window, "SettingsWindowSurface");
+            var frame = Find<Border>(window, "SettingsFrame");
+            var inset = window.IsExtendedIntoWindowDecorations ? window.WindowDecorationMargin : default;
+            Assert.Equal(window.ClientSize, surface.Bounds.Size);
+            Assert.Equal(default, surface.CornerRadius);
+            Assert.Equal(default, frame.BorderThickness);
+            Assert.Equal(inset, frame.Margin);
+            var titleBar = Find<Border>(window, "SettingsNativeTitleBar");
+            Assert.Equal(WindowDecorationsElementRole.TitleBar, WindowDecorationProperties.GetElementRole(titleBar));
+            Assert.Equal(inset.Top, titleBar.Height);
+            Assert.Equal(inset.Top > 0, titleBar.IsVisible);
+            var card = Find<Border>(window, "SettingsTimerCard");
+            Assert.True(card.TranslatePoint(default, window)!.Value.Y >= inset.Top + 8);
+            Assert.Equal(216, card.Bounds.Height);
+            foreach (var name in new[] { "SettingsNavTimer", "SettingsNavSettings", "SettingsTheme", "SettingsQuit" })
             {
                 var button = Find<Button>(window, name);
-                var center = button.TranslatePoint(new Point(button.Bounds.Width / 2, button.Bounds.Height / 2), window)!.Value;
-                var hit = Assert.IsAssignableFrom<Control>(window.InputHitTest(center));
-                Assert.True(ReferenceEquals(hit, button) || hit.GetVisualAncestors().Contains(button));
+                var origin = button.TranslatePoint(default, window)!.Value;
+                Assert.InRange(origin.X, inset.Left, window.ClientSize.Width - inset.Right - button.Bounds.Width);
+                Assert.InRange(origin.Y, inset.Top, window.ClientSize.Height - inset.Bottom - button.Bounds.Height);
             }
         }
     }
 
-    [AvaloniaFact]
-    public void RoundedOuterSurfaceReplacesTheInnerFrameAndKeepsContentBounds()
-    {
-        using var scope = new Scope();
-        var window = scope.Window;
-        var surface = Find<Border>(window, "SettingsWindowSurface");
-        var frame = Find<Border>(window, "SettingsFrame");
-        Assert.True(surface.ClipToBounds);
-        Assert.Equal(DesignSystem.FrameRadius, surface.CornerRadius);
-        Assert.Equal(new Thickness(0), frame.BorderThickness);
-        Assert.Null(frame.BorderBrush);
-        foreach (var size in new[] { new Size(1120, 800), new Size(860, 680), new Size(640, 560) })
-        {
-            window.Width = size.Width; window.Height = size.Height; Layout(window);
-            Assert.Equal(window.ClientSize, surface.Bounds.Size);
-            var card = Find<Border>(window, "SettingsTimerCard");
-            Assert.Equal(31, card.TranslatePoint(default, window)!.Value.Y);
-            Assert.Equal(216, card.Bounds.Height);
-        }
-    }
-
-    [AvaloniaFact]
-    public void MacHeaderDragMovesTheWindowAndStopsOnReleaseAndCaptureLoss()
-    {
-        Assert.SkipUnless(OperatingSystem.IsMacOS(), "macOS uses managed dragging.");
-        using var scope = new Scope();
-        var window = scope.Window;
-        var region = Find<Border>(window, "SettingsWindowDragRegion");
-        var point = region.TranslatePoint(new Point(220, 12), window)!.Value;
-        window.Position = new PixelPoint(100, 200);
-        var initial = window.Position;
-        IPointer? pointer = null;
-        region.AddHandler(InputElement.PointerPressedEvent, (_, args) => pointer = args.Pointer, RoutingStrategies.Tunnel, true);
-        window.MouseDown(point, MouseButton.Left);
-        window.MouseMove(point + new Vector(80, 40)); Layout(window);
-        Assert.Equal(new PixelPoint(initial.X + (int)Math.Round(80 * window.DesktopScaling),
-            initial.Y + (int)Math.Round(40 * window.DesktopScaling)), window.Position);
-        var moved = window.Position;
-        window.MouseUp(point, MouseButton.Left);
-        window.MouseMove(point + new Vector(30, 20)); Layout(window);
-        Assert.Equal(moved, window.Position);
-        point += new Vector(140, 0);
-        window.MouseDown(point, MouseButton.Left);
-        Assert.NotNull(pointer); pointer.Capture(null);
-        window.MouseMove(point + new Vector(30, 20), RawInputModifiers.LeftMouseButton); Layout(window);
-        Assert.Equal(moved, window.Position);
-        window.MouseUp(point, MouseButton.Left);
-        window.MouseDown(point, MouseButton.Right);
-        window.MouseMove(point + new Vector(30, 20), RawInputModifiers.RightMouseButton); Layout(window);
-        Assert.Equal(moved, window.Position);
-        window.MouseUp(point, MouseButton.Right);
-    }
-
     private static T Find<T>(Window window, string name) where T : Control => window.GetVisualDescendants().OfType<T>().Single(item => item.Name == name);
-    private static void Press(Window window, string name) { Find<Button>(window, name).RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Layout(window); }
     private static void Layout(Window window)
     {
-        Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
-        // Hit testing uses the rendered scene, which can lag a headless layout pass.
-        AvaloniaHeadlessPlatform.ForceRenderTimerTick();
+        Dispatcher.UIThread.RunJobs(); window.UpdateLayout(); AvaloniaHeadlessPlatform.ForceRenderTimerTick();
     }
 
     private sealed class Scope : IDisposable

@@ -1,0 +1,30 @@
+{
+  "startHead": "253699e8f0acbde7f3ae6abe40025b73e6483ce4",
+  "endHead": "5d09db9010792ba2c2c8b6440470a43506dc3cff",
+  "version": "1.0.4-beta",
+  "worktree": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+  "sourceHashes": {
+    "src/Unfold.Desktop/SettingsWindow.Chrome.cs": "43cf45a445e4417f4720ecfd961e8ecb0736c6e6971f3b3b71894eb8197469c5",
+    "Tests/Unfold.Tests/WindowControlTests.cs": "05bf9c31642fcf93f9d0852865608a155d5d93b6fc872265f3e83bbdb9203c61"
+  },
+  "preexistingFilesWithDifferentContent": [],
+  "focusedTests": {
+    "passed": 29,
+    "failed": 0,
+    "skipped": 0
+  },
+  "nativeMacDrag": {
+    "before": [
+      80,
+      90
+    ],
+    "after": [
+      160,
+      130
+    ]
+  },
+  "macOSNativeCapture": true,
+  "windowsNativeHostVerified": false,
+  "windowsCapture": "Windows UI selected in temporary macOS preview harness",
+  "bundledInstallerModified": false
+}

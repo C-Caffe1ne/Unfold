@@ -41,13 +41,8 @@ public sealed partial class SettingsWindow : Window, IDisposable
     public SettingsWindow(AppRuntime runtime)
     {
         this.runtime = runtime; Title = $"Unfold · 휴식 알림 · {AppRelease.DisplayVersion}"; Width = 1120; Height = 800; MinWidth = 640; MinHeight = 560;
-        // Keep native edge resizing; transparent client rendering defines the visible outline.
-        WindowDecorations = WindowDecorations.BorderOnly;
-        ExtendClientAreaToDecorationsHint = true;
-        ExtendClientAreaTitleBarHeightHint = 0;
-        TransparencyLevelHint = [WindowTransparencyLevel.Transparent];
-        TransparencyBackgroundFallback = DesignSystem.Canvas;
-        Background = Brushes.Transparent;
+        ConfigureNativeWindowControls();
+        Background = DesignSystem.Canvas;
         interval = new NumericUpDown { Name = "ReminderInterval", Minimum = 1, Maximum = 240, Value = runtime.Settings.IntervalMinutes, Increment = 1, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch, FormatString = "0" };
         breakDuration = new NumericUpDown { Name = "BreakDurationMinutes", Minimum = 1, Maximum = 10, Value = runtime.Settings.BreakDurationMinutes, Increment = 1, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch, FormatString = "0" };
         idle = new NumericUpDown { Name = "ReminderIdle", Minimum = 1, Maximum = 60, Value = runtime.Settings.IdleMinutes, Increment = 1, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch, FormatString = "0" };
@@ -142,8 +137,8 @@ public sealed partial class SettingsWindow : Window, IDisposable
         Refresh();
         CleanupImportedSounds();
     }
-    public void Dispose() { if (disposed) return; disposed = true; EndWindowMove(); countdown.Dispose(); soundImportCancellation.Cancel(); soundImportCancellation.Dispose(); SuspendPreview(); runtime.Changed -= Refresh; runtime.CloseReminderPreview(); stopSoundPreview?.Invoke(); settingsSoundPlayer.Dispose(); CleanupImportedSounds(); preview.Dispose(); petPage?.Dispose(); }
-    public void HideToTray() { EndWindowMove(); countdown.StopAnimation(); runtime.CloseReminderPreview(); stopSoundPreview?.Invoke(); SuspendPreview(); Hide(); }
+    public void Dispose() { if (disposed) return; disposed = true; countdown.Dispose(); soundImportCancellation.Cancel(); soundImportCancellation.Dispose(); SuspendPreview(); runtime.Changed -= Refresh; runtime.CloseReminderPreview(); stopSoundPreview?.Invoke(); settingsSoundPlayer.Dispose(); CleanupImportedSounds(); preview.Dispose(); petPage?.Dispose(); }
+    public void HideToTray() { countdown.StopAnimation(); runtime.CloseReminderPreview(); stopSoundPreview?.Invoke(); SuspendPreview(); Hide(); }
     private void TimingEdited()
     {
         if (updating) return;

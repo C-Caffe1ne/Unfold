@@ -1,0 +1,17 @@
+{
+  "branch": "codex/beta-v1.0.4",
+  "head": "5d09db9010792ba2c2c8b6440470a43506dc3cff",
+  "version": "1.0.4-beta",
+  "sourceHashes": {
+    "src/Unfold.Desktop/SettingsWindow.cs": "95c434ef5d6d2a59b7f6501472c77efd6b9dfd610d462de4311ba23be80f309b",
+    "src/Unfold.Desktop/SettingsWindow.Chrome.cs": "d81fb94cd37e156c18109e4c4704b2c429a26a00893ad04fcb4b759f1aff2d77",
+    "src/Unfold.Desktop/SettingsWindow.Layout.cs": "6a0bd964e68dfd86a7bc815b8f093fd09a11340cfabd6f7d651948a9b2b17e0e",
+    "src/Unfold.Desktop/SmokeDiagnostics.cs": "6f4b039728bcd93016c3b7a98060ca5a6b52f229d9785fa5347b91add48080e0",
+    "Tests/Unfold.Tests/WindowControlTests.cs": "0ce0a898226cf4287a7c605e5130142d6bdb0c19f4eb93caf94138db1439f280",
+    "Tests/Unfold.Tests/ThemeTests.cs": "7ad5cf81f52c781e0e81bdf0d33572d449ad70d1fe35f6b1cec48398fa97aef9"
+  },
+  "unrelatedExistingChangesPreserved": true,
+  "actualPointerDragVerified": false,
+  "actualCaptionHoverVerified": false,
+  "windowsNativeRunVerified": false
+}

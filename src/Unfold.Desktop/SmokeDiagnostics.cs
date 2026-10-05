@@ -3,6 +3,8 @@ using System.Globalization;
 using System.Text.Json;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Chrome;
+using Avalonia.Input;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Media.Imaging;
@@ -32,7 +34,7 @@ internal static partial class SmokeDiagnostics
             var accountScreen = await VerifyAccountScreen(runtime, desktop, directory);
             var settingsLayout = await VerifySettingsLayout(settings, directory);
             await VerifyResponsiveLayout(settings, directory);
-            await VerifyWindowControls(runtime, settings, directory);
+            await VerifyNativeWindowLifecycle(runtime, settings, directory);
             var updateDialog = new UpdateWindow(runtime.Updates, runtime.RestartForUpdate);
             AppRuntime.PrepareDiagnosticWindow(updateDialog);
             try
@@ -249,7 +251,8 @@ internal static partial class SmokeDiagnostics
                 savedCustomRoutines = runtime.Settings.AdditionalRoutines.Count + (runtime.Settings.CustomRoutine is null ? 0 : 1),
                 workProfiles = runtime.Settings.WorkProfiles.Count, exportedBreaks = 1, simulatedExportDestination = true,
                 timerPausedApplyWaitSeconds = 1.2, timerStopWaitSeconds = 1.2, timerControlsVerified = true, timerDigitMotionVerified = true,
-                windowControlsVerified = true, roundedWindowVerified = true, timerRefinements,
+                nativeWindowConfigurationVerified = true, windowLifecycleVerified = true, nativeWindowClientFrameVerified = true,
+                nativeCaptionInputVerified = false, timerRefinements,
                 appUpdateDialogVerified = true, updaterInstalled = runtime.Updates.State != AppUpdateState.UnsupportedInstall, petSpeechDirectionsVerified = true,
                 petContextMenuVerified = true, petScaleAndDebugPreviewVerified = true, speechTitleOnlyGeometryVerified = true,
                 soundRequestsVerified = true, hiddenPetNoticeVerified = true, stopWhileOpening,
@@ -963,43 +966,55 @@ internal static partial class SmokeDiagnostics
             Press(window, "SettingsNavTimer"); await Task.Delay(80); window.UpdateLayout();
         }
     }
-    private static async Task VerifyWindowControls(AppRuntime runtime, Window window, string directory)
+    private static async Task VerifyNativeWindowLifecycle(AppRuntime runtime, Window window, string directory)
     {
-        if (window.WindowDecorations != WindowDecorations.BorderOnly || !window.ExtendClientAreaToDecorationsHint)
-            throw new InvalidOperationException("The settings window still has a native title bar.");
+        if (window.WindowDecorations != WindowDecorations.Full ||
+            window.ExtendClientAreaToDecorationsHint != OperatingSystem.IsMacOS() ||
+            window.ExtendClientAreaTitleBarHeightHint != -1)
+            throw new InvalidOperationException("The settings window is not configured for OS-native controls.");
+        if (window.GetVisualDescendants().OfType<Control>().Any(item => item.Name is
+            "SettingsWindowControls" or "SettingsWindowControlBar" or "SettingsWindowDragRegion" or
+            "SettingsWindowClose" or "SettingsWindowMinimize" or "SettingsWindowMaximize"))
+            throw new InvalidOperationException("Custom caption controls are still present.");
         var originalSize = new Size(window.Width, window.Height);
         var originalPosition = window.Position;
         var paused = runtime.Clock.Paused; var stopped = runtime.Clock.Stopped;
-        Press(window, "SettingsWindowMinimize");
+        // Exercise application lifecycle callbacks. Physical native-button input and
+        // the non-client title bar require a separate, real OS capture/input check.
+        window.WindowState = WindowState.Minimized;
         await Until(() => window.WindowState == WindowState.Minimized);
         window.WindowState = WindowState.Normal; await Task.Delay(80);
-        Press(window, "SettingsWindowMaximize");
+        window.WindowState = WindowState.Maximized;
         await Until(() => window.WindowState == WindowState.Maximized);
-        Press(window, "SettingsWindowMaximize");
+        window.WindowState = WindowState.Normal;
         await Until(() => window.WindowState == WindowState.Normal);
-        Press(window, "SettingsWindowClose");
+        window.Close();
         if (window.IsVisible || runtime.Clock.Paused != paused || runtime.Clock.Stopped != stopped)
             throw new InvalidOperationException("Closing the settings window changed the timer instead of hiding the window.");
         runtime.ShowSettings();
         window.Width = originalSize.Width; window.Height = originalSize.Height; window.Position = originalPosition;
         await Task.Delay(80); window.UpdateLayout();
-        var controls = window.GetVisualDescendants().OfType<StackPanel>().Single(item => item.Name == "SettingsWindowControls");
-        if (controls.Children.Count != 3 || !window.IsVisible)
-            throw new InvalidOperationException("The settings window did not restore its three window controls.");
-        Capture(window, Path.Combine(directory, "window-controls.png"));
+        if (!window.IsVisible)
+            throw new InvalidOperationException("The settings window did not reopen after native close.");
         var surface = window.GetVisualDescendants().OfType<Border>().Single(item => item.Name == "SettingsWindowSurface");
         var frame = window.GetVisualDescendants().OfType<Border>().Single(item => item.Name == "SettingsFrame");
-        if (window.ActualTransparencyLevel != WindowTransparencyLevel.Transparent ||
-            surface.Bounds.Size != window.ClientSize || surface.CornerRadius != DesignSystem.FrameRadius ||
-            !surface.ClipToBounds || frame.BorderThickness != default)
-            throw new InvalidOperationException("The rounded window surface or borderless content frame was not applied.");
-        Capture(window, Path.Combine(directory, "rounded-window.png"));
-        var pixels = ImageCodec.DecodePng(File.ReadAllBytes(Path.Combine(directory, "rounded-window.png")));
+        var inset = window.IsExtendedIntoWindowDecorations ? window.WindowDecorationMargin : default;
+        if (window.ActualTransparencyLevel != WindowTransparencyLevel.None ||
+            surface.Bounds.Size != window.ClientSize || surface.CornerRadius != default ||
+            frame.Margin != inset || frame.BorderThickness != default)
+            throw new InvalidOperationException("The native window client area has an incorrect background or title bar inset.");
+        if (inset.Top > 0)
+        {
+            var hit = window.InputHitTest(new Point(window.ClientSize.Width / 2, inset.Top / 2)) as Control;
+            if (hit is null || WindowDecorationProperties.GetElementRole(hit) != WindowDecorationsElementRole.TitleBar)
+                throw new InvalidOperationException("The extended title bar does not route input to native window dragging.");
+        }
+        var path = Path.Combine(directory, "native-window-client.png");
+        Capture(window, path);
+        var pixels = ImageCodec.DecodePng(File.ReadAllBytes(path));
         foreach (var (x, y) in new[] { (1, 1), (pixels.Width - 2, 1), (1, pixels.Height - 2), (pixels.Width - 2, pixels.Height - 2) })
-            if ((pixels.Pixels[y * pixels.Width + x] >> 24) != 0)
-                throw new InvalidOperationException("A rounded window corner is still opaque.");
-        if ((pixels.Pixels[pixels.Width / 2] >> 24) == 0)
-            throw new InvalidOperationException("The rounded window surface is missing its background.");
+            if ((pixels.Pixels[y * pixels.Width + x] >> 24) != 255)
+                throw new InvalidOperationException("The native window client area contains a transparent corner.");
     }
 
     private static async Task VerifyActionConfirmations(AppRuntime runtime, Window owner, string directory)

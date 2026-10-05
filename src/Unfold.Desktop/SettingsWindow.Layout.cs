@@ -32,7 +32,7 @@ public sealed partial class SettingsWindow
 
     private Control BuildDashboard()
     {
-        Background = Brushes.Transparent;
+        Background = DesignSystem.Canvas;
         Classes.Add("unfold-page");
         var main = new Grid { Name = "SettingsMain", RowDefinitions = new($"{HomeTimerHeight},{Inset},*") };
         main.Children.Add(BuildTimerCard());
@@ -70,18 +70,9 @@ public sealed partial class SettingsWindow
         dashboardPage = dashboardScroll; settingsPageHost.Content = dashboardScroll;
         var frame = new Grid { ColumnDefinitions = new("64,16,*") };
         frame.Children.Add(BuildNavigation()); Grid.SetColumn(settingsPageHost, 2); frame.Children.Add(settingsPageHost);
-        var layout = new Grid { RowDefinitions = new("24,*") };
-        layout.Children.Add(BuildWindowControls()); Grid.SetRow(frame, 1); layout.Children.Add(frame);
-        // Use the existing top inset for window controls; keep the page's content bounds.
-        var content = new Border { Name = "SettingsFrame", Margin = new(16, 4, 16, 16), Padding = new(15, 3, 15, 15),
-            Background = Brushes.Transparent, Child = layout };
-        var surface = new Border { Name = "SettingsWindowSurface", Background = DesignSystem.Canvas, CornerRadius = FrameRadius,
-            ClipToBounds = true, Child = content };
-        PropertyChanged += (_, args) =>
-        {
-            if (args.Property == WindowStateProperty)
-                surface.CornerRadius = WindowState is WindowState.Maximized or WindowState.FullScreen ? new(0) : FrameRadius;
-        };
+        var content = new Border { Name = "SettingsFrame", Padding = new(31, 8, 31, 31), Child = frame };
+        // Fill the client area; the OS owns the outer frame and its corner shape.
+        var surface = new Border { Name = "SettingsWindowSurface", Background = DesignSystem.Canvas, Child = BuildNativeWindowContent(content) };
         return surface;
     }
 
