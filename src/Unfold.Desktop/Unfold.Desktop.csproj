@@ -3,7 +3,7 @@
     <OutputType>WinExe</OutputType>
     <AssemblyName>Unfold</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Version>1.0.4-beta</Version>
+    <Version>1.1.0-beta</Version>
     <ApplicationIcon>../../Art/Brand/unfold-lilac-v1/desktop/unfold.ico</ApplicationIcon>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <MediaRuntimeIdentifier Condition="'$(RuntimeIdentifier)' != ''">$(RuntimeIdentifier)</MediaRuntimeIdentifier>
