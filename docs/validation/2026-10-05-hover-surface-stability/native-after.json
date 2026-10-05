@@ -1,0 +1,254 @@
+{
+  "results": [
+    {
+      "kind": "sprite",
+      "direction": "Top",
+      "before": {
+        "aspectRatio": 0.8,
+        "width": 240,
+        "height": 300
+      },
+      "after": {
+        "aspectRatio": 0.8,
+        "width": 240,
+        "height": 300
+      },
+      "position": {
+        "x": 376,
+        "y": 172
+      },
+      "finalPosition": {
+        "x": 376,
+        "y": 172
+      },
+      "anchor": {
+        "x": 400,
+        "y": 280
+      },
+      "sizes": 0,
+      "moves": 0,
+      "nativeChanges": 0,
+      "anchorChanges": 0,
+      "stable": true
+    },
+    {
+      "kind": "sprite",
+      "direction": "Bottom",
+      "before": {
+        "aspectRatio": 0.8,
+        "width": 240,
+        "height": 300
+      },
+      "after": {
+        "aspectRatio": 0.8,
+        "width": 240,
+        "height": 300
+      },
+      "position": {
+        "x": 376,
+        "y": 280
+      },
+      "finalPosition": {
+        "x": 376,
+        "y": 280
+      },
+      "anchor": {
+        "x": 400,
+        "y": 280
+      },
+      "sizes": 0,
+      "moves": 0,
+      "nativeChanges": 0,
+      "anchorChanges": 0,
+      "stable": true
+    },
+    {
+      "kind": "sprite",
+      "direction": "Left",
+      "before": {
+        "aspectRatio": 2.3125,
+        "width": 444,
+        "height": 192
+      },
+      "after": {
+        "aspectRatio": 2.3125,
+        "width": 444,
+        "height": 192
+      },
+      "position": {
+        "x": 148,
+        "y": 280
+      },
+      "finalPosition": {
+        "x": 148,
+        "y": 280
+      },
+      "anchor": {
+        "x": 400,
+        "y": 280
+      },
+      "sizes": 0,
+      "moves": 0,
+      "nativeChanges": 0,
+      "anchorChanges": 0,
+      "stable": true
+    },
+    {
+      "kind": "sprite",
+      "direction": "Right",
+      "before": {
+        "aspectRatio": 2.3125,
+        "width": 444,
+        "height": 192
+      },
+      "after": {
+        "aspectRatio": 2.3125,
+        "width": 444,
+        "height": 192
+      },
+      "position": {
+        "x": 400,
+        "y": 280
+      },
+      "finalPosition": {
+        "x": 400,
+        "y": 280
+      },
+      "anchor": {
+        "x": 400,
+        "y": 280
+      },
+      "sizes": 0,
+      "moves": 0,
+      "nativeChanges": 0,
+      "anchorChanges": 0,
+      "stable": true
+    },
+    {
+      "kind": "GLB",
+      "direction": "Top",
+      "before": {
+        "aspectRatio": 0.8,
+        "width": 240,
+        "height": 300
+      },
+      "after": {
+        "aspectRatio": 0.8,
+        "width": 240,
+        "height": 300
+      },
+      "position": {
+        "x": 376,
+        "y": 172
+      },
+      "finalPosition": {
+        "x": 376,
+        "y": 172
+      },
+      "anchor": {
+        "x": 400,
+        "y": 280
+      },
+      "sizes": 0,
+      "moves": 0,
+      "nativeChanges": 0,
+      "anchorChanges": 0,
+      "stable": true
+    },
+    {
+      "kind": "GLB",
+      "direction": "Bottom",
+      "before": {
+        "aspectRatio": 0.8,
+        "width": 240,
+        "height": 300
+      },
+      "after": {
+        "aspectRatio": 0.8,
+        "width": 240,
+        "height": 300
+      },
+      "position": {
+        "x": 376,
+        "y": 280
+      },
+      "finalPosition": {
+        "x": 376,
+        "y": 280
+      },
+      "anchor": {
+        "x": 400,
+        "y": 280
+      },
+      "sizes": 0,
+      "moves": 0,
+      "nativeChanges": 0,
+      "anchorChanges": 0,
+      "stable": true
+    },
+    {
+      "kind": "GLB",
+      "direction": "Left",
+      "before": {
+        "aspectRatio": 2.3125,
+        "width": 444,
+        "height": 192
+      },
+      "after": {
+        "aspectRatio": 2.3125,
+        "width": 444,
+        "height": 192
+      },
+      "position": {
+        "x": 148,
+        "y": 280
+      },
+      "finalPosition": {
+        "x": 148,
+        "y": 280
+      },
+      "anchor": {
+        "x": 400,
+        "y": 280
+      },
+      "sizes": 0,
+      "moves": 0,
+      "nativeChanges": 0,
+      "anchorChanges": 0,
+      "stable": true
+    },
+    {
+      "kind": "GLB",
+      "direction": "Right",
+      "before": {
+        "aspectRatio": 2.3125,
+        "width": 444,
+        "height": 192
+      },
+      "after": {
+        "aspectRatio": 2.3125,
+        "width": 444,
+        "height": 192
+      },
+      "position": {
+        "x": 400,
+        "y": 280
+      },
+      "finalPosition": {
+        "x": 400,
+        "y": 280
+      },
+      "anchor": {
+        "x": 400,
+        "y": 280
+      },
+      "sizes": 0,
+      "moves": 0,
+      "nativeChanges": 0,
+      "anchorChanges": 0,
+      "stable": true
+    }
+  ],
+  "os": "Unix 26.6.2",
+  "physicalInput": false
+}

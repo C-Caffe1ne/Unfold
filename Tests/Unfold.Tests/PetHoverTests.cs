@@ -220,6 +220,32 @@ public class PetHoverTests
         Assert.All(intermediate, actual => Assert.Equal(expected, actual));
     }
 
+    [AvaloniaTheory]
+    [InlineData(BubbleDirection.Top)] [InlineData(BubbleDirection.Bottom)]
+    [InlineData(BubbleDirection.Left)] [InlineData(BubbleDirection.Right)]
+    public async Task HoverEntryAndExitNeverResizeOrMoveTheNativePetSurface(BubbleDirection direction)
+    {
+        using var scope = new Scope(); await scope.Load(original: true); var pet = scope.Pet;
+        await scope.Runtime.UpdateSettings(scope.Runtime.Settings with { BubbleDirection = direction }); Layout(pet);
+        var position = pet.Position; var size = pet.ClientSize; var origin = pet.PetView.TranslatePoint(default, pet);
+        var anchor = pet.PetAnchor; var moves = 0; var sizes = 0;
+        pet.PositionChanged += (_, _) => moves++; pet.SizeChanged += (_, _) => sizes++;
+        for (var i = 0; i < 5; i++)
+        {
+            scope.Hover(); Assert.True(scope.Bubble.IsVisible);
+            Assert.Equal(size, pet.ClientSize); Assert.Equal(position, pet.Position);
+            Assert.Equal(origin, pet.PetView.TranslatePoint(default, pet)); Assert.Equal(anchor, pet.PetAnchor);
+            // The visible clock and the reserved hidden area both remain click-through.
+            var clockPoint = scope.Bubble.TranslatePoint(new Point(5, 5), pet)!.Value;
+            Assert.False(pet.AcceptsPointerAt(clockPoint));
+            pet.MouseMove(new(-10, -10)); Layout(pet); Assert.False(scope.Bubble.IsVisible);
+            Assert.False(pet.AcceptsPointerAt(clockPoint));
+            Assert.Equal(size, pet.ClientSize); Assert.Equal(position, pet.Position);
+            Assert.Equal(origin, pet.PetView.TranslatePoint(default, pet)); Assert.Equal(anchor, pet.PetAnchor);
+        }
+        Assert.Equal(0, sizes); Assert.Equal(0, moves);
+    }
+
     [AvaloniaFact]
     public async Task PressBeforeQueuedHoverLayoutDoesNotJumpWhenDraggingStarts()
     {

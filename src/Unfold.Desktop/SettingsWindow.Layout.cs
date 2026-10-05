@@ -91,7 +91,7 @@ public sealed partial class SettingsWindow
         var timer = Nav("SettingsNavTimer", "홈", "home", OpenDashboard);
         var settings = Nav("SettingsNavSettings", "설정", "settings", OpenPreferences);
         var review = Nav("SettingsNavReview", "기록", "history", OpenReview);
-        var pets = Nav("SettingsNavPacks", "펫 추가", "pet-add", OpenPetPacks);
+        var pets = Nav("SettingsNavPacks", "펫 관리", "pet-add", OpenPetPacks);
         navigationItems["pets"] = pets;
         navigationItems["dashboard"] = timer; navigationItems["settings"] = settings;
         navigationItems["review"] = review;

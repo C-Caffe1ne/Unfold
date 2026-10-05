@@ -188,10 +188,10 @@ public sealed partial class CharacterLibrary
         var metadata = CharacterPack.ReadMetadata(ImageCodec.ReadBounded(metaPath, 64 * 1024));
         if (metadata.Id != pack.Id) throw new InvalidDataException("Installed pack ID differs from its folder.");
         var difference = CharacterPack.ParseVersion(pack.ContentVersion).CompareTo(CharacterPack.ParseVersion(metadata.ContentVersion));
-        if (difference < 0) throw new InvalidDataException("A newer version is installed. Choose the same or a newer pack.");
-        if (difference == 0 && !pack.MatchesInventory(metadata))
-            throw new InvalidDataException("This version contains different files. A changed pack needs a new content version.");
-        return new(difference == 0 ? "Reinstall" : "Update", metadata.ContentVersion, PackRevision(collision));
+        // Content versions describe the selected archive; they are not an app
+        // compatibility gate. The preview revision still protects replacements.
+        var action = difference == 0 && pack.MatchesInventory(metadata) ? "Reinstall" : difference > 0 ? "Update" : "Replace";
+        return new(action, metadata.ContentVersion, PackRevision(collision));
     }
     private static string PackRevision(string directory)
     {

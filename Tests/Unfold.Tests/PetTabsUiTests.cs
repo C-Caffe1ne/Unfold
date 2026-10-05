@@ -90,7 +90,7 @@ public class PetTabsUiTests
         using var runtime = new AppRuntime(lifetime);
         var window = new SettingsWindow(runtime) { Width = 860, Height = 680 };
         window.Show(); Layout(window); Press(window, "SettingsNavPacks"); Layout(window);
-        var tabs = Find<TabControl>(window, "PetManagementTabs"); tabs.SelectedIndex = 1; Layout(window);
+        Assert.DoesNotContain(window.GetVisualDescendants().OfType<TabControl>(), c => c.Name == "PetManagementTabs");
         try
         {
             foreach (var dimensions in new[] { new Size(860, 680), new Size(1120, 800) })
@@ -125,13 +125,13 @@ public class PetTabsUiTests
     }
 
     [AvaloniaFact]
-    public async Task ImportedFilenameDoesNotResizeCardsAndSelectionSurvivesTabChanges()
+    public async Task ImportedFilenameDoesNotResizeCardsAndSelectionSurvivesHiding()
     {
         using var data = new DataScope(); var owner = new Window { Width = 860, Height = 680 };
         using var view = new PetManagementView(owner, new CharacterLibrary(Path.Combine(data.Root, "library")),
             _ => Task.CompletedTask, chooseMedia: () => Task.FromResult<string?>(CustomPetDraftTests.Fixture()), showPageHeaders: false);
         owner.Content = Ui.PageFrame(owner, view); owner.Show(); Layout(owner);
-        var tabs = Find<TabControl>(owner, "PetManagementTabs"); tabs.SelectedIndex = 1; Layout(owner);
+        Assert.DoesNotContain(owner.GetVisualDescendants().OfType<TabControl>(), c => c.Name == "PetManagementTabs");
         try
         {
             Find<TextBox>(owner, "CustomPetName").Text = "카드 선택 유지";
@@ -142,7 +142,7 @@ public class PetTabsUiTests
             var label = Find<TextBlock>(owner, "CustomPetLabel_idle").Text;
             Assert.EndsWith(".gif", label);
             Assert.Equal(label, ToolTip.GetTip(Find<TextBlock>(owner, "CustomPetLabel_idle")));
-            tabs.SelectedIndex = 0; Layout(owner); tabs.SelectedIndex = 1; Layout(owner);
+            view.IsVisible = false; Layout(owner); view.IsVisible = true; Layout(owner);
             Assert.Equal("카드 선택 유지", Find<TextBox>(owner, "CustomPetName").Text);
             Assert.Equal(DesignSystem.Cream, card.BorderBrush);
             Assert.Equal("idle", Find<ComboBox>(owner, "CustomPetSelectedAction").SelectedItem);

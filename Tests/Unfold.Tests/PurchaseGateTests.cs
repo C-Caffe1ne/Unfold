@@ -93,7 +93,7 @@ public class PurchaseGateTests
         scope.Home.GetVisualDescendants().OfType<Button>().Single(c => c.Name == "SettingsNavPacks")
             .RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
         Dispatcher.UIThread.RunJobs();
-        scope.Home.GetVisualDescendants().OfType<TabControl>().Single(c => c.Name == "PetManagementTabs").SelectedIndex = 1;
+
         Dispatcher.UIThread.RunJobs();
         scope.Home.GetVisualDescendants().OfType<TextBox>().Single(c => c.Name == "CustomPetName").Text = "미저장 펫";
         scope.Service.Purchase = PurchaseAccess.Revoked; await scope.Runtime.RecheckPurchaseAccess();

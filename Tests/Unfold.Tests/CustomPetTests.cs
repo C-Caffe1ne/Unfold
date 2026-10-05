@@ -308,63 +308,32 @@ public class CustomPetWindowTests
         finally { window.Close(); }
     }
     [AvaloniaFact]
-    public async Task PetTabsKeepPreviewAndDraftThenOpenCreatedPackWithoutAnotherWindow()
+    public async Task BuilderKeepsDraftOnCancelledExportAndAppliesCreatedPackFromConfirmation()
     {
-        using var temp = new TempDirectory(); var packFile = CharacterPackTests.CreatePack(temp.Path);
-        var library = new CharacterLibrary(Path.Combine(temp.Path, "library"));
-        string? output = null;
-        var selected = new List<CharacterPackage>();
-        var parent = new PetPackWindow(library, pet => { selected.Add(pet); return Task.CompletedTask; },
-            () => Task.FromResult<string?>(packFile), () => Task.FromResult<string?>(CustomPetDraftTests.Fixture()),
-            () => Task.FromResult<string?>(output));
+        using var temp = new TempDirectory(); var library = new CharacterLibrary(Path.Combine(temp.Path, "library"));
+        string? output = null; var selected = new List<CharacterPackage>();
+        var parent = new Window { Width = 860, Height = 680 };
+        using var page = new PetManagementView(parent, library, pet => { selected.Add(pet); return Task.CompletedTask; },
+            chooseMedia: () => Task.FromResult<string?>(CustomPetDraftTests.Fixture()), chooseOutput: () => Task.FromResult(output));
+        parent.Content = Ui.PageFrame(parent, page);
         try
         {
-            parent.Show(); Press(parent, "OpenPetPack"); await Until(() => Find<Button>(parent, "PausePackPreview").IsEnabled);
-            var tabs = Find<TabControl>(parent, "PetManagementTabs");
-            tabs.SelectedIndex = 1; Dispatcher.UIThread.RunJobs(); parent.UpdateLayout();
-            Assert.Equal(8, Find<ComboBox>(parent, "CustomPetAction").ItemCount);
-            Assert.DoesNotContain(parent.GetVisualDescendants().OfType<Button>(), button => button.Name == "ImportPetMedia");
-            Assert.DoesNotContain(parent.GetVisualDescendants().OfType<ScrollViewer>(),
-                view => view.Name == "CustomPetActionSlotsScroll");
-            Assert.Single(Find<StackPanel>(parent, "CustomPetActionSlots").Children, card => card.IsVisible);
-            Assert.Empty(parent.OwnedWindows);
-            tabs.SelectedIndex = 0; Dispatcher.UIThread.RunJobs();
-            Assert.Equal(5, Find<ComboBox>(parent, "PackClip").ItemCount); Assert.True(Find<Button>(parent, "InstallPetPack").IsEnabled);
-            tabs.SelectedIndex = 1; Dispatcher.UIThread.RunJobs();
-            Find<TextBox>(parent, "CustomPetName").Text = "탭에서 만든 펫";
+            parent.Show(); Dispatcher.UIThread.RunJobs(); parent.UpdateLayout();
+            Assert.DoesNotContain(parent.GetVisualDescendants().OfType<TabControl>(), c => c.Name == "PetManagementTabs");
+            Find<TextBox>(parent, "CustomPetName").Text = "새 펫";
             Press(parent, "CustomPetFile_idle"); await Until(() => Find<Button>(parent, "CreateCustomPetPack").IsEnabled);
-            tabs.SelectedIndex = 0; Dispatcher.UIThread.RunJobs();
-            tabs.SelectedIndex = 1; Dispatcher.UIThread.RunJobs();
-            Assert.True(Find<Button>(parent, "CreateCustomPetPack").IsEnabled);
-            Press(parent, "CreateCustomPetPack"); Dispatcher.UIThread.RunJobs();
-            Assert.Equal(1, tabs.SelectedIndex); Assert.Empty(library.List());
-            Assert.True(Find<Button>(parent, "CreateCustomPetPack").IsEnabled);
-            output = Path.Combine(temp.Path, "tabs.unfoldpet");
-            Press(parent, "CreateCustomPetPack"); await Until(() => tabs.SelectedIndex == 0);
-            await Until(() => Find<Button>(parent, "InstallPetPack").IsEnabled && tabs.IsEnabled);
-            Assert.Empty(library.List()); Assert.Empty(parent.OwnedWindows);
-            Press(parent, "InstallPetPack"); await Until(() => selected.Count == 1 && tabs.IsEnabled);
-            Assert.Equal("탭에서 만든 펫", selected[0].Manifest.Name);
-            tabs.SelectedIndex = 1; Dispatcher.UIThread.RunJobs();
+            Press(parent, "CreateCustomPetPack"); await Until(() => !page.IsBusy);
+            Assert.Equal("새 펫", Find<TextBox>(parent, "CustomPetName").Text); Assert.Empty(parent.OwnedWindows);
+            output = Path.Combine(temp.Path, "new.unfoldpet");
+            Press(parent, "CreateCustomPetPack"); await Until(() => parent.OwnedWindows.OfType<PetPackWindow>().Any());
+            var import = parent.OwnedWindows.OfType<PetPackWindow>().Single();
+            await Until(() => Find<Button>(import, "InstallPetPack").IsEnabled);
+            Assert.Empty(library.List()); Press(import, "InstallPetPack"); await Until(() => !page.IsBusy);
+            Assert.Equal("새 펫", Assert.Single(selected).Manifest.Name); Assert.Empty(parent.OwnedWindows);
             Assert.Equal("", Find<TextBox>(parent, "CustomPetName").Text);
             Assert.False(Find<Button>(parent, "CreateCustomPetPack").IsEnabled);
-            Assert.Equal("idle", Find<ComboBox>(parent, "CustomPetSelectedAction").SelectedItem);
-            Assert.Equal("idle", Find<ComboBox>(parent, "CustomPetAction").SelectedItem);
-            foreach (var key in CustomPetDraft.Actions)
-            {
-                Assert.Equal("파일 없음", Find<TextBlock>(parent, "CustomPetLabel_" + key).Text);
-                Assert.False(Find<Button>(parent, "CustomPetPreview_" + key).IsEnabled);
-                Assert.False(Find<Button>(parent, "CustomPetRemove_" + key).IsEnabled);
-            }
-            Find<TextBox>(parent, "CustomPetName").Text = "다음 펫";
-            Press(parent, "CustomPetFile_idle"); await Until(() => Find<Button>(parent, "CreateCustomPetPack").IsEnabled);
-            output = Path.Combine(temp.Path, "second.unfoldpet");
-            Press(parent, "CreateCustomPetPack"); await Until(() => tabs.SelectedIndex == 0);
-            await Until(() => tabs.IsEnabled && Find<Button>(parent, "InstallPetPack").IsEnabled);
-            Press(parent, "InstallPetPack"); await Until(() => selected.Count == 2 && tabs.IsEnabled);
-            Assert.NotEqual(selected[0].Manifest.Id, selected[1].Manifest.Id);
-            Assert.Equal(2, library.List().Count);
         }
         finally { parent.Close(); }
     }
+
 }

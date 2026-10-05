@@ -6,10 +6,14 @@
 | 문서 | 역할 |
 |---|---|
 | [에이전트 작업 안내](../AGENTS.md) | Codex·Claude 공통 프로젝트 지침. Claude는 `CLAUDE.md`에서 가져온다. |
+| [기존 펫 팩 재적용·펫 관리](validation/2026-10-05-pet-management-compatibility.md) | 콘텐츠 버전 제한 제거, 단일 관리 화면, 입력·미리보기·펫 선택 배치와 Kazusa 확인 |
 | [버전 표시·타이머·알림 개선](validation/2026-10-05-timer-settings-refinements.md) | 설정 업데이트, Danger 색상, 최소 1분, 30초 자동 미루기와 시계·타이머 전환 |
+| [호버 진입·해제 창 안정화](validation/2026-10-05-hover-surface-stability.md) | 호버 전환의 창 크기·위치 변경 제거, GLB·2D 전후 측정과 회귀 검사 |
 | [펫 투명 영역 클릭 통과](validation/2026-10-05-pet-click-through.md) | macOS 연결, 정확한 픽셀 판정과 입력 캡처 유지 검증 |
 | [펫 캔버스 효과 제거](validation/2026-10-05-pet-canvas-motion.md) | 포인터 업 바운스·누름/유지 변형 제거, 지정 동작과 입력 흐름 검증 |
+| [펫 팩 행동별 설정 개편](validation/2026-10-05-pet-action-editor.md) | 파일 열기 배치, 고급 설정 제거, 행동별 방향·반복과 저장·재생 검증 |
 | [펫 팩 만들기 통합](validation/2026-10-05-unified-pet-builder.md) | GLB·GIF·MP4 통합 진입점, 공통 행동 편집 배치와 설명 문구 제거 |
+| [GLB 고급 설정 스타일 수정](validation/2026-10-05-glb-advanced-style.md) | 기본 Expander 스타일 누락 수정, 공통 카드·방향 아이콘과 네 테마 검증 |
 | [GLB 편집 UI/UX 개선](validation/2026-10-05-glb-editor-ux.md) | 행동 선택 중심 배치, 반복 규칙·재생·저장 상태와 반응형 화면 검증 |
 | [GLB 메모리 최적화 검증](validation/2026-10-05-glb-memory.md) | 프레임 버퍼 재사용, 화질 동일성, 메모리 전후 측정과 Windows 검증 범위 |
 | [GLB 확대 화질 검증](validation/2026-10-04-glb-resolution.md) | 표시 크기·Retina 배율 대응, 가장자리 처리와 실제 모델 전후 비교 |

@@ -51,7 +51,7 @@ internal sealed class CustomPetView : UserControl, IDisposable
     private readonly Dictionary<string, Image> thumbnails = [];
     private readonly Dictionary<string, Avalonia.Media.Imaging.Bitmap> thumbnailBitmaps = [];
     private readonly Dictionary<string, ComboBox> playbackMenus = [];
-    private readonly Button assign, create;
+    private readonly Button assign, create, open;
     private readonly Border pendingCard;
     private string? pendingPath;
     private bool busy, closed, exporting;
@@ -64,7 +64,7 @@ internal sealed class CustomPetView : UserControl, IDisposable
     public event Action? BusyChanged;
 
     public CustomPetView(Window owner, Func<string, Task> created, string? initialPath = null,
-        Func<Task<string?>>? chooseMedia = null, Func<Task<string?>>? chooseOutput = null, bool showHeader = true)
+        Func<Task<string?>>? chooseMedia = null, Func<Task<string?>>? chooseOutput = null, bool showHeader = true, Func<Task>? openFile = null, Control? petSelection = null)
     {
         this.owner = owner; this.created = created;
         this.chooseMedia = chooseMedia ?? PickMedia; this.chooseOutput = chooseOutput ?? PickOutput;
@@ -140,7 +140,9 @@ internal sealed class CustomPetView : UserControl, IDisposable
         create.Height = DesignSystem.PetControlHeight;
         name.TextChanged += (_, _) => Refresh();
         pendingCard = BuildPendingCard();
-        var identity = PetManagementView.Field("펫 이름", name);
+        open = AsyncButton("파일 열기…", openFile ?? (() => SelectFile(selectedAction.SelectedItem as string ?? "idle")));
+        open.Name = openFile is null ? "OpenCustomPetFile" : "OpenPetBuilderFile";
+        open.Height = DesignSystem.PetControlHeight; open.VerticalAlignment = VerticalAlignment.Bottom;
 
         previewSurface = new Border
         {
@@ -149,7 +151,9 @@ internal sealed class CustomPetView : UserControl, IDisposable
         };
         var settingsPane = Ui.Column(PetEditorWorkspace.Heading("행동 연결"), PetManagementView.Field("상황", selectedAction), slots);
         settingsPane.Name = "CustomPetActionPane"; settingsPane.Spacing = 10;
-        var workspace = new PetEditorWorkspace(owner, "CustomPet", previewSurface, previewButtons, settingsPane);
+        var workspace = new PetEditorWorkspace(owner, "CustomPet", previewSurface,
+            petSelection is null ? previewButtons : Ui.Column(previewButtons, petSelection), settingsPane);
+        var identity = workspace.Identity("CustomPetIdentity", name, open);
         var body = Ui.Column(pendingCard, identity, workspace);
         body.Spacing = DesignSystem.Inset;
         var footer = new Grid { ColumnDefinitions = new("*,20,Auto") };
@@ -336,9 +340,10 @@ internal sealed class CustomPetView : UserControl, IDisposable
         if (choice == 1) return true;
         return choice == 0 && canSave && await Export(showCreated: false);
     }
+    internal void SetImportEnabled(bool value) => open.IsEnabled = value;
     private void Refresh()
     {
-        name.IsEnabled = action.IsEnabled = selectedAction.IsEnabled = !busy;
+        open.IsEnabled = name.IsEnabled = action.IsEnabled = selectedAction.IsEnabled = !busy;
         pause.IsEnabled = !busy && previewAction is not null;
         pause.Content = completed ? "다시 재생" : paused ? "계속 재생" : "일시정지";
         UpdatePlayback();

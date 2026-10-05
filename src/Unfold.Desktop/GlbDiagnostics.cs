@@ -36,6 +36,11 @@ internal static class GlbDiagnostics
                 if (scroll.Extent.Width > scroll.Viewport.Width + 1) throw new InvalidOperationException("GLB editor overflows horizontally.");
                 Capture(window, Path.Combine(directory, $"glb-editor-{scale.Width}-{scale.Height}.png"));
             }
+            Find<ComboBox>("GlbPreviewAction").SelectedItem = "click";
+            Find<ComboBox>("GlbHeading_click").SelectedIndex = 1;
+            Find<ComboBox>("GlbRepeat_click").SelectedIndex = 1;
+            await Until(() => !window.GetVisualDescendants().OfType<GlbPetView>().Single().IsPreviewLoading);
+            Capture(window, Path.Combine(directory, "glb-click-heading.png"));
             Find<Button>("SaveGlbPet").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
             await Until(() => !page.IsBusy && runtime.Selected?.IsGlb == true);
             var selected = runtime.Selected!; var pet = runtime.ActivePet!;
@@ -65,11 +70,11 @@ internal static class GlbDiagnostics
             await runtime.UpdateSettings(runtime.Settings with { ShowPet = false }); await pet.React("click");
             if (pet.IsVisible) throw new InvalidOperationException("Hidden GLB pet reappeared.");
             var reopened = new CharacterLibrary(runtime.Library.Root).List().Single(p => p.Manifest.Id == selected.Manifest.Id);
-            if (!reopened.IsGlb || reopened.Manifest.Animations["idle"].ModelClip != selected.Manifest.Animations["idle"].ModelClip)
+            if (!reopened.IsGlb || !reopened.Manifest.Animations.OrderBy(p => p.Key).SequenceEqual(selected.Manifest.Animations.OrderBy(p => p.Key)))
                 throw new InvalidOperationException("GLB mapping did not persist.");
             AtomicFile.Write(Path.Combine(directory, "result.json"), JsonSerializer.SerializeToUtf8Bytes(new
             { success = true, appVersion = AppRelease.Version, displayVersion = AppRelease.DisplayVersion, model = Path.GetFileName(file), triangles = selected.Model.TriangleCount, animations = selected.Model.Animations,
-                playback = clips, resolution, pointerCanvasVerified, importedThroughUi = true, persisted = true, integratedSettings = true, hiddenPetStayedHidden = true,
+                actionSettings = selected.Manifest.Animations, playback = clips, resolution, pointerCanvasVerified, importedThroughUi = true, persisted = true, integratedSettings = true, hiddenPetStayedHidden = true,
                 qualityWindowOnScreen = true, otherWindowsOffScreen = true, physicalInput = false, os = Environment.OSVersion.ToString() }, CharacterLibrary.JsonOptions));
             page.Dispose(); window.Close(); await runtime.Quit();
         }
@@ -150,11 +155,9 @@ internal static class GlbDiagnostics
         {
             Find<Button>("SettingsNavPacks").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
             await Task.Delay(100); settings.UpdateLayout();
-            Find<TabControl>("PetManagementTabs").SelectedIndex = 1;
             await Task.Delay(100); settings.UpdateLayout();
-            Find<ComboBox>("PetBuilderFormat").SelectedIndex = 1;
-            await Task.Delay(100); settings.UpdateLayout();
-            Find<ComboBox>("GlbExistingPets").SelectedIndex = 0;
+            var builder = settings.GetVisualDescendants().OfType<PetBuilderView>().Single();
+            await builder.OpenPackage(runtime.Selected!);
             var editor = settings.GetVisualDescendants().OfType<GlbPetView>().Single();
             await Until(() => !editor.IsBusy && editor.HasDraft && !editor.IsPreviewLoading);
             foreach (var size in new[] { new Size(1120, 800), new Size(860, 680), new Size(640, 560) })
@@ -178,14 +181,25 @@ internal static class GlbDiagnostics
                     Find<StackPanel>("GlbActionPane").BringIntoView(); await Task.Delay(100);
                     Capture(settings, Path.Combine(directory, $"settings-{action}-{size.Width}-{size.Height}.png"));
                 }
-                Find<Expander>("GlbAdvanced").IsExpanded = true; settings.UpdateLayout();
-                scroll.Offset = new Vector(0, scroll.Extent.Height); await Task.Delay(100);
-                if (scroll.Extent.Width > scroll.Viewport.Width + 1) throw new InvalidOperationException("GLB advanced settings overflow horizontally.");
-                Capture(settings, Path.Combine(directory, $"settings-advanced-{size.Width}-{size.Height}.png"));
-                Find<Expander>("GlbAdvanced").IsExpanded = false;
                 Find<ComboBox>("GlbPreviewAction").SelectedIndex = 0;
                 await Until(() => !editor.IsPreviewLoading); scroll.Offset = default;
             }
+            var originalTheme = runtime.Settings.Theme;
+            try
+            {
+                settings.MinWidth = 640; settings.MinHeight = 560; settings.Width = 860; settings.Height = 680;
+                foreach (var theme in DesignSystem.Themes)
+                {
+                    runtime.SetTheme(theme.Id); await Task.Delay(100); settings.UpdateLayout();
+                    var clip = Find<ComboBox>("GlbClip_idle"); var heading = Find<ComboBox>("GlbHeading_idle");
+                    if (heading.TranslatePoint(default, settings)!.Value.Y <= clip.TranslatePoint(default, settings)!.Value.Y)
+                        throw new InvalidOperationException("Action heading is not below the animation selector.");
+                    if (settings.GetVisualDescendants().OfType<Control>().Any(c => c.Name is "GlbAdvanced" or "GlbRoot" or "PetBuilderFormat"))
+                        throw new InvalidOperationException("Removed builder controls are still present.");
+                    Capture(settings, Path.Combine(directory, $"action-editor-{theme.Id}.png"));
+                }
+            }
+            finally { runtime.SetTheme(originalTheme); }
         }
         finally { settings.Hide(); }
     }

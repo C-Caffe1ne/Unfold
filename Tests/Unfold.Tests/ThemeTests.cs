@@ -77,7 +77,7 @@ public class ThemeTests
         }
         Assert.Equal(AppTheme.MidnightBlue, AppSettings.Load(scope.Path).Theme); Assert.Equal(19, AppSettings.Load(scope.Path).IdleMinutes);
         Press(Find<Button>(window, "SettingsNavPacks"));
-        var preview = Find<Border>(window, "PackPreviewSurface");
+        var preview = Find<Border>(window, "CustomPetPreviewSurface");
         Assert.DoesNotContain(window.GetVisualDescendants().OfType<ComboBox>(), control => control.Name == "PackBackground");
         Assert.DoesNotContain(preview.GetVisualDescendants().OfType<TextBlock>(), text => text.Text?.Contains(".unfoldpet") == true);
         foreach (var palette in DesignSystem.Themes)
@@ -87,7 +87,7 @@ public class ThemeTests
             Assert.Equal(Color.Parse(palette.Surface), ((ISolidColorBrush)preview.Background!).Color);
         }
         Assert.Same(DesignSystem.Surface, preview.Background);
-        Find<TabControl>(window, "PetManagementTabs").SelectedIndex = 1; Layout(window);
+        Layout(window);
         var name = Find<TextBox>(window, "CustomPetName"); name.Text = "작성 중인 펫";
         Choose(window, AppTheme.Sage); Assert.Equal("작성 중인 펫", name.Text);
         Assert.Same(name, Find<TextBox>(window, "CustomPetName"));

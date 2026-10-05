@@ -170,6 +170,44 @@ public class GlbTests
         }
         finally { Directory.Delete(root, true); }
     }
+    [Fact]
+    public void PerActionHeadingAndOptionalLoopsSurviveExportAndUseTheSameRendererAsPreview()
+    {
+        using var temp = new TempDirectory(); var input = Path.Combine(temp.Path, "test.glb");
+        File.WriteAllBytes(input, Fixture(morph: true)); var draft = new GlbPetDraft(input);
+        foreach (var key in GlbPetDraft.Actions) draft.Set(key, "Idle", key != "held", heading: key == "idle" ? 0 : 45);
+        var output = Path.Combine(temp.Path, "pet.unfoldpet"); draft.Export(output);
+        using var pack = CharacterPack.Open(output); var pet = pack.Character;
+        Assert.True(pet.Manifest.Animations["pickup"].Loop); Assert.True(pet.Manifest.Animations["land"].Loop);
+        Assert.False(pet.Manifest.Animations["held"].Loop);
+        foreach (var key in GlbPetDraft.Actions)
+        {
+            Assert.Equal(key == "idle" ? 0 : 45, pet.Manifest.Animations[key].Heading);
+            Assert.Equal(draft.Preview(key)[0].Image.Pixels, pet.LoadAnimation(key)[0].Image.Pixels);
+        }
+        Assert.NotEqual(pet.LoadAnimation("idle")[0].Image.Pixels, pet.LoadAnimation("click")[0].Image.Pixels);
+        Assert.Throws<InvalidDataException>(() => draft.Set("click", "Idle", heading: float.NaN));
+        Assert.Throws<InvalidDataException>(() => draft.Set("click", "Idle", heading: 181));
+        var manifestPath = Path.Combine(pet.DirectoryPath, "character.json");
+        var invalid = pet.Manifest with { Animations = new(pet.Manifest.Animations) };
+        invalid.Animations["click"] = invalid.Animations["click"] with { Heading = 181 };
+        File.WriteAllBytes(manifestPath, JsonSerializer.SerializeToUtf8Bytes(invalid, CharacterLibrary.JsonOptions));
+        Assert.Throws<InvalidDataException>(() => CharacterLibrary.LoadPackage(pet.DirectoryPath));
+    }
+    [Fact]
+    public void LegacyModelHeadingIsInheritedUntilAnActionOverridesIt()
+    {
+        using var temp = new TempDirectory(); var input = Path.Combine(temp.Path, "test.glb");
+        File.WriteAllBytes(input, Fixture(morph: true)); var draft = new GlbPetDraft(input) { Heading = 45 };
+        draft.Set("click", "Idle");
+        var library = new CharacterLibrary(Path.Combine(temp.Path, "library")); var legacy = draft.Save(library);
+        Assert.Null(legacy.Manifest.Animations["idle"].Heading);
+        var edit = new GlbPetDraft(legacy); edit.Set("click", "Idle", true, heading: 0);
+        var saved = edit.Save(library);
+        Assert.Equal(legacy.LoadAnimation("idle")[0].Image.Pixels, saved.LoadAnimation("idle")[0].Image.Pixels);
+        Assert.NotEqual(saved.LoadAnimation("idle")[0].Image.Pixels, saved.LoadAnimation("click")[0].Image.Pixels);
+        Assert.Equal(45, saved.Manifest.Model!.Heading); Assert.Equal(0, saved.Manifest.Animations["click"].Heading);
+    }
     [AvaloniaFact]
     public async Task GlbEditorImportsMapsSavesAndEditsThroughControls()
     {
@@ -243,6 +281,57 @@ public class GlbTests
             await runtime.ShowReminder(); runtime.StartBreak(); await Until(() => pet.ActiveAnimation == "walk");
             Assert.True(pet.IsRoaming); runtime.Stop(); await Until(() => pet.ActiveAnimation == "idle");
             await runtime.UpdateSettings(runtime.Settings with { ShowPet = false }); await pet.React("click"); Assert.False(pet.IsVisible);
+        }
+        finally { runtime.Dispose(); Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", previous); }
+    }
+    [AvaloniaTheory]
+    [InlineData(true, true, true)]
+    [InlineData(false, false, true)]
+    [InlineData(false, true, false)]
+    public async Task PointerPlaybackChoicesRemainInterruptibleAndOneShotWalkingStops(bool pickupLoop, bool heldLoop, bool landLoop)
+    {
+        using var temp = new TempDirectory(); var previous = Environment.GetEnvironmentVariable("UNFOLD_DATA_DIR");
+        Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", temp.Path);
+        using var lifetime = new Avalonia.Controls.ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime(); using var runtime = new AppRuntime(lifetime);
+        try
+        {
+            var file = Path.Combine(temp.Path, "pet.glb"); File.WriteAllBytes(file, Fixture(morph: true)); var draft = new GlbPetDraft(file);
+            draft.Set("pickup", "Idle", pickupLoop); draft.Set("held", "Idle", heldLoop); draft.Set("land", "Idle", landLoop);
+            draft.Set("attention", "Idle"); draft.Set("walk", "Idle", false);
+            var package = draft.Save(runtime.Library); await runtime.Start(true, true); runtime.Stop(); await runtime.SelectInstalledCharacter(package);
+            var pet = runtime.ActivePet!;
+            async Task Until(Func<bool> ready)
+            {
+                for (var i = 0; i < 300 && !ready(); i++) { await Task.Delay(10, TestContext.Current.CancellationToken); Dispatcher.UIThread.RunJobs(); }
+                Assert.True(ready(), pet.ActiveAnimation);
+            }
+            pet.BeginCompanionPress(); pet.AdvanceCompanion(PetPose.LiftDelay);
+            if (pickupLoop)
+            {
+                await Task.Delay(500, TestContext.Current.CancellationToken); Dispatcher.UIThread.RunJobs();
+                Assert.Equal(PetPointerPhase.Pickup, pet.PointerPhase); Assert.True(pet.PetView.Repeats);
+            }
+            else
+            {
+                await Until(() => pet.PointerPhase == PetPointerPhase.Held);
+                Assert.Equal(heldLoop, pet.PetView.Repeats);
+                await Task.Delay(500, TestContext.Current.CancellationToken); Dispatcher.UIThread.RunJobs();
+                Assert.Equal(PetPointerPhase.Held, pet.PointerPhase);
+            }
+            pet.ReleaseCompanionPress(false);
+            if (landLoop)
+            {
+                await Until(() => pet.ActiveAnimation == "land" && pet.PetView.Repeats);
+                await Task.Delay(500, TestContext.Current.CancellationToken); Dispatcher.UIThread.RunJobs();
+                Assert.Equal("land", pet.ActiveAnimation); Assert.Equal(PetPointerPhase.None, pet.PointerPhase);
+                await pet.React("attention"); // A repeated release must not swallow the next reminder.
+            }
+            await Until(() => pet.ActiveAnimation == "idle");
+            Assert.Equal(PetPointerPhase.None, pet.PointerPhase);
+            await runtime.ShowReminder(); runtime.StartBreak(); await Until(() => pet.ActiveAnimation == "walk");
+            Assert.False(pet.PetView.Repeats);
+            await Until(() => pet.ActiveAnimation == "idle" && !pet.IsRoaming);
+            Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
         }
         finally { runtime.Dispose(); Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", previous); }
     }

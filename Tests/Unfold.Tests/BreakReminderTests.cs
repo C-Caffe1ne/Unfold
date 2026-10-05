@@ -187,7 +187,8 @@ public class BreakReminderTests
         var pet = new PetWindow(runtime);
         try
         {
-            pet.Show();
+            pet.Show(); pet.RefreshSpeech(); Dispatcher.UIThread.RunJobs(); pet.UpdateLayout();
+            var idleSize = pet.ClientSize; var idleAnchor = pet.PetAnchor;
             var remaining = runtime.Clock.Remaining;
             var history = runtime.BreakHistory.Completions.Count;
             var dueSounds = runtime.DueSoundRequests;
@@ -206,7 +207,9 @@ public class BreakReminderTests
                 Assert.True(pet.GetVisualDescendants().OfType<PetSpeechBubble>().Single().IsVisible);
             }
             runtime.CloseReminderPreview(); pet.RefreshSpeech(); Dispatcher.UIThread.RunJobs(); pet.UpdateLayout();
-            Assert.Null(runtime.PreviewNotice); Assert.Equal(new Size(DesignSystem.PetBaseSize, DesignSystem.PetBaseSize), pet.ClientSize);
+            Assert.Null(runtime.PreviewNotice); Assert.Equal(idleSize, pet.ClientSize);
+            Assert.Equal(idleAnchor, pet.PetAnchor);
+            Assert.False(pet.GetVisualDescendants().OfType<PetSpeechBubble>().Single().IsVisible);
 
             var live = new BreakSession(BreakRoutines.All[0], "default-cat");
             Assert.True(runtime.Reminder.Invite(live));

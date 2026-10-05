@@ -1,0 +1,248 @@
+{
+  "success": true,
+  "appVersion": "1.0.4-beta",
+  "displayVersion": "Beta v1.0.4",
+  "model": "Kazusa.glb",
+  "triangles": 11466,
+  "animations": [
+    {
+      "name": "Cafe_Reaction",
+      "duration": 5.800000190734863
+    },
+    {
+      "name": "Cafe_Idle",
+      "duration": 3.200000286102295
+    },
+    {
+      "name": "Cafe_Walk",
+      "duration": 2.6666667461395264
+    },
+    {
+      "name": "Formation_Idle",
+      "duration": 4
+    },
+    {
+      "name": "Formation_Pickup",
+      "duration": 4.533333778381348
+    },
+    {
+      "name": "Exs_Cutin",
+      "duration": 5.000000476837158
+    },
+    {
+      "name": "Exs",
+      "duration": 5.000000476837158
+    },
+    {
+      "name": "Victory_End",
+      "duration": 2
+    },
+    {
+      "name": "Victory_Start",
+      "duration": 3.000000238418579
+    },
+    {
+      "name": "Normal_Idle",
+      "duration": 1.6000001430511475
+    },
+    {
+      "name": "Normal_Attack_Delay",
+      "duration": 1.3333333730697632
+    },
+    {
+      "name": "Normal_Attack_End",
+      "duration": 0.533333420753479
+    },
+    {
+      "name": "Normal_Attack_Ing",
+      "duration": 0.8000000715255737
+    },
+    {
+      "name": "Normal_Attack_Start",
+      "duration": 0.46666669845581055
+    },
+    {
+      "name": "Normal_Callsign",
+      "duration": 1.5000001192092896
+    },
+    {
+      "name": "Normal_Move_End_Normal",
+      "duration": 1.2000000476837158
+    },
+    {
+      "name": "Normal_Move_End_Normal_Root",
+      "duration": 1.2000000476837158
+    },
+    {
+      "name": "Normal_Move_Ing",
+      "duration": 0.6666666865348816
+    },
+    {
+      "name": "Normal_Reload",
+      "duration": 2
+    },
+    {
+      "name": "Vital_Death",
+      "duration": 2
+    },
+    {
+      "name": "Vital_Dying",
+      "duration": 1.6000001430511475
+    },
+    {
+      "name": "Vital_Panic",
+      "duration": 1.6000001430511475
+    },
+    {
+      "name": "Vital_Retreat",
+      "duration": 1.6666667461395264
+    },
+    {
+      "name": "Public01",
+      "duration": 4.099999904632568
+    }
+  ],
+  "actionSettings": {
+    "idle": {
+      "frames": null,
+      "fps": null,
+      "gif": null,
+      "loop": true,
+      "pingPong": false,
+      "modelClip": "Cafe_Idle",
+      "speed": 1,
+      "heading": null
+    },
+    "click": {
+      "frames": null,
+      "fps": null,
+      "gif": null,
+      "loop": true,
+      "pingPong": false,
+      "modelClip": "Cafe_Reaction",
+      "speed": 1,
+      "heading": 90
+    },
+    "hover": {
+      "frames": null,
+      "fps": null,
+      "gif": null,
+      "loop": false,
+      "pingPong": false,
+      "modelClip": "Cafe_Reaction",
+      "speed": 1,
+      "heading": null
+    },
+    "pickup": {
+      "frames": null,
+      "fps": null,
+      "gif": null,
+      "loop": false,
+      "pingPong": false,
+      "modelClip": "Formation_Pickup",
+      "speed": 1,
+      "heading": null
+    },
+    "held": {
+      "frames": null,
+      "fps": null,
+      "gif": null,
+      "loop": true,
+      "pingPong": false,
+      "modelClip": "Formation_Idle",
+      "speed": 1,
+      "heading": null
+    },
+    "land": {
+      "frames": null,
+      "fps": null,
+      "gif": null,
+      "loop": false,
+      "pingPong": false,
+      "modelClip": "Formation_Idle",
+      "speed": 1,
+      "heading": null
+    },
+    "walk": {
+      "frames": null,
+      "fps": null,
+      "gif": null,
+      "loop": true,
+      "pingPong": false,
+      "modelClip": "Cafe_Walk",
+      "speed": 1,
+      "heading": null
+    },
+    "celebrate": {
+      "frames": null,
+      "fps": null,
+      "gif": null,
+      "loop": false,
+      "pingPong": false,
+      "modelClip": "Victory_Start",
+      "speed": 1,
+      "heading": null
+    }
+  },
+  "playback": [
+    {
+      "key": "idle",
+      "duration": 3.200000286102295,
+      "completed": 1
+    },
+    {
+      "key": "click",
+      "duration": 5.800000190734863,
+      "completed": 1
+    },
+    {
+      "key": "pickup",
+      "duration": 4.533333778381348,
+      "completed": 1
+    },
+    {
+      "key": "held",
+      "duration": 4,
+      "completed": 1
+    },
+    {
+      "key": "land",
+      "duration": 4,
+      "completed": 1
+    },
+    {
+      "key": "walk",
+      "duration": 2.6666667461395264,
+      "completed": 1
+    }
+  ],
+  "resolution": [
+    {
+      "logicalSize": 192,
+      "renderScaling": 1,
+      "pixels": 192,
+      "renderMs": 5.2624
+    },
+    {
+      "logicalSize": 288,
+      "renderScaling": 1,
+      "pixels": 288,
+      "renderMs": 8.3199
+    },
+    {
+      "logicalSize": 384,
+      "renderScaling": 1,
+      "pixels": 384,
+      "renderMs": 18.746
+    }
+  ],
+  "pointerCanvasVerified": true,
+  "importedThroughUi": true,
+  "persisted": true,
+  "integratedSettings": true,
+  "hiddenPetStayedHidden": true,
+  "qualityWindowOnScreen": true,
+  "otherWindowsOffScreen": true,
+  "physicalInput": false,
+  "os": "Unix 26.6.2"
+}

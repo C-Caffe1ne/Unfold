@@ -52,8 +52,8 @@ public static class CharacterAssetAudit
                 if (!CharacterLibrary.SafeId(key)) errors.Add($"Invalid animation key: {key}");
                 if (package.HasOriginalBehavior && key == "idle" && !definition.Loop) errors.Add("The idle animation must loop.");
                 if (package.HasOriginalBehavior && !package.IsGlb && OneShots.Contains(key) && definition.Loop) errors.Add($"The {key} event must not loop.");
-                if (package.HasPointerArt && (key is "pickup" or "land") && definition.Loop) errors.Add($"The {key} event must not loop.");
-                if (package.HasPointerArt && key == "held" && !definition.Loop) errors.Add("The held animation must loop.");
+                if (!package.IsGlb && package.HasPointerArt && (key is "pickup" or "land") && definition.Loop) errors.Add($"The {key} event must not loop.");
+                if (!package.IsGlb && package.HasPointerArt && key == "held" && !definition.Loop) errors.Add("The held animation must loop.");
                 if (definition.Gif is not null) paths.Add(definition.Gif);
                 try
                 {

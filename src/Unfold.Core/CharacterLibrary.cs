@@ -5,7 +5,7 @@ using System.Text.Json;
 namespace Unfold.Core;
 
 public sealed record SheetDefinition(string File, int Columns, int Rows, int FrameWidth, int FrameHeight);
-public sealed record AnimationDefinition(int[]? Frames = null, double? Fps = null, string? Gif = null, bool Loop = true, bool PingPong = false, string? ModelClip = null, double Speed = 1);
+public sealed record AnimationDefinition(int[]? Frames = null, double? Fps = null, string? Gif = null, bool Loop = true, bool PingPong = false, string? ModelClip = null, double Speed = 1, float? Heading = null);
 public sealed record CharacterManifest(string Id, string Name, int Version, SheetDefinition SpriteSheet,
     Dictionary<string, AnimationDefinition> Animations, string? ThumbnailSymbol = null, string? RenderStyle = null,
     string? BehaviorProfile = null, GlbDefinition? Model = null);
@@ -33,7 +33,7 @@ public sealed class CharacterPackage
     public IReadOnlyList<AnimationFrame> LoadAnimation(string key)
     {
         if (!Manifest.Animations.TryGetValue(key, out var definition)) definition = Manifest.Animations["idle"];
-        if (IsGlb) return Model.CreateAnimation(definition.ModelClip!, Manifest.Model!, Manifest.Animations["idle"].ModelClip!, definition.Speed);
+        if (IsGlb) return Model.CreateAnimation(definition.ModelClip!, Manifest.Model! with { Heading = definition.Heading ?? Manifest.Model!.Heading }, Manifest.Animations["idle"].ModelClip!, definition.Speed);
         if (definition.Gif is not null)
             return ImageCodec.DecodeGif(ImageCodec.ReadBounded(CharacterLibrary.AssetPath(DirectoryPath, definition.Gif)));
         var sprite = Manifest.SpriteSheet;
@@ -103,12 +103,10 @@ public sealed partial class CharacterLibrary
             _ = AssetPath(directory, model.File);
             var names = package.Model.Animations.Select(c => c.Name).ToHashSet(StringComparer.Ordinal);
             foreach (var definition in manifest.Animations.Values)
-                if (definition is null || definition.ModelClip is null || !names.Contains(definition.ModelClip) || !double.IsFinite(definition.Speed) || definition.Speed is < .25 or > 3 || definition.PingPong)
+                if (definition is null || definition.ModelClip is null || !names.Contains(definition.ModelClip) || !double.IsFinite(definition.Speed) || definition.Speed is < .25 or > 3 || definition.PingPong ||
+                    definition.Heading is { } heading && (!float.IsFinite(heading) || heading is < -180 or > 180))
                     throw new InvalidDataException("Invalid GLB animation mapping.");
             if (!manifest.Animations["idle"].Loop || manifest.Animations.Keys.Any(key => !GlbPetDraft.Actions.Contains(key))) throw new InvalidDataException("Invalid GLB pet events.");
-            foreach (var key in new[] { "pickup", "land" })
-                if (manifest.Animations.GetValueOrDefault(key)?.Loop == true) throw new InvalidDataException("GLB pickup and land must play once.");
-            if (manifest.Animations.TryGetValue("held", out var held) && !held.Loop) throw new InvalidDataException("GLB held must loop.");
             return package;
         }
         foreach (var animation in manifest.Animations.Values)

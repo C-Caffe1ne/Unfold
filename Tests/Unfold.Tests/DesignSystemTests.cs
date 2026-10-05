@@ -157,8 +157,8 @@ public class DesignSystemTests
         using var scope = new SettingsScope(); var window = scope.Window;
         Find<Button>(window, "SettingsNavPacks").RaiseEvent(new RoutedEventArgs(Avalonia.Controls.Button.ClickEvent));
         Layout(window);
-        Find<TabControl>(window, "PetManagementTabs").SelectedIndex = 1; Layout(window);
-        string[] controls = ["CustomPetName", "CustomPetFile_idle", "CustomPetRemove_idle",
+        Layout(window);
+        string[] controls = ["CustomPetName", "OpenPetBuilderFile", "CustomPetFile_idle", "CustomPetRemove_idle",
             "CustomPetPreview_idle"];
         foreach (var size in new[] { new Size(1120, 800), new Size(990, 740), new Size(860, 680) })
         {
@@ -169,7 +169,9 @@ public class DesignSystemTests
                 Assert.Single(Find<StackPanel>(window, "CustomPetActionSlots").Children, card => card.IsVisible);
                 var workspace = Find<PetEditorWorkspace>(window, "CustomPetWorkspace");
                 Assert.Equal(2, Grid.GetColumn(Find<StackPanel>(window, "CustomPetActionPane")));
-                Assert.True(Find<TextBox>(window, "CustomPetName").Bounds.Width >= workspace.Bounds.Width - 1);
+                Assert.True(Find<Grid>(window, "CustomPetIdentity").Bounds.Width >= workspace.Bounds.Width - 1);
+                var name = Find<TextBox>(window, "CustomPetName"); var open = Find<Button>(window, "OpenPetBuilderFile");
+                Assert.True(open.TranslatePoint(default, window)!.Value.X >= name.TranslatePoint(default, window)!.Value.X + name.Bounds.Width);
 
             }
             var pageScroll = PageBodyScrollGeometry.Scroll(window);

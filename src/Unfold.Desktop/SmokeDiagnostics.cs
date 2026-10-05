@@ -357,9 +357,7 @@ internal static partial class SmokeDiagnostics
                     Press(window, tab); await Task.Delay(100); window.UpdateLayout();
                     Capture(window, Path.Combine(directory, "theme-" + palette.Id + "-" + file + ".png"));
                 }
-                var tabs = window.GetVisualDescendants().OfType<TabControl>().Single(item => item.Name == "PetManagementTabs");
-                tabs.SelectedIndex = 1; await Task.Delay(100);
-                Capture(window, Path.Combine(directory, "theme-" + palette.Id + "-builder.png")); tabs.SelectedIndex = 0;
+                Capture(window, Path.Combine(directory, "theme-" + palette.Id + "-builder.png"));
                 verified.Add(palette.Name);
             }
         }
@@ -665,23 +663,13 @@ internal static partial class SmokeDiagnostics
             Capture(window, Path.Combine(directory, "settings-review-tab.png"));
             Press(window, "SettingsNavPacks"); await Task.Delay(100); window.UpdateLayout();
             VerifySettingsPageHeaderRemoved(window);
-            var petTabs = window.GetVisualDescendants().OfType<TabControl>().Single(control => control.Name == "PetManagementTabs");
-            if (window.OwnedWindows.Count != 0 || !petTabs.Items.OfType<TabItem>().Select(item => item.Header).SequenceEqual(new[] { "펫 팩 열기", "펫 팩 만들기" }))
-                throw new InvalidOperationException("Pet navigation did not open the two expected in-window tabs.");
-            var packPreview = window.GetVisualDescendants().OfType<Border>().Single(control => control.Name == "PackPreviewSurface");
-            var packClip = window.GetVisualDescendants().OfType<ComboBox>().Single(control => control.Name == "PackClip");
-            if (Math.Abs(packPreview.Bounds.Width - 520) > 1 || Math.Abs(packClip.Bounds.Width - 200) > 1)
-                throw new InvalidOperationException("The pet pack preview or action picker is not compact.");
-            Capture(window, Path.Combine(directory, "settings-pet-open-tab.png"));
-            petTabs.SelectedIndex = 1; await Task.Delay(100); window.UpdateLayout();
-            var format = window.GetVisualDescendants().OfType<ComboBox>().Single(c => c.Name == "PetBuilderFormat");
-            format.SelectedIndex = 1; await Task.Delay(100); window.UpdateLayout();
+            if (window.OwnedWindows.Count != 0 || window.GetVisualDescendants().OfType<TabControl>().Any(c => c.Name == "PetManagementTabs") ||
+                window.GetVisualDescendants().OfType<Button>().Any(c => c.Name == "OpenPetPack"))
+                throw new InvalidOperationException("Pet management did not open the builder directly.");
             VerifySettingsPageHeaderRemoved(window);
-            if (!window.GetVisualDescendants().OfType<Button>().Any(button => button.Name == "OpenPetBuilderFile" && button.IsEnabled))
-                throw new InvalidOperationException("The unified builder did not expose its import action.");
-            Capture(window, Path.Combine(directory, "settings-glb-tab.png"));
-            format.SelectedIndex = 0; await Task.Delay(100); window.UpdateLayout();
-            VerifySettingsPageHeaderRemoved(window);
+            if (!window.GetVisualDescendants().OfType<Button>().Any(button => button.Name == "OpenPetBuilderFile" && button.IsEnabled) ||
+                window.GetVisualDescendants().OfType<Control>().Any(control => control.Name == "PetBuilderFormat"))
+                throw new InvalidOperationException("The unified builder import controls do not match the current layout.");
             var petName = window.GetVisualDescendants().OfType<TextBox>().Single(control => control.Name == "CustomPetName");
             if (petName.Bounds.Width <= 0 ||
                 window.GetVisualDescendants().OfType<Button>().Any(button => button.Name == "ImportPetMedia"))
@@ -696,7 +684,7 @@ internal static partial class SmokeDiagnostics
             Capture(window, Path.Combine(directory, "settings-pet-create-tab.png"));
             Press(window, "SettingsNavTimer"); await Task.Delay(100);
             Press(window, "SettingsNavPacks"); await Task.Delay(100); window.UpdateLayout();
-            if (petTabs.SelectedIndex != 1 || petName.Text != "작성 중인 펫")
+            if (petName.Text != "작성 중인 펫")
                 throw new InvalidOperationException("Pet draft was lost during sidebar navigation.");
             window.MinWidth = 640; window.MinHeight = 560; window.Width = 860; window.Height = 680;
             await Task.Delay(200); window.UpdateLayout();
@@ -726,8 +714,7 @@ internal static partial class SmokeDiagnostics
                 throw new InvalidOperationException("The last pet action cannot be reached by scrolling.");
             Capture(window, Path.Combine(directory, "settings-pet-create-minimum-scrolled.png"));
             petName.Text = "";
-            petTabs.SelectedIndex = 0; await Task.Delay(100); window.UpdateLayout();
-            Capture(window, Path.Combine(directory, "settings-pet-open-minimum.png"));
+            await Task.Delay(100); window.UpdateLayout();
             Press(window, "SettingsNavTimer"); await Task.Delay(100); window.UpdateLayout();
             VerifySettingsPageHeaderRemoved(window);
             window.MinWidth = 640; window.MinHeight = 560; window.Width = 860; window.Height = 680;
@@ -810,7 +797,7 @@ internal static partial class SmokeDiagnostics
             Press(window, "SettingsNavTimer"); await Task.Delay(100);
             return new { minimumWidth = window.ClientSize.Width, minimumHeight = window.ClientSize.Height,
                 timerAndPetVisible = true, detailsScrollVerified = true, noHorizontalOverflow = true,
-                inWindowTabsVerified = true, settingsTabVerified = true, homeTimingVerified = true, petManagementTabsVerified = true,
+                inWindowTabsVerified = true, settingsTabVerified = true, homeTimingVerified = true, petManagementBuilderVerified = true,
                 routineProfileEntryRemoved = true,
                 petDraftPreserved = true, petCardAddButtonRemoved = true, petSelectorWidth = picker.Bounds.Width,
                 settingsOptionsScrollRequired, settingsOptionsExtentHeight, settingsOptionsViewportHeight,
@@ -965,9 +952,7 @@ internal static partial class SmokeDiagnostics
             preferences.ScrollToEnd(); await Layout(); Capture(window, Path.Combine(directory, "responsive-settings-bottom.png"));
             Press(window, "SettingsNavReview"); await Layout(); Capture(window, Path.Combine(directory, "responsive-review.png"));
             Press(window, "SettingsNavPacks"); await Layout();
-            var tabs = window.GetVisualDescendants().OfType<TabControl>().Single(item => item.Name == "PetManagementTabs");
-            tabs.SelectedIndex = 0; await Layout(); Capture(window, Path.Combine(directory, "responsive-pet-open.png"));
-            tabs.SelectedIndex = 1; await Layout();
+            await Layout();
             var builder = window.GetVisualDescendants().OfType<ScrollViewer>().Single(item => item.Name == "PageBodyScroll");
             builder.ScrollToEnd(); await Layout(); Capture(window, Path.Combine(directory, "responsive-pet-create.png"));
         }

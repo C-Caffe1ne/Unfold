@@ -1,4 +1,9 @@
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Headless;
+using Avalonia.Input;
+using Avalonia.Media;
 using Avalonia.Headless.XUnit;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
@@ -88,21 +93,32 @@ public class GlbEditorUxTests
         Assert.True(editor.Library.List().Single().Manifest.Animations["hover"].Loop);
     }
     [AvaloniaTheory]
-    [InlineData("idle", true)]
-    [InlineData("held", true)]
-    [InlineData("walk", true)]
-    [InlineData("pickup", false)]
-    [InlineData("land", false)]
-    public async Task RequiredPlaybackModesMatchTheSavedMappingWithoutExplanatoryCopy(string action, bool loop)
+    [InlineData("idle")]
+    [InlineData("held")]
+    [InlineData("walk")]
+    [InlineData("pickup")]
+    [InlineData("land")]
+    public async Task AllAssignedActionsExceptIdleCanChooseTheirPlayback(string action)
     {
         using var editor = new Editor(); await editor.Open();
-        editor.Find<ComboBox>("GlbPreviewAction").SelectedIndex = GlbPetDraft.Actions.ToList().IndexOf(action);
+        editor.Find<ComboBox>("GlbPreviewAction").SelectedItem = action;
         editor.Find<ComboBox>("GlbClip_" + action).SelectedItem = "Idle";
         var repeat = editor.Find<ComboBox>("GlbRepeat_" + action);
-        Assert.False(repeat.IsEnabled); Assert.Equal(loop ? 1 : 0, repeat.SelectedIndex);
-        Assert.DoesNotContain(editor.Window.GetVisualDescendants().OfType<TextBlock>(), t => t.Name == "GlbRepeatHint_" + action);
+        Assert.Equal(action != "idle", repeat.IsEnabled);
+        repeat.SelectedIndex = 1;
+        await Editor.Until(() => !editor.Page.IsPreviewLoading);
+        Assert.True(editor.Find<AnimationView>("GlbPreview").Repeats);
         editor.Press("SaveGlbPet"); await Editor.Until(() => !editor.Page.IsBusy);
-        Assert.Equal(loop, editor.Library.List().Single().Manifest.Animations[action].Loop);
+        Assert.True(editor.Library.List().Single().Manifest.Animations[action].Loop);
+        if (action != "idle")
+        {
+            repeat.SelectedIndex = 0;
+            await Editor.Until(() => !editor.Page.IsPreviewLoading);
+            Assert.False(editor.Find<AnimationView>("GlbPreview").Repeats);
+            editor.Press("SaveGlbPet"); await Editor.Until(() => !editor.Page.IsBusy);
+            Assert.False(editor.Library.List().Single().Manifest.Animations[action].Loop);
+        }
+        Assert.DoesNotContain(editor.Window.GetVisualDescendants().OfType<TextBlock>(), t => t.Name == "GlbRepeatHint_" + action);
     }
 
     [AvaloniaTheory]
@@ -137,4 +153,51 @@ public class GlbEditorUxTests
         Assert.False(editor.Find<Button>("SaveGlbPet").IsEnabled);
     }
 
+    [AvaloniaFact]
+    public async Task EachActionKeepsItsHeadingAcrossSelectionSaveAndReopen()
+    {
+        using var editor = new Editor(); await editor.Open();
+        var action = editor.Find<ComboBox>("GlbPreviewAction");
+        editor.Find<ComboBox>("GlbHeading_idle").SelectedIndex = 2;
+        action.SelectedItem = "click";
+        editor.Find<ComboBox>("GlbClip_click").SelectedItem = "Idle";
+        Assert.Equal(0, editor.Find<ComboBox>("GlbHeading_click").SelectedIndex);
+        editor.Find<ComboBox>("GlbHeading_click").SelectedIndex = 0;
+        action.SelectedItem = "idle";
+        Assert.Equal(2, editor.Find<ComboBox>("GlbHeading_idle").SelectedIndex);
+        action.SelectedItem = "click";
+        Assert.Equal(0, editor.Find<ComboBox>("GlbHeading_click").SelectedIndex);
+        await Editor.Until(() => !editor.Page.IsPreviewLoading);
+        editor.Press("SaveGlbPet"); await Editor.Until(() => !editor.Page.IsBusy);
+        var package = editor.Library.List().Single();
+        Assert.Equal(180, package.Manifest.Animations["idle"].Heading);
+        Assert.Equal(0, package.Manifest.Animations["click"].Heading);
+        Assert.Null(package.Manifest.Model!.RootNode);
+        await editor.Page.OpenPackage(package);
+        Assert.Equal(2, editor.Find<ComboBox>("GlbHeading_idle").SelectedIndex);
+        Assert.Equal(0, editor.Find<ComboBox>("GlbHeading_click").SelectedIndex);
+    }
+
+    [AvaloniaFact]
+    public async Task HeadingFollowsAnimationWithoutRootOrAdvancedControlsInEveryTheme()
+    {
+        using var editor = new Editor(); await editor.Open();
+        var original = DesignSystem.CurrentTheme;
+        try
+        {
+            foreach (var theme in DesignSystem.Themes)
+            {
+                DesignSystem.ApplyTheme(theme.Id);
+                Dispatcher.UIThread.RunJobs(); editor.Window.UpdateLayout();
+                var clip = editor.Find<ComboBox>("GlbClip_idle"); var heading = editor.Find<ComboBox>("GlbHeading_idle");
+                var repeat = editor.Find<ComboBox>("GlbRepeat_idle");
+                Assert.True(heading.IsEffectivelyVisible);
+                Assert.True(heading.TranslatePoint(default, editor.Window)!.Value.Y > clip.TranslatePoint(default, editor.Window)!.Value.Y);
+                Assert.True(repeat.TranslatePoint(default, editor.Window)!.Value.Y > heading.TranslatePoint(default, editor.Window)!.Value.Y);
+                Assert.DoesNotContain(editor.Window.GetVisualDescendants().OfType<Control>(), c => c.Name is "GlbRoot" or "GlbAdvanced" or "GlbHeading");
+            }
+        }
+        finally { DesignSystem.ApplyTheme(original); }
+        Assert.False(editor.Find<ComboBox>("GlbHeading_hover").IsEnabled);
+    }
 }

@@ -11,12 +11,15 @@ namespace Unfold.Desktop;
 
 public sealed class PetPackWindow : Window
 {
+    private readonly PetPackView page;
+    internal bool IsBusy => page.IsBusy;
+    internal Task OpenPath(string path) => page.OpenPath(path);
     public PetPackWindow(CharacterLibrary library, Func<CharacterPackage, Task> installed, Func<Task<string?>>? chooseFile = null,
         Func<Task<string?>>? chooseMedia = null, Func<Task<string?>>? chooseOutput = null)
     {
-        Title = "Unfold · 펫 추가"; Width = 520; Height = 850; MinWidth = 480; MinHeight = 560;
+        Title = "Unfold · 펫 팩 확인"; Width = 520; Height = 850; MinWidth = 480; MinHeight = 560;
         Background = Ui.Background; WindowStartupLocation = WindowStartupLocation.CenterOwner;
-        var page = new PetManagementView(this, library, installed, chooseFile, chooseMedia, chooseOutput);
+        page = new PetPackView(this, library, installed, chooseFile, showHeader: false);
         // The minimum-width 200% preview needs a few pixels reclaimed from the frame after the
         // shared page body reserves a visible scrollbar track and gutter.
         Content = Ui.PageFrame(this, page, inset: 10);
@@ -175,7 +178,7 @@ internal sealed class PetPackView : UserControl, IDisposable
             clips.ItemsSource = pack.Character.Manifest.Animations.Keys.Order().ToArray(); clips.SelectedItem = "idle"; clips.IsEnabled = true;
             status.Text = info.Action switch
             {
-                "Update" => "업데이트 준비 완료", "Reinstall" => "재설치 준비 완료", _ => "저장 준비 완료"
+                "Update" => "업데이트 준비 완료", "Reinstall" => "재설치 준비 완료", "Replace" => "교체 준비 완료", _ => "저장 준비 완료"
             };
             await PlayClip();
             if (!closed) install.IsEnabled = previewReady;

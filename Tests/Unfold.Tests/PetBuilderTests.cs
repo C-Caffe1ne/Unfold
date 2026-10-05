@@ -31,7 +31,6 @@ public class PetBuilderTests
             Page = new(Window, Library, _ => Task.CompletedTask, chooseMedia: () => Task.FromResult<string?>(FilePath),
                 chooseOutput: () => Task.FromResult<string?>(Output), showPageHeaders: false);
             Window.Content = Ui.PageFrame(Window, Page); Window.Show(); Layout();
-            Find<TabControl>("PetManagementTabs").SelectedIndex = 1; Layout();
         }
         public T Find<T>(string name) where T : Control => Window.GetVisualDescendants().OfType<T>().Single(c => c.Name == name);
         public void Press(string name) => Find<Button>(name).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
@@ -46,27 +45,28 @@ public class PetBuilderTests
         Assert.True(ready());
     }
     [AvaloniaFact]
-    public async Task OneBuilderRoutesBothFormatsAndPreservesTheirDraftsAcrossNavigation()
+    public async Task OneBuilderRoutesByExtensionAndKeepsDraftsAcrossNavigation()
     {
         using var editor = new Editor();
-        var tabs = editor.Find<TabControl>("PetManagementTabs");
-        Assert.Equal(new[] { "펫 팩 열기", "펫 팩 만들기" }, tabs.Items.OfType<TabItem>().Select(t => t.Header));
+        Assert.DoesNotContain(editor.Window.GetVisualDescendants().OfType<TabControl>(), c => c.Name == "PetManagementTabs");
+        Assert.NotNull(editor.Find<TextBox>("CustomPetName"));
         await editor.Open(CustomPetDraftTests.Fixture());
         editor.Find<TextBox>("CustomPetName").Text = "영상 펫";
         editor.Find<ComboBox>("CustomPetPlayback_idle").SelectedIndex = 2;
+        var mediaAction = editor.Find<ComboBox>("CustomPetSelectedAction");
         await editor.Open(editor.GlbPath);
-        Assert.Equal(1, editor.Find<ComboBox>("PetBuilderFormat").SelectedIndex);
+        Assert.DoesNotContain(editor.Window.GetVisualDescendants().OfType<Control>(), c => c.Name == "PetBuilderFormat");
         editor.Find<TextBox>("GlbPetName").Text = "모델 펫";
-        editor.Find<Expander>("GlbAdvanced").IsExpanded = true; editor.Layout();
-        editor.Find<ComboBox>("GlbHeading").SelectedIndex = 1;
-        tabs.SelectedIndex = 0; editor.Layout(); tabs.SelectedIndex = 1; editor.Layout();
+        editor.Find<ComboBox>("GlbHeading_idle").SelectedIndex = 1;
+        editor.Page.IsVisible = false; editor.Layout(); editor.Page.IsVisible = true; editor.Layout();
         Assert.Equal("모델 펫", editor.Find<TextBox>("GlbPetName").Text);
-        editor.Find<ComboBox>("PetBuilderFormat").SelectedIndex = 0; editor.Layout();
+        Assert.Equal(1, editor.Find<ComboBox>("GlbHeading_idle").SelectedIndex);
+        // Opening another media action restores that format's existing name and idle mapping.
+        mediaAction.SelectedItem = "click";
+        await editor.Open(CustomPetDraftTests.Fixture());
         Assert.Equal("영상 펫", editor.Find<TextBox>("CustomPetName").Text);
         Assert.Equal(2, editor.Find<ComboBox>("CustomPetPlayback_idle").SelectedIndex);
         Assert.True(editor.Find<Button>("CreateCustomPetPack").IsEnabled);
-        editor.Find<ComboBox>("PetBuilderFormat").SelectedIndex = 1; editor.Layout();
-        Assert.Equal(1, editor.Find<ComboBox>("GlbHeading").SelectedIndex);
         Assert.True(editor.Page.HasUnsavedDraft);
         Assert.DoesNotContain(editor.Window.GetVisualDescendants().OfType<TextBlock>(), t =>
             t.Name is "GlbActionHint" or "GlbPreviewStatus" or "GlbPreviewClip" or "GlbInfo" or "GlbMappingSummary" ||
@@ -79,12 +79,16 @@ public class PetBuilderTests
     {
         if (fixture.EndsWith(".mp4", StringComparison.Ordinal)) Assert.SkipUnless(PetMediaImporterTests.HasVideoTool, "Prepare media tools for MP4 conversion.");
         using var editor = new Editor(); await editor.Open(CustomPetDraftTests.Fixture(fixture));
-        Assert.Equal(0, editor.Find<ComboBox>("PetBuilderFormat").SelectedIndex);
+        Assert.DoesNotContain(editor.Window.GetVisualDescendants().OfType<Control>(), c => c.Name == "PetBuilderFormat");
         Assert.Equal(fixture, editor.Find<TextBlock>("CustomPetLabel_idle").Text);
         editor.Find<TextBox>("CustomPetName").Text = "테스트 펫";
         editor.Find<ComboBox>("CustomPetPlayback_idle").SelectedIndex = 2;
-        editor.Press("CreateCustomPetPack"); await Until(() => !editor.Page.IsBusy); editor.Layout();
-        Assert.Equal(0, editor.Find<TabControl>("PetManagementTabs").SelectedIndex);
+        editor.Press("CreateCustomPetPack");
+        await Until(() => editor.Window.OwnedWindows.OfType<PetPackWindow>().Any());
+        var import = editor.Window.OwnedWindows.OfType<PetPackWindow>().Single();
+        await Until(() => !import.IsBusy); import.Close();
+        await Until(() => !editor.Page.IsBusy); editor.Layout();
+        Assert.NotNull(editor.Find<TextBox>("CustomPetName"));
         using var pack = CharacterPack.Open(editor.Output!);
         Assert.False(pack.Character.IsGlb); Assert.True(pack.Character.Manifest.Animations["idle"].PingPong);
         Assert.Empty(editor.Library.List());
@@ -94,8 +98,7 @@ public class PetBuilderTests
     {
         using var editor = new Editor(); await editor.Open(editor.GlbPath);
         editor.Find<TextBox>("GlbPetName").Text = "내 GLB 펫";
-        editor.Find<Expander>("GlbAdvanced").IsExpanded = true; editor.Layout();
-        editor.Find<ComboBox>("GlbHeading").SelectedIndex = 2;
+        editor.Find<ComboBox>("GlbHeading_idle").SelectedIndex = 2;
         editor.Find<ComboBox>("GlbPreviewAction").SelectedItem = "click";
         editor.Find<ComboBox>("GlbClip_click").SelectedItem = "Idle";
         editor.Find<ComboBox>("GlbRepeat_click").SelectedIndex = 1;
@@ -104,21 +107,58 @@ public class PetBuilderTests
         editor.Press("CreateGlbPetPack"); await Until(() => !editor.Page.IsBusy);
         Assert.True(editor.Page.HasUnsavedDraft); Assert.Empty(editor.Library.List());
         editor.Output = output;
-        editor.Press("CreateGlbPetPack"); await Until(() => !editor.Page.IsBusy); editor.Layout();
-        Assert.Equal(0, editor.Find<TabControl>("PetManagementTabs").SelectedIndex);
+        editor.Press("CreateGlbPetPack");
+        await Until(() => editor.Window.OwnedWindows.OfType<PetPackWindow>().Any());
+        var import = editor.Window.OwnedWindows.OfType<PetPackWindow>().Single();
+        await Until(() => !import.IsBusy); editor.Layout();
         Assert.False(editor.Page.HasUnsavedDraft); Assert.Empty(editor.Library.List());
         using (var pack = CharacterPack.Open(output!))
         {
-            Assert.True(pack.Character.IsGlb); Assert.Equal(180, pack.Character.Manifest.Model!.Heading);
+            Assert.True(pack.Character.IsGlb); Assert.Equal(180, pack.Character.Manifest.Animations["idle"].Heading);
+            Assert.Equal(0, pack.Character.Manifest.Animations["click"].Heading);
             Assert.Equal("내 GLB 펫", pack.Character.Manifest.Name);
             Assert.True(pack.Character.Manifest.Animations["click"].Loop);
             Assert.Equal(.5, pack.Character.Manifest.Animations["click"].Speed);
         }
-        await Until(() => editor.Find<Button>("InstallPetPack").IsEnabled);
-        editor.Press("InstallPetPack"); await Until(() => !editor.Page.IsBusy);
-        Assert.True(editor.Library.List().Single().IsGlb);
-        editor.Find<TabControl>("PetManagementTabs").SelectedIndex = 1; editor.Layout();
+        var install = import.GetVisualDescendants().OfType<Button>().Single(c => c.Name == "InstallPetPack");
+        await Until(() => install.IsEnabled);
+        install.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); await Until(() => !editor.Page.IsBusy);
+        Assert.True(editor.Library.List().Single().IsGlb); editor.Layout();
         Assert.Equal(1, editor.Find<ComboBox>("GlbExistingPets").ItemCount);
+    }
+    [AvaloniaFact]
+    public async Task SavedGlbCanBeSelectedBelowPreviewFromTheDefaultScreen()
+    {
+        using var editor = new Editor(); var saved = new GlbPetDraft(editor.GlbPath).Save(editor.Library);
+        editor.Window.GetVisualDescendants().OfType<PetBuilderView>().Single().RefreshPets();
+        var choice = editor.Find<ComboBox>("MediaExistingPets");
+        Assert.Equal(saved.Manifest.Id, Assert.Single(choice.Items.OfType<CharacterPackage>()).Manifest.Id);
+        choice.SelectedIndex = 0;
+        await Until(() => !editor.Page.IsBusy && editor.Window.GetVisualDescendants().OfType<TextBox>().Any(c => c.Name == "GlbPetName"));
+        Assert.Equal(saved.Manifest.Name, editor.Find<TextBox>("GlbPetName").Text);
+        Assert.False(editor.Page.HasUnsavedDraft);
+    }
+    [AvaloniaFact]
+    public async Task UnifiedPickerAppliesAnOlderPackWithoutDiscardingTheDraft()
+    {
+        using var editor = new Editor();
+        var root = Path.GetDirectoryName(editor.GlbPath)!;
+        using var newer = CharacterPack.Open(CharacterPackTests.CreatePack(root, "2.0.0"));
+        editor.Library.Install(newer, null);
+        editor.Find<TextBox>("CustomPetName").Text = "작성 중";
+        editor.FilePath = CharacterPackTests.CreatePack(root, "1.0.0", color: 0xFFABCDEF);
+        editor.Press("OpenPetBuilderFile");
+        await Until(() => editor.Window.OwnedWindows.OfType<PetPackWindow>().Any());
+        var import = editor.Window.OwnedWindows.OfType<PetPackWindow>().Single();
+        var install = import.GetVisualDescendants().OfType<Button>().Single(c => c.Name == "InstallPetPack");
+        await Until(() => install.IsEnabled);
+        install.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        await Until(() => !editor.Page.IsBusy); editor.Layout();
+        using var older = CharacterPack.Open(editor.FilePath);
+        Assert.Equal("1.0.0", editor.Library.InspectInstall(older).InstalledVersion);
+        Assert.Equal(older.Character.LoadAnimation("idle")[0].Image.Pixels, Assert.Single(editor.Library.List()).LoadAnimation("idle")[0].Image.Pixels);
+        Assert.Equal("작성 중", editor.Find<TextBox>("CustomPetName").Text);
+        Assert.Empty(editor.Window.OwnedWindows);
     }
     [AvaloniaTheory]
     [InlineData(480, 560)]
@@ -127,11 +167,29 @@ public class PetBuilderTests
     public async Task BothEditorsFitAndExposeOnlyTheSelectedAction(double width, double height)
     {
         using var editor = new Editor(); await editor.Open(CustomPetDraftTests.Fixture());
-        await editor.Open(editor.GlbPath);
         editor.Window.Width = width; editor.Window.Height = height;
         for (var format = 0; format < 2; format++)
         {
-            editor.Find<ComboBox>("PetBuilderFormat").SelectedIndex = format; editor.Layout();
+            if (format == 1) await editor.Open(editor.GlbPath);
+            editor.Layout();
+            var name = editor.Find<TextBox>(format == 0 ? "CustomPetName" : "GlbPetName");
+            var open = editor.Find<Button>("OpenPetBuilderFile");
+            var nameAt = name.TranslatePoint(default, editor.Window)!.Value;
+            var openAt = open.TranslatePoint(default, editor.Window)!.Value;
+            Assert.True(openAt.X >= nameAt.X + name.Bounds.Width);
+            Assert.InRange(Math.Abs(openAt.Y - nameAt.Y), 0, 1);
+            var previewPane = editor.Find<Grid>(format == 0 ? "CustomPetPreviewPane" : "GlbPreviewPane");
+            Assert.InRange(Math.Abs(name.Bounds.Width - previewPane.Bounds.Width / 2), 0, 1);
+            var settings = editor.Find<StackPanel>(format == 0 ? "CustomPetActionPane" : "GlbActionPane");
+            if (width >= 860)
+            {
+                var stage = editor.Find<Border>(format == 0 ? "CustomPetPreviewSurface" : "GlbPreviewStage");
+                var title = previewPane.Children.OfType<TextBlock>().Single();
+                Assert.InRange(Math.Abs(stage.Bounds.Height - Math.Max(140, settings.DesiredSize.Height - title.DesiredSize.Height - 8)), 0, 1);
+            }
+            var pets = editor.Find<ComboBox>(format == 0 ? "MediaExistingPets" : "GlbExistingPets");
+            var pause = editor.Find<Button>(format == 0 ? "PauseCustomPet" : "PauseGlbPet");
+            Assert.True(pets.TranslatePoint(default, editor.Window)!.Value.Y >= pause.TranslatePoint(default, editor.Window)!.Value.Y + pause.Bounds.Height);
             var selector = editor.Find<ComboBox>(format == 0 ? "CustomPetSelectedAction" : "GlbPreviewAction");
             selector.SelectedItem = "click"; editor.Layout();
             var scroll = editor.Find<ScrollViewer>("PageBodyScroll");

@@ -1,0 +1,16 @@
+/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll(.NETCoreApp,Version=v10.0)에 대한 테스트 실행
+지정된 패턴과 일치한 총 테스트 파일 수는 1개입니다.
+[xUnit.net 00:01:05.07]     Unfold.Tests.DesignSystemTests.SettingsPetBuilderKeepsItsInputsAndButtonsClearOfTheBodyScrollBar [FAIL]
+  실패 Unfold.Tests.DesignSystemTests.SettingsPetBuilderKeepsItsInputsAndButtonsClearOfTheBodyScrollBar [30 ms]
+  오류 메시지:
+   Assert.True() Failure
+Expected: True
+Actual:   False
+  스택 추적:
+     at Unfold.Tests.DesignSystemTests.SettingsPetBuilderKeepsItsInputsAndButtonsClearOfTheBodyScrollBar() in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/DesignSystemTests.cs:line 172
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+실패!  - 실패:     1, 통과:   665, 건너뜀:     0, 전체:   666, 기간: 1 m 18 s - Unfold.Tests.dll (net10.0)

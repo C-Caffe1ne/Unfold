@@ -1,0 +1,33 @@
+  Unfold.Core -> /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/src/Unfold.Core/bin/Release/net10.0/Unfold.Core.dll
+  Unfold.Desktop -> /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/src/Unfold.Desktop/bin/Release/net10.0/Unfold.dll
+  Unfold.Tests -> /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll
+/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll(.NETCoreApp,Version=v10.0)에 대한 테스트 실행
+지정된 패턴과 일치한 총 테스트 파일 수는 1개입니다.
+[xUnit.net 00:01:02.16]     Unfold.Tests.ThemeTests.ThemeChoicesUpdateExistingViewsPersistAndPreserveDraftsAndClock [FAIL]
+  실패 Unfold.Tests.ThemeTests.ThemeChoicesUpdateExistingViewsPersistAndPreserveDraftsAndClock [133 ms]
+  오류 메시지:
+   System.InvalidOperationException : Sequence contains no matching element
+  스택 추적:
+     at System.Linq.ThrowHelper.ThrowNoMatchException()
+   at System.Linq.Enumerable.Single[TSource](IEnumerable`1 source, Func`2 predicate)
+   at Unfold.Tests.ThemeTests.Find[T](Control root, String name) in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/ThemeTests.cs:line 154
+   at Unfold.Tests.ThemeTests.ThemeChoicesUpdateExistingViewsPersistAndPreserveDraftsAndClock() in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/ThemeTests.cs:line 80
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:01:11.73]     Unfold.Tests.ResponsiveLayoutTests.AllTabsFitSmallWindowsAndResizingPreservesPreferencesAndPetDrafts [FAIL]
+  실패 Unfold.Tests.ResponsiveLayoutTests.AllTabsFitSmallWindowsAndResizingPreservesPreferencesAndPetDrafts [66 ms]
+  오류 메시지:
+   System.InvalidOperationException : Sequence contains no matching element
+  스택 추적:
+     at System.Linq.ThrowHelper.ThrowNoMatchException()
+   at System.Linq.Enumerable.Single[TSource](IEnumerable`1 source, Func`2 predicate)
+   at Unfold.Tests.ResponsiveLayoutTests.Find[T](Window window, String name) in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/ResponsiveLayoutTests.cs:line 105
+   at Unfold.Tests.ResponsiveLayoutTests.AllTabsFitSmallWindowsAndResizingPreservesPreferencesAndPetDrafts() in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/ResponsiveLayoutTests.cs:line 82
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+실패!  - 실패:     2, 통과:   669, 건너뜀:     0, 전체:   671, 기간: 1 m 20 s - Unfold.Tests.dll (net10.0)

@@ -243,11 +243,11 @@ public class SettingsDashboardTests
             .Where(button => button.Name?.StartsWith("SettingsNav", StringComparison.Ordinal) == true).ToArray();
         Assert.Equal(4, navigation.Length);
         var railButtons = Find<Grid>(window, "SettingsNavigationRail").GetVisualDescendants().OfType<Button>().ToArray();
-        Assert.Equal(new[] { "홈", "펫 추가", "기록", "테마", "설정", "종료" }, railButtons.Select(ToolTip.GetTip));
+        Assert.Equal(new[] { "홈", "펫 관리", "기록", "테마", "설정", "종료" }, railButtons.Select(ToolTip.GetTip));
         var rail = Find<Grid>(window, "SettingsNavigationRail");
         var upper = Assert.IsType<StackPanel>(rail.Children.Single(child => Grid.GetRow(child) == 0));
         var lower = Assert.IsType<StackPanel>(rail.Children.Single(child => Grid.GetRow(child) == 1));
-        Assert.Equal(new[] { "홈", "펫 추가", "기록", "테마" }, upper.Children.OfType<Button>().Select(ToolTip.GetTip));
+        Assert.Equal(new[] { "홈", "펫 관리", "기록", "테마" }, upper.Children.OfType<Button>().Select(ToolTip.GetTip));
         Assert.Equal(new[] { "설정", "종료" }, lower.Children.OfType<Button>().Select(ToolTip.GetTip));
         foreach (var removed in new[] { "SettingsNavRoutines", "SettingsEditRoutine", "ApplyRoutineSettings", "SettingsOpenLibrary" })
             Assert.DoesNotContain(window.GetVisualDescendants().OfType<Control>(), control => control.Name == removed);
@@ -309,28 +309,23 @@ public class SettingsDashboardTests
     }
 
     [AvaloniaFact]
-    public void PetPagePreservesDraftAcrossTabsAndSidebarNavigation()
+    public void PetManagementOpensBuilderAndPreservesDraftAcrossSidebarNavigation()
     {
         using var scope = new Scope(); var window = scope.Window;
         Assert.DoesNotContain(window.GetVisualDescendants().OfType<Button>(), button => button.Name == "SettingsInstallPack");
         Assert.Equal(200, Find<ComboBox>(window, "CharacterPicker").Bounds.Width);
         var nav = Find<Button>(window, "SettingsNavPacks");
-        Assert.Equal("펫 추가", AutomationProperties.GetName(nav));
+        Assert.Equal("펫 관리", AutomationProperties.GetName(nav));
         Click(window, "SettingsNavPacks"); Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
         Assert.Empty(window.OwnedWindows); Assert.Contains("primary", nav.Classes);
         AssertNoTabPageHeader(window);
-        var tabs = Find<TabControl>(window, "PetManagementTabs");
-        Assert.Equal(new[] { "펫 팩 열기", "펫 팩 만들기" }, tabs.Items.OfType<TabItem>().Select(item => item.Header));
-        Assert.NotNull(Find<Button>(window, "OpenPetPack"));
-        tabs.SelectedIndex = 1; Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+        Assert.DoesNotContain(window.GetVisualDescendants().OfType<TabControl>(), c => c.Name == "PetManagementTabs");
+        Assert.NotNull(Find<Button>(window, "OpenPetBuilderFile"));
         AssertNoTabPageHeader(window);
         Find<TextBox>(window, "CustomPetName").Text = "새 친구";
-        tabs.SelectedIndex = 0; Dispatcher.UIThread.RunJobs();
-        tabs.SelectedIndex = 1; Dispatcher.UIThread.RunJobs();
-        Assert.Equal("새 친구", Find<TextBox>(window, "CustomPetName").Text);
         Click(window, "SettingsNavTimer"); Dispatcher.UIThread.RunJobs();
         Click(window, "SettingsNavPacks"); Dispatcher.UIThread.RunJobs();
-        Assert.Equal(1, tabs.SelectedIndex); Assert.Equal("새 친구", Find<TextBox>(window, "CustomPetName").Text);
+        Assert.Equal("새 친구", Find<TextBox>(window, "CustomPetName").Text);
         window.HideToTray(); window.Show(); Dispatcher.UIThread.RunJobs();
         Assert.Equal("새 친구", Find<TextBox>(window, "CustomPetName").Text);
         window.Width = 860; window.Height = 680; Dispatcher.UIThread.RunJobs(); window.UpdateLayout();

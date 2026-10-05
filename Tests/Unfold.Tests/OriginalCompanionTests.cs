@@ -130,7 +130,8 @@ public class OriginalCompanionTests
     public async Task PointerDownAndReleaseKeepCanvasFixedAndDragDoesNotClick()
     {
         using var scope = new Scope(); await scope.Select(original: true); var pet = scope.Pet;
-        var point = new Point(96, 85);
+        var point = pet.PetView.TranslatePoint(new(96, 85), pet)!.Value;
+        Assert.True(pet.AcceptsPointerAt(point));
         pet.MouseDown(point, MouseButton.Left); pet.AdvanceCompanion(.1);
         Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
         pet.MouseUp(point, MouseButton.Left); pet.AdvanceCompanion(.12);
@@ -154,7 +155,8 @@ public class OriginalCompanionTests
         await scope.Select(original: true); var pet = scope.Pet;
         ((DispatcherTimer)typeof(PetWindow).GetField("hitTimer",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(pet)!).Stop();
-        var point = new Point(96, 85);
+        var point = pet.PetView.TranslatePoint(new(96, 85), pet)!.Value;
+        Assert.True(pet.AcceptsPointerAt(point));
         pet.MouseDown(point, MouseButton.Left);
         pet.AdvanceCompanion(.2); pet.AdvanceCompanion(.2);
         Assert.Equal(PetPose.Neutral, pet.PetView.Pose);

@@ -1,0 +1,13 @@
+/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll(.NETCoreApp,Version=v10.0)에 대한 테스트 실행
+지정된 패턴과 일치한 총 테스트 파일 수는 1개입니다.
+[xUnit.net 00:01:10.73]     Unfold.Tests.BreakReminderTests.DebugPreviewLeavesLiveTimerReminderHistoryAndSoundsUntouched [FAIL]
+  실패 Unfold.Tests.BreakReminderTests.DebugPreviewLeavesLiveTimerReminderHistoryAndSoundsUntouched [4 ms]
+  오류 메시지:
+   Assert.Equal() Failure: Values differ
+Expected: 192, 192
+Actual:   240, 300
+  스택 추적:
+     at Unfold.Tests.BreakReminderTests.DebugPreviewLeavesLiveTimerReminderHistoryAndSoundsUntouched() in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/BreakReminderTests.cs:line 209
+--- End of stack trace from previous location ---
+
+실패!  - 실패:     1, 통과:   669, 건너뜀:     0, 전체:   670, 기간: 1 m 18 s - Unfold.Tests.dll (net10.0)

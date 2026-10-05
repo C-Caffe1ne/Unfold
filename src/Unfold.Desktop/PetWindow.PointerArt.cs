@@ -23,7 +23,8 @@ public sealed partial class PetWindow
         PointerPhase = phase; ActiveAnimation = OriginalCompanion.PointerClips[index];
         var frames = pointerClips![index];
         animation.SetRunning(true);
-        animation.SetFrames(frames, index == 1, false, true);
+        var loop = runtime.Selected?.IsGlb == true ? runtime.Selected.Manifest.Animations[ActiveAnimation].Loop : index == 1;
+        animation.SetFrames(frames, loop, false, true);
     }
 
     private void BeginPointerArt()
@@ -53,7 +54,12 @@ public sealed partial class PetWindow
         pressed = false; poseSeconds = 0;
         // Play the assigned release clip immediately, without moving or scaling
         // the canvas and without inserting a held-frame bounce before it.
-        SetPointerClip(2, PetPointerPhase.Recovering);
+        if (runtime.Selected?.IsGlb == true && runtime.Selected.Manifest.Animations["land"].Loop)
+        {
+            if (deferredPointerReaction is not null) { FinishPointerArt(clicked: false); return; }
+            ResetPointerArt(); _ = React("land");
+        }
+        else SetPointerClip(2, PetPointerPhase.Recovering);
     }
 
     private void AdvancePointerArt(double seconds)
@@ -69,6 +75,10 @@ public sealed partial class PetWindow
             SetPointerClip(1, PetPointerPhase.Held);
         else if (PointerPhase == PetPointerPhase.Recovering)
             FinishPointerArt(clicked: false);
+        else if (PointerPhase == PetPointerPhase.None && ActiveAnimation == "walk" && runtime.Selected?.IsGlb == true)
+        {
+            walkingSession = null; wander.Reset(); _ = RestoreBaseAnimation(InvalidatePlayback());
+        }
     }
 
     private void FinishPointerArt(bool clicked)

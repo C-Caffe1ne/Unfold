@@ -258,11 +258,17 @@ public sealed partial class PetWindow : Window
         var anchor = PetAnchor;
         var screen = Screens.ScreenFromPoint(anchor) ?? Screens.Primary;
         var work = screen is null ? (PixelRect?)null : PlacementArea(screen.Bounds, screen.WorkingArea, OperatingSystem.IsMacOS());
-        var next = expanded && work is { } area && !runtime.DiagnosticMode && (hover || OperatingSystem.IsMacOS())
-            ? PetBubbleLayout.CreateExpanded(runtime.Settings.BubbleDirection, anchor, DesktopScaling, area, petSize, bubble.Height, bubble.Width)
-            : PetBubbleLayout.Create(runtime.Settings.BubbleDirection, expanded, bubble.Height, petSize, bubble.Width);
-        if (layout.Size == next.Size && layout.Pet == next.Pet && layout.Bubble == next.Bubble &&
-            bubble.IsVisible == expanded && layoutScale == DesktopScaling) return;
+        // Reserve the hover surface even while its contents are hidden. Resizing
+        // a native window and repainting its backing surface are not atomic on
+        // either desktop platform; equal final anchors can still flash a shifted frame.
+        var reserveHover = !reminder.HasNotice;
+        var bubbleHeight = reserveHover ? DesignSystem.SpeechHoverHeight : bubble.Height;
+        var bubbleWidth = reserveHover ? DesignSystem.SpeechHoverWidth : bubble.Width;
+        var next = work is { } area && !runtime.DiagnosticMode && (reserveHover || OperatingSystem.IsMacOS())
+            ? PetBubbleLayout.CreateExpanded(runtime.Settings.BubbleDirection, anchor, DesktopScaling, area, petSize, bubbleHeight, bubbleWidth)
+            : PetBubbleLayout.Create(runtime.Settings.BubbleDirection, true, bubbleHeight, petSize, bubbleWidth);
+        bubble.IsVisible = tail.IsVisible = tailOutline.IsVisible = expanded;
+        if (layout.Size == next.Size && layout.Pet == next.Pet && layout.Bubble == next.Bubble && layoutScale == DesktopScaling) return;
         layoutScale = DesktopScaling; layout = next; Width = layout.Size.Width; Height = layout.Size.Height;
         // Diagnostic minimums follow the live canvas instead of preventing a collapse.
         if (runtime.DiagnosticMode) { MinWidth = Width; MinHeight = Height; }
@@ -270,10 +276,7 @@ public sealed partial class PetWindow : Window
         Canvas.SetLeft(animation, layout.Pet.X); Canvas.SetTop(animation, layout.Pet.Y);
         Canvas.SetLeft(bubble, layout.Bubble.X); Canvas.SetTop(bubble, layout.Bubble.Y);
         tail.Points = new Avalonia.Collections.AvaloniaList<Point>(layout.Tail);
-        tailOutline.Points = expanded
-            ? new Avalonia.Collections.AvaloniaList<Point>([layout.Tail[0], layout.Tail[2], layout.Tail[1]])
-            : new Avalonia.Collections.AvaloniaList<Point>();
-        bubble.IsVisible = tail.IsVisible = tailOutline.IsVisible = expanded;
+        tailOutline.Points = new Avalonia.Collections.AvaloniaList<Point>([layout.Tail[0], layout.Tail[2], layout.Tail[1]]);
         // Canvas offsets are deferred until arrange. Commit them before moving
         // the native surface, otherwise it briefly carries the old pet position.
         UpdateLayout();
@@ -324,15 +327,11 @@ public sealed partial class PetWindow : Window
         var screen = (OperatingSystem.IsMacOS() ? Screens.ScreenFromPoint(PetAnchor) : null)
             ?? Screens.ScreenFromWindow(this) ?? Screens.Primary;
         if (screen is null) return;
-        if (OperatingSystem.IsMacOS())
-        {
-            var area = PlacementArea(screen.Bounds, screen.WorkingArea, true);
-            var pet = PetBubbleLayout.Create(runtime.Settings.BubbleDirection, false, petSize: animation.Width);
-            var anchor = PetAnchor;
-            Position += pet.Position(anchor, DesktopScaling, area) - anchor;
-            return;
-        }
-        var work = screen.WorkingArea; var width = (int)(Width * DesktopScaling); var height = (int)(Height * DesktopScaling);
-        Position = new(Math.Clamp(Position.X, work.X, Math.Max(work.X, work.Right - width)), Math.Clamp(Position.Y, work.Y, Math.Max(work.Y, work.Bottom - height)));
+        // The transparent reserved clock area must not push the pet away from
+        // screen edges when a drag ends. RefreshSpeech fits the bubble afterward.
+        var area = PlacementArea(screen.Bounds, screen.WorkingArea, OperatingSystem.IsMacOS());
+        var pet = PetBubbleLayout.Create(runtime.Settings.BubbleDirection, false, petSize: animation.Width);
+        var anchor = PetAnchor;
+        Position += pet.Position(anchor, DesktopScaling, area) - anchor;
     }
 }

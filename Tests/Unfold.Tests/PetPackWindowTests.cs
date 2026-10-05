@@ -232,11 +232,11 @@ public class PetPackWindowTests
             await Task.Delay(350, TestContext.Current.CancellationToken); Dispatcher.UIThread.RunJobs(); Assert.Equal(0, completed);
             window.Show(); await Until(() => completed == 1 && Repeats(window));
             Press(window, "ReplayPackPreview"); await Until(() => !Repeats(window) && Button(window, "PausePackPreview").IsEnabled);
-            var tabs = window.GetVisualDescendants().OfType<TabControl>().Single(control => control.Name == "PetManagementTabs");
-            tabs.SelectedIndex = 1; Dispatcher.UIThread.RunJobs();
+            var content = window.Content;
+            window.Content = null; Dispatcher.UIThread.RunJobs();
             await Task.Delay(350, TestContext.Current.CancellationToken); Dispatcher.UIThread.RunJobs();
             Assert.Equal(1, completed);
-            tabs.SelectedIndex = 0; Dispatcher.UIThread.RunJobs();
+            window.Content = content; Dispatcher.UIThread.RunJobs();
             await Until(() => completed == 2 && Repeats(window));
         }
         finally { window.Close(); }

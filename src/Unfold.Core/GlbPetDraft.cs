@@ -13,12 +13,7 @@ public sealed class GlbPetDraft
         "land" => "놓기", "attention" => "휴식 알림", "stretch" => "휴식 시작", "celebrate" => "휴식 완료",
         "walk" => "화면 위 걷기", "sleep" => "잠자기", "look" => "두리번거리기", "yawn" => "하품", "sulk" => "휴식 미루기", _ => key
     };
-    public static bool? RequiredLoop(string action) => action switch
-    {
-        "idle" or "held" or "walk" => true,
-        "pickup" or "land" => false,
-        _ => null
-    };
+    public static bool? RequiredLoop(string action) => action == "idle" ? true : null;
     private readonly byte[] bytes;
     private Version contentVersion = new(1, 0, 0);
     public GlbModel Model { get; }
@@ -50,18 +45,20 @@ public sealed class GlbPetDraft
         var oldVersion = CharacterPack.ParseVersion(metadata.ContentVersion); contentVersion = new(oldVersion.Major, oldVersion.Minor, checked(oldVersion.Build + 1));
         Mappings.Clear(); foreach (var (key, mapping) in package.Manifest.Animations) Mappings[key] = mapping;
     }
-    public void Set(string action, string? clip, bool loop = false, double speed = 1)
+    public void Set(string action, string? clip, bool loop = false, double speed = 1, float? heading = null)
     {
         if (!Actions.Contains(action)) throw new InvalidDataException("Unknown GLB pet event.");
         if (clip is null) { if (action == "idle") throw new InvalidDataException("기본 대기 동작을 선택해 주세요."); Mappings.Remove(action); return; }
         if (!Model.Animations.Any(a => a.Name == clip) || !double.IsFinite(speed) || speed is < .25 or > 3) throw new InvalidDataException("Invalid GLB event mapping.");
+        heading ??= Mappings.GetValueOrDefault(action)?.Heading;
+        if (heading is { } angle && (!float.IsFinite(angle) || angle is < -180 or > 180)) throw new InvalidDataException("Invalid action heading.");
         loop = RequiredLoop(action) ?? loop;
-        Mappings[action] = new(ModelClip: clip, Speed: speed, Loop: loop);
+        Mappings[action] = new(ModelClip: clip, Speed: speed, Loop: loop, Heading: heading);
     }
     public GlbAnimationFrames Preview(string action)
     {
         var clip = Mappings.GetValueOrDefault(action) ?? Mappings["idle"];
-        return Model.CreateAnimation(clip.ModelClip!, new("model.glb", Heading, RootNode), Mappings["idle"].ModelClip!, clip.Speed);
+        return Model.CreateAnimation(clip.ModelClip!, new("model.glb", clip.Heading ?? Heading, RootNode), Mappings["idle"].ModelClip!, clip.Speed);
     }
     public CharacterPackage Save(CharacterLibrary library)
     {

@@ -1,0 +1,27 @@
+  Unfold.Core -> /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/src/Unfold.Core/bin/Release/net10.0/Unfold.Core.dll
+  Unfold.Desktop -> /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/src/Unfold.Desktop/bin/Release/net10.0/Unfold.dll
+  Unfold.Tests -> /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll
+/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll(.NETCoreApp,Version=v10.0)에 대한 테스트 실행
+지정된 패턴과 일치한 총 테스트 파일 수는 1개입니다.
+[xUnit.net 00:00:02.01]     Unfold.Tests.CharacterPackTests.PreviewInstallUpdateAndReinstallRepairPreserveIdentity [FAIL]
+  실패 Unfold.Tests.CharacterPackTests.PreviewInstallUpdateAndReinstallRepairPreserveIdentity [104 ms]
+  오류 메시지:
+   System.IO.InvalidDataException : A newer version is installed. Choose the same or a newer pack.
+  스택 추적:
+     at Unfold.Core.CharacterLibrary.InspectInstallLocked(CharacterPack pack) in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/src/Unfold.Core/CharacterPack.cs:line 191
+   at Unfold.Core.CharacterLibrary.InspectInstall(CharacterPack pack) in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/src/Unfold.Core/CharacterPack.cs:line 178
+   at Unfold.Tests.CharacterPackTests.PreviewInstallUpdateAndReinstallRepairPreserveIdentity() in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/CharacterPackTests.cs:line 45
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:02.41]     Unfold.Tests.CharacterPackTests.SameVersionWithDifferentContentCanBeExplicitlyReplaced [FAIL]
+  실패 Unfold.Tests.CharacterPackTests.SameVersionWithDifferentContentCanBeExplicitlyReplaced [61 ms]
+  오류 메시지:
+   System.IO.InvalidDataException : This version contains different files. A changed pack needs a new content version.
+  스택 추적:
+     at Unfold.Core.CharacterLibrary.InspectInstallLocked(CharacterPack pack) in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/src/Unfold.Core/CharacterPack.cs:line 193
+   at Unfold.Core.CharacterLibrary.InspectInstall(CharacterPack pack) in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/src/Unfold.Core/CharacterPack.cs:line 178
+   at Unfold.Tests.CharacterPackTests.SameVersionWithDifferentContentCanBeExplicitlyReplaced() in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/CharacterPackTests.cs:line 68
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+실패!  - 실패:     2, 통과:    13, 건너뜀:     0, 전체:    15, 기간: 888 ms - Unfold.Tests.dll (net10.0)

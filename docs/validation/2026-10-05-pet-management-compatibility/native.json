@@ -1,0 +1,38 @@
+{
+  "success": true,
+  "input": "/Users/hwanghyeonseong/Downloads/kazusa.unfoldpet",
+  "inputSha256": "AF0C0341BA1C9007DA4BE8590EA52FFB95A3B67BA1A5AB93F7A4A2D5D58092D9",
+  "beforeVersion": "1.0.1",
+  "afterVersion": "1.0.0",
+  "mappingsPreserved": true,
+  "selectedId": "glb-015aed5a173146668f2280f8e7feea15",
+  "actionCount": 10,
+  "layouts": [
+    {
+      "width": 1120,
+      "height": 800,
+      "halfWidth": true,
+      "equalHeight": true,
+      "pickerBelow": true,
+      "openRight": true
+    },
+    {
+      "width": 860,
+      "height": 680,
+      "halfWidth": true,
+      "equalHeight": true,
+      "pickerBelow": true,
+      "openRight": true
+    },
+    {
+      "width": 640,
+      "height": 560,
+      "halfWidth": true,
+      "equalHeight": true,
+      "pickerBelow": true,
+      "openRight": true
+    }
+  ],
+  "physicalInput": false,
+  "os": "Unix 26.6.2"
+}

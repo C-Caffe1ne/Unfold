@@ -42,7 +42,10 @@ public class CharacterPackTests
         Assert.Empty(library.List()); info = library.InspectInstall(second); Assert.Equal("Reinstall", info.Action);
         library.Install(second, info.Revision);
         Assert.Equal(0xFF88AACCu, Assert.Single(library.List()).LoadAnimation("idle")[0].Image.Pixels[4 * 16 + 4]);
-        Assert.Throws<InvalidDataException>(() => library.InspectInstall(first));
+        info = library.InspectInstall(first); Assert.Equal("Replace", info.Action);
+        library.Install(first, info.Revision);
+        Assert.Equal("1.0.0", library.InspectInstall(first).InstalledVersion);
+        Assert.Equal(first.Character.LoadAnimation("idle")[0].Image.Pixels, Assert.Single(library.List()).LoadAnimation("idle")[0].Image.Pixels);
         Assert.DoesNotContain(Directory.EnumerateDirectories(library.Root), path => Path.GetFileName(path).StartsWith('.'));
     }
     [Fact]
@@ -57,13 +60,15 @@ public class CharacterPackTests
         Assert.Equal(revision, CharacterLibrary.Revision(own.DirectoryPath));
     }
     [Fact]
-    public void ChangedContentMustUseANewVersion()
+    public void SameVersionWithDifferentContentCanBeExplicitlyReplaced()
     {
         using var temp = new TempDirectory(); var library = new CharacterLibrary(Path.Combine(temp.Path, "library"));
         using var original = CharacterPack.Open(CreatePack(temp.Path)); library.Install(original, null);
         using var changed = CharacterPack.Open(CreatePack(temp.Path, color: 0xFF9988AA));
-        Assert.Throws<InvalidDataException>(() => library.InspectInstall(changed));
-        Assert.Equal("Reinstall", library.InspectInstall(original).Action);
+        var info = library.InspectInstall(changed); Assert.Equal("Replace", info.Action);
+        library.Install(changed, info.Revision);
+        Assert.Equal(changed.Character.LoadAnimation("idle")[0].Image.Pixels, Assert.Single(library.List()).LoadAnimation("idle")[0].Image.Pixels);
+        Assert.Equal("Reinstall", library.InspectInstall(changed).Action);
     }
     [Fact]
     public void PreviewIsASnapshotAndDisposalDoesNotInstallAnything()

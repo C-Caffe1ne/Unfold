@@ -21,7 +21,7 @@ the current development build also provides **설정 → 앱 정보 → 업데�
 v1.0.2 and earlier require a one-time manual installation of a newer release.
 `Unfold --version` prints the release identity without opening the app or creating a user profile.
 
-Custom GLB 2.0 pets can be imported through **펫 추가 → 펫 팩 만들기**, with event-specific
+Custom GLB 2.0 pets can be imported through **펫 관리 → 파일 열기…**, with event-specific
 animation mappings and a fixed body direction. Rendering follows the displayed size and
 screen scale, up to 1024 pixels. See [GLB pets](glb-pets.md) for supported formats and limits.
 
@@ -75,7 +75,7 @@ the earlier Mac installer ZIPs remain available as historical ad-hoc builds.
   시작/일시정지/계속, 타이머 정지, Unfold 종료.
 - Pet right-click menu: 설정, 펫 숨기기.
 - Settings: the timer home contains stretch interval and break duration; a separate settings tab contains idle time, snooze time, stretch/completion sounds and bubble position; character selection, pet visibility,
-  launch at login, **Review & export**, **펫 추가**, today's confirmed breaks, and timer controls.
+  launch at login, **Review & export**, **펫 관리**, today's confirmed breaks, and timer controls.
 - Pet speech reminder: **n분 뒤에**, **휴식 시작**, and **완료**. The bubble remains visible while its reminder state is active.
   An unanswered invitation automatically snoozes after 30 seconds using the configured snooze time.
   Settings offers four bubble positions, 1–60 minute snooze, and due/completion WAV or MP3 effects.
@@ -144,21 +144,22 @@ Existing valid user character packages remain selectable. The editor has no
 normal UI entry point in the MVP. Legacy Swift preferences and sandbox data are
 neither migrated nor deleted automatically.
 
-**펫 추가** opens a local `.unfoldpet` file for preview before installation.
+**펫 관리 → 파일 열기…** opens a local `.unfoldpet` file in a confirmation window before installation.
 Preview controls use the current theme background and offer 100–200% display size, Pause/Resume,
 and Replay. Display size affects this preview only. Completed reactions return to
 resting while keeping the selection available for replay.
-The **저장** action installs a new ID, updates a newer content version, or reinstalls
-the same version. Reinstall restores damaged/missing runtime images from a saved pack.
+The **저장** action installs a new ID, updates a newer content version, reinstalls matching contents,
+or replaces an existing pack with any valid older or same-version archive. Content versions do not
+restrict application compatibility. Reinstall restores damaged/missing runtime images from a saved pack.
 Built-in companions and existing user-authored IDs cannot be replaced. Invalid archives,
 hash/decoder failures and changed installed files are rejected. Successful installation selects
 the companion without resuming a paused timer. There is no pet store or automatic pet download.
 See the [pet pack guide](pet-packs.md).
 
-The sidebar **펫 추가** page switches between **펫 팩 열기** and **펫 팩 만들기** in place.
-The action cards on the create tab import GIF/MP4 files and still PNG/JPG/JPEG/WEBP/BMP images. Drafts survive tab navigation and hiding the settings window.
-Assign files to five supported actions (idle required), preview each, then save a `.unfoldpet`
-and install it through the same preview page. MP4 conversion is local, silent, limited to
+The sidebar **펫 관리** opens the builder directly, without sub-tabs.
+Its file button accepts existing packs, GLB, GIF/MP4 and still PNG/JPG/JPEG/WEBP/BMP images. Drafts survive sidebar navigation and hiding the settings window.
+Assign files to supported actions (idle required), preview each, then save a `.unfoldpet`
+and install it through the confirmation window. MP4 conversion is local, silent, limited to
 10 seconds/128 MiB, and resized proportionally to at most 192px at 12 fps. GIF import preserves
 source pixels/timing. Opaque video backgrounds remain visible; there is no background removal.
 Still images retain aspect ratio and transparency, apply photo EXIF orientation, and shrink to at

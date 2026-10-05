@@ -11,7 +11,7 @@ using Unfold.Core;
 
 namespace Unfold.Desktop;
 
-public static class Ui
+public static partial class Ui
 {
     public static readonly IBrush Background = DesignSystem.Canvas, Panel = DesignSystem.Surface, Accent = DesignSystem.Cream;
     public static Button Button(string text, Action action)

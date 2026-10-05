@@ -7,6 +7,20 @@
 
 ## 자동 검사
 
+기존 Kazusa 팩의 하위 버전 재적용과 펫 관리 단일 화면은
+[펫 관리·팩 호환 검증](validation/2026-10-05-pet-management-compatibility.md)에 기록했다.
+최종 672개 Release 검사, macOS 실제 팩 적용과 네이티브 화면 확인을 포함한다.
+
+호버 진입·해제 때의 네이티브 창 크기 변경 제거와 GLB·2D 전후 측정은
+[호버 창 안정화 검증](validation/2026-10-05-hover-surface-stability.md)에 기록했다.
+670개 Release 검사와 macOS 네이티브 측정의 범위·한계를 포함한다.
+
+펫 팩 만들기의 파일 형식 자동 판별과 행동별 방향·반복 설정은
+[펫 팩 행동별 설정 검증](validation/2026-10-05-pet-action-editor.md)에 기록했다.
+
+2026-10-05 GLB 고급 설정의 기본 Fluent 스타일 노출 수정과 네 테마·접기/펼치기 검증은
+[GLB 고급 설정 스타일 수정](validation/2026-10-05-glb-advanced-style.md)에 기록했다.
+
 2026-10-05의 버전·업데이트 진입점, 최소 1분 타이머, 30초 자동 미루기와 말풍선 전환은
 [버전·타이머·알림 검증](validation/2026-10-05-timer-settings-refinements.md)에 기록했다.
 

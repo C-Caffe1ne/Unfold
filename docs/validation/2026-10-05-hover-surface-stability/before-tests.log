@@ -1,0 +1,43 @@
+  Unfold.Core -> /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/src/Unfold.Core/bin/Release/net10.0/Unfold.Core.dll
+  Unfold.Desktop -> /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/src/Unfold.Desktop/bin/Release/net10.0/Unfold.dll
+  Unfold.Tests -> /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll
+/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll(.NETCoreApp,Version=v10.0)에 대한 테스트 실행
+지정된 패턴과 일치한 총 테스트 파일 수는 1개입니다.
+[xUnit.net 00:00:01.98]     Unfold.Tests.PetHoverTests.HoverEntryAndExitNeverResizeOrMoveTheNativePetSurface(direction: Top) [FAIL]
+[xUnit.net 00:00:02.02]     Unfold.Tests.PetHoverTests.HoverEntryAndExitNeverResizeOrMoveTheNativePetSurface(direction: Right) [FAIL]
+[xUnit.net 00:00:02.05]     Unfold.Tests.PetHoverTests.HoverEntryAndExitNeverResizeOrMoveTheNativePetSurface(direction: Left) [FAIL]
+[xUnit.net 00:00:02.08]     Unfold.Tests.PetHoverTests.HoverEntryAndExitNeverResizeOrMoveTheNativePetSurface(direction: Bottom) [FAIL]
+  실패 Unfold.Tests.PetHoverTests.HoverEntryAndExitNeverResizeOrMoveTheNativePetSurface(direction: Top) [435 ms]
+  오류 메시지:
+   Assert.Equal() Failure: Values differ
+Expected: 192, 192
+Actual:   240, 300
+  스택 추적:
+     at Unfold.Tests.PetHoverTests.HoverEntryAndExitNeverResizeOrMoveTheNativePetSurface(BubbleDirection direction) in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/PetHoverTests.cs:line 236
+--- End of stack trace from previous location ---
+  실패 Unfold.Tests.PetHoverTests.HoverEntryAndExitNeverResizeOrMoveTheNativePetSurface(direction: Right) [31 ms]
+  오류 메시지:
+   Assert.Equal() Failure: Values differ
+Expected: 192, 192
+Actual:   444, 192
+  스택 추적:
+     at Unfold.Tests.PetHoverTests.HoverEntryAndExitNeverResizeOrMoveTheNativePetSurface(BubbleDirection direction) in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/PetHoverTests.cs:line 236
+--- End of stack trace from previous location ---
+  실패 Unfold.Tests.PetHoverTests.HoverEntryAndExitNeverResizeOrMoveTheNativePetSurface(direction: Left) [28 ms]
+  오류 메시지:
+   Assert.Equal() Failure: Values differ
+Expected: 192, 192
+Actual:   444, 192
+  스택 추적:
+     at Unfold.Tests.PetHoverTests.HoverEntryAndExitNeverResizeOrMoveTheNativePetSurface(BubbleDirection direction) in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/PetHoverTests.cs:line 236
+--- End of stack trace from previous location ---
+  실패 Unfold.Tests.PetHoverTests.HoverEntryAndExitNeverResizeOrMoveTheNativePetSurface(direction: Bottom) [33 ms]
+  오류 메시지:
+   Assert.Equal() Failure: Values differ
+Expected: 192, 192
+Actual:   240, 300
+  스택 추적:
+     at Unfold.Tests.PetHoverTests.HoverEntryAndExitNeverResizeOrMoveTheNativePetSurface(BubbleDirection direction) in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/PetHoverTests.cs:line 236
+--- End of stack trace from previous location ---
+
+실패!  - 실패:     4, 통과:     0, 건너뜀:     0, 전체:     4, 기간: 553 ms - Unfold.Tests.dll (net10.0)
