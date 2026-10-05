@@ -1,5 +1,11 @@
 # 검증 안내
 
+## Beta v1.1.0 공개 배포
+
+[Beta v1.1.0 배포 검증](validation/2026-10-05-beta-v1.1.0-release.md)에 로컬 소스 커밋과 설치 파일만 공개한 경계,
+675개 테스트, macOS 공증·배포 앱 진단, 웹 연결과 세 업데이트 채널 검증을 기록했다.
+Windows 실기·네이티브 포인터 입력 미검증과 Intel 진단의 최초 실패·재검사 통과도 구별한다.
+
 ## Beta v1.0.4 공개 배포
 
 [배포 검증](validation/2026-10-04-beta-v1.0.4-release.md)에 최종 커밋, Windows·macOS CI,

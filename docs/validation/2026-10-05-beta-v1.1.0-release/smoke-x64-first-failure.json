@@ -1,0 +1,4 @@
+{
+  "success": false,
+  "error": "System.InvalidOperationException: Automatic snooze changed pause, duration, visibility or completion history.\n   at Unfold.Desktop.SmokeDiagnostics.VerifyTimerRefinements(AppRuntime runtime, Window settings, String directory)\n   at Unfold.Desktop.SmokeDiagnostics.VerifyTimerRefinements(AppRuntime runtime, Window settings, String directory)\n   at Unfold.Desktop.SmokeDiagnostics.Run(AppRuntime runtime, IClassicDesktopStyleApplicationLifetime desktop)"
+}

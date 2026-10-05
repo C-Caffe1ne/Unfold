@@ -1,0 +1,62 @@
+[
+  {
+    "name": "Unfold-v1.1.0-beta-osx-arm64-notarized-installer.zip",
+    "path": "/Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/artifacts/Unfold-v1.1.0-beta-osx-arm64-notarized-installer.zip",
+    "bytes": 77423991,
+    "sha256": "c6a8662820e003f345a68eb3423ebe640780d77d0a113978d39411a2e5285dd7"
+  },
+  {
+    "name": "Unfold-v1.1.0-beta-osx-x64-notarized-installer.zip",
+    "path": "/Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/artifacts/Unfold-v1.1.0-beta-osx-x64-notarized-installer.zip",
+    "bytes": 81588870,
+    "sha256": "c7e5e564c55d9389138740b3245e64701fea15cb166569766b1c0386efd9d4d5"
+  },
+  {
+    "name": "Unfold-v1.1.0-beta-win-x64-installer.zip",
+    "path": "/Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/artifacts/Unfold-v1.1.0-beta-win-x64-installer.zip",
+    "bytes": 86675859,
+    "sha256": "f528a895196ce4175cc8c1e5abc61403f4f9dedf71173ab23c2987703c82cc21"
+  },
+  {
+    "name": "Unfold-v1.1.0-beta-notarized-ZIP-SHA256SUMS.txt",
+    "path": "/Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/artifacts/Unfold-v1.1.0-beta-notarized-ZIP-SHA256SUMS.txt",
+    "bytes": 343,
+    "sha256": "bebf55eb8d8f6a320f0a2b12eed42e61f958491edb107b65cdf3941296cfac1d"
+  },
+  {
+    "name": "releases.osx-arm64-beta.json",
+    "path": "/Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/artifacts/update-releases/osx-arm64/releases.osx-arm64-beta.json",
+    "bytes": 4862,
+    "sha256": "06efa1ea02e8f2de24e2b6e6fb78b79fcec97c5c2b1acc1b669e04f92615518d"
+  },
+  {
+    "name": "DokhuStudio.Unfold.Updates-1.1.0-beta-osx-arm64-beta-full.nupkg",
+    "path": "/Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/artifacts/update-releases/osx-arm64/DokhuStudio.Unfold.Updates-1.1.0-beta-osx-arm64-beta-full.nupkg",
+    "bytes": 80525218,
+    "sha256": "4c0e2ab1087ea10480a375866e2fa3c0dd3a00c7aa7c87a7065eb7f5b035a8f1"
+  },
+  {
+    "name": "releases.osx-x64-beta.json",
+    "path": "/Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/artifacts/update-releases/osx-x64/releases.osx-x64-beta.json",
+    "bytes": 4860,
+    "sha256": "82a179175ddf63951cc71568989299d47b3683c052b56e2cd1eda4b7d649c61a"
+  },
+  {
+    "name": "DokhuStudio.Unfold.Updates-1.1.0-beta-osx-x64-beta-full.nupkg",
+    "path": "/Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/artifacts/update-releases/osx-x64/DokhuStudio.Unfold.Updates-1.1.0-beta-osx-x64-beta-full.nupkg",
+    "bytes": 84693537,
+    "sha256": "0724cdfd8d9302dea307406bf33c2cf20a4112077389e0ab85fff592b12c369d"
+  },
+  {
+    "name": "releases.win-x64-beta.json",
+    "path": "/Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/artifacts/update-releases/win-x64/releases.win-x64-beta.json",
+    "bytes": 4860,
+    "sha256": "d39e38fa8f01ee27d84a8da8705e145eea735ef4e6192ac29940da7cc236e8b5"
+  },
+  {
+    "name": "DokhuStudio.Unfold.Updates-1.1.0-beta-win-x64-beta-full.nupkg",
+    "path": "/Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/artifacts/update-releases/win-x64/DokhuStudio.Unfold.Updates-1.1.0-beta-win-x64-beta-full.nupkg",
+    "bytes": 84857145,
+    "sha256": "580c6c2a77ba51dd7e21e1459a2f049ad72a1e317550393d4048b4cfe9257faf"
+  }
+]

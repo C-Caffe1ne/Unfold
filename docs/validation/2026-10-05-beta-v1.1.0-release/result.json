@@ -1,0 +1,30 @@
+{
+  "releaseVersion": "1.1.0-beta",
+  "localBuildSource": "c86d650fb4e32fdea55d61d19d8d42143f174287",
+  "nativeWindowCommit": "8940a51",
+  "publicTagCommit": "8a42dafdf69465e0de225f81f4298d3a0406de6b",
+  "publicAppSourceBranchUnchanged": "717a63b68071b8ecb24c75bbfbbaa57e7256039d",
+  "webCommit": "a66a6efa8f60c8dbede2ef77414442bbf8a400b0",
+  "releaseUrl": "https://github.com/C-Caffe1ne/Unfold/releases/tag/v1.1.0-beta",
+  "publicAssetCount": 10,
+  "appTests": 675,
+  "webTests": 71,
+  "localRouteChecks": 110,
+  "publicWebChecks": 42,
+  "notarization": [
+    {
+      "file": "Unfold-v1.1.0-beta-osx-arm64.tmp.dmg",
+      "id": "0000adf2-8ce5-4082-8d11-8ffa233b1627",
+      "status": "Accepted"
+    },
+    {
+      "file": "Unfold-v1.1.0-beta-osx-x64.tmp.dmg",
+      "id": "19d6ce50-16dd-4ecb-af07-ac0ba845396b",
+      "status": "Accepted"
+    }
+  ],
+  "firstIntelSmokeFailed": true,
+  "finalIntelSmokePassed": true,
+  "physicalWindowsVerified": false,
+  "nativePointerVerified": false
+}
