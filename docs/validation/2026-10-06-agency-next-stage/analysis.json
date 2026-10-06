@@ -1,0 +1,445 @@
+{
+  "samples": 433,
+  "lastSeconds": 2160.1020931,
+  "warmupSeconds": 120,
+  "steadySamples": 408,
+  "excludedTerminationSample": {
+    "elapsedSeconds": 2160.1020931,
+    "reason": "Final append occurs after the measurement stopwatch stops and the end capture. Its CPU numerator can include capture work; exclude it from resource summaries and plots."
+  },
+  "excludedInitialCpuPlotSample": "First CPU delta spans setup-to-first-append, not the normal sampling interval; omit it from the CPU plot. Warmup already excludes it from summary statistics.",
+  "rssMiB": {
+    "min": 33.078125,
+    "median": 64.09375,
+    "p95": 133.0,
+    "max": 160.265625
+  },
+  "managedMiB": {
+    "min": 75.7047348022461,
+    "median": 146.11328506469727,
+    "p95": 270.6169662475586,
+    "max": 324.75719451904297
+  },
+  "lastGcHeapMiB": {
+    "min": 106.92047119140625,
+    "median": 165.9243927001953,
+    "p95": 244.05418395996094,
+    "max": 284.45909118652344
+  },
+  "cpuOneCorePercent": {
+    "min": 5.090161974004816,
+    "median": 21.65369592477863,
+    "p95": 26.47942252302387,
+    "max": 28.955041589498997
+  },
+  "cpuMachinePercent": {
+    "min": 0.636270246750602,
+    "median": 2.706711990597329,
+    "p95": 3.309927815377984,
+    "max": 3.6193801986873746
+  },
+  "rssEarly5minMedianMiB": 64.09375,
+  "rssLast5minMedianMiB": 56.8125,
+  "managedEarly5minMedianMiB": 145.48497772216797,
+  "managedLast5minMedianMiB": 250.52871704101562,
+  "rssSlopeMiBPerMinute": 0.1210031079170213,
+  "managedSlopeMiBPerMinute": 2.399848237983072,
+  "maxHeartbeatAgeSeconds": 0.775297625,
+  "endPlaybackFailures": 0,
+  "observedTimeEstimates": {
+    "sampledGlbSeconds": 1950.0019496000004,
+    "sampledVisibleGlbSeconds": 1879.9747644000001,
+    "sampled2dSeconds": 210.09855199999953
+  },
+  "timeEstimateCaveat": "5-second endpoint samples; transient model switch/hide dwell is approximate, not exact per-frame duration",
+  "comparison": "single current native run; no matched old native run, so no improvement/no-regression claim",
+  "byCharacter": {
+    "bori-rabbit": {
+      "samples": 41,
+      "rssMiB": {
+        "min": 33.078125,
+        "median": 72.84375,
+        "p95": 120.90625,
+        "max": 142.4375
+      },
+      "managedMiB": {
+        "min": 80.36209106445312,
+        "median": 146.0714569091797,
+        "p95": 259.35652923583984,
+        "max": 314.18299102783203
+      },
+      "cpuOneCorePercent": {
+        "min": 5.090161974004816,
+        "median": 14.00900304538494,
+        "p95": 21.82755912322172,
+        "max": 22.07148051996239
+      }
+    },
+    "Hikari": {
+      "samples": 183,
+      "rssMiB": {
+        "min": 39.328125,
+        "median": 63.921875,
+        "p95": 136.375,
+        "max": 158.71875
+      },
+      "managedMiB": {
+        "min": 75.7047348022461,
+        "median": 150.40868377685547,
+        "p95": 286.3463439941406,
+        "max": 324.75719451904297
+      },
+      "cpuOneCorePercent": {
+        "min": 6.510835364909844,
+        "median": 22.834144713713016,
+        "p95": 27.04984837649413,
+        "max": 28.955041589498997
+      }
+    },
+    "Kazusa": {
+      "samples": 184,
+      "rssMiB": {
+        "min": 37.171875,
+        "median": 64.0859375,
+        "p95": 126.546875,
+        "max": 160.265625
+      },
+      "managedMiB": {
+        "min": 86.28140258789062,
+        "median": 133.79621124267578,
+        "p95": 269.87261962890625,
+        "max": 311.94420623779297
+      },
+      "cpuOneCorePercent": {
+        "min": 7.239547547168118,
+        "median": 21.704940639838334,
+        "p95": 26.47942252302387,
+        "max": 28.275373788446302
+      }
+    }
+  },
+  "byCharacterAction": {
+    "bori-rabbit": {
+      "idle": {
+        "samples": 41,
+        "rssMiB": {
+          "min": 33.078125,
+          "median": 72.84375,
+          "p95": 120.90625,
+          "max": 142.4375
+        },
+        "managedMiB": {
+          "min": 80.36209106445312,
+          "median": 146.0714569091797,
+          "p95": 259.35652923583984,
+          "max": 314.18299102783203
+        },
+        "cpuOneCorePercent": {
+          "min": 5.090161974004816,
+          "median": 14.00900304538494,
+          "p95": 21.82755912322172,
+          "max": 22.07148051996239
+        }
+      }
+    },
+    "Hikari": {
+      "celebrate": {
+        "samples": 18,
+        "rssMiB": {
+          "min": 41.234375,
+          "median": 64.4140625,
+          "p95": 87.171875,
+          "max": 118.4375
+        },
+        "managedMiB": {
+          "min": 84.26734924316406,
+          "median": 116.41388702392578,
+          "p95": 251.13135528564453,
+          "max": 288.3595657348633
+        },
+        "cpuOneCorePercent": {
+          "min": 18.766287524601903,
+          "median": 23.885836527340842,
+          "p95": 25.873910371399024,
+          "max": 27.04984837649413
+        }
+      },
+      "click": {
+        "samples": 19,
+        "rssMiB": {
+          "min": 40.1875,
+          "median": 66.59375,
+          "p95": 126.65625,
+          "max": 148.71875
+        },
+        "managedMiB": {
+          "min": 77.84502410888672,
+          "median": 147.0839080810547,
+          "p95": 243.41866302490234,
+          "max": 289.48548126220703
+        },
+        "cpuOneCorePercent": {
+          "min": 17.27971567746165,
+          "median": 23.45705525524468,
+          "p95": 25.733921907622086,
+          "max": 27.481643301414753
+        }
+      },
+      "hover": {
+        "samples": 21,
+        "rssMiB": {
+          "min": 41.53125,
+          "median": 51.34375,
+          "p95": 125.265625,
+          "max": 129.96875
+        },
+        "managedMiB": {
+          "min": 80.26203918457031,
+          "median": 151.1062240600586,
+          "p95": 213.89351654052734,
+          "max": 292.6310272216797
+        },
+        "cpuOneCorePercent": {
+          "min": 18.36981243105706,
+          "median": 23.918653990477083,
+          "p95": 27.89640508456563,
+          "max": 28.0500853387533
+        }
+      },
+      "idle": {
+        "samples": 62,
+        "rssMiB": {
+          "min": 39.734375,
+          "median": 68.2109375,
+          "p95": 139.390625,
+          "max": 158.71875
+        },
+        "managedMiB": {
+          "min": 75.7047348022461,
+          "median": 149.9894027709961,
+          "p95": 288.2095260620117,
+          "max": 324.75719451904297
+        },
+        "cpuOneCorePercent": {
+          "min": 6.510835364909844,
+          "median": 19.244331264918955,
+          "p95": 25.831616080384563,
+          "max": 28.045454839067236
+        }
+      },
+      "land": {
+        "samples": 18,
+        "rssMiB": {
+          "min": 40.78125,
+          "median": 59.2578125,
+          "p95": 133.8125,
+          "max": 138.03125
+        },
+        "managedMiB": {
+          "min": 78.99304962158203,
+          "median": 151.9012336730957,
+          "p95": 212.59453582763672,
+          "max": 246.71503448486328
+        },
+        "cpuOneCorePercent": {
+          "min": 17.54408944473016,
+          "median": 24.30593140107948,
+          "p95": 25.88118552415096,
+          "max": 26.068478157001206
+        }
+      },
+      "pickup": {
+        "samples": 24,
+        "rssMiB": {
+          "min": 39.328125,
+          "median": 67.515625,
+          "p95": 137.5625,
+          "max": 147.390625
+        },
+        "managedMiB": {
+          "min": 77.84996032714844,
+          "median": 149.20222091674805,
+          "p95": 245.57013702392578,
+          "max": 291.0747756958008
+        },
+        "cpuOneCorePercent": {
+          "min": 17.95137688166885,
+          "median": 23.231650245474075,
+          "p95": 27.17156118253181,
+          "max": 27.86806215292687
+        }
+      },
+      "walk": {
+        "samples": 21,
+        "rssMiB": {
+          "min": 52.625,
+          "median": 62.453125,
+          "p95": 126.75,
+          "max": 132.4375
+        },
+        "managedMiB": {
+          "min": 82.26248168945312,
+          "median": 153.12578582763672,
+          "p95": 249.1556167602539,
+          "max": 286.3463439941406
+        },
+        "cpuOneCorePercent": {
+          "min": 19.64829941770884,
+          "median": 24.544003341849148,
+          "p95": 28.237985198328,
+          "max": 28.955041589498997
+        }
+      }
+    },
+    "Kazusa": {
+      "celebrate": {
+        "samples": 14,
+        "rssMiB": {
+          "min": 48.953125,
+          "median": 64.6015625,
+          "p95": 83.65625,
+          "max": 108.15625
+        },
+        "managedMiB": {
+          "min": 97.21632385253906,
+          "median": 140.63119888305664,
+          "p95": 218.9906234741211,
+          "max": 231.3219757080078
+        },
+        "cpuOneCorePercent": {
+          "min": 17.36891482118135,
+          "median": 23.660948551770893,
+          "p95": 25.749592070672843,
+          "max": 26.493675087613273
+        }
+      },
+      "click": {
+        "samples": 21,
+        "rssMiB": {
+          "min": 37.703125,
+          "median": 64.4375,
+          "p95": 133.921875,
+          "max": 157.484375
+        },
+        "managedMiB": {
+          "min": 87.0145263671875,
+          "median": 140.57889556884766,
+          "p95": 268.47879791259766,
+          "max": 305.68489837646484
+        },
+        "cpuOneCorePercent": {
+          "min": 13.843890709435733,
+          "median": 22.013670833172753,
+          "p95": 25.53583873577518,
+          "max": 26.47942252302387
+        }
+      },
+      "hover": {
+        "samples": 20,
+        "rssMiB": {
+          "min": 38.921875,
+          "median": 54.6484375,
+          "p95": 73.171875,
+          "max": 96.359375
+        },
+        "managedMiB": {
+          "min": 86.28140258789062,
+          "median": 132.5045051574707,
+          "p95": 265.55689239501953,
+          "max": 309.94994354248047
+        },
+        "cpuOneCorePercent": {
+          "min": 14.75833569018924,
+          "median": 21.895256171966377,
+          "p95": 26.457582659040884,
+          "max": 26.48806062245823
+        }
+      },
+      "idle": {
+        "samples": 64,
+        "rssMiB": {
+          "min": 37.171875,
+          "median": 71.3984375,
+          "p95": 134.703125,
+          "max": 160.265625
+        },
+        "managedMiB": {
+          "min": 87.0435562133789,
+          "median": 136.7301368713379,
+          "p95": 269.87261962890625,
+          "max": 307.01502990722656
+        },
+        "cpuOneCorePercent": {
+          "min": 7.239547547168118,
+          "median": 18.96532360612605,
+          "p95": 23.936177444922254,
+          "max": 26.665521663895493
+        }
+      },
+      "land": {
+        "samples": 20,
+        "rssMiB": {
+          "min": 39.65625,
+          "median": 57.09375,
+          "p95": 126.546875,
+          "max": 130.75
+        },
+        "managedMiB": {
+          "min": 91.8572769165039,
+          "median": 132.2005729675293,
+          "p95": 264.2650680541992,
+          "max": 308.681884765625
+        },
+        "cpuOneCorePercent": {
+          "min": 15.312975624645404,
+          "median": 23.102162873844897,
+          "p95": 26.884139259960122,
+          "max": 26.924397683209
+        }
+      },
+      "pickup": {
+        "samples": 24,
+        "rssMiB": {
+          "min": 44.71875,
+          "median": 63.4921875,
+          "p95": 120.375,
+          "max": 133.375
+        },
+        "managedMiB": {
+          "min": 89.27339172363281,
+          "median": 130.7816162109375,
+          "p95": 270.6169662475586,
+          "max": 307.2746276855469
+        },
+        "cpuOneCorePercent": {
+          "min": 14.850418931212248,
+          "median": 23.49937187438337,
+          "p95": 27.744389099275825,
+          "max": 28.275373788446302
+        }
+      },
+      "walk": {
+        "samples": 21,
+        "rssMiB": {
+          "min": 42.6875,
+          "median": 64.09375,
+          "p95": 75.4375,
+          "max": 81.34375
+        },
+        "managedMiB": {
+          "min": 88.25513458251953,
+          "median": 135.46772003173828,
+          "p95": 267.57833099365234,
+          "max": 311.94420623779297
+        },
+        "cpuOneCorePercent": {
+          "min": 14.972538308542681,
+          "median": 22.82429852980354,
+          "p95": 25.50304620334988,
+          "max": 26.33209244183179
+        }
+      }
+    }
+  },
+  "groupCaveat": "UI label at sample endpoint; CPU covers the preceding interval and may cross a transition. Shared-process memory includes prior workload and is not isolated model cost."
+}

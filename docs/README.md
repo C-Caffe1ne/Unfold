@@ -5,6 +5,7 @@
 
 | 문서 | 역할 |
 |---|---|
+| [Agency 다음 단계 검증](validation/2026-10-06-agency-next-stage.md) | 실제 macOS native GLB 36분 자원 추세·Windows 환경/양식과 남은 비교 조건 |
 | [Agency 준비 작업 검증](validation/2026-10-06-agency-execution.md) | 기존 변경 커밋·집중 검사·전체/대체경로 결과와 검증 한계 |
 | [Agency Agents 실행 작업표](plans/2026-10-06-agency-execution.md) | 브랜치별 보존 커밋, 이번 검증 결과와 담당·소유권·남은 환경 조건 |
 | [출시 콘텐츠 초안](operations/2026-10-06-launch-materials.md) | 현재 기능 기반 데모·게시물·가격 안내, 내부 검토용 |

@@ -1,0 +1,13 @@
+{
+  "sourceBaseline": "1a74cbf2720937b3e4712f821f481603064281de",
+  "nativeDurationSeconds": 2160.1020931,
+  "sourceInputHashesUnchanged": 141,
+  "jsonFilesParsed": 7,
+  "ndjsonRowsParsed": 851,
+  "documentLinksChecked": 151,
+  "brokenLinks": [],
+  "diffCheck": "passed",
+  "windowsExecuted": false,
+  "userEnvironment": "Mac only, confirmed by user",
+  "scope": "documentation and external native diagnostic harness; product source unchanged"
+}

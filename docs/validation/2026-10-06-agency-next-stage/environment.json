@@ -1,0 +1,32 @@
+{
+  "utcStarted": "2026-10-06T07:54:21.683085+00:00",
+  "os": "Unix 26.6.2",
+  "processArchitecture": "Arm64",
+  "processorCount": 8,
+  "framework": ".NET 10.0.12",
+  "appAssembly": "/private/tmp/unfold-agency-soak-20261006/bin/Release/net10.0/Unfold.dll",
+  "appAssemblySha256": "9d7b66dd1561019735e4eff5816b8955b59d49ce0d4010dde45b11ae8e2f0f8e",
+  "appVersion": "1.1.0-beta",
+  "appDisplayVersion": "Beta v1.1.0",
+  "sourceBaseline": "1a74cbf2720937b3e4712f821f481603064281de",
+  "cfg": {
+    "Root": "/tmp/unfold-agency-soak-20261006/runs/20261006T075420-757ba2b9",
+    "Seconds": 2160,
+    "Warmup": 120,
+    "Sample": 5,
+    "Models": [
+      "/Users/hwanghyeonseong/Downloads/BlueArchiveModels-main/Hikari.glb",
+      "/Users/hwanghyeonseong/Downloads/Kazusa.glb"
+    ],
+    "Profile": "/tmp/unfold-agency-soak-20261006/runs/20261006T075420-757ba2b9/profile"
+  },
+  "nativeDesktop": true,
+  "productRenderingOptions": true,
+  "diagnosticPurchaseBypass": true,
+  "physicalInput": false,
+  "actualWindows": false,
+  "forcedGcDuringMeasurement": false,
+  "importThroughUi": false,
+  "launcherVelopackPath": false,
+  "measuredScope": "AppRuntime \u002B native PetWindow \u002B product AnimationView, imported through GlbPetDraft.Save; automatic internal action/pointer methods"
+}

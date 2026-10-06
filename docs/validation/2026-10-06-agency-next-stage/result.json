@@ -1,0 +1,49 @@
+{
+  "success": true,
+  "completedThirtyMinutes": true,
+  "requestedSeconds": 2160,
+  "actualMeasurementSeconds": 2160.1020931,
+  "warmupSeconds": 120,
+  "postWarmupSeconds": 2040.1020930999998,
+  "playbackFailures": 0,
+  "productLogEmpty": true,
+  "events": 418,
+  "modelSwitches": 52,
+  "twoDSwitches": 52,
+  "hideShowChecks": 52,
+  "pointerChecks": 52,
+  "actionChecks": 208,
+  "maxUiHeartbeatGapSeconds": 1.374788833,
+  "animationLivenessVerified": true,
+  "renderLiveness": {
+    "glb-37aba77dd458456e81f1b81e7977032e": {
+      "Observations": 1934,
+      "FrameIndexChanges": 1658,
+      "ImageFingerprintChanges": 1692,
+      "LastIndex": 79,
+      "LastFingerprint": 5479239244948201076,
+      "MaxRenderedPixels": 192,
+      "Scaling": 1
+    },
+    "glb-4581bebc0edf42cfb96314b58fc51127": {
+      "Observations": 1898,
+      "FrameIndexChanges": 1610,
+      "ImageFingerprintChanges": 1652,
+      "LastIndex": 0,
+      "LastFingerprint": 9985915760697162440,
+      "MaxRenderedPixels": 192,
+      "Scaling": 1
+    }
+  },
+  "actualMacOS": true,
+  "actualWindows": false,
+  "physicalInput": false,
+  "nativeRendering": true,
+  "forcedGc": false,
+  "rssMetric": "Process.WorkingSet64",
+  "cpuMetric": "delta Process.TotalProcessorTime / monotonic wall seconds * 100; one full core = 100%",
+  "managedHeapMetric": "GC.GetTotalMemory(false); GC.GetGCMemoryInfo().HeapSizeBytes is last GC snapshot",
+  "sustainedFramesPerSecond": "not instrumented; frame index/fingerprint and UI heartbeat samples demonstrate liveness, not FPS",
+  "slaStatus": "UNDEFINED: baseline only; no approved memory/CPU SLA and no 95% statistical SLA claim",
+  "error": null
+}

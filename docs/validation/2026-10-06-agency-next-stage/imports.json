@@ -1,0 +1,426 @@
+[
+  {
+    "Detail": {
+      "file": "/Users/hwanghyeonseong/Downloads/BlueArchiveModels-main/Hikari.glb",
+      "fileBytes": 7868992,
+      "sha256": "81fe9b072e4debdf8f0f28f10daca70a2bf74e7f2041d970fa1821ea8df48d5d",
+      "triangles": 13344,
+      "animations": [
+        {
+          "Name": "Cafe_Reaction",
+          "Duration": 9.933333396911621
+        },
+        {
+          "Name": "Cafe_Idle",
+          "Duration": 4
+        },
+        {
+          "Name": "Cafe_Walk",
+          "Duration": 1.2000000476837158
+        },
+        {
+          "Name": "Formation_Idle",
+          "Duration": 4
+        },
+        {
+          "Name": "Formation_Pickup",
+          "Duration": 10.933334350585938
+        },
+        {
+          "Name": "Exs_Cutin_01",
+          "Duration": 2.2333333492279053
+        },
+        {
+          "Name": "Exs_Cutin_02",
+          "Duration": 1.8666670322418213
+        },
+        {
+          "Name": "Exs_Cutin_03",
+          "Duration": 1.200000286102295
+        },
+        {
+          "Name": "Exs_Cutin_04",
+          "Duration": 1.200000286102295
+        },
+        {
+          "Name": "Exs_Cutin_05",
+          "Duration": 2.200000762939453
+        },
+        {
+          "Name": "Exs",
+          "Duration": 5.333333492279053
+        },
+        {
+          "Name": "Victory_End",
+          "Duration": 4
+        },
+        {
+          "Name": "Victory_Start",
+          "Duration": 3.000000238418579
+        },
+        {
+          "Name": "Normal_Idle",
+          "Duration": 4
+        },
+        {
+          "Name": "Normal_Attack_Delay",
+          "Duration": 2
+        },
+        {
+          "Name": "Normal_Attack_End",
+          "Duration": 0.6666667461395264
+        },
+        {
+          "Name": "Normal_Attack_Ing",
+          "Duration": 0.833333432674408
+        },
+        {
+          "Name": "Normal_Attack_Start",
+          "Duration": 0.9000000357627869
+        },
+        {
+          "Name": "Normal_Callsign",
+          "Duration": 1.6666667461395264
+        },
+        {
+          "Name": "Normal_Reload",
+          "Duration": 1.8666667938232422
+        },
+        {
+          "Name": "Kneel_Idle",
+          "Duration": 4
+        },
+        {
+          "Name": "Kneel_Attack_Delay",
+          "Duration": 2
+        },
+        {
+          "Name": "Kneel_Attack_End",
+          "Duration": 0.6666667461395264
+        },
+        {
+          "Name": "Kneel_Attack_Ing",
+          "Duration": 0.833333432674408
+        },
+        {
+          "Name": "Kneel_Attack_Start",
+          "Duration": 0.9000000357627869
+        },
+        {
+          "Name": "Kneel_Reload",
+          "Duration": 1.8666667938232422
+        },
+        {
+          "Name": "Move_End_Kneel",
+          "Duration": 0.8666667342185974
+        },
+        {
+          "Name": "Move_End_Normal",
+          "Duration": 0.8666667342185974
+        },
+        {
+          "Name": "Move_Ing",
+          "Duration": 0.6666666865348816
+        },
+        {
+          "Name": "Move_Jump",
+          "Duration": 1
+        },
+        {
+          "Name": "Vital_Death",
+          "Duration": 3.000000238418579
+        },
+        {
+          "Name": "Vital_Dying_Ing",
+          "Duration": 2
+        },
+        {
+          "Name": "Vital_Panic",
+          "Duration": 1.3333333730697632
+        },
+        {
+          "Name": "Vital_Retreat",
+          "Duration": 1.6666667461395264
+        },
+        {
+          "Name": "Public01",
+          "Duration": 5.000000476837158
+        }
+      ],
+      "actionSettings": {
+        "idle": {
+          "Frames": null,
+          "Fps": null,
+          "Gif": null,
+          "Loop": true,
+          "PingPong": false,
+          "ModelClip": "Cafe_Idle",
+          "Speed": 1,
+          "Heading": null
+        },
+        "click": {
+          "Frames": null,
+          "Fps": null,
+          "Gif": null,
+          "Loop": false,
+          "PingPong": false,
+          "ModelClip": "Cafe_Reaction",
+          "Speed": 1,
+          "Heading": null
+        },
+        "hover": {
+          "Frames": null,
+          "Fps": null,
+          "Gif": null,
+          "Loop": false,
+          "PingPong": false,
+          "ModelClip": "Cafe_Reaction",
+          "Speed": 1,
+          "Heading": null
+        },
+        "pickup": {
+          "Frames": null,
+          "Fps": null,
+          "Gif": null,
+          "Loop": false,
+          "PingPong": false,
+          "ModelClip": "Formation_Pickup",
+          "Speed": 1,
+          "Heading": null
+        },
+        "held": {
+          "Frames": null,
+          "Fps": null,
+          "Gif": null,
+          "Loop": true,
+          "PingPong": false,
+          "ModelClip": "Formation_Idle",
+          "Speed": 1,
+          "Heading": null
+        },
+        "land": {
+          "Frames": null,
+          "Fps": null,
+          "Gif": null,
+          "Loop": false,
+          "PingPong": false,
+          "ModelClip": "Formation_Idle",
+          "Speed": 1,
+          "Heading": null
+        },
+        "walk": {
+          "Frames": null,
+          "Fps": null,
+          "Gif": null,
+          "Loop": true,
+          "PingPong": false,
+          "ModelClip": "Cafe_Walk",
+          "Speed": 1,
+          "Heading": null
+        },
+        "celebrate": {
+          "Frames": null,
+          "Fps": null,
+          "Gif": null,
+          "Loop": false,
+          "PingPong": false,
+          "ModelClip": "Victory_Start",
+          "Speed": 1,
+          "Heading": null
+        }
+      }
+    },
+    "installedId": "glb-37aba77dd458456e81f1b81e7977032e",
+    "durationMs": 1400.0939
+  },
+  {
+    "Detail": {
+      "file": "/Users/hwanghyeonseong/Downloads/Kazusa.glb",
+      "fileBytes": 5720868,
+      "sha256": "f266ff476889d60a7bd0f9aaa65813c589a97610f072ae7028c07b8946693f09",
+      "triangles": 11466,
+      "animations": [
+        {
+          "Name": "Cafe_Reaction",
+          "Duration": 5.800000190734863
+        },
+        {
+          "Name": "Cafe_Idle",
+          "Duration": 3.200000286102295
+        },
+        {
+          "Name": "Cafe_Walk",
+          "Duration": 2.6666667461395264
+        },
+        {
+          "Name": "Formation_Idle",
+          "Duration": 4
+        },
+        {
+          "Name": "Formation_Pickup",
+          "Duration": 4.533333778381348
+        },
+        {
+          "Name": "Exs_Cutin",
+          "Duration": 5.000000476837158
+        },
+        {
+          "Name": "Exs",
+          "Duration": 5.000000476837158
+        },
+        {
+          "Name": "Victory_End",
+          "Duration": 2
+        },
+        {
+          "Name": "Victory_Start",
+          "Duration": 3.000000238418579
+        },
+        {
+          "Name": "Normal_Idle",
+          "Duration": 1.6000001430511475
+        },
+        {
+          "Name": "Normal_Attack_Delay",
+          "Duration": 1.3333333730697632
+        },
+        {
+          "Name": "Normal_Attack_End",
+          "Duration": 0.533333420753479
+        },
+        {
+          "Name": "Normal_Attack_Ing",
+          "Duration": 0.8000000715255737
+        },
+        {
+          "Name": "Normal_Attack_Start",
+          "Duration": 0.46666669845581055
+        },
+        {
+          "Name": "Normal_Callsign",
+          "Duration": 1.5000001192092896
+        },
+        {
+          "Name": "Normal_Move_End_Normal",
+          "Duration": 1.2000000476837158
+        },
+        {
+          "Name": "Normal_Move_End_Normal_Root",
+          "Duration": 1.2000000476837158
+        },
+        {
+          "Name": "Normal_Move_Ing",
+          "Duration": 0.6666666865348816
+        },
+        {
+          "Name": "Normal_Reload",
+          "Duration": 2
+        },
+        {
+          "Name": "Vital_Death",
+          "Duration": 2
+        },
+        {
+          "Name": "Vital_Dying",
+          "Duration": 1.6000001430511475
+        },
+        {
+          "Name": "Vital_Panic",
+          "Duration": 1.6000001430511475
+        },
+        {
+          "Name": "Vital_Retreat",
+          "Duration": 1.6666667461395264
+        },
+        {
+          "Name": "Public01",
+          "Duration": 4.099999904632568
+        }
+      ],
+      "actionSettings": {
+        "idle": {
+          "Frames": null,
+          "Fps": null,
+          "Gif": null,
+          "Loop": true,
+          "PingPong": false,
+          "ModelClip": "Cafe_Idle",
+          "Speed": 1,
+          "Heading": null
+        },
+        "click": {
+          "Frames": null,
+          "Fps": null,
+          "Gif": null,
+          "Loop": false,
+          "PingPong": false,
+          "ModelClip": "Cafe_Reaction",
+          "Speed": 1,
+          "Heading": null
+        },
+        "hover": {
+          "Frames": null,
+          "Fps": null,
+          "Gif": null,
+          "Loop": false,
+          "PingPong": false,
+          "ModelClip": "Cafe_Reaction",
+          "Speed": 1,
+          "Heading": null
+        },
+        "pickup": {
+          "Frames": null,
+          "Fps": null,
+          "Gif": null,
+          "Loop": false,
+          "PingPong": false,
+          "ModelClip": "Formation_Pickup",
+          "Speed": 1,
+          "Heading": null
+        },
+        "held": {
+          "Frames": null,
+          "Fps": null,
+          "Gif": null,
+          "Loop": true,
+          "PingPong": false,
+          "ModelClip": "Formation_Idle",
+          "Speed": 1,
+          "Heading": null
+        },
+        "land": {
+          "Frames": null,
+          "Fps": null,
+          "Gif": null,
+          "Loop": false,
+          "PingPong": false,
+          "ModelClip": "Formation_Idle",
+          "Speed": 1,
+          "Heading": null
+        },
+        "walk": {
+          "Frames": null,
+          "Fps": null,
+          "Gif": null,
+          "Loop": true,
+          "PingPong": false,
+          "ModelClip": "Cafe_Walk",
+          "Speed": 1,
+          "Heading": null
+        },
+        "celebrate": {
+          "Frames": null,
+          "Fps": null,
+          "Gif": null,
+          "Loop": false,
+          "PingPong": false,
+          "ModelClip": "Victory_Start",
+          "Speed": 1,
+          "Heading": null
+        }
+      }
+    },
+    "installedId": "glb-4581bebc0edf42cfb96314b58fc51127",
+    "durationMs": 1303.0104
+  }
+]

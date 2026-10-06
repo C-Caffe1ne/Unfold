@@ -13,8 +13,8 @@ Orca CLI가 현재 PATH에 없어 이 채팅의 Codex 멀티에이전트로 기�
 |---|---|---|---|
 | A01 | Product Manager / product-direction, business-model | 현재 구매 gate·기능 설명 정합성 | 완료, 문서 대조 |
 | A02 | 감독 / 브랜치 기준·검증 기록 | 기존 변경 커밋·버전·소유권 기록 | 완료, 아래 검증 한계 유지 |
-| D01 | Evidence Collector / Windows 검증 자료 | 2D/GLB 투명 클릭, 드래그 해제, DPI·다중 모니터 실기 증거 | 환경 대기, 실제 Windows |
-| D02 | Performance Benchmarker / 성능 자료 | 고정 모델·해상도·기기에서 실제 앱 30분 이상 RSS/managed/CPU 비교 | 예정, 모델·비교 실행본 확정 |
+| D01 | Evidence Collector / Windows 검증 자료 | 2D/GLB 투명 클릭, 드래그 해제, DPI·다중 모니터 실기 증거 | 검증 양식 갱신·증거 템플릿 준비, 실제 Windows 환경 대기 |
+| D02 | Performance Benchmarker / 성능 자료 | 고정 모델·해상도·기기에서 실제 앱 30분 이상 RSS/managed/CPU 비교 | 현재 native 36분 기준 측정 완료, GC 뒤 잔존량·이전 빌드 비교·고DPI 남음 |
 | D03 | Minimal Change Engineer / 재현된 관련 파일 | 실패 재현→수정→집중 회귀 통과 | D01/D02 결과 후 |
 | B01 | Payments & Billing Engineer / 서버 계약·검증 자료 | test/live 구분, Google·구매·복원·환불 실증 | 로컬 43개 통과, 실제 거래 환경 필요 |
 | R01 | Desktop App Engineer / 패키지·검증 자료 | 구버전→업데이트·설정/기록/펫/로그인 보존 증거 | 최종 입력 확정·실제 OS 환경 필요 |
@@ -48,3 +48,5 @@ Windows 입력과 실제 앱 성능은 서로 독립 실행한다. 실패가 재
 공용 테스트 이용코드의 무기한 무료 권한은 공개 운영 전에 사용 정책/회수 여부를 결정한다.
 기기 수·오프라인 권한·세금 표시·원화 청구·환불/지원 정책은 운영자가 결정한다.
 공개 게시·배포·광고 지출·외부 메시지를 이번 내부 준비 작업과 함께 실행하지 않는다.
+
+[다음 단계 검증 결과](../validation/2026-10-06-agency-next-stage.md): D01 환경 확인·양식 정합성, D02 현재 native 장시간 기준 측정. Windows 실기와 이전 native 비교는 미검증이다.

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>Unfold.Tests</AssemblyName>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <SourceBuild Condition="'$(SourceBuild)' == ''">/Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/src/Unfold.Desktop/bin/Release/net10.0</SourceBuild>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="$(SourceBuild)/*.dll"><Private>true</Private></Reference>
+    <Content Include="$(SourceBuild)/Assets/**/*" Link="Assets/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <!-- Direct DLL references have no NuGet runtime-target graph: keep native macOS dylibs at the application root. -->
+    <Content Include="$(SourceBuild)/runtimes/osx/native/*.dylib" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>
