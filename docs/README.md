@@ -1,10 +1,14 @@
 # 문서 안내
 
-현재 제품은 **C#·Avalonia 기반 Unfold Beta**다. 2026-10-06 확인 기준 최신 개발본은 `codex/glb-import-compat`의 `1.1.0-beta` (`c44ef12`와 현재 미커밋 변경)이며, `release/mvp`의 `0.2.2`는 이전 소스다.
+현재 제품은 **C#·Avalonia 기반 Unfold Beta**다. 2026-10-06 확인 기준 최신 개발본은 `codex/glb-import-compat`의 `1.1.0-beta`이며, 2026-10-06 기존 변경 보존 커밋은 `18a3a31`이다. 이후 작업 기준은 현재 HEAD에서 다시 확인한다. `release/mvp`의 `0.2.2`는 이전 소스다.
 기능 구현 전에 [작업 안내](../AGENTS.md)에 따라 마지막 수정본의 브랜치·HEAD·미커밋 변경·프로젝트 버전과 실행 경로를 다시 확인한다. 아래 문서는 구현·범위·실행 방법을 설명하며 과거 Swift 구현과 Garden 실험은 보관 자료다.
 
 | 문서 | 역할 |
 |---|---|
+| [Agency 준비 작업 검증](validation/2026-10-06-agency-execution.md) | 기존 변경 커밋·집중 검사·전체/대체경로 결과와 검증 한계 |
+| [Agency Agents 실행 작업표](plans/2026-10-06-agency-execution.md) | 브랜치별 보존 커밋, 이번 검증 결과와 담당·소유권·남은 환경 조건 |
+| [출시 콘텐츠 초안](operations/2026-10-06-launch-materials.md) | 현재 기능 기반 데모·게시물·가격 안내, 내부 검토용 |
+| [지원 운영 초안](operations/2026-10-06-support-playbook.md) | 문의 분류·재현 양식·구매 복원/오류 안내와 정책 결정 항목 |
 | [분야별 구현·검증 결과](validation/2026-10-06-audit-followup.md) | GLB 속도·종료 포즈, 펫 포커스·즉시 만료 갱신, 748개 검사와 ARM64 게시본·남은 출시 조건 |
 | [분야별 수정 실행 계획](plans/2026-10-06-audit-followup.md) | 미루기 진단, GLB 속도·종료 포즈, 펫 페이지 포커스, 문서와 출시 검증의 소유권·완료 기준 |
 | [에이전트 작업 안내](../AGENTS.md) | Codex·Claude 공통 프로젝트 지침. Claude는 `CLAUDE.md`에서 가져온다. |

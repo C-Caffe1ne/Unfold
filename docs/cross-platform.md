@@ -221,8 +221,11 @@ the default local build uses ad-hoc signing.
 
 The CI matrix builds/tests Windows x64 and macOS arm64, then packages them. The Windows
 job also defines an isolated packaged smoke run and a silent installer verification
-(`Scripts/verify-windows-installer.ps1`) covering installation, payload hashes, running-app
-protection, startup-entry migration, uninstall and data retention. Run this verifier only
+(`Scripts/verify-windows-installer.ps1`) covering fresh installation, payload hashes,
+installed version, login opt-out, reinstall, uninstall and preservation of a sentinel file.
+It does not prove running-app protection, migration from a legacy startup entry,
+an older-version update, or preservation of actual settings/history/pets/login credentials.
+Those require separate target-OS scenarios. Run this verifier only
 in a disposable environment; it refuses an existing installation or startup entry.
 This is automated diagnostic coverage,
 not physical OS interaction or evidence that the current workflow has already passed.

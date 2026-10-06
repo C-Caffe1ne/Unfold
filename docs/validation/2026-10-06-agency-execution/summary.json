@@ -1,0 +1,137 @@
+{
+  "date": "2026-10-06",
+  "checks": {
+    "legacy-focused.trx": {
+      "total": "19",
+      "executed": "19",
+      "passed": "19",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "legacy-pointer.trx": {
+      "total": "7",
+      "executed": "7",
+      "passed": "7",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "pet-file-focused.trx": {
+      "total": "18",
+      "executed": "18",
+      "passed": "18",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "latest-focused.trx": {
+      "total": "67",
+      "executed": "67",
+      "passed": "67",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "final-full.trx": {
+      "total": "748",
+      "executed": "748",
+      "passed": "746",
+      "failed": "2",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "layout-standard.trx": {
+      "total": "2",
+      "executed": "2",
+      "passed": "2",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    }
+  },
+  "worktrees": [
+    {
+      "path": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+      "branch": "release/mvp",
+      "head": "fff3aeedf393f3640dd71f557c9d6a55f72394df"
+    },
+    {
+      "path": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+      "branch": "codex/beta-v1.0.4",
+      "head": "95f7a215521f01313c95185f9c916cd954dcf6ef"
+    },
+    {
+      "path": "/Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold",
+      "branch": "codex/glb-import-compat",
+      "head": "18a3a3149ac8fad83d4f67f26f9f30755992196d"
+    },
+    {
+      "path": "/Users/hwanghyeonseong/Documents/GitHub/Unfold/.worktrees/pet-pack-ux",
+      "branch": "feat/pet-pack-ux",
+      "head": "5dc4f7ee3ec43deb06238d2d6294f2c6ce95c3f7"
+    }
+  ],
+  "full_tests": "Isolated: 746/748 passed, 2 screenshot output path permission failures; standard build rerun: 2/2 passed.",
+  "external_actions": false
+}

@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="2e292db4-0a24-4a11-8294-7437d7f196a6" name="@hwanghyeonseong-ui-MacBookAir 2026-10-06 16:23:27" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-06T16:23:28.1637440+09:00" queuing="2026-10-06T16:23:28.1637450+09:00" start="2026-10-06T16:23:24.2251580+09:00" finish="2026-10-06T16:23:31.9143420+09:00" />
+  <TestSettings name="default" id="f131bc4d-e9ed-4c29-b6a6-baf9dfb0bcef">
+    <Deployment runDeploymentRoot="_hwanghyeonseong-ui-MacBookAir_2026-10-06_16_23_27" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="375e1daa-d5f4-4881-ab44-ea05899000b3" testId="b0e25c3b-08ac-77fa-8292-48ff8e65a3d4" testName="Unfold.Tests.GlbTests.RootTranslationAndRotationRemainFixedButBackgroundIsTransparent" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.0076160" startTime="2026-10-06T16:23:29.3587880+09:00" endTime="2026-10-06T16:23:29.3664480+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="375e1daa-d5f4-4881-ab44-ea05899000b3" />
+    <UnitTestResult executionId="7ad8cc1f-438e-4003-aa07-b74e03e4885e" testId="39f4b713-38c0-44b0-57f3-48188bf36e1e" testName="Unfold.Tests.SettingsDashboardTests.DashboardKeepsThePetAndTimerVisibleWhileOnlyDetailsScroll" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.1819487" startTime="2026-10-06T16:23:29.3727650+09:00" endTime="2026-10-06T16:23:29.5548040+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7ad8cc1f-438e-4003-aa07-b74e03e4885e" />
+    <UnitTestResult executionId="6ae2097b-de8a-4924-b0b6-eaa8154d3f4d" testId="fe74a4d6-ae4b-73a8-06b9-79249cd77ed1" testName="Unfold.Tests.GlbTests.TruncatedAndCorruptFilesAreRejectedBeforeRendering" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.0009815" startTime="2026-10-06T16:23:29.3575050+09:00" endTime="2026-10-06T16:23:29.3585320+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6ae2097b-de8a-4924-b0b6-eaa8154d3f4d" />
+    <UnitTestResult executionId="438d6a48-7dff-453e-bf31-7c7d32e2741d" testId="496cdf91-5791-d204-8117-09df0d211567" testName="Unfold.Tests.GlbTests.MorphWeightsStillAnimateWithRootLocked" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.0016666" startTime="2026-10-06T16:23:27.9275340+09:00" endTime="2026-10-06T16:23:27.9292640+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="438d6a48-7dff-453e-bf31-7c7d32e2741d" />
+    <UnitTestResult executionId="b81a8b8d-fd34-460f-b845-7260325b15ce" testId="4e1c04be-31ec-3f2d-df19-811ff381d215" testName="Unfold.Tests.SettingsDashboardTests.HomeTimingApplyStaysAtTheCardTopRight" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.0563114" startTime="2026-10-06T16:23:30.8224220+09:00" endTime="2026-10-06T16:23:30.8788270+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b81a8b8d-fd34-460f-b845-7260325b15ce" />
+    <UnitTestResult executionId="03b95670-e7f1-4309-b537-64f538d55fcf" testId="aadb6357-22ef-fcf9-16bb-8f43638dca81" testName="Unfold.Tests.GlbTests.LiveViewUsesPaintedPixelsAndIgnoresMirroringAndStaleClipSwaps" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.0029751" startTime="2026-10-06T16:23:27.9216570+09:00" endTime="2026-10-06T16:23:27.9247660+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="03b95670-e7f1-4309-b537-64f538d55fcf" />
+    <UnitTestResult executionId="fd78b10a-5a55-424c-a081-c3cc888bc369" testId="53bde663-3bfc-d18e-aa2e-79d16cb6216a" testName="Unfold.Tests.SettingsDashboardTests.PetScaleSitsAboveThePickerAndPersistsWithoutLegendLabels" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.1107985" startTime="2026-10-06T16:23:31.5015820+09:00" endTime="2026-10-06T16:23:31.6124390+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="fd78b10a-5a55-424c-a081-c3cc888bc369" />
+    <UnitTestResult executionId="21ccf144-6612-4df4-a1d2-59b39d1dbb47" testId="b66f0cc7-1d32-84a4-a9f7-f5795a239c0f" testName="Unfold.Tests.SettingsDashboardTests.SingleColumnTabContentIsCenteredAndStillFitsAtMinimumWidth" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.3760652" startTime="2026-10-06T16:23:30.4420390+09:00" endTime="2026-10-06T16:23:30.8182090+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="21ccf144-6612-4df4-a1d2-59b39d1dbb47" />
+    <UnitTestResult executionId="30a788d8-4aea-45bb-ba5c-e52c83957bc4" testId="c2b36102-9eb7-8f38-7e9d-b54fb15e8fb6" testName="Unfold.Tests.SettingsDashboardTests.LongPetNameAndSaveFailureKeepHomeActionsInsideTheirCards" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.1025708" startTime="2026-10-06T16:23:30.0949930+09:00" endTime="2026-10-06T16:23:30.1976200+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="30a788d8-4aea-45bb-ba5c-e52c83957bc4" />
+    <UnitTestResult executionId="a07507cc-cc6c-46bb-838d-cafb0c9c8d9d" testId="fad35b26-c1a3-eba4-586d-f495ee65a578" testName="Unfold.Tests.SettingsDashboardTests.PetPagePreservesDraftAcrossTabsAndSidebarNavigation" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.5242049" startTime="2026-10-06T16:23:29.5638680+09:00" endTime="2026-10-06T16:23:30.0881390+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a07507cc-cc6c-46bb-838d-cafb0c9c8d9d" />
+    <UnitTestResult executionId="8f7b4b08-f5f2-47ef-9f4d-719f18d5e078" testId="1bc71ee8-0f18-7396-2473-d345485c1967" testName="Unfold.Tests.SettingsDashboardTests.SidebarUsesInWindowTabsAndReturnsFocusToTheTimer" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.1759956" startTime="2026-10-06T16:23:31.0723440+09:00" endTime="2026-10-06T16:23:31.2484390+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8f7b4b08-f5f2-47ef-9f4d-719f18d5e078" />
+    <UnitTestResult executionId="56dca2d5-7579-49b5-bfd0-683f2229d4ee" testId="7b587109-771c-9d01-9778-638e818b2ca4" testName="Unfold.Tests.SettingsDashboardTests.ResizingPreservesTimerDraftsAndLegacyRoutineData" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.2395333" startTime="2026-10-06T16:23:30.1999540+09:00" endTime="2026-10-06T16:23:30.4395340+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="56dca2d5-7579-49b5-bfd0-683f2229d4ee" />
+    <UnitTestResult executionId="dd50db91-07ef-45fc-9b7f-a64ecfcc7ea3" testId="8748bc29-9417-8cf6-3e26-7ddef1f06a52" testName="Unfold.Tests.SettingsDashboardTests.PreferencesActionsStayBelowTheScrollableBodyAtBothWindowSizes" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.2455913" startTime="2026-10-06T16:23:31.2511150+09:00" endTime="2026-10-06T16:23:31.4967880+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="dd50db91-07ef-45fc-9b7f-a64ecfcc7ea3" />
+    <UnitTestResult executionId="26d80c99-b27b-4604-b144-bcc7e4f61c0e" testId="8b78300c-2d53-e550-917d-c8248784300e" testName="Unfold.Tests.GlbTests.MappingsPersistThroughPackInstallAndReopenWithoutChangingSource" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.2388611" startTime="2026-10-06T16:23:27.9297640+09:00" endTime="2026-10-06T16:23:28.1686750+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="26d80c99-b27b-4604-b144-bcc7e4f61c0e" />
+    <UnitTestResult executionId="8a88cc50-1c11-4b8e-a9ef-da5fab03f58c" testId="0586048a-79de-2415-42eb-03e3e8126758" testName="Unfold.Tests.SettingsDashboardTests.DebugToolsAreHiddenAndRejectedUntilAnAdminAccountIsVerified" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.1442601" startTime="2026-10-06T16:23:31.6982640+09:00" endTime="2026-10-06T16:23:31.8425720+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8a88cc50-1c11-4b8e-a9ef-da5fab03f58c" />
+    <UnitTestResult executionId="06d4b4cf-cb2c-44c5-bbec-17d437bdace2" testId="f2bf0682-de7c-28e3-803b-9a26128e90af" testName="Unfold.Tests.SettingsDashboardTests.HomeSeparatesAllSixTimerStateTitlesWithoutHelperCopy" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.0806871" startTime="2026-10-06T16:23:31.6152710+09:00" endTime="2026-10-06T16:23:31.6959980+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="06d4b4cf-cb2c-44c5-bbec-17d437bdace2" />
+    <UnitTestResult executionId="7f4157d9-d485-44eb-88ce-3c25e08bdf51" testId="e22a7c19-e339-d1e5-b862-b9aff81e5865" testName="Unfold.Tests.SettingsDashboardTests.SpeechPreferencesApplyWhileWorkingWithoutResettingTheTimer" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.1780319" startTime="2026-10-06T16:23:30.8816140+09:00" endTime="2026-10-06T16:23:31.0597000+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7f4157d9-d485-44eb-88ce-3c25e08bdf51" />
+    <UnitTestResult executionId="e85eb330-4e00-413b-a874-f715f75a4f30" testId="a8a2ac90-8583-85f6-b8e1-1b81b30b894f" testName="Unfold.Tests.GlbTests.GlbEditorImportsMapsSavesAndEditsThroughControls" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:01.6350214" startTime="2026-10-06T16:23:26.2702760+09:00" endTime="2026-10-06T16:23:27.9104950+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e85eb330-4e00-413b-a874-f715f75a4f30" />
+    <UnitTestResult executionId="5607f62c-192f-45ab-a83d-b37d313f2bc0" testId="55b4f4de-1be0-c140-edd8-b16007993840" testName="Unfold.Tests.GlbTests.GlbClickDragAndPointerReleaseKeepExistingLifecycle" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:01.1780987" startTime="2026-10-06T16:23:28.1720310+09:00" endTime="2026-10-06T16:23:29.3512420+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5607f62c-192f-45ab-a83d-b37d313f2bc0" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Unfold.Tests.SettingsDashboardTests.SingleColumnTabContentIsCenteredAndStillFitsAtMinimumWidth" storage="/users/hwanghyeonseong/documents/github/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="b66f0cc7-1d32-84a4-a9f7-f5795a239c0f">
+      <Execution id="21ccf144-6612-4df4-a1d2-59b39d1dbb47" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Documents/GitHub/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.SettingsDashboardTests" name="SingleColumnTabContentIsCenteredAndStillFitsAtMinimumWidth" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.SettingsDashboardTests.PreferencesActionsStayBelowTheScrollableBodyAtBothWindowSizes" storage="/users/hwanghyeonseong/documents/github/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="8748bc29-9417-8cf6-3e26-7ddef1f06a52">
+      <Execution id="dd50db91-07ef-45fc-9b7f-a64ecfcc7ea3" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Documents/GitHub/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.SettingsDashboardTests" name="PreferencesActionsStayBelowTheScrollableBodyAtBothWindowSizes" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.SettingsDashboardTests.SidebarUsesInWindowTabsAndReturnsFocusToTheTimer" storage="/users/hwanghyeonseong/documents/github/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="1bc71ee8-0f18-7396-2473-d345485c1967">
+      <Execution id="8f7b4b08-f5f2-47ef-9f4d-719f18d5e078" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Documents/GitHub/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.SettingsDashboardTests" name="SidebarUsesInWindowTabsAndReturnsFocusToTheTimer" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.SettingsDashboardTests.DashboardKeepsThePetAndTimerVisibleWhileOnlyDetailsScroll" storage="/users/hwanghyeonseong/documents/github/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="39f4b713-38c0-44b0-57f3-48188bf36e1e">
+      <Execution id="7ad8cc1f-438e-4003-aa07-b74e03e4885e" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Documents/GitHub/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.SettingsDashboardTests" name="DashboardKeepsThePetAndTimerVisibleWhileOnlyDetailsScroll" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.SettingsDashboardTests.DebugToolsAreHiddenAndRejectedUntilAnAdminAccountIsVerified" storage="/users/hwanghyeonseong/documents/github/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="0586048a-79de-2415-42eb-03e3e8126758">
+      <Execution id="8a88cc50-1c11-4b8e-a9ef-da5fab03f58c" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Documents/GitHub/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.SettingsDashboardTests" name="DebugToolsAreHiddenAndRejectedUntilAnAdminAccountIsVerified" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.GlbTests.LiveViewUsesPaintedPixelsAndIgnoresMirroringAndStaleClipSwaps" storage="/users/hwanghyeonseong/documents/github/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="aadb6357-22ef-fcf9-16bb-8f43638dca81">
+      <Execution id="03b95670-e7f1-4309-b537-64f538d55fcf" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Documents/GitHub/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.GlbTests" name="LiveViewUsesPaintedPixelsAndIgnoresMirroringAndStaleClipSwaps" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.GlbTests.MorphWeightsStillAnimateWithRootLocked" storage="/users/hwanghyeonseong/documents/github/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="496cdf91-5791-d204-8117-09df0d211567">
+      <Execution id="438d6a48-7dff-453e-bf31-7c7d32e2741d" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Documents/GitHub/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.GlbTests" name="MorphWeightsStillAnimateWithRootLocked" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.SettingsDashboardTests.HomeSeparatesAllSixTimerStateTitlesWithoutHelperCopy" storage="/users/hwanghyeonseong/documents/github/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="f2bf0682-de7c-28e3-803b-9a26128e90af">
+      <Execution id="06d4b4cf-cb2c-44c5-bbec-17d437bdace2" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Documents/GitHub/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.SettingsDashboardTests" name="HomeSeparatesAllSixTimerStateTitlesWithoutHelperCopy" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.GlbTests.MappingsPersistThroughPackInstallAndReopenWithoutChangingSource" storage="/users/hwanghyeonseong/documents/github/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="8b78300c-2d53-e550-917d-c8248784300e">
+      <Execution id="26d80c99-b27b-4604-b144-bcc7e4f61c0e" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Documents/GitHub/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.GlbTests" name="MappingsPersistThroughPackInstallAndReopenWithoutChangingSource" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.SettingsDashboardTests.PetScaleSitsAboveThePickerAndPersistsWithoutLegendLabels" storage="/users/hwanghyeonseong/documents/github/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="53bde663-3bfc-d18e-aa2e-79d16cb6216a">
+      <Execution id="fd78b10a-5a55-424c-a081-c3cc888bc369" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Documents/GitHub/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.SettingsDashboardTests" name="PetScaleSitsAboveThePickerAndPersistsWithoutLegendLabels" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.SettingsDashboardTests.PetPagePreservesDraftAcrossTabsAndSidebarNavigation" storage="/users/hwanghyeonseong/documents/github/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="fad35b26-c1a3-eba4-586d-f495ee65a578">
+      <Execution id="a07507cc-cc6c-46bb-838d-cafb0c9c8d9d" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Documents/GitHub/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.SettingsDashboardTests" name="PetPagePreservesDraftAcrossTabsAndSidebarNavigation" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.GlbTests.GlbEditorImportsMapsSavesAndEditsThroughControls" storage="/users/hwanghyeonseong/documents/github/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="a8a2ac90-8583-85f6-b8e1-1b81b30b894f">
+      <Execution id="e85eb330-4e00-413b-a874-f715f75a4f30" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Documents/GitHub/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.GlbTests" name="GlbEditorImportsMapsSavesAndEditsThroughControls" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.GlbTests.RootTranslationAndRotationRemainFixedButBackgroundIsTransparent" storage="/users/hwanghyeonseong/documents/github/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="b0e25c3b-08ac-77fa-8292-48ff8e65a3d4">
+      <Execution id="375e1daa-d5f4-4881-ab44-ea05899000b3" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Documents/GitHub/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.GlbTests" name="RootTranslationAndRotationRemainFixedButBackgroundIsTransparent" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.SettingsDashboardTests.LongPetNameAndSaveFailureKeepHomeActionsInsideTheirCards" storage="/users/hwanghyeonseong/documents/github/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="c2b36102-9eb7-8f38-7e9d-b54fb15e8fb6">
+      <Execution id="30a788d8-4aea-45bb-ba5c-e52c83957bc4" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Documents/GitHub/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.SettingsDashboardTests" name="LongPetNameAndSaveFailureKeepHomeActionsInsideTheirCards" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.SettingsDashboardTests.SpeechPreferencesApplyWhileWorkingWithoutResettingTheTimer" storage="/users/hwanghyeonseong/documents/github/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="e22a7c19-e339-d1e5-b862-b9aff81e5865">
+      <Execution id="7f4157d9-d485-44eb-88ce-3c25e08bdf51" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Documents/GitHub/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.SettingsDashboardTests" name="SpeechPreferencesApplyWhileWorkingWithoutResettingTheTimer" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.SettingsDashboardTests.HomeTimingApplyStaysAtTheCardTopRight" storage="/users/hwanghyeonseong/documents/github/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="4e1c04be-31ec-3f2d-df19-811ff381d215">
+      <Execution id="b81a8b8d-fd34-460f-b845-7260325b15ce" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Documents/GitHub/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.SettingsDashboardTests" name="HomeTimingApplyStaysAtTheCardTopRight" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.SettingsDashboardTests.ResizingPreservesTimerDraftsAndLegacyRoutineData" storage="/users/hwanghyeonseong/documents/github/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="7b587109-771c-9d01-9778-638e818b2ca4">
+      <Execution id="56dca2d5-7579-49b5-bfd0-683f2229d4ee" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Documents/GitHub/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.SettingsDashboardTests" name="ResizingPreservesTimerDraftsAndLegacyRoutineData" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.GlbTests.TruncatedAndCorruptFilesAreRejectedBeforeRendering" storage="/users/hwanghyeonseong/documents/github/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="fe74a4d6-ae4b-73a8-06b9-79249cd77ed1">
+      <Execution id="6ae2097b-de8a-4924-b0b6-eaa8154d3f4d" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Documents/GitHub/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.GlbTests" name="TruncatedAndCorruptFilesAreRejectedBeforeRendering" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.GlbTests.GlbClickDragAndPointerReleaseKeepExistingLifecycle" storage="/users/hwanghyeonseong/documents/github/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="55b4f4de-1be0-c140-edd8-b16007993840">
+      <Execution id="5607f62c-192f-45ab-a83d-b37d313f2bc0" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Documents/GitHub/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.GlbTests" name="GlbClickDragAndPointerReleaseKeepExistingLifecycle" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="b0e25c3b-08ac-77fa-8292-48ff8e65a3d4" executionId="375e1daa-d5f4-4881-ab44-ea05899000b3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="39f4b713-38c0-44b0-57f3-48188bf36e1e" executionId="7ad8cc1f-438e-4003-aa07-b74e03e4885e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="fe74a4d6-ae4b-73a8-06b9-79249cd77ed1" executionId="6ae2097b-de8a-4924-b0b6-eaa8154d3f4d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="496cdf91-5791-d204-8117-09df0d211567" executionId="438d6a48-7dff-453e-bf31-7c7d32e2741d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4e1c04be-31ec-3f2d-df19-811ff381d215" executionId="b81a8b8d-fd34-460f-b845-7260325b15ce" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="aadb6357-22ef-fcf9-16bb-8f43638dca81" executionId="03b95670-e7f1-4309-b537-64f538d55fcf" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="53bde663-3bfc-d18e-aa2e-79d16cb6216a" executionId="fd78b10a-5a55-424c-a081-c3cc888bc369" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b66f0cc7-1d32-84a4-a9f7-f5795a239c0f" executionId="21ccf144-6612-4df4-a1d2-59b39d1dbb47" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c2b36102-9eb7-8f38-7e9d-b54fb15e8fb6" executionId="30a788d8-4aea-45bb-ba5c-e52c83957bc4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="fad35b26-c1a3-eba4-586d-f495ee65a578" executionId="a07507cc-cc6c-46bb-838d-cafb0c9c8d9d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1bc71ee8-0f18-7396-2473-d345485c1967" executionId="8f7b4b08-f5f2-47ef-9f4d-719f18d5e078" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="7b587109-771c-9d01-9778-638e818b2ca4" executionId="56dca2d5-7579-49b5-bfd0-683f2229d4ee" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8748bc29-9417-8cf6-3e26-7ddef1f06a52" executionId="dd50db91-07ef-45fc-9b7f-a64ecfcc7ea3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8b78300c-2d53-e550-917d-c8248784300e" executionId="26d80c99-b27b-4604-b144-bcc7e4f61c0e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0586048a-79de-2415-42eb-03e3e8126758" executionId="8a88cc50-1c11-4b8e-a9ef-da5fab03f58c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f2bf0682-de7c-28e3-803b-9a26128e90af" executionId="06d4b4cf-cb2c-44c5-bbec-17d437bdace2" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e22a7c19-e339-d1e5-b862-b9aff81e5865" executionId="7f4157d9-d485-44eb-88ce-3c25e08bdf51" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a8a2ac90-8583-85f6-b8e1-1b81b30b894f" executionId="e85eb330-4e00-413b-a874-f715f75a4f30" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="55b4f4de-1be0-c140-edd8-b16007993840" executionId="5607f62c-192f-45ab-a83d-b37d313f2bc0" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="목록에 없는 결과" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="로드된 모든 결과" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="19" executed="19" passed="19" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.12)
+[xUnit.net 00:00:00.23]   Discovering: Unfold.Tests
+[xUnit.net 00:00:00.54]   Discovered:  Unfold.Tests
+[xUnit.net 00:00:01.17]   Starting:    Unfold.Tests
+[xUnit.net 00:00:06.99]   Finished:    Unfold.Tests
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

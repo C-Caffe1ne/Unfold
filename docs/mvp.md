@@ -7,8 +7,8 @@ A small desktop companion that reminds you to stretch while you work.
 Mochi와 잠깐 쉬고, 내 리듬으로 돌아오는 작은 데스크톱 동료.
 
 This document describes the current **Unfold Beta 1.1.0** development source:
-`codex/glb-import-compat`, `c44ef12` plus the current uncommitted GLB compatibility
-and Windows input changes, checked on 2026-10-06. Recheck the worktree and version
+`codex/glb-import-compat`; the existing GLB compatibility and Windows input changes
+were preserved in commit `18a3a31` on 2026-10-06. Recheck the current HEAD for later changes. Recheck the worktree and version
 before implementation; `release/mvp` is an older source.
 The application uses C#/.NET 10 and Avalonia. [Product direction](product-direction.md)
 and [development plan](development-plan.md) describe the paid-value hypotheses.

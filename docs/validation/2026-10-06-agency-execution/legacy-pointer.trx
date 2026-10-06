@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="2311ca91-b04a-4263-9e8a-58e9c510bc5a" name="@hwanghyeonseong-ui-MacBookAir 2026-10-06 16:26:01" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-06T16:26:01.8246970+09:00" queuing="2026-10-06T16:26:01.8246970+09:00" start="2026-10-06T16:25:57.1289730+09:00" finish="2026-10-06T16:26:12.0827530+09:00" />
+  <TestSettings name="default" id="cc3f37bd-443c-4a60-a716-e47b705a02e3">
+    <Deployment runDeploymentRoot="_hwanghyeonseong-ui-MacBookAir_2026-10-06_16_26_01" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="18ac88b6-3bfb-4487-85d3-a69f1c127be7" testId="f64be7e4-8820-dcb3-c5c7-adf1eed1e203" testName="Unfold.Tests.OriginalCompanionTests.OriginalPetsSeparateQuickClicksFromHoldingAndLanding(id: &quot;puppy-dog&quot;)" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:02.5865497" startTime="2026-10-06T16:26:01.6308720+09:00" endTime="2026-10-06T16:26:04.2175100+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="18ac88b6-3bfb-4487-85d3-a69f1c127be7" />
+    <UnitTestResult executionId="53b363ac-df49-4f11-a495-77c9f20b9092" testId="a3397de5-85f1-01c8-7f57-3df7b64c1344" testName="Unfold.Tests.OriginalCompanionTests.OriginalPetsSeparateQuickClicksFromHoldingAndLanding(id: &quot;penguin&quot;)" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:02.9504001" startTime="2026-10-06T16:25:58.6648010+09:00" endTime="2026-10-06T16:26:01.6197370+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="53b363ac-df49-4f11-a495-77c9f20b9092" />
+    <UnitTestResult executionId="89e87f79-f90f-4098-a0f9-f9296befabcb" testId="d18b97c6-16e1-9c5c-9268-a2401bc908f7" testName="Unfold.Tests.OriginalCompanionTests.HoldingDuringDragKeepsThePetLiftedAndReleaseLandsWithoutClicking" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.0260554" startTime="2026-10-06T16:26:11.9916990+09:00" endTime="2026-10-06T16:26:12.0177940+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="89e87f79-f90f-4098-a0f9-f9296befabcb" />
+    <UnitTestResult executionId="91d4f6d8-aece-4521-bfef-612ef394332a" testId="92999145-32a7-4dfb-e473-0072ef808c3c" testName="Unfold.Tests.OriginalCompanionTests.OriginalPetsSeparateQuickClicksFromHoldingAndLanding(id: &quot;default-cat&quot;)" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:02.5108239" startTime="2026-10-06T16:26:09.3167170+09:00" endTime="2026-10-06T16:26:11.8276710+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="91d4f6d8-aece-4521-bfef-612ef394332a" />
+    <UnitTestResult executionId="8ff7cd8b-e373-4b32-b4f6-66e78810780e" testId="29b44842-3d8e-69d7-4cdc-66400d576990" testName="Unfold.Tests.OriginalCompanionTests.OriginalPetsSeparateQuickClicksFromHoldingAndLanding(id: &quot;hedgehog&quot;)" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:02.5197601" startTime="2026-10-06T16:26:04.2202450+09:00" endTime="2026-10-06T16:26:06.7410540+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8ff7cd8b-e373-4b32-b4f6-66e78810780e" />
+    <UnitTestResult executionId="de780968-f4e4-49d7-b973-89681dd8b451" testId="461df7fc-f852-ace8-2d8a-8bfd5f822635" testName="Unfold.Tests.OriginalCompanionTests.OriginalPetsSeparateQuickClicksFromHoldingAndLanding(id: &quot;bori-rabbit&quot;)" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:02.5623022" startTime="2026-10-06T16:26:06.7459140+09:00" endTime="2026-10-06T16:26:09.3082830+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="de780968-f4e4-49d7-b973-89681dd8b451" />
+    <UnitTestResult executionId="74156369-8070-44ca-94d7-e421532ac6c7" testId="40e1461c-2dc5-b5fe-d78e-4f07789a6c6f" testName="Unfold.Tests.OriginalCompanionTests.PointerDownSquashesReleaseBouncesAndDragDoesNotReact" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.1575957" startTime="2026-10-06T16:26:11.8327450+09:00" endTime="2026-10-06T16:26:11.9903940+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="74156369-8070-44ca-94d7-e421532ac6c7" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Unfold.Tests.OriginalCompanionTests.HoldingDuringDragKeepsThePetLiftedAndReleaseLandsWithoutClicking" storage="/users/hwanghyeonseong/documents/github/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="d18b97c6-16e1-9c5c-9268-a2401bc908f7">
+      <Execution id="89e87f79-f90f-4098-a0f9-f9296befabcb" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Documents/GitHub/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.OriginalCompanionTests" name="HoldingDuringDragKeepsThePetLiftedAndReleaseLandsWithoutClicking" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.OriginalCompanionTests.OriginalPetsSeparateQuickClicksFromHoldingAndLanding(id: &quot;hedgehog&quot;)" storage="/users/hwanghyeonseong/documents/github/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="29b44842-3d8e-69d7-4cdc-66400d576990">
+      <Execution id="8ff7cd8b-e373-4b32-b4f6-66e78810780e" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Documents/GitHub/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.OriginalCompanionTests" name="OriginalPetsSeparateQuickClicksFromHoldingAndLanding" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.OriginalCompanionTests.OriginalPetsSeparateQuickClicksFromHoldingAndLanding(id: &quot;penguin&quot;)" storage="/users/hwanghyeonseong/documents/github/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="a3397de5-85f1-01c8-7f57-3df7b64c1344">
+      <Execution id="53b363ac-df49-4f11-a495-77c9f20b9092" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Documents/GitHub/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.OriginalCompanionTests" name="OriginalPetsSeparateQuickClicksFromHoldingAndLanding" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.OriginalCompanionTests.OriginalPetsSeparateQuickClicksFromHoldingAndLanding(id: &quot;puppy-dog&quot;)" storage="/users/hwanghyeonseong/documents/github/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="f64be7e4-8820-dcb3-c5c7-adf1eed1e203">
+      <Execution id="18ac88b6-3bfb-4487-85d3-a69f1c127be7" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Documents/GitHub/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.OriginalCompanionTests" name="OriginalPetsSeparateQuickClicksFromHoldingAndLanding" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.OriginalCompanionTests.OriginalPetsSeparateQuickClicksFromHoldingAndLanding(id: &quot;default-cat&quot;)" storage="/users/hwanghyeonseong/documents/github/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="92999145-32a7-4dfb-e473-0072ef808c3c">
+      <Execution id="91d4f6d8-aece-4521-bfef-612ef394332a" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Documents/GitHub/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.OriginalCompanionTests" name="OriginalPetsSeparateQuickClicksFromHoldingAndLanding" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.OriginalCompanionTests.PointerDownSquashesReleaseBouncesAndDragDoesNotReact" storage="/users/hwanghyeonseong/documents/github/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="40e1461c-2dc5-b5fe-d78e-4f07789a6c6f">
+      <Execution id="74156369-8070-44ca-94d7-e421532ac6c7" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Documents/GitHub/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.OriginalCompanionTests" name="PointerDownSquashesReleaseBouncesAndDragDoesNotReact" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.OriginalCompanionTests.OriginalPetsSeparateQuickClicksFromHoldingAndLanding(id: &quot;bori-rabbit&quot;)" storage="/users/hwanghyeonseong/documents/github/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="461df7fc-f852-ace8-2d8a-8bfd5f822635">
+      <Execution id="de780968-f4e4-49d7-b973-89681dd8b451" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Documents/GitHub/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.OriginalCompanionTests" name="OriginalPetsSeparateQuickClicksFromHoldingAndLanding" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="f64be7e4-8820-dcb3-c5c7-adf1eed1e203" executionId="18ac88b6-3bfb-4487-85d3-a69f1c127be7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a3397de5-85f1-01c8-7f57-3df7b64c1344" executionId="53b363ac-df49-4f11-a495-77c9f20b9092" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d18b97c6-16e1-9c5c-9268-a2401bc908f7" executionId="89e87f79-f90f-4098-a0f9-f9296befabcb" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="92999145-32a7-4dfb-e473-0072ef808c3c" executionId="91d4f6d8-aece-4521-bfef-612ef394332a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="29b44842-3d8e-69d7-4cdc-66400d576990" executionId="8ff7cd8b-e373-4b32-b4f6-66e78810780e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="461df7fc-f852-ace8-2d8a-8bfd5f822635" executionId="de780968-f4e4-49d7-b973-89681dd8b451" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="40e1461c-2dc5-b5fe-d78e-4f07789a6c6f" executionId="74156369-8070-44ca-94d7-e421532ac6c7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="목록에 없는 결과" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="로드된 모든 결과" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="7" executed="7" passed="7" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.12)
+[xUnit.net 00:00:00.15]   Discovering: Unfold.Tests
+[xUnit.net 00:00:00.38]   Discovered:  Unfold.Tests
+[xUnit.net 00:00:00.87]   Starting:    Unfold.Tests
+[xUnit.net 00:00:14.27]   Finished:    Unfold.Tests
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>
