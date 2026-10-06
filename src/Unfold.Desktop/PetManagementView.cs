@@ -21,10 +21,10 @@ internal sealed class PetManagementView : UserControl, IDisposable
 
     public PetManagementView(Window owner, CharacterLibrary library, Func<CharacterPackage, Task> installed,
         Func<Task<string?>>? choosePack = null, Func<Task<string?>>? chooseMedia = null,
-        Func<Task<string?>>? chooseOutput = null, bool showPageHeaders = true)
+        Func<Task<string?>>? chooseOutput = null, bool showPageHeaders = true, Func<string, Task>? removed = null)
     {
         this.owner = owner; this.library = library; this.installed = installed; this.choosePack = choosePack;
-        builder = new(owner, library, installed, OpenPack, chooseMedia: chooseMedia, chooseOutput: chooseOutput);
+        builder = new(owner, library, installed, OpenPack, chooseMedia: chooseMedia, chooseOutput: chooseOutput, removed: removed);
         Content = builder;
     }
     private async Task OpenPack(string path)

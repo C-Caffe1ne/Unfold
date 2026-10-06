@@ -1,0 +1,25 @@
+{
+  "branch": "codex/glb-import-compat",
+  "head": "671729ad18ed8dafeae0510375f630e264d67f13",
+  "version": "1.1.0-beta",
+  "worktree": "/Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold",
+  "baselineStatus": " M Tests/Unfold.Tests/PetClickThroughTests.cs\n M Tests/Unfold.Tests/PetHoverTests.cs\n M docs/README.md\n M docs/glb-pets.md\n M src/Unfold.Core/CharacterLibrary.cs\n M src/Unfold.Core/GlbModel.Rendering.cs\n M src/Unfold.Core/GlbModel.cs\n M src/Unfold.Core/GlbPetDraft.cs\n M src/Unfold.Desktop/AnimationView.cs\n M src/Unfold.Desktop/AppRuntime.cs\n M src/Unfold.Desktop/GlbPetView.cs\n M src/Unfold.Desktop/PetBuilderView.cs\n M src/Unfold.Desktop/PetManagementView.cs\n M src/Unfold.Desktop/PetWindow.Input.cs\n M src/Unfold.Desktop/SettingsWindow.Layout.cs\n M src/Unfold.Desktop/Ui.cs\n?? Tests/Unfold.Tests/GlbCompatibilityTests.cs\n?? Tests/Unfold.Tests/GlbFileManagementTests.cs\n?? Tests/Unfold.Tests/GlbPipelineTests.cs\n?? Tests/Unfold.Tests/WindowsPetWindowTests.cs\n?? docs/validation/2026-10-06-glb-compatibility.md\n?? docs/validation/2026-10-06-glb-compatibility/\n?? docs/validation/2026-10-06-glb-file-management.md\n?? docs/validation/2026-10-06-glb-file-management/\n?? docs/validation/2026-10-06-glb-pipeline-memory.md\n?? docs/validation/2026-10-06-glb-pipeline-memory/\n?? docs/validation/2026-10-06-windows-pet-click-through.md\n?? docs/validation/2026-10-06-windows-pet-click-through/\n?? src/Unfold.Core/GlbModel.Cache.cs\n?? src/Unfold.Desktop/WindowsPetWindow.cs\n",
+  "sourceHashes": {
+    "src/Unfold.Desktop/GlbPetView.cs": {
+      "before": "7934870f5fd13cf90f49ef049be6a679f2161263f46808786b38ec15cfc5d366",
+      "after": "2d2d8d27cefa16637431a18a4b87b3493ea4551c2d6ce05f37d0f9a8c8473f90"
+    },
+    "src/Unfold.Desktop/CustomPetWindow.cs": {
+      "before": "193858ca3db6807007efb2107d1e6120c50c9bdbf576cf089153647be82f5b61",
+      "after": "d5596feb0a00328465631dc8555fcb856e60ce93232828a0470d71ff44e1ef7a"
+    },
+    "Tests/Unfold.Tests/GlbFileManagementTests.cs": {
+      "before": "f451913f973de252e501d04bb809e29abcbcbaf5fbc82f73a653611cf704dd4a",
+      "after": "5109c42fa5f00643dbb3f9003cc656a007c079858dc630e202e41509f48ff3ec"
+    },
+    "Tests/Unfold.Tests/GlbFileSlotTests.cs": {
+      "before": null,
+      "after": "29339fceadb03a1e5967975ab24b83df16a657ff13964bdf6cbcfeeab9285509"
+    }
+  }
+}

@@ -239,7 +239,7 @@ public sealed partial class SettingsWindow
     private Task OpenPetPacks()
     {
         petPage ??= new PetManagementView(this, runtime.Library, runtime.SelectInstalledCharacter,
-            showPageHeaders: false);
+            showPageHeaders: false, removed: runtime.RefreshAfterCharacterRemoval);
         ShowPage("pets", petPage);
         return Task.CompletedTask;
     }

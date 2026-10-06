@@ -23,7 +23,7 @@ internal sealed class PetBuilderView : UserControl, IDisposable
     public bool HasUnsavedChanges => media.HasUnsavedChanges || glb.HasUnsavedChanges;
     public event Action? BusyChanged;
     public PetBuilderView(Window owner, CharacterLibrary library, Func<CharacterPackage, Task> installed, Func<string, Task> created,
-        Func<Task<string?>>? chooseMedia = null, Func<Task<string?>>? chooseOutput = null)
+        Func<Task<string?>>? chooseMedia = null, Func<Task<string?>>? chooseOutput = null, Func<string, Task>? removed = null)
     {
         this.owner = owner; this.library = library; openPack = created; chooseFile = chooseMedia ?? PickFile;
         PetManagementView.StyleChoice(pets);
@@ -40,9 +40,9 @@ internal sealed class PetBuilderView : UserControl, IDisposable
         };
         media = new(owner, created, chooseMedia: chooseMedia, chooseOutput: chooseOutput, showHeader: false,
             openFile: OpenFile, petSelection: PetManagementView.Field("펫 선택", pets));
-        glb = new(owner, library, installed, showHeader: false, embedded: true, created: created, chooseOutput: chooseOutput, openFile: OpenFile);
+        glb = new(owner, library, installed, showHeader: false, embedded: true, created: created, chooseOutput: chooseOutput, openFile: OpenFile, removed: removed);
         AttachedToVisualTree += (_, _) => RefreshPets();
-        media.BusyChanged += UpdateBusy; glb.BusyChanged += UpdateBusy;
+        media.BusyChanged += UpdateBusy; glb.BusyChanged += UpdateBusy; glb.LibraryChanged += RefreshPets;
         editor.Content = media; Content = editor;
     }
     private async Task OpenFile()
@@ -72,7 +72,7 @@ internal sealed class PetBuilderView : UserControl, IDisposable
     {
         if (closed) return;
         refreshingPets = true;
-        try { pets.ItemsSource = library.List().Where(package => package.IsGlb).ToArray(); pets.SelectedIndex = -1; }
+        try { pets.ItemsSource = library.List(loadModels: false).Where(package => package.IsGlb).ToArray(); pets.SelectedIndex = -1; }
         finally { refreshingPets = false; }
         glb.RefreshExisting();
     }

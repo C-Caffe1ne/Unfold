@@ -16,8 +16,24 @@ public sealed class CharacterPackage
     public CharacterManifest Manifest { get; }
     public bool IsBuiltIn { get; }
     public bool IsGlb => Manifest.Model is not null;
-    private readonly Lazy<GlbModel> model;
-    public GlbModel Model => model.Value;
+    private readonly object modelGate = new();
+    private WeakReference<GlbModel>? model;
+    public GlbModel Model
+    {
+        get
+        {
+            lock (modelGate)
+            {
+                if (model is not null && model.TryGetTarget(out var cached)) return cached;
+                var loaded = GlbModel.Load(CharacterLibrary.AssetPath(DirectoryPath, Manifest.Model?.File ?? throw new InvalidDataException("Not a GLB pet.")));
+                var names = loaded.Animations.Select(c => c.Name).ToHashSet(StringComparer.Ordinal);
+                if (Manifest.Animations.Values.Any(definition => definition.ModelClip is null || !names.Contains(definition.ModelClip)))
+                    throw new InvalidDataException("Invalid GLB animation mapping.");
+                model = new(loaded);
+                return loaded;
+            }
+        }
+    }
     public bool HasOriginalBehavior => IsGlb || Manifest.BehaviorProfile == OriginalCompanion.Profile &&
         OriginalCompanion.RequiredClips.All(Manifest.Animations.ContainsKey);
     public bool HasPointerArt => HasOriginalBehavior && OriginalCompanion.PointerClips.All(Manifest.Animations.ContainsKey);
@@ -27,7 +43,6 @@ public sealed class CharacterPackage
     internal CharacterPackage(string directory, CharacterManifest manifest, bool builtIn)
     {
         DirectoryPath = directory; Manifest = manifest; IsBuiltIn = builtIn;
-        model = new(() => GlbModel.Load(CharacterLibrary.AssetPath(directory, manifest.Model?.File ?? throw new InvalidDataException("Not a GLB pet."))));
         sheet = new(() => ImageCodec.DecodePng(ImageCodec.ReadBounded(CharacterLibrary.AssetPath(directory, manifest.SpriteSheet.File))));
     }
     public IReadOnlyList<AnimationFrame> LoadAnimation(string key)
@@ -82,7 +97,8 @@ public sealed partial class CharacterLibrary
         if ((File.Exists(path) || Directory.Exists(path)) && (File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0)
             throw new InvalidDataException("Linked character files are not supported.");
     }
-    public static CharacterPackage LoadPackage(string directory, bool builtIn = false)
+    public static CharacterPackage LoadPackage(string directory, bool builtIn = false) => LoadPackage(directory, builtIn, loadModel: true);
+    private static CharacterPackage LoadPackage(string directory, bool builtIn, bool loadModel)
     {
         var data = ImageCodec.ReadBounded(AssetPath(directory, "character.json"), 1024 * 1024);
         var manifest = JsonSerializer.Deserialize<CharacterManifest>(data, JsonOptions) ?? throw new InvalidDataException("Missing character manifest.");
@@ -100,13 +116,15 @@ public sealed partial class CharacterLibrary
         if (manifest.Model is { } model)
         {
             if (!float.IsFinite(model.Heading) || model.Heading is < -180 or > 180) throw new InvalidDataException("Invalid model heading.");
-            _ = AssetPath(directory, model.File);
-            var names = package.Model.Animations.Select(c => c.Name).ToHashSet(StringComparer.Ordinal);
+            var path = AssetPath(directory, model.File);
+            if (!File.Exists(path)) throw new FileNotFoundException("Missing GLB model.", path);
+            if (new FileInfo(path).Length > ImageCodec.MaxFileBytes) throw new InvalidDataException("GLB file exceeds 32 MiB.");
             foreach (var definition in manifest.Animations.Values)
-                if (definition is null || definition.ModelClip is null || !names.Contains(definition.ModelClip) || !double.IsFinite(definition.Speed) || definition.Speed is < .25 or > 3 || definition.PingPong ||
+                if (definition is null || definition.ModelClip is null || !double.IsFinite(definition.Speed) || definition.Speed is < .25 or > 3 || definition.PingPong ||
                     definition.Heading is { } heading && (!float.IsFinite(heading) || heading is < -180 or > 180))
                     throw new InvalidDataException("Invalid GLB animation mapping.");
             if (!manifest.Animations["idle"].Loop || manifest.Animations.Keys.Any(key => !GlbPetDraft.Actions.Contains(key))) throw new InvalidDataException("Invalid GLB pet events.");
+            if (loadModel) _ = package.Model;
             return package;
         }
         foreach (var animation in manifest.Animations.Values)
@@ -118,14 +136,16 @@ public sealed partial class CharacterLibrary
         }
         return package;
     }
-    public IReadOnlyList<CharacterPackage> List()
+    // UI lists need manifests and thumbnails only. Installation/audit callers
+    // retain eager validation; deferred models validate before their first use.
+    public IReadOnlyList<CharacterPackage> List(bool loadModels = true)
     {
         using var lease = Lock(); Recover();
         var results = new List<CharacterPackage>();
         foreach (var directory in Directory.EnumerateDirectories(Root).Order())
         {
             var id = Path.GetFileName(directory); if (!SafeId(id)) continue;
-            try { var item = LoadPackage(directory); if (item.Manifest.Id != id) throw new InvalidDataException("Package ID differs from directory."); results.Add(item); }
+            try { var item = LoadPackage(directory, builtIn: false, loadModel: loadModels); if (item.Manifest.Id != id) throw new InvalidDataException("Package ID differs from directory."); results.Add(item); }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException or JsonException or ArgumentException)
             { Warning?.Invoke($"Skipped {id}: {ex.Message}"); }
         }

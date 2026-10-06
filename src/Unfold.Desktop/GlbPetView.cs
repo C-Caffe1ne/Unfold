@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using Unfold.Core;
 
@@ -14,6 +15,7 @@ internal sealed class GlbPetView : UserControl, IDisposable
     private readonly Window owner;
     private readonly CharacterLibrary library;
     private readonly Func<CharacterPackage, Task> installed;
+    private readonly Func<string, Task>? removed;
     private readonly Func<Task<string?>> chooseFile;
     private readonly AnimationView preview = new() { Name = "GlbPreview", Width = 240, Height = 240 };
     private readonly TextBlock status = Ui.Caption("");
@@ -22,7 +24,10 @@ internal sealed class GlbPetView : UserControl, IDisposable
     private readonly ComboBox previewAction = new() { Name = "GlbPreviewAction" };
     private readonly StackPanel rows = new() { Name = "GlbMappings", Spacing = 8 };
     private readonly Dictionary<string, Control> actionRows = [];
-    private readonly Button open, save, replay, pause;
+    private readonly Button open, save, replay, pause, remove, fileAdd, fileRemove;
+    private readonly Image fileThumbnail = new() { Name = "GlbFileThumbnail", Width = 32, Height = 40, Stretch = Stretch.Uniform };
+    private readonly TextBlock fileLabel = Ui.Caption("파일 없음");
+    private Bitmap? thumbnailBitmap;
     private readonly Control editor, existingField;
     private readonly Button? export;
     private readonly Func<string, Task>? created;
@@ -36,15 +41,33 @@ internal sealed class GlbPetView : UserControl, IDisposable
     internal bool IsPreviewLoading => loading;
     private string SelectedAction => GlbPetDraft.Actions[Math.Max(0, previewAction.SelectedIndex)];
     public event Action? BusyChanged;
+    public event Action? LibraryChanged;
     public GlbPetView(Window owner, CharacterLibrary library, Func<CharacterPackage, Task> installed,
         Func<Task<string?>>? chooseFile = null, bool showHeader = true, bool embedded = false,
-        Func<string, Task>? created = null, Func<Task<string?>>? chooseOutput = null, Func<Task>? openFile = null)
+        Func<string, Task>? created = null, Func<Task<string?>>? chooseOutput = null, Func<Task>? openFile = null,
+        Func<string, Task>? removed = null)
     {
         this.owner = owner; this.library = library; this.installed = installed; this.chooseFile = chooseFile ?? PickFile;
-        status.Name = "GlbStatus"; this.created = created; this.chooseOutput = chooseOutput;
+        status.Name = "GlbStatus"; this.created = created; this.chooseOutput = chooseOutput; this.removed = removed;
         status.IsVisible = false;
         status.PropertyChanged += (_, e) => { if (e.Property == TextBlock.TextProperty) status.IsVisible = !string.IsNullOrWhiteSpace(status.Text); };
         open = ActionButton("파일 열기…", openFile ?? Open); open.Name = embedded ? "OpenPetBuilderFile" : "OpenGlbPet";
+        remove = ActionButton("펫 삭제", Remove); remove.Name = "RemoveGlbPet"; Ui.Danger(remove);
+        fileAdd = ActionButton("", openFile ?? Open); fileAdd.Name = "GlbFileAdd";
+        fileRemove = Ui.Button("", () =>
+        {
+            if (closed || IsBusy || draft is null) return;
+            ClearDraft(preserveName: true); RestoreExistingSelection(); UpdatePlayback();
+        }); fileRemove.Name = "GlbFileRemove";
+        CustomPetView.ConfigureSlotButton(fileAdd, "M11,4 H13 V11 H20 V13 H13 V20 H11 V13 H4 V11 H11 Z", "3D 파일 추가");
+        CustomPetView.ConfigureSlotButton(fileRemove, "M8,5 V3 H16 V5 H21 V7 H19 L18,21 H6 L5,7 H3 V5 Z M8,9 H10 V18 H8 Z M14,9 H16 V18 H14 Z", "3D 파일 제거");
+        Ui.Danger(fileRemove);
+        fileLabel.Name = "GlbFileLabel"; fileLabel.MaxLines = 1; fileLabel.TextTrimming = TextTrimming.CharacterEllipsis;
+        fileLabel.VerticalAlignment = VerticalAlignment.Center;
+        var fileActions = Ui.Row(fileAdd, fileRemove); fileActions.Spacing = 2;
+        var fileRow = new Grid { Name = "GlbFileRow", ColumnDefinitions = new("32,8,*,8,Auto") };
+        fileRow.Children.Add(fileThumbnail); Grid.SetColumn(fileLabel, 2); fileRow.Children.Add(fileLabel);
+        Grid.SetColumn(fileActions, 4); fileRow.Children.Add(fileActions);
         save = ActionButton("저장하고 적용", Save); save.Name = "SaveGlbPet"; Ui.Primary(save);
         replay = ActionButton("처음부터 재생", RestartPreview); replay.Name = "ReplayGlbPet";
         pause = ActionButton("일시정지", async () =>
@@ -85,7 +108,7 @@ internal sealed class GlbPetView : UserControl, IDisposable
             Padding = new Thickness(8), Child = new Viewbox { Child = preview, Stretch = Stretch.Uniform } };
         var settingsPane = Ui.Column(Heading("행동 연결"), PetManagementView.Field("상황", previewAction), rows);
         settingsPane.Spacing = 10; settingsPane.Name = "GlbActionPane";
-        var workspace = new PetEditorWorkspace(owner, "Glb", stage, Ui.Column(Ui.Row(pause, replay), existingField), settingsPane);
+        var workspace = new PetEditorWorkspace(owner, "Glb", stage, Ui.Column(PetManagementView.Field("3D 파일", fileRow), Ui.Row(pause, replay), existingField, Ui.Actions(remove)), settingsPane);
         var identity = workspace.Identity("GlbIdentity", name, open);
         editor = workspace; editor.Name = "GlbEditor";
         var body = Ui.Column(identity, editor);
@@ -129,9 +152,9 @@ internal sealed class GlbPetView : UserControl, IDisposable
     internal void RefreshExisting()
     {
         populating = true;
-        try { existing.ItemsSource = library.List().Where(p => p.IsGlb).ToArray(); }
+        try { existing.ItemsSource = library.List(loadModels: false).Where(p => p.IsGlb).ToArray(); }
         finally { populating = false; }
-        RestoreExistingSelection();
+        RestoreExistingSelection(); SetControls();
     }
     private void RestoreExistingSelection()
     {
@@ -161,7 +184,8 @@ internal sealed class GlbPetView : UserControl, IDisposable
         try
         {
             var candidate = await Task.Run(read); if (closed) return;
-            draft = candidate; paused = false; Populate(); HasUnsavedChanges = isNew; RestoreExistingSelection();
+            if (isNew && draft is null && !string.IsNullOrWhiteSpace(name.Text)) candidate.Name = name.Text;
+            ClearThumbnail(); draft = candidate; paused = false; Populate(); HasUnsavedChanges = isNew; RestoreExistingSelection();
             status.Foreground = DesignSystem.Muted;
             status.Text = "";
             await Play();
@@ -252,6 +276,7 @@ internal sealed class GlbPetView : UserControl, IDisposable
             var frames = await Task.Run(() => current.Model.CreateAnimation(mapping.ModelClip!, definition, idle, mapping.Speed));
             if (closed || request != generation) return;
             preview.SetFrames(frames, mapping.Loop, false);
+            if (thumbnailBitmap is null) fileThumbnail.Source = thumbnailBitmap = Ui.Bitmap(frames[0].Image);
         }
         catch (Exception e) { if (request == generation) { previewFailed = true; Error(e); } }
         finally { if (request == generation) { loading = false; UpdatePlayback(); } }
@@ -264,7 +289,7 @@ internal sealed class GlbPetView : UserControl, IDisposable
         try
         {
             var package = await Task.Run(() => current.Save(library)); if (closed) return;
-            await installed(package); HasUnsavedChanges = false; RefreshExisting();
+            await installed(package); HasUnsavedChanges = false; RefreshExisting(); LibraryChanged?.Invoke();
             status.Text = "저장 완료"; status.Foreground = DesignSystem.Muted;
         }
         catch (Exception e) { Error(e); }
@@ -293,22 +318,64 @@ internal sealed class GlbPetView : UserControl, IDisposable
         catch (Exception error) { Error(error); }
         finally { SetBusy(false); UpdatePlayback(); }
     }
+    private CharacterPackage? StoredDraft => existing.ItemsSource?.OfType<CharacterPackage>().FirstOrDefault(p => p.Manifest.Id == draft?.Id);
+    private async Task Remove()
+    {
+        if (IsBusy || closed || StoredDraft is not { } stored) return;
+        SetBusy(true); preview.SetRunning(false);
+        try
+        {
+            if (await Ui.Confirm(owner, "저장한 펫을 삭제할까요?",
+                $"'{stored.Manifest.Name}'을 앱에서 삭제해요. 원본 GLB 파일은 유지돼요.", "펫 삭제", "취소") != 0 || closed) return;
+            await Task.Run(() => library.Delete(stored.Manifest.Id));
+            if (closed) return;
+            ClearDraft(); RefreshExisting(); LibraryChanged?.Invoke();
+            if (removed is not null)
+            {
+                try { await removed(stored.Manifest.Id); }
+                catch (Exception error)
+                {
+                    AppPaths.Log(error);
+                    if (!closed) { status.Text = "펫은 삭제됐지만 화면을 갱신하지 못했어요. " + Ui.ErrorText(error); status.Foreground = DesignSystem.Error; }
+                }
+            }
+        }
+        catch (Exception error) { Error(error); }
+        finally { SetBusy(false); UpdatePlayback(); }
+    }
+    private void ClearThumbnail() { fileThumbnail.Source = null; thumbnailBitmap?.Dispose(); thumbnailBitmap = null; }
+    private void ClearDraft(bool preserveName = false)
+    {
+        // Invalidate pending pose requests before dropping every editor-owned model reference.
+        generation++; loading = paused = previewCompleted = previewFailed = false;
+        preview.SetRunning(false); preview.SetFrames([], false); ClearThumbnail(); draft = null;
+        populating = true;
+        try
+        {
+            if (!preserveName) name.Text = ""; rows.Children.Clear(); actionRows.Clear();
+            previewAction.ItemsSource = null; existing.SelectedIndex = -1;
+        }
+        finally { populating = false; }
+        HasUnsavedChanges = false; status.Text = ""; status.Foreground = DesignSystem.Muted;
+    }
     private void MarkChanged()
     {
         HasUnsavedChanges = true; status.Text = ""; status.Foreground = DesignSystem.Muted; SetControls();
     }
     private void Error(Exception error) { AppPaths.Log(error); if (!closed) { status.Text = "처리하지 못했어요. " + Ui.ErrorText(error); status.Foreground = DesignSystem.Error; } }
     private void SetBusy(bool value) { IsBusy = value; SetControls(); BusyChanged?.Invoke(); }
-    internal void SetImportEnabled(bool value) => open.IsEnabled = value;
+    internal void SetImportEnabled(bool value) => open.IsEnabled = fileAdd.IsEnabled = value;
     private void SetControls()
     {
         var ready = !IsBusy && draft is not null;
-        open.IsEnabled = !IsBusy; existing.IsEnabled = !IsBusy;
+        open.IsEnabled = fileAdd.IsEnabled = !IsBusy; existing.IsEnabled = !IsBusy;
+        fileRemove.IsEnabled = ready; fileLabel.Text = draft?.FileName ?? "파일 없음"; ToolTip.SetTip(fileLabel, draft?.FileName);
+        remove.IsVisible = StoredDraft is not null; remove.IsEnabled = ready && remove.IsVisible;
         existingField.IsVisible = true;
         editor.IsVisible = true;
         if (export is not null) export.IsEnabled = ready && !string.IsNullOrWhiteSpace(draft?.Name);
         save.IsEnabled = ready && HasUnsavedChanges && !string.IsNullOrWhiteSpace(draft?.Name);
-        name.IsEnabled = rows.IsEnabled = previewAction.IsEnabled = ready;
+        name.IsEnabled = !IsBusy; rows.IsEnabled = previewAction.IsEnabled = ready;
         replay.IsEnabled = ready && !loading; pause.IsEnabled = ready && !loading && !previewFailed;
         pause.Content = previewCompleted ? "다시 재생" : paused ? "계속 재생" : "일시정지";
     }
@@ -327,5 +394,5 @@ internal sealed class GlbPetView : UserControl, IDisposable
         return await Ui.Confirm(owner, "저장하지 않은 변경을 버릴까요?", "저장하지 않은 설정은 사라져요. 계속 편집하려면 돌아가 주세요.", "변경 버리기", "계속 편집") == 0;
     }
     public Task<bool> CanCloseDraft() => CanDiscard();
-    public void Dispose() { if (closed) return; closed = true; generation++; owner.PropertyChanged -= OwnerChanged; preview.Dispose(); }
+    public void Dispose() { if (closed) return; closed = true; generation++; owner.PropertyChanged -= OwnerChanged; ClearThumbnail(); preview.Dispose(); }
 }

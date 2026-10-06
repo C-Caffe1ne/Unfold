@@ -1,0 +1,62 @@
+{
+  "inputCount": 301,
+  "successCount": 298,
+  "unchangedRejected": [
+    {
+      "name": "Akari (New Year).glb",
+      "success": false,
+      "error": "GLB 애니메이션 'SM019601_Appearance'의 시간 키가 중복·역순이거나 0~120초 범위를 벗어났어요. 원본에서 시간 키를 정리해 다시 내보내 주세요."
+    },
+    {
+      "name": "Ayane (Swimsuit).glb",
+      "success": false,
+      "error": "GLB 애니메이션 'Public01'의 시간 키가 중복·역순이거나 0~120초 범위를 벗어났어요. 원본에서 시간 키를 정리해 다시 내보내 주세요."
+    },
+    {
+      "name": "Mutsuki (New Year).glb",
+      "success": false,
+      "error": "GLB 애니메이션 'Normal_Callsign'의 시간 키가 중복·역순이거나 0~120초 범위를 벗어났어요. 원본에서 시간 키를 정리해 다시 내보내 주세요."
+    }
+  ],
+  "comparedFrames": 2587,
+  "changedResults": [],
+  "coldParseAllocation": {
+    "beforeBytes": 9407577984,
+    "afterBytes": 4240915888,
+    "reductionPercent": 54.92021543469781
+  },
+  "playback": [
+    {
+      "stage": "pet-192",
+      "beforeBytes": 23475448,
+      "afterBytes": 1446464,
+      "reductionPercent": 93.83839660908708,
+      "modelsBefore": 1,
+      "modelsAfter": 1
+    },
+    {
+      "stage": "pet-and-editor",
+      "beforeBytes": 75924552,
+      "afterBytes": 2836392,
+      "reductionPercent": 96.26419659348137,
+      "modelsBefore": 4,
+      "modelsAfter": 1
+    },
+    {
+      "stage": "editor-hidden",
+      "beforeBytes": 23629544,
+      "afterBytes": 1438064,
+      "reductionPercent": 93.91412716216614,
+      "modelsBefore": 4,
+      "modelsAfter": 1
+    },
+    {
+      "stage": "all-hidden",
+      "beforeBytes": 13088,
+      "afterBytes": 13616,
+      "reductionPercent": -4.034229828850866,
+      "modelsBefore": 4,
+      "modelsAfter": 1
+    }
+  ]
+}

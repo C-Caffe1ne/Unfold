@@ -1,0 +1,37 @@
+{
+  "worktree": "/Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold",
+  "branch": "codex/glb-import-compat",
+  "head": "671729ad18ed8dafeae0510375f630e264d67f13",
+  "version": "1.1.0-beta",
+  "baselineStatus": " M Tests/Unfold.Tests/PetClickThroughTests.cs\n M Tests/Unfold.Tests/PetHoverTests.cs\n M docs/README.md\n M docs/glb-pets.md\n M src/Unfold.Core/CharacterLibrary.cs\n M src/Unfold.Core/GlbModel.Rendering.cs\n M src/Unfold.Core/GlbModel.cs\n M src/Unfold.Core/GlbPetDraft.cs\n M src/Unfold.Desktop/AnimationView.cs\n M src/Unfold.Desktop/AppRuntime.cs\n M src/Unfold.Desktop/GlbPetView.cs\n M src/Unfold.Desktop/PetBuilderView.cs\n M src/Unfold.Desktop/PetWindow.Input.cs\n M src/Unfold.Desktop/Ui.cs\n?? Tests/Unfold.Tests/GlbCompatibilityTests.cs\n?? Tests/Unfold.Tests/GlbPipelineTests.cs\n?? Tests/Unfold.Tests/WindowsPetWindowTests.cs\n?? docs/validation/2026-10-06-glb-compatibility.md\n?? docs/validation/2026-10-06-glb-compatibility/\n?? docs/validation/2026-10-06-glb-pipeline-memory.md\n?? docs/validation/2026-10-06-glb-pipeline-memory/\n?? docs/validation/2026-10-06-windows-pet-click-through.md\n?? docs/validation/2026-10-06-windows-pet-click-through/\n?? src/Unfold.Core/GlbModel.Cache.cs\n?? src/Unfold.Desktop/WindowsPetWindow.cs\n",
+  "sourceHashes": {
+    "src/Unfold.Desktop/GlbPetView.cs": {
+      "before": "584de34cf395b9f358e35bec3d1c6c44402b32369218726b4b612d8bba6082ca",
+      "after": "7934870f5fd13cf90f49ef049be6a679f2161263f46808786b38ec15cfc5d366"
+    },
+    "src/Unfold.Desktop/PetBuilderView.cs": {
+      "before": "9dfdc57b948ac844f3d70a21a9c57401a31f537ff690519967d0dcdef447134d",
+      "after": "c45bbadbade3d79dd7f03ce0dc3ff4159c14cf3e7d36dd6de51e64093d98e3e6"
+    },
+    "src/Unfold.Desktop/PetManagementView.cs": {
+      "before": "4639e2da78a333e834c03b6de13183deac108e1eae4a5465428f4bb1bc372525",
+      "after": "19fcf15bb10b6df8b782b6c576452ec69f731f07cfedcd353d2d2204981f0dee"
+    },
+    "src/Unfold.Desktop/AppRuntime.cs": {
+      "before": "fe077c431ba90a90c717aae6f80936dcf849607812ce69d25d02ad02f96df743",
+      "after": "cef3be1304ec3d77c63b53d95713e104d85b5d64e30bbe500c00c98000b0a9de"
+    },
+    "src/Unfold.Desktop/SettingsWindow.Layout.cs": {
+      "before": "6a0bd964e68dfd86a7bc815b8f093fd09a11340cfabd6f7d651948a9b2b17e0e",
+      "after": "50ce86163fd1d30c1f1f4a6f7c53e5670dc4e4089cb8580d1e9e8fc74d8a9973"
+    },
+    "src/Unfold.Desktop/Ui.cs": {
+      "before": "5dcd82170b7f720c3eef1e3609a2a436292a4c1ad0abd3c5fa81c6d53666379d",
+      "after": "3264f53e634fd2cbad4d6241d723dd0fed9a0c933efc8019e81d53b3ab76bf98"
+    },
+    "Tests/Unfold.Tests/GlbFileManagementTests.cs": {
+      "before": null,
+      "after": "f451913f973de252e501d04bb809e29abcbcbaf5fbc82f73a653611cf704dd4a"
+    }
+  }
+}

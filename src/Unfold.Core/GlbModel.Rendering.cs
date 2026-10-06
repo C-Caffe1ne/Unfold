@@ -16,6 +16,7 @@ public sealed partial class GlbModel
         private float[] depth = [];
         private Vector3[] vertices = [];
         private Matrix4x4[] joints = [];
+        public PoseWorkspace? Pose;
         public Span<uint> Colors(int length) => Buffer(ref colors, length);
         public Span<float> Depth(int length) => Buffer(ref depth, length);
         public Span<Vector3> Vertices(int length) => Buffer(ref vertices, length);
@@ -27,7 +28,16 @@ public sealed partial class GlbModel
         }
     }
 
-    private static float[] Sample(Channel channel, float time)
+    private sealed class PoseWorkspace(Node[] nodes)
+    {
+        public Vector3[] Positions { get; } = new Vector3[nodes.Length];
+        public Quaternion[] Rotations { get; } = new Quaternion[nodes.Length];
+        public Vector3[] Scales { get; } = new Vector3[nodes.Length];
+        public Matrix4x4[] World { get; } = new Matrix4x4[nodes.Length];
+        public ReadOnlyMemory<float>[] Weights { get; } = new ReadOnlyMemory<float>[nodes.Length];
+        public float[][] Morphs { get; } = nodes.Select(_ => new float[32]).ToArray();
+    }
+    private static ReadOnlySpan<float> Sample(Channel channel, float time, Span<float> scratch)
     {
         var times = channel.Times; var cubic = channel.Interpolation == "CUBICSPLINE";
         var right = System.Array.BinarySearch(times, time);
@@ -38,46 +48,53 @@ public sealed partial class GlbModel
         var left = right - 1; var span = times[right] - times[left]; var t = (time - times[left]) / span;
         var a = channel.Values[cubic ? left * 3 + 1 : left]; var b = channel.Values[cubic ? right * 3 + 1 : right];
         if (channel.Interpolation == "STEP") return a;
+        var result = scratch[..a.Length];
         if (!cubic && channel.Path == "rotation")
-        { var q = Quaternion.Slerp(Q(a), Q(b), t); return [q.X, q.Y, q.Z, q.W]; }
-        var result = new float[a.Length];
+        { var q = Quaternion.Slerp(Q(a), Q(b), t); result[0] = q.X; result[1] = q.Y; result[2] = q.Z; result[3] = q.W; return result; }
         for (var i = 0; i < result.Length; i++)
             result[i] = cubic ? (2 * t * t * t - 3 * t * t + 1) * a[i] + (t * t * t - 2 * t * t + t) * span * channel.Values[left * 3 + 2][i]
                 + (-2 * t * t * t + 3 * t * t) * b[i] + (t * t * t - t * t) * span * channel.Values[right * 3][i] : a[i] + (b[i] - a[i]) * t;
         return result;
     }
-    private (Matrix4x4[] World, float[][] Weights) Pose(Clip clip, float time, int lockedRoot, Clip reference)
+    // The model render lock owns all pose and mesh scratch until pixels have
+    // been copied into the consumer's output. No interpolated arrays escape.
+    private PoseWorkspace Pose(Clip clip, float time, int lockedRoot, Clip reference)
     {
-        var positions = nodes.Select(n => n.Position).ToArray(); var rotations = nodes.Select(n => n.Rotation).ToArray();
-        var scales = nodes.Select(n => n.Scale).ToArray(); var weights = nodes.Select(n => n.Weights).ToArray();
+        var pose = renderWorkspace.Pose ??= new(nodes);
+        var positions = pose.Positions; var rotations = pose.Rotations; var scales = pose.Scales; var weights = pose.Weights;
+        for (var i = 0; i < nodes.Length; i++)
+        { positions[i] = nodes[i].Position; rotations[i] = nodes[i].Rotation; scales[i] = nodes[i].Scale; weights[i] = nodes[i].Weights; }
+        Span<float> scratch = stackalloc float[32];
         foreach (var c in clip.Channels)
         {
-            var v = Sample(c, time);
-            switch (c.Path) { case "translation": positions[c.Node] = V3(v); break; case "rotation": rotations[c.Node] = Q(v); break;
-                case "scale": scales[c.Node] = V3(v); break; case "weights": weights[c.Node] = v; break; }
+            var v = Sample(c, time, scratch);
+            switch (c.Path)
+            {
+                case "translation": positions[c.Node] = V3(v); break;
+                case "rotation": rotations[c.Node] = Q(v); break;
+                case "scale": scales[c.Node] = V3(v); break;
+                case "weights": v.CopyTo(pose.Morphs[c.Node]); weights[c.Node] = pose.Morphs[c.Node].AsMemory(0, v.Length); break;
+            }
         }
         if (lockedRoot >= 0)
         {
             positions[lockedRoot] = nodes[lockedRoot].Position; rotations[lockedRoot] = nodes[lockedRoot].Rotation;
-            foreach (var c in reference.Channels.Where(c => c.Node == lockedRoot))
-            { var v = Sample(c, reference.Start); if (c.Path == "translation") positions[lockedRoot] = V3(v); else if (c.Path == "rotation") rotations[lockedRoot] = Q(v); }
+            foreach (var c in reference.Channels)
+            {
+                if (c.Node != lockedRoot) continue;
+                var v = Sample(c, reference.Start, scratch);
+                if (c.Path == "translation") positions[lockedRoot] = V3(v); else if (c.Path == "rotation") rotations[lockedRoot] = Q(v);
+            }
         }
-        var world = new Matrix4x4[nodes.Length];
+        var world = pose.World;
         foreach (var i in order)
         {
             var local = nodes[i].Matrix ?? Matrix4x4.CreateScale(scales[i]) * Matrix4x4.CreateFromQuaternion(rotations[i]) * Matrix4x4.CreateTranslation(positions[i]);
             world[i] = parents[i] < 0 ? local : local * world[parents[i]];
         }
-        return (world, weights);
+        return pose;
     }
-    private Vector3[] Vertices(int node, Primitive primitive, Matrix4x4[] world, float[] morphWeights)
-    {
-        var result = new Vector3[primitive.Positions.Length];
-        var joints = new Matrix4x4[nodes[node].Skin < 0 ? 0 : skins[nodes[node].Skin].Joints.Length];
-        TransformVertices(node, primitive, world, morphWeights, result, joints);
-        return result;
-    }
-    private void TransformVertices(int node, Primitive primitive, Matrix4x4[] world, float[] morphWeights,
+    private void TransformVertices(int node, Primitive primitive, Matrix4x4[] world, ReadOnlySpan<float> morphWeights,
         Span<Vector3> result, Span<Matrix4x4> joints)
     {
         if (nodes[node].Skin >= 0)
@@ -98,22 +115,33 @@ public sealed partial class GlbModel
     }
     public GlbAnimationFrames CreateAnimation(string name, GlbDefinition definition, string referenceClip, double speed = 1)
         => new(this, name, definition, referenceClip, speed);
-    private Clip FindClip(string name) => clips.FirstOrDefault(c => c.Name == name) ?? throw new InvalidDataException($"GLB 동작을 찾지 못했어요: {name}");
+    private Clip FindClip(string name)
+    { foreach (var clip in clips) if (clip.Name == name) return clip; throw new InvalidDataException($"GLB 동작을 찾지 못했어요: {name}"); }
     private int LockedRoot(GlbDefinition definition)
     {
         if (definition.RootNode is null) return defaultRoot;
-        var found = System.Array.FindIndex(nodes, n => n.Name == definition.RootNode);
-        return found >= 0 ? found : throw new InvalidDataException("고정할 GLB 루트 뼈대를 찾지 못했어요.");
+        for (var i = 0; i < nodes.Length; i++) if (nodes[i].Name == definition.RootNode) return i;
+        throw new InvalidDataException("고정할 GLB 루트 뼈대를 찾지 못했어요.");
     }
     internal (Vector3 Min, Vector3 Max) Bounds(GlbDefinition definition, string referenceName)
     {
-        var reference = FindClip(referenceName); var pose = Pose(reference, reference.Start, LockedRoot(definition), reference);
-        var heading = Matrix4x4.CreateRotationY(definition.Heading * MathF.PI / 180); var min = new Vector3(float.MaxValue); var max = new Vector3(float.MinValue);
-        foreach (var node in visible) foreach (var p in meshes[nodes[node].Mesh]) foreach (var v in Vertices(node, p, pose.World, pose.Weights[node]))
-        { var point = Vector3.Transform(v, heading); min = Vector3.Min(min, point); max = Vector3.Max(max, point); }
-        if (!float.IsFinite(min.X) || !float.IsFinite(max.Y) || !float.IsFinite(max.X - min.X) || !float.IsFinite(max.Y - min.Y) || Math.Max(max.X - min.X, max.Y - min.Y) < .00001f) throw new InvalidDataException("GLB 모델의 표시 크기가 올바르지 않아요.");
-        return (min, max);
+        lock (renderWorkspace)
+        {
+            var reference = FindClip(referenceName); var pose = Pose(reference, reference.Start, LockedRoot(definition), reference);
+            var heading = Matrix4x4.CreateRotationY(definition.Heading * MathF.PI / 180); var min = new Vector3(float.MaxValue); var max = new Vector3(float.MinValue);
+            foreach (var node in visible) foreach (var primitive in meshes[nodes[node].Mesh])
+            {
+                var vertices = renderWorkspace.Vertices(primitive.Positions.Length);
+                var joints = renderWorkspace.Joints(nodes[node].Skin < 0 ? 0 : skins[nodes[node].Skin].Joints.Length);
+                TransformVertices(node, primitive, pose.World, pose.Weights[node].Span, vertices, joints);
+                foreach (var v in vertices)
+                { var point = Vector3.Transform(v, heading); min = Vector3.Min(min, point); max = Vector3.Max(max, point); }
+            }
+            if (!float.IsFinite(min.X) || !float.IsFinite(max.Y) || !float.IsFinite(max.X - min.X) || !float.IsFinite(max.Y - min.Y) || Math.Max(max.X - min.X, max.Y - min.Y) < .00001f) throw new InvalidDataException("GLB 모델의 표시 크기가 올바르지 않아요.");
+            return (min, max);
+        }
     }
+
     public PixelImage Render(string name, double seconds, GlbDefinition definition, string referenceClip, int size = 192)
     {
         ValidateRender(size, seconds, definition);
@@ -131,9 +159,18 @@ public sealed partial class GlbModel
         (Vector3 Min, Vector3 Max) bounds, int size)
     {
         if (size is < 32 or > GlbAnimationFrames.MaxFrameSize) throw new ArgumentOutOfRangeException(nameof(size));
+        var pixels = new uint[size * size];
+        RenderAntialiasedInto(name, seconds, definition, referenceName, bounds, size, pixels);
+        return new(size, size, pixels);
+    }
+    internal void RenderAntialiasedInto(string name, double seconds, GlbDefinition definition, string referenceName,
+        (Vector3 Min, Vector3 Max) bounds, int size, Span<uint> pixels)
+    {
+        if (size is < 32 or > GlbAnimationFrames.MaxFrameSize) throw new ArgumentOutOfRangeException(nameof(size));
+        if (pixels.Length != size * size) throw new ArgumentException("Output buffer must match frame dimensions.", nameof(pixels));
         var rasterSize = size * 2;
         ValidateRender(rasterSize, seconds, definition);
-        var pixels = new uint[size * size];
+        pixels.Clear();
         lock (renderWorkspace)
         {
             var colors = renderWorkspace.Colors(rasterSize * rasterSize);
@@ -153,7 +190,6 @@ public sealed partial class GlbModel
                     ((green + alpha / 2) / alpha) << 8 | (blue + alpha / 2) / alpha;
             }
         }
-        return new(size, size, pixels);
     }
     // Caller holds renderWorkspace until the raster has been copied/downsampled.
     private void RenderInto(string name, double seconds, GlbDefinition definition, string referenceName,
@@ -170,7 +206,7 @@ public sealed partial class GlbModel
         {
             var vertices = renderWorkspace.Vertices(primitive.Positions.Length);
             var joints = renderWorkspace.Joints(nodes[node].Skin < 0 ? 0 : skins[nodes[node].Skin].Joints.Length);
-            TransformVertices(node, primitive, pose.World, pose.Weights[node], vertices, joints);
+            TransformVertices(node, primitive, pose.World, pose.Weights[node].Span, vertices, joints);
             for (var i = 0; i < vertices.Length; i++)
             { var v = Vector3.Transform(vertices[i], heading); vertices[i] = new((v.X - center) * scale + size / 2f, size * .90f - (v.Y - bounds.Min.Y) * scale, v.Z); }
             var material = materials[primitive.Material];
@@ -247,6 +283,13 @@ public sealed class GlbAnimationFrames : IReadOnlyList<AnimationFrame>
             frame = RenderFrame(index, pixelSize);
             cache.Clear(); cache[key] = frame; return frame;
         }
+    }
+    /// <summary>Render into storage owned exclusively by a playback consumer.
+    /// Unlike GetFrame, this method retains no reference to the caller's pixels.</summary>
+    public void RenderFrameInto(int index, int pixelSize, Span<uint> pixels)
+    {
+        if (index < 0 || index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
+        model.RenderAntialiasedInto(name, index * FrameDuration.TotalSeconds * speed, definition, reference, bounds, pixelSize, pixels);
     }
     private AnimationFrame RenderFrame(int index, int size)
         => new(model.RenderAntialiased(name, index * FrameDuration.TotalSeconds * speed, definition, reference, bounds, size), FrameDuration);

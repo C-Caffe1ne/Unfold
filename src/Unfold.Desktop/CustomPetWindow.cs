@@ -396,7 +396,7 @@ internal sealed class CustomPetView : UserControl, IDisposable
         return Ui.Card(Ui.Column(pending, fields), 12);
     }
 
-    private static void ConfigureSlotButton(Button button, string path, string label)
+    internal static void ConfigureSlotButton(Button button, string path, string label)
     {
         button.Content = new PathIcon
         {

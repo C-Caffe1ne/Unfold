@@ -16,7 +16,7 @@ public sealed partial class GlbModel
     private sealed record Primitive(Vector3[] Positions, Vector2[] Uvs, Vector4[] Joints, Vector4[] Weights,
         Vector3[][] Morphs, int[] Indices, int Material);
     private sealed record Material(PixelImage? Texture, Vector4 Color, string Alpha, float Cutoff, int WrapS, int WrapT);
-    private sealed record Channel(int Node, string Path, string Interpolation, float[] Times, float[][] Values);
+    private sealed record Channel(int Node, string Path, string Interpolation, float[] Times, AccessorData Values);
     private sealed record Clip(string Name, Channel[] Channels, float Start, float End);
     private readonly Node[] nodes;
     private readonly Skin[] skins;
@@ -31,7 +31,7 @@ public sealed partial class GlbModel
     public int TriangleCount { get; }
     public int TextureCount { get; }
     public int JointCount => skins.SelectMany(s => s.Joints).Distinct().Count();
-    public static GlbModel Load(string path) => Parse(ImageCodec.ReadBounded(path));
+    public static GlbModel Load(string path) => FromSnapshot(ImageCodec.ReadBounded(path));
     public static GlbModel Parse(byte[] bytes)
     {
         try { return new GlbModel(bytes); }
@@ -43,19 +43,19 @@ public sealed partial class GlbModel
         if (bytes.Length is < 28 or > ImageCodec.MaxFileBytes || BinaryPrimitives.ReadUInt32LittleEndian(bytes) != 0x46546C67 ||
             BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(4)) != 2 || BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(8)) != bytes.Length)
             throw new InvalidDataException("32 MiB 이하의 GLB 2.0 파일을 선택해 주세요.");
-        var offset = 12; byte[]? json = null, binary = null;
+        var offset = 12; ReadOnlyMemory<byte> json = default, binary = default;
         while (offset < bytes.Length)
         {
             if (offset + 8 > bytes.Length) throw new InvalidDataException("Incomplete GLB chunk.");
             var length = checked((int)BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(offset)));
             var type = BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(offset + 4)); offset += 8;
             if (length <= 0 || length % 4 != 0 || length > bytes.Length - offset) throw new InvalidDataException("Invalid GLB chunk.");
-            if (json is null && type != 0x4E4F534A) throw new InvalidDataException("GLB JSON must be first.");
-            if (type == 0x4E4F534A) { if (json is not null) throw new InvalidDataException("Duplicate GLB JSON."); json = bytes.AsSpan(offset, length).ToArray(); }
-            else if (type == 0x004E4942) { if (binary is not null) throw new InvalidDataException("Duplicate GLB buffer."); binary = bytes.AsSpan(offset, length).ToArray(); }
+            if (json.IsEmpty && type != 0x4E4F534A) throw new InvalidDataException("GLB JSON must be first.");
+            if (type == 0x4E4F534A) { if (!json.IsEmpty) throw new InvalidDataException("Duplicate GLB JSON."); json = bytes.AsMemory(offset, length); }
+            else if (type == 0x004E4942) { if (!binary.IsEmpty) throw new InvalidDataException("Duplicate GLB buffer."); binary = bytes.AsMemory(offset, length); }
             offset += length;
         }
-        if (json is null || binary is null || json.Length > 8 * 1024 * 1024) throw new InvalidDataException("GLB needs embedded JSON and binary data.");
+        if (json.IsEmpty || binary.IsEmpty || json.Length > 8 * 1024 * 1024) throw new InvalidDataException("GLB needs embedded JSON and binary data.");
         using var document = JsonDocument.Parse(json, new() { MaxDepth = 64 }); var root = document.RootElement;
         if (root.GetProperty("asset").GetProperty("version").GetString() != "2.0" || Array(root, "extensionsRequired").Length != 0)
             throw new InvalidDataException("필수 확장이 없는 glTF 2.0 모델을 사용해 주세요.");
@@ -76,7 +76,7 @@ public sealed partial class GlbModel
             if (im.TryGetProperty("uri", out _) || im.GetProperty("mimeType").GetString() != "image/png")
                 throw new InvalidDataException("현재 GLB 텍스처는 파일 내부의 PNG만 지원해요.");
             var v = views[im.GetProperty("bufferView").GetInt32()];
-            var image = ImageCodec.DecodePng(binary.AsSpan(Int(v, "byteOffset"), Int(v, "byteLength")).ToArray(), 2048, 2048, 4 * 1024 * 1024);
+            var image = ImageCodec.DecodePng(binary.Span.Slice(Int(v, "byteOffset"), Int(v, "byteLength")).ToArray(), 2048, 2048, 4 * 1024 * 1024);
             decoded += (long)image.Width * image.Height * 4;
             if (decoded > 64 * 1024 * 1024) throw new InvalidDataException("GLB textures exceed 64 MiB decoded.");
             return image;
@@ -104,16 +104,16 @@ public sealed partial class GlbModel
         meshes = meshJson.Select(m => Array(m, "primitives").Select(p =>
         {
             if (Int(p, "mode", 4) != 4 || p.TryGetProperty("extensions", out _)) throw new InvalidDataException("압축되지 않은 삼각형 GLB 모델만 지원해요.");
-            var a = p.GetProperty("attributes"); var pos = reader.Read(a.GetProperty("POSITION").GetInt32(), 3).Select(V3).ToArray();
+            var a = p.GetProperty("attributes"); var pos = reader.Read(a.GetProperty("POSITION").GetInt32(), 3).Convert(V3);
             vertexTotal += pos.Length;
-            var uv = a.TryGetProperty("TEXCOORD_0", out var ui) ? reader.Read(ui.GetInt32(), 2).Select(v => new Vector2(v[0], v[1])).ToArray() : new Vector2[pos.Length];
-            var joints = a.TryGetProperty("JOINTS_0", out var ji) ? reader.Read(ji.GetInt32(), 4).Select(V4).ToArray() : [];
-            var weights = a.TryGetProperty("WEIGHTS_0", out var wi) ? reader.Read(wi.GetInt32(), 4).Select(V4).ToArray() : [];
+            var uv = a.TryGetProperty("TEXCOORD_0", out var ui) ? reader.Read(ui.GetInt32(), 2).Convert(v => new Vector2(v[0], v[1])) : new Vector2[pos.Length];
+            var joints = a.TryGetProperty("JOINTS_0", out var ji) ? reader.Read(ji.GetInt32(), 4).Convert(V4) : [];
+            var weights = a.TryGetProperty("WEIGHTS_0", out var wi) ? reader.Read(wi.GetInt32(), 4).Convert(V4) : [];
             if (a.TryGetProperty("JOINTS_1", out _) || joints.Length != weights.Length || uv.Length != pos.Length || (joints.Length != 0 && joints.Length != pos.Length))
                 throw new InvalidDataException("GLB vertex attributes are inconsistent or use more than four joints.");
-            var morphs = Array(p, "targets").Select(t => t.TryGetProperty("POSITION", out var mi) ? reader.Read(mi.GetInt32(), 3).Select(V3).ToArray() : new Vector3[pos.Length]).ToArray();
+            var morphs = Array(p, "targets").Select(t => t.TryGetProperty("POSITION", out var mi) ? reader.Read(mi.GetInt32(), 3).Convert(V3) : new Vector3[pos.Length]).ToArray();
             if (morphs.Length > 32 || morphs.Any(x => x.Length != pos.Length)) throw new InvalidDataException("Invalid GLB morph targets.");
-            var indices = p.TryGetProperty("indices", out var ii) ? reader.Read(ii.GetInt32(), 1).Select(v => checked((int)v[0])).ToArray() : Enumerable.Range(0, pos.Length).ToArray();
+            var indices = p.TryGetProperty("indices", out var ii) ? reader.Read(ii.GetInt32(), 1).Convert(v => checked((int)v[0])) : Enumerable.Range(0, pos.Length).ToArray();
             if (indices.Length % 3 != 0 || indices.Any(i => i < 0 || i >= pos.Length)) throw new InvalidDataException("Invalid GLB triangle indices.");
             triangleTotal += indices.Length / 3;
             if (vertexTotal > 300000 || triangleTotal > 100000) throw new InvalidDataException("펫 모델은 삼각형 10만 개 이하로 줄여 주세요.");
@@ -148,7 +148,7 @@ public sealed partial class GlbModel
         {
             var joints = Array(s, "joints").Select(x => x.GetInt32()).ToArray();
             if (joints.Length is < 1 or > 512 || joints.Any(i => i < 0 || i >= nodes.Length)) throw new InvalidDataException("Invalid GLB skeleton.");
-            var inverse = s.TryGetProperty("inverseBindMatrices", out var ib) ? reader.Read(ib.GetInt32(), 16).Select(Matrix).ToArray() : Enumerable.Repeat(Matrix4x4.Identity, joints.Length).ToArray();
+            var inverse = s.TryGetProperty("inverseBindMatrices", out var ib) ? reader.Read(ib.GetInt32(), 16).Convert(Matrix) : Enumerable.Repeat(Matrix4x4.Identity, joints.Length).ToArray();
             if (inverse.Length != joints.Length) throw new InvalidDataException("GLB bind matrices differ from joints.");
             return new Skin(joints, inverse);
         }).ToArray();
@@ -171,13 +171,12 @@ public sealed partial class GlbModel
                 if (node < 0 || node >= nodes.Length || path is not ("translation" or "rotation" or "scale" or "weights")) throw new InvalidDataException("Unsupported GLB animation target.");
                 var s = sam[c.GetProperty("sampler").GetInt32()]; var interpolation = String(s, "interpolation", "LINEAR");
                 if (interpolation is not ("LINEAR" or "STEP" or "CUBICSPLINE")) throw new InvalidDataException("Unsupported GLB interpolation.");
-                var times = reader.Read(s.GetProperty("input").GetInt32(), 1).Select(v => v[0]).ToArray();
+                var times = reader.Read(s.GetProperty("input").GetInt32(), 1).Data;
                 if (times.Length == 0 || times[0] < 0 || times[^1] > 120 || times.Zip(times.Skip(1)).Any(p => p.First >= p.Second)) throw new InvalidDataException("GLB animation times must increase and fit 120 seconds.");
                 var width = path == "rotation" ? 4 : path == "weights" ? meshes[nodes[node].Mesh][0].Morphs.Length : 3;
                 if (width < 1 || nodes[node].Matrix is not null) throw new InvalidDataException("Invalid animated GLB node.");
                 var values = reader.Read(s.GetProperty("output").GetInt32(), path == "weights" ? 1 : width);
-                if (path == "weights") { var flattened = values.Select(v => v[0]).ToArray(); if (flattened.Length % width != 0) throw new InvalidDataException("Invalid morph weights.");
-                    values = Enumerable.Range(0, flattened.Length / width).Select(i => flattened.AsSpan(i * width, width).ToArray()).ToArray(); }
+                if (path == "weights") values = values.Reshape(width);
                 if (values.Length != times.Length * (interpolation == "CUBICSPLINE" ? 3 : 1)) throw new InvalidDataException("GLB animation sample count differs.");
                 return new Channel(node, path, interpolation, times, values);
             }).ToArray();
@@ -204,17 +203,36 @@ public sealed partial class GlbModel
         var result = e.ValueKind == JsonValueKind.Object && e.TryGetProperty(key, out var v) ? v.EnumerateArray().Select(x => x.GetSingle()).ToArray() : fallback;
         if (result.Any(x => !float.IsFinite(x))) throw new InvalidDataException("Nonfinite GLB value."); return result;
     }
-    private static Vector3 V3(float[] v) => v.Length == 3 ? new(v[0], v[1], v[2]) : throw new InvalidDataException("Invalid GLB vector.");
-    private static Vector4 V4(float[] v) => v.Length == 4 ? new(v[0], v[1], v[2], v[3]) : throw new InvalidDataException("Invalid GLB vector.");
+    private static Vector3 V3(ReadOnlySpan<float> v) => v.Length == 3 ? new(v[0], v[1], v[2]) : throw new InvalidDataException("Invalid GLB vector.");
+    private static Vector4 V4(ReadOnlySpan<float> v) => v.Length == 4 ? new(v[0], v[1], v[2], v[3]) : throw new InvalidDataException("Invalid GLB vector.");
     private static Vector4 Vec4(JsonElement e, string key, Vector4 fallback) => V4(Floats(e, key, [fallback.X, fallback.Y, fallback.Z, fallback.W]));
-    private static Quaternion Q(float[] v) { var q = V4(v); var result = new Quaternion(q.X, q.Y, q.Z, q.W); if (result.LengthSquared() < .00001f) throw new InvalidDataException("Invalid GLB quaternion."); return Quaternion.Normalize(result); }
-    private static Matrix4x4 Matrix(float[] v) => v.Length == 16 && v.All(float.IsFinite) ? new(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15]) : throw new InvalidDataException("Invalid GLB matrix.");
+    private static Quaternion Q(ReadOnlySpan<float> v) { var q = V4(v); var result = new Quaternion(q.X, q.Y, q.Z, q.W); if (result.LengthSquared() < .00001f) throw new InvalidDataException("Invalid GLB quaternion."); return Quaternion.Normalize(result); }
+    private static Matrix4x4 Matrix(ReadOnlySpan<float> v) => v.Length == 16 && Finite(v) ? new(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15]) : throw new InvalidDataException("Invalid GLB matrix.");
 
-    private sealed class AccessorReader(byte[] binary, JsonElement[] views, JsonElement[] accessors)
+    private static bool Finite(ReadOnlySpan<float> values)
+    { foreach (var value in values) if (!float.IsFinite(value)) return false; return true; }
+
+    // A single contiguous array per accessor. Animation channels can share the
+    // decoded data without allocating one managed object per key or vertex.
+    private sealed record AccessorData(float[] Data, int Width)
     {
-        private readonly Dictionary<int, float[][]> cache = [];
+        public int Length => Data.Length / Width;
+        public ReadOnlySpan<float> this[int index] => Data.AsSpan(index * Width, Width);
+        public AccessorData Reshape(int width) => Data.Length % width == 0
+            ? new(Data, width) : throw new InvalidDataException("Invalid morph weights.");
+        public T[] Convert<T>(Func<ReadOnlySpan<float>, T> convert)
+        {
+            var result = new T[Length];
+            for (var i = 0; i < result.Length; i++) result[i] = convert(this[i]);
+            return result;
+        }
+    }
+
+    private sealed class AccessorReader(ReadOnlyMemory<byte> binary, JsonElement[] views, JsonElement[] accessors)
+    {
+        private readonly Dictionary<int, AccessorData> cache = [];
         private long elements;
-        public float[][] Read(int index, int expected)
+        public AccessorData Read(int index, int expected)
         {
             var a = accessors[index]; var width = a.GetProperty("type").GetString() switch { "SCALAR" => 1, "VEC2" => 2, "VEC3" => 3, "VEC4" => 4, "MAT4" => 16, _ => 0 };
             if (width != expected || a.TryGetProperty("sparse", out _)) throw new InvalidDataException("GLB sparse accessors or mismatched types are not supported.");
@@ -224,19 +242,18 @@ public sealed partial class GlbModel
             if (size == 0) throw new InvalidDataException("Unsupported GLB component.");
             var v = views[a.GetProperty("bufferView").GetInt32()]; var stride = Int(v, "byteStride", size * width); var start = Int(a, "byteOffset");
             if (start < 0 || stride < size * width || stride > 252 || (long)start + (long)(count - 1) * stride + size * width > Int(v, "byteLength")) throw new InvalidDataException("GLB accessor exceeds its buffer view.");
-            start += Int(v, "byteOffset"); var normalized = a.TryGetProperty("normalized", out var norm) && norm.GetBoolean(); var result = new float[count][];
+            start += Int(v, "byteOffset"); var normalized = a.TryGetProperty("normalized", out var norm) && norm.GetBoolean(); var result = new float[count * width];
             for (var i = 0; i < count; i++)
             {
-                result[i] = new float[width];
                 for (var j = 0; j < width; j++)
                 {
-                    var o = start + i * stride + j * size; var span = binary.AsSpan(o, size);
-                    float value = component switch { 5120 => (sbyte)binary[o], 5121 => binary[o], 5122 => BinaryPrimitives.ReadInt16LittleEndian(span), 5123 => BinaryPrimitives.ReadUInt16LittleEndian(span), 5125 => BinaryPrimitives.ReadUInt32LittleEndian(span), _ => BitConverter.Int32BitsToSingle(BinaryPrimitives.ReadInt32LittleEndian(span)) };
+                    var o = start + i * stride + j * size; var span = binary.Span.Slice(o, size);
+                    float value = component switch { 5120 => (sbyte)binary.Span[o], 5121 => binary.Span[o], 5122 => BinaryPrimitives.ReadInt16LittleEndian(span), 5123 => BinaryPrimitives.ReadUInt16LittleEndian(span), 5125 => BinaryPrimitives.ReadUInt32LittleEndian(span), _ => BitConverter.Int32BitsToSingle(BinaryPrimitives.ReadInt32LittleEndian(span)) };
                     if (normalized) value = component switch { 5120 => Math.Max(-1, value / 127), 5121 => value / 255, 5122 => Math.Max(-1, value / 32767), 5123 => value / 65535, _ => value };
-                    if (!float.IsFinite(value)) throw new InvalidDataException("Nonfinite GLB data."); result[i][j] = value;
+                    if (!float.IsFinite(value)) throw new InvalidDataException("Nonfinite GLB data."); result[i * width + j] = value;
                 }
             }
-            cache[index] = result; return result;
+            var decoded = new AccessorData(result, width); cache[index] = decoded; return decoded;
         }
     }
 }

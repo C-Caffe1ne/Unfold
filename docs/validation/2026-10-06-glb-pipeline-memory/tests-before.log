@@ -1,0 +1,36 @@
+  Unfold.Core -> /Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/src/Unfold.Core/bin/Release/net10.0/Unfold.Core.dll
+  Unfold.Desktop -> /Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/src/Unfold.Desktop/bin/Release/net10.0/Unfold.dll
+  Unfold.Tests -> /Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll
+/Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll(.NETCoreApp,Version=v10.0)에 대한 테스트 실행
+지정된 패턴과 일치한 총 테스트 파일 수는 1개입니다.
+[xUnit.net 00:00:02.14]     Unfold.Tests.GlbPipelineTests.ModelLoadingSharesContentAcrossPathsAndInvalidatesChangedBytes [FAIL]
+[xUnit.net 00:00:02.15]     Unfold.Tests.GlbPipelineTests.DenseAnimationLoadingDoesNotAllocateOneArrayPerKey [FAIL]
+[xUnit.net 00:00:03.01]     Unfold.Tests.GlbPipelineTests.LivePlaybackReusesBitmapAndOwnsItsPixels [FAIL]
+  실패 Unfold.Tests.GlbPipelineTests.ModelLoadingSharesContentAcrossPathsAndInvalidatesChangedBytes [54 ms]
+  오류 메시지:
+   Assert.Same() Failure: Values are not the same instance
+Expected: GlbModel { Animations = [GlbClipInfo { Name = Idle, Duration = 0.20000000298023224 }], JointCount = 1, NodeNames = ["Root", "Body"], TextureCount = 0, TriangleCount = 1 }
+Actual:   GlbModel { Animations = [GlbClipInfo { Name = Idle, Duration = 0.20000000298023224 }], JointCount = 1, NodeNames = ["Root", "Body"], TextureCount = 0, TriangleCount = 1 }
+  스택 추적:
+     at Unfold.Tests.GlbPipelineTests.ModelLoadingSharesContentAcrossPathsAndInvalidatesChangedBytes() in /Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/Tests/Unfold.Tests/GlbPipelineTests.cs:line 69
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  실패 Unfold.Tests.GlbPipelineTests.DenseAnimationLoadingDoesNotAllocateOneArrayPerKey [24 ms]
+  오류 메시지:
+   Assert.InRange() Failure: Value not in range
+Range:  (0 - 2405080)
+Actual: 6694256
+  스택 추적:
+     at Unfold.Tests.GlbPipelineTests.DenseAnimationLoadingDoesNotAllocateOneArrayPerKey() in /Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/Tests/Unfold.Tests/GlbPipelineTests.cs:line 59
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  실패 Unfold.Tests.GlbPipelineTests.LivePlaybackReusesBitmapAndOwnsItsPixels [548 ms]
+  오류 메시지:
+   Assert.Same() Failure: Values are not the same instance
+Expected: WriteableBitmap { AlphaFormat = (throws ObjectDisposedException), Dpi = (throws ObjectDisposedException), Format = (throws ObjectDisposedException), PixelSize = (throws ObjectDisposedException), Size = (throws ObjectDisposedException) }
+Actual:   WriteableBitmap { AlphaFormat = Unpremul, Dpi = 96, 96, Format = Bgra8888, PixelSize = 192, 192, Size = 192, 192 }
+  스택 추적:
+     at Unfold.Tests.GlbPipelineTests.LivePlaybackReusesBitmapAndOwnsItsPixels() in /Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/Tests/Unfold.Tests/GlbPipelineTests.cs:line 100
+--- End of stack trace from previous location ---
+
+실패!  - 실패:     3, 통과:     1, 건너뜀:     0, 전체:     4, 기간: 1 s - Unfold.Tests.dll (net10.0)

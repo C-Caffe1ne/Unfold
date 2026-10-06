@@ -1,0 +1,57 @@
+{
+  "branch": "codex/glb-import-compat",
+  "head": "671729ad18ed8dafeae0510375f630e264d67f13",
+  "version": "1.1.0-beta",
+  "worktree": "/Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold",
+  "baselineStatus": " M Tests/Unfold.Tests/PetClickThroughTests.cs\n M Tests/Unfold.Tests/PetHoverTests.cs\n M docs/README.md\n M docs/glb-pets.md\n M src/Unfold.Core/GlbModel.Rendering.cs\n M src/Unfold.Core/GlbModel.cs\n M src/Unfold.Desktop/PetWindow.Input.cs\n?? Tests/Unfold.Tests/GlbCompatibilityTests.cs\n?? Tests/Unfold.Tests/WindowsPetWindowTests.cs\n?? docs/validation/2026-10-06-glb-compatibility.md\n?? docs/validation/2026-10-06-glb-compatibility/\n?? docs/validation/2026-10-06-windows-pet-click-through.md\n?? docs/validation/2026-10-06-windows-pet-click-through/\n?? src/Unfold.Desktop/WindowsPetWindow.cs\n",
+  "baselineCoreSha": "F9920FDDD09C37A1311B1C016B26FDFD2E5058E9B7AB495FE5F14898E7675E52",
+  "finalCoreSha": "2CCAAD604DC734A2802268FBD39C84B8C2E450B6187776CA1175DB3F1AD97597",
+  "baselineDesktopSha": "D571B7A29E538ED3089E21C6149E1917720B2F21258D10680A09AC61FC9F846B",
+  "finalDesktopSha": "9A32D9F54251EF22C8E6284205222ECA65DEB47530B79FE048B4F52F69A7B9AC",
+  "sourceHashes": {
+    "src/Unfold.Desktop/Ui.cs": {
+      "before": "6db727148ccaa87cf9fb8bcd60c5ef069e5642867c3976f3bd39c6072c2317b6",
+      "after": "5dcd82170b7f720c3eef1e3609a2a436292a4c1ad0abd3c5fa81c6d53666379d"
+    },
+    "src/Unfold.Desktop/AppRuntime.cs": {
+      "before": "ae276cd49845df99e6e1b7e036cad7e5347abedaffa28ffab56db1964b36c451",
+      "after": "fe077c431ba90a90c717aae6f80936dcf849607812ce69d25d02ad02f96df743"
+    },
+    "src/Unfold.Desktop/PetBuilderView.cs": {
+      "before": "e787baa7bc547717c59c1d1151af24a6a1aa037c324c72400133d73c7a98c45b",
+      "after": "9dfdc57b948ac844f3d70a21a9c57401a31f537ff690519967d0dcdef447134d"
+    },
+    "src/Unfold.Desktop/GlbPetView.cs": {
+      "before": "36829798b8523ddc1230e3f324df1af7df4b71dc8e479f3b900c194b9e01a2ac",
+      "after": "584de34cf395b9f358e35bec3d1c6c44402b32369218726b4b612d8bba6082ca"
+    },
+    "src/Unfold.Desktop/AnimationView.cs": {
+      "before": "a4db8f38078535768223bb7997054031e10c377c8147e22add5e3a89fb617645",
+      "after": "d9d509fc3032ff343207d85e3012010b54cb9c51f716983a65ca7a95cb9b8ed1"
+    },
+    "src/Unfold.Core/CharacterLibrary.cs": {
+      "before": "8cb2f3f468f37b76dcfcf05ca802a32a8d66f94e5f462fb3ef47075eeac3e3fa",
+      "after": "934645a08b01bad458bcab421638e8e1f65c307a431e7cc7b14c452feee591c3"
+    },
+    "src/Unfold.Core/GlbModel.cs": {
+      "before": "95548815657fd160eb28b8f521dcd00c631df827e8d7e13aee1e5222977a5e4a",
+      "after": "9fac9b9be73039e47208be965e2acfa6d6d0688c16b5b61d1d6614b5fcb76598"
+    },
+    "src/Unfold.Core/GlbModel.Rendering.cs": {
+      "before": "d1531e6e6ad1a7416190d656cc9593b0adaef8a3ec9b5fccd3d21d432805d4a9",
+      "after": "0df9c347939e35c66ed2b912018ce67a2ef5b16507638bfe0c1f3b9bbdd45274"
+    },
+    "src/Unfold.Core/GlbPetDraft.cs": {
+      "before": "6e72817c21e0b5eba8cf943442994aa035b364487aa7bf92183b98e3c9fdfcec",
+      "after": "c6c840bb903ad17dc2ea4386a9234dfc368a2c39e5e94cb25d18ea8509113703"
+    },
+    "src/Unfold.Core/GlbModel.Cache.cs": {
+      "before": null,
+      "after": "70a89d47b91e9e9f7574c2a3379db3eac37f7023f2c6336d427121d51bc5a9a7"
+    },
+    "Tests/Unfold.Tests/GlbPipelineTests.cs": {
+      "before": null,
+      "after": "a781d7a23a51afcddefdf0ef6f00bd6eaf286b1ed59c91be9e553d39eecbc890"
+    }
+  }
+}

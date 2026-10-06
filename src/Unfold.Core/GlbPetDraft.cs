@@ -25,7 +25,7 @@ public sealed class GlbPetDraft
     public Dictionary<string, AnimationDefinition> Mappings { get; } = new(StringComparer.Ordinal);
     public GlbPetDraft(string path)
     {
-        bytes = ImageCodec.ReadBounded(path); Model = GlbModel.Parse(bytes); FileName = Path.GetFileName(path); Name = Path.GetFileNameWithoutExtension(path);
+        bytes = ImageCodec.ReadBounded(path); Model = GlbModel.FromSnapshot(bytes); FileName = Path.GetFileName(path); Name = Path.GetFileNameWithoutExtension(path);
         Id = "glb-" + Guid.NewGuid().ToString("N");
         string? Match(params string[] names) => names.FirstOrDefault(n => Model.Animations.Any(a => a.Name == n));
         Set("idle", Match("Cafe_Idle", "Idle", "idle", "Normal_Idle") ?? Model.Animations[0].Name, true);

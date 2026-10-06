@@ -1,0 +1,81 @@
+{
+  "success": true,
+  "environment": "Avalonia Headless \u002B Skia; not native OS RAM",
+  "coreSha": "F9920FDDD09C37A1311B1C016B26FDFD2E5058E9B7AB495FE5F14898E7675E52",
+  "desktopSha": "D571B7A29E538ED3089E21C6149E1917720B2F21258D10680A09AC61FC9F846B",
+  "stages": [
+    {
+      "name": "pet-192",
+      "seconds": 8.0031082,
+      "allocatedBytes": 23475448,
+      "genCollections": [
+        3,
+        3,
+        3
+      ],
+      "loadedModels": 1,
+      "lazyPackages": 0,
+      "owners": [
+        "runtime"
+      ],
+      "pixels": 192
+    },
+    {
+      "name": "pet-and-editor",
+      "seconds": 8.0021336,
+      "allocatedBytes": 75924552,
+      "genCollections": [
+        26,
+        26,
+        25
+      ],
+      "loadedModels": 4,
+      "lazyPackages": 0,
+      "owners": [
+        "runtime",
+        "media-picker",
+        "glb-picker",
+        "draft"
+      ],
+      "pixels": 192
+    },
+    {
+      "name": "editor-hidden",
+      "seconds": 8.0022129,
+      "allocatedBytes": 23629544,
+      "genCollections": [
+        2,
+        2,
+        2
+      ],
+      "loadedModels": 4,
+      "lazyPackages": 0,
+      "owners": [
+        "runtime",
+        "media-picker",
+        "glb-picker",
+        "draft"
+      ],
+      "pixels": 192
+    },
+    {
+      "name": "all-hidden",
+      "seconds": 8.0021744,
+      "allocatedBytes": 13088,
+      "genCollections": [
+        0,
+        0,
+        0
+      ],
+      "loadedModels": 4,
+      "lazyPackages": 0,
+      "owners": [
+        "runtime",
+        "media-picker",
+        "glb-picker",
+        "draft"
+      ],
+      "pixels": 192
+    }
+  ]
+}

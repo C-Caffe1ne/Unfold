@@ -16,6 +16,7 @@ public sealed class AnimationView : Control, IDisposable
     private Bitmap[] bitmaps = [];
     private GlbAnimationFrames? live;
     private PixelImage? liveImage;
+    private PixelImage? liveBackImage;
     private bool renderingLive;
     private int liveGeneration;
     private int livePixelSize = 192;
@@ -62,16 +63,21 @@ public sealed class AnimationView : Control, IDisposable
             RefreshLiveResolution();
             if (running && NeedsTimer) { elapsed.Start(); timer.Start(); }
         };
-        DetachedFromVisualTree += (_, _) => { DetachTopLevel(); liveGeneration++; elapsed.Stop(); timer.Stop(); };
+        DetachedFromVisualTree += (_, _) => { DetachTopLevel(); liveGeneration++; liveBackImage = null; elapsed.Stop(); timer.Stop(); };
     }
     public void SetFrames(IReadOnlyList<AnimationFrame> clip, bool repeat, bool pixel = true, bool alignCompanion = false, bool pingPong = false)
     {
         if (disposed) return;
         timer.Stop(); liveGeneration++; foreach (var bitmap in bitmaps) bitmap.Dispose();
-        live = clip as GlbAnimationFrames; liveImage = null;
+        live = clip as GlbAnimationFrames; liveImage = liveBackImage = null;
         if (live is not null)
         {
-            frames = clip; liveImage = live[0].Image; bitmaps = [Ui.Bitmap(liveImage)]; loop = repeat;
+            frames = clip;
+            var first = live[0].Image;
+            // Playback owns both buffers; never recycle pixels returned by the
+            // public immutable frame API or shared with another view.
+            liveImage = new(first.Width, first.Height, first.Pixels.ToArray());
+            bitmaps = [Ui.Bitmap(liveImage)]; loop = repeat;
             frameOffsets = []; totalMs = live.DurationSeconds * 1000; index = 0; completed = false; facingLeft = false;
             RenderOptions.SetBitmapInterpolationMode(this, BitmapInterpolationMode.HighQuality);
             timer.Interval = live.FrameDuration;
@@ -92,7 +98,7 @@ public sealed class AnimationView : Control, IDisposable
         if (disposed) return;
         running = value;
         if (running && NeedsTimer && HasTopLevel()) { elapsed.Start(); timer.Start(); }
-        else { liveGeneration++; elapsed.Stop(); timer.Stop(); }
+        else { liveGeneration++; liveBackImage = null; elapsed.Stop(); timer.Stop(); }
     }
     private void Advance()
     {
@@ -119,10 +125,21 @@ public sealed class AnimationView : Control, IDisposable
         var request = liveGeneration; var pixels = livePixelSize; renderingLive = true; var failed = false;
         try
         {
-            var image = await Task.Run(() => source.GetFrame(next, pixels).Image);
+            var image = liveBackImage is { } back && back.Width == pixels
+                ? back : new PixelImage(pixels, pixels, new uint[pixels * pixels]);
+            liveBackImage = null;
+            await Task.Run(() => source.RenderFrameInto(next, pixels, image.Pixels));
             if (disposed || request != liveGeneration) return;
-            var bitmap = Ui.Bitmap(image); foreach (var old in bitmaps) old.Dispose();
-            bitmaps = [bitmap]; liveImage = image; index = next; InvalidateVisual();
+            if (bitmaps.Length == 1 && bitmaps[0] is WriteableBitmap bitmap && bitmap.PixelSize.Width == pixels && bitmap.PixelSize.Height == pixels)
+                Ui.WriteBitmap(bitmap, image);
+            else
+            {
+                var replacement = Ui.Bitmap(image);
+                foreach (var old in bitmaps) old.Dispose();
+                bitmaps = [replacement];
+            }
+            liveBackImage = liveImage?.Width == pixels ? liveImage : null;
+            liveImage = image; index = next; InvalidateVisual();
             if (ended) { timer.Stop(); elapsed.Stop(); completed = true; Completed?.Invoke(); }
         }
         catch (Exception error)
@@ -214,5 +231,5 @@ public sealed class AnimationView : Control, IDisposable
         base.Render(context);
         if (bitmaps.Length > 0) context.DrawImage(bitmaps[live is null ? index : 0], ImageRect());
     }
-    public void Dispose() { DetachTopLevel(); disposed = true; liveGeneration++; live = null; liveImage = null; running = false; timer.Stop(); foreach (var bitmap in bitmaps) bitmap.Dispose(); bitmaps = []; frames = []; }
+    public void Dispose() { DetachTopLevel(); disposed = true; liveGeneration++; live = null; liveImage = liveBackImage = null; running = false; timer.Stop(); foreach (var bitmap in bitmaps) bitmap.Dispose(); bitmaps = []; frames = []; }
 }

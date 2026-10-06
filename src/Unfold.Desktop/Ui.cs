@@ -204,10 +204,16 @@ public static partial class Ui
         // Transfer raw pixels once; avoid PNG encoding/decoding on every
         // thumbnail edit and on every animation consumer's first load.
         var bitmap = new WriteableBitmap(new PixelSize(image.Width, image.Height), new Vector(96, 96), PixelFormat.Bgra8888, AlphaFormat.Unpremul);
+        WriteBitmap(bitmap, image);
+        return bitmap;
+    }
+    internal static unsafe void WriteBitmap(WriteableBitmap bitmap, PixelImage image)
+    {
+        if (bitmap.PixelSize.Width != image.Width || bitmap.PixelSize.Height != image.Height)
+            throw new ArgumentException("Bitmap and image dimensions differ.", nameof(image));
         using var locked = bitmap.Lock();
         for (var y = 0; y < image.Height; y++)
             image.Pixels.AsSpan(y * image.Width, image.Width).CopyTo(new Span<uint>((byte*)locked.Address + y * locked.RowBytes, image.Width));
-        return bitmap;
     }
 
     public static Task<int> Confirm(Window owner, string title, string message, params string[] choices) =>
@@ -220,7 +226,7 @@ public static partial class Ui
         {
             var button = ModalButton(Button(choice, () => { result = index; dialog.Close(); }));
             if (choice is "취소" or "Cancel") { button.IsCancel = true; Quiet(button); }
-            if (choice.Contains("삭제") || choice is "버리기" or "종료" or "중지" or "저장 안 함" or "초기화" or "Delete" or "Discard" or "Crop") Danger(button);
+            if (choice.Contains("삭제") || choice.EndsWith("제거", StringComparison.Ordinal) || choice is "버리기" or "종료" or "중지" or "저장 안 함" or "초기화" or "Delete" or "Discard" or "Crop") Danger(button);
             else if (index == 0) Primary(button);
             if (choices.Length == 1) button.IsDefault = true;
             return button;

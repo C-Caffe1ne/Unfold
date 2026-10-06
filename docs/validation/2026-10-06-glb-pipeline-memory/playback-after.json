@@ -1,0 +1,75 @@
+{
+  "success": true,
+  "environment": "Avalonia Headless \u002B Skia; not native OS RAM",
+  "coreSha": "2CCAAD604DC734A2802268FBD39C84B8C2E450B6187776CA1175DB3F1AD97597",
+  "desktopSha": "9A32D9F54251EF22C8E6284205222ECA65DEB47530B79FE048B4F52F69A7B9AC",
+  "stages": [
+    {
+      "name": "pet-192",
+      "seconds": 8.002786,
+      "allocatedBytes": 1446464,
+      "genCollections": [
+        4,
+        3,
+        3
+      ],
+      "loadedModels": 1,
+      "lazyPackages": 0,
+      "owners": [
+        "runtime"
+      ],
+      "pixels": 192
+    },
+    {
+      "name": "pet-and-editor",
+      "seconds": 8.0021013,
+      "allocatedBytes": 2836392,
+      "genCollections": [
+        27,
+        26,
+        26
+      ],
+      "loadedModels": 1,
+      "lazyPackages": 2,
+      "owners": [
+        "runtime",
+        "draft"
+      ],
+      "pixels": 192
+    },
+    {
+      "name": "editor-hidden",
+      "seconds": 8.0005825,
+      "allocatedBytes": 1438064,
+      "genCollections": [
+        2,
+        2,
+        2
+      ],
+      "loadedModels": 1,
+      "lazyPackages": 2,
+      "owners": [
+        "runtime",
+        "draft"
+      ],
+      "pixels": 192
+    },
+    {
+      "name": "all-hidden",
+      "seconds": 8.0022138,
+      "allocatedBytes": 13616,
+      "genCollections": [
+        0,
+        0,
+        0
+      ],
+      "loadedModels": 1,
+      "lazyPackages": 2,
+      "owners": [
+        "runtime",
+        "draft"
+      ],
+      "pixels": 192
+    }
+  ]
+}

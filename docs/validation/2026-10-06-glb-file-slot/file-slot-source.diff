@@ -1,0 +1,345 @@
+--- a/src/Unfold.Desktop/GlbPetView.cs
++++ b/src/Unfold.Desktop/GlbPetView.cs
+@@ -4,6 +4,7 @@
+ using Avalonia.Controls.Templates;
+ using Avalonia.Layout;
+ using Avalonia.Media;
++using Avalonia.Media.Imaging;
+ using Avalonia.Platform.Storage;
+ using Unfold.Core;
+ 
+@@ -23,7 +24,10 @@
+     private readonly ComboBox previewAction = new() { Name = "GlbPreviewAction" };
+     private readonly StackPanel rows = new() { Name = "GlbMappings", Spacing = 8 };
+     private readonly Dictionary<string, Control> actionRows = [];
+-    private readonly Button open, save, replay, pause, remove;
++    private readonly Button open, save, replay, pause, remove, fileAdd, fileRemove;
++    private readonly Image fileThumbnail = new() { Name = "GlbFileThumbnail", Width = 32, Height = 40, Stretch = Stretch.Uniform };
++    private readonly TextBlock fileLabel = Ui.Caption("파일 없음");
++    private Bitmap? thumbnailBitmap;
+     private readonly Control editor, existingField;
+     private readonly Button? export;
+     private readonly Func<string, Task>? created;
+@@ -48,7 +52,22 @@
+         status.IsVisible = false;
+         status.PropertyChanged += (_, e) => { if (e.Property == TextBlock.TextProperty) status.IsVisible = !string.IsNullOrWhiteSpace(status.Text); };
+         open = ActionButton("파일 열기…", openFile ?? Open); open.Name = embedded ? "OpenPetBuilderFile" : "OpenGlbPet";
+-        remove = ActionButton("파일 제거", Remove); remove.Name = "RemoveGlbPet"; Ui.Danger(remove);
++        remove = ActionButton("펫 삭제", Remove); remove.Name = "RemoveGlbPet"; Ui.Danger(remove);
++        fileAdd = ActionButton("", openFile ?? Open); fileAdd.Name = "GlbFileAdd";
++        fileRemove = Ui.Button("", () =>
++        {
++            if (closed || IsBusy || draft is null) return;
++            ClearDraft(preserveName: true); RestoreExistingSelection(); UpdatePlayback();
++        }); fileRemove.Name = "GlbFileRemove";
++        CustomPetView.ConfigureSlotButton(fileAdd, "M11,4 H13 V11 H20 V13 H13 V20 H11 V13 H4 V11 H11 Z", "3D 파일 추가");
++        CustomPetView.ConfigureSlotButton(fileRemove, "M8,5 V3 H16 V5 H21 V7 H19 L18,21 H6 L5,7 H3 V5 Z M8,9 H10 V18 H8 Z M14,9 H16 V18 H14 Z", "3D 파일 제거");
++        Ui.Danger(fileRemove);
++        fileLabel.Name = "GlbFileLabel"; fileLabel.MaxLines = 1; fileLabel.TextTrimming = TextTrimming.CharacterEllipsis;
++        fileLabel.VerticalAlignment = VerticalAlignment.Center;
++        var fileActions = Ui.Row(fileAdd, fileRemove); fileActions.Spacing = 2;
++        var fileRow = new Grid { Name = "GlbFileRow", ColumnDefinitions = new("32,8,*,8,Auto") };
++        fileRow.Children.Add(fileThumbnail); Grid.SetColumn(fileLabel, 2); fileRow.Children.Add(fileLabel);
++        Grid.SetColumn(fileActions, 4); fileRow.Children.Add(fileActions);
+         save = ActionButton("저장하고 적용", Save); save.Name = "SaveGlbPet"; Ui.Primary(save);
+         replay = ActionButton("처음부터 재생", RestartPreview); replay.Name = "ReplayGlbPet";
+         pause = ActionButton("일시정지", async () =>
+@@ -89,7 +108,7 @@
+             Padding = new Thickness(8), Child = new Viewbox { Child = preview, Stretch = Stretch.Uniform } };
+         var settingsPane = Ui.Column(Heading("행동 연결"), PetManagementView.Field("상황", previewAction), rows);
+         settingsPane.Spacing = 10; settingsPane.Name = "GlbActionPane";
+-        var workspace = new PetEditorWorkspace(owner, "Glb", stage, Ui.Column(Ui.Row(pause, replay), existingField, Ui.Actions(remove)), settingsPane);
++        var workspace = new PetEditorWorkspace(owner, "Glb", stage, Ui.Column(PetManagementView.Field("3D 파일", fileRow), Ui.Row(pause, replay), existingField, Ui.Actions(remove)), settingsPane);
+         var identity = workspace.Identity("GlbIdentity", name, open);
+         editor = workspace; editor.Name = "GlbEditor";
+         var body = Ui.Column(identity, editor);
+@@ -165,7 +184,8 @@
+         try
+         {
+             var candidate = await Task.Run(read); if (closed) return;
+-            draft = candidate; paused = false; Populate(); HasUnsavedChanges = isNew; RestoreExistingSelection();
++            if (isNew && draft is null && !string.IsNullOrWhiteSpace(name.Text)) candidate.Name = name.Text;
++            ClearThumbnail(); draft = candidate; paused = false; Populate(); HasUnsavedChanges = isNew; RestoreExistingSelection();
+             status.Foreground = DesignSystem.Muted;
+             status.Text = "";
+             await Play();
+@@ -256,6 +276,7 @@
+             var frames = await Task.Run(() => current.Model.CreateAnimation(mapping.ModelClip!, definition, idle, mapping.Speed));
+             if (closed || request != generation) return;
+             preview.SetFrames(frames, mapping.Loop, false);
++            if (thumbnailBitmap is null) fileThumbnail.Source = thumbnailBitmap = Ui.Bitmap(frames[0].Image);
+         }
+         catch (Exception e) { if (request == generation) { previewFailed = true; Error(e); } }
+         finally { if (request == generation) { loading = false; UpdatePlayback(); } }
+@@ -300,20 +321,16 @@
+     private CharacterPackage? StoredDraft => existing.ItemsSource?.OfType<CharacterPackage>().FirstOrDefault(p => p.Manifest.Id == draft?.Id);
+     private async Task Remove()
+     {
+-        if (IsBusy || closed || draft is not { } current) return;
+-        var stored = StoredDraft;
+-        var action = stored is null ? "파일 제거" : "펫 삭제";
++        if (IsBusy || closed || StoredDraft is not { } stored) return;
+         SetBusy(true); preview.SetRunning(false);
+         try
+         {
+-            var title = stored is null ? "3D 파일을 제거할까요?" : "저장한 펫을 삭제할까요?";
+-            var message = stored is null ? $"'{current.Name}'의 편집 내용을 비워요. 원본 GLB 파일은 유지돼요."
+-                : $"'{stored.Manifest.Name}'을 앱에서 삭제해요. 원본 GLB 파일은 유지돼요.";
+-            if (await Ui.Confirm(owner, title, message, action, "취소") != 0 || closed) return;
+-            if (stored is not null) await Task.Run(() => library.Delete(stored.Manifest.Id));
++            if (await Ui.Confirm(owner, "저장한 펫을 삭제할까요?",
++                $"'{stored.Manifest.Name}'을 앱에서 삭제해요. 원본 GLB 파일은 유지돼요.", "펫 삭제", "취소") != 0 || closed) return;
++            await Task.Run(() => library.Delete(stored.Manifest.Id));
+             if (closed) return;
+             ClearDraft(); RefreshExisting(); LibraryChanged?.Invoke();
+-            if (stored is not null && removed is not null)
++            if (removed is not null)
+             {
+                 try { await removed(stored.Manifest.Id); }
+                 catch (Exception error)
+@@ -326,15 +343,16 @@
+         catch (Exception error) { Error(error); }
+         finally { SetBusy(false); UpdatePlayback(); }
+     }
+-    private void ClearDraft()
++    private void ClearThumbnail() { fileThumbnail.Source = null; thumbnailBitmap?.Dispose(); thumbnailBitmap = null; }
++    private void ClearDraft(bool preserveName = false)
+     {
+         // Invalidate pending pose requests before dropping every editor-owned model reference.
+         generation++; loading = paused = previewCompleted = previewFailed = false;
+-        preview.SetRunning(false); preview.SetFrames([], false); draft = null;
++        preview.SetRunning(false); preview.SetFrames([], false); ClearThumbnail(); draft = null;
+         populating = true;
+         try
+         {
+-            name.Text = ""; rows.Children.Clear(); actionRows.Clear();
++            if (!preserveName) name.Text = ""; rows.Children.Clear(); actionRows.Clear();
+             previewAction.ItemsSource = null; existing.SelectedIndex = -1;
+         }
+         finally { populating = false; }
+@@ -346,17 +364,18 @@
+     }
+     private void Error(Exception error) { AppPaths.Log(error); if (!closed) { status.Text = "처리하지 못했어요. " + Ui.ErrorText(error); status.Foreground = DesignSystem.Error; } }
+     private void SetBusy(bool value) { IsBusy = value; SetControls(); BusyChanged?.Invoke(); }
+-    internal void SetImportEnabled(bool value) => open.IsEnabled = value;
++    internal void SetImportEnabled(bool value) => open.IsEnabled = fileAdd.IsEnabled = value;
+     private void SetControls()
+     {
+         var ready = !IsBusy && draft is not null;
+-        open.IsEnabled = !IsBusy; existing.IsEnabled = !IsBusy;
+-        remove.IsEnabled = ready; remove.Content = StoredDraft is null ? "파일 제거" : "펫 삭제";
++        open.IsEnabled = fileAdd.IsEnabled = !IsBusy; existing.IsEnabled = !IsBusy;
++        fileRemove.IsEnabled = ready; fileLabel.Text = draft?.FileName ?? "파일 없음"; ToolTip.SetTip(fileLabel, draft?.FileName);
++        remove.IsVisible = StoredDraft is not null; remove.IsEnabled = ready && remove.IsVisible;
+         existingField.IsVisible = true;
+         editor.IsVisible = true;
+         if (export is not null) export.IsEnabled = ready && !string.IsNullOrWhiteSpace(draft?.Name);
+         save.IsEnabled = ready && HasUnsavedChanges && !string.IsNullOrWhiteSpace(draft?.Name);
+-        name.IsEnabled = rows.IsEnabled = previewAction.IsEnabled = ready;
++        name.IsEnabled = !IsBusy; rows.IsEnabled = previewAction.IsEnabled = ready;
+         replay.IsEnabled = ready && !loading; pause.IsEnabled = ready && !loading && !previewFailed;
+         pause.Content = previewCompleted ? "다시 재생" : paused ? "계속 재생" : "일시정지";
+     }
+@@ -375,5 +394,5 @@
+         return await Ui.Confirm(owner, "저장하지 않은 변경을 버릴까요?", "저장하지 않은 설정은 사라져요. 계속 편집하려면 돌아가 주세요.", "변경 버리기", "계속 편집") == 0;
+     }
+     public Task<bool> CanCloseDraft() => CanDiscard();
+-    public void Dispose() { if (closed) return; closed = true; generation++; owner.PropertyChanged -= OwnerChanged; preview.Dispose(); }
++    public void Dispose() { if (closed) return; closed = true; generation++; owner.PropertyChanged -= OwnerChanged; ClearThumbnail(); preview.Dispose(); }
+ }
+--- a/src/Unfold.Desktop/CustomPetWindow.cs
++++ b/src/Unfold.Desktop/CustomPetWindow.cs
+@@ -396,7 +396,7 @@
+         return Ui.Card(Ui.Column(pending, fields), 12);
+     }
+ 
+-    private static void ConfigureSlotButton(Button button, string path, string label)
++    internal static void ConfigureSlotButton(Button button, string path, string label)
+     {
+         button.Content = new PathIcon
+         {
+--- a/Tests/Unfold.Tests/GlbFileManagementTests.cs
++++ b/Tests/Unfold.Tests/GlbFileManagementTests.cs
+@@ -50,14 +50,12 @@
+     private static void Choose(Window dialog, string text) => dialog.GetVisualDescendants().OfType<Button>().Single(b => Equals(b.Content, text)).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+ 
+     [AvaloniaTheory]
+-    [InlineData(false, false)]
+-    [InlineData(true, false)]
+-    [InlineData(false, true)]
+-    [InlineData(true, true)]
+-    public async Task CancelOrCloseRemovalKeepsTheDraftAndOriginal(bool close, bool saved)
++    [InlineData(false)]
++    [InlineData(true)]
++    public async Task CancelOrCloseRemovalKeepsTheDraftAndOriginal(bool close)
+     {
+         using var editor = new Editor(); await editor.Open();
+-        if (saved) { Press(editor.Window, "SaveGlbPet"); await Until(() => !editor.Page.IsBusy); }
++        Press(editor.Window, "SaveGlbPet"); await Until(() => !editor.Page.IsBusy);
+         Find<TextBox>(editor.Window, "GlbPetName").Text = "작성 중인 펫";
+         var original = File.ReadAllBytes(editor.Source);
+         Press(editor.Window, "RemoveGlbPet"); var dialog = await Confirmation(editor.Window);
+@@ -68,21 +66,19 @@
+         Assert.True(editor.Page.HasUnsavedDraft); Assert.True(Find<GlbPetView>(editor.Window).HasDraft);
+         Assert.Equal("작성 중인 펫", Find<TextBox>(editor.Window, "GlbPetName").Text);
+         Assert.True(Find<Button>(editor.Window, "SaveGlbPet").IsEnabled);
+-        Assert.Equal(original, File.ReadAllBytes(editor.Source)); Assert.Equal(saved ? 1 : 0, editor.Library.List().Count);
++        Assert.Equal(original, File.ReadAllBytes(editor.Source)); Assert.Single(editor.Library.List());
+     }
+ 
+     [AvaloniaFact]
+     public async Task RemovingAnUnsavedFileClearsPlaybackAndCanAddAnotherFile()
+     {
+         using var editor = new Editor(); await editor.Open(); var original = File.ReadAllBytes(editor.Source);
+-        // A pending pose request must not restore the removed model after the dialog closes.
++        // A pending pose request must not restore the file after pressing its trash button.
+         Find<ComboBox>(editor.Window, "GlbHeading_idle").SelectedIndex = 1;
+-        Press(editor.Window, "RemoveGlbPet"); var dialog = await Confirmation(editor.Window);
+-        Assert.Contains("danger", dialog.GetVisualDescendants().OfType<Button>().Single(b => Equals(b.Content, "파일 제거")).Classes);
+-        Choose(dialog, "파일 제거"); await Until(() => !editor.Page.IsBusy); Layout(editor.Window);
++        Press(editor.Window, "GlbFileRemove"); Assert.Empty(editor.Window.OwnedWindows); Layout(editor.Window);
+         var glb = Find<GlbPetView>(editor.Window); var preview = Find<AnimationView>(editor.Window, "GlbPreview");
+         Assert.False(glb.HasDraft); Assert.False(editor.Page.HasUnsavedDraft);
+-        Assert.Equal("", Find<TextBox>(editor.Window, "GlbPetName").Text);
++        Assert.Equal("first", Find<TextBox>(editor.Window, "GlbPetName").Text);
+         Assert.Empty(Find<StackPanel>(editor.Window, "GlbMappings").Children);
+         Assert.Equal(0, preview.RenderedPixelSize); Assert.False(preview.OpaqueAt(new(120, 120)));
+         Assert.False(Find<Button>(editor.Window, "SaveGlbPet").IsEnabled);
+@@ -90,7 +86,7 @@
+         Assert.True(Find<Button>(editor.Window, "OpenPetBuilderFile").IsEnabled);
+         Assert.Equal(original, File.ReadAllBytes(editor.Source));
+         var second = Path.Combine(Path.GetDirectoryName(editor.Source)!, "second.glb"); File.WriteAllBytes(second, GlbTests.Fixture());
+-        editor.Chosen = second; await editor.Open();
++        editor.Chosen = second; Find<TextBox>(editor.Window, "GlbPetName").Text = "second"; await editor.Open();
+         Assert.Equal("second", Find<TextBox>(editor.Window, "GlbPetName").Text); Assert.True(glb.HasDraft);
+         Press(editor.Window, "SaveGlbPet"); await Until(() => !editor.Page.IsBusy);
+         Assert.Equal("second", Assert.Single(editor.Library.List()).Manifest.Name);
+@@ -157,6 +153,13 @@
+             var choices = Find<ComboBox>(window, "MediaExistingPets");
+             choices.SelectedItem = choices.Items.OfType<CharacterPackage>().Single(p => p.Manifest.Id == saved.Manifest.Id);
+             var page = Find<PetManagementView>(window); await Until(() => !page.IsBusy && window.GetVisualDescendants().OfType<GlbPetView>().Any());
++            // Removing the editor file must never switch or delete the active pet.
++            Press(window, "GlbFileRemove"); Layout(window);
++            Assert.Empty(window.OwnedWindows); Assert.Equal(selected.Manifest.Id, runtime.Settings.SelectedCharacterId);
++            Assert.Contains(runtime.Library.List(), p => p.Manifest.Id == saved.Manifest.Id);
++            var glbChoices = Find<ComboBox>(window, "GlbExistingPets");
++            glbChoices.SelectedItem = glbChoices.Items.OfType<CharacterPackage>().Single(p => p.Manifest.Id == saved.Manifest.Id);
++            await Until(() => !page.IsBusy && Find<GlbPetView>(window).HasDraft);
+             Press(window, "RemoveGlbPet"); Choose(await Confirmation(window), "펫 삭제"); await Until(() => !page.IsBusy);
+             Assert.Equal(active ? 0 : 1, runtime.Library.List().Count);
+             if (active) Assert.True(runtime.Selected!.IsBuiltIn); else Assert.Equal(selected.Manifest.Id, runtime.Selected!.Manifest.Id);
+@@ -173,10 +176,10 @@
+     public async Task RemovalFitsTheExistingLayout(double width, double height)
+     {
+         using var editor = new Editor(); await editor.Open(); editor.Window.Width = width; editor.Window.Height = height; Layout(editor.Window);
+-        var remove = Find<Button>(editor.Window, "RemoveGlbPet"); var choice = Find<ComboBox>(editor.Window, "GlbExistingPets");
++        var remove = Find<Button>(editor.Window, "GlbFileRemove"); var add = Find<Button>(editor.Window, "GlbFileAdd");
+         Assert.True(remove.IsEffectivelyVisible); Assert.True(remove.IsEnabled);
+         var scroll = Find<ScrollViewer>(editor.Window, "PageBodyScroll"); Assert.True(scroll.Extent.Width <= scroll.Viewport.Width + 1);
+-        Assert.True(remove.TranslatePoint(default, editor.Window)!.Value.Y >= choice.TranslatePoint(default, editor.Window)!.Value.Y + choice.Bounds.Height);
++        Assert.Equal(add.TranslatePoint(default, editor.Window)!.Value.Y, remove.TranslatePoint(default, editor.Window)!.Value.Y);
+         Assert.DoesNotContain(editor.Window.GetVisualDescendants().OfType<TextBlock>(), t => t.Name is "GlbInfo" or "GlbActionHint" or "GlbMappingSummary");
+     }
+ }
+--- /dev/null
++++ b/Tests/Unfold.Tests/GlbFileSlotTests.cs
+@@ -0,0 +1,99 @@
++using Avalonia;
++using Avalonia.Automation;
++using Avalonia.Controls;
++using Avalonia.Headless.XUnit;
++using Avalonia.Interactivity;
++using Avalonia.Threading;
++using Avalonia.VisualTree;
++using Unfold.Core;
++using Unfold.Desktop;
++
++namespace Unfold.Tests;
++
++[Collection("Timer settings")]
++public class GlbFileSlotTests
++{
++    private sealed class Editor : IDisposable
++    {
++        private readonly TempDirectory temp = new();
++        private readonly string? previous = Environment.GetEnvironmentVariable("UNFOLD_DATA_DIR");
++        public Window Window { get; } = new() { Width = 1000, Height = 780 };
++        public PetBuilderView Page { get; }
++        public CharacterLibrary Library { get; }
++        public string Source { get; }
++        public string? Chosen { get; set; }
++        public Editor()
++        {
++            Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", temp.Path);
++            Source = Path.Combine(temp.Path, "sample.glb"); File.WriteAllBytes(Source, GlbTests.Fixture(morph: true)); Chosen = Source;
++            Library = new(Path.Combine(temp.Path, "library"));
++            Page = new(Window, Library, _ => Task.CompletedTask, _ => Task.CompletedTask, chooseMedia: () => Task.FromResult<string?>(Chosen));
++            Window.Content = Ui.PageFrame(Window, Page); Window.Show(); Layout();
++        }
++        public T Find<T>(string name) where T : Control => Window.GetVisualDescendants().OfType<T>().Single(c => c.Name == name);
++        public void Press(string name) => Find<Button>(name).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
++        public void Layout() { Dispatcher.UIThread.RunJobs(); Window.UpdateLayout(); Dispatcher.UIThread.RunJobs(); Window.UpdateLayout(); }
++        public async Task Open()
++        {
++            Press("OpenPetBuilderFile"); await Until(() => !Page.IsBusy); Layout();
++            await Until(() => !Window.GetVisualDescendants().OfType<GlbPetView>().Single().IsPreviewLoading);
++        }
++        public void Dispose() { Page.Dispose(); Window.Close(); Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", previous); temp.Dispose(); }
++    }
++    private static async Task Until(Func<bool> ready)
++    {
++        for (var i = 0; i < 500 && !ready(); i++) { await Task.Delay(10, TestContext.Current.CancellationToken); Dispatcher.UIThread.RunJobs(); }
++        Assert.True(ready());
++    }
++
++    [AvaloniaTheory]
++    [InlineData(false)] [InlineData(true)]
++    public async Task TrashImmediatelyClearsOnlyTheEditorFileEvenWhenThePetIsSaved(bool saved)
++    {
++        using var editor = new Editor(); await editor.Open();
++        editor.Find<TextBox>("GlbPetName").Text = "남겨둘 이름";
++        if (saved) { editor.Press("SaveGlbPet"); await Until(() => !editor.Page.IsBusy); }
++        var source = File.ReadAllBytes(editor.Source);
++        var installed = saved ? Assert.Single(editor.Library.List()) : null;
++        var revision = installed is null ? null : File.ReadAllBytes(Path.Combine(installed.DirectoryPath, "model.glb"));
++        Assert.Equal("sample.glb", editor.Find<TextBlock>("GlbFileLabel").Text);
++        Assert.NotNull(editor.Find<Image>("GlbFileThumbnail").Source);
++        var remove = editor.Find<Button>("GlbFileRemove"); Assert.Contains("danger", remove.Classes);
++        Assert.Equal("3D 파일 제거", AutomationProperties.GetName(remove));
++        editor.Press("GlbFileRemove"); editor.Layout();
++        Assert.Empty(editor.Window.OwnedWindows);
++        Assert.Equal("파일 없음", editor.Find<TextBlock>("GlbFileLabel").Text);
++        Assert.Null(editor.Find<Image>("GlbFileThumbnail").Source);
++        Assert.Equal("남겨둘 이름", editor.Find<TextBox>("GlbPetName").Text);
++        Assert.Equal(0, editor.Find<AnimationView>("GlbPreview").RenderedPixelSize);
++        Assert.False(editor.Find<Button>("GlbFileRemove").IsEnabled);
++        Assert.True(editor.Find<Button>("GlbFileAdd").IsEnabled);
++        Assert.False(editor.Find<Button>("SaveGlbPet").IsEnabled);
++        Assert.False(editor.Find<Button>("CreateGlbPetPack").IsEnabled);
++        Assert.Equal(source, File.ReadAllBytes(editor.Source)); Assert.Equal(saved ? 1 : 0, editor.Library.List().Count);
++        if (installed is not null) Assert.Equal(revision, File.ReadAllBytes(Path.Combine(installed.DirectoryPath, "model.glb")));
++        // The same add control restores a file without deleting or replacing an installed pet.
++        editor.Press("GlbFileAdd"); await Until(() => !editor.Page.IsBusy); editor.Layout();
++        Assert.Equal("sample.glb", editor.Find<TextBlock>("GlbFileLabel").Text);
++        Assert.Equal("남겨둘 이름", editor.Find<TextBox>("GlbPetName").Text);
++        Assert.True(editor.Find<Button>("SaveGlbPet").IsEnabled);
++    }
++
++    [AvaloniaTheory]
++    [InlineData(480)] [InlineData(860)] [InlineData(1120)]
++    public async Task LongFilenameFitsWithTheSameCompactButtonsAsMedia(double width)
++    {
++        using var editor = new Editor();
++        var longPath = Path.Combine(Path.GetDirectoryName(editor.Source)!, new string('g', 150) + ".glb");
++        File.Copy(editor.Source, longPath); editor.Chosen = longPath; await editor.Open();
++        editor.Window.Width = width; editor.Layout();
++        var label = editor.Find<TextBlock>("GlbFileLabel"); var add = editor.Find<Button>("GlbFileAdd"); var remove = editor.Find<Button>("GlbFileRemove");
++        Assert.Equal(Path.GetFileName(longPath), ToolTip.GetTip(label));
++        Assert.Equal(Avalonia.Media.TextTrimming.CharacterEllipsis, label.TextTrimming);
++        Assert.All(new[] { add, remove }, button => { Assert.Equal(32, button.Width); Assert.Equal(32, button.Height); Assert.IsType<PathIcon>(button.Content); Assert.True(button.IsEffectivelyVisible); });
++        Assert.Equal(add.TranslatePoint(default, editor.Window)!.Value.Y, remove.TranslatePoint(default, editor.Window)!.Value.Y);
++        var scroll = editor.Find<ScrollViewer>("PageBodyScroll"); Assert.True(scroll.Extent.Width <= scroll.Viewport.Width + 1);
++        editor.Press("GlbFileRemove"); editor.Chosen = null; editor.Press("GlbFileAdd"); await Until(() => !editor.Page.IsBusy);
++        Assert.Equal("파일 없음", label.Text); Assert.False(remove.IsEnabled);
++    }
++}

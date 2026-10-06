@@ -1,0 +1,880 @@
+--- /dev/null
++++ b/Tests/Unfold.Tests/GlbPipelineTests.cs
+@@ -0,0 +1,236 @@
++using System.Reflection;
++using System.Runtime.CompilerServices;
++using System.Text.Json;
++using Avalonia.Controls;
++using Avalonia.Headless.XUnit;
++using Avalonia.Media.Imaging;
++using Avalonia.Threading;
++using Unfold.Core;
++using Unfold.Desktop;
++
++namespace Unfold.Tests;
++
++[Collection("Timer settings")]
++public class GlbPipelineTests
++{
++    internal static byte[] DenseFixture(int samples = 12000, string interpolation = "LINEAR")
++    {
++        using var buffer = new MemoryStream(); using var writer = new BinaryWriter(buffer);
++        var views = new List<object>(); var accessors = new List<object>();
++        int Data(float[] data, string type, int count)
++        {
++            var offset = (int)buffer.Position; foreach (var value in data) writer.Write(value);
++            views.Add(new { buffer = 0, byteOffset = offset, byteLength = data.Length * 4 });
++            accessors.Add(new { bufferView = views.Count - 1, componentType = 5126, count, type }); return accessors.Count - 1;
++        }
++        var positions = Data([-.4f, 0, 0, .4f, 0, 0, 0, 1, 0], "VEC3", 3);
++        var time = Data(Enumerable.Range(0, samples).Select(i => i * 2f / (samples - 1)).ToArray(), "SCALAR", samples);
++        var channels = new List<object>(); var samplers = new List<object>();
++        for (var node = 0; node < 8; node++)
++        {
++            var cubic = interpolation == "CUBICSPLINE"; var values = new float[samples * 3 * (cubic ? 3 : 1)];
++            for (var i = 0; i < samples; i++) values[(i * (cubic ? 3 : 1) + (cubic ? 1 : 0)) * 3] = MathF.Sin(i * .001f) * .1f;
++            var output = Data(values, "VEC3", values.Length / 3);
++            channels.Add(new { sampler = node, target = new { node, path = "translation" } });
++            samplers.Add(new { input = time, output, interpolation });
++        }
++        var root = new
++        {
++            asset = new { version = "2.0" }, buffers = new[] { new { byteLength = (int)buffer.Length } }, bufferViews = views, accessors,
++            nodes = Enumerable.Range(0, 8).Select(i => new { name = "Part" + i, mesh = 0 }).ToArray(),
++            meshes = new[] { new { primitives = new[] { new { attributes = new { POSITION = positions } } } } },
++            scenes = new[] { new { nodes = Enumerable.Range(0, 8).ToArray() } }, scene = 0,
++            animations = new[] { new { name = "Motion", channels, samplers } }
++        };
++        var json = JsonSerializer.SerializeToUtf8Bytes(root); var jsonSize = (json.Length + 3) / 4 * 4;
++        using var outputStream = new MemoryStream(); using var outputWriter = new BinaryWriter(outputStream);
++        outputWriter.Write(0x46546C67u); outputWriter.Write(2u); outputWriter.Write(28 + jsonSize + (int)buffer.Length);
++        outputWriter.Write(jsonSize); outputWriter.Write(0x4E4F534Au); outputWriter.Write(json);
++        for (var i = json.Length; i < jsonSize; i++) outputWriter.Write((byte)' ');
++        outputWriter.Write((int)buffer.Length); outputWriter.Write(0x004E4942u); outputWriter.Write(buffer.ToArray());
++        return outputStream.ToArray();
++    }
++
++    [Fact]
++    public void DenseAnimationLoadingDoesNotAllocateOneArrayPerKey()
++    {
++        _ = GlbModel.Parse(DenseFixture(8)); var bytes = DenseFixture();
++        var before = GC.GetAllocatedBytesForCurrentThread(); var model = GlbModel.Parse(bytes);
++        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
++        Assert.InRange(allocated, 0, bytes.Length * 2L);
++        Assert.Equal(1, model.TriangleCount); Assert.Equal(8, model.NodeNames.Count); GC.KeepAlive(model);
++    }
++
++    [Fact]
++    public void ModelLoadingSharesContentAcrossPathsAndInvalidatesChangedBytes()
++    {
++        using var temp = new TempDirectory(); var firstPath = Path.Combine(temp.Path, "first.glb"); var secondPath = Path.Combine(temp.Path, "second.glb");
++        var bytes = GlbTests.Fixture(morph: true); File.WriteAllBytes(firstPath, bytes); File.WriteAllBytes(secondPath, bytes);
++        var first = GlbModel.Load(firstPath); var second = GlbModel.Load(secondPath);
++        Assert.Same(first, second);
++        var stamp = File.GetLastWriteTimeUtc(firstPath); var edited = bytes.ToArray();
++        System.Buffers.Binary.BinaryPrimitives.WriteSingleLittleEndian(edited.AsSpan(edited.Length - 4), .5f);
++        File.WriteAllBytes(firstPath, edited); File.SetLastWriteTimeUtc(firstPath, stamp);
++        var changed = GlbModel.Load(firstPath); Assert.NotSame(first, changed);
++        Assert.NotEqual(first.Render("Idle", .1, new("model.glb"), "Idle").Pixels, changed.Render("Idle", .1, new("model.glb"), "Idle").Pixels);
++        Assert.Same(second, GlbModel.Load(secondPath));
++    }
++
++    [Fact]
++    public void SharedModelCacheDoesNotKeepUnusedModelsAlive()
++    {
++        using var temp = new TempDirectory(); var path = Path.Combine(temp.Path, "unused.glb"); File.WriteAllBytes(path, DenseFixture(15));
++        var weak = LoadWeak(path);
++        GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect();
++        Assert.False(weak.IsAlive);
++    }
++    [MethodImpl(MethodImplOptions.NoInlining)] private static WeakReference LoadWeak(string path) => new(GlbModel.Load(path));
++
++    [Fact]
++    public void PackageMetadataDoesNotKeepAnUnusedDecodedModelAlive()
++    {
++        using var temp = new TempDirectory(); var path = Path.Combine(temp.Path, "unselected.glb");
++        File.WriteAllBytes(path, DenseFixture(17)); var library = new CharacterLibrary(Path.Combine(temp.Path, "library"));
++        var package = MakePackage(path, library); var weak = PackageModelWeak(package);
++        GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect();
++        Assert.False(weak.IsAlive);
++        Assert.Equal("Motion", package.Model.Animations[0].Name);
++        GC.KeepAlive(package);
++    }
++    [MethodImpl(MethodImplOptions.NoInlining)] private static CharacterPackage MakePackage(string path, CharacterLibrary library) => new GlbPetDraft(path).Save(library);
++    [MethodImpl(MethodImplOptions.NoInlining)] private static WeakReference PackageModelWeak(CharacterPackage package) => new(package.Model);
++
++    [Fact]
++    public void MetadataListsDoNotDecodeModelsAndFirstUseStillValidates()
++    {
++        using var temp = new TempDirectory(); var path = Path.Combine(temp.Path, "pet.glb");
++        File.WriteAllBytes(path, GlbTests.Fixture(morph: true));
++        var draft = new GlbPetDraft(path); var library = new CharacterLibrary(Path.Combine(temp.Path, "library"));
++        var installed = draft.Save(library);
++        var listed = Assert.Single(library.List(loadModels: false));
++        var modelField = typeof(CharacterPackage).GetField("model", BindingFlags.Instance | BindingFlags.NonPublic)!;
++        Assert.Null(modelField.GetValue(listed));
++        Assert.Same(draft.Model, listed.Model);
++        Assert.Same(draft.Model, new GlbPetDraft(listed).Model);
++        Assert.Same(draft.Model, installed.Model);
++        File.WriteAllBytes(Path.Combine(listed.DirectoryPath, "model.glb"), new byte[64]);
++        var invalid = Assert.Single(library.List(loadModels: false));
++        Assert.Throws<InvalidDataException>(() => invalid.LoadAnimation("idle"));
++        Assert.Empty(library.List());
++    }
++
++    [Theory]
++    [InlineData("LINEAR")]
++    [InlineData("STEP")]
++    [InlineData("CUBICSPLINE")]
++    public void ConsumerOwnedRenderingHasNoFrameSizedAllocations(string interpolation)
++    {
++        var model = GlbModel.Parse(DenseFixture(24, interpolation));
++        var clip = model.CreateAnimation("Motion", new("model.glb"), "Motion");
++        const int size = 576; var pixels = new uint[size * size];
++        for (var i = 0; i < 4; i++) clip.RenderFrameInto(i, size, pixels);
++        var before = GC.GetAllocatedBytesForCurrentThread();
++        for (var i = 0; i < 40; i++) clip.RenderFrameInto(i % clip.Count, size, pixels);
++        Assert.InRange((GC.GetAllocatedBytesForCurrentThread() - before) / 40, 0, 1024);
++        Assert.Equal(clip.GetFrame(39 % clip.Count, size).Image.Pixels, pixels);
++    }
++
++    [Fact]
++    public async Task OwnedOutputsRemainIndependentAcrossConcurrentPosesAndClearOldPixels()
++    {
++        var model = GlbModel.Parse(GlbTests.Fixture(morph: true));
++        var first = model.CreateAnimation("Idle", new("model.glb"), "Idle");
++        var second = model.CreateAnimation("Idle", new("model.glb", 45), "Idle");
++        var one = Enumerable.Repeat(uint.MaxValue, 192 * 192).ToArray(); var two = new uint[384 * 384];
++        var immutable = first.GetFrame(1, 192).Image; var snapshot = immutable.Pixels.ToArray();
++        for (var i = 0; i < 6; i++)
++        {
++            await Task.WhenAll(Task.Run(() => first.RenderFrameInto(2, 192, one), TestContext.Current.CancellationToken), Task.Run(() => second.RenderFrameInto(3, 384, two), TestContext.Current.CancellationToken));
++            Assert.Equal(first.GetFrame(2, 192).Image.Pixels, one);
++            Assert.Equal(second.GetFrame(3, 384).Image.Pixels, two);
++            first.RenderFrameInto(0, 192, one);
++            Assert.Equal(first[0].Image.Pixels, one);
++        }
++        Assert.Equal(snapshot, immutable.Pixels);
++        Assert.Throws<ArgumentException>(() => first.RenderFrameInto(1, 192, new uint[1]));
++    }
++
++    [AvaloniaFact]
++    public void BothPetPickersLeaveUnselectedModelsUndecoded()
++    {
++        using var temp = new TempDirectory(); var library = new CharacterLibrary(Path.Combine(temp.Path, "library"));
++        for (var i = 0; i < 3; i++)
++        {
++            var path = Path.Combine(temp.Path, $"model-{i}.glb"); File.WriteAllBytes(path, DenseFixture(10 + i));
++            new GlbPetDraft(path).Save(library);
++        }
++        var owner = new Window { Width = 1000, Height = 800 };
++        using var builder = new PetBuilderView(owner, library, _ => Task.CompletedTask, _ => Task.CompletedTask);
++        try
++        {
++            owner.Content = builder; owner.Show(); owner.UpdateLayout();
++            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
++            var media = (ComboBox)typeof(PetBuilderView).GetField("pets", flags)!.GetValue(builder)!;
++            var glb = typeof(PetBuilderView).GetField("glb", flags)!.GetValue(builder)!;
++            var existing = (ComboBox)glb.GetType().GetField("existing", flags)!.GetValue(glb)!;
++            foreach (var picker in new[] { media, existing })
++            {
++                var packages = picker.ItemsSource!.OfType<CharacterPackage>().ToArray(); Assert.Equal(3, packages.Length);
++                Assert.All(packages, package => Assert.Null(typeof(CharacterPackage).GetField("model", flags)!.GetValue(package)));
++            }
++        }
++        finally { owner.Close(); }
++    }
++
++    [AvaloniaFact]
++    public async Task DeferredRuntimeListKeepsFallbackForADamagedSelectedModel()
++    {
++        using var temp = new TempDirectory(); var previous = Environment.GetEnvironmentVariable("UNFOLD_DATA_DIR");
++        Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", temp.Path);
++        using var lifetime = new Avalonia.Controls.ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime();
++        using var runtime = new AppRuntime(lifetime);
++        try
++        {
++            var path = Path.Combine(temp.Path, "source.glb"); File.WriteAllBytes(path, GlbTests.Fixture(morph: true));
++            var selected = new GlbPetDraft(path).Save(runtime.Library);
++            await runtime.Start(true, true); runtime.Stop(); await runtime.SelectInstalledCharacter(selected);
++            File.WriteAllBytes(Path.Combine(selected.DirectoryPath, "model.glb"), new byte[64]);
++            await runtime.Reload();
++            Assert.NotNull(runtime.Selected); Assert.True(runtime.Selected.IsBuiltIn);
++            Assert.DoesNotContain(runtime.Characters, p => p.Manifest.Id == selected.Manifest.Id);
++        }
++        finally { runtime.Dispose(); Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", previous); }
++    }
++
++    [AvaloniaFact]
++    public async Task LivePlaybackReusesBitmapAndOwnsItsPixels()
++    {
++        var clip = GlbModel.Parse(GlbTests.Fixture(morph: true)).CreateAnimation("Idle", new("model.glb"), "Idle");
++        var immutableFirst = clip[0].Image; var snapshot = immutableFirst.Pixels.ToArray();
++        using var view = new AnimationView { Width = 192, Height = 192 };
++        var window = new Window { Width = 192, Height = 192, Content = view };
++        try
++        {
++            window.Show(); window.UpdateLayout(); view.SetFrames(clip, true, false);
++            var field = typeof(AnimationView).GetField("bitmaps", BindingFlags.Instance | BindingFlags.NonPublic)!;
++            var bitmap = ((Bitmap[])field.GetValue(view)!)[0];
++            var imageField = typeof(AnimationView).GetField("liveImage", BindingFlags.Instance | BindingFlags.NonPublic)!;
++            var observed = new HashSet<string>();
++            for (var i = 0; i < 16; i++)
++            {
++                await Task.Delay(25, TestContext.Current.CancellationToken); Dispatcher.UIThread.RunJobs();
++                var current = (PixelImage)imageField.GetValue(view)!;
++                var pixels = new int[current.Pixels.Length];
++                var handle = System.Runtime.InteropServices.GCHandle.Alloc(pixels, System.Runtime.InteropServices.GCHandleType.Pinned);
++                try { bitmap.CopyPixels(new Avalonia.PixelRect(0, 0, current.Width, current.Height), handle.AddrOfPinnedObject(), pixels.Length * 4, current.Width * 4); }
++                finally { handle.Free(); }
++                Assert.Equal(current.Pixels, pixels.Select(p => unchecked((uint)p)));
++                observed.Add(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Runtime.InteropServices.MemoryMarshal.AsBytes(current.Pixels.AsSpan()))));
++            }
++            Assert.Same(bitmap, ((Bitmap[])field.GetValue(view)!)[0]);
++            Assert.Equal(snapshot, immutableFirst.Pixels);
++            Assert.True(observed.Count > 1, "Reused bitmap must display changing frames.");
++        }
++        finally { view.Dispose(); window.Close(); }
++    }
++}
+--- a/src/Unfold.Core/CharacterLibrary.cs
++++ b/src/Unfold.Core/CharacterLibrary.cs
+@@ -16,8 +16,24 @@
+     public CharacterManifest Manifest { get; }
+     public bool IsBuiltIn { get; }
+     public bool IsGlb => Manifest.Model is not null;
+-    private readonly Lazy<GlbModel> model;
+-    public GlbModel Model => model.Value;
++    private readonly object modelGate = new();
++    private WeakReference<GlbModel>? model;
++    public GlbModel Model
++    {
++        get
++        {
++            lock (modelGate)
++            {
++                if (model is not null && model.TryGetTarget(out var cached)) return cached;
++                var loaded = GlbModel.Load(CharacterLibrary.AssetPath(DirectoryPath, Manifest.Model?.File ?? throw new InvalidDataException("Not a GLB pet.")));
++                var names = loaded.Animations.Select(c => c.Name).ToHashSet(StringComparer.Ordinal);
++                if (Manifest.Animations.Values.Any(definition => definition.ModelClip is null || !names.Contains(definition.ModelClip)))
++                    throw new InvalidDataException("Invalid GLB animation mapping.");
++                model = new(loaded);
++                return loaded;
++            }
++        }
++    }
+     public bool HasOriginalBehavior => IsGlb || Manifest.BehaviorProfile == OriginalCompanion.Profile &&
+         OriginalCompanion.RequiredClips.All(Manifest.Animations.ContainsKey);
+     public bool HasPointerArt => HasOriginalBehavior && OriginalCompanion.PointerClips.All(Manifest.Animations.ContainsKey);
+@@ -27,7 +43,6 @@
+     internal CharacterPackage(string directory, CharacterManifest manifest, bool builtIn)
+     {
+         DirectoryPath = directory; Manifest = manifest; IsBuiltIn = builtIn;
+-        model = new(() => GlbModel.Load(CharacterLibrary.AssetPath(directory, manifest.Model?.File ?? throw new InvalidDataException("Not a GLB pet."))));
+         sheet = new(() => ImageCodec.DecodePng(ImageCodec.ReadBounded(CharacterLibrary.AssetPath(directory, manifest.SpriteSheet.File))));
+     }
+     public IReadOnlyList<AnimationFrame> LoadAnimation(string key)
+@@ -82,7 +97,8 @@
+         if ((File.Exists(path) || Directory.Exists(path)) && (File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0)
+             throw new InvalidDataException("Linked character files are not supported.");
+     }
+-    public static CharacterPackage LoadPackage(string directory, bool builtIn = false)
++    public static CharacterPackage LoadPackage(string directory, bool builtIn = false) => LoadPackage(directory, builtIn, loadModel: true);
++    private static CharacterPackage LoadPackage(string directory, bool builtIn, bool loadModel)
+     {
+         var data = ImageCodec.ReadBounded(AssetPath(directory, "character.json"), 1024 * 1024);
+         var manifest = JsonSerializer.Deserialize<CharacterManifest>(data, JsonOptions) ?? throw new InvalidDataException("Missing character manifest.");
+@@ -100,13 +116,15 @@
+         if (manifest.Model is { } model)
+         {
+             if (!float.IsFinite(model.Heading) || model.Heading is < -180 or > 180) throw new InvalidDataException("Invalid model heading.");
+-            _ = AssetPath(directory, model.File);
+-            var names = package.Model.Animations.Select(c => c.Name).ToHashSet(StringComparer.Ordinal);
++            var path = AssetPath(directory, model.File);
++            if (!File.Exists(path)) throw new FileNotFoundException("Missing GLB model.", path);
++            if (new FileInfo(path).Length > ImageCodec.MaxFileBytes) throw new InvalidDataException("GLB file exceeds 32 MiB.");
+             foreach (var definition in manifest.Animations.Values)
+-                if (definition is null || definition.ModelClip is null || !names.Contains(definition.ModelClip) || !double.IsFinite(definition.Speed) || definition.Speed is < .25 or > 3 || definition.PingPong ||
++                if (definition is null || definition.ModelClip is null || !double.IsFinite(definition.Speed) || definition.Speed is < .25 or > 3 || definition.PingPong ||
+                     definition.Heading is { } heading && (!float.IsFinite(heading) || heading is < -180 or > 180))
+                     throw new InvalidDataException("Invalid GLB animation mapping.");
+             if (!manifest.Animations["idle"].Loop || manifest.Animations.Keys.Any(key => !GlbPetDraft.Actions.Contains(key))) throw new InvalidDataException("Invalid GLB pet events.");
++            if (loadModel) _ = package.Model;
+             return package;
+         }
+         foreach (var animation in manifest.Animations.Values)
+@@ -118,14 +136,16 @@
+         }
+         return package;
+     }
+-    public IReadOnlyList<CharacterPackage> List()
++    // UI lists need manifests and thumbnails only. Installation/audit callers
++    // retain eager validation; deferred models validate before their first use.
++    public IReadOnlyList<CharacterPackage> List(bool loadModels = true)
+     {
+         using var lease = Lock(); Recover();
+         var results = new List<CharacterPackage>();
+         foreach (var directory in Directory.EnumerateDirectories(Root).Order())
+         {
+             var id = Path.GetFileName(directory); if (!SafeId(id)) continue;
+-            try { var item = LoadPackage(directory); if (item.Manifest.Id != id) throw new InvalidDataException("Package ID differs from directory."); results.Add(item); }
++            try { var item = LoadPackage(directory, builtIn: false, loadModel: loadModels); if (item.Manifest.Id != id) throw new InvalidDataException("Package ID differs from directory."); results.Add(item); }
+             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException or JsonException or ArgumentException)
+             { Warning?.Invoke($"Skipped {id}: {ex.Message}"); }
+         }
+--- /dev/null
++++ b/src/Unfold.Core/GlbModel.Cache.cs
+@@ -0,0 +1,26 @@
++using System.Security.Cryptography;
++
++namespace Unfold.Core;
++
++public sealed partial class GlbModel
++{
++    private static readonly object cacheGate = new();
++    private static readonly Dictionary<string, WeakReference<GlbModel>> models = [];
++
++    // Content identity, not a filename or timestamp: pack replacement, renamed
++    // copies and edits with preserved file dates all resolve to the right model.
++    // Weak entries never keep an unused model alive, and keys are bounded too.
++    internal static GlbModel FromSnapshot(byte[] bytes)
++    {
++        var hash = Convert.ToHexString(SHA256.HashData(bytes));
++        lock (cacheGate)
++        {
++            if (models.TryGetValue(hash, out var weak) && weak.TryGetTarget(out var shared)) return shared;
++            var model = Parse(bytes);
++            foreach (var key in models.Where(p => !p.Value.TryGetTarget(out _)).Select(p => p.Key).ToArray()) models.Remove(key);
++            if (models.Count >= 64) models.Remove(models.Keys.First());
++            models[hash] = new(model);
++            return model;
++        }
++    }
++}
+--- a/src/Unfold.Core/GlbModel.Rendering.cs
++++ b/src/Unfold.Core/GlbModel.Rendering.cs
+@@ -23,6 +23,7 @@
+         private float[] depth = [];
+         private Vector3[] vertices = [];
+         private Matrix4x4[] joints = [];
++        public PoseWorkspace? Pose;
+         public Span<uint> Colors(int length) => Buffer(ref colors, length);
+         public Span<float> Depth(int length) => Buffer(ref depth, length);
+         public Span<Vector3> Vertices(int length) => Buffer(ref vertices, length);
+@@ -34,7 +35,16 @@
+         }
+     }
+ 
+-    private static float[] Sample(Channel channel, float time)
++    private sealed class PoseWorkspace(Node[] nodes)
++    {
++        public Vector3[] Positions { get; } = new Vector3[nodes.Length];
++        public Quaternion[] Rotations { get; } = new Quaternion[nodes.Length];
++        public Vector3[] Scales { get; } = new Vector3[nodes.Length];
++        public Matrix4x4[] World { get; } = new Matrix4x4[nodes.Length];
++        public ReadOnlyMemory<float>[] Weights { get; } = new ReadOnlyMemory<float>[nodes.Length];
++        public float[][] Morphs { get; } = nodes.Select(_ => new float[32]).ToArray();
++    }
++    private static ReadOnlySpan<float> Sample(Channel channel, float time, Span<float> scratch)
+     {
+         var times = channel.Times; var cubic = channel.Interpolation == "CUBICSPLINE";
+         var right = System.Array.BinarySearch(times, time);
+@@ -45,46 +55,53 @@
+         var left = right - 1; var span = times[right] - times[left]; var t = (time - times[left]) / span;
+         var a = channel.Values[cubic ? left * 3 + 1 : left]; var b = channel.Values[cubic ? right * 3 + 1 : right];
+         if (channel.Interpolation == "STEP") return a;
++        var result = scratch[..a.Length];
+         if (!cubic && channel.Path == "rotation")
+-        { var q = Quaternion.Slerp(Q(a), Q(b), t); return [q.X, q.Y, q.Z, q.W]; }
+-        var result = new float[a.Length];
++        { var q = Quaternion.Slerp(Q(a), Q(b), t); result[0] = q.X; result[1] = q.Y; result[2] = q.Z; result[3] = q.W; return result; }
+         for (var i = 0; i < result.Length; i++)
+             result[i] = cubic ? (2 * t * t * t - 3 * t * t + 1) * a[i] + (t * t * t - 2 * t * t + t) * span * channel.Values[left * 3 + 2][i]
+                 + (-2 * t * t * t + 3 * t * t) * b[i] + (t * t * t - t * t) * span * channel.Values[right * 3][i] : a[i] + (b[i] - a[i]) * t;
+         return result;
+     }
+-    private (Matrix4x4[] World, float[][] Weights) Pose(Clip clip, float time, int lockedRoot, Clip reference)
+-    {
+-        var positions = nodes.Select(n => n.Position).ToArray(); var rotations = nodes.Select(n => n.Rotation).ToArray();
+-        var scales = nodes.Select(n => n.Scale).ToArray(); var weights = nodes.Select(n => n.Weights).ToArray();
++    // The model render lock owns all pose and mesh scratch until pixels have
++    // been copied into the consumer's output. No interpolated arrays escape.
++    private PoseWorkspace Pose(Clip clip, float time, int lockedRoot, Clip reference)
++    {
++        var pose = renderWorkspace.Pose ??= new(nodes);
++        var positions = pose.Positions; var rotations = pose.Rotations; var scales = pose.Scales; var weights = pose.Weights;
++        for (var i = 0; i < nodes.Length; i++)
++        { positions[i] = nodes[i].Position; rotations[i] = nodes[i].Rotation; scales[i] = nodes[i].Scale; weights[i] = nodes[i].Weights; }
++        Span<float> scratch = stackalloc float[32];
+         foreach (var c in clip.Channels)
+         {
+-            var v = Sample(c, time);
+-            switch (c.Path) { case "translation": positions[c.Node] = V3(v); break; case "rotation": rotations[c.Node] = Q(v); break;
+-                case "scale": scales[c.Node] = V3(v); break; case "weights": weights[c.Node] = v; break; }
++            var v = Sample(c, time, scratch);
++            switch (c.Path)
++            {
++                case "translation": positions[c.Node] = V3(v); break;
++                case "rotation": rotations[c.Node] = Q(v); break;
++                case "scale": scales[c.Node] = V3(v); break;
++                case "weights": v.CopyTo(pose.Morphs[c.Node]); weights[c.Node] = pose.Morphs[c.Node].AsMemory(0, v.Length); break;
++            }
+         }
+         if (lockedRoot >= 0)
+         {
+             positions[lockedRoot] = nodes[lockedRoot].Position; rotations[lockedRoot] = nodes[lockedRoot].Rotation;
+-            foreach (var c in reference.Channels.Where(c => c.Node == lockedRoot))
+-            { var v = Sample(c, reference.Start); if (c.Path == "translation") positions[lockedRoot] = V3(v); else if (c.Path == "rotation") rotations[lockedRoot] = Q(v); }
+-        }
+-        var world = new Matrix4x4[nodes.Length];
++            foreach (var c in reference.Channels)
++            {
++                if (c.Node != lockedRoot) continue;
++                var v = Sample(c, reference.Start, scratch);
++                if (c.Path == "translation") positions[lockedRoot] = V3(v); else if (c.Path == "rotation") rotations[lockedRoot] = Q(v);
++            }
++        }
++        var world = pose.World;
+         foreach (var i in order)
+         {
+             var local = nodes[i].Matrix ?? Matrix4x4.CreateScale(scales[i]) * Matrix4x4.CreateFromQuaternion(rotations[i]) * Matrix4x4.CreateTranslation(positions[i]);
+             world[i] = parents[i] < 0 ? local : local * world[parents[i]];
+         }
+-        return (world, weights);
+-    }
+-    private Vector3[] Vertices(int node, Primitive primitive, Matrix4x4[] world, float[] morphWeights)
+-    {
+-        var result = new Vector3[primitive.Positions.Length];
+-        var joints = new Matrix4x4[nodes[node].Skin < 0 ? 0 : skins[nodes[node].Skin].Joints.Length];
+-        TransformVertices(node, primitive, world, morphWeights, result, joints);
+-        return result;
+-    }
+-    private void TransformVertices(int node, Primitive primitive, Matrix4x4[] world, float[] morphWeights,
++        return pose;
++    }
++    private void TransformVertices(int node, Primitive primitive, Matrix4x4[] world, ReadOnlySpan<float> morphWeights,
+         Span<Vector3> result, Span<Matrix4x4> joints)
+     {
+         if (nodes[node].Skin >= 0)
+@@ -105,22 +122,33 @@
+     }
+     public GlbAnimationFrames CreateAnimation(string name, GlbDefinition definition, string referenceClip, double speed = 1)
+         => new(this, name, definition, referenceClip, speed);
+-    private Clip FindClip(string name) => clips.FirstOrDefault(c => c.Name == name) ?? throw new InvalidDataException($"GLB 동작을 찾지 못했어요: {name}");
++    private Clip FindClip(string name)
++    { foreach (var clip in clips) if (clip.Name == name) return clip; throw new InvalidDataException($"GLB 동작을 찾지 못했어요: {name}"); }
+     private int LockedRoot(GlbDefinition definition)
+     {
+         if (definition.RootNode is null) return defaultRoot;
+-        var found = System.Array.FindIndex(nodes, n => n.Name == definition.RootNode);
+-        return found >= 0 ? found : throw new InvalidDataException("고정할 GLB 루트 뼈대를 찾지 못했어요.");
++        for (var i = 0; i < nodes.Length; i++) if (nodes[i].Name == definition.RootNode) return i;
++        throw new InvalidDataException("고정할 GLB 루트 뼈대를 찾지 못했어요.");
+     }
+     internal (Vector3 Min, Vector3 Max) Bounds(GlbDefinition definition, string referenceName)
+     {
+-        var reference = FindClip(referenceName); var pose = Pose(reference, reference.Start, LockedRoot(definition), reference);
+-        var heading = Matrix4x4.CreateRotationY(definition.Heading * MathF.PI / 180); var min = new Vector3(float.MaxValue); var max = new Vector3(float.MinValue);
+-        foreach (var node in visible) foreach (var p in meshes[nodes[node].Mesh]) foreach (var v in Vertices(node, p, pose.World, pose.Weights[node]))
+-        { var point = Vector3.Transform(v, heading); min = Vector3.Min(min, point); max = Vector3.Max(max, point); }
+-        if (!float.IsFinite(min.X) || !float.IsFinite(max.Y) || !float.IsFinite(max.X - min.X) || !float.IsFinite(max.Y - min.Y) || Math.Max(max.X - min.X, max.Y - min.Y) < .00001f) throw new InvalidDataException("GLB 모델의 표시 크기가 올바르지 않아요.");
+-        return (min, max);
+-    }
++        lock (renderWorkspace)
++        {
++            var reference = FindClip(referenceName); var pose = Pose(reference, reference.Start, LockedRoot(definition), reference);
++            var heading = Matrix4x4.CreateRotationY(definition.Heading * MathF.PI / 180); var min = new Vector3(float.MaxValue); var max = new Vector3(float.MinValue);
++            foreach (var node in visible) foreach (var primitive in meshes[nodes[node].Mesh])
++            {
++                var vertices = renderWorkspace.Vertices(primitive.Positions.Length);
++                var joints = renderWorkspace.Joints(nodes[node].Skin < 0 ? 0 : skins[nodes[node].Skin].Joints.Length);
++                TransformVertices(node, primitive, pose.World, pose.Weights[node].Span, vertices, joints);
++                foreach (var v in vertices)
++                { var point = Vector3.Transform(v, heading); min = Vector3.Min(min, point); max = Vector3.Max(max, point); }
++            }
++            if (!float.IsFinite(min.X) || !float.IsFinite(max.Y) || !float.IsFinite(max.X - min.X) || !float.IsFinite(max.Y - min.Y) || Math.Max(max.X - min.X, max.Y - min.Y) < .00001f) throw new InvalidDataException("GLB 모델의 표시 크기가 올바르지 않아요.");
++            return (min, max);
++        }
++    }
++
+     public PixelImage Render(string name, double seconds, GlbDefinition definition, string referenceClip, int size = 192)
+     {
+         ValidateRender(size, seconds, definition);
+@@ -138,9 +166,18 @@
+         (Vector3 Min, Vector3 Max) bounds, int size)
+     {
+         if (size is < 32 or > GlbAnimationFrames.MaxFrameSize) throw new ArgumentOutOfRangeException(nameof(size));
++        var pixels = new uint[size * size];
++        RenderAntialiasedInto(name, seconds, definition, referenceName, bounds, size, pixels);
++        return new(size, size, pixels);
++    }
++    internal void RenderAntialiasedInto(string name, double seconds, GlbDefinition definition, string referenceName,
++        (Vector3 Min, Vector3 Max) bounds, int size, Span<uint> pixels)
++    {
++        if (size is < 32 or > GlbAnimationFrames.MaxFrameSize) throw new ArgumentOutOfRangeException(nameof(size));
++        if (pixels.Length != size * size) throw new ArgumentException("Output buffer must match frame dimensions.", nameof(pixels));
+         var rasterSize = size * 2;
+         ValidateRender(rasterSize, seconds, definition);
+-        var pixels = new uint[size * size];
++        pixels.Clear();
+         lock (renderWorkspace)
+         {
+             var colors = renderWorkspace.Colors(rasterSize * rasterSize);
+@@ -160,7 +197,6 @@
+                     ((green + alpha / 2) / alpha) << 8 | (blue + alpha / 2) / alpha;
+             }
+         }
+-        return new(size, size, pixels);
+     }
+     // Caller holds renderWorkspace until the raster has been copied/downsampled.
+     private void RenderInto(string name, double seconds, GlbDefinition definition, string referenceName,
+@@ -177,7 +213,7 @@
+         {
+             var vertices = renderWorkspace.Vertices(primitive.Positions.Length);
+             var joints = renderWorkspace.Joints(nodes[node].Skin < 0 ? 0 : skins[nodes[node].Skin].Joints.Length);
+-            TransformVertices(node, primitive, pose.World, pose.Weights[node], vertices, joints);
++            TransformVertices(node, primitive, pose.World, pose.Weights[node].Span, vertices, joints);
+             for (var i = 0; i < vertices.Length; i++)
+             { var v = Vector3.Transform(vertices[i], heading); vertices[i] = new((v.X - center) * scale + size / 2f, size * .90f - (v.Y - bounds.Min.Y) * scale, v.Z); }
+             var material = materials[primitive.Material];
+@@ -297,6 +333,13 @@
+             cache.Clear(); cache[key] = frame; return frame;
+         }
+     }
++    /// <summary>Render into storage owned exclusively by a playback consumer.
++    /// Unlike GetFrame, this method retains no reference to the caller's pixels.</summary>
++    public void RenderFrameInto(int index, int pixelSize, Span<uint> pixels)
++    {
++        if (index < 0 || index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
++        model.RenderAntialiasedInto(name, index * FrameDuration.TotalSeconds * speed, definition, reference, bounds, pixelSize, pixels);
++    }
+     private AnimationFrame RenderFrame(int index, int size)
+         => new(model.RenderAntialiased(name, index * FrameDuration.TotalSeconds * speed, definition, reference, bounds, size), FrameDuration);
+     public IEnumerator<AnimationFrame> GetEnumerator() { for (var i = 0; i < Count; i++) yield return this[i]; }
+--- a/src/Unfold.Core/GlbModel.cs
++++ b/src/Unfold.Core/GlbModel.cs
+@@ -16,7 +16,7 @@
+     private sealed record Primitive(Vector3[] Positions, Vector2[] Uvs, Vector4[] Joints, Vector4[] Weights,
+         Vector3[][] Morphs, int[] Indices, int Material);
+     private sealed record Material(PixelImage? Texture, Vector4 Color, string Alpha, float Cutoff, int WrapS, int WrapT);
+-    private sealed record Channel(int Node, string Path, string Interpolation, float[] Times, float[][] Values);
++    private sealed record Channel(int Node, string Path, string Interpolation, float[] Times, AccessorData Values);
+     private sealed record Clip(string Name, Channel[] Channels, float Start, float End);
+     private readonly Node[] nodes;
+     private readonly Skin[] skins;
+@@ -31,7 +31,7 @@
+     public int TriangleCount { get; }
+     public int TextureCount { get; }
+     public int JointCount => skins.SelectMany(s => s.Joints).Distinct().Count();
+-    public static GlbModel Load(string path) => Parse(ImageCodec.ReadBounded(path));
++    public static GlbModel Load(string path) => FromSnapshot(ImageCodec.ReadBounded(path));
+     public static GlbModel Parse(byte[] bytes)
+     {
+         try { return new GlbModel(bytes); }
+@@ -43,19 +43,19 @@
+         if (bytes.Length is < 28 or > ImageCodec.MaxFileBytes || BinaryPrimitives.ReadUInt32LittleEndian(bytes) != 0x46546C67 ||
+             BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(4)) != 2 || BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(8)) != bytes.Length)
+             throw new InvalidDataException("32 MiB 이하의 GLB 2.0 파일을 선택해 주세요.");
+-        var offset = 12; byte[]? json = null, binary = null;
++        var offset = 12; ReadOnlyMemory<byte> json = default, binary = default;
+         while (offset < bytes.Length)
+         {
+             if (offset + 8 > bytes.Length) throw new InvalidDataException("Incomplete GLB chunk.");
+             var length = checked((int)BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(offset)));
+             var type = BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(offset + 4)); offset += 8;
+             if (length <= 0 || length % 4 != 0 || length > bytes.Length - offset) throw new InvalidDataException("Invalid GLB chunk.");
+-            if (json is null && type != 0x4E4F534A) throw new InvalidDataException("GLB JSON must be first.");
+-            if (type == 0x4E4F534A) { if (json is not null) throw new InvalidDataException("Duplicate GLB JSON."); json = bytes.AsSpan(offset, length).ToArray(); }
+-            else if (type == 0x004E4942) { if (binary is not null) throw new InvalidDataException("Duplicate GLB buffer."); binary = bytes.AsSpan(offset, length).ToArray(); }
++            if (json.IsEmpty && type != 0x4E4F534A) throw new InvalidDataException("GLB JSON must be first.");
++            if (type == 0x4E4F534A) { if (!json.IsEmpty) throw new InvalidDataException("Duplicate GLB JSON."); json = bytes.AsMemory(offset, length); }
++            else if (type == 0x004E4942) { if (!binary.IsEmpty) throw new InvalidDataException("Duplicate GLB buffer."); binary = bytes.AsMemory(offset, length); }
+             offset += length;
+         }
+-        if (json is null || binary is null || json.Length > 8 * 1024 * 1024) throw new InvalidDataException("GLB needs embedded JSON and binary data.");
++        if (json.IsEmpty || binary.IsEmpty || json.Length > 8 * 1024 * 1024) throw new InvalidDataException("GLB needs embedded JSON and binary data.");
+         using var document = JsonDocument.Parse(json, new() { MaxDepth = 64 }); var root = document.RootElement;
+         if (root.GetProperty("asset").GetProperty("version").GetString() != "2.0" || Array(root, "extensionsRequired").Length != 0)
+             throw new InvalidDataException("필수 확장이 없는 glTF 2.0 모델을 사용해 주세요.");
+@@ -76,7 +76,7 @@
+             if (im.TryGetProperty("uri", out _) || im.GetProperty("mimeType").GetString() != "image/png")
+                 throw new InvalidDataException("현재 GLB 텍스처는 파일 내부의 PNG만 지원해요.");
+             var v = views[im.GetProperty("bufferView").GetInt32()];
+-            var image = ImageCodec.DecodePng(binary.AsSpan(Int(v, "byteOffset"), Int(v, "byteLength")).ToArray(), 2048, 2048, 4 * 1024 * 1024);
++            var image = ImageCodec.DecodePng(binary.Span.Slice(Int(v, "byteOffset"), Int(v, "byteLength")).ToArray(), 2048, 2048, 4 * 1024 * 1024);
+             decoded += (long)image.Width * image.Height * 4;
+             if (decoded > 64 * 1024 * 1024) throw new InvalidDataException("GLB textures exceed 64 MiB decoded.");
+             return image;
+@@ -104,16 +104,16 @@
+         meshes = meshJson.Select(m => Array(m, "primitives").Select(p =>
+         {
+             if (Int(p, "mode", 4) != 4 || p.TryGetProperty("extensions", out _)) throw new InvalidDataException("압축되지 않은 삼각형 GLB 모델만 지원해요.");
+-            var a = p.GetProperty("attributes"); var pos = reader.Read(a.GetProperty("POSITION").GetInt32(), 3).Select(V3).ToArray();
++            var a = p.GetProperty("attributes"); var pos = reader.Read(a.GetProperty("POSITION").GetInt32(), 3).Convert(V3);
+             vertexTotal += pos.Length;
+-            var uv = a.TryGetProperty("TEXCOORD_0", out var ui) ? reader.Read(ui.GetInt32(), 2).Select(v => new Vector2(v[0], v[1])).ToArray() : new Vector2[pos.Length];
+-            var joints = a.TryGetProperty("JOINTS_0", out var ji) ? reader.Read(ji.GetInt32(), 4).Select(V4).ToArray() : [];
+-            var weights = a.TryGetProperty("WEIGHTS_0", out var wi) ? reader.Read(wi.GetInt32(), 4).Select(V4).ToArray() : [];
++            var uv = a.TryGetProperty("TEXCOORD_0", out var ui) ? reader.Read(ui.GetInt32(), 2).Convert(v => new Vector2(v[0], v[1])) : new Vector2[pos.Length];
++            var joints = a.TryGetProperty("JOINTS_0", out var ji) ? reader.Read(ji.GetInt32(), 4).Convert(V4) : [];
++            var weights = a.TryGetProperty("WEIGHTS_0", out var wi) ? reader.Read(wi.GetInt32(), 4).Convert(V4) : [];
+             if (a.TryGetProperty("JOINTS_1", out _) || joints.Length != weights.Length || uv.Length != pos.Length || (joints.Length != 0 && joints.Length != pos.Length))
+                 throw new InvalidDataException("GLB vertex attributes are inconsistent or use more than four joints.");
+-            var morphs = Array(p, "targets").Select(t => t.TryGetProperty("POSITION", out var mi) ? reader.Read(mi.GetInt32(), 3).Select(V3).ToArray() : new Vector3[pos.Length]).ToArray();
++            var morphs = Array(p, "targets").Select(t => t.TryGetProperty("POSITION", out var mi) ? reader.Read(mi.GetInt32(), 3).Convert(V3) : new Vector3[pos.Length]).ToArray();
+             if (morphs.Length > 32 || morphs.Any(x => x.Length != pos.Length)) throw new InvalidDataException("Invalid GLB morph targets.");
+-            var indices = p.TryGetProperty("indices", out var ii) ? reader.Read(ii.GetInt32(), 1).Select(v => checked((int)v[0])).ToArray() : Enumerable.Range(0, pos.Length).ToArray();
++            var indices = p.TryGetProperty("indices", out var ii) ? reader.Read(ii.GetInt32(), 1).Convert(v => checked((int)v[0])) : Enumerable.Range(0, pos.Length).ToArray();
+             if (indices.Length % 3 != 0 || indices.Any(i => i < 0 || i >= pos.Length)) throw new InvalidDataException("Invalid GLB triangle indices.");
+             triangleTotal += indices.Length / 3;
+             if (vertexTotal > 300000 || triangleTotal > 100000) throw new InvalidDataException("펫 모델은 삼각형 10만 개 이하로 줄여 주세요.");
+@@ -148,7 +148,7 @@
+         {
+             var joints = Array(s, "joints").Select(x => x.GetInt32()).ToArray();
+             if (joints.Length is < 1 or > 512 || joints.Any(i => i < 0 || i >= nodes.Length)) throw new InvalidDataException("Invalid GLB skeleton.");
+-            var inverse = s.TryGetProperty("inverseBindMatrices", out var ib) ? reader.Read(ib.GetInt32(), 16).Select(Matrix).ToArray() : Enumerable.Repeat(Matrix4x4.Identity, joints.Length).ToArray();
++            var inverse = s.TryGetProperty("inverseBindMatrices", out var ib) ? reader.Read(ib.GetInt32(), 16).Convert(Matrix) : Enumerable.Repeat(Matrix4x4.Identity, joints.Length).ToArray();
+             if (inverse.Length != joints.Length) throw new InvalidDataException("GLB bind matrices differ from joints.");
+             return new Skin(joints, inverse);
+         }).ToArray();
+@@ -175,13 +175,12 @@
+                 if (node < 0 || node >= nodes.Length || path is not ("translation" or "rotation" or "scale" or "weights")) throw new InvalidDataException("Unsupported GLB animation target.");
+                 var s = sam[c.GetProperty("sampler").GetInt32()]; var interpolation = String(s, "interpolation", "LINEAR");
+                 if (interpolation is not ("LINEAR" or "STEP" or "CUBICSPLINE")) throw new InvalidDataException("Unsupported GLB interpolation.");
+-                var times = reader.Read(s.GetProperty("input").GetInt32(), 1).Select(v => v[0]).ToArray();
++                var times = reader.Read(s.GetProperty("input").GetInt32(), 1).Data;
+                 if (times.Length == 0 || times[0] < 0 || times[^1] > 120 || times.Zip(times.Skip(1)).Any(p => p.First >= p.Second)) throw new InvalidDataException($"GLB 애니메이션 '{String(a, "name", $"Animation_{index + 1}")}'의 시간 키가 중복·역순이거나 0~120초 범위를 벗어났어요. 원본에서 시간 키를 정리해 다시 내보내 주세요.");
+                 var width = path == "rotation" ? 4 : path == "weights" ? meshes[nodes[node].Mesh][0].Morphs.Length : 3;
+                 if (width < 1 || nodes[node].Matrix is not null) throw new InvalidDataException("Invalid animated GLB node.");
+                 var values = reader.Read(s.GetProperty("output").GetInt32(), path == "weights" ? 1 : width);
+-                if (path == "weights") { var flattened = values.Select(v => v[0]).ToArray(); if (flattened.Length % width != 0) throw new InvalidDataException("Invalid morph weights.");
+-                    values = Enumerable.Range(0, flattened.Length / width).Select(i => flattened.AsSpan(i * width, width).ToArray()).ToArray(); }
++                if (path == "weights") values = values.Reshape(width);
+                 if (values.Length != times.Length * (interpolation == "CUBICSPLINE" ? 3 : 1)) throw new InvalidDataException("GLB animation sample count differs.");
+                 return new Channel(node, path, interpolation, times, values);
+             }).ToArray();
+@@ -220,17 +219,36 @@
+         var result = e.ValueKind == JsonValueKind.Object && e.TryGetProperty(key, out var v) ? v.EnumerateArray().Select(x => x.GetSingle()).ToArray() : fallback;
+         if (result.Any(x => !float.IsFinite(x))) throw new InvalidDataException("Nonfinite GLB value."); return result;
+     }
+-    private static Vector3 V3(float[] v) => v.Length == 3 ? new(v[0], v[1], v[2]) : throw new InvalidDataException("Invalid GLB vector.");
+-    private static Vector4 V4(float[] v) => v.Length == 4 ? new(v[0], v[1], v[2], v[3]) : throw new InvalidDataException("Invalid GLB vector.");
++    private static Vector3 V3(ReadOnlySpan<float> v) => v.Length == 3 ? new(v[0], v[1], v[2]) : throw new InvalidDataException("Invalid GLB vector.");
++    private static Vector4 V4(ReadOnlySpan<float> v) => v.Length == 4 ? new(v[0], v[1], v[2], v[3]) : throw new InvalidDataException("Invalid GLB vector.");
+     private static Vector4 Vec4(JsonElement e, string key, Vector4 fallback) => V4(Floats(e, key, [fallback.X, fallback.Y, fallback.Z, fallback.W]));
+-    private static Quaternion Q(float[] v) { var q = V4(v); var result = new Quaternion(q.X, q.Y, q.Z, q.W); if (result.LengthSquared() < .00001f) throw new InvalidDataException("Invalid GLB quaternion."); return Quaternion.Normalize(result); }
+-    private static Matrix4x4 Matrix(float[] v) => v.Length == 16 && v.All(float.IsFinite) ? new(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15]) : throw new InvalidDataException("Invalid GLB matrix.");
+-
+-    private sealed class AccessorReader(byte[] binary, JsonElement[] views, JsonElement[] accessors)
+-    {
+-        private readonly Dictionary<int, float[][]> cache = [];
++    private static Quaternion Q(ReadOnlySpan<float> v) { var q = V4(v); var result = new Quaternion(q.X, q.Y, q.Z, q.W); if (result.LengthSquared() < .00001f) throw new InvalidDataException("Invalid GLB quaternion."); return Quaternion.Normalize(result); }
++    private static Matrix4x4 Matrix(ReadOnlySpan<float> v) => v.Length == 16 && Finite(v) ? new(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15]) : throw new InvalidDataException("Invalid GLB matrix.");
++
++    private static bool Finite(ReadOnlySpan<float> values)
++    { foreach (var value in values) if (!float.IsFinite(value)) return false; return true; }
++
++    // A single contiguous array per accessor. Animation channels can share the
++    // decoded data without allocating one managed object per key or vertex.
++    private sealed record AccessorData(float[] Data, int Width)
++    {
++        public int Length => Data.Length / Width;
++        public ReadOnlySpan<float> this[int index] => Data.AsSpan(index * Width, Width);
++        public AccessorData Reshape(int width) => Data.Length % width == 0
++            ? new(Data, width) : throw new InvalidDataException("Invalid morph weights.");
++        public T[] Convert<T>(Func<ReadOnlySpan<float>, T> convert)
++        {
++            var result = new T[Length];
++            for (var i = 0; i < result.Length; i++) result[i] = convert(this[i]);
++            return result;
++        }
++    }
++
++    private sealed class AccessorReader(ReadOnlyMemory<byte> binary, JsonElement[] views, JsonElement[] accessors)
++    {
++        private readonly Dictionary<int, AccessorData> cache = [];
+         private long elements;
+-        public float[][] Read(int index, int expected)
++        public AccessorData Read(int index, int expected)
+         {
+             var a = accessors[index]; var width = a.GetProperty("type").GetString() switch { "SCALAR" => 1, "VEC2" => 2, "VEC3" => 3, "VEC4" => 4, "MAT4" => 16, _ => 0 };
+             if (width != expected || a.TryGetProperty("sparse", out _)) throw new InvalidDataException("GLB sparse accessors or mismatched types are not supported.");
+@@ -240,19 +258,18 @@
+             if (size == 0) throw new InvalidDataException("Unsupported GLB component.");
+             var v = views[a.GetProperty("bufferView").GetInt32()]; var stride = Int(v, "byteStride", size * width); var start = Int(a, "byteOffset");
+             if (start < 0 || stride < size * width || stride > 252 || (long)start + (long)(count - 1) * stride + size * width > Int(v, "byteLength")) throw new InvalidDataException("GLB accessor exceeds its buffer view.");
+-            start += Int(v, "byteOffset"); var normalized = a.TryGetProperty("normalized", out var norm) && norm.GetBoolean(); var result = new float[count][];
++            start += Int(v, "byteOffset"); var normalized = a.TryGetProperty("normalized", out var norm) && norm.GetBoolean(); var result = new float[count * width];
+             for (var i = 0; i < count; i++)
+             {
+-                result[i] = new float[width];
+                 for (var j = 0; j < width; j++)
+                 {
+-                    var o = start + i * stride + j * size; var span = binary.AsSpan(o, size);
+-                    float value = component switch { 5120 => (sbyte)binary[o], 5121 => binary[o], 5122 => BinaryPrimitives.ReadInt16LittleEndian(span), 5123 => BinaryPrimitives.ReadUInt16LittleEndian(span), 5125 => BinaryPrimitives.ReadUInt32LittleEndian(span), _ => BitConverter.Int32BitsToSingle(BinaryPrimitives.ReadInt32LittleEndian(span)) };
++                    var o = start + i * stride + j * size; var span = binary.Span.Slice(o, size);
++                    float value = component switch { 5120 => (sbyte)binary.Span[o], 5121 => binary.Span[o], 5122 => BinaryPrimitives.ReadInt16LittleEndian(span), 5123 => BinaryPrimitives.ReadUInt16LittleEndian(span), 5125 => BinaryPrimitives.ReadUInt32LittleEndian(span), _ => BitConverter.Int32BitsToSingle(BinaryPrimitives.ReadInt32LittleEndian(span)) };
+                     if (normalized) value = component switch { 5120 => Math.Max(-1, value / 127), 5121 => value / 255, 5122 => Math.Max(-1, value / 32767), 5123 => value / 65535, _ => value };
+-                    if (!float.IsFinite(value)) throw new InvalidDataException("Nonfinite GLB data."); result[i][j] = value;
++                    if (!float.IsFinite(value)) throw new InvalidDataException("Nonfinite GLB data."); result[i * width + j] = value;
+                 }
+             }
+-            cache[index] = result; return result;
++            var decoded = new AccessorData(result, width); cache[index] = decoded; return decoded;
+         }
+     }
+ }
+--- a/src/Unfold.Core/GlbPetDraft.cs
++++ b/src/Unfold.Core/GlbPetDraft.cs
+@@ -25,7 +25,7 @@
+     public Dictionary<string, AnimationDefinition> Mappings { get; } = new(StringComparer.Ordinal);
+     public GlbPetDraft(string path)
+     {
+-        bytes = ImageCodec.ReadBounded(path); Model = GlbModel.Parse(bytes); FileName = Path.GetFileName(path); Name = Path.GetFileNameWithoutExtension(path);
++        bytes = ImageCodec.ReadBounded(path); Model = GlbModel.FromSnapshot(bytes); FileName = Path.GetFileName(path); Name = Path.GetFileNameWithoutExtension(path);
+         Id = "glb-" + Guid.NewGuid().ToString("N");
+         string? Match(params string[] names) => names.FirstOrDefault(n => Model.Animations.Any(a => a.Name == n));
+         Set("idle", Match("Cafe_Idle", "Idle", "idle", "Normal_Idle") ?? Model.Animations[0].Name, true);
+--- a/src/Unfold.Desktop/AnimationView.cs
++++ b/src/Unfold.Desktop/AnimationView.cs
+@@ -16,6 +16,7 @@
+     private Bitmap[] bitmaps = [];
+     private GlbAnimationFrames? live;
+     private PixelImage? liveImage;
++    private PixelImage? liveBackImage;
+     private bool renderingLive;
+     private int liveGeneration;
+     private int livePixelSize = 192;
+@@ -62,16 +63,21 @@
+             RefreshLiveResolution();
+             if (running && NeedsTimer) { elapsed.Start(); timer.Start(); }
+         };
+-        DetachedFromVisualTree += (_, _) => { DetachTopLevel(); liveGeneration++; elapsed.Stop(); timer.Stop(); };
++        DetachedFromVisualTree += (_, _) => { DetachTopLevel(); liveGeneration++; liveBackImage = null; elapsed.Stop(); timer.Stop(); };
+     }
+     public void SetFrames(IReadOnlyList<AnimationFrame> clip, bool repeat, bool pixel = true, bool alignCompanion = false, bool pingPong = false)
+     {
+         if (disposed) return;
+         timer.Stop(); liveGeneration++; foreach (var bitmap in bitmaps) bitmap.Dispose();
+-        live = clip as GlbAnimationFrames; liveImage = null;
++        live = clip as GlbAnimationFrames; liveImage = liveBackImage = null;
+         if (live is not null)
+         {
+-            frames = clip; liveImage = live[0].Image; bitmaps = [Ui.Bitmap(liveImage)]; loop = repeat;
++            frames = clip;
++            var first = live[0].Image;
++            // Playback owns both buffers; never recycle pixels returned by the
++            // public immutable frame API or shared with another view.
++            liveImage = new(first.Width, first.Height, first.Pixels.ToArray());
++            bitmaps = [Ui.Bitmap(liveImage)]; loop = repeat;
+             frameOffsets = []; totalMs = live.DurationSeconds * 1000; index = 0; completed = false; facingLeft = false;
+             RenderOptions.SetBitmapInterpolationMode(this, BitmapInterpolationMode.HighQuality);
+             timer.Interval = live.FrameDuration;
+@@ -92,7 +98,7 @@
+         if (disposed) return;
+         running = value;
+         if (running && NeedsTimer && HasTopLevel()) { elapsed.Start(); timer.Start(); }
+-        else { liveGeneration++; elapsed.Stop(); timer.Stop(); }
++        else { liveGeneration++; liveBackImage = null; elapsed.Stop(); timer.Stop(); }
+     }
+     private void Advance()
+     {
+@@ -119,10 +125,21 @@
+         var request = liveGeneration; var pixels = livePixelSize; renderingLive = true; var failed = false;
+         try
+         {
+-            var image = await Task.Run(() => source.GetFrame(next, pixels).Image);
++            var image = liveBackImage is { } back && back.Width == pixels
++                ? back : new PixelImage(pixels, pixels, new uint[pixels * pixels]);
++            liveBackImage = null;
++            await Task.Run(() => source.RenderFrameInto(next, pixels, image.Pixels));
+             if (disposed || request != liveGeneration) return;
+-            var bitmap = Ui.Bitmap(image); foreach (var old in bitmaps) old.Dispose();
+-            bitmaps = [bitmap]; liveImage = image; index = next; InvalidateVisual();
++            if (bitmaps.Length == 1 && bitmaps[0] is WriteableBitmap bitmap && bitmap.PixelSize.Width == pixels && bitmap.PixelSize.Height == pixels)
++                Ui.WriteBitmap(bitmap, image);
++            else
++            {
++                var replacement = Ui.Bitmap(image);
++                foreach (var old in bitmaps) old.Dispose();
++                bitmaps = [replacement];
++            }
++            liveBackImage = liveImage?.Width == pixels ? liveImage : null;
++            liveImage = image; index = next; InvalidateVisual();
+             if (ended) { timer.Stop(); elapsed.Stop(); completed = true; Completed?.Invoke(); }
+         }
+         catch (Exception error)
+@@ -214,5 +231,5 @@
+         base.Render(context);
+         if (bitmaps.Length > 0) context.DrawImage(bitmaps[live is null ? index : 0], ImageRect());
+     }
+-    public void Dispose() { DetachTopLevel(); disposed = true; liveGeneration++; live = null; liveImage = null; running = false; timer.Stop(); foreach (var bitmap in bitmaps) bitmap.Dispose(); bitmaps = []; frames = []; }
++    public void Dispose() { DetachTopLevel(); disposed = true; liveGeneration++; live = null; liveImage = liveBackImage = null; running = false; timer.Stop(); foreach (var bitmap in bitmaps) bitmap.Dispose(); bitmaps = []; frames = []; }
+ }
+--- a/src/Unfold.Desktop/AppRuntime.cs
++++ b/src/Unfold.Desktop/AppRuntime.cs
+@@ -173,7 +173,21 @@
+     }
+     public async Task Reload()
+     {
+-        var users = await Task.Run(() => Library.List());
++        var selectedId = Settings.SelectedCharacterId;
++        var users = await Task.Run(() =>
++        {
++            var listed = Library.List(loadModels: false).ToList();
++            // Keep the existing startup fallback for a damaged selected pet,
++            // while leaving all unselected GLB models undecoded.
++            var selected = listed.FirstOrDefault(p => p.Manifest.Id == selectedId && p.IsGlb);
++            if (selected is not null)
++            {
++                try { _ = selected.Model; }
++                catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException or System.Text.Json.JsonException or ArgumentException)
++                { AppPaths.Log(error); listed.Remove(selected); }
++            }
++            return listed;
++        });
+         var bundledIds = builtIns.Select(item => item.Manifest.Id).ToHashSet(StringComparer.OrdinalIgnoreCase);
+         Characters = builtIns.Concat(users.Where(item => !bundledIds.Contains(item.Manifest.Id))).ToArray();
+         clips.Clear(); Changed?.Invoke();
+--- a/src/Unfold.Desktop/GlbPetView.cs
++++ b/src/Unfold.Desktop/GlbPetView.cs
+@@ -129,7 +129,7 @@
+     internal void RefreshExisting()
+     {
+         populating = true;
+-        try { existing.ItemsSource = library.List().Where(p => p.IsGlb).ToArray(); }
++        try { existing.ItemsSource = library.List(loadModels: false).Where(p => p.IsGlb).ToArray(); }
+         finally { populating = false; }
+         RestoreExistingSelection();
+     }
+--- a/src/Unfold.Desktop/PetBuilderView.cs
++++ b/src/Unfold.Desktop/PetBuilderView.cs
+@@ -72,7 +72,7 @@
+     {
+         if (closed) return;
+         refreshingPets = true;
+-        try { pets.ItemsSource = library.List().Where(package => package.IsGlb).ToArray(); pets.SelectedIndex = -1; }
++        try { pets.ItemsSource = library.List(loadModels: false).Where(package => package.IsGlb).ToArray(); pets.SelectedIndex = -1; }
+         finally { refreshingPets = false; }
+         glb.RefreshExisting();
+     }
+--- a/src/Unfold.Desktop/Ui.cs
++++ b/src/Unfold.Desktop/Ui.cs
+@@ -204,10 +204,16 @@
+         // Transfer raw pixels once; avoid PNG encoding/decoding on every
+         // thumbnail edit and on every animation consumer's first load.
+         var bitmap = new WriteableBitmap(new PixelSize(image.Width, image.Height), new Vector(96, 96), PixelFormat.Bgra8888, AlphaFormat.Unpremul);
++        WriteBitmap(bitmap, image);
++        return bitmap;
++    }
++    internal static unsafe void WriteBitmap(WriteableBitmap bitmap, PixelImage image)
++    {
++        if (bitmap.PixelSize.Width != image.Width || bitmap.PixelSize.Height != image.Height)
++            throw new ArgumentException("Bitmap and image dimensions differ.", nameof(image));
+         using var locked = bitmap.Lock();
+         for (var y = 0; y < image.Height; y++)
+             image.Pixels.AsSpan(y * image.Width, image.Width).CopyTo(new Span<uint>((byte*)locked.Address + y * locked.RowBytes, image.Width));
+-        return bitmap;
+     }
+ 
+     public static Task<int> Confirm(Window owner, string title, string message, params string[] choices) =>

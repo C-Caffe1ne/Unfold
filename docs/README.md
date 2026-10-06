@@ -15,6 +15,9 @@
 | [펫 팩 만들기 통합](validation/2026-10-05-unified-pet-builder.md) | GLB·GIF·MP4 통합 진입점, 공통 행동 편집 배치와 설명 문구 제거 |
 | [GLB 고급 설정 스타일 수정](validation/2026-10-05-glb-advanced-style.md) | 기본 Expander 스타일 누락 수정, 공통 카드·방향 아이콘과 네 테마 검증 |
 | [GLB 편집 UI/UX 개선](validation/2026-10-05-glb-editor-ux.md) | 행동 선택 중심 배치, 반복 규칙·재생·저장 상태와 반응형 화면 검증 |
+| [GLB 파일 행·즉시 제거](validation/2026-10-06-glb-file-slot.md) | GIF·MP4와 같은 파일명 옆 휴지통, 저장된 펫 보존·재추가, 733개 회귀 검사 |
+| [GLB 파일 추가·제거](validation/2026-10-06-glb-file-management.md) | 초안 비우기·저장한 펫 삭제, 목록 동기화·기본 펫 전환, 730개 회귀 검사 |
+| [GLB 공통 파이프라인 메모리 개선](validation/2026-10-06-glb-pipeline-memory.md) | 지연 로딩·모델 공유·연속 키프레임·재생 버퍼 재사용, 301개 입력 및 718개 회귀 검사 |
 | [GLB 메모리 최적화 검증](validation/2026-10-05-glb-memory.md) | 프레임 버퍼 재사용, 화질 동일성, 메모리 전후 측정과 Windows 검증 범위 |
 | [GLB 확대 화질 검증](validation/2026-10-04-glb-resolution.md) | 표시 크기·Retina 배율 대응, 가장자리 처리와 실제 모델 전후 비교 |
 | [GLB 펫 사용법](glb-pets.md) | 모델 가져오기, 상황별 행동 지정, 몸 방향 고정과 지원 범위 |

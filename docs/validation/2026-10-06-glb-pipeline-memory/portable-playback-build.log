@@ -1,0 +1,13 @@
+  복원할 프로젝트를 확인하는 중...
+  /Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/docs/validation/2026-10-06-glb-pipeline-memory/probes/playback/Playback.csproj을(를) 138밀리초 동안 복원했습니다.
+  /Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/src/Unfold.Desktop/Unfold.Desktop.csproj을(를) 138밀리초 동안 복원했습니다.
+  복원할 3 프로젝트의 1이(가) 최신 상태입니다.
+  Unfold.Core -> /Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/src/Unfold.Core/bin/Release/net10.0/Unfold.Core.dll
+  Unfold.Desktop -> /Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/src/Unfold.Desktop/bin/Release/net10.0/Unfold.dll
+  Playback -> /Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/docs/validation/2026-10-06-glb-pipeline-memory/probes/playback/bin/Release/net10.0/Unfold.Tests.dll
+
+빌드했습니다.
+    경고 0개
+    오류 0개
+
+경과 시간: 00:00:02.02

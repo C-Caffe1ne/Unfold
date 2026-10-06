@@ -173,7 +173,21 @@ public sealed partial class AppRuntime : IDisposable
     }
     public async Task Reload()
     {
-        var users = await Task.Run(() => Library.List());
+        var selectedId = Settings.SelectedCharacterId;
+        var users = await Task.Run(() =>
+        {
+            var listed = Library.List(loadModels: false).ToList();
+            // Keep the existing startup fallback for a damaged selected pet,
+            // while leaving all unselected GLB models undecoded.
+            var selected = listed.FirstOrDefault(p => p.Manifest.Id == selectedId && p.IsGlb);
+            if (selected is not null)
+            {
+                try { _ = selected.Model; }
+                catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException or System.Text.Json.JsonException or ArgumentException)
+                { AppPaths.Log(error); listed.Remove(selected); }
+            }
+            return listed;
+        });
         var bundledIds = builtIns.Select(item => item.Manifest.Id).ToHashSet(StringComparer.OrdinalIgnoreCase);
         Characters = builtIns.Concat(users.Where(item => !bundledIds.Contains(item.Manifest.Id))).ToArray();
         clips.Clear(); Changed?.Invoke();
@@ -181,6 +195,12 @@ public sealed partial class AppRuntime : IDisposable
     public async Task SelectInstalledCharacter(CharacterPackage character)
     {
         await Reload(); await UpdateSettings(Settings with { SelectedCharacterId = character.Manifest.Id });
+    }
+    internal async Task RefreshAfterCharacterRemoval(string id)
+    {
+        await Reload();
+        if (Settings.SelectedCharacterId == id)
+            await UpdateSettings(Settings with { SelectedCharacterId = Selected?.Manifest.Id ?? "default-cat" });
     }
     private void Tick()
     {
