@@ -1,0 +1,2943 @@
+[
+  {
+    "file": "Airi (Band).glb",
+    "success": true,
+    "triangles": 19137,
+    "animations": 36,
+    "firstHash": "5211b951ad956d461861d090331965533c3be2893f7318b108caaa3e640d2f01",
+    "middleHash": "386cb592fdadfcf97d48f8325235603812a3f4d95b882fcd0f84c34fa6c2b057",
+    "painted": 4977,
+    "ms": 224
+  },
+  {
+    "file": "Airi.glb",
+    "success": true,
+    "triangles": 10556,
+    "animations": 7,
+    "firstHash": "7b357885c87d232eac0106597ea693a78188401f391331db0ab1ffcc4261c2e8",
+    "middleHash": "34895e8a9e532863cba62977afaeb964db61b0ac2f3bf1110115c2069ecc5457",
+    "painted": 5056,
+    "ms": 41
+  },
+  {
+    "file": "Akane (Bunny Girl).glb",
+    "success": true,
+    "triangles": 12478,
+    "animations": 14,
+    "firstHash": "9a4dc489a62ff606d253c93d8200c1416b04210648a1b80aaa083780889ecb5e",
+    "middleHash": "5c21106a1dec3040ea76082c46aa61440d6ab6488f7fe736fc0722f46e2b4d14",
+    "painted": 4924,
+    "ms": 63
+  },
+  {
+    "file": "Akane (School Uniform).glb",
+    "success": true,
+    "triangles": 14307,
+    "animations": 8,
+    "firstHash": "a63a1fd6ee853761034ce2463a35362eaf1686ea49c5f2701a199cfd344de45e",
+    "middleHash": "415f114c4c95b52fce7e23cb5ec3e66eae5c94bdfb02c4a5dd2351f6f15cd30b",
+    "painted": 5176,
+    "ms": 48
+  },
+  {
+    "file": "Akane.glb",
+    "success": true,
+    "triangles": 9701,
+    "animations": 40,
+    "firstHash": "0422875798f0cbec7aca4c5a6b8a8622881ef8a47dd226ec9511e02fab6f89e6",
+    "middleHash": "996fbb60003aaffb2610acfbf8fa3bbeba6c4b3ab26f1ec21beb5af459e894d8",
+    "painted": 6738,
+    "ms": 107
+  },
+  {
+    "file": "Akari (New Year).glb",
+    "success": false,
+    "error": "GLB \uC560\uB2C8\uBA54\uC774\uC158 \u0027SM019601_Appearance\u0027\uC758 \uC2DC\uAC04 \uD0A4\uAC00 \uC911\uBCF5\u00B7\uC5ED\uC21C\uC774\uAC70\uB098 0~120\uCD08 \uBC94\uC704\uB97C \uBC97\uC5B4\uB0AC\uC5B4\uC694. \uC6D0\uBCF8\uC5D0\uC11C \uC2DC\uAC04 \uD0A4\uB97C \uC815\uB9AC\uD574 \uB2E4\uC2DC \uB0B4\uBCF4\uB0B4 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: GLB \uC560\uB2C8\uBA54\uC774\uC158 \u0027SM019601_Appearance\u0027\uC758 \uC2DC\uAC04 \uD0A4\uAC00 \uC911\uBCF5\u00B7\uC5ED\uC21C\uC774\uAC70\uB098 0~120\uCD08 \uBC94\uC704\uB97C \uBC97\uC5B4\uB0AC\uC5B4\uC694. \uC6D0\uBCF8\uC5D0\uC11C \uC2DC\uAC04 \uD0A4\uB97C \uC815\uB9AC\uD574 \uB2E4\uC2DC \uB0B4\uBCF4\uB0B4 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_3.\u003C.ctor\u003Eb__30(JsonElement c) in /Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/src/Unfold.Core/GlbModel.cs:line 179\n   at System.Linq.Enumerable.ArraySelectIterator\u00602.Fill(ReadOnlySpan\u00601 source, Span\u00601 destination, Func\u00602 func)\n   at System.Linq.Enumerable.ArraySelectIterator\u00602.ToArray()\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__10(JsonElement a, Int32 index) in /Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/src/Unfold.Core/GlbModel.cs:line 172\n   at System.Linq.Enumerable.SelectIterator[TSource,TResult](IEnumerable\u00601 source, Func\u00603 selector)\u002BMoveNext()\n   at System.Linq.Enumerable.\u003CToArray\u003Eg__EnumerableToArray|324_0[TSource](IEnumerable\u00601 source)\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes) in /Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/src/Unfold.Core/GlbModel.cs:line 168\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes) in /Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/src/Unfold.Core/GlbModel.cs:line 37\n   at Unfold.Core.GlbPetDraft..ctor(String path) in /Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/src/Unfold.Core/GlbPetDraft.cs:line 28\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 11",
+    "ms": 66
+  },
+  {
+    "file": "Akari.glb",
+    "success": true,
+    "triangles": 10777,
+    "animations": 42,
+    "firstHash": "68c89d5352018cab8d6e4566f38416fc68c5b59e2157e15149cc38d170a1e6e2",
+    "middleHash": "955a7f90e0e258ca88c4caf4b4bf03e59d82386e5355395c278dfeeaa5c359a2",
+    "painted": 5707,
+    "ms": 68
+  },
+  {
+    "file": "Ako (Dress).glb",
+    "success": true,
+    "triangles": 15140,
+    "animations": 36,
+    "firstHash": "bf1f1bb6005fcfdd45a4193bf638986971ac40aeeb3ee2a3c8c42e125b98c30d",
+    "middleHash": "4cff0128c0cd6aaa430e1b83ca4679bc6401382164c44017bf73e381849a9c46",
+    "painted": 4324,
+    "ms": 114
+  },
+  {
+    "file": "Ako.glb",
+    "success": true,
+    "triangles": 10465,
+    "animations": 8,
+    "firstHash": "52b420c1e13aa55651234fff36bb5e02e4f7672afa5ba08fd60dc49e96c4f0b7",
+    "middleHash": "b629b53ffcbf55e6885613da6071f64adebb4955bd855a3a9dd3871653d5d3b3",
+    "painted": 5201,
+    "ms": 35
+  },
+  {
+    "file": "Aoba.glb",
+    "success": true,
+    "triangles": 21958,
+    "animations": 26,
+    "firstHash": "43785cbc4eb5e0f1d37955c423defd0ab69cd60cc38d4ccb9f7908ab15b72484",
+    "middleHash": "ae242ecc4a8cda3c57248ed41b3154185b0459d7465b186134c01a5537c3dc22",
+    "painted": 6625,
+    "ms": 64
+  },
+  {
+    "file": "Arisu (Battle) (Carrier).glb",
+    "success": true,
+    "triangles": 26251,
+    "animations": 2,
+    "firstHash": "bcb1e6ac547428e124deabb9fef2e3fb09dcc61bdc96732573b2719de588cee7",
+    "middleHash": "b96c6e1250484e7a27f8d43536ce30ce4d165f030f7b283d8f94e136d0ecdb4b",
+    "painted": 8686,
+    "ms": 42
+  },
+  {
+    "file": "Arisu (Battle) (Scenario).glb",
+    "success": true,
+    "triangles": 14714,
+    "animations": 11,
+    "firstHash": "4bf1b9b9a29845d6da06ca82b0c4b30f498eb8feca2aaf3e6af4b923dde19001",
+    "middleHash": "2e909fee280fcab5c6167eaa560dbd9846f797454377ef7b13a88e4496b09814",
+    "painted": 6259,
+    "ms": 50
+  },
+  {
+    "file": "Arisu (Battle).glb",
+    "success": true,
+    "triangles": 26571,
+    "animations": 35,
+    "firstHash": "e4e6e2a0d1e890a4621328917386e768fcb929f8a7010f720215f560585e0c41",
+    "middleHash": "b920ed72bbc5ea6878f2fc360eda462936e46366419e890950e30436ac9e55f0",
+    "painted": 6284,
+    "ms": 133
+  },
+  {
+    "file": "Arisu (Maid).glb",
+    "success": true,
+    "triangles": 15825,
+    "animations": 32,
+    "firstHash": "95cbdd6cadea3168e8b7f97d8eed282f9ba29d1215792c7eecba7784bbb2138a",
+    "middleHash": "a0dcf26da627720a7124933352ffa44508b6f078c7bb0e8b0c3953338d7ea05b",
+    "painted": 8879,
+    "ms": 122
+  },
+  {
+    "file": "Arisu.glb",
+    "success": true,
+    "triangles": 13741,
+    "animations": 24,
+    "firstHash": "13b7cde3028d90b969269f2ea67d9f561b6ab3dccfc6b1c4181a14d64701894c",
+    "middleHash": "bc8bb1cba5910cf5de2e5d00ec5af75c49ec3d44b8cd7d3ef6bd04659778da17",
+    "painted": 7976,
+    "ms": 88
+  },
+  {
+    "file": "Aru (Dress).glb",
+    "success": true,
+    "triangles": 14059,
+    "animations": 31,
+    "firstHash": "255baa46d0e98494b1cebdc212977c1427256a38d0c2dc5b8b7c5049aaa0fd58",
+    "middleHash": "9ff4f9d1465307bd437f8ae2d40d6922a132b1031978a5a4c7958bd295e0e4c6",
+    "painted": 5339,
+    "ms": 75
+  },
+  {
+    "file": "Aru (New Year).glb",
+    "success": true,
+    "triangles": 12194,
+    "animations": 30,
+    "firstHash": "72f25e145f1062087d0d6aa4f1a8d3dcc3f5b819b35a9e744da995775f174413",
+    "middleHash": "da4fa3727193720ff000a0ea3b4eb2d4b8a1ce3007dd62923300d9b8db757aee",
+    "painted": 7014,
+    "ms": 53
+  },
+  {
+    "file": "Aru.glb",
+    "success": true,
+    "triangles": 12065,
+    "animations": 33,
+    "firstHash": "7be50a296de831d215c69945ae99a54c1c4a730822a29a1b5a948c26f2a0273f",
+    "middleHash": "43b8cc135d3a48ef7c7b7af46664334dd7646495fe1bda90b7065e79f354cdd5",
+    "painted": 6946,
+    "ms": 40
+  },
+  {
+    "file": "Asuna (Bunny Girl).glb",
+    "success": true,
+    "triangles": 11011,
+    "animations": 38,
+    "firstHash": "5039831f5d154206ba886958d8563897a9524a5f18c421fd097f14a0ff21b41f",
+    "middleHash": "c3d4ce35764cada7e631ee6956922190c88d0f5cf451a57042769f7f73c15852",
+    "painted": 5949,
+    "ms": 34
+  },
+  {
+    "file": "Asuna (School Uniform).glb",
+    "success": true,
+    "triangles": 17186,
+    "animations": 37,
+    "firstHash": "0f2835667f1e1383638edd977bf96088da9957e22ed05b91ce231b685d636e39",
+    "middleHash": "f27de157b08d3ac3c473592da630961ed9d8ff1473853a802e11b65b4bae9b01",
+    "painted": 6056,
+    "ms": 54
+  },
+  {
+    "file": "Asuna.glb",
+    "success": true,
+    "triangles": 10692,
+    "animations": 41,
+    "firstHash": "1d8944861619e6ecb7e307d4da094f7a1f6e6cd419602350c91b6899e4425b55",
+    "middleHash": "b20f5e65ed5c3ad1f9cd82f85fc17ccc5af35027b0a4d51a96d2ce64558dd582",
+    "painted": 7118,
+    "ms": 41
+  },
+  {
+    "file": "Atsuko (Swimsuit).glb",
+    "success": true,
+    "triangles": 12307,
+    "animations": 10,
+    "firstHash": "0f2bd2fe1bfa6a195ddaca2e9e4038333eaebc9d60239a44dccff2e004daa592",
+    "middleHash": "19aea83c67a5a7ee32951d0c297b678dbd04306e480dee12b5d3881c28a2ac24",
+    "painted": 5355,
+    "ms": 27
+  },
+  {
+    "file": "Atsuko.glb",
+    "success": true,
+    "triangles": 10891,
+    "animations": 29,
+    "firstHash": "29d84388f6d8981345f88bd8ecb7925fec800366a28bffb20666b56229b63af7",
+    "middleHash": "2cc9e16a02ea5cb99bec9ec512716cec18791b10abe6b269616ae5b77f6ee3ab",
+    "painted": 5739,
+    "ms": 31
+  },
+  {
+    "file": "Ayane (Swimsuit).glb",
+    "success": false,
+    "error": "GLB \uC560\uB2C8\uBA54\uC774\uC158 \u0027Public01\u0027\uC758 \uC2DC\uAC04 \uD0A4\uAC00 \uC911\uBCF5\u00B7\uC5ED\uC21C\uC774\uAC70\uB098 0~120\uCD08 \uBC94\uC704\uB97C \uBC97\uC5B4\uB0AC\uC5B4\uC694. \uC6D0\uBCF8\uC5D0\uC11C \uC2DC\uAC04 \uD0A4\uB97C \uC815\uB9AC\uD574 \uB2E4\uC2DC \uB0B4\uBCF4\uB0B4 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: GLB \uC560\uB2C8\uBA54\uC774\uC158 \u0027Public01\u0027\uC758 \uC2DC\uAC04 \uD0A4\uAC00 \uC911\uBCF5\u00B7\uC5ED\uC21C\uC774\uAC70\uB098 0~120\uCD08 \uBC94\uC704\uB97C \uBC97\uC5B4\uB0AC\uC5B4\uC694. \uC6D0\uBCF8\uC5D0\uC11C \uC2DC\uAC04 \uD0A4\uB97C \uC815\uB9AC\uD574 \uB2E4\uC2DC \uB0B4\uBCF4\uB0B4 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_3.\u003C.ctor\u003Eb__30(JsonElement c) in /Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/src/Unfold.Core/GlbModel.cs:line 179\n   at System.Linq.Enumerable.ArraySelectIterator\u00602.ToArray()\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__10(JsonElement a, Int32 index) in /Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/src/Unfold.Core/GlbModel.cs:line 172\n   at System.Linq.Enumerable.SelectIterator[TSource,TResult](IEnumerable\u00601 source, Func\u00603 selector)\u002BMoveNext()\n   at System.Linq.Enumerable.\u003CToArray\u003Eg__EnumerableToArray|324_0[TSource](IEnumerable\u00601 source)\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes) in /Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/src/Unfold.Core/GlbModel.cs:line 168\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes) in /Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/src/Unfold.Core/GlbModel.cs:line 37\n   at Unfold.Core.GlbPetDraft..ctor(String path) in /Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/src/Unfold.Core/GlbPetDraft.cs:line 28\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 11",
+    "ms": 25
+  },
+  {
+    "file": "Ayane.glb",
+    "success": true,
+    "triangles": 8265,
+    "animations": 6,
+    "firstHash": "45e5bc363a965c262c5f972fd1ead19e85d558e593aa789a0056d2aa4c73cc7d",
+    "middleHash": "7d66837c7bdaa1b435922544689ac73c27249d5b755b1a44d18920ac2340de3f",
+    "painted": 4652,
+    "ms": 17
+  },
+  {
+    "file": "Azusa (Swimsuit).glb",
+    "success": true,
+    "triangles": 16180,
+    "animations": 39,
+    "firstHash": "9a00613e7e263bbc53ca886d964e7a055bd908d11a7e0561f59e5ef30e2680fb",
+    "middleHash": "eaa70ea165af16d0073dc1d39a9a606f7cd6058839a39a6f2664c55e17153a0a",
+    "painted": 7853,
+    "ms": 53
+  },
+  {
+    "file": "Azusa.glb",
+    "success": true,
+    "triangles": 12244,
+    "animations": 40,
+    "firstHash": "513a84c9bd5717649edf33ca975f0a30c23a7b1e4afa5f977de7aca54df2671c",
+    "middleHash": "f3de1cfc2ae00e5e8902df592c4bfd2b40b91503e93d6f96679bda6e3e02589d",
+    "painted": 6599,
+    "ms": 45
+  },
+  {
+    "file": "Cherino (Hot Spring).glb",
+    "success": true,
+    "triangles": 25888,
+    "animations": 20,
+    "firstHash": "cd5c968ccd0b83963aef04477985ee4a601b22965a091d072699d9575756d674",
+    "middleHash": "4727037d753fbccc2d1082d6279babb66debb8187032638fdfabf8e09cce93ff",
+    "painted": 6187,
+    "ms": 59
+  },
+  {
+    "file": "Cherino.glb",
+    "success": true,
+    "triangles": 14373,
+    "animations": 44,
+    "firstHash": "4f0ca4bb128faf8737f200cd4d611e876960f073a0b2bd003b4921c513692bda",
+    "middleHash": "ec39643752c23fe8e220b237507b7d834d5de2659ad5d016f633602a1b653e5c",
+    "painted": 7296,
+    "ms": 63
+  },
+  {
+    "file": "Chiaki.glb",
+    "success": true,
+    "triangles": 15634,
+    "animations": 39,
+    "firstHash": "7234eee9f5e456c485272954cbcc2e7222457f92f874dcf01644c43471e9bce9",
+    "middleHash": "5a20baeb1823ff6d79fde367b98310fb3ae96659eff430697b1fabd812da547a",
+    "painted": 7250,
+    "ms": 55
+  },
+  {
+    "file": "Chihiro.glb",
+    "success": true,
+    "triangles": 12296,
+    "animations": 7,
+    "firstHash": "b5e457000a0320093b9ffa2146f3e3a0a043f392a298508ea7399f9ad8ae4d1b",
+    "middleHash": "5b252c598e55947a81270151cb55f696b866e6c22ab96f609880c574745fe374",
+    "painted": 5452,
+    "ms": 27
+  },
+  {
+    "file": "Chinatsu (Hot Spring).glb",
+    "success": true,
+    "triangles": 10152,
+    "animations": 31,
+    "firstHash": "c53358de66adf7979af83ae9ecf90f11d6ac07c38549d035816a52660b404b22",
+    "middleHash": "1f8872bb43dd9bd5630425f269bb7f6cb2fbd9eabc6732ba1a0524db4a41c440",
+    "painted": 4723,
+    "ms": 40
+  },
+  {
+    "file": "Chinatsu.glb",
+    "success": true,
+    "triangles": 12254,
+    "animations": 8,
+    "firstHash": "3d80257ace4d73b4ada0cfffa5f20ca1bb0484e13a627d99ef0aa6d3ee4684f5",
+    "middleHash": "9255c23505bd392382331213cc0c4f00af4bed264e182e52c4458db6504fafb9",
+    "painted": 5132,
+    "ms": 25
+  },
+  {
+    "file": "Chise (Swimsuit).glb",
+    "success": true,
+    "triangles": 14098,
+    "animations": 32,
+    "firstHash": "d3ea68d06997126489664acd53085105373be5156d519f0ba4c4d4c1cd10f2ab",
+    "middleHash": "1580c9646d15d4b16cc7d746ebec530fadc7aa1145d1cccad826edfa7dbe3e25",
+    "painted": 6628,
+    "ms": 56
+  },
+  {
+    "file": "Chise.glb",
+    "success": true,
+    "triangles": 11183,
+    "animations": 30,
+    "firstHash": "fde00677ce3c77e8be830cb61dd6c143263c78c2b3f7587bae0481bfc85e4cec",
+    "middleHash": "4a394b5ce1ff948418079885ad6e180a4232b8410e3f3f2c79fdcc60e44e3e94",
+    "painted": 5860,
+    "ms": 37
+  },
+  {
+    "file": "Eimi (Battle) (Carrier).glb",
+    "success": true,
+    "triangles": 22033,
+    "animations": 2,
+    "firstHash": "0271ab319805a1d526b2783e76bedb7e0c7c3ee9f7845212cefbc3ecc06404df",
+    "middleHash": "9cd5f8c49b6f86da838f54f8b9ea47a3094aaf3f846247b3492bf9a46156d3bc",
+    "painted": 7017,
+    "ms": 27
+  },
+  {
+    "file": "Eimi (Battle) (Scenario).glb",
+    "success": true,
+    "triangles": 22129,
+    "animations": 5,
+    "firstHash": "091723b26f4d115a9fa22233da2bf57e870612f026c0932bbf3eaf2f33991f97",
+    "middleHash": "31e2798aa8d10027627694e79e8dad905fc3ab0ea924e4d63911d3639bb28d06",
+    "painted": 8276,
+    "ms": 49
+  },
+  {
+    "file": "Eimi (Battle).glb",
+    "success": true,
+    "triangles": 22193,
+    "animations": 38,
+    "firstHash": "c22515398b91e471c2bcd6fb59228ee811d1a9143d98d8add8e48f6d00e12e79",
+    "middleHash": "4b8c5559f106ef91a7598cd1390190a18e11eb6dfba7b49c27343896e53ea2d8",
+    "painted": 7017,
+    "ms": 83
+  },
+  {
+    "file": "Eimi (Swimsuit).glb",
+    "success": true,
+    "triangles": 20455,
+    "animations": 12,
+    "firstHash": "365804fb7538479e6fbf97f1f4334e79e78166b5486fdc72509f9b5f24ba5ee4",
+    "middleHash": "5eec0a9ecebdb569cbb7b9dde213d98b63a544894098ae1dce8cd0d5adf3811c",
+    "painted": 6329,
+    "ms": 50
+  },
+  {
+    "file": "Eimi.glb",
+    "success": true,
+    "triangles": 11034,
+    "animations": 33,
+    "firstHash": "bf026bb92ecf48763f87c6762774e8ebb999013b17659928faba205a0094daa7",
+    "middleHash": "3863a057e781857ca091092c66735a4d6c80de010195e0d56ab07e09d90b160e",
+    "painted": 6606,
+    "ms": 42
+  },
+  {
+    "file": "Eri.glb",
+    "success": true,
+    "triangles": 15910,
+    "animations": 37,
+    "firstHash": "948763c1bb6080bf916020f9e5f10503d11879dd248ed0ba0230d03d58556268",
+    "middleHash": "6c9dab959beae27ad718d45b0e8e5a5d777efe0d47e1e2666839c35eff434e9f",
+    "painted": 7595,
+    "ms": 113
+  },
+  {
+    "file": "Erika.glb",
+    "success": true,
+    "triangles": 15411,
+    "animations": 9,
+    "firstHash": "9441219a7efab4aa9acce7f3ee6aab7104f9a316c309bf6dc65c7427e6babf28",
+    "middleHash": "8f23dec9821400845d7124604d2b8bb5cb93e5f020655c4421ea9696358eaffb",
+    "painted": 4847,
+    "ms": 30
+  },
+  {
+    "file": "Fubuki (Swimsuit).glb",
+    "success": true,
+    "triangles": 23966,
+    "animations": 9,
+    "firstHash": "72825a0c876b8c6ca3711f397505a8212d59c56c3b1ef9f92ebaf583667b25fc",
+    "middleHash": "754b65bd656cc4aec058bdbba39251373b3d7883483302962cfad4b3d4bfadb6",
+    "painted": 5843,
+    "ms": 32
+  },
+  {
+    "file": "Fubuki.glb",
+    "success": true,
+    "triangles": 14296,
+    "animations": 30,
+    "firstHash": "3c240cb5164d891996fd707bf48a5a1421abc96e25420e924324583d9cebbd4e",
+    "middleHash": "1e9529d97b935950b1c38ede750a28ed8d866a120845ca528b45615f108db7d5",
+    "painted": 6668,
+    "ms": 39
+  },
+  {
+    "file": "Fuuka (New Year).glb",
+    "success": true,
+    "triangles": 18522,
+    "animations": 8,
+    "firstHash": "138192b02f90b16525996762f149b3179cdb99c1540b138904a40c8b3597723a",
+    "middleHash": "41b27e67fdc7edd49273c692f6f93cc2c547d3ff96c7fdea92384b1e901bfcec",
+    "painted": 4821,
+    "ms": 24
+  },
+  {
+    "file": "Fuuka.glb",
+    "success": true,
+    "triangles": 12492,
+    "animations": 7,
+    "firstHash": "efb6d589b56de459f38154a49f6e05299c14b1ac685a2e1be3be4adbdfd814af",
+    "middleHash": "c90502df570f1ef7f5c5694cc7dd7596c5faa4107c203de4c52570112371903f",
+    "painted": 5911,
+    "ms": 23
+  },
+  {
+    "file": "Fuyu.glb",
+    "success": true,
+    "triangles": 17473,
+    "animations": 30,
+    "firstHash": "c433b41d14add71e6df3bd0afe2a30c567e69af52bc0abdcae96b070b61853ef",
+    "middleHash": "780dd6e0ca1ec012829ef62f4605c53847bbd84badf33bc9848cdabad5a7546a",
+    "painted": 5653,
+    "ms": 67
+  },
+  {
+    "file": "Hanae (Christmas).glb",
+    "success": true,
+    "triangles": 10136,
+    "animations": 8,
+    "firstHash": "e5473c376dff0b5b45917d410f2dabe4427930f9a1eae98f356f45a20d9340b9",
+    "middleHash": "c6769b091cbb2b204712672601e5e781a4e5f31810fbe7831a0e3f457bcae703",
+    "painted": 6150,
+    "ms": 24
+  },
+  {
+    "file": "Hanae.glb",
+    "success": true,
+    "triangles": 12112,
+    "animations": 11,
+    "firstHash": "8fccbba867fb8cdb5ced3d73fdf3d3d225851bb01e46ba57a2dbeb17139498fb",
+    "middleHash": "c8053e702a86b1c4de3d6abbf360cbd7b535e526db6080b60ad77cf236715665",
+    "painted": 7939,
+    "ms": 24
+  },
+  {
+    "file": "Hanako (Swimsuit).glb",
+    "success": true,
+    "triangles": 17292,
+    "animations": 35,
+    "firstHash": "00f6ebc7d483b066c7a20bca876e458c6cbf6dcb12a4b24032ae37eb0b61ebd6",
+    "middleHash": "fa17910d58e7ad4cb43857cb86c5ac9a9e156449f2bd83298be1cd56100158cc",
+    "painted": 5875,
+    "ms": 51
+  },
+  {
+    "file": "Hanako.glb",
+    "success": true,
+    "triangles": 10432,
+    "animations": 7,
+    "firstHash": "a6fd88cda595e9883e99dea84bbc5efc0363e4d2ede09ca79849d1cbd0c95505",
+    "middleHash": "b16f14e52923b628d19ead97ac0eacf80aba73b8f04e1c3d72ade5b931bcb9d1",
+    "painted": 5898,
+    "ms": 22
+  },
+  {
+    "file": "Hare (Camping).glb",
+    "success": true,
+    "triangles": 26406,
+    "animations": 33,
+    "firstHash": "fcd248c1631becaeda6878efa21b03be3e8692022a02a6c9d3d5e2a70f76a7f6",
+    "middleHash": "d2a4a3a6d1fbd93e952988a45588ce5f8ee1d1c5c48cfa72aacfedf9278f9740",
+    "painted": 5330,
+    "ms": 57
+  },
+  {
+    "file": "Hare.glb",
+    "success": true,
+    "triangles": 10505,
+    "animations": 6,
+    "firstHash": "94268a9cae9e75c7453f43291aede34c0f6883bbb5fd7fef5361c6d9e65638ad",
+    "middleHash": "62eb802235d52444e02c4fc442123c788710165263c097751c0f6e73d16a6e5c",
+    "painted": 5393,
+    "ms": 18
+  },
+  {
+    "file": "Haruka (Dress).glb",
+    "success": true,
+    "triangles": 23413,
+    "animations": 28,
+    "firstHash": "4a46dd3e57dd31250810a425f65b9f1a0d955211387d35aff43bc7a8666ab1cf",
+    "middleHash": "d811eb1ad5725bddbbbbede775ec87c610b225095e006aafb917b354c7513a31",
+    "painted": 4576,
+    "ms": 45
+  },
+  {
+    "file": "Haruka (New Year).glb",
+    "success": true,
+    "triangles": 12371,
+    "animations": 8,
+    "firstHash": "7fa937fdfca8a3ca14915ef87fc8641ca0f3456cdf095fdc66c391f2eb4a4674",
+    "middleHash": "d39d4394cf13446cdaef84d2ceebb9e4111589ee1cc033f9d6f870c59e8de94c",
+    "painted": 4960,
+    "ms": 26
+  },
+  {
+    "file": "Haruka.glb",
+    "success": true,
+    "triangles": 11706,
+    "animations": 41,
+    "firstHash": "ca86c8941153c80116e6236456da6740619d130442649ef23f7eb7e1d828fb3a",
+    "middleHash": "3923217617172720f9f134a2314efe60cb9729a65a030cd648d16600fa3fe1a8",
+    "painted": 5136,
+    "ms": 33
+  },
+  {
+    "file": "Haruna (New Year).glb",
+    "success": true,
+    "triangles": 16769,
+    "animations": 30,
+    "firstHash": "5debe9a582a1276e1d48c330af7414cfa36afb9f562a17a4cc5792a1d15898ba",
+    "middleHash": "def5fe00b19473b09c45f4bf3a892d607f17d5a22b69b9e52ab9786e118ecf75",
+    "painted": 6748,
+    "ms": 46
+  },
+  {
+    "file": "Haruna (Sportswear).glb",
+    "success": true,
+    "triangles": 12939,
+    "animations": 12,
+    "firstHash": "b50eeabcfa13364aadb398164b1d3399f91fbe9c9be2d85e960c1dd95baaea1c",
+    "middleHash": "aaf0c8a9f4fd2e85bd09953b24aa05606b8f7074587324d608e1b95b14fb95bb",
+    "painted": 5213,
+    "ms": 35
+  },
+  {
+    "file": "Haruna.glb",
+    "success": true,
+    "triangles": 11900,
+    "animations": 32,
+    "firstHash": "b974594d0c626a521fd14318c96334e88336888d79c2c5687a368ecf25dd4750",
+    "middleHash": "afa2fda18351f31eaa5fc56e56019c96f5d894500e70c1b07f01694b80c31b6e",
+    "painted": 6512,
+    "ms": 40
+  },
+  {
+    "file": "Hasumi (Sportswear).glb",
+    "success": true,
+    "triangles": 7778,
+    "animations": 30,
+    "firstHash": "17b6e40bfbcbda41f201bfe244a3fe60816583d768a2aa8a4c95bc6d323d2837",
+    "middleHash": "f93bf4b2e5cdedaa4ffaa348474843e9acad0e98cbce6f95943a4954ecc94cb7",
+    "painted": 6173,
+    "ms": 35
+  },
+  {
+    "file": "Hasumi (Swimsuit).glb",
+    "success": true,
+    "triangles": 15099,
+    "animations": 33,
+    "firstHash": "612b85933f01082dc19a6b67c23de893af9656b234e1c80260b00dc5715079e1",
+    "middleHash": "cee10cd1c08388b08a1f8c5082f0e69a9437e02ad8b54e1053240867bee2d072",
+    "painted": 7301,
+    "ms": 41
+  },
+  {
+    "file": "Hasumi.glb",
+    "success": true,
+    "triangles": 9422,
+    "animations": 41,
+    "firstHash": "19281f30200741aa65649b27ca5cc0d2a7a7f6f61a615e9f49d87884a1ab0feb",
+    "middleHash": "f0ae22461bbceafeedf8bd628d80094bbdf7518c9c335070d16a92d634d7d231",
+    "painted": 7190,
+    "ms": 39
+  },
+  {
+    "file": "Hatsune Miku.glb",
+    "success": true,
+    "triangles": 13879,
+    "animations": 7,
+    "firstHash": "b11c1dc81e5ac5beac2ca95d8b8f89c0a0810d9cca10f6d4363add0944071118",
+    "middleHash": "e1aee252b7f67663019315fede67b4983924aed97f383020e1945d43b312e92b",
+    "painted": 9798,
+    "ms": 38
+  },
+  {
+    "file": "Hibiki (Cheerleader).glb",
+    "success": true,
+    "triangles": 15638,
+    "animations": 27,
+    "firstHash": "aa8fb7f807467f47cd4c69de8b146221d09ade06cf31bcc45bb978acfb491d18",
+    "middleHash": "d7a6eb7794795ec9028884b2166546670d81b02cc68cae08713efc972a6ab5b2",
+    "painted": 6795,
+    "ms": 61
+  },
+  {
+    "file": "Hibiki.glb",
+    "success": true,
+    "triangles": 16384,
+    "animations": 7,
+    "firstHash": "f970c40d4d5ae7d7956aa6f6e3f41bca9d6778f194f3f9f51971f71a4064290e",
+    "middleHash": "fefafc567dba68630b966d8a22f9db1aa4745f40cc01ac2289c29008dc6e7d49",
+    "painted": 6809,
+    "ms": 29
+  },
+  {
+    "file": "Hifumi (Swimsuit).glb",
+    "success": true,
+    "triangles": 26186,
+    "animations": 21,
+    "firstHash": "4665faa475d2be9df4aeb894e142fdab3c07fc96db865ba4db4a119613eb69d7",
+    "middleHash": "a9d520ee987346b681bda01176d0ba1a1612efbe7b46fee1146a65a8b95d200f",
+    "painted": 5939,
+    "ms": 38
+  },
+  {
+    "file": "Hifumi.glb",
+    "success": true,
+    "triangles": 10232,
+    "animations": 46,
+    "firstHash": "a12764da07cbc1b9e59bfd82bbf20dbf1871619ccd0309ae163654a67842c6e9",
+    "middleHash": "4309bdfc6bf20821be4ef91f7f25a3f1d7bc6aed3594094a2aaf77c022b30f8a",
+    "painted": 2604,
+    "ms": 36
+  },
+  {
+    "file": "Hikari.glb",
+    "success": true,
+    "triangles": 13344,
+    "animations": 35,
+    "firstHash": "66746799db8d7b2db1dce75271ddbf3751242fd871e8506690d43177cb7a8591",
+    "middleHash": "46db7856c8e32e4f5fc11123a1a861becf5245cc4abda1b55dd2c6bb033f5338",
+    "painted": 6396,
+    "ms": 119
+  },
+  {
+    "file": "Himari (Battle).glb",
+    "success": true,
+    "triangles": 33200,
+    "animations": 29,
+    "firstHash": "d4790ad60adf07a06fae80708066fb3732fbb3034aeefbce5bd588a2b520682e",
+    "middleHash": "c7651d506d711fa85eee807050ea0087fbdeed56e56a4a0ab5b1a6620dab3532",
+    "painted": 8149,
+    "ms": 55
+  },
+  {
+    "file": "Himari.glb",
+    "success": true,
+    "triangles": 14215,
+    "animations": 7,
+    "firstHash": "8c380d44ed117a5af0d37b3ab6aced8d5535d44fbfd7b4cb25cdb90a80ecb084",
+    "middleHash": "d57aaa0b3529b73af33823a116bc2ae3dba4c0619162b1122f4fe3ea01059019",
+    "painted": 7685,
+    "ms": 28
+  },
+  {
+    "file": "Hina (Dress).glb",
+    "success": true,
+    "triangles": 18255,
+    "animations": 43,
+    "firstHash": "5aac1c8f00fc1e641e9a1c34f34768b5daff57a4a0b0b764ee823a96b85bd1cd",
+    "middleHash": "0a1b21707d60d7139dcedeb8b3823cbcde6840990bef9487ff199f3a1d383c26",
+    "painted": 5777,
+    "ms": 70
+  },
+  {
+    "file": "Hina (Swimsuit).glb",
+    "success": true,
+    "triangles": 13745,
+    "animations": 23,
+    "firstHash": "d798d780f298bcaebf00b51f9df244cd294c01f2557f195bb4fb11dabbc548d1",
+    "middleHash": "4606bf83619e6de953a8a67303e01c0f315766ad5bc3f3e8b1b93bf58f6303b8",
+    "painted": 7166,
+    "ms": 41
+  },
+  {
+    "file": "Hina.glb",
+    "success": true,
+    "triangles": 16435,
+    "animations": 32,
+    "firstHash": "3586b335fe7913d9a27225fb642f525341b1b39014c4b792a3cca9e783adadff",
+    "middleHash": "2e8101764431c432814054aeffd44242aad21cc325f4149a334db239105dfbea",
+    "painted": 7100,
+    "ms": 44
+  },
+  {
+    "file": "Hinata (Swimsuit).glb",
+    "success": true,
+    "triangles": 19274,
+    "animations": 9,
+    "firstHash": "df3de9880d3b282f6b7ac0895dd79754dadb556af2d18bcaaf3966228a5888ff",
+    "middleHash": "fb1b7c556e78be2c0c5fb1f7be4c428a279bf7e87722daeb14ff9f0008e53d56",
+    "painted": 8150,
+    "ms": 38
+  },
+  {
+    "file": "Hinata.glb",
+    "success": true,
+    "triangles": 17500,
+    "animations": 30,
+    "firstHash": "1dde115c92cd02cc9d912de30ded549d7c6cad73bbd0cea002264af8cbb5ec92",
+    "middleHash": "7a491acacdc8df48251feeb15e0cdec8ad281f472f8fd7aad0e594cd8d3b231c",
+    "painted": 7109,
+    "ms": 49
+  },
+  {
+    "file": "Hiyori (Swimsuit).glb",
+    "success": true,
+    "triangles": 16306,
+    "animations": 33,
+    "firstHash": "fe45bb80a9dfe78aea83a2be9740a7c40d6c305bc5ea9d49192fd39ccf2d569a",
+    "middleHash": "cbecc8b5d715af235fa322a037a1cb11ee0fdc595b88108ac5c8ed1f3c5bae51",
+    "painted": 4749,
+    "ms": 52
+  },
+  {
+    "file": "Hiyori.glb",
+    "success": true,
+    "triangles": 14998,
+    "animations": 7,
+    "firstHash": "beb195b550f9a05d1b5fee981bc0e19b449224a1d98a19fca0587903c53d34bd",
+    "middleHash": "944830faefcc82aad4ea29d0e782aa88c6834829e670e82d1ecbd47323eb51ef",
+    "painted": 10189,
+    "ms": 36
+  },
+  {
+    "file": "Hoshino (Battle).glb",
+    "success": true,
+    "triangles": 21467,
+    "animations": 57,
+    "firstHash": "289bc9c7a87f3c31f6e3ec8a3d75ed1496c0db347c3a09f1de7eadde6caceaf0",
+    "middleHash": "4efe27df3fceb904e91cac5dc93bce247185b87887b6f3c36603a7ed57a71654",
+    "painted": 4962,
+    "ms": 85
+  },
+  {
+    "file": "Hoshino (Swimsuit).glb",
+    "success": true,
+    "triangles": 16802,
+    "animations": 42,
+    "firstHash": "c517b35294d2eb25f90a16ce0d28b07c1caef131e53e9450550ee6ee97f8df61",
+    "middleHash": "bbaac34c2eed69d60ef6e9da8817c1e93b7486300d7e35f7a9e3f3d4b12113fa",
+    "painted": 5381,
+    "ms": 61
+  },
+  {
+    "file": "Hoshino.glb",
+    "success": true,
+    "triangles": 13845,
+    "animations": 36,
+    "firstHash": "b0670c8e9a2d94fefaf6f0488d9a0b35f719b2d951901c6eaea519d402c16b8a",
+    "middleHash": "24ea38b53e7baa2d6c73d5c26d3dbae366d88cd021588f82453565a87021a1e6",
+    "painted": 9675,
+    "ms": 44
+  },
+  {
+    "file": "Ibuki.glb",
+    "success": true,
+    "triangles": 17226,
+    "animations": 50,
+    "firstHash": "02c2b7874a92635da96f7e663c0842c69854143363ec7a59f7c441f876de8c15",
+    "middleHash": "cc21a4d84eb5551f4d6ae963133091311bbd81be47a7b9f128b0288de9b9f345",
+    "painted": 6471,
+    "ms": 94
+  },
+  {
+    "file": "Ichika (Swimsuit).glb",
+    "success": true,
+    "triangles": 16968,
+    "animations": 10,
+    "firstHash": "78a638b7615b348d0c7cdb284b692072f3ddda30dacc5c67fb81f1229d21fa2e",
+    "middleHash": "5c9e72dd854b463d765018dbb306535d458369148b6fd1744d88c85b211d23de",
+    "painted": 6830,
+    "ms": 27
+  },
+  {
+    "file": "Ichika.glb",
+    "success": true,
+    "triangles": 12372,
+    "animations": 40,
+    "firstHash": "9830bea490f8ff3daccb70c42d061be5db17b575f0529f8e45a342c23a21cf13",
+    "middleHash": "082ad8de385b0400fb69db0edc479fb6c1127e6227f15f5d00c71b6526d6cb87",
+    "painted": 6215,
+    "ms": 47
+  },
+  {
+    "file": "Iori (Swimsuit).glb",
+    "success": true,
+    "triangles": 12920,
+    "animations": 31,
+    "firstHash": "8190579dd73c4a9749ecad49ab50ac151ead2d72b1cf165f524ef01dde8c603f",
+    "middleHash": "f8bde20f8ef6e4bdd0bd8d86f39bea6c59036c41d7367b617db73dc56454041c",
+    "painted": 7109,
+    "ms": 35
+  },
+  {
+    "file": "Iori.glb",
+    "success": true,
+    "triangles": 9604,
+    "animations": 33,
+    "firstHash": "573dbed4421f48935387980945ae3405cc57cb101ec1c9415a69334e982602b2",
+    "middleHash": "b63861c94a923bcf84da39e1d7dd4df74fe4553d12693b96ef45ca0dfcc2f8c0",
+    "painted": 6968,
+    "ms": 37
+  },
+  {
+    "file": "Iroha.glb",
+    "success": true,
+    "triangles": 21858,
+    "animations": 36,
+    "firstHash": "de1d5c8e626019e4762dccc9aeb150bae9dad5ef6741aae815fa81b0246e82f0",
+    "middleHash": "1272f35517683708392695596461ee67563ed1331d996ee61f0c6f86d32ba050",
+    "painted": 7099,
+    "ms": 71
+  },
+  {
+    "file": "Izumi (New Year).glb",
+    "success": true,
+    "triangles": 22091,
+    "animations": 13,
+    "firstHash": "7fc618f3eff6d3dc4eea0511387e38fa50b394cc4f0b351f8a61fa58a3cddddb",
+    "middleHash": "c15b39ad060f766760b9c9d7a7f65d302d765c60322e5ed1cbc82bc96d93c0bb",
+    "painted": 6930,
+    "ms": 35
+  },
+  {
+    "file": "Izumi (Swimsuit).glb",
+    "success": true,
+    "triangles": 12883,
+    "animations": 25,
+    "firstHash": "4511102d371200b63795d4ebc916e940786143eb939a426df4b841e0546b1479",
+    "middleHash": "5dc6c50b77f4b49dd0083b1dcb09f25bcfb6e26d13d8d139e6526303627bdfc1",
+    "painted": 8290,
+    "ms": 43
+  },
+  {
+    "file": "Izumi.glb",
+    "success": true,
+    "triangles": 13939,
+    "animations": 31,
+    "firstHash": "216a3fb09be0a4fcf5e75d3b77607c535a940ebd4a64f696d9e465ec6b429fd5",
+    "middleHash": "d76e6b792b9acaac4620f490db8e9bfb8ea7bd39f8eb6e065ab1b2d85b6f05bb",
+    "painted": 7780,
+    "ms": 40
+  },
+  {
+    "file": "Izuna (Swimsuit).glb",
+    "success": true,
+    "triangles": 11789,
+    "animations": 34,
+    "firstHash": "8d2b47933941326d6b6a6b6a6a38ff8da037e2738c0373bbb32e5bdbaac88c4f",
+    "middleHash": "7f58751a1fd014e3848f58143b48ad193cb514c6772ac87ac2e73b12697e9cd0",
+    "painted": 6706,
+    "ms": 47
+  },
+  {
+    "file": "Izuna.glb",
+    "success": true,
+    "triangles": 11935,
+    "animations": 40,
+    "firstHash": "a984bc9fa4bc30f2aae74e98c8901612451c3293917e072d62d6ccd30aa0cb1e",
+    "middleHash": "53269feb65b0f3910fee8e64cbee643545e5811012ba0fd62516ade23590d0d3",
+    "painted": 6322,
+    "ms": 58
+  },
+  {
+    "file": "Junko (New Year).glb",
+    "success": true,
+    "triangles": 15258,
+    "animations": 30,
+    "firstHash": "c0f481c665c37171decf18add60c3a4ec1ab61952f7c1a5072a2e690dd00b41c",
+    "middleHash": "063181d1ef0942d47846e3b776d56f0dd417a438d91e99712972b45eebb92d7e",
+    "painted": 6399,
+    "ms": 46
+  },
+  {
+    "file": "Junko.glb",
+    "success": true,
+    "triangles": 13606,
+    "animations": 38,
+    "firstHash": "f31ea4b69ecaac0c705820333c41558389ccfa6031f7a6b3d38ace6d8194f1dc",
+    "middleHash": "8b941257a3a3a862c9be209e02542793385894af5121098c75be027ac550d36f",
+    "painted": 6616,
+    "ms": 46
+  },
+  {
+    "file": "Juri (Part-Timer).glb",
+    "success": true,
+    "triangles": 20196,
+    "animations": 28,
+    "firstHash": "31dd2105bfac05abce411e56db023734553b7f174ca499e3938819dee6422bfc",
+    "middleHash": "89f57115e6b1da04ebaa4fc1929d8c7f2fa992c799832bac27ba79e90c18aadb",
+    "painted": 4254,
+    "ms": 41
+  },
+  {
+    "file": "Juri.glb",
+    "success": true,
+    "triangles": 12174,
+    "animations": 8,
+    "firstHash": "02148c5ffa71e47e0e829ed69bb8a025ff8552829693b46508868ec45758208c",
+    "middleHash": "34cd1ed22eff36b53e10e1442159124da04b45e874349f323ec2c650399a9d36",
+    "painted": 3117,
+    "ms": 20
+  },
+  {
+    "file": "Kaede.glb",
+    "success": true,
+    "triangles": 13489,
+    "animations": 6,
+    "firstHash": "99d8813220d69fa0afdbc6ce2485017c27c9f8bd85b00ab828a6b78df6097806",
+    "middleHash": "c12dd3bac1ba775eca3880195e58b8a36a03682a70815888dfe3cddd5db90178",
+    "painted": 5691,
+    "ms": 22
+  },
+  {
+    "file": "Kaho.glb",
+    "success": true,
+    "triangles": 13682,
+    "animations": 35,
+    "firstHash": "5d75996e64cb99ea643349903e8f481a38a729643e999156a5e774bf5f546d5d",
+    "middleHash": "38d75169252f6649dc7bfccfcac984c7040398b8d87af2b552df919bd79e4957",
+    "painted": 5935,
+    "ms": 47
+  },
+  {
+    "file": "Kanna (Swimsuit).glb",
+    "success": true,
+    "triangles": 14022,
+    "animations": 34,
+    "firstHash": "cb9ed4851b8de0dcab031e0e57183dc2ca8c4a9220494f90d081a30122d9b9fd",
+    "middleHash": "de5d3bdf695941e8ef57e921b19aca374c7e637c694db9b100b902dc7c7cff04",
+    "painted": 4719,
+    "ms": 39
+  },
+  {
+    "file": "Kanna.glb",
+    "success": true,
+    "triangles": 11088,
+    "animations": 8,
+    "firstHash": "fe618b1d41fc26bd4fc1be9c5abb503a27c48f7693f10c67c9b321a53d2e0ebc",
+    "middleHash": "7a4ec1779d9fe0cef37c80accf114b4f4fc61efcfd0f4198d411a5cce9953d3a",
+    "painted": 5492,
+    "ms": 23
+  },
+  {
+    "file": "Kanoe.glb",
+    "success": true,
+    "triangles": 16961,
+    "animations": 25,
+    "firstHash": "fd90894e6b13c59606ebd277cd3dad36ee2c7baf843852140fd262b16f2d4c93",
+    "middleHash": "28d560253f2a8300824998d312c6cab123b07b2c855747508e5ab838730f1f1a",
+    "painted": 7085,
+    "ms": 37
+  },
+  {
+    "file": "Karin (Bunny Girl).glb",
+    "success": true,
+    "triangles": 11547,
+    "animations": 31,
+    "firstHash": "df9b53aaf98d388ca78505325971add92a18bad58af21a08f3b6f5f8420db33f",
+    "middleHash": "d2d75fdfb2eb13f9d566a8271c56a5d59d56ccea1ee25a6b000f02252ef5dda4",
+    "painted": 5745,
+    "ms": 36
+  },
+  {
+    "file": "Karin (School Uniform).glb",
+    "success": true,
+    "triangles": 16618,
+    "animations": 13,
+    "firstHash": "e5ea0e2fcb907642f8fb28e9fb95c857ba0e96c5edcf052a1381896c03c7bef0",
+    "middleHash": "49d964dd8806f8f71183d379276a0f0d059881144efc595869b4901596896a8b",
+    "painted": 5971,
+    "ms": 35
+  },
+  {
+    "file": "Karin.glb",
+    "success": true,
+    "triangles": 10152,
+    "animations": 10,
+    "firstHash": "2fc20c0282669305b03fc3ff36851d57596a951d6e2e0e065a80a7bae395bcf7",
+    "middleHash": "20027e4fa3213123e0847723b52fdd678495cea662e81f6e798b2bebe5ab10a8",
+    "painted": 7281,
+    "ms": 23
+  },
+  {
+    "file": "Kasumi.glb",
+    "success": true,
+    "triangles": 16327,
+    "animations": 36,
+    "firstHash": "d23245bf987fd6f69c46ff88281f66c9c25e47bbfd49984b82a3af51387c46de",
+    "middleHash": "bc784c532e996c75b99129a709794569e213f4091c9229214e0c49207fc52f84",
+    "painted": 7999,
+    "ms": 73
+  },
+  {
+    "file": "Kayoko (Dress).glb",
+    "success": true,
+    "triangles": 14251,
+    "animations": 32,
+    "firstHash": "6020a2385310a87b35eade5c27db0e2a159fa00d988e015fe6142a969a9fa8b8",
+    "middleHash": "3a62801a2ab180a212928a0c123368063e26b3f3e1f8763a244af8b1c9a16958",
+    "painted": 4096,
+    "ms": 42
+  },
+  {
+    "file": "Kayoko (New Year).glb",
+    "success": true,
+    "triangles": 14594,
+    "animations": 33,
+    "firstHash": "92498aae4bcc91c1c1db45482a091d20601fa04fa297b99cc5e4adc6d2fe1add",
+    "middleHash": "b5044b23fa7b67d906c13a7dd7c150e87866e62dba8bf6201f0dd1a433a37d8f",
+    "painted": 4917,
+    "ms": 47
+  },
+  {
+    "file": "Kayoko.glb",
+    "success": true,
+    "triangles": 10540,
+    "animations": 42,
+    "firstHash": "677a49b7b6aabf2b2a57749d049624a1e55e0eb7aef4879c36cd6c58b869441e",
+    "middleHash": "66bdafedfa65c0a0a61c656ef6df2c7712854732c78bb90e14aa56fa6d91bb60",
+    "painted": 3287,
+    "ms": 32
+  },
+  {
+    "file": "Kazusa (Band).glb",
+    "success": true,
+    "triangles": 22628,
+    "animations": 28,
+    "firstHash": "94b90006899a616c4dbadf938ee1ea8471aa1c45b5a7d6cfbd349e0ea9e8d04d",
+    "middleHash": "dc572e3f701eb6a69a4c356ffe546186ec64ccaeb573f98947dac041312ebf73",
+    "painted": 5422,
+    "ms": 52
+  },
+  {
+    "file": "Kazusa.glb",
+    "success": true,
+    "triangles": 11466,
+    "animations": 24,
+    "firstHash": "15063ad810bf9c04a25b3f894b00b66f35aca02355971b6df70c8cadc8e149ce",
+    "middleHash": "b439a21c8901e4ed1cedd58554314dfb029c410d906a571c298bd04e737d2d1f",
+    "painted": 5194,
+    "ms": 37
+  },
+  {
+    "file": "Kei (Carrier 2).glb",
+    "success": true,
+    "triangles": 18737,
+    "animations": 2,
+    "firstHash": "1a95bbdf05d1520d6f0131cfbed5d583e2b874725d7c09ab43a59e692708ad42",
+    "middleHash": "59bfe3b733123b66a7f173036239037fb3e045268330a344e3554baadadf0f05",
+    "painted": 6661,
+    "ms": 21
+  },
+  {
+    "file": "Kei (Carrier).glb",
+    "success": true,
+    "triangles": 13329,
+    "animations": 1,
+    "firstHash": "ee7494a2393d6c0138fe592e8be9c8031a70dbaeb49056c47effa7d843a1060d",
+    "middleHash": "0bc575df49437deca121d3e75cc4f0d0e27a82fc8263af3d919b8b2006faca2a",
+    "painted": 6664,
+    "ms": 16
+  },
+  {
+    "file": "Kei (Prototype).glb",
+    "success": true,
+    "triangles": 8230,
+    "animations": 1,
+    "firstHash": "aa98470bc90d2a77ec21aeff6ad17a6cf4037618de837799c684c591e9a8622d",
+    "middleHash": "aa98470bc90d2a77ec21aeff6ad17a6cf4037618de837799c684c591e9a8622d",
+    "painted": 6775,
+    "ms": 12
+  },
+  {
+    "file": "Kei (Scenario 1).glb",
+    "success": true,
+    "triangles": 13489,
+    "animations": 9,
+    "firstHash": "58e5d9da607e1cfd36a87e7b7de1dc7a53eb9849891a2c4dac3baa23143a4e85",
+    "middleHash": "0b7107959d54c16e33c95616489aa3e7cdd7a4c363b62bc2c213a47c3d49b26b",
+    "painted": 7520,
+    "ms": 28
+  },
+  {
+    "file": "Kei (Scenario 2).glb",
+    "success": true,
+    "triangles": 15185,
+    "animations": 11,
+    "firstHash": "231412ea310b6bb7722e24614782cd2827a5af3363b197251f35f825c2a7e207",
+    "middleHash": "40a420139331b08129fe72657d63cd3db2fc4a7a24c6f588526031abe3cdd397",
+    "painted": 7736,
+    "ms": 34
+  },
+  {
+    "file": "Kei.glb",
+    "success": true,
+    "triangles": 19057,
+    "animations": 32,
+    "firstHash": "1a95bbdf05d1520d6f0131cfbed5d583e2b874725d7c09ab43a59e692708ad42",
+    "middleHash": "59bfe3b733123b66a7f173036239037fb3e045268330a344e3554baadadf0f05",
+    "painted": 6661,
+    "ms": 61
+  },
+  {
+    "file": "Kikyou (Swimsuit).glb",
+    "success": true,
+    "triangles": 15236,
+    "animations": 12,
+    "firstHash": "ae977fb09640d4b0453037d34db86da1428f30a54a8e4e92288da48b21fe1d1e",
+    "middleHash": "ec26043a95bf7932faa9ab586c21be0ca1a72ff9ed41219d002a8d50fff5c4df",
+    "painted": 4389,
+    "ms": 33
+  },
+  {
+    "file": "Kikyou.glb",
+    "success": true,
+    "triangles": 17448,
+    "animations": 32,
+    "firstHash": "cc0ac212152be40beab301bcf0e0b8e57ccad3ef9fe53b606ef992803eb05108",
+    "middleHash": "b7a061b9f907ea69a5f03739c5e5f0f999d0f9cc993b767427f293ecd9a23665",
+    "painted": 5881,
+    "ms": 68
+  },
+  {
+    "file": "Kirara.glb",
+    "success": true,
+    "triangles": 16966,
+    "animations": 33,
+    "firstHash": "af7bcc2643a0fcf35b437c168bfd95c388ba6014768e352d2ff73a9fcec3c685",
+    "middleHash": "fb140fade6e47c394f373687826db6bc0d22fdf374a56a44c4fba5cd34571e32",
+    "painted": 6143,
+    "ms": 48
+  },
+  {
+    "file": "Kirino (Swimsuit).glb",
+    "success": true,
+    "triangles": 16197,
+    "animations": 12,
+    "firstHash": "5813962b0fc8a1c54a3a5c8fd3e335ded96474930dd5448f7f66b4e02068ffd4",
+    "middleHash": "00e453b4562d47726526d93418a5122fd0b09f54ab195c56906e1c818b024d41",
+    "painted": 4779,
+    "ms": 30
+  },
+  {
+    "file": "Kirino.glb",
+    "success": true,
+    "triangles": 12646,
+    "animations": 38,
+    "firstHash": "b562ec679a19c5b0aaac8df0c2389b68c7b64c5b288965f7ca65321e687d6d94",
+    "middleHash": "62f17ea97c7df02653a66e7295bda1339d1c375f84716db911fb0e1ce77d42ba",
+    "painted": 5344,
+    "ms": 37
+  },
+  {
+    "file": "Kisaki (Swimsuit).glb",
+    "success": true,
+    "triangles": 21007,
+    "animations": 33,
+    "firstHash": "445d4c225ec4bc3f848e1ca2da3dc4bf28f5496b8c1bc7b79e8dd0e2d434e775",
+    "middleHash": "096aa74e8c530e21dc00366d3b38c06898eb12eb9ce93ff4e0b430930a86eccd",
+    "painted": 10182,
+    "ms": 72
+  },
+  {
+    "file": "Kisaki.glb",
+    "success": true,
+    "triangles": 19796,
+    "animations": 9,
+    "firstHash": "9da65bcb36efb453c5aab600898e617edb722b330b1051f085f6083fd62008bf",
+    "middleHash": "f7aa6a5f5e90d11904243f6525c7b6973fb145d250a1c041d3969059da49dc99",
+    "painted": 5508,
+    "ms": 40
+  },
+  {
+    "file": "Koharu (Swimsuit).glb",
+    "success": true,
+    "triangles": 15311,
+    "animations": 37,
+    "firstHash": "cf9b50116a0adb20268f9130c96ee82a6a59476fd4af19d5db31198b6f2292e5",
+    "middleHash": "a3c2c3326d49cf243ad06f8b8264e07e748b9321d3d2f694242b337c282b92db",
+    "painted": 5351,
+    "ms": 69
+  },
+  {
+    "file": "Koharu.glb",
+    "success": true,
+    "triangles": 8246,
+    "animations": 32,
+    "firstHash": "b347f27c65f0c494456f6c3795f465ecfd6f0bbfc569e7dad96a1981340d1ef6",
+    "middleHash": "f5d3f7263d2718479161a3aa3fcbfef4a2980c84be59624479161a72087b3499",
+    "painted": 5962,
+    "ms": 36
+  },
+  {
+    "file": "Kokona.glb",
+    "success": true,
+    "triangles": 11803,
+    "animations": 31,
+    "firstHash": "7800893e534b4c97a695c4d98fb024e23f4ee28a287ca8570609d31e839b201a",
+    "middleHash": "0171b4e47827c6afaeb172ccac86c0096d9b25118b30a0aec3fe1cd828f56f3f",
+    "painted": 7062,
+    "ms": 43
+  },
+  {
+    "file": "Konoka.glb",
+    "success": true,
+    "triangles": 20956,
+    "animations": 31,
+    "firstHash": "82a7d0c78501b99b3ccefef33803f0809448738b85bbf7bbecd778466947bf86",
+    "middleHash": "f6e28682b7f990736fba7a9f70ece529800b4bb983c946368304bdc8c3b9341d",
+    "painted": 5108,
+    "ms": 52
+  },
+  {
+    "file": "Kotama (Camping).glb",
+    "success": true,
+    "triangles": 13646,
+    "animations": 32,
+    "firstHash": "8c65dfbeac1391dc15a246d79b869a310996eed75a48f4fbbc815bcbf317932b",
+    "middleHash": "df6d3482a3c356141233469de04152c8a252d5085fff1278a67f91816713cd35",
+    "painted": 5023,
+    "ms": 49
+  },
+  {
+    "file": "Kotama.glb",
+    "success": true,
+    "triangles": 10964,
+    "animations": 40,
+    "firstHash": "6ccd3ceb0b6171d2fa84e748c6793e5c7ea9473bf4ebd8cef3fbac0baf3ab7b3",
+    "middleHash": "afa7b60c9bb62842909209b51872c93a08c9a3f4c91c6326317d14e81e7be508",
+    "painted": 6035,
+    "ms": 29
+  },
+  {
+    "file": "Kotori (Cheerleader).glb",
+    "success": true,
+    "triangles": 18071,
+    "animations": 24,
+    "firstHash": "1be24e5b1d2273d2d0caafdd4991cf81ff771c3f324cf502468b9459401f47c5",
+    "middleHash": "eeef48873e86b5e7c47816e25e7e552c3caf25575451154f299932f2ea820b98",
+    "painted": 5633,
+    "ms": 41
+  },
+  {
+    "file": "Kotori.glb",
+    "success": true,
+    "triangles": 12500,
+    "animations": 33,
+    "firstHash": "8ed85c1aef13b465796a15164d8dfee46e74f4d964f16d7742a2be529610939f",
+    "middleHash": "d253c2ed10b6edf58f60dd8d4f375d14c5d48ae142f05dd75c64441f3393e8a7",
+    "painted": 5660,
+    "ms": 34
+  },
+  {
+    "file": "Koyuki (Pajama).glb",
+    "success": true,
+    "triangles": 20544,
+    "animations": 8,
+    "firstHash": "f8f354e42462b29fbf78e844e0b17db108e303a7d6b6f7ab48472d8e8f77211d",
+    "middleHash": "4bb5f67401bedef34ce92ce8a935297186645825c4ad4444f61a9ef1f8bb717d",
+    "painted": 8329,
+    "ms": 34
+  },
+  {
+    "file": "Koyuki.glb",
+    "success": true,
+    "triangles": 15341,
+    "animations": 24,
+    "firstHash": "aec9ed645bb31e0f96316922d6a771e9b4a6f516edb4ca1d6fbe3e89424541d2",
+    "middleHash": "0c3d54e8d701439d06925a8e3fa17922655e3ff7c17ecd3f79036fcf1ee0cf8d",
+    "painted": 8382,
+    "ms": 41
+  },
+  {
+    "file": "Kurumi.glb",
+    "success": true,
+    "triangles": 17938,
+    "animations": 36,
+    "firstHash": "d57273c14dd7efb5ff392bb871dcabe58399f29ef395fd4ece8b12881016f9bf",
+    "middleHash": "8723d95b8d5eb3b83183d140a1209459d4bc0116a00d73b5e6871128aae512b4",
+    "painted": 5548,
+    "ms": 51
+  },
+  {
+    "file": "ladies_biker_ar.glb",
+    "success": true,
+    "triangles": 168,
+    "animations": 1,
+    "firstHash": "8c0c1204fa4d5635d6581e61abaed620fddd8513e393fb564a4d4a58a1009565",
+    "middleHash": "8c0c1204fa4d5635d6581e61abaed620fddd8513e393fb564a4d4a58a1009565",
+    "painted": 3566,
+    "ms": 2
+  },
+  {
+    "file": "ladies_biker_mg.glb",
+    "success": true,
+    "triangles": 168,
+    "animations": 1,
+    "firstHash": "fa353e33fb03a8c46250edd3297c56b285d34f85a193200059122856e90d0fb6",
+    "middleHash": "fa353e33fb03a8c46250edd3297c56b285d34f85a193200059122856e90d0fb6",
+    "painted": 3566,
+    "ms": 2
+  },
+  {
+    "file": "ladies_biker_sg.glb",
+    "success": true,
+    "triangles": 168,
+    "animations": 1,
+    "firstHash": "fa353e33fb03a8c46250edd3297c56b285d34f85a193200059122856e90d0fb6",
+    "middleHash": "fa353e33fb03a8c46250edd3297c56b285d34f85a193200059122856e90d0fb6",
+    "painted": 3566,
+    "ms": 2
+  },
+  {
+    "file": "ladiesboss_biker_ar.glb",
+    "success": true,
+    "triangles": 135,
+    "animations": 1,
+    "firstHash": "bade468e4bfb8643e2ed63b8c75e4beecd20be9a5cc90c65eda3285f12dd110b",
+    "middleHash": "bade468e4bfb8643e2ed63b8c75e4beecd20be9a5cc90c65eda3285f12dd110b",
+    "painted": 3520,
+    "ms": 2
+  },
+  {
+    "file": "Maki (Camping).glb",
+    "success": true,
+    "triangles": 18639,
+    "animations": 12,
+    "firstHash": "4bde3c47a5d8b19653b665d5e801b37851ccce7c6e41d2b74883943eca8cc820",
+    "middleHash": "101b4871e7fffef8a7db238af493795ea604c64d28b0faef52cb86dcd6b5d428",
+    "painted": 5143,
+    "ms": 36
+  },
+  {
+    "file": "Maki.glb",
+    "success": true,
+    "triangles": 11244,
+    "animations": 26,
+    "firstHash": "9270a56cba949d47407348b3c67ea8029749050b5afe32b69cb22aaa98d1c662",
+    "middleHash": "eb424c9ad92705fbca659318dd0b77614530419c889faa9cfc20b24c5e059f97",
+    "painted": 5690,
+    "ms": 36
+  },
+  {
+    "file": "Makoto.glb",
+    "success": true,
+    "triangles": 14467,
+    "animations": 10,
+    "firstHash": "fa2a0a308c3d32304e96236f005e6643db1cefb182da838ee83275889512ff64",
+    "middleHash": "d92699520e7112e3cc4dcc53a5deb4db6282240babeb7c74fec845b5b7cab0db",
+    "painted": 7292,
+    "ms": 35
+  },
+  {
+    "file": "Mari (Idol).glb",
+    "success": true,
+    "triangles": 16320,
+    "animations": 34,
+    "firstHash": "b550ff41c6d1ef4a19add6b55f8165a77b6439e3d944274bb954106aca35fbd6",
+    "middleHash": "1722f0264e08d12822affbbf294f1753425189671c4c7c0f0b13f5dff25b8cd0",
+    "painted": 6558,
+    "ms": 53
+  },
+  {
+    "file": "Mari (Sportswear).glb",
+    "success": true,
+    "triangles": 12857,
+    "animations": 31,
+    "firstHash": "1019860f67a1554013e35166059b1ee18faaad5c9314d04d42bacd92b02e15cb",
+    "middleHash": "d6f914a96c7381bed86de83baa679570a5842f56cbcdfa94768a39dc2f782387",
+    "painted": 5507,
+    "ms": 46
+  },
+  {
+    "file": "Mari.glb",
+    "success": true,
+    "triangles": 11656,
+    "animations": 7,
+    "firstHash": "e131421f8c3391ef345a27e6c8b7c65b26a7cb7c56c233700ecb75e8ea2e5b40",
+    "middleHash": "bce5e11d58bfeeec08fdea8482eee3a873132eb6498dccb5aeca5d6648eed721",
+    "painted": 6189,
+    "ms": 20
+  },
+  {
+    "file": "Marina (Qipao).glb",
+    "success": true,
+    "triangles": 17001,
+    "animations": 38,
+    "firstHash": "24348e69cdabc9b29b9fd3179faa877091dbbdab7278ff64c4732cf56b5b5dd2",
+    "middleHash": "1545afb29d25802999d698a328ab04473b7d65194981e5851f8923f7a412ef66",
+    "painted": 4353,
+    "ms": 51
+  },
+  {
+    "file": "Marina.glb",
+    "success": true,
+    "triangles": 11073,
+    "animations": 42,
+    "firstHash": "4720a36e4f99b57ae00b8208ed4621a047f8d87e193e592fd130fd568d177f39",
+    "middleHash": "32fd1214dd8a218f7348529d2711097de1ec2b6af8019a266a44022560be46a5",
+    "painted": 4272,
+    "ms": 44
+  },
+  {
+    "file": "Mashiro (Swimsuit).glb",
+    "success": true,
+    "triangles": 13936,
+    "animations": 7,
+    "firstHash": "c3d7e7915e74b967bcc2b0f10fcbcf5dfab0b91ee668076d2d31b41bc193cb1b",
+    "middleHash": "2d38f398f7c8e0eaefb9674bd54e9124c8631878833441490dbe707ea2ad6b6b",
+    "painted": 4707,
+    "ms": 19
+  },
+  {
+    "file": "Mashiro.glb",
+    "success": true,
+    "triangles": 10470,
+    "animations": 6,
+    "firstHash": "6964497ed4dabea3b8f1396fd7322c537f3e0837dbd22018e91c1c4a3577d564",
+    "middleHash": "24c92fe439873578d72d97e3c914266e1e3f59de330d991c5c67015fd08a62b5",
+    "painted": 4827,
+    "ms": 15
+  },
+  {
+    "file": "Material Development Club Member.glb",
+    "success": true,
+    "triangles": 7689,
+    "animations": 1,
+    "firstHash": "35eeb19a388b7703a970045fb75ebfbe769fa996e699513cbd16a032c69bb417",
+    "middleHash": "f4c5e920917d56a2bd8625aef140372477ce856949faf0decaba414b4cb3b3e0",
+    "painted": 6812,
+    "ms": 12
+  },
+  {
+    "file": "Megu.glb",
+    "success": true,
+    "triangles": 11315,
+    "animations": 24,
+    "firstHash": "ba23f13b33a263b876a564cad6a4959acbfb5d78cd97e5c3ee8a60f5799e7003",
+    "middleHash": "5cb0eebeb4a034f8872979cb6a226dcb0989372db1dfc7160eefa853dc8a5db9",
+    "painted": 5225,
+    "ms": 38
+  },
+  {
+    "file": "Meru.glb",
+    "success": true,
+    "triangles": 13924,
+    "animations": 34,
+    "firstHash": "2a3862b0b57bc5c5f7aded784b18e0556a6c6b2fc0cd8ea322a2581968eb4a8a",
+    "middleHash": "3ede8b1016c937a9d02108feedec9d57c5349db9c0a37e3fd5f3a6b870d29da2",
+    "painted": 7041,
+    "ms": 56
+  },
+  {
+    "file": "Michiru (Dress).glb",
+    "success": true,
+    "triangles": 18249,
+    "animations": 11,
+    "firstHash": "4bf2d03b8828639e673b36d030126b636989d7bff8621787a48171e5a994de8e",
+    "middleHash": "385e4e3f54d55a00f7e734bc27b72aca764a3a3ee5244b27e102a612ed544fc2",
+    "painted": 6488,
+    "ms": 37
+  },
+  {
+    "file": "Michiru.glb",
+    "success": true,
+    "triangles": 11342,
+    "animations": 27,
+    "firstHash": "04fdf2b0c14deba9e1621bb6ea840330baef05df1317c3ff0807daa69fed1236",
+    "middleHash": "75830069aca0d82de324fd13cc1d03a59fa6bd422e6e8f6fda6e606f82ffcb83",
+    "painted": 7439,
+    "ms": 46
+  },
+  {
+    "file": "Midori (Battle).glb",
+    "success": true,
+    "triangles": 10817,
+    "animations": 2,
+    "firstHash": "d2e255a7de91a0dc9477c2dab94cc7c60be7a8a123a3e24146c60931f19413f8",
+    "middleHash": "c12fc884808dd7aad79e8109682e56c368460c52c2e55ab4f055a1fffe5293b0",
+    "painted": 5278,
+    "ms": 18
+  },
+  {
+    "file": "Midori (Maid).glb",
+    "success": true,
+    "triangles": 12404,
+    "animations": 41,
+    "firstHash": "a9d718e4548d3c7c8a9970c22371ba51cfa4905116641e3ade3e3ce76403e4c2",
+    "middleHash": "945042bd0d9ad8e2208030afd8bb0c0dd88d75c83da00b4334cef214aff3ef9c",
+    "painted": 5880,
+    "ms": 41
+  },
+  {
+    "file": "Midori.glb",
+    "success": true,
+    "triangles": 9620,
+    "animations": 31,
+    "firstHash": "af810799f53a4a523cfce0a3fc77ef9e341b38ba3ea9414970173fa61330926f",
+    "middleHash": "c6e7bdd2c6591fe35fb950d5db90156d30ae9636df1cbbbac30fd5d5e04f81e2",
+    "painted": 5467,
+    "ms": 25
+  },
+  {
+    "file": "Mika (Cut-in).glb",
+    "success": true,
+    "triangles": 19044,
+    "animations": 2,
+    "firstHash": "e898346da87a3443e08d2157e74951a35eaafb4db15bed908688f1cb13d4e827",
+    "middleHash": "9db62549f06d9cbb57de6b1e8968fd5c939498c642a40d18b9cc6c40a2068f09",
+    "painted": 7106,
+    "ms": 28
+  },
+  {
+    "file": "Mika (Swimsuit).glb",
+    "success": true,
+    "triangles": 18715,
+    "animations": 38,
+    "firstHash": "07ef6bdbd6d7767544e64a2ff335eb96532861561e20373c258e0f3ed3090038",
+    "middleHash": "9ca11d47acc1d945fa8219eb0aab963e89c8d402828cc19684f2189ae6714783",
+    "painted": 7223,
+    "ms": 47
+  },
+  {
+    "file": "Mika.glb",
+    "success": true,
+    "triangles": 11119,
+    "animations": 33,
+    "firstHash": "acdc182a0605e5c597736db82e3fd7e38f9f026d5d1dae89e20ad3e52cb5fdc7",
+    "middleHash": "35820c0f2fe1c41bf33976af236a3eb0ef6b571f9748b906885f4e8f53362d41",
+    "painted": 7104,
+    "ms": 54
+  },
+  {
+    "file": "Mimori (Swimsuit).glb",
+    "success": true,
+    "triangles": 14326,
+    "animations": 10,
+    "firstHash": "89292b502609081483d8350fb7c86a169755b747d8924194b35f5009f5e8b59f",
+    "middleHash": "3ee7cd19c9a08d0fd3ab47a85fe9e96136ee82199c81ec27f1692a970b08fbde",
+    "painted": 5133,
+    "ms": 25
+  },
+  {
+    "file": "Mimori.glb",
+    "success": true,
+    "triangles": 10478,
+    "animations": 38,
+    "firstHash": "a61f10ce15ae21a8ed9f51c6a0a804a43363878d3d31aff3a3079aae03589573",
+    "middleHash": "42e0db313a24ea272fec7f20bc25f8fa3d2f8dace21d398bf94460d6321abfa3",
+    "painted": 6744,
+    "ms": 42
+  },
+  {
+    "file": "Mina.glb",
+    "success": true,
+    "triangles": 15359,
+    "animations": 33,
+    "firstHash": "a60396a29f6ab761aaa96cae1c6244827b3bfe4ede74feb3d9aba7c9cf69e519",
+    "middleHash": "353868cc383ea82fadfde1e318f60c8d9b8f4f0d81dd80985552786eb60b0553",
+    "painted": 6820,
+    "ms": 39
+  },
+  {
+    "file": "Mine (Idol).glb",
+    "success": true,
+    "triangles": 12965,
+    "animations": 28,
+    "firstHash": "bcb2cde67daaef3deae08b3dd2c3c4b44e5ac171c8d76f819adc7d4334f97e4c",
+    "middleHash": "0ae22374d06ee007b9ba729b04e6d601b04a45f39fac15b73901f1791fb3d06d",
+    "painted": 7727,
+    "ms": 54
+  },
+  {
+    "file": "Mine.glb",
+    "success": true,
+    "triangles": 11279,
+    "animations": 25,
+    "firstHash": "4b2e93c6dd7183df7c84575cb248bea5e745c1f82d45aab6e8c3bc945440fbf7",
+    "middleHash": "769c28bbe1b9dd8e5449bb00001eafc318412b70508434420bb177cadb5510ca",
+    "painted": 7268,
+    "ms": 52
+  },
+  {
+    "file": "Minori.glb",
+    "success": true,
+    "triangles": 14372,
+    "animations": 10,
+    "firstHash": "5fa9231a32e3ddd5bace67de4363bdf182d0a9b98e323e587024c902601e9469",
+    "middleHash": "a25482e22c65218a7213f553947cd3e37743d27f6358e96be435344f8cddd5a8",
+    "painted": 6144,
+    "ms": 35
+  },
+  {
+    "file": "Misaka Mikoto.glb",
+    "success": true,
+    "triangles": 10109,
+    "animations": 32,
+    "firstHash": "97b7abe84a4a2f8ad6f2b93ed29dc055ff796ed273160cd2dc920d7ce9c6fe81",
+    "middleHash": "145ac8a5c0ab4743a7fb0c0b73e21c7d8de227d838782d7d28185b1064fa3930",
+    "painted": 4394,
+    "ms": 45
+  },
+  {
+    "file": "Misaki (Swimsuit).glb",
+    "success": true,
+    "triangles": 35738,
+    "animations": 12,
+    "firstHash": "6001add1b58156a6a7693b3b24814f64229683ca77d3a546a2c9e997e9d86475",
+    "middleHash": "80f002361bc3b6b6972eaa6d123fa189d257c37e3e7d0ca59705a6e23a24ea42",
+    "painted": 5481,
+    "ms": 42
+  },
+  {
+    "file": "Misaki.glb",
+    "success": true,
+    "triangles": 11771,
+    "animations": 30,
+    "firstHash": "54d594131fc10cd91b06dfc9d8effb6d10890459cf11cf6f8b8cd1a0f3db92bb",
+    "middleHash": "e1ef53525ea5bba5ba4eea551c2d48d37e6b410718632ac0a6c8cd817312e750",
+    "painted": 5663,
+    "ms": 33
+  },
+  {
+    "file": "Miyako (Swimsuit).glb",
+    "success": true,
+    "triangles": 12932,
+    "animations": 35,
+    "firstHash": "a86249a0f4f7237517c6de72d9eae1c81e380790bf75ca575ce201beea2a60cc",
+    "middleHash": "0b779ee8b9355e9d8e871367027987834bb640fa1654051d642396106f0772e5",
+    "painted": 5339,
+    "ms": 40
+  },
+  {
+    "file": "Miyako.glb",
+    "success": true,
+    "triangles": 10979,
+    "animations": 32,
+    "firstHash": "2a8fbb5ec8c5faa105cd204240f36f0963ca40aa39006216b2a8c5ed534c69f2",
+    "middleHash": "4c22d43fe17aef8087dde045129b3e10df9bcc331cbb573539797f92a699e371",
+    "painted": 5750,
+    "ms": 42
+  },
+  {
+    "file": "Miyo.glb",
+    "success": true,
+    "triangles": 19626,
+    "animations": 33,
+    "firstHash": "230ce9b75694aa4a4ae12c0331bb90487d689f10db72b93f96a1e8ae8815861d",
+    "middleHash": "f3ad49e37c5439f522f721696130f54eb685bedc7c61f7ef97fd9b6b9f1fa66b",
+    "painted": 4574,
+    "ms": 48
+  },
+  {
+    "file": "Miyu (Swimsuit).glb",
+    "success": true,
+    "triangles": 19469,
+    "animations": 11,
+    "firstHash": "3234f30cc456aa1ed77ceab74d8ea4231a18ac53886d3c99805d81a8a4b23cbc",
+    "middleHash": "b5617d3d12ffac7e6d3c3c955f45e8a602623c49af8aa030a4e27c0e226263de",
+    "painted": 5935,
+    "ms": 32
+  },
+  {
+    "file": "Miyu.glb",
+    "success": true,
+    "triangles": 14471,
+    "animations": 31,
+    "firstHash": "86f1c41930117e75c9d6bcf4ee7f616ce3c6167cd207c39d89648ba95deca1f1",
+    "middleHash": "5e6ed809d288bc5fbcef6bd4e7bd914c24a097f2953c5ee596ec1ce3bf14637b",
+    "painted": 5477,
+    "ms": 42
+  },
+  {
+    "file": "Moe (Swimsuit).glb",
+    "success": true,
+    "triangles": 15686,
+    "animations": 32,
+    "firstHash": "cdb87b43866bb4f2fd60d000933c54ef2b1ec9cbe2fe94c4b5ba9656cc165f4a",
+    "middleHash": "551dd8baf79f6d20bcc0a5ce96ad07290a057aa6b2c495f0990c4edcfe921a89",
+    "painted": 4960,
+    "ms": 46
+  },
+  {
+    "file": "Moe.glb",
+    "success": true,
+    "triangles": 8841,
+    "animations": 7,
+    "firstHash": "6bb131c8815833d3049da6ee053080db9392f8b1b4305b2ffe3b07d936c8d9ef",
+    "middleHash": "798687054e667f612e2d5203aef6b237d695243f5df65c0721da9cfd3a2e86c5",
+    "painted": 5180,
+    "ms": 20
+  },
+  {
+    "file": "Momiji.glb",
+    "success": true,
+    "triangles": 15088,
+    "animations": 38,
+    "firstHash": "dbac6c7327a7ac8cb23b928100435953a3b2d8277f7fcde0167e35380b532e1a",
+    "middleHash": "34f01482ca74abeb92d20df0f3ab26ed53713c92042ca6c16744b52d9db91f78",
+    "painted": 7097,
+    "ms": 49
+  },
+  {
+    "file": "Momoi (Battle).glb",
+    "success": true,
+    "triangles": 10801,
+    "animations": 2,
+    "firstHash": "10e08dbf9d2ffd188b0fc274317c03e70edf53f057e4e340417af61d62922d57",
+    "middleHash": "928de47a61b4ec12da95ffc4f8a673e0d68cedf281a78238362fbcc83507ff5c",
+    "painted": 5312,
+    "ms": 16
+  },
+  {
+    "file": "Momoi (Maid).glb",
+    "success": true,
+    "triangles": 12165,
+    "animations": 39,
+    "firstHash": "a657075203ebea49860cecdcdf0b8b08cf5c34068206badedc3bd0d5a600a469",
+    "middleHash": "a684f7f7b4b590c04bd05df5848f4921d76b1a6c23ca124f5317e93a4dfb39cd",
+    "painted": 6490,
+    "ms": 41
+  },
+  {
+    "file": "Momoi.glb",
+    "success": true,
+    "triangles": 9754,
+    "animations": 37,
+    "firstHash": "b01b0921959f25a6416e6ce05c8054d113e5d449a2a85ba48ee1c1b1e747ac3f",
+    "middleHash": "e9ca01d31fa9f77a33babdc08875a1562fd3e2e69f939bbd136328381e8d3284",
+    "painted": 5578,
+    "ms": 28
+  },
+  {
+    "file": "Mutsuki (Dress).glb",
+    "success": true,
+    "triangles": 16087,
+    "animations": 8,
+    "firstHash": "8671d2ce496ab9f4e768f378aa68ba64b624d8a297792116866182cb75b4f99e",
+    "middleHash": "c0f2fdd117e9e45ab68502a11a189a123eefa598d0ce7084e5645b6452c5b194",
+    "painted": 5871,
+    "ms": 32
+  },
+  {
+    "file": "Mutsuki (New Year).glb",
+    "success": false,
+    "error": "GLB \uC560\uB2C8\uBA54\uC774\uC158 \u0027Normal_Callsign\u0027\uC758 \uC2DC\uAC04 \uD0A4\uAC00 \uC911\uBCF5\u00B7\uC5ED\uC21C\uC774\uAC70\uB098 0~120\uCD08 \uBC94\uC704\uB97C \uBC97\uC5B4\uB0AC\uC5B4\uC694. \uC6D0\uBCF8\uC5D0\uC11C \uC2DC\uAC04 \uD0A4\uB97C \uC815\uB9AC\uD574 \uB2E4\uC2DC \uB0B4\uBCF4\uB0B4 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: GLB \uC560\uB2C8\uBA54\uC774\uC158 \u0027Normal_Callsign\u0027\uC758 \uC2DC\uAC04 \uD0A4\uAC00 \uC911\uBCF5\u00B7\uC5ED\uC21C\uC774\uAC70\uB098 0~120\uCD08 \uBC94\uC704\uB97C \uBC97\uC5B4\uB0AC\uC5B4\uC694. \uC6D0\uBCF8\uC5D0\uC11C \uC2DC\uAC04 \uD0A4\uB97C \uC815\uB9AC\uD574 \uB2E4\uC2DC \uB0B4\uBCF4\uB0B4 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_3.\u003C.ctor\u003Eb__30(JsonElement c) in /Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/src/Unfold.Core/GlbModel.cs:line 179\n   at System.Linq.Enumerable.ArraySelectIterator\u00602.ToArray()\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__10(JsonElement a, Int32 index) in /Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/src/Unfold.Core/GlbModel.cs:line 172\n   at System.Linq.Enumerable.SelectIterator[TSource,TResult](IEnumerable\u00601 source, Func\u00603 selector)\u002BMoveNext()\n   at System.Linq.Enumerable.\u003CToArray\u003Eg__EnumerableToArray|324_0[TSource](IEnumerable\u00601 source)\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes) in /Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/src/Unfold.Core/GlbModel.cs:line 168\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes) in /Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/src/Unfold.Core/GlbModel.cs:line 37\n   at Unfold.Core.GlbPetDraft..ctor(String path) in /Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/src/Unfold.Core/GlbPetDraft.cs:line 28\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 11",
+    "ms": 22
+  },
+  {
+    "file": "Mutsuki.glb",
+    "success": true,
+    "triangles": 12960,
+    "animations": 33,
+    "firstHash": "4ad14cdcc90186ef7c10e212c3a6dca4ec334ceb9b9174943cda9e2946d4bcee",
+    "middleHash": "efe8bdb00819070e1084e03d73857551a26870ea11191037366f405c2be3d350",
+    "painted": 5934,
+    "ms": 28
+  },
+  {
+    "file": "Nagisa (Swimsuit).glb",
+    "success": true,
+    "triangles": 20876,
+    "animations": 12,
+    "firstHash": "f27b7487bce6bb74cd1c066996b49258ebecef799065985a2d481fa2d96e7553",
+    "middleHash": "128b89494c190a6f38cd8217c9c3a4c4fd3d65e128fe0cbbfc373664ded974f5",
+    "painted": 5503,
+    "ms": 36
+  },
+  {
+    "file": "Nagisa.glb",
+    "success": true,
+    "triangles": 15646,
+    "animations": 6,
+    "firstHash": "0077eb73e2ac518e52deb8a0591ecfddca61d3919fa2ce5e3887ab1b15807cec",
+    "middleHash": "ec8800bfe0b0accf38462a7ea9592663884f5b33b818fddea232e93c59d78a4c",
+    "painted": 5714,
+    "ms": 24
+  },
+  {
+    "file": "Nagusa (Cut-in).glb",
+    "success": true,
+    "triangles": 15500,
+    "animations": 1,
+    "firstHash": "7bbf099dd106c9083526e5fbfce646adbf4a2b59851be5bddcfd8fbbc12e106b",
+    "middleHash": "7bbf099dd106c9083526e5fbfce646adbf4a2b59851be5bddcfd8fbbc12e106b",
+    "painted": 7264,
+    "ms": 22
+  },
+  {
+    "file": "Nagusa (Swimsuit).glb",
+    "success": true,
+    "triangles": 16018,
+    "animations": 29,
+    "firstHash": "b8345147ac124f28f345c5f3589262f0dbcab138684dca5c3d154a0391e64693",
+    "middleHash": "ba9fa888cba1294c124cbdb91274a42fb2c5d3119d9839f9cb6d9c931a462812",
+    "painted": 6435,
+    "ms": 54
+  },
+  {
+    "file": "Nagusa.glb",
+    "success": true,
+    "triangles": 12880,
+    "animations": 25,
+    "firstHash": "79fb65e4552e79ab4ce0681e6d32e7592c4d3452daa71a58f5fc11775369590b",
+    "middleHash": "1844e49bd09120436c54bd8cbfcacd439d6dcb2ca957257ef8bb93f10adc24f3",
+    "painted": 5941,
+    "ms": 54
+  },
+  {
+    "file": "Natsu (Band) (No Weapon).glb",
+    "success": true,
+    "triangles": 23992,
+    "animations": 5,
+    "firstHash": "35dca4655f12049a1b1d69dc034651c30d80027190fee850fca114320333c097",
+    "middleHash": "8a9e2a77482f39a0a33d0c1d516568f92914c5e4f285396d66938c64a9152362",
+    "painted": 5796,
+    "ms": 39
+  },
+  {
+    "file": "Natsu (Band).glb",
+    "success": true,
+    "triangles": 26549,
+    "animations": 33,
+    "firstHash": "ce3e234b93ddd50853c59f0eb60d97d0f21b346eb9a1bbeb726cdcee49b4723e",
+    "middleHash": "b8516a984b3659ec16f05437316ce051410fb3904fff04c57509d6cf337e2a8c",
+    "painted": 5900,
+    "ms": 40
+  },
+  {
+    "file": "Natsu.glb",
+    "success": true,
+    "triangles": 10822,
+    "animations": 23,
+    "firstHash": "f0cb3eae379f93e9aca0d9c1eca851dda46699f3a56a2359c813350472680818",
+    "middleHash": "7ff667b6ebb2675df03010248d6dff43fdce8448c4a35a6e919a324cf84234f4",
+    "painted": 5785,
+    "ms": 31
+  },
+  {
+    "file": "Neru (Bunny Girl).glb",
+    "success": true,
+    "triangles": 11355,
+    "animations": 38,
+    "firstHash": "99b8b2f6f04dac191141883ed24869cef50a40f7f5a2d6f9039b0062b8a71879",
+    "middleHash": "08c9889cd2705e5e72b406352b6afb540c6ec2daa373708891ea74d8926406be",
+    "painted": 5267,
+    "ms": 61
+  },
+  {
+    "file": "Neru (School Uniform).glb",
+    "success": true,
+    "triangles": 21845,
+    "animations": 37,
+    "firstHash": "934cf797300fe684e6295a1e1e5c73992dccc892d629bfe42d9d9d3548e20ad4",
+    "middleHash": "02d32ad5b2dc26326b19d0b188dfd02b2266e349ce522045fa8235511e846ae3",
+    "painted": 5605,
+    "ms": 55
+  },
+  {
+    "file": "Neru.glb",
+    "success": true,
+    "triangles": 10910,
+    "animations": 40,
+    "firstHash": "940ec26ac7d6c3f5805ef6b12450fa1c9437cbc0956c051ed807bb13a8906fe3",
+    "middleHash": "69f8459949d456079ce2333f3f27fa3bb7edbfe8d7e02cf961117545209b0e0a",
+    "painted": 5671,
+    "ms": 60
+  },
+  {
+    "file": "Niko.glb",
+    "success": true,
+    "triangles": 22417,
+    "animations": 25,
+    "firstHash": "ec032988daa7a6a20defb4999522fa9019d9b292dde28afb0273809193cf12f0",
+    "middleHash": "d185385332e67ae76dc8bcde48d871305d07e6f96c05e55e25d6d40006ec5224",
+    "painted": 5730,
+    "ms": 44
+  },
+  {
+    "file": "Niya.glb",
+    "success": true,
+    "triangles": 14102,
+    "animations": 9,
+    "firstHash": "3a58211fc0e4df824cb9d2e2d4cedd178b31a2979ad99fe75e2c05f689ada556",
+    "middleHash": "d7cc9349a672e842b5dfa8b48a47cbcbb7ba5fc6c5fd1917b38b9c886ae51155",
+    "painted": 5120,
+    "ms": 29
+  },
+  {
+    "file": "Noa (Pajama).glb",
+    "success": true,
+    "triangles": 16094,
+    "animations": 34,
+    "firstHash": "be4b22cb4d31201f748c0e0ccf8689758fb46a5d61edd86a80210e491172c1fa",
+    "middleHash": "12d37bcc17eed1dcdabeabfcf9dbc12ce50ced3af2275b62f02c25967b2f9164",
+    "painted": 5155,
+    "ms": 49
+  },
+  {
+    "file": "Noa.glb",
+    "success": true,
+    "triangles": 12382,
+    "animations": 31,
+    "firstHash": "e8509aea146e525b25552d48073d2947f0c6b6edef431ff9794d2f9d79ec167f",
+    "middleHash": "3537ca4ab3f9aaae6bf8d7f77632a6584510dc6e1b21e27ed426033b5393d3ee",
+    "painted": 6337,
+    "ms": 41
+  },
+  {
+    "file": "Nodoka (Hot Spring).glb",
+    "success": true,
+    "triangles": 13250,
+    "animations": 13,
+    "firstHash": "c846a8aaf979831c489ba876859b27aaa5c7f319d5f7f713f06051c1baded050",
+    "middleHash": "c83806b149d23c35ff6350a3dc7c9647cba3d36105ed5ff5d7bcb180514a671a",
+    "painted": 5100,
+    "ms": 22
+  },
+  {
+    "file": "Nodoka.glb",
+    "success": true,
+    "triangles": 12571,
+    "animations": 6,
+    "firstHash": "009028ba9107db8ad40ddd46efee87faf5613d98f6a278901f33bd9aeb673111",
+    "middleHash": "4745177372374938856391745d322f5020e3a2c89693fa4384b7038d176beb1b",
+    "painted": 8881,
+    "ms": 23
+  },
+  {
+    "file": "Nonomi (Swimsuit).glb",
+    "success": true,
+    "triangles": 12924,
+    "animations": 24,
+    "firstHash": "9e13de9033998f1efc5b61ef7aaa424f4df1c6a943f28fe54c86262a272e442a",
+    "middleHash": "6c5461c254b55ec83f688386e9677c0e8ed7d4c3dc070745da3d09f8787697a7",
+    "painted": 5630,
+    "ms": 37
+  },
+  {
+    "file": "Nonomi.glb",
+    "success": true,
+    "triangles": 10570,
+    "animations": 27,
+    "firstHash": "e85c480343745b9920909360173267e3f6cdc4873717f4352475b0f3b3167950",
+    "middleHash": "4ee5723a1787e4aca84f37e64f49d0b4d6b7e8ac99dd461489076def120f4665",
+    "painted": 6976,
+    "ms": 50
+  },
+  {
+    "file": "Nozomi.glb",
+    "success": true,
+    "triangles": 12839,
+    "animations": 34,
+    "firstHash": "92f172b6afc6c12e38a59e7e7cec9a2c64c612b96ece2d4acfdf0877ecc4f0a4",
+    "middleHash": "6a094aa1903af7c46171035998bac8f3366ba8c02da9775717806ab7f0565028",
+    "painted": 6329,
+    "ms": 39
+  },
+  {
+    "file": "Otogi.glb",
+    "success": true,
+    "triangles": 21890,
+    "animations": 51,
+    "firstHash": "4144c6061c0e43e35e674de9eb81c99336d128ad356701c7e59218962a8493db",
+    "middleHash": "3f110116d8da0200b6551b6cdfec7f8900d663df116c6f101adb37aae535fd69",
+    "painted": 6620,
+    "ms": 89
+  },
+  {
+    "file": "Pina (Guide).glb",
+    "success": true,
+    "triangles": 17367,
+    "animations": 14,
+    "firstHash": "e0e5942e4a4253f608462f981e05a5cddb6e2b04fc17d824809d42111842bf5e",
+    "middleHash": "9006089190f534d5d97e53dd3f2eebe7b37c97e61620638fb853feacb76c959c",
+    "painted": 4844,
+    "ms": 32
+  },
+  {
+    "file": "Pina.glb",
+    "success": true,
+    "triangles": 11327,
+    "animations": 26,
+    "firstHash": "2d29563dfaa5137c71ca234450496341163a86bff95719dd38e7b199e166e110",
+    "middleHash": "6a28bbf4d275a133a4c43ff826c44fc901ff79038c529684705d3f8819f7cf89",
+    "painted": 5593,
+    "ms": 28
+  },
+  {
+    "file": "Rabu.glb",
+    "success": true,
+    "triangles": 14164,
+    "animations": 34,
+    "firstHash": "75c3cb500b5395a112757fbcb957a9eb4ca5d242e118b4aa2bf982bef45ad206",
+    "middleHash": "6401e19e668798d2a64f2a530bfb3984339ae60e60d8124ada9e826b919e480d",
+    "painted": 5810,
+    "ms": 49
+  },
+  {
+    "file": "Rei.glb",
+    "success": true,
+    "triangles": 19918,
+    "animations": 36,
+    "firstHash": "921e08fb4bd31bd85320f30f31643cdf6c625931fcf97ba5c6c5b2b9408ffc26",
+    "middleHash": "4b04e1a9840ca300bb788abd6e18275f1e60ead0d8058a60c2c3e37d38fe1230",
+    "painted": 5207,
+    "ms": 49
+  },
+  {
+    "file": "Reijo.glb",
+    "success": true,
+    "triangles": 13534,
+    "animations": 31,
+    "firstHash": "04d8885e2dd4548137746c3568696a648cfeab83d4338c4b7b101efab4f8fca4",
+    "middleHash": "59686f53e18ce435fa0f6408c568291c2c585c28c2838b8dce80abb035263de3",
+    "painted": 5479,
+    "ms": 39
+  },
+  {
+    "file": "Reisa (Magical).glb",
+    "success": true,
+    "triangles": 19519,
+    "animations": 12,
+    "firstHash": "5b5929aad6e30eab8efdd8865b0ac5680fe46df0d5040daa7a28156c2e5b7d11",
+    "middleHash": "97d5e4784e20aaf14e0a31c86920ef7bd2862e7e341dd888db2de490d1a1a575",
+    "painted": 7537,
+    "ms": 36
+  },
+  {
+    "file": "Reisa.glb",
+    "success": true,
+    "triangles": 12326,
+    "animations": 25,
+    "firstHash": "26dfc7693c18afae37cbd087926a5c5209f597b7548bde6903e41b9f538e8486",
+    "middleHash": "e01cc9257bde73fcf880c63cf3c1e367e5a5e225c0bb255e03a2e0313f4574a0",
+    "painted": 6299,
+    "ms": 39
+  },
+  {
+    "file": "Rena.glb",
+    "success": true,
+    "triangles": 16964,
+    "animations": 35,
+    "firstHash": "74f784592fde15b52cda5ebb46e720cd20af828e0ef77982d99b1a9fbdd0fb7b",
+    "middleHash": "3d3fdc0a987da7332777ed0f72fcb8ddb8dfe92259a429646364b02f492662e7",
+    "painted": 5963,
+    "ms": 57
+  },
+  {
+    "file": "Renge (Swimsuit).glb",
+    "success": true,
+    "triangles": 16455,
+    "animations": 32,
+    "firstHash": "18c643f782b36f027fe2c650360708c2ad5216913e34da422dc97982afc0e892",
+    "middleHash": "3ccb94d55e72197201205f364a7b4a5591f5186e98761814605d2093f34ed54d",
+    "painted": 5376,
+    "ms": 48
+  },
+  {
+    "file": "Renge.glb",
+    "success": true,
+    "triangles": 14066,
+    "animations": 35,
+    "firstHash": "1afc8abf0093bbd5819c8dc1d35e53a26419170e67d628669b71dd3ff8eb88e6",
+    "middleHash": "a1fc4b22fff03d646df93704dcd9368f3e684b8942af878b2009b3106eef7734",
+    "painted": 6214,
+    "ms": 54
+  },
+  {
+    "file": "Rio (Battle) (Scenario).glb",
+    "success": true,
+    "triangles": 12548,
+    "animations": 4,
+    "firstHash": "9ad27779bf670305f177c650d5e5670a3b0d552c8bad4b6453ba576ddddfa494",
+    "middleHash": "ac5f8599a32d7aaf24eaa61aef06889c10c6ba5181e7e31d6cfd7f5a370ecd8e",
+    "painted": 4608,
+    "ms": 17
+  },
+  {
+    "file": "Rio (Battle).glb",
+    "success": true,
+    "triangles": 12612,
+    "animations": 33,
+    "firstHash": "eb200cf93fd79e86c683dff115ca321acf0b9b9fc5f7782acfa10cba9f8df37f",
+    "middleHash": "0858b3c9e41df84e631fac6fbfee94975b1e74d09a8ec17add69b6c10a44118a",
+    "painted": 4563,
+    "ms": 30
+  },
+  {
+    "file": "Rio.glb",
+    "success": true,
+    "triangles": 14402,
+    "animations": 14,
+    "firstHash": "d18630e252864108ec503693c05041fada920eee20c3bca4f24b2c504bf026ca",
+    "middleHash": "866be39b8fa81052b5b36bf845bb0f533d1fd37a169ae0a0d845cb67340f297a",
+    "painted": 6446,
+    "ms": 25
+  },
+  {
+    "file": "Ritsu.glb",
+    "success": true,
+    "triangles": 15906,
+    "animations": 11,
+    "firstHash": "476028e7a97c788121ad705c5264906ac354b70cc489f93864f470c615115c20",
+    "middleHash": "737064c390c53461aae725b30369174abd1c3f95de64745aadd3d13b37fbe8b6",
+    "painted": 4909,
+    "ms": 32
+  },
+  {
+    "file": "Rumi.glb",
+    "success": true,
+    "triangles": 17886,
+    "animations": 31,
+    "firstHash": "3669a4eded1f96af0e97681ed94106be3e60485c8a40ce3c22c1820a4e4122da",
+    "middleHash": "2d205e4c2bae679b44ada5365f32e59ea8b6967e47f0b4682c6263fb759de7ad",
+    "painted": 6424,
+    "ms": 44
+  },
+  {
+    "file": "Saki (Swimsuit).glb",
+    "success": true,
+    "triangles": 13613,
+    "animations": 29,
+    "firstHash": "aabf9b1304a652c5886189b52df05062dbe4486a848010aa31d0581465e7690c",
+    "middleHash": "133e65f1710e44f46d9e1670390f896eb513d66feba5879aa4b25dc7d9eb4ef2",
+    "painted": 5548,
+    "ms": 54
+  },
+  {
+    "file": "Saki.glb",
+    "success": true,
+    "triangles": 11029,
+    "animations": 9,
+    "firstHash": "ce112009a11b913a73459a5e098d770a240f3531980718a0bd3af14001737b7f",
+    "middleHash": "2dbd10c4231bbd3eea4954a785f49d2e16a793aad5d15afcd0658388f0a52973",
+    "painted": 5457,
+    "ms": 25
+  },
+  {
+    "file": "Sakurako (Idol).glb",
+    "success": true,
+    "triangles": 14757,
+    "animations": 33,
+    "firstHash": "01f704112b44e1e334abaef62dbfa5cc06f226deb1384c232e0e184961cf3035",
+    "middleHash": "09b26614b63a8e2827aa55823095c7e7433bfcd71946af7a7cd248a127b14942",
+    "painted": 6995,
+    "ms": 53
+  },
+  {
+    "file": "Sakurako.glb",
+    "success": true,
+    "triangles": 11424,
+    "animations": 32,
+    "firstHash": "1e8966f1fdeb5ff2208a79a47b3def6e27c65c28a00e6bb8b353766b8c8240ac",
+    "middleHash": "89dc24047d8e1ab1925be857f84b63d77eb64132215f7c2eea428450ed5b7cb0",
+    "painted": 6045,
+    "ms": 42
+  },
+  {
+    "file": "Saori (Dress) (Cafe).glb",
+    "success": true,
+    "triangles": 16712,
+    "animations": 3,
+    "firstHash": "23f355dde2a8a1413ee5a6bda344657841da3d82b4412383c6b81c45cf9f82a6",
+    "middleHash": "a46dad166f3123138a42c37fd733b887e4e661024b26b578f3b7111f48683d91",
+    "painted": 6100,
+    "ms": 25
+  },
+  {
+    "file": "Saori (Dress).glb",
+    "success": true,
+    "triangles": 16903,
+    "animations": 24,
+    "firstHash": "152a3836e1a8eb99a8dc7c4d2985cbe3b7efbb1329769bb0331b5e47d4cc202e",
+    "middleHash": "5a1ef4ff1154b9e0a2f6b6ec743625c89526d88a15801a03bebd9160ece30853",
+    "painted": 4303,
+    "ms": 40
+  },
+  {
+    "file": "Saori (Swimsuit).glb",
+    "success": true,
+    "triangles": 21858,
+    "animations": 32,
+    "firstHash": "c187208ded66ff28c369c4d77f4d8ab1cbe6d5fb35a6913453631be47fd6e4b8",
+    "middleHash": "de50ea524bf9819dedf188a0f62f70534421cff6d34e279984321fdd0e019764",
+    "painted": 4445,
+    "ms": 46
+  },
+  {
+    "file": "Saori.glb",
+    "success": true,
+    "triangles": 11873,
+    "animations": 34,
+    "firstHash": "2bc1a214f5229a99e98c032b53ff8cd3912e52e5b2bab11981b2dc3da254b6f7",
+    "middleHash": "773c42bdda09018c9ece9f8872544afd8bd181eb8fe6df3b5726fa144f5b4563",
+    "painted": 6203,
+    "ms": 43
+  },
+  {
+    "file": "Saten Ruiko.glb",
+    "success": true,
+    "triangles": 12125,
+    "animations": 7,
+    "firstHash": "807cd5195dd9f35656cc6acb4863468c6bc3c1458fca3d9e178b320f1cd57eeb",
+    "middleHash": "a95012501459e73a3b5659d496c8bf938e8e1b3ceeaf62345ba4f65e49c4a7b0",
+    "painted": 5035,
+    "ms": 21
+  },
+  {
+    "file": "Satsuki.glb",
+    "success": true,
+    "triangles": 12158,
+    "animations": 12,
+    "firstHash": "f3097ecf06587e206a6f54a817df427e04b7a8b4756a1a822f3695400378bcad",
+    "middleHash": "945b70f2b22b59ba87c5ca0e53eccc5c1b5e49cbb7db9b5a5b8be7bfc864f8ae",
+    "painted": 5574,
+    "ms": 29
+  },
+  {
+    "file": "Saya (Casual).glb",
+    "success": true,
+    "triangles": 16242,
+    "animations": 7,
+    "firstHash": "45fe394ed028edb7d7b03ec6bf99266b3473b19e96cb977d9512ffad12bb9d32",
+    "middleHash": "89ea8eb0346be2390c8acaec8d0a1ac3b15e6a1a834b5e1b8f622c0d9b3043fc",
+    "painted": 8317,
+    "ms": 29
+  },
+  {
+    "file": "Saya.glb",
+    "success": true,
+    "triangles": 13112,
+    "animations": 8,
+    "firstHash": "c3524f84e18cb0191b7dba4025c1b3abfd6e0e062ae900fd1089340d1f63615e",
+    "middleHash": "d91f26aba3e643f10cf9b6ba30d5e96007060f08d6f0114ff717cf02ae75b38b",
+    "painted": 8665,
+    "ms": 26
+  },
+  {
+    "file": "Seia (Swimsuit).glb",
+    "success": true,
+    "triangles": 24018,
+    "animations": 34,
+    "firstHash": "6a113f6ee67a3a09d1323ce95fa43c231c34c99639ec1c242a22b241982795ee",
+    "middleHash": "41a62ee9f5f24c0677f8c2efc140223807bf89c2e1a566c966c2acbde1508655",
+    "painted": 5855,
+    "ms": 46
+  },
+  {
+    "file": "Seia.glb",
+    "success": true,
+    "triangles": 15844,
+    "animations": 36,
+    "firstHash": "733ef750b697e9691b42eabaf98b107ab3fe2d133202b4eae878a4f5efb9315d",
+    "middleHash": "82d606b38fddc7781a7674d23d07606882de25e47f452663b185b3859c6850c3",
+    "painted": 6933,
+    "ms": 60
+  },
+  {
+    "file": "Sena (Casual).glb",
+    "success": true,
+    "triangles": 15971,
+    "animations": 35,
+    "firstHash": "afeb55afb22c86950e5cec19fdb21c729c4f6259518e4b49d85f01c93182208e",
+    "middleHash": "92b2b7687696c5bacbe015c263033e88d74b9a8ea6a997ac3121f7f05996765b",
+    "painted": 6346,
+    "ms": 56
+  },
+  {
+    "file": "Sena.glb",
+    "success": true,
+    "triangles": 18935,
+    "animations": 19,
+    "firstHash": "57e002b2ad694d7cb6fbe5d0c1df5d2799dada908e905004ef22e4eff8ef075f",
+    "middleHash": "da3af186359dcc31eb1c2eb162365aecc2d95d4327cdfcf85336f5c453af7b6d",
+    "painted": 5548,
+    "ms": 33
+  },
+  {
+    "file": "Serika (New Year).glb",
+    "success": true,
+    "triangles": 10088,
+    "animations": 9,
+    "firstHash": "38a7530b09db46c68de801bf2cf270f96568a35a7dd43eedf56e0b360e09a088",
+    "middleHash": "a4587d9f8dbcfc68705ac6c23988849a04ef051d613408761b904948d03a9c7a",
+    "painted": 6256,
+    "ms": 23
+  },
+  {
+    "file": "Serika (Swimsuit).glb",
+    "success": true,
+    "triangles": 13757,
+    "animations": 8,
+    "firstHash": "89f82386f2a13a681409b9603008acd76d6f0c2a96dbfccb67b21aaafda58f63",
+    "middleHash": "377409f7992729958d3c9eb7e70fe9ae489be1cca6993b81c29f6cfe43ed92e8",
+    "painted": 5718,
+    "ms": 22
+  },
+  {
+    "file": "Serika.glb",
+    "success": true,
+    "triangles": 8041,
+    "animations": 40,
+    "firstHash": "53fd6cdbf8486d9066517baf331b6b76edad7ddc56491d154f112fa4d29c699e",
+    "middleHash": "38b9565d84e87e2888d2461bf8e6cb32aea3a47ec0afc226aaf01d556f9ec94e",
+    "painted": 6208,
+    "ms": 28
+  },
+  {
+    "file": "Serina (Christmas).glb",
+    "success": true,
+    "triangles": 14670,
+    "animations": 31,
+    "firstHash": "d2c0f01d926e58dd07094118066845f05ec64565ff1db1835ee0c2d8a56689b3",
+    "middleHash": "985338e2a41b4afd1e78d1de8eb5cd902320e8872cd336b4ca43a5d455f046d1",
+    "painted": 5545,
+    "ms": 39
+  },
+  {
+    "file": "Serina.glb",
+    "success": true,
+    "triangles": 12313,
+    "animations": 7,
+    "firstHash": "40c83827bb2ac4143cae47392dcfbbb5e50838bec561af4ad62898a030dc7032",
+    "middleHash": "0a4cb2cbd239f5e0877f9bc6b37a73d9d1657f7ec3fdb106a439771f158ec534",
+    "painted": 5461,
+    "ms": 19
+  },
+  {
+    "file": "Shigure (Hot Spring).glb",
+    "success": true,
+    "triangles": 27346,
+    "animations": 9,
+    "firstHash": "ecf2f1ac67ba1fca6ddad6169c3894b5948515b2cce8cc64e84f753e8315beae",
+    "middleHash": "f7fe43e352892ee51671c4820e3d6e223f8e9f61e4d441339dda91632b48f9a1",
+    "painted": 6130,
+    "ms": 39
+  },
+  {
+    "file": "Shigure.glb",
+    "success": true,
+    "triangles": 13710,
+    "animations": 30,
+    "firstHash": "dad31021a4f5d4589025559091313ae16705bc8c434dfe6a4b5de6401d83e47d",
+    "middleHash": "0330cd9640d0406b37794a1dd14ddd1247c86bae676cbd70915dbc35de70f895",
+    "painted": 5122,
+    "ms": 40
+  },
+  {
+    "file": "Shimiko.glb",
+    "success": true,
+    "triangles": 12117,
+    "animations": 39,
+    "firstHash": "e4b316d6f07bbad22c158b4608e4341673d068f071f299104bdc11eeac40d6ad",
+    "middleHash": "6bfba03b086bf395d0dc37483f878a35aef5ea16093b768ca0fd13f0f51500f7",
+    "painted": 7388,
+    "ms": 34
+  },
+  {
+    "file": "Shiroko (Riding).glb",
+    "success": true,
+    "triangles": 18720,
+    "animations": 38,
+    "firstHash": "142c66d67416b4f5de23134de051c1f4d341285a9822ab10737f9ec8ed16cce4",
+    "middleHash": "e0c9830191e5978e93caa87b0e175b28d785aed2f7383f06f59779f87d7884bd",
+    "painted": 4974,
+    "ms": 34
+  },
+  {
+    "file": "Shiroko (Swimsuit).glb",
+    "success": true,
+    "triangles": 15241,
+    "animations": 10,
+    "firstHash": "fe18f98b595e337f1e2f0b8b2478308996bab18dc8d65e8277fe35436742dbc7",
+    "middleHash": "e0ad0c7f89c66cf236868b8d1dd600e0dfc0a36687f775fc410ffd425ad73487",
+    "painted": 4661,
+    "ms": 26
+  },
+  {
+    "file": "Shiroko.glb",
+    "success": true,
+    "triangles": 13309,
+    "animations": 44,
+    "firstHash": "6c3a3a3eac49648b30ab8bad0ee00df13df1fa7b96045b621c52e96132259bb1",
+    "middleHash": "faf55f3b038073b10b91ef0919235a1851acbca0b39d6e84f7ad18d4d5cb8fb4",
+    "painted": 5512,
+    "ms": 37
+  },
+  {
+    "file": "Shiroko\uFF0ATerror.glb",
+    "success": true,
+    "triangles": 14649,
+    "animations": 47,
+    "firstHash": "4139df0814703c125fd7266753acef3829c43bd3ad80983c3636d63bb85ffb8e",
+    "middleHash": "59e091e1437a0b20758dba62483f79c788616dab9e50ce73c586070b9980228b",
+    "painted": 6639,
+    "ms": 52
+  },
+  {
+    "file": "Shizuko (Swimsuit).glb",
+    "success": true,
+    "triangles": 13329,
+    "animations": 11,
+    "firstHash": "3d4153706cec58c8417136c95cb4db5ed5acd580cd34dc145e64fcabf44397a6",
+    "middleHash": "8a5d09dfa1308b097e42b49541cf93189027999d2d20803904dd9141f2f72ee6",
+    "painted": 8377,
+    "ms": 30
+  },
+  {
+    "file": "Shizuko.glb",
+    "success": true,
+    "triangles": 10516,
+    "animations": 6,
+    "firstHash": "35dc035878ced859ad7b48dec1c94480f70eb9c0c88b920000321dfc5ae19a34",
+    "middleHash": "ce96865298ffb657e75ebaa66e75ff0386337b9d3d4e1ece7b2a9d21838f78db",
+    "painted": 7102,
+    "ms": 23
+  },
+  {
+    "file": "Shokuhou Misaki.glb",
+    "success": true,
+    "triangles": 11039,
+    "animations": 34,
+    "firstHash": "74235f0f3b3ec41ea77268ca07e632bd760cd9f4d2c9ffc3906641193af01c28",
+    "middleHash": "bb89096d7f277adf02d1cd61eabfcaa9bc1daef537724837b43cf602cf6c0630",
+    "painted": 5830,
+    "ms": 45
+  },
+  {
+    "file": "Shun (Kid).glb",
+    "success": true,
+    "triangles": 10616,
+    "animations": 30,
+    "firstHash": "5505f9625b6cbcf85a1aea6e1b1c091bfbb7275ba82578198be4b2a0d17d7ceb",
+    "middleHash": "bb1c880aaed5f01d3b0ada01af0a6875720007172d27e865acffc960425a950f",
+    "painted": 5180,
+    "ms": 35
+  },
+  {
+    "file": "Shun (Swimsuit) (1).glb",
+    "success": true,
+    "triangles": 20319,
+    "animations": 36,
+    "firstHash": "99e0546cae9324ce881e16ac1f382e0b26a16a781e3d5d4b351aa8f72f76ecc0",
+    "middleHash": "8825ea3fa48a10280742a8d784248dff2472af54df6dd1a38811b02e8402b7f4",
+    "painted": 6059,
+    "ms": 57
+  },
+  {
+    "file": "Shun (Swimsuit) (2).glb",
+    "success": true,
+    "triangles": 18121,
+    "animations": 33,
+    "firstHash": "73f38922b5049465ac1cc8808d9f5299aa620162a90fd4d760bea956beebf571",
+    "middleHash": "0cc17b910f96bb7c0d58da55703ad257f5cdf2c5997227bc1d00e1895d973749",
+    "painted": 5396,
+    "ms": 51
+  },
+  {
+    "file": "Shun.glb",
+    "success": true,
+    "triangles": 11956,
+    "animations": 51,
+    "firstHash": "d7fe59d5154f7de962067ed1c5e168a80f52ec2dc23ccd062d317df34ccf6d16",
+    "middleHash": "64e85840a5bcf5d872d9f34ff6ef449d9cfebf5e6f5931998e1afca4ff4e6db2",
+    "painted": 6095,
+    "ms": 47
+  },
+  {
+    "file": "sm030001.glb",
+    "success": true,
+    "triangles": 17836,
+    "animations": 5,
+    "firstHash": "c1182bba04f3ffd21bf4d958cdec0e8c61e9757f85f77ba53d82579eb65a9789",
+    "middleHash": "eca51a92a90152f687915f839aea656ed54f4e64875ec43db067a4289f2ed400",
+    "painted": 4774,
+    "ms": 31
+  },
+  {
+    "file": "sm032601.glb",
+    "success": true,
+    "triangles": 19519,
+    "animations": 6,
+    "firstHash": "5dcf14cbe165c39ea2f650bd7a0cf760dc8edd60f3e08c18ae8d0a14c2cf89b4",
+    "middleHash": "798893f2b4aff238afb6eba4519cca79192f2bb746860c3787f9e84418011f26",
+    "painted": 6557,
+    "ms": 32
+  },
+  {
+    "file": "st0004.glb",
+    "success": true,
+    "triangles": 368,
+    "animations": 1,
+    "firstHash": "1d986c8bc88f0bbae6a4e200bcac4c89fc0839082d40d238a92fd52e03fa56b5",
+    "middleHash": "1d986c8bc88f0bbae6a4e200bcac4c89fc0839082d40d238a92fd52e03fa56b5",
+    "painted": 3918,
+    "ms": 2
+  },
+  {
+    "file": "st0005.glb",
+    "success": true,
+    "triangles": 368,
+    "animations": 1,
+    "firstHash": "37ac9832f83fc5ca96ca037866636321068c87e4e5117b33eaedbf07dfecbf93",
+    "middleHash": "37ac9832f83fc5ca96ca037866636321068c87e4e5117b33eaedbf07dfecbf93",
+    "painted": 3918,
+    "ms": 2
+  },
+  {
+    "file": "Subaru.glb",
+    "success": true,
+    "triangles": 15020,
+    "animations": 42,
+    "firstHash": "be62593a65eb8db576762f137d41561a16bea72eeeedcf703283a1ba84c4eb3e",
+    "middleHash": "4da3a9babf94a3936fac66c5ad81b4b0dd0b4eedcaab17801391174e2ccea363",
+    "painted": 4607,
+    "ms": 59
+  },
+  {
+    "file": "Sumire (Part-Timer).glb",
+    "success": true,
+    "triangles": 17536,
+    "animations": 12,
+    "firstHash": "1c8990e7e38736834e05460555dc9b6c6a1898057e80f2ce8127db82356d5eb5",
+    "middleHash": "b410459c56c965b4a1d2ae5a23e28c9d0cdee11a4b66a1e1ba26d6bb68418c19",
+    "painted": 7233,
+    "ms": 33
+  },
+  {
+    "file": "Sumire.glb",
+    "success": true,
+    "triangles": 12226,
+    "animations": 25,
+    "firstHash": "0e367a74a95a723ef292cfd90051edd8feff06129aa9ff2dbca8f4d2482fee63",
+    "middleHash": "2e2097867996fd68c488c1b9b40b45f37abf1a9d6766e74843d38fb2f514ea54",
+    "painted": 4851,
+    "ms": 32
+  },
+  {
+    "file": "Suzumi (Magical).glb",
+    "success": true,
+    "triangles": 21625,
+    "animations": 36,
+    "firstHash": "93beca8f6b1b8201c98aefad9c7ebb39e7d80248b659258007e8f525d8696c0f",
+    "middleHash": "ae1742dfa572aabbd33f954ffb4ac7b75a7b0cf087a6de9204cf913bad6cf1f7",
+    "painted": 6503,
+    "ms": 61
+  },
+  {
+    "file": "Suzumi.glb",
+    "success": true,
+    "triangles": 12008,
+    "animations": 41,
+    "firstHash": "a2731e0ed7f34de2c6252ac10d2454e013a38441d72e8cc59b7ee6cbdd4c4fea",
+    "middleHash": "f2342518e8e9714c6ef7ef75764815d51ca5d3fce119a3e8480a21ceba8fac7e",
+    "painted": 6037,
+    "ms": 34
+  },
+  {
+    "file": "Takane.glb",
+    "success": true,
+    "triangles": 19291,
+    "animations": 40,
+    "firstHash": "8f3523b7e3935051293050e4e118be464b381e064965cbf0431fe38b26650296",
+    "middleHash": "f51883e217772750fee1a648784ace87a9b04262933e37c634fc1c06f282ef8c",
+    "painted": 5877,
+    "ms": 65
+  },
+  {
+    "file": "Toki (Battle) (Scenario).glb",
+    "success": true,
+    "triangles": 18168,
+    "animations": 12,
+    "firstHash": "871f6068c64d3ccff5f29a863efaec54e6477891e0f9fcd5c7c2bdd81ca90ada",
+    "middleHash": "7787c2c7c384e994ac442d5a73ec9f31f2eafc2b96352585885e5da9273facf6",
+    "painted": 4887,
+    "ms": 33
+  },
+  {
+    "file": "Toki (Battle).glb",
+    "success": true,
+    "triangles": 18296,
+    "animations": 37,
+    "firstHash": "a42a43387b0066e644a70ed086f9d7f76bee2d8918ccf1b503d5abce5763e7af",
+    "middleHash": "8ce8bdf585e366ee0fdbb2c92024c24a124ca525f095786ddcce46b161a50355",
+    "painted": 4671,
+    "ms": 60
+  },
+  {
+    "file": "Toki (Bunny Girl).glb",
+    "success": true,
+    "triangles": 17676,
+    "animations": 37,
+    "firstHash": "d3a94054cfa5b378b0506a2d36ee2abdbc5cfbb35acb90b5de1e06429664a103",
+    "middleHash": "f5b99b0a65ed5bbb98524930ef2cc5d015e16858f676b7bc961e45657791537f",
+    "painted": 5163,
+    "ms": 63
+  },
+  {
+    "file": "Toki (Cafe).glb",
+    "success": true,
+    "triangles": 11298,
+    "animations": 3,
+    "firstHash": "7c3067faa1b3b4a15ab34b8857668e262673ef4c5b087f164e9e9752bb27d161",
+    "middleHash": "af3687107b7800e80fb2cb9df0f28d2ab37d513180d346e99737929f0e70d9e4",
+    "painted": 5675,
+    "ms": 22
+  },
+  {
+    "file": "Toki.glb",
+    "success": true,
+    "triangles": 35424,
+    "animations": 44,
+    "firstHash": "d1b3e9887c317354717d64d70e91f322dc5f7a8f8aef96c2910fd84bf60ec835",
+    "middleHash": "7e0e88c576e0eb9e1472e23534717100514b641eaaaae3e7dab39e3c1943611c",
+    "painted": 4932,
+    "ms": 79
+  },
+  {
+    "file": "Tomoe (Qipao).glb",
+    "success": true,
+    "triangles": 12507,
+    "animations": 15,
+    "firstHash": "ecd788945e86e53425466d8b275148081048a3c3cb7a42a28cf428d11bc78631",
+    "middleHash": "5bfe9690ef8998c61e9174bd1b832c8c61ca884ac1e1b73b24a2ed96493e9c54",
+    "painted": 5320,
+    "ms": 41
+  },
+  {
+    "file": "Tomoe.glb",
+    "success": true,
+    "triangles": 10387,
+    "animations": 29,
+    "firstHash": "c3a3de504a3a66c7ba310f12c3c9bda7b88d9b64af89c64775bd30b78974f88e",
+    "middleHash": "744562aee94fb841718cf33844913a8fc24e5e5ba9a7674af1e1d48d5d9245cb",
+    "painted": 5711,
+    "ms": 36
+  },
+  {
+    "file": "Tsubaki (Guide).glb",
+    "success": true,
+    "triangles": 12198,
+    "animations": 11,
+    "firstHash": "e69964fe645c84b969571c4d1b480dd9b08aa58fc2705b2a265a642adccb07ac",
+    "middleHash": "3c0c28676b00348a8a91fcb94d0ff8aa88f9001a98333e1cc338830af03ce300",
+    "painted": 4670,
+    "ms": 25
+  },
+  {
+    "file": "Tsubaki.glb",
+    "success": true,
+    "triangles": 11800,
+    "animations": 24,
+    "firstHash": "99e1535f3deaf130171ddff9a85ae24db53ccdeca5c3ebb342a96b91abc4671a",
+    "middleHash": "2d8907a700d4a680b2a5d1574064a15d0cd81336df40d80a027bafe98c974c59",
+    "painted": 5123,
+    "ms": 24
+  },
+  {
+    "file": "Tsukuyo (Dress).glb",
+    "success": true,
+    "triangles": 19120,
+    "animations": 25,
+    "firstHash": "4fb15796823623537de6fc85859e8d4c732477fb4902f01d254db741111f03c4",
+    "middleHash": "d890b4063c5652711be5c60215f93efbb6cef0ba52aa895e45aba9850bd7e57e",
+    "painted": 6368,
+    "ms": 52
+  },
+  {
+    "file": "Tsukuyo.glb",
+    "success": true,
+    "triangles": 16107,
+    "animations": 33,
+    "firstHash": "d2a2b43b85803ee92a2d46a2e78d437905bb71e03a57c16757deaa6ac3ab7de3",
+    "middleHash": "bcd0328abc64c8019e9d0ead2a2f674131d32c746d90a352dd5fa3884d97b9e2",
+    "painted": 6518,
+    "ms": 72
+  },
+  {
+    "file": "Tsurugi (Swimsuit).glb",
+    "success": true,
+    "triangles": 11246,
+    "animations": 37,
+    "firstHash": "2282867b7d06d39e02d7d35e2384553b24804071912dadeb8cb87f6081223905",
+    "middleHash": "3a4491761060ef03e250c1839be83387cb59e2dd162f5be362d47c92954d3490",
+    "painted": 5897,
+    "ms": 40
+  },
+  {
+    "file": "Tsurugi.glb",
+    "success": true,
+    "triangles": 10479,
+    "animations": 35,
+    "firstHash": "22589aa91cd5f7d222f42503e5f785f902537df3756a57ca3d8aec5429d9e37e",
+    "middleHash": "d83891fe80675acac1424322671e39650db66cbe4ed77320aa0a383475bb2af0",
+    "painted": 7741,
+    "ms": 42
+  },
+  {
+    "file": "Ui (Swimsuit).glb",
+    "success": true,
+    "triangles": 16325,
+    "animations": 32,
+    "firstHash": "346b9d40b0ff6a7737c72b182c50ed23c70d0d13a9136aef9d6b8f96bc80fc22",
+    "middleHash": "cb83d3fcbc6599d11a9cdf44c0ef5e33a76d7c0e92c08333004481a332f9f76f",
+    "painted": 5915,
+    "ms": 61
+  },
+  {
+    "file": "Ui.glb",
+    "success": true,
+    "triangles": 11457,
+    "animations": 30,
+    "firstHash": "cdc9c4ef891ecf21277124857245236c61131f440bd27107a2dee408b7241609",
+    "middleHash": "ae21c2473b2e09bac6e7567b6937001bae658e09690747ecd287709bb1e2e5a3",
+    "painted": 7565,
+    "ms": 43
+  },
+  {
+    "file": "Umika.glb",
+    "success": true,
+    "triangles": 12127,
+    "animations": 33,
+    "firstHash": "edaea1616996c0fe797d61fd97928dc3cc2d6ca56cf1ea7e223e6d6b84db8625",
+    "middleHash": "3187c87ee6663254a45cc8ab607b665e1cfb98764eb2ef3f25b220ad1b207992",
+    "painted": 5489,
+    "ms": 51
+  },
+  {
+    "file": "Utaha (Cheerleader).glb",
+    "success": true,
+    "triangles": 13612,
+    "animations": 25,
+    "firstHash": "dd9dd144c5a03ecff512e60e33804d0dcf4732b49c741e9c6b0d7d5b941ef4fe",
+    "middleHash": "466cf782fd91f5c6877b5bce88b3f03ebec795e86ceeac831d356c65c08acbf9",
+    "painted": 4578,
+    "ms": 41
+  },
+  {
+    "file": "Utaha.glb",
+    "success": true,
+    "triangles": 9709,
+    "animations": 6,
+    "firstHash": "5203d7bf35dcf84f42534e194dbcdd8f0581876b43587d9ca9f528e0b7ed1fcd",
+    "middleHash": "7e15c93af649bf8fc76c23a5e4474170c0ac44d6de6615fd5f6c32fbd670ee75",
+    "painted": 5224,
+    "ms": 21
+  },
+  {
+    "file": "Wakamo (Swimsuit).glb",
+    "success": true,
+    "triangles": 13868,
+    "animations": 30,
+    "firstHash": "0aeb4b508dad981c926def7e72b511b592cbeb5f289726f17100230d8c8b91d0",
+    "middleHash": "1fb295d6b161661a1c5e2ea2de5125634f23e2a9a898cdf659f0a25c5a8961fa",
+    "painted": 7212,
+    "ms": 65
+  },
+  {
+    "file": "Wakamo.glb",
+    "success": true,
+    "triangles": 10904,
+    "animations": 34,
+    "firstHash": "bcaa4dddc2bf5b1b7cc875f2b4646dbf014ca90315c81881d39ef7a9e1383993",
+    "middleHash": "971f16bf2024cb259b965c8300b43e525d35835508ba59c3c9e06b300a354b30",
+    "painted": 6333,
+    "ms": 39
+  },
+  {
+    "file": "Yakumo.glb",
+    "success": true,
+    "triangles": 15732,
+    "animations": 15,
+    "firstHash": "9c00113bb13d2267e3d268829eb7c22e76b06bacea437c4d58ce58e3d5883c90",
+    "middleHash": "a6e0cff3c7790d038d5c20ccd4b157a36c4b2dfb1d8c4a83d5151f2e2d38cf6c",
+    "painted": 6174,
+    "ms": 36
+  },
+  {
+    "file": "Yoshimi (Band).glb",
+    "success": true,
+    "triangles": 24432,
+    "animations": 38,
+    "firstHash": "81771c818b58499f0f85a867c306cbfc2f48dba86087b7dd17be650d234fffa4",
+    "middleHash": "351155f54189825b850af36918708bb71625b23226f05514961529f0201fc7d1",
+    "painted": 5324,
+    "ms": 87
+  },
+  {
+    "file": "Yoshimi.glb",
+    "success": true,
+    "triangles": 9965,
+    "animations": 7,
+    "firstHash": "b2087ba3bfaffc0ef2f08a50232c7720ee2eb7024eb57ab1f4321060cfad83b5",
+    "middleHash": "dba3a335ebe4f048b1f2fccdaaf67fcda8056bf217b1911798c88ec6015c3e27",
+    "painted": 5780,
+    "ms": 24
+  },
+  {
+    "file": "Yukari (Swimsuit).glb",
+    "success": true,
+    "triangles": 15749,
+    "animations": 34,
+    "firstHash": "cca0582f11c495337892b14a9a83c214bc317d12767caaed4c8760a9697fac6e",
+    "middleHash": "4933f3eebbc53e00fe9733f5f5f77d3337ba1449bcdbf60af9b2cb965c4799df",
+    "painted": 6815,
+    "ms": 48
+  },
+  {
+    "file": "Yukari.glb",
+    "success": true,
+    "triangles": 17415,
+    "animations": 28,
+    "firstHash": "40b03dbf00b8f1ccb6d34fdebbaa57a9389d7e63ffc6e78c1a597ee02b26037f",
+    "middleHash": "7b896baf7a3b2a67d23f27078569f4e75c8f5ddffd5d874241cbb813031fefb5",
+    "painted": 6392,
+    "ms": 56
+  },
+  {
+    "file": "Yuuka (Pajama).glb",
+    "success": true,
+    "triangles": 29282,
+    "animations": 35,
+    "firstHash": "c268e4df120ecce4c7af4bdff3da737f8c6cd89abec4d4f59b40aee7f8d20504",
+    "middleHash": "3c05e9df7e43af078ab8e85458468b4cfa09fa1a7894303a656ecb55e3842ab6",
+    "painted": 5236,
+    "ms": 53
+  },
+  {
+    "file": "Yuuka (Sportswear).glb",
+    "success": true,
+    "triangles": 19797,
+    "animations": 41,
+    "firstHash": "c86f641c1428585a839be3483635c9a8f3c5a5f36e8ccefe09d6d31f0e036671",
+    "middleHash": "de50644d5ac6d8d4adf46f1d7e1dd95c4bb3fe0e6b612a44ed9915b1a998989c",
+    "painted": 5211,
+    "ms": 60
+  },
+  {
+    "file": "Yuuka.glb",
+    "success": true,
+    "triangles": 10627,
+    "animations": 38,
+    "firstHash": "8b1042d6795344e10a7645b759b0f32a7663fd37696fda8466259cd9e683244b",
+    "middleHash": "4558e1a83dae6f60f6cd7610e2285830e88de4c929e37ec44a7a8b21a369f8a1",
+    "painted": 6396,
+    "ms": 38
+  },
+  {
+    "file": "Yuzu (Battle) (Carrier).glb",
+    "success": true,
+    "triangles": 24879,
+    "animations": 2,
+    "firstHash": "ecd9cd5daf3bcf61a88af1006ec299f326d54377484b4df2e20c41dc80d5f916",
+    "middleHash": "218c95ba64fa68bfa76b7a12ee369a2c66868a7392a186e19a4bfb716d49b816",
+    "painted": 5310,
+    "ms": 25
+  },
+  {
+    "file": "Yuzu (Battle) (Cut-in).glb",
+    "success": true,
+    "triangles": 20486,
+    "animations": 1,
+    "firstHash": "ddffc4c30a08b05dc3b8757bc11fc19f2823d3b85c4e7ecef85e75a3e7a4be0a",
+    "middleHash": "ddffc4c30a08b05dc3b8757bc11fc19f2823d3b85c4e7ecef85e75a3e7a4be0a",
+    "painted": 21944,
+    "ms": 33
+  },
+  {
+    "file": "Yuzu (Battle).glb",
+    "success": true,
+    "triangles": 25072,
+    "animations": 10,
+    "firstHash": "4a25c99fff5cd4f140cfcc5f7c171a9a0ea9772e992d7b450f1b0ca1abe434d3",
+    "middleHash": "e79b9b8d21a97d03259ecbed80d8eaadf03dcd168709f4641315e908e101dbd7",
+    "painted": 5307,
+    "ms": 35
+  },
+  {
+    "file": "Yuzu (Maid).glb",
+    "success": true,
+    "triangles": 13804,
+    "animations": 21,
+    "firstHash": "6f8a9b1c0e15269f7abd82180e78f8cc3b8da0a5bcfa7caaaea6fd536af8ff50",
+    "middleHash": "aa0e459aa884a7722d94e16aabeb9bf62d318895b88c362af9dee082cb7a632e",
+    "painted": 15168,
+    "ms": 52
+  },
+  {
+    "file": "Yuzu.glb",
+    "success": true,
+    "triangles": 10352,
+    "animations": 30,
+    "firstHash": "10e2bde04324974ed788f0658ca33977ed9c17c90ec116c29883fe105bd8fab6",
+    "middleHash": "6f8b5fa43f86d5d0ab057c1d007a31b6e19f4f79461447246016cc5dca71faa5",
+    "painted": 6590,
+    "ms": 37
+  }
+]

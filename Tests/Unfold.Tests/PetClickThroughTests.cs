@@ -84,6 +84,19 @@ public class PetClickThroughTests
     }
 
     [AvaloniaFact]
+    public async Task ContextMenuRetainsInputUntilClosed()
+    {
+        using var scope = new Scope(); await scope.Load(); var pet = scope.Pet;
+        var transparent = scope.WindowPoint(new(1, 1));
+        Assert.False(pet.AcceptsPointerAt(transparent));
+        pet.ContextMenu!.Open(pet); Layout(pet);
+        Assert.True(pet.ContextMenu.IsOpen);
+        Assert.True(pet.AcceptsPointerAt(transparent));
+        pet.ContextMenu.Close(); Layout(pet);
+        Assert.False(pet.AcceptsPointerAt(transparent));
+    }
+
+    [AvaloniaFact]
     public async Task CaptureMovingToAnotherWindowDoesNotBlockTransparentPixels()
     {
         using var scope = new Scope(); await scope.Load(); var pet = scope.Pet;

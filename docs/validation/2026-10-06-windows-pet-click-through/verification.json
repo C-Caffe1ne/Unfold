@@ -1,0 +1,29 @@
+{
+  "archive": "/Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold/artifacts/Unfold-Windows-x64-clickthrough-preview-20261006.zip",
+  "size": 107932590,
+  "sha256": "d13fa02ee2594e56cb5736f57020764c7420c7b62dda3e6f285a8378c8940c4e",
+  "windowsExecuted": false,
+  "baselineHead": "671729ad18ed8dafeae0510375f630e264d67f13",
+  "branch": "codex/glb-import-compat",
+  "version": "1.1.0-beta",
+  "preexistingChangesPreserved": {
+    "Tests/Unfold.Tests/GlbCompatibilityTests.cs": "dabfe7d2c7723a5bdb81ae2a6c61c31fc173b4089c5d39dfcb998fbe228b12b9",
+    "docs/validation/2026-10-06-glb-compatibility.md": "9d0ef092f543051a63da31d513405074857786ffffcc5490b7ddf481fcc18a47",
+    "docs/validation/2026-10-06-glb-compatibility/after-preview.json": "0fdcf992d77a1030ab7d6d205e03acd733274d2673f264a83fb7cf8d8054675a",
+    "docs/validation/2026-10-06-glb-compatibility/baseline-load.json": "c9b5c0fa230e7a4262fbd5f3a0a6503e6205a3cb1ae98f4881868a0b89690a6f",
+    "docs/validation/2026-10-06-glb-compatibility/baseline-preview.json": "26fe5c3f5fdbf533e42cb35088173ac8c3828553ca39d4398c410d3bfb8d7317",
+    "docs/validation/2026-10-06-glb-compatibility/comparison.json": "a6cf3977fdaf51680fcf2a82ba02d6c419d7aaff138211918518141574163866",
+    "docs/validation/2026-10-06-glb-compatibility/final-full.trx": "b6541c296ba292541720d7797ed40cbe794899ef7bcd183e356d344bdf3cb6eb",
+    "docs/validation/2026-10-06-glb-compatibility/glb-file-results.csv": "c176fa6c23eece2ae7c73e708f2bc859fd32706d7b3648381aeec782b817dcc2",
+    "docs/validation/2026-10-06-glb-compatibility/hikari-editor.png": "0c6e14341b543ceb25f9bafd03355c9e991f85afa8e27fbf4d808aa2fba665f3",
+    "docs/validation/2026-10-06-glb-compatibility/hikari-ui.json": "52836fedbaae66df71f40fb14c5ed07296a43777886f31b6bdfc78d47fec0ad1",
+    "docs/README.md": "cb8d8e7df3543145378624322659de1574955be45e18f5d0a927ee640f2ae78b",
+    "docs/glb-pets.md": "dfb39c3f4fc841ded41ebd3fead78a90fec91f06131a26dcc04892e24110fc1b",
+    "src/Unfold.Core/GlbModel.Rendering.cs": "d1531e6e6ad1a7416190d656cc9593b0adaef8a3ec9b5fccd3d21d432805d4a9",
+    "src/Unfold.Core/GlbModel.cs": "95548815657fd160eb28b8f521dcd00c631df827e8d7e13aee1e5222977a5e4a"
+  },
+  "fullTestsPassed": 706,
+  "macSmokeSuccess": true,
+  "physicalInputVerified": false,
+  "published": false
+}

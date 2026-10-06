@@ -22,6 +22,7 @@
 | [GLB 공통 파이프라인 메모리 개선](validation/2026-10-06-glb-pipeline-memory.md) | 지연 로딩·모델 공유·연속 키프레임·재생 버퍼 재사용, 301개 입력 및 718개 회귀 검사 |
 | [GLB 메모리 최적화 검증](validation/2026-10-05-glb-memory.md) | 프레임 버퍼 재사용, 화질 동일성, 메모리 전후 측정과 Windows 검증 범위 |
 | [GLB 확대 화질 검증](validation/2026-10-04-glb-resolution.md) | 표시 크기·Retina 배율 대응, 가장자리 처리와 실제 모델 전후 비교 |
+| [GLB 가져오기 호환성](validation/2026-10-06-glb-compatibility.md) | Hikari 반투명 재질·중복 동작명 수정, 295개 전수 비교, 687개 회귀 검사와 미배포 경계 |
 | [GLB 펫 사용법](glb-pets.md) | 모델 가져오기, 상황별 행동 지정, 몸 방향 고정과 지원 범위 |
 | [Beta v1.0.4 GLB 통합 검증](validation/2026-10-04-beta-glb-pets.md) | 최신 소스 기준, 회귀 검사와 macOS 재생·설정 화면 증거 |
 | [프로젝트 README](../README.md) | 사용자 소개, 빠른 실행, 저장소 구조 |

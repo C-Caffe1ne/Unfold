@@ -1,0 +1,296 @@
+﻿파일,Beta v1.1.0,수정 개발본,기존 오류,남은 오류,삼각형,애니메이션
+Airi (Band).glb,정상,정상,,,19137,36
+Airi.glb,정상,정상,,,10556,7
+Akane (Bunny Girl).glb,정상,정상,,,12478,14
+Akane (School Uniform).glb,정상,정상,,,14307,8
+Akane.glb,정상,정상,,,9701,40
+Akari (New Year).glb,실패,실패,GLB animation times must increase and fit 120 seconds.,GLB 애니메이션 'SM019601_Appearance'의 시간 키가 중복·역순이거나 0~120초 범위를 벗어났어요. 원본에서 시간 키를 정리해 다시 내보내 주세요.,,
+Akari.glb,정상,정상,,,10777,42
+Ako (Dress).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,15140,36
+Ako.glb,정상,정상,,,10465,8
+Aoba.glb,정상,정상,,,21958,26
+Arisu (Battle) (Carrier).glb,정상,정상,,,26251,2
+Arisu (Battle) (Scenario).glb,정상,정상,,,14714,11
+Arisu (Battle).glb,실패,정상,GLB 애니메이션 이름이 중복돼요. 고유한 이름으로 내보내 주세요.,,26571,35
+Arisu (Maid).glb,정상,정상,,,15825,32
+Arisu.glb,정상,정상,,,13741,24
+Aru (Dress).glb,정상,정상,,,14059,31
+Aru (New Year).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,12194,30
+Aru.glb,정상,정상,,,12065,33
+Asuna (Bunny Girl).glb,정상,정상,,,11011,38
+Asuna (School Uniform).glb,정상,정상,,,17186,37
+Asuna.glb,실패,정상,GLB 애니메이션 이름이 중복돼요. 고유한 이름으로 내보내 주세요.,,10692,41
+Atsuko (Swimsuit).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,12307,10
+Atsuko.glb,정상,정상,,,10891,29
+Ayane (Swimsuit).glb,실패,실패,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,GLB 애니메이션 'Public01'의 시간 키가 중복·역순이거나 0~120초 범위를 벗어났어요. 원본에서 시간 키를 정리해 다시 내보내 주세요.,,
+Ayane.glb,정상,정상,,,8265,6
+Azusa (Swimsuit).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,16180,39
+Azusa.glb,정상,정상,,,12244,40
+Cherino (Hot Spring).glb,정상,정상,,,25888,20
+Cherino.glb,정상,정상,,,14373,44
+Chiaki.glb,정상,정상,,,15634,39
+Chihiro.glb,정상,정상,,,12296,7
+Chinatsu (Hot Spring).glb,정상,정상,,,10152,31
+Chinatsu.glb,정상,정상,,,12254,8
+Chise (Swimsuit).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,14098,32
+Chise.glb,정상,정상,,,11183,30
+Eimi (Battle) (Carrier).glb,정상,정상,,,22033,2
+Eimi (Battle) (Scenario).glb,정상,정상,,,22129,5
+Eimi (Battle).glb,정상,정상,,,22193,38
+Eimi (Swimsuit).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,20455,12
+Eimi.glb,정상,정상,,,11034,33
+Eri.glb,정상,정상,,,15910,37
+Erika.glb,정상,정상,,,15411,9
+Fubuki (Swimsuit).glb,정상,정상,,,23966,9
+Fubuki.glb,정상,정상,,,14296,30
+Fuuka (New Year).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,18522,8
+Fuuka.glb,정상,정상,,,12492,7
+Fuyu.glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,17473,30
+Hanae (Christmas).glb,정상,정상,,,10136,8
+Hanae.glb,정상,정상,,,12112,11
+Hanako (Swimsuit).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,17292,35
+Hanako.glb,정상,정상,,,10432,7
+Hare (Camping).glb,정상,정상,,,26406,33
+Hare.glb,정상,정상,,,10505,6
+Haruka (Dress).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,23413,28
+Haruka (New Year).glb,정상,정상,,,12371,8
+Haruka.glb,실패,정상,GLB 애니메이션 이름이 중복돼요. 고유한 이름으로 내보내 주세요.,,11706,41
+Haruna (New Year).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,16769,30
+Haruna (Sportswear).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,12939,12
+Haruna.glb,정상,정상,,,11900,32
+Hasumi (Sportswear).glb,정상,정상,,,7778,30
+Hasumi (Swimsuit).glb,정상,정상,,,15099,33
+Hasumi.glb,정상,정상,,,9422,41
+Hatsune Miku.glb,정상,정상,,,13879,7
+Hibiki (Cheerleader).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,15638,27
+Hibiki.glb,정상,정상,,,16384,7
+Hifumi (Swimsuit).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,26186,21
+Hifumi.glb,정상,정상,,,10232,46
+Hikari.glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,13344,35
+Himari (Battle).glb,정상,정상,,,33200,29
+Himari.glb,정상,정상,,,14215,7
+Hina (Dress).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,18255,43
+Hina (Swimsuit).glb,정상,정상,,,13745,23
+Hina.glb,정상,정상,,,16435,32
+Hinata (Swimsuit).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,19274,9
+Hinata.glb,정상,정상,,,17500,30
+Hiyori (Swimsuit).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,16306,33
+Hiyori.glb,정상,정상,,,14998,7
+Hoshino (Battle).glb,정상,정상,,,21467,57
+Hoshino (Swimsuit).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,16802,42
+Hoshino.glb,정상,정상,,,13845,36
+Ibuki.glb,정상,정상,,,17226,50
+Ichika (Swimsuit).glb,정상,정상,,,16968,10
+Ichika.glb,정상,정상,,,12372,40
+Iori (Swimsuit).glb,정상,정상,,,12920,31
+Iori.glb,실패,정상,GLB 애니메이션 이름이 중복돼요. 고유한 이름으로 내보내 주세요.,,9604,33
+Iroha.glb,정상,정상,,,21858,36
+Izumi (New Year).glb,실패,정상,GLB 애니메이션 이름이 중복돼요. 고유한 이름으로 내보내 주세요.,,22091,13
+Izumi (Swimsuit).glb,정상,정상,,,12883,25
+Izumi.glb,정상,정상,,,13939,31
+Izuna (Swimsuit).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,11789,34
+Izuna.glb,정상,정상,,,11935,40
+Junko (New Year).glb,정상,정상,,,15258,30
+Junko.glb,정상,정상,,,13606,38
+Juri (Part-Timer).glb,정상,정상,,,20196,28
+Juri.glb,정상,정상,,,12174,8
+Kaede.glb,정상,정상,,,13489,6
+Kaho.glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,13682,35
+Kanna (Swimsuit).glb,정상,정상,,,14022,34
+Kanna.glb,정상,정상,,,11088,8
+Kanoe.glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,16961,25
+Karin (Bunny Girl).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,11547,31
+Karin (School Uniform).glb,정상,정상,,,16618,13
+Karin.glb,정상,정상,,,10152,10
+Kasumi.glb,정상,정상,,,16327,36
+Kayoko (Dress).glb,정상,정상,,,14251,32
+Kayoko (New Year).glb,정상,정상,,,14594,33
+Kayoko.glb,정상,정상,,,10540,42
+Kazusa (Band).glb,정상,정상,,,22628,28
+Kazusa.glb,정상,정상,,,11466,24
+Kei (Carrier 2).glb,정상,정상,,,18737,2
+Kei (Carrier).glb,정상,정상,,,13329,1
+Kei (Prototype).glb,정상,정상,,,8230,1
+Kei (Scenario 1).glb,정상,정상,,,13489,9
+Kei (Scenario 2).glb,정상,정상,,,15185,11
+Kei.glb,정상,정상,,,19057,32
+Kikyou (Swimsuit).glb,정상,정상,,,15236,12
+Kikyou.glb,정상,정상,,,17448,32
+Kirara.glb,정상,정상,,,16966,33
+Kirino (Swimsuit).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,16197,12
+Kirino.glb,정상,정상,,,12646,38
+Kisaki (Swimsuit).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,21007,33
+Kisaki.glb,정상,정상,,,19796,9
+Koharu (Swimsuit).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,15311,37
+Koharu.glb,정상,정상,,,8246,32
+Kokona.glb,정상,정상,,,11803,31
+Konoka.glb,정상,정상,,,20956,31
+Kotama (Camping).glb,정상,정상,,,13646,32
+Kotama.glb,정상,정상,,,10964,40
+Kotori (Cheerleader).glb,정상,정상,,,18071,24
+Kotori.glb,정상,정상,,,12500,33
+Koyuki (Pajama).glb,정상,정상,,,20544,8
+Koyuki.glb,정상,정상,,,15341,24
+Kurumi.glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,17938,36
+ladies_biker_ar.glb,정상,정상,,,168,1
+ladies_biker_mg.glb,정상,정상,,,168,1
+ladies_biker_sg.glb,정상,정상,,,168,1
+ladiesboss_biker_ar.glb,정상,정상,,,135,1
+Maki (Camping).glb,정상,정상,,,18639,12
+Maki.glb,정상,정상,,,11244,26
+Makoto.glb,정상,정상,,,14467,10
+Mari (Idol).glb,정상,정상,,,16320,34
+Mari (Sportswear).glb,정상,정상,,,12857,31
+Mari.glb,정상,정상,,,11656,7
+Marina (Qipao).glb,정상,정상,,,17001,38
+Marina.glb,실패,정상,GLB 애니메이션 이름이 중복돼요. 고유한 이름으로 내보내 주세요.,,11073,42
+Mashiro (Swimsuit).glb,정상,정상,,,13936,7
+Mashiro.glb,정상,정상,,,10470,6
+Material Development Club Member.glb,정상,정상,,,7689,1
+Megu.glb,정상,정상,,,11315,24
+Meru.glb,정상,정상,,,13924,34
+Michiru (Dress).glb,정상,정상,,,18249,11
+Michiru.glb,정상,정상,,,11342,27
+Midori (Battle).glb,정상,정상,,,10817,2
+Midori (Maid).glb,실패,정상,GLB 애니메이션 이름이 중복돼요. 고유한 이름으로 내보내 주세요.,,12404,41
+Midori.glb,정상,정상,,,9620,31
+Mika (Cut-in).glb,정상,정상,,,19044,2
+Mika (Swimsuit).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,18715,38
+Mika.glb,정상,정상,,,11119,33
+Mimori (Swimsuit).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,14326,10
+Mimori.glb,정상,정상,,,10478,38
+Mina.glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,15359,33
+Mine (Idol).glb,정상,정상,,,12965,28
+Mine.glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,11279,25
+Minori.glb,정상,정상,,,14372,10
+Misaka Mikoto.glb,정상,정상,,,10109,32
+Misaki (Swimsuit).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,35738,12
+Misaki.glb,정상,정상,,,11771,30
+Miyako (Swimsuit).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,12932,35
+Miyako.glb,정상,정상,,,10979,32
+Miyo.glb,정상,정상,,,19626,33
+Miyu (Swimsuit).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,19469,11
+Miyu.glb,정상,정상,,,14471,31
+Moe (Swimsuit).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,15686,32
+Moe.glb,정상,정상,,,8841,7
+Momiji.glb,정상,정상,,,15088,38
+Momoi (Battle).glb,정상,정상,,,10801,2
+Momoi (Maid).glb,정상,정상,,,12165,39
+Momoi.glb,정상,정상,,,9754,37
+Mutsuki (Dress).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,16087,8
+Mutsuki (New Year).glb,실패,실패,GLB animation times must increase and fit 120 seconds.,GLB 애니메이션 'Normal_Callsign'의 시간 키가 중복·역순이거나 0~120초 범위를 벗어났어요. 원본에서 시간 키를 정리해 다시 내보내 주세요.,,
+Mutsuki.glb,정상,정상,,,12960,33
+Nagisa (Swimsuit).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,20876,12
+Nagisa.glb,정상,정상,,,15646,6
+Nagusa (Cut-in).glb,정상,정상,,,15500,1
+Nagusa (Swimsuit).glb,정상,정상,,,16018,29
+Nagusa.glb,정상,정상,,,12880,25
+Natsu (Band) (No Weapon).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,23992,5
+Natsu (Band).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,26549,33
+Natsu.glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,10822,23
+Neru (Bunny Girl).glb,정상,정상,,,11355,38
+Neru (School Uniform).glb,정상,정상,,,21845,37
+Neru.glb,정상,정상,,,10910,40
+Niko.glb,정상,정상,,,22417,25
+Niya.glb,정상,정상,,,14102,9
+Noa (Pajama).glb,정상,정상,,,16094,34
+Noa.glb,정상,정상,,,12382,31
+Nodoka (Hot Spring).glb,정상,정상,,,13250,13
+Nodoka.glb,정상,정상,,,12571,6
+Nonomi (Swimsuit).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,12924,24
+Nonomi.glb,정상,정상,,,10570,27
+Nozomi.glb,정상,정상,,,12839,34
+Otogi.glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,21890,51
+Pina (Guide).glb,정상,정상,,,17367,14
+Pina.glb,정상,정상,,,11327,26
+Rabu.glb,정상,정상,,,14164,34
+Rei.glb,실패,정상,GLB 애니메이션 이름이 중복돼요. 고유한 이름으로 내보내 주세요.,,19918,36
+Reijo.glb,정상,정상,,,13534,31
+Reisa (Magical).glb,정상,정상,,,19519,12
+Reisa.glb,정상,정상,,,12326,25
+Rena.glb,정상,정상,,,16964,35
+Renge (Swimsuit).glb,정상,정상,,,16455,32
+Renge.glb,정상,정상,,,14066,35
+Rio (Battle) (Scenario).glb,정상,정상,,,12548,4
+Rio (Battle).glb,정상,정상,,,12612,33
+Rio.glb,정상,정상,,,14402,14
+Ritsu.glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,15906,11
+Rumi.glb,정상,정상,,,17886,31
+Saki (Swimsuit).glb,정상,정상,,,13613,29
+Saki.glb,정상,정상,,,11029,9
+Sakurako (Idol).glb,정상,정상,,,14757,33
+Sakurako.glb,정상,정상,,,11424,32
+Saori (Dress) (Cafe).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,16712,3
+Saori (Dress).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,16903,24
+Saori (Swimsuit).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,21858,32
+Saori.glb,정상,정상,,,11873,34
+Saten Ruiko.glb,정상,정상,,,12125,7
+Satsuki.glb,정상,정상,,,12158,12
+Saya (Casual).glb,정상,정상,,,16242,7
+Saya.glb,정상,정상,,,13112,8
+Seia (Swimsuit).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,24018,34
+Seia.glb,정상,정상,,,15844,36
+Sena (Casual).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,15971,35
+Sena.glb,정상,정상,,,18935,19
+Serika (New Year).glb,정상,정상,,,10088,9
+Serika (Swimsuit).glb,정상,정상,,,13757,8
+Serika.glb,정상,정상,,,8041,40
+Serina (Christmas).glb,정상,정상,,,14670,31
+Serina.glb,정상,정상,,,12313,7
+Shigure (Hot Spring).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,27346,9
+Shigure.glb,정상,정상,,,13710,30
+Shimiko.glb,정상,정상,,,12117,39
+Shiroko (Riding).glb,정상,정상,,,18720,38
+Shiroko (Swimsuit).glb,정상,정상,,,15241,10
+Shiroko.glb,정상,정상,,,13309,44
+Shiroko＊Terror.glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,14649,47
+Shizuko (Swimsuit).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,13329,11
+Shizuko.glb,정상,정상,,,10516,6
+Shokuhou Misaki.glb,정상,정상,,,11039,34
+Shun (Kid).glb,정상,정상,,,10616,30
+Shun (Swimsuit) (1).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,20319,36
+Shun (Swimsuit) (2).glb,정상,정상,,,18121,33
+Shun.glb,정상,정상,,,11956,51
+sm030001.glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,17836,5
+sm032601.glb,정상,정상,,,19519,6
+st0004.glb,정상,정상,,,368,1
+st0005.glb,정상,정상,,,368,1
+Subaru.glb,정상,정상,,,15020,42
+Sumire (Part-Timer).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,17536,12
+Sumire.glb,정상,정상,,,12226,25
+Suzumi (Magical).glb,정상,정상,,,21625,36
+Suzumi.glb,정상,정상,,,12008,41
+Takane.glb,정상,정상,,,19291,40
+Toki (Battle) (Scenario).glb,정상,정상,,,18168,12
+Toki (Battle).glb,정상,정상,,,18296,37
+Toki (Bunny Girl).glb,정상,정상,,,17676,37
+Toki (Cafe).glb,정상,정상,,,11298,3
+Toki.glb,실패,정상,GLB 애니메이션 이름이 중복돼요. 고유한 이름으로 내보내 주세요.,,35424,44
+Tomoe (Qipao).glb,정상,정상,,,12507,15
+Tomoe.glb,정상,정상,,,10387,29
+Tsubaki (Guide).glb,정상,정상,,,12198,11
+Tsubaki.glb,정상,정상,,,11800,24
+Tsukuyo (Dress).glb,정상,정상,,,19120,25
+Tsukuyo.glb,정상,정상,,,16107,33
+Tsurugi (Swimsuit).glb,실패,정상,GLB 애니메이션 이름이 중복돼요. 고유한 이름으로 내보내 주세요.,,11246,37
+Tsurugi.glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,10479,35
+Ui (Swimsuit).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,16325,32
+Ui.glb,정상,정상,,,11457,30
+Umika.glb,정상,정상,,,12127,33
+Utaha (Cheerleader).glb,정상,정상,,,13612,25
+Utaha.glb,정상,정상,,,9709,6
+Wakamo (Swimsuit).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,13868,30
+Wakamo.glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,10904,34
+Yakumo.glb,정상,정상,,,15732,15
+Yoshimi (Band).glb,정상,정상,,,24432,38
+Yoshimi.glb,정상,정상,,,9965,7
+Yukari (Swimsuit).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,15749,34
+Yukari.glb,실패,정상,GLB 애니메이션 이름이 중복돼요. 고유한 이름으로 내보내 주세요.,,17415,28
+Yuuka (Pajama).glb,정상,정상,,,29282,35
+Yuuka (Sportswear).glb,실패,정상,현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.,,19797,41
+Yuuka.glb,정상,정상,,,10627,38
+Yuzu (Battle) (Carrier).glb,정상,정상,,,24879,2
+Yuzu (Battle) (Cut-in).glb,정상,정상,,,20486,1
+Yuzu (Battle).glb,정상,정상,,,25072,10
+Yuzu (Maid).glb,정상,정상,,,13804,21
+Yuzu.glb,정상,정상,,,10352,30

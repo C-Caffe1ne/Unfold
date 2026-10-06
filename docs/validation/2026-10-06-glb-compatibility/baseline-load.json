@@ -1,0 +1,2067 @@
+[
+  {
+    "file": "Airi (Band).glb",
+    "success": true,
+    "triangles": 19137,
+    "animations": 36,
+    "ms": 863
+  },
+  {
+    "file": "Airi.glb",
+    "success": true,
+    "triangles": 10556,
+    "animations": 7,
+    "ms": 27
+  },
+  {
+    "file": "Akane (Bunny Girl).glb",
+    "success": true,
+    "triangles": 12478,
+    "animations": 14,
+    "ms": 41
+  },
+  {
+    "file": "Akane (School Uniform).glb",
+    "success": true,
+    "triangles": 14307,
+    "animations": 8,
+    "ms": 33
+  },
+  {
+    "file": "Akane.glb",
+    "success": true,
+    "triangles": 9701,
+    "animations": 40,
+    "ms": 89
+  },
+  {
+    "file": "Akari (New Year).glb",
+    "success": false,
+    "error": "GLB animation times must increase and fit 120 seconds.",
+    "detail": "System.IO.InvalidDataException: GLB animation times must increase and fit 120 seconds.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_3.\u003C.ctor\u003Eb__28(JsonElement c)\n   at System.Linq.Enumerable.ArraySelectIterator\u00602.Fill(ReadOnlySpan\u00601 source, Span\u00601 destination, Func\u00602 func)\n   at System.Linq.Enumerable.ArraySelectIterator\u00602.ToArray()\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__9(JsonElement a, Int32 index)\n   at System.Linq.Enumerable.SelectIterator[TSource,TResult](IEnumerable\u00601 source, Func\u00603 selector)\u002BMoveNext()\n   at System.Linq.Enumerable.\u003CToArray\u003Eg__EnumerableToArray|324_0[TSource](IEnumerable\u00601 source)\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 62
+  },
+  {
+    "file": "Akari.glb",
+    "success": true,
+    "triangles": 10777,
+    "animations": 42,
+    "ms": 61
+  },
+  {
+    "file": "Ako (Dress).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.ArraySelectIterator\u00602.MoveNext()\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 42
+  },
+  {
+    "file": "Ako.glb",
+    "success": true,
+    "triangles": 10465,
+    "animations": 8,
+    "ms": 24
+  },
+  {
+    "file": "Aoba.glb",
+    "success": true,
+    "triangles": 21958,
+    "animations": 26,
+    "ms": 55
+  },
+  {
+    "file": "Arisu (Battle) (Carrier).glb",
+    "success": true,
+    "triangles": 26251,
+    "animations": 2,
+    "ms": 20
+  },
+  {
+    "file": "Arisu (Battle) (Scenario).glb",
+    "success": true,
+    "triangles": 14714,
+    "animations": 11,
+    "ms": 35
+  },
+  {
+    "file": "Arisu (Battle).glb",
+    "success": false,
+    "error": "GLB \uC560\uB2C8\uBA54\uC774\uC158 \uC774\uB984\uC774 \uC911\uBCF5\uB3FC\uC694. \uACE0\uC720\uD55C \uC774\uB984\uC73C\uB85C \uB0B4\uBCF4\uB0B4 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: GLB \uC560\uB2C8\uBA54\uC774\uC158 \uC774\uB984\uC774 \uC911\uBCF5\uB3FC\uC694. \uACE0\uC720\uD55C \uC774\uB984\uC73C\uB85C \uB0B4\uBCF4\uB0B4 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 120
+  },
+  {
+    "file": "Arisu (Maid).glb",
+    "success": true,
+    "triangles": 15825,
+    "animations": 32,
+    "ms": 115
+  },
+  {
+    "file": "Arisu.glb",
+    "success": true,
+    "triangles": 13741,
+    "animations": 24,
+    "ms": 78
+  },
+  {
+    "file": "Aru (Dress).glb",
+    "success": true,
+    "triangles": 14059,
+    "animations": 31,
+    "ms": 88
+  },
+  {
+    "file": "Aru (New Year).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.ArraySelectIterator\u00602.MoveNext()\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 32
+  },
+  {
+    "file": "Aru.glb",
+    "success": true,
+    "triangles": 12065,
+    "animations": 33,
+    "ms": 57
+  },
+  {
+    "file": "Asuna (Bunny Girl).glb",
+    "success": true,
+    "triangles": 11011,
+    "animations": 38,
+    "ms": 56
+  },
+  {
+    "file": "Asuna (School Uniform).glb",
+    "success": true,
+    "triangles": 17186,
+    "animations": 37,
+    "ms": 108
+  },
+  {
+    "file": "Asuna.glb",
+    "success": false,
+    "error": "GLB \uC560\uB2C8\uBA54\uC774\uC158 \uC774\uB984\uC774 \uC911\uBCF5\uB3FC\uC694. \uACE0\uC720\uD55C \uC774\uB984\uC73C\uB85C \uB0B4\uBCF4\uB0B4 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: GLB \uC560\uB2C8\uBA54\uC774\uC158 \uC774\uB984\uC774 \uC911\uBCF5\uB3FC\uC694. \uACE0\uC720\uD55C \uC774\uB984\uC73C\uB85C \uB0B4\uBCF4\uB0B4 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 56
+  },
+  {
+    "file": "Atsuko (Swimsuit).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.ArraySelectIterator\u00602.MoveNext()\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 14
+  },
+  {
+    "file": "Atsuko.glb",
+    "success": true,
+    "triangles": 10891,
+    "animations": 29,
+    "ms": 32
+  },
+  {
+    "file": "Ayane (Swimsuit).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.ArraySelectIterator\u00602.MoveNext()\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 19
+  },
+  {
+    "file": "Ayane.glb",
+    "success": true,
+    "triangles": 8265,
+    "animations": 6,
+    "ms": 14
+  },
+  {
+    "file": "Azusa (Swimsuit).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.ArraySelectIterator\u00602.MoveNext()\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 31
+  },
+  {
+    "file": "Azusa.glb",
+    "success": true,
+    "triangles": 12244,
+    "animations": 40,
+    "ms": 45
+  },
+  {
+    "file": "Cherino (Hot Spring).glb",
+    "success": true,
+    "triangles": 25888,
+    "animations": 20,
+    "ms": 59
+  },
+  {
+    "file": "Cherino.glb",
+    "success": true,
+    "triangles": 14373,
+    "animations": 44,
+    "ms": 43
+  },
+  {
+    "file": "Chiaki.glb",
+    "success": true,
+    "triangles": 15634,
+    "animations": 39,
+    "ms": 41
+  },
+  {
+    "file": "Chihiro.glb",
+    "success": true,
+    "triangles": 12296,
+    "animations": 7,
+    "ms": 16
+  },
+  {
+    "file": "Chinatsu (Hot Spring).glb",
+    "success": true,
+    "triangles": 10152,
+    "animations": 31,
+    "ms": 25
+  },
+  {
+    "file": "Chinatsu.glb",
+    "success": true,
+    "triangles": 12254,
+    "animations": 8,
+    "ms": 14
+  },
+  {
+    "file": "Chise (Swimsuit).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.ArraySelectIterator\u00602.MoveNext()\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 21
+  },
+  {
+    "file": "Chise.glb",
+    "success": true,
+    "triangles": 11183,
+    "animations": 30,
+    "ms": 26
+  },
+  {
+    "file": "Eimi (Battle) (Carrier).glb",
+    "success": true,
+    "triangles": 22033,
+    "animations": 2,
+    "ms": 11
+  },
+  {
+    "file": "Eimi (Battle) (Scenario).glb",
+    "success": true,
+    "triangles": 22129,
+    "animations": 5,
+    "ms": 15
+  },
+  {
+    "file": "Eimi (Battle).glb",
+    "success": true,
+    "triangles": 22193,
+    "animations": 38,
+    "ms": 60
+  },
+  {
+    "file": "Eimi (Swimsuit).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.ArraySelectIterator\u00602.MoveNext()\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 12
+  },
+  {
+    "file": "Eimi.glb",
+    "success": true,
+    "triangles": 11034,
+    "animations": 33,
+    "ms": 27
+  },
+  {
+    "file": "Eri.glb",
+    "success": true,
+    "triangles": 15910,
+    "animations": 37,
+    "ms": 105
+  },
+  {
+    "file": "Erika.glb",
+    "success": true,
+    "triangles": 15411,
+    "animations": 9,
+    "ms": 19
+  },
+  {
+    "file": "Fubuki (Swimsuit).glb",
+    "success": true,
+    "triangles": 23966,
+    "animations": 9,
+    "ms": 21
+  },
+  {
+    "file": "Fubuki.glb",
+    "success": true,
+    "triangles": 14296,
+    "animations": 30,
+    "ms": 30
+  },
+  {
+    "file": "Fuuka (New Year).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.ArraySelectIterator\u00602.MoveNext()\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 9
+  },
+  {
+    "file": "Fuuka.glb",
+    "success": true,
+    "triangles": 12492,
+    "animations": 7,
+    "ms": 14
+  },
+  {
+    "file": "Fuyu.glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.ArraySelectIterator\u00602.MoveNext()\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 25
+  },
+  {
+    "file": "Hanae (Christmas).glb",
+    "success": true,
+    "triangles": 10136,
+    "animations": 8,
+    "ms": 14
+  },
+  {
+    "file": "Hanae.glb",
+    "success": true,
+    "triangles": 12112,
+    "animations": 11,
+    "ms": 13
+  },
+  {
+    "file": "Hanako (Swimsuit).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.ArraySelectIterator\u00602.MoveNext()\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 22
+  },
+  {
+    "file": "Hanako.glb",
+    "success": true,
+    "triangles": 10432,
+    "animations": 7,
+    "ms": 12
+  },
+  {
+    "file": "Hare (Camping).glb",
+    "success": true,
+    "triangles": 26406,
+    "animations": 33,
+    "ms": 42
+  },
+  {
+    "file": "Hare.glb",
+    "success": true,
+    "triangles": 10505,
+    "animations": 6,
+    "ms": 8
+  },
+  {
+    "file": "Haruka (Dress).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.ArraySelectIterator\u00602.MoveNext()\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 17
+  },
+  {
+    "file": "Haruka (New Year).glb",
+    "success": true,
+    "triangles": 12371,
+    "animations": 8,
+    "ms": 16
+  },
+  {
+    "file": "Haruka.glb",
+    "success": false,
+    "error": "GLB \uC560\uB2C8\uBA54\uC774\uC158 \uC774\uB984\uC774 \uC911\uBCF5\uB3FC\uC694. \uACE0\uC720\uD55C \uC774\uB984\uC73C\uB85C \uB0B4\uBCF4\uB0B4 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: GLB \uC560\uB2C8\uBA54\uC774\uC158 \uC774\uB984\uC774 \uC911\uBCF5\uB3FC\uC694. \uACE0\uC720\uD55C \uC774\uB984\uC73C\uB85C \uB0B4\uBCF4\uB0B4 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 22
+  },
+  {
+    "file": "Haruna (New Year).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.ArraySelectIterator\u00602.MoveNext()\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 20
+  },
+  {
+    "file": "Haruna (Sportswear).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.ArraySelectIterator\u00602.MoveNext()\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 14
+  },
+  {
+    "file": "Haruna.glb",
+    "success": true,
+    "triangles": 11900,
+    "animations": 32,
+    "ms": 29
+  },
+  {
+    "file": "Hasumi (Sportswear).glb",
+    "success": true,
+    "triangles": 7778,
+    "animations": 30,
+    "ms": 27
+  },
+  {
+    "file": "Hasumi (Swimsuit).glb",
+    "success": true,
+    "triangles": 15099,
+    "animations": 33,
+    "ms": 33
+  },
+  {
+    "file": "Hasumi.glb",
+    "success": true,
+    "triangles": 9422,
+    "animations": 41,
+    "ms": 26
+  },
+  {
+    "file": "Hatsune Miku.glb",
+    "success": true,
+    "triangles": 13879,
+    "animations": 7,
+    "ms": 25
+  },
+  {
+    "file": "Hibiki (Cheerleader).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.ArraySelectIterator\u00602.MoveNext()\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 21
+  },
+  {
+    "file": "Hibiki.glb",
+    "success": true,
+    "triangles": 16384,
+    "animations": 7,
+    "ms": 16
+  },
+  {
+    "file": "Hifumi (Swimsuit).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.ArraySelectIterator\u00602.MoveNext()\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 13
+  },
+  {
+    "file": "Hifumi.glb",
+    "success": true,
+    "triangles": 10232,
+    "animations": 46,
+    "ms": 32
+  },
+  {
+    "file": "Hikari.glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.ArraySelectIterator\u00602.MoveNext()\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 20
+  },
+  {
+    "file": "Himari (Battle).glb",
+    "success": true,
+    "triangles": 33200,
+    "animations": 29,
+    "ms": 41
+  },
+  {
+    "file": "Himari.glb",
+    "success": true,
+    "triangles": 14215,
+    "animations": 7,
+    "ms": 12
+  },
+  {
+    "file": "Hina (Dress).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.ArraySelectIterator\u00602.MoveNext()\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 27
+  },
+  {
+    "file": "Hina (Swimsuit).glb",
+    "success": true,
+    "triangles": 13745,
+    "animations": 23,
+    "ms": 27
+  },
+  {
+    "file": "Hina.glb",
+    "success": true,
+    "triangles": 16435,
+    "animations": 32,
+    "ms": 30
+  },
+  {
+    "file": "Hinata (Swimsuit).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.ArraySelectIterator\u00602.MoveNext()\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 12
+  },
+  {
+    "file": "Hinata.glb",
+    "success": true,
+    "triangles": 17500,
+    "animations": 30,
+    "ms": 36
+  },
+  {
+    "file": "Hiyori (Swimsuit).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.ArraySelectIterator\u00602.MoveNext()\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 21
+  },
+  {
+    "file": "Hiyori.glb",
+    "success": true,
+    "triangles": 14998,
+    "animations": 7,
+    "ms": 18
+  },
+  {
+    "file": "Hoshino (Battle).glb",
+    "success": true,
+    "triangles": 21467,
+    "animations": 57,
+    "ms": 74
+  },
+  {
+    "file": "Hoshino (Swimsuit).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.ArraySelectIterator\u00602.MoveNext()\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 24
+  },
+  {
+    "file": "Hoshino.glb",
+    "success": true,
+    "triangles": 13845,
+    "animations": 36,
+    "ms": 35
+  },
+  {
+    "file": "Ibuki.glb",
+    "success": true,
+    "triangles": 17226,
+    "animations": 50,
+    "ms": 87
+  },
+  {
+    "file": "Ichika (Swimsuit).glb",
+    "success": true,
+    "triangles": 16968,
+    "animations": 10,
+    "ms": 15
+  },
+  {
+    "file": "Ichika.glb",
+    "success": true,
+    "triangles": 12372,
+    "animations": 40,
+    "ms": 41
+  },
+  {
+    "file": "Iori (Swimsuit).glb",
+    "success": true,
+    "triangles": 12920,
+    "animations": 31,
+    "ms": 26
+  },
+  {
+    "file": "Iori.glb",
+    "success": false,
+    "error": "GLB \uC560\uB2C8\uBA54\uC774\uC158 \uC774\uB984\uC774 \uC911\uBCF5\uB3FC\uC694. \uACE0\uC720\uD55C \uC774\uB984\uC73C\uB85C \uB0B4\uBCF4\uB0B4 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: GLB \uC560\uB2C8\uBA54\uC774\uC158 \uC774\uB984\uC774 \uC911\uBCF5\uB3FC\uC694. \uACE0\uC720\uD55C \uC774\uB984\uC73C\uB85C \uB0B4\uBCF4\uB0B4 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 28
+  },
+  {
+    "file": "Iroha.glb",
+    "success": true,
+    "triangles": 21858,
+    "animations": 36,
+    "ms": 59
+  },
+  {
+    "file": "Izumi (New Year).glb",
+    "success": false,
+    "error": "GLB \uC560\uB2C8\uBA54\uC774\uC158 \uC774\uB984\uC774 \uC911\uBCF5\uB3FC\uC694. \uACE0\uC720\uD55C \uC774\uB984\uC73C\uB85C \uB0B4\uBCF4\uB0B4 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: GLB \uC560\uB2C8\uBA54\uC774\uC158 \uC774\uB984\uC774 \uC911\uBCF5\uB3FC\uC694. \uACE0\uC720\uD55C \uC774\uB984\uC73C\uB85C \uB0B4\uBCF4\uB0B4 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 23
+  },
+  {
+    "file": "Izumi (Swimsuit).glb",
+    "success": true,
+    "triangles": 12883,
+    "animations": 25,
+    "ms": 32
+  },
+  {
+    "file": "Izumi.glb",
+    "success": true,
+    "triangles": 13939,
+    "animations": 31,
+    "ms": 31
+  },
+  {
+    "file": "Izuna (Swimsuit).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 19
+  },
+  {
+    "file": "Izuna.glb",
+    "success": true,
+    "triangles": 11935,
+    "animations": 40,
+    "ms": 45
+  },
+  {
+    "file": "Junko (New Year).glb",
+    "success": true,
+    "triangles": 15258,
+    "animations": 30,
+    "ms": 34
+  },
+  {
+    "file": "Junko.glb",
+    "success": true,
+    "triangles": 13606,
+    "animations": 38,
+    "ms": 36
+  },
+  {
+    "file": "Juri (Part-Timer).glb",
+    "success": true,
+    "triangles": 20196,
+    "animations": 28,
+    "ms": 33
+  },
+  {
+    "file": "Juri.glb",
+    "success": true,
+    "triangles": 12174,
+    "animations": 8,
+    "ms": 14
+  },
+  {
+    "file": "Kaede.glb",
+    "success": true,
+    "triangles": 13489,
+    "animations": 6,
+    "ms": 11
+  },
+  {
+    "file": "Kaho.glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 18
+  },
+  {
+    "file": "Kanna (Swimsuit).glb",
+    "success": true,
+    "triangles": 14022,
+    "animations": 34,
+    "ms": 29
+  },
+  {
+    "file": "Kanna.glb",
+    "success": true,
+    "triangles": 11088,
+    "animations": 8,
+    "ms": 13
+  },
+  {
+    "file": "Kanoe.glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 13
+  },
+  {
+    "file": "Karin (Bunny Girl).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 14
+  },
+  {
+    "file": "Karin (School Uniform).glb",
+    "success": true,
+    "triangles": 16618,
+    "animations": 13,
+    "ms": 25
+  },
+  {
+    "file": "Karin.glb",
+    "success": true,
+    "triangles": 10152,
+    "animations": 10,
+    "ms": 12
+  },
+  {
+    "file": "Kasumi.glb",
+    "success": true,
+    "triangles": 16327,
+    "animations": 36,
+    "ms": 64
+  },
+  {
+    "file": "Kayoko (Dress).glb",
+    "success": true,
+    "triangles": 14251,
+    "animations": 32,
+    "ms": 40
+  },
+  {
+    "file": "Kayoko (New Year).glb",
+    "success": true,
+    "triangles": 14594,
+    "animations": 33,
+    "ms": 38
+  },
+  {
+    "file": "Kayoko.glb",
+    "success": true,
+    "triangles": 10540,
+    "animations": 42,
+    "ms": 23
+  },
+  {
+    "file": "Kazusa (Band).glb",
+    "success": true,
+    "triangles": 22628,
+    "animations": 28,
+    "ms": 40
+  },
+  {
+    "file": "Kazusa.glb",
+    "success": true,
+    "triangles": 11466,
+    "animations": 24,
+    "ms": 28
+  },
+  {
+    "file": "Kei (Carrier 2).glb",
+    "success": true,
+    "triangles": 18737,
+    "animations": 2,
+    "ms": 9
+  },
+  {
+    "file": "Kei (Carrier).glb",
+    "success": true,
+    "triangles": 13329,
+    "animations": 1,
+    "ms": 5
+  },
+  {
+    "file": "Kei (Prototype).glb",
+    "success": true,
+    "triangles": 8230,
+    "animations": 1,
+    "ms": 3
+  },
+  {
+    "file": "Kei (Scenario 1).glb",
+    "success": true,
+    "triangles": 13489,
+    "animations": 9,
+    "ms": 12
+  },
+  {
+    "file": "Kei (Scenario 2).glb",
+    "success": true,
+    "triangles": 15185,
+    "animations": 11,
+    "ms": 18
+  },
+  {
+    "file": "Kei.glb",
+    "success": true,
+    "triangles": 19057,
+    "animations": 32,
+    "ms": 50
+  },
+  {
+    "file": "Kikyou (Swimsuit).glb",
+    "success": true,
+    "triangles": 15236,
+    "animations": 12,
+    "ms": 24
+  },
+  {
+    "file": "Kikyou.glb",
+    "success": true,
+    "triangles": 17448,
+    "animations": 32,
+    "ms": 66
+  },
+  {
+    "file": "Kirara.glb",
+    "success": true,
+    "triangles": 16966,
+    "animations": 33,
+    "ms": 37
+  },
+  {
+    "file": "Kirino (Swimsuit).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 10
+  },
+  {
+    "file": "Kirino.glb",
+    "success": true,
+    "triangles": 12646,
+    "animations": 38,
+    "ms": 32
+  },
+  {
+    "file": "Kisaki (Swimsuit).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 26
+  },
+  {
+    "file": "Kisaki.glb",
+    "success": true,
+    "triangles": 19796,
+    "animations": 9,
+    "ms": 28
+  },
+  {
+    "file": "Koharu (Swimsuit).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 24
+  },
+  {
+    "file": "Koharu.glb",
+    "success": true,
+    "triangles": 8246,
+    "animations": 32,
+    "ms": 32
+  },
+  {
+    "file": "Kokona.glb",
+    "success": true,
+    "triangles": 11803,
+    "animations": 31,
+    "ms": 36
+  },
+  {
+    "file": "Konoka.glb",
+    "success": true,
+    "triangles": 20956,
+    "animations": 31,
+    "ms": 43
+  },
+  {
+    "file": "Kotama (Camping).glb",
+    "success": true,
+    "triangles": 13646,
+    "animations": 32,
+    "ms": 37
+  },
+  {
+    "file": "Kotama.glb",
+    "success": true,
+    "triangles": 10964,
+    "animations": 40,
+    "ms": 20
+  },
+  {
+    "file": "Kotori (Cheerleader).glb",
+    "success": true,
+    "triangles": 18071,
+    "animations": 24,
+    "ms": 32
+  },
+  {
+    "file": "Kotori.glb",
+    "success": true,
+    "triangles": 12500,
+    "animations": 33,
+    "ms": 25
+  },
+  {
+    "file": "Koyuki (Pajama).glb",
+    "success": true,
+    "triangles": 20544,
+    "animations": 8,
+    "ms": 25
+  },
+  {
+    "file": "Koyuki.glb",
+    "success": true,
+    "triangles": 15341,
+    "animations": 24,
+    "ms": 33
+  },
+  {
+    "file": "Kurumi.glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 20
+  },
+  {
+    "file": "ladies_biker_ar.glb",
+    "success": true,
+    "triangles": 168,
+    "animations": 1,
+    "ms": 0
+  },
+  {
+    "file": "ladies_biker_mg.glb",
+    "success": true,
+    "triangles": 168,
+    "animations": 1,
+    "ms": 0
+  },
+  {
+    "file": "ladies_biker_sg.glb",
+    "success": true,
+    "triangles": 168,
+    "animations": 1,
+    "ms": 0
+  },
+  {
+    "file": "ladiesboss_biker_ar.glb",
+    "success": true,
+    "triangles": 135,
+    "animations": 1,
+    "ms": 0
+  },
+  {
+    "file": "Maki (Camping).glb",
+    "success": true,
+    "triangles": 18639,
+    "animations": 12,
+    "ms": 26
+  },
+  {
+    "file": "Maki.glb",
+    "success": true,
+    "triangles": 11244,
+    "animations": 26,
+    "ms": 26
+  },
+  {
+    "file": "Makoto.glb",
+    "success": true,
+    "triangles": 14467,
+    "animations": 10,
+    "ms": 23
+  },
+  {
+    "file": "Mari (Idol).glb",
+    "success": true,
+    "triangles": 16320,
+    "animations": 34,
+    "ms": 42
+  },
+  {
+    "file": "Mari (Sportswear).glb",
+    "success": true,
+    "triangles": 12857,
+    "animations": 31,
+    "ms": 39
+  },
+  {
+    "file": "Mari.glb",
+    "success": true,
+    "triangles": 11656,
+    "animations": 7,
+    "ms": 10
+  },
+  {
+    "file": "Marina (Qipao).glb",
+    "success": true,
+    "triangles": 17001,
+    "animations": 38,
+    "ms": 45
+  },
+  {
+    "file": "Marina.glb",
+    "success": false,
+    "error": "GLB \uC560\uB2C8\uBA54\uC774\uC158 \uC774\uB984\uC774 \uC911\uBCF5\uB3FC\uC694. \uACE0\uC720\uD55C \uC774\uB984\uC73C\uB85C \uB0B4\uBCF4\uB0B4 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: GLB \uC560\uB2C8\uBA54\uC774\uC158 \uC774\uB984\uC774 \uC911\uBCF5\uB3FC\uC694. \uACE0\uC720\uD55C \uC774\uB984\uC73C\uB85C \uB0B4\uBCF4\uB0B4 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 38
+  },
+  {
+    "file": "Mashiro (Swimsuit).glb",
+    "success": true,
+    "triangles": 13936,
+    "animations": 7,
+    "ms": 10
+  },
+  {
+    "file": "Mashiro.glb",
+    "success": true,
+    "triangles": 10470,
+    "animations": 6,
+    "ms": 6
+  },
+  {
+    "file": "Material Development Club Member.glb",
+    "success": true,
+    "triangles": 7689,
+    "animations": 1,
+    "ms": 3
+  },
+  {
+    "file": "Megu.glb",
+    "success": true,
+    "triangles": 11315,
+    "animations": 24,
+    "ms": 28
+  },
+  {
+    "file": "Meru.glb",
+    "success": true,
+    "triangles": 13924,
+    "animations": 34,
+    "ms": 41
+  },
+  {
+    "file": "Michiru (Dress).glb",
+    "success": true,
+    "triangles": 18249,
+    "animations": 11,
+    "ms": 23
+  },
+  {
+    "file": "Michiru.glb",
+    "success": true,
+    "triangles": 11342,
+    "animations": 27,
+    "ms": 39
+  },
+  {
+    "file": "Midori (Battle).glb",
+    "success": true,
+    "triangles": 10817,
+    "animations": 2,
+    "ms": 6
+  },
+  {
+    "file": "Midori (Maid).glb",
+    "success": false,
+    "error": "GLB \uC560\uB2C8\uBA54\uC774\uC158 \uC774\uB984\uC774 \uC911\uBCF5\uB3FC\uC694. \uACE0\uC720\uD55C \uC774\uB984\uC73C\uB85C \uB0B4\uBCF4\uB0B4 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: GLB \uC560\uB2C8\uBA54\uC774\uC158 \uC774\uB984\uC774 \uC911\uBCF5\uB3FC\uC694. \uACE0\uC720\uD55C \uC774\uB984\uC73C\uB85C \uB0B4\uBCF4\uB0B4 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 30
+  },
+  {
+    "file": "Midori.glb",
+    "success": true,
+    "triangles": 9620,
+    "animations": 31,
+    "ms": 17
+  },
+  {
+    "file": "Mika (Cut-in).glb",
+    "success": true,
+    "triangles": 19044,
+    "animations": 2,
+    "ms": 12
+  },
+  {
+    "file": "Mika (Swimsuit).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 16
+  },
+  {
+    "file": "Mika.glb",
+    "success": true,
+    "triangles": 11119,
+    "animations": 33,
+    "ms": 37
+  },
+  {
+    "file": "Mimori (Swimsuit).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 10
+  },
+  {
+    "file": "Mimori.glb",
+    "success": true,
+    "triangles": 10478,
+    "animations": 38,
+    "ms": 34
+  },
+  {
+    "file": "Mina.glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 14
+  },
+  {
+    "file": "Mine (Idol).glb",
+    "success": true,
+    "triangles": 12965,
+    "animations": 28,
+    "ms": 40
+  },
+  {
+    "file": "Mine.glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 16
+  },
+  {
+    "file": "Minori.glb",
+    "success": true,
+    "triangles": 14372,
+    "animations": 10,
+    "ms": 22
+  },
+  {
+    "file": "Misaka Mikoto.glb",
+    "success": true,
+    "triangles": 10109,
+    "animations": 32,
+    "ms": 35
+  },
+  {
+    "file": "Misaki (Swimsuit).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 10
+  },
+  {
+    "file": "Misaki.glb",
+    "success": true,
+    "triangles": 11771,
+    "animations": 30,
+    "ms": 24
+  },
+  {
+    "file": "Miyako (Swimsuit).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 16
+  },
+  {
+    "file": "Miyako.glb",
+    "success": true,
+    "triangles": 10979,
+    "animations": 32,
+    "ms": 33
+  },
+  {
+    "file": "Miyo.glb",
+    "success": true,
+    "triangles": 19626,
+    "animations": 33,
+    "ms": 37
+  },
+  {
+    "file": "Miyu (Swimsuit).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 11
+  },
+  {
+    "file": "Miyu.glb",
+    "success": true,
+    "triangles": 14471,
+    "animations": 31,
+    "ms": 34
+  },
+  {
+    "file": "Moe (Swimsuit).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 16
+  },
+  {
+    "file": "Moe.glb",
+    "success": true,
+    "triangles": 8841,
+    "animations": 7,
+    "ms": 11
+  },
+  {
+    "file": "Momiji.glb",
+    "success": true,
+    "triangles": 15088,
+    "animations": 38,
+    "ms": 38
+  },
+  {
+    "file": "Momoi (Battle).glb",
+    "success": true,
+    "triangles": 10801,
+    "animations": 2,
+    "ms": 6
+  },
+  {
+    "file": "Momoi (Maid).glb",
+    "success": true,
+    "triangles": 12165,
+    "animations": 39,
+    "ms": 29
+  },
+  {
+    "file": "Momoi.glb",
+    "success": true,
+    "triangles": 9754,
+    "animations": 37,
+    "ms": 19
+  },
+  {
+    "file": "Mutsuki (Dress).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 9
+  },
+  {
+    "file": "Mutsuki (New Year).glb",
+    "success": false,
+    "error": "GLB animation times must increase and fit 120 seconds.",
+    "detail": "System.IO.InvalidDataException: GLB animation times must increase and fit 120 seconds.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_3.\u003C.ctor\u003Eb__28(JsonElement c)\n   at System.Linq.Enumerable.ArraySelectIterator\u00602.ToArray()\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__9(JsonElement a, Int32 index)\n   at System.Linq.Enumerable.SelectIterator[TSource,TResult](IEnumerable\u00601 source, Func\u00603 selector)\u002BMoveNext()\n   at System.Linq.Enumerable.\u003CToArray\u003Eg__EnumerableToArray|324_0[TSource](IEnumerable\u00601 source)\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 22
+  },
+  {
+    "file": "Mutsuki.glb",
+    "success": true,
+    "triangles": 12960,
+    "animations": 33,
+    "ms": 19
+  },
+  {
+    "file": "Nagisa (Swimsuit).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 10
+  },
+  {
+    "file": "Nagisa.glb",
+    "success": true,
+    "triangles": 15646,
+    "animations": 6,
+    "ms": 12
+  },
+  {
+    "file": "Nagusa (Cut-in).glb",
+    "success": true,
+    "triangles": 15500,
+    "animations": 1,
+    "ms": 7
+  },
+  {
+    "file": "Nagusa (Swimsuit).glb",
+    "success": true,
+    "triangles": 16018,
+    "animations": 29,
+    "ms": 42
+  },
+  {
+    "file": "Nagusa.glb",
+    "success": true,
+    "triangles": 12880,
+    "animations": 25,
+    "ms": 41
+  },
+  {
+    "file": "Natsu (Band) (No Weapon).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 20
+  },
+  {
+    "file": "Natsu (Band).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 13
+  },
+  {
+    "file": "Natsu.glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 13
+  },
+  {
+    "file": "Neru (Bunny Girl).glb",
+    "success": true,
+    "triangles": 11355,
+    "animations": 38,
+    "ms": 52
+  },
+  {
+    "file": "Neru (School Uniform).glb",
+    "success": true,
+    "triangles": 21845,
+    "animations": 37,
+    "ms": 41
+  },
+  {
+    "file": "Neru.glb",
+    "success": true,
+    "triangles": 10910,
+    "animations": 40,
+    "ms": 50
+  },
+  {
+    "file": "Niko.glb",
+    "success": true,
+    "triangles": 22417,
+    "animations": 25,
+    "ms": 32
+  },
+  {
+    "file": "Niya.glb",
+    "success": true,
+    "triangles": 14102,
+    "animations": 9,
+    "ms": 16
+  },
+  {
+    "file": "Noa (Pajama).glb",
+    "success": true,
+    "triangles": 16094,
+    "animations": 34,
+    "ms": 39
+  },
+  {
+    "file": "Noa.glb",
+    "success": true,
+    "triangles": 12382,
+    "animations": 31,
+    "ms": 30
+  },
+  {
+    "file": "Nodoka (Hot Spring).glb",
+    "success": true,
+    "triangles": 13250,
+    "animations": 13,
+    "ms": 14
+  },
+  {
+    "file": "Nodoka.glb",
+    "success": true,
+    "triangles": 12571,
+    "animations": 6,
+    "ms": 9
+  },
+  {
+    "file": "Nonomi (Swimsuit).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 16
+  },
+  {
+    "file": "Nonomi.glb",
+    "success": true,
+    "triangles": 10570,
+    "animations": 27,
+    "ms": 34
+  },
+  {
+    "file": "Nozomi.glb",
+    "success": true,
+    "triangles": 12839,
+    "animations": 34,
+    "ms": 28
+  },
+  {
+    "file": "Otogi.glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 30
+  },
+  {
+    "file": "Pina (Guide).glb",
+    "success": true,
+    "triangles": 17367,
+    "animations": 14,
+    "ms": 26
+  },
+  {
+    "file": "Pina.glb",
+    "success": true,
+    "triangles": 11327,
+    "animations": 26,
+    "ms": 17
+  },
+  {
+    "file": "Rabu.glb",
+    "success": true,
+    "triangles": 14164,
+    "animations": 34,
+    "ms": 40
+  },
+  {
+    "file": "Rei.glb",
+    "success": false,
+    "error": "GLB \uC560\uB2C8\uBA54\uC774\uC158 \uC774\uB984\uC774 \uC911\uBCF5\uB3FC\uC694. \uACE0\uC720\uD55C \uC774\uB984\uC73C\uB85C \uB0B4\uBCF4\uB0B4 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: GLB \uC560\uB2C8\uBA54\uC774\uC158 \uC774\uB984\uC774 \uC911\uBCF5\uB3FC\uC694. \uACE0\uC720\uD55C \uC774\uB984\uC73C\uB85C \uB0B4\uBCF4\uB0B4 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 39
+  },
+  {
+    "file": "Reijo.glb",
+    "success": true,
+    "triangles": 13534,
+    "animations": 31,
+    "ms": 30
+  },
+  {
+    "file": "Reisa (Magical).glb",
+    "success": true,
+    "triangles": 19519,
+    "animations": 12,
+    "ms": 22
+  },
+  {
+    "file": "Reisa.glb",
+    "success": true,
+    "triangles": 12326,
+    "animations": 25,
+    "ms": 31
+  },
+  {
+    "file": "Rena.glb",
+    "success": true,
+    "triangles": 16964,
+    "animations": 35,
+    "ms": 47
+  },
+  {
+    "file": "Renge (Swimsuit).glb",
+    "success": true,
+    "triangles": 16455,
+    "animations": 32,
+    "ms": 43
+  },
+  {
+    "file": "Renge.glb",
+    "success": true,
+    "triangles": 14066,
+    "animations": 35,
+    "ms": 42
+  },
+  {
+    "file": "Rio (Battle) (Scenario).glb",
+    "success": true,
+    "triangles": 12548,
+    "animations": 4,
+    "ms": 9
+  },
+  {
+    "file": "Rio (Battle).glb",
+    "success": true,
+    "triangles": 12612,
+    "animations": 33,
+    "ms": 22
+  },
+  {
+    "file": "Rio.glb",
+    "success": true,
+    "triangles": 14402,
+    "animations": 14,
+    "ms": 14
+  },
+  {
+    "file": "Ritsu.glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 13
+  },
+  {
+    "file": "Rumi.glb",
+    "success": true,
+    "triangles": 17886,
+    "animations": 31,
+    "ms": 33
+  },
+  {
+    "file": "Saki (Swimsuit).glb",
+    "success": true,
+    "triangles": 13613,
+    "animations": 29,
+    "ms": 42
+  },
+  {
+    "file": "Saki.glb",
+    "success": true,
+    "triangles": 11029,
+    "animations": 9,
+    "ms": 16
+  },
+  {
+    "file": "Sakurako (Idol).glb",
+    "success": true,
+    "triangles": 14757,
+    "animations": 33,
+    "ms": 40
+  },
+  {
+    "file": "Sakurako.glb",
+    "success": true,
+    "triangles": 11424,
+    "animations": 32,
+    "ms": 31
+  },
+  {
+    "file": "Saori (Dress) (Cafe).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 5
+  },
+  {
+    "file": "Saori (Dress).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 14
+  },
+  {
+    "file": "Saori (Swimsuit).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 16
+  },
+  {
+    "file": "Saori.glb",
+    "success": true,
+    "triangles": 11873,
+    "animations": 34,
+    "ms": 31
+  },
+  {
+    "file": "Saten Ruiko.glb",
+    "success": true,
+    "triangles": 12125,
+    "animations": 7,
+    "ms": 12
+  },
+  {
+    "file": "Satsuki.glb",
+    "success": true,
+    "triangles": 12158,
+    "animations": 12,
+    "ms": 18
+  },
+  {
+    "file": "Saya (Casual).glb",
+    "success": true,
+    "triangles": 16242,
+    "animations": 7,
+    "ms": 15
+  },
+  {
+    "file": "Saya.glb",
+    "success": true,
+    "triangles": 13112,
+    "animations": 8,
+    "ms": 13
+  },
+  {
+    "file": "Seia (Swimsuit).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 14
+  },
+  {
+    "file": "Seia.glb",
+    "success": true,
+    "triangles": 15844,
+    "animations": 36,
+    "ms": 48
+  },
+  {
+    "file": "Sena (Casual).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 22
+  },
+  {
+    "file": "Sena.glb",
+    "success": true,
+    "triangles": 18935,
+    "animations": 19,
+    "ms": 22
+  },
+  {
+    "file": "Serika (New Year).glb",
+    "success": true,
+    "triangles": 10088,
+    "animations": 9,
+    "ms": 13
+  },
+  {
+    "file": "Serika (Swimsuit).glb",
+    "success": true,
+    "triangles": 13757,
+    "animations": 8,
+    "ms": 14
+  },
+  {
+    "file": "Serika.glb",
+    "success": true,
+    "triangles": 8041,
+    "animations": 40,
+    "ms": 20
+  },
+  {
+    "file": "Serina (Christmas).glb",
+    "success": true,
+    "triangles": 14670,
+    "animations": 31,
+    "ms": 30
+  },
+  {
+    "file": "Serina.glb",
+    "success": true,
+    "triangles": 12313,
+    "animations": 7,
+    "ms": 9
+  },
+  {
+    "file": "Shigure (Hot Spring).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 10
+  },
+  {
+    "file": "Shigure.glb",
+    "success": true,
+    "triangles": 13710,
+    "animations": 30,
+    "ms": 29
+  },
+  {
+    "file": "Shimiko.glb",
+    "success": true,
+    "triangles": 12117,
+    "animations": 39,
+    "ms": 22
+  },
+  {
+    "file": "Shiroko (Riding).glb",
+    "success": true,
+    "triangles": 18720,
+    "animations": 38,
+    "ms": 25
+  },
+  {
+    "file": "Shiroko (Swimsuit).glb",
+    "success": true,
+    "triangles": 15241,
+    "animations": 10,
+    "ms": 18
+  },
+  {
+    "file": "Shiroko.glb",
+    "success": true,
+    "triangles": 13309,
+    "animations": 44,
+    "ms": 28
+  },
+  {
+    "file": "Shiroko\uFF0ATerror.glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 18
+  },
+  {
+    "file": "Shizuko (Swimsuit).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 10
+  },
+  {
+    "file": "Shizuko.glb",
+    "success": true,
+    "triangles": 10516,
+    "animations": 6,
+    "ms": 12
+  },
+  {
+    "file": "Shokuhou Misaki.glb",
+    "success": true,
+    "triangles": 11039,
+    "animations": 34,
+    "ms": 32
+  },
+  {
+    "file": "Shun (Kid).glb",
+    "success": true,
+    "triangles": 10616,
+    "animations": 30,
+    "ms": 24
+  },
+  {
+    "file": "Shun (Swimsuit) (1).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 18
+  },
+  {
+    "file": "Shun (Swimsuit) (2).glb",
+    "success": true,
+    "triangles": 18121,
+    "animations": 33,
+    "ms": 33
+  },
+  {
+    "file": "Shun.glb",
+    "success": true,
+    "triangles": 11956,
+    "animations": 51,
+    "ms": 32
+  },
+  {
+    "file": "sm030001.glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 10
+  },
+  {
+    "file": "sm032601.glb",
+    "success": true,
+    "triangles": 19519,
+    "animations": 6,
+    "ms": 16
+  },
+  {
+    "file": "st0004.glb",
+    "success": true,
+    "triangles": 368,
+    "animations": 1,
+    "ms": 0
+  },
+  {
+    "file": "st0005.glb",
+    "success": true,
+    "triangles": 368,
+    "animations": 1,
+    "ms": 0
+  },
+  {
+    "file": "Subaru.glb",
+    "success": true,
+    "triangles": 15020,
+    "animations": 42,
+    "ms": 48
+  },
+  {
+    "file": "Sumire (Part-Timer).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 9
+  },
+  {
+    "file": "Sumire.glb",
+    "success": true,
+    "triangles": 12226,
+    "animations": 25,
+    "ms": 28
+  },
+  {
+    "file": "Suzumi (Magical).glb",
+    "success": true,
+    "triangles": 21625,
+    "animations": 36,
+    "ms": 42
+  },
+  {
+    "file": "Suzumi.glb",
+    "success": true,
+    "triangles": 12008,
+    "animations": 41,
+    "ms": 25
+  },
+  {
+    "file": "Takane.glb",
+    "success": true,
+    "triangles": 19291,
+    "animations": 40,
+    "ms": 48
+  },
+  {
+    "file": "Toki (Battle) (Scenario).glb",
+    "success": true,
+    "triangles": 18168,
+    "animations": 12,
+    "ms": 20
+  },
+  {
+    "file": "Toki (Battle).glb",
+    "success": true,
+    "triangles": 18296,
+    "animations": 37,
+    "ms": 51
+  },
+  {
+    "file": "Toki (Bunny Girl).glb",
+    "success": true,
+    "triangles": 17676,
+    "animations": 37,
+    "ms": 57
+  },
+  {
+    "file": "Toki (Cafe).glb",
+    "success": true,
+    "triangles": 11298,
+    "animations": 3,
+    "ms": 11
+  },
+  {
+    "file": "Toki.glb",
+    "success": false,
+    "error": "GLB \uC560\uB2C8\uBA54\uC774\uC158 \uC774\uB984\uC774 \uC911\uBCF5\uB3FC\uC694. \uACE0\uC720\uD55C \uC774\uB984\uC73C\uB85C \uB0B4\uBCF4\uB0B4 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: GLB \uC560\uB2C8\uBA54\uC774\uC158 \uC774\uB984\uC774 \uC911\uBCF5\uB3FC\uC694. \uACE0\uC720\uD55C \uC774\uB984\uC73C\uB85C \uB0B4\uBCF4\uB0B4 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 64
+  },
+  {
+    "file": "Tomoe (Qipao).glb",
+    "success": true,
+    "triangles": 12507,
+    "animations": 15,
+    "ms": 28
+  },
+  {
+    "file": "Tomoe.glb",
+    "success": true,
+    "triangles": 10387,
+    "animations": 29,
+    "ms": 33
+  },
+  {
+    "file": "Tsubaki (Guide).glb",
+    "success": true,
+    "triangles": 12198,
+    "animations": 11,
+    "ms": 17
+  },
+  {
+    "file": "Tsubaki.glb",
+    "success": true,
+    "triangles": 11800,
+    "animations": 24,
+    "ms": 15
+  },
+  {
+    "file": "Tsukuyo (Dress).glb",
+    "success": true,
+    "triangles": 19120,
+    "animations": 25,
+    "ms": 43
+  },
+  {
+    "file": "Tsukuyo.glb",
+    "success": true,
+    "triangles": 16107,
+    "animations": 33,
+    "ms": 65
+  },
+  {
+    "file": "Tsurugi (Swimsuit).glb",
+    "success": false,
+    "error": "GLB \uC560\uB2C8\uBA54\uC774\uC158 \uC774\uB984\uC774 \uC911\uBCF5\uB3FC\uC694. \uACE0\uC720\uD55C \uC774\uB984\uC73C\uB85C \uB0B4\uBCF4\uB0B4 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: GLB \uC560\uB2C8\uBA54\uC774\uC158 \uC774\uB984\uC774 \uC911\uBCF5\uB3FC\uC694. \uACE0\uC720\uD55C \uC774\uB984\uC73C\uB85C \uB0B4\uBCF4\uB0B4 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 29
+  },
+  {
+    "file": "Tsurugi.glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 17
+  },
+  {
+    "file": "Ui (Swimsuit).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 22
+  },
+  {
+    "file": "Ui.glb",
+    "success": true,
+    "triangles": 11457,
+    "animations": 30,
+    "ms": 33
+  },
+  {
+    "file": "Umika.glb",
+    "success": true,
+    "triangles": 12127,
+    "animations": 33,
+    "ms": 43
+  },
+  {
+    "file": "Utaha (Cheerleader).glb",
+    "success": true,
+    "triangles": 13612,
+    "animations": 25,
+    "ms": 35
+  },
+  {
+    "file": "Utaha.glb",
+    "success": true,
+    "triangles": 9709,
+    "animations": 6,
+    "ms": 11
+  },
+  {
+    "file": "Wakamo (Swimsuit).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 31
+  },
+  {
+    "file": "Wakamo.glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 18
+  },
+  {
+    "file": "Yakumo.glb",
+    "success": true,
+    "triangles": 15732,
+    "animations": 15,
+    "ms": 26
+  },
+  {
+    "file": "Yoshimi (Band).glb",
+    "success": true,
+    "triangles": 24432,
+    "animations": 38,
+    "ms": 80
+  },
+  {
+    "file": "Yoshimi.glb",
+    "success": true,
+    "triangles": 9965,
+    "animations": 7,
+    "ms": 16
+  },
+  {
+    "file": "Yukari (Swimsuit).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 21
+  },
+  {
+    "file": "Yukari.glb",
+    "success": false,
+    "error": "GLB \uC560\uB2C8\uBA54\uC774\uC158 \uC774\uB984\uC774 \uC911\uBCF5\uB3FC\uC694. \uACE0\uC720\uD55C \uC774\uB984\uC73C\uB85C \uB0B4\uBCF4\uB0B4 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: GLB \uC560\uB2C8\uBA54\uC774\uC158 \uC774\uB984\uC774 \uC911\uBCF5\uB3FC\uC694. \uACE0\uC720\uD55C \uC774\uB984\uC73C\uB85C \uB0B4\uBCF4\uB0B4 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 48
+  },
+  {
+    "file": "Yuuka (Pajama).glb",
+    "success": true,
+    "triangles": 29282,
+    "animations": 35,
+    "ms": 46
+  },
+  {
+    "file": "Yuuka (Sportswear).glb",
+    "success": false,
+    "error": "\uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.",
+    "detail": "System.IO.InvalidDataException: \uD604\uC7AC GLB\uB294 OPAQUE/MASK \uC7AC\uC9C8\uC744 \uC9C0\uC6D0\uD574\uC694. BLEND \uC7AC\uC9C8\uC740 \uBCC0\uD658\uD574 \uC8FC\uC138\uC694.\n   at Unfold.Core.GlbModel.\u003C\u003Ec__DisplayClass30_0.\u003C.ctor\u003Eb__1(JsonElement m)\n   at System.Linq.Enumerable.AppendPrepend1Iterator\u00601.ToArray()\n   at Unfold.Core.GlbModel..ctor(Byte[] bytes)\n   at Unfold.Core.GlbModel.Parse(Byte[] bytes)\n   at Unfold.Core.GlbModel.Load(String path)\n   at Program.\u003CMain\u003E$(String[] args) in /private/tmp/unfold-glb-20261006/probe/Program.cs:line 8",
+    "ms": 28
+  },
+  {
+    "file": "Yuuka.glb",
+    "success": true,
+    "triangles": 10627,
+    "animations": 38,
+    "ms": 30
+  },
+  {
+    "file": "Yuzu (Battle) (Carrier).glb",
+    "success": true,
+    "triangles": 24879,
+    "animations": 2,
+    "ms": 13
+  },
+  {
+    "file": "Yuzu (Battle) (Cut-in).glb",
+    "success": true,
+    "triangles": 20486,
+    "animations": 1,
+    "ms": 11
+  },
+  {
+    "file": "Yuzu (Battle).glb",
+    "success": true,
+    "triangles": 25072,
+    "animations": 10,
+    "ms": 25
+  },
+  {
+    "file": "Yuzu (Maid).glb",
+    "success": true,
+    "triangles": 13804,
+    "animations": 21,
+    "ms": 31
+  },
+  {
+    "file": "Yuzu.glb",
+    "success": true,
+    "triangles": 10352,
+    "animations": 30,
+    "ms": 27
+  }
+]

@@ -10,8 +10,15 @@ public sealed partial class GlbModel
     // Grow to the largest requested size rather than retaining a pool for every
     // size/clip. Color + depth are bounded by the 2048px raster limit (32 MiB).
     private readonly RenderWorkspace renderWorkspace = new();
+    private readonly record struct BlendTriangle(Vector3 A, Vector3 B, Vector3 C,
+        Vector2 UvA, Vector2 UvB, Vector2 UvC, Material Material, int Order)
+    {
+        public float Depth => A.Z / 3 + B.Z / 3 + C.Z / 3;
+    }
     private sealed class RenderWorkspace
     {
+        // Reuse the transparent draw list; opaque-only models allocate no entries.
+        public List<BlendTriangle> Blended { get; } = [];
         private uint[] colors = [];
         private float[] depth = [];
         private Vector3[] vertices = [];
@@ -200,7 +207,7 @@ public sealed partial class GlbModel
         var heading = Matrix4x4.CreateRotationY(definition.Heading * MathF.PI / 180);
         var width = bounds.Max.X - bounds.Min.X; var height = bounds.Max.Y - bounds.Min.Y;
         var scale = size * .78f / Math.Max(width, height); var center = (bounds.Min.X + bounds.Max.X) * .5f;
-        pixels.Clear();
+        pixels.Clear(); renderWorkspace.Blended.Clear();
         var depth = renderWorkspace.Depth(size * size); depth.Fill(float.NegativeInfinity);
         foreach (var node in visible) foreach (var primitive in meshes[nodes[node].Mesh])
         {
@@ -214,23 +221,65 @@ public sealed partial class GlbModel
             {
                 var ai = primitive.Indices[i]; var bi = primitive.Indices[i + 1]; var ci = primitive.Indices[i + 2];
                 var a = vertices[ai]; var b = vertices[bi]; var c = vertices[ci];
-                var area = Edge(a, b, c.X, c.Y); if (!float.IsFinite(area) || Math.Abs(area) < .00001f) continue;
-                var left = Math.Clamp((int)MathF.Floor(Math.Min(a.X, Math.Min(b.X, c.X))), 0, size - 1);
-                var right = Math.Clamp((int)MathF.Ceiling(Math.Max(a.X, Math.Max(b.X, c.X))), 0, size - 1);
-                var top = Math.Clamp((int)MathF.Floor(Math.Min(a.Y, Math.Min(b.Y, c.Y))), 0, size - 1);
-                var bottom = Math.Clamp((int)MathF.Ceiling(Math.Max(a.Y, Math.Max(b.Y, c.Y))), 0, size - 1);
-                for (var y = top; y <= bottom; y++) for (var x = left; x <= right; x++)
-                {
-                    var wa = Edge(b, c, x + .5f, y + .5f) / area; var wb = Edge(c, a, x + .5f, y + .5f) / area; var wc = 1 - wa - wb;
-                    if (wa < 0 || wb < 0 || wc < 0) continue;
-                    var z = wa * a.Z + wb * b.Z + wc * c.Z; var index = y * size + x; if (z <= depth[index]) continue;
-                    var uv = primitive.Uvs[ai] * wa + primitive.Uvs[bi] * wb + primitive.Uvs[ci] * wc;
-                    var color = Texture(material, uv);
-                    if (material.Alpha == "MASK" && (color >> 24) / 255f < material.Cutoff) continue;
-                    pixels[index] = color | 0xFF000000; depth[index] = z;
-                }
+                var uvA = primitive.Uvs[ai]; var uvB = primitive.Uvs[bi]; var uvC = primitive.Uvs[ci];
+                if (material.Alpha == "BLEND")
+                    renderWorkspace.Blended.Add(new(a, b, c, uvA, uvB, uvC, material, renderWorkspace.Blended.Count));
+                else RasterTriangle(a, b, c, uvA, uvB, uvC, material, size, pixels, depth);
             }
         }
+        // Larger Z is closer to the camera. Opaque depth is complete before the
+        // transparent pass, which composites back to front without writing depth.
+        renderWorkspace.Blended.Sort(static (a, b) =>
+        {
+            var order = a.Depth.CompareTo(b.Depth); return order != 0 ? order : a.Order.CompareTo(b.Order);
+        });
+        foreach (var t in renderWorkspace.Blended)
+            RasterTriangle(t.A, t.B, t.C, t.UvA, t.UvB, t.UvC, t.Material, size, pixels, depth);
+    }
+    private static void RasterTriangle(Vector3 a, Vector3 b, Vector3 c, Vector2 uvA, Vector2 uvB, Vector2 uvC,
+        Material material, int size, Span<uint> pixels, Span<float> depth)
+    {
+        var area = Edge(a, b, c.X, c.Y); if (!float.IsFinite(area) || Math.Abs(area) < .00001f) return;
+        var blend = material.Alpha == "BLEND";
+        var left = Math.Clamp((int)MathF.Floor(Math.Min(a.X, Math.Min(b.X, c.X))), 0, size - 1);
+        var right = Math.Clamp((int)MathF.Ceiling(Math.Max(a.X, Math.Max(b.X, c.X))), 0, size - 1);
+        var top = Math.Clamp((int)MathF.Floor(Math.Min(a.Y, Math.Min(b.Y, c.Y))), 0, size - 1);
+        var bottom = Math.Clamp((int)MathF.Ceiling(Math.Max(a.Y, Math.Max(b.Y, c.Y))), 0, size - 1);
+        for (var y = top; y <= bottom; y++) for (var x = left; x <= right; x++)
+        {
+            var wa = Edge(b, c, x + .5f, y + .5f) / area; var wb = Edge(c, a, x + .5f, y + .5f) / area;
+            var wc = blend ? Edge(a, b, x + .5f, y + .5f) / area : 1 - wa - wb;
+            if (wa < 0 || wb < 0 || wc < 0) continue;
+            // Give a shared edge to exactly one triangle to avoid double blending.
+            if (blend && ((wa == 0 && !OwnsEdge(b, c, area)) || (wb == 0 && !OwnsEdge(c, a, area)) ||
+                (wc == 0 && !OwnsEdge(a, b, area)))) continue;
+            var z = wa * a.Z + wb * b.Z + wc * c.Z; var index = y * size + x; if (z <= depth[index]) continue;
+            var color = Texture(material, uvA * wa + uvB * wb + uvC * wc);
+            if (blend) pixels[index] = Over(color, pixels[index]);
+            else
+            {
+                if (material.Alpha == "MASK" && (color >> 24) / 255f < material.Cutoff) continue;
+                pixels[index] = color | 0xFF000000; depth[index] = z;
+            }
+        }
+    }
+    private static bool OwnsEdge(Vector3 a, Vector3 b, float area)
+    {
+        if (area < 0) (a, b) = (b, a);
+        return a.Y < b.Y || (a.Y == b.Y && a.X > b.X);
+    }
+    // PixelImage stores straight alpha. Weight RGB while compositing, then
+    // unpremultiply so the existing antialias/downsample and hit testing agree.
+    private static uint Over(uint source, uint destination)
+    {
+        var alpha = source >> 24;
+        if (alpha == 0) return destination;
+        if (alpha == 255) return source;
+        var background = (destination >> 24) * (255 - alpha);
+        var combined = alpha * 255 + background;
+        uint Channel(int shift) => ((((source >> shift) & 255) * alpha * 255 +
+            ((destination >> shift) & 255) * background + combined / 2) / combined);
+        return ((combined + 127) / 255) << 24 | Channel(16) << 16 | Channel(8) << 8 | Channel(0);
     }
     private static float Edge(Vector3 a, Vector3 b, float x, float y) => (x - a.X) * (b.Y - a.Y) - (y - a.Y) * (b.X - a.X);
     private static float Wrap(float value, int mode) => mode == 33071 ? Math.Clamp(value, 0, 1) : mode == 33648 ? 1 - Math.Abs(value - 2 * MathF.Floor(value / 2) - 1) : value - MathF.Floor(value);

@@ -1,7 +1,6 @@
 using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Platform;
 
 namespace Unfold.Desktop;
 
@@ -27,7 +26,7 @@ public sealed partial class PetWindow
         // Off-screen diagnostics must not react to the real desktop cursor.
         if (!IsVisible || runtime.DiagnosticMode) return false;
         if (OperatingSystem.IsMacOS()) return MacPetWindow.TryGetPointer(this, out point);
-        if (!OperatingSystem.IsWindows() || !HasWindowsHandle(TryGetPlatformHandle()) || !GetCursorPos(out var cursor)) return false;
+        if (!OperatingSystem.IsWindows() || !WindowsPetWindow.HasNativeHandle(TryGetPlatformHandle()) || !GetCursorPos(out var cursor)) return false;
         point = this.PointToClient(new PixelPoint(cursor.X, cursor.Y));
         return true;
     }
@@ -37,24 +36,18 @@ public sealed partial class PetWindow
         if (!TryGetNativePointer(out var point)) return;
         UpdateHover(PetPoint(point));
         var ignore = !AcceptsPointerAt(point);
-        if (ignore == clickThrough) return;
-        if (OperatingSystem.IsMacOS())
+        if (OperatingSystem.IsWindows())
+        {
+            // Reconcile against the HWND even when our cached value matches:
+            // Avalonia can rebuild its extended styles after show/layout changes.
+            if (WindowsPetWindow.SetClickThrough(this, ignore)) clickThrough = ignore;
+        }
+        else if (OperatingSystem.IsMacOS() && ignore != clickThrough)
         {
             if (MacPetWindow.SetClickThrough(this, ignore)) clickThrough = ignore;
         }
-        else if (OperatingSystem.IsWindows() && HasWindowsHandle(TryGetPlatformHandle()))
-        {
-            var hwnd = TryGetPlatformHandle()!.Handle;
-            var style = (long)GetWindowLong(hwnd, -20);
-            SetWindowLong(hwnd, -20, (nint)(ignore ? style | 0x20 : style & ~0x20));
-            clickThrough = ignore;
-        }
     }
 
-    internal static bool HasWindowsHandle(IPlatformHandle? handle) =>
-        handle is { HandleDescriptor: "HWND" } && handle.Handle != 0;
     [StructLayout(LayoutKind.Sequential)] private struct CursorPoint { public int X, Y; }
     [DllImport("user32.dll")] [return: MarshalAs(UnmanagedType.Bool)] private static extern bool GetCursorPos(out CursorPoint point);
-    [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW")] private static extern nint GetWindowLong(nint hwnd, int index);
-    [DllImport("user32.dll", EntryPoint = "SetWindowLongPtrW")] private static extern nint SetWindowLong(nint hwnd, int index, nint value);
 }

@@ -1,0 +1,292 @@
+{
+  "success": true,
+  "appVersion": "1.1.0-beta",
+  "displayVersion": "Beta v1.1.0",
+  "model": "Hikari.glb",
+  "triangles": 13344,
+  "animations": [
+    {
+      "name": "Cafe_Reaction",
+      "duration": 9.933333396911621
+    },
+    {
+      "name": "Cafe_Idle",
+      "duration": 4
+    },
+    {
+      "name": "Cafe_Walk",
+      "duration": 1.2000000476837158
+    },
+    {
+      "name": "Formation_Idle",
+      "duration": 4
+    },
+    {
+      "name": "Formation_Pickup",
+      "duration": 10.933334350585938
+    },
+    {
+      "name": "Exs_Cutin_01",
+      "duration": 2.2333333492279053
+    },
+    {
+      "name": "Exs_Cutin_02",
+      "duration": 1.8666670322418213
+    },
+    {
+      "name": "Exs_Cutin_03",
+      "duration": 1.200000286102295
+    },
+    {
+      "name": "Exs_Cutin_04",
+      "duration": 1.200000286102295
+    },
+    {
+      "name": "Exs_Cutin_05",
+      "duration": 2.200000762939453
+    },
+    {
+      "name": "Exs",
+      "duration": 5.333333492279053
+    },
+    {
+      "name": "Victory_End",
+      "duration": 4
+    },
+    {
+      "name": "Victory_Start",
+      "duration": 3.000000238418579
+    },
+    {
+      "name": "Normal_Idle",
+      "duration": 4
+    },
+    {
+      "name": "Normal_Attack_Delay",
+      "duration": 2
+    },
+    {
+      "name": "Normal_Attack_End",
+      "duration": 0.6666667461395264
+    },
+    {
+      "name": "Normal_Attack_Ing",
+      "duration": 0.833333432674408
+    },
+    {
+      "name": "Normal_Attack_Start",
+      "duration": 0.9000000357627869
+    },
+    {
+      "name": "Normal_Callsign",
+      "duration": 1.6666667461395264
+    },
+    {
+      "name": "Normal_Reload",
+      "duration": 1.8666667938232422
+    },
+    {
+      "name": "Kneel_Idle",
+      "duration": 4
+    },
+    {
+      "name": "Kneel_Attack_Delay",
+      "duration": 2
+    },
+    {
+      "name": "Kneel_Attack_End",
+      "duration": 0.6666667461395264
+    },
+    {
+      "name": "Kneel_Attack_Ing",
+      "duration": 0.833333432674408
+    },
+    {
+      "name": "Kneel_Attack_Start",
+      "duration": 0.9000000357627869
+    },
+    {
+      "name": "Kneel_Reload",
+      "duration": 1.8666667938232422
+    },
+    {
+      "name": "Move_End_Kneel",
+      "duration": 0.8666667342185974
+    },
+    {
+      "name": "Move_End_Normal",
+      "duration": 0.8666667342185974
+    },
+    {
+      "name": "Move_Ing",
+      "duration": 0.6666666865348816
+    },
+    {
+      "name": "Move_Jump",
+      "duration": 1
+    },
+    {
+      "name": "Vital_Death",
+      "duration": 3.000000238418579
+    },
+    {
+      "name": "Vital_Dying_Ing",
+      "duration": 2
+    },
+    {
+      "name": "Vital_Panic",
+      "duration": 1.3333333730697632
+    },
+    {
+      "name": "Vital_Retreat",
+      "duration": 1.6666667461395264
+    },
+    {
+      "name": "Public01",
+      "duration": 5.000000476837158
+    }
+  ],
+  "actionSettings": {
+    "idle": {
+      "frames": null,
+      "fps": null,
+      "gif": null,
+      "loop": true,
+      "pingPong": false,
+      "modelClip": "Cafe_Idle",
+      "speed": 1,
+      "heading": null
+    },
+    "click": {
+      "frames": null,
+      "fps": null,
+      "gif": null,
+      "loop": true,
+      "pingPong": false,
+      "modelClip": "Cafe_Reaction",
+      "speed": 1,
+      "heading": 90
+    },
+    "hover": {
+      "frames": null,
+      "fps": null,
+      "gif": null,
+      "loop": false,
+      "pingPong": false,
+      "modelClip": "Cafe_Reaction",
+      "speed": 1,
+      "heading": null
+    },
+    "pickup": {
+      "frames": null,
+      "fps": null,
+      "gif": null,
+      "loop": false,
+      "pingPong": false,
+      "modelClip": "Formation_Pickup",
+      "speed": 1,
+      "heading": null
+    },
+    "held": {
+      "frames": null,
+      "fps": null,
+      "gif": null,
+      "loop": true,
+      "pingPong": false,
+      "modelClip": "Formation_Idle",
+      "speed": 1,
+      "heading": null
+    },
+    "land": {
+      "frames": null,
+      "fps": null,
+      "gif": null,
+      "loop": false,
+      "pingPong": false,
+      "modelClip": "Formation_Idle",
+      "speed": 1,
+      "heading": null
+    },
+    "walk": {
+      "frames": null,
+      "fps": null,
+      "gif": null,
+      "loop": true,
+      "pingPong": false,
+      "modelClip": "Cafe_Walk",
+      "speed": 1,
+      "heading": null
+    },
+    "celebrate": {
+      "frames": null,
+      "fps": null,
+      "gif": null,
+      "loop": false,
+      "pingPong": false,
+      "modelClip": "Victory_Start",
+      "speed": 1,
+      "heading": null
+    }
+  },
+  "playback": [
+    {
+      "key": "idle",
+      "duration": 4,
+      "completed": 1
+    },
+    {
+      "key": "click",
+      "duration": 9.933333396911621,
+      "completed": 1
+    },
+    {
+      "key": "pickup",
+      "duration": 10.933334350585938,
+      "completed": 1
+    },
+    {
+      "key": "held",
+      "duration": 4,
+      "completed": 1
+    },
+    {
+      "key": "land",
+      "duration": 4,
+      "completed": 1
+    },
+    {
+      "key": "walk",
+      "duration": 1.2000000476837158,
+      "completed": 1
+    }
+  ],
+  "resolution": [
+    {
+      "logicalSize": 192,
+      "renderScaling": 1,
+      "pixels": 192,
+      "renderMs": 7.8845
+    },
+    {
+      "logicalSize": 288,
+      "renderScaling": 1,
+      "pixels": 288,
+      "renderMs": 12.8588
+    },
+    {
+      "logicalSize": 384,
+      "renderScaling": 1,
+      "pixels": 384,
+      "renderMs": 14.1426
+    }
+  ],
+  "pointerCanvasVerified": true,
+  "importedThroughUi": true,
+  "persisted": true,
+  "integratedSettings": true,
+  "hiddenPetStayedHidden": true,
+  "qualityWindowOnScreen": true,
+  "otherWindowsOffScreen": true,
+  "physicalInput": false,
+  "os": "Unix 26.6.2"
+}

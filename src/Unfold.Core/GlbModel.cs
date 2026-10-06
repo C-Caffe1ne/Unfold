@@ -95,7 +95,7 @@ public sealed partial class GlbModel
                 if (t.TryGetProperty("sampler", out var si)) { var s = samplers[si.GetInt32()]; ws = Int(s, "wrapS", 10497); wt = Int(s, "wrapT", 10497); }
             }
             var alpha = String(m, "alphaMode", "OPAQUE");
-            if (alpha is not ("OPAQUE" or "MASK")) throw new InvalidDataException("현재 GLB는 OPAQUE/MASK 재질을 지원해요. BLEND 재질은 변환해 주세요.");
+            if (alpha is not ("OPAQUE" or "MASK" or "BLEND")) throw new InvalidDataException("지원하지 않는 GLB 알파 재질 형식이에요.");
             return new Material(texture, Vec4(p, "baseColorFactor", Vector4.One), alpha, Float(m, "alphaCutoff", .5f), ws, wt);
         }).Append(new(null, Vector4.One, "OPAQUE", .5f, 10497, 10497)).ToArray();
         var meshJson = Array(root, "meshes");
@@ -159,6 +159,10 @@ public sealed partial class GlbModel
             foreach (var p in meshes[n.Mesh]) foreach (var j in p.Joints)
                 if (new[] { j.X, j.Y, j.Z, j.W }.Any(v => v < 0 || v >= skins[n.Skin].Joints.Length || v != MathF.Truncate(v))) throw new InvalidDataException("Invalid vertex joint.");
         }
+        // Mesh instances also count toward the draw budget, bounding the reusable
+        // transparent triangle list as well as the amount of raster work per frame.
+        if (visible.Sum(i => meshes[nodes[i].Mesh].Sum(p => (long)p.Indices.Length / 3)) > 100000)
+            throw new InvalidDataException("화면에 표시되는 펫 모델의 삼각형을 10만 개 이하로 줄여 주세요.");
         var animations = Array(root, "animations");
         if (animations.Length > 128) throw new InvalidDataException("GLB animations exceed 128.");
         clips = animations.Select((a, index) =>
@@ -172,7 +176,7 @@ public sealed partial class GlbModel
                 var s = sam[c.GetProperty("sampler").GetInt32()]; var interpolation = String(s, "interpolation", "LINEAR");
                 if (interpolation is not ("LINEAR" or "STEP" or "CUBICSPLINE")) throw new InvalidDataException("Unsupported GLB interpolation.");
                 var times = reader.Read(s.GetProperty("input").GetInt32(), 1).Data;
-                if (times.Length == 0 || times[0] < 0 || times[^1] > 120 || times.Zip(times.Skip(1)).Any(p => p.First >= p.Second)) throw new InvalidDataException("GLB animation times must increase and fit 120 seconds.");
+                if (times.Length == 0 || times[0] < 0 || times[^1] > 120 || times.Zip(times.Skip(1)).Any(p => p.First >= p.Second)) throw new InvalidDataException($"GLB 애니메이션 '{String(a, "name", $"Animation_{index + 1}")}'의 시간 키가 중복·역순이거나 0~120초 범위를 벗어났어요. 원본에서 시간 키를 정리해 다시 내보내 주세요.");
                 var width = path == "rotation" ? 4 : path == "weights" ? meshes[nodes[node].Mesh][0].Morphs.Length : 3;
                 if (width < 1 || nodes[node].Matrix is not null) throw new InvalidDataException("Invalid animated GLB node.");
                 var values = reader.Read(s.GetProperty("output").GetInt32(), path == "weights" ? 1 : width);
@@ -184,7 +188,19 @@ public sealed partial class GlbModel
             var start = result.Length == 0 ? 0 : result.Min(c => c.Times[0]); var end = result.Length == 0 ? 0 : result.Max(c => c.Times[^1]);
             return new Clip(String(a, "name", $"Animation_{index + 1}"), result, start, end);
         }).ToArray();
-        if (clips.Select(c => c.Name).Distinct(StringComparer.Ordinal).Count() != clips.Length) throw new InvalidDataException("GLB 애니메이션 이름이 중복돼요. 고유한 이름으로 내보내 주세요.");
+        // glTF names are display labels, not unique IDs. Keep the first spelling
+        // and reserve every authored name before adding stable suffixes for duplicates.
+        var reservedNames = clips.Select(c => c.Name).ToHashSet(StringComparer.Ordinal);
+        var usedNames = new HashSet<string>(StringComparer.Ordinal);
+        for (var i = 0; i < clips.Length; i++)
+        {
+            var originalName = clips[i].Name;
+            if (usedNames.Add(originalName)) continue;
+            var suffix = 2; string uniqueName;
+            do { uniqueName = $"{originalName} ({suffix++})"; }
+            while (!reservedNames.Add(uniqueName));
+            usedNames.Add(uniqueName); clips[i] = clips[i] with { Name = uniqueName };
+        }
         if (clips.Length == 0) clips = [new("Static", [], 0, 1)];
         Animations = clips.Select(c => new GlbClipInfo(c.Name, Math.Max(.05, c.End - c.Start))).ToArray();
         // Highest animated joint of the largest skin is the locomotion/orientation root.

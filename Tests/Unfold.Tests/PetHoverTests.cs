@@ -23,15 +23,15 @@ public class PetHoverTests
     [InlineData("NSWindow", 1, false)]
     public void CursorPollingRequiresANonzeroWindowsNativeHandle(string descriptor, int value, bool expected)
     {
-        Assert.Equal(expected, PetWindow.HasWindowsHandle(new Avalonia.Platform.PlatformHandle((nint)value, descriptor)));
-        Assert.False(PetWindow.HasWindowsHandle(null));
+        Assert.Equal(expected, WindowsPetWindow.HasNativeHandle(new Avalonia.Platform.PlatformHandle((nint)value, descriptor)));
+        Assert.False(WindowsPetWindow.HasNativeHandle(null));
     }
 
     [AvaloniaFact]
     public async Task HeadlessPetNeverQualifiesForNativeCursorPolling()
     {
         using var scope = new Scope(); await scope.Load();
-        Assert.False(PetWindow.HasWindowsHandle(scope.Pet.TryGetPlatformHandle()));
+        Assert.False(WindowsPetWindow.HasNativeHandle(scope.Pet.TryGetPlatformHandle()));
         scope.Hover(); Assert.True(scope.Bubble.IsVisible);
     }
 
