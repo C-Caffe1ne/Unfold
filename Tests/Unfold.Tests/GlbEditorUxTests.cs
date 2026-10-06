@@ -22,11 +22,16 @@ public class GlbEditorUxTests
         public Window Window { get; } = new() { Width = 840, Height = 780 };
         public GlbPetView Page { get; }
         public CharacterLibrary Library { get; }
-        public Editor(bool saved = false)
+        public Editor(bool saved = false, double? savedSpeed = null)
         {
             var path = Path.Combine(temp.Path, "pet.glb"); File.WriteAllBytes(path, GlbTests.Fixture(morph: true));
             Library = new(Path.Combine(temp.Path, "library"));
-            if (saved) new GlbPetDraft(path) { Name = "저장한 펫" }.Save(Library);
+            if (saved)
+            {
+                var draft = new GlbPetDraft(path) { Name = "저장한 펫" };
+                if (savedSpeed is { } speed) draft.Set("click", "Idle", false, speed);
+                draft.Save(Library);
+            }
             Page = new(Window, Library, _ => Task.CompletedTask, () => Task.FromResult<string?>(path));
             Window.Content = Page; Window.Show(); Dispatcher.UIThread.RunJobs();
         }
@@ -42,6 +47,38 @@ public class GlbEditorUxTests
             Assert.True(ready());
         }
         public void Dispose() { Page.Dispose(); Window.Close(); temp.Dispose(); }
+    }
+
+    [AvaloniaFact]
+    public async Task ImportedCustomSpeedAllowsOtherMappingChangesAndSurvivesSaveAndReopen()
+    {
+        using var editor = new Editor(saved: true, savedSpeed: 1.25);
+        editor.Find<ComboBox>("GlbExistingPets").SelectedIndex = 0;
+        await Editor.Until(() => !editor.Page.IsBusy && editor.Page.HasDraft);
+        var speed = editor.Find<ComboBox>("GlbSpeed_click");
+        Assert.True(speed.SelectedIndex >= 0);
+        editor.Find<ComboBox>("GlbPreviewAction").SelectedItem = "click";
+        editor.Find<ComboBox>("GlbHeading_click").SelectedIndex = 2;
+        await Editor.Until(() => !editor.Page.IsPreviewLoading);
+        editor.Find<ComboBox>("GlbRepeat_click").SelectedIndex = 1;
+        await Editor.Until(() => !editor.Page.IsPreviewLoading);
+        editor.Find<ComboBox>("GlbClip_click").SelectedIndex = 0;
+        Assert.False(editor.Find<ComboBox>("GlbRepeat_click").IsEnabled);
+        editor.Find<ComboBox>("GlbClip_click").SelectedItem = "Idle";
+        await Editor.Until(() => !editor.Page.IsPreviewLoading);
+        editor.Find<ComboBox>("GlbRepeat_click").SelectedIndex = 1;
+        Assert.True(editor.Page.HasUnsavedChanges);
+        await Editor.Until(() => !editor.Page.IsPreviewLoading);
+        editor.Press("SaveGlbPet"); await Editor.Until(() => !editor.Page.IsBusy);
+        Assert.False(editor.Page.HasUnsavedChanges, editor.Find<TextBlock>("GlbStatus").Text);
+        var package = editor.Library.List().Single();
+        Assert.Equal(1.25, package.Manifest.Animations["click"].Speed);
+        Assert.Equal(180, package.Manifest.Animations["click"].Heading);
+        Assert.True(package.Manifest.Animations["click"].Loop);
+        await editor.Page.OpenPackage(package);
+        Assert.True(editor.Find<ComboBox>("GlbSpeed_click").SelectedIndex >= 0);
+        Assert.Equal(2, editor.Find<ComboBox>("GlbHeading_click").SelectedIndex);
+        Assert.Equal(1, editor.Find<ComboBox>("GlbRepeat_click").SelectedIndex);
     }
 
     [AvaloniaFact]

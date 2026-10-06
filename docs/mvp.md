@@ -6,11 +6,14 @@ A small desktop companion that reminds you to stretch while you work.
 
 Mochi와 잠깐 쉬고, 내 리듬으로 돌아오는 작은 데스크톱 동료.
 
-This document defines the current **Cat MVP with break sessions and local review** on `release/mvp`.
-The application is the C#/.NET 10 and Avalonia solution. The 2026-09-13 product
-development request extends the reminder into a guided pause with local completion
-records. [Product direction](product-direction.md) and [development plan](development-plan.md)
-describe the paid-value hypotheses. No payment flow or store is implemented.
+This document describes the current **Unfold Beta 1.1.0** development source:
+`codex/glb-import-compat`, `c44ef12` plus the current uncommitted GLB compatibility
+and Windows input changes, checked on 2026-10-06. Recheck the worktree and version
+before implementation; `release/mvp` is an older source.
+The application uses C#/.NET 10 and Avalonia. [Product direction](product-direction.md)
+and [development plan](development-plan.md) describe the paid-value hypotheses.
+Account and purchase-access flows exist in the desktop source; their production
+verification is separate from the local break and pet diagnostics.
 
 ## Core loop and implemented behavior
 
@@ -26,8 +29,8 @@ observed. Those outcomes are not established by a passing build or animation tes
 | Area | Current behavior |
 |---|---|
 | Language | Korean throughout the normal settings, break, review, pet-pack and tray flows. User names and saved history retain their original text. [Language scope](localization.md) |
-| Settings layout | Sidebar order is timer, pet addition, review, settings, with no decorative top icon. The timer home places stretch interval and break duration above the review card; the Settings page keeps notification sounds, idle time and snooze. The pet page switches between open/create tabs. Default size 1120×800, minimum 640×560; the home stacks vertically below 860px wide, with scrolling and unsaved input preserved. [Dashboard guide](settings-ui.md) |
-| Timer | The home time card groups stretch time (the 5–240 minute work interval) and the next break duration (1–10 minutes). Stretch time is locked while running and can be edited only while manually paused or stopped; break duration can be changed while running because it applies to the next session. Its **저장** button is transparent and disabled when unchanged, appears for edits, and saves valid changes. The Settings tab saves idle/snooze values with its own **저장** button. A five-minute work interval does not emit an advance warning. |
+| Settings layout | Sidebar order is timer, pet management, review, settings. The home shows the timer and companion; notification sounds, idle time and snooze are in Settings. Pet management is one editor page; opening a file selects the media or GLB editor by extension, without open/create or format tabs. Default 1120×800, minimum 640×560; narrow layouts scroll and preserve editor drafts. [Dashboard guide](settings-ui.md) |
+| Timer | The home time card groups the 1–240 minute work interval and 1–10 minute next break duration. Work interval edits require Pause or Stop; break duration changes apply to the next session. The home **저장** action persists these values. Settings notification/idle/snooze preferences save automatically and report validation/save errors. Intervals of five minutes or less do not emit an advance warning. |
 | Timer controls | The state badge explicitly distinguishes running, paused, stopped, idle-paused, and break-held states. The two labelled, keyboard-accessible icon buttons are Play/Pause and Stop. Pause keeps the remaining time; Stop asks for confirmation, then displays the configured full interval; Play resumes or starts that interval after Stop. Approved Stop dismisses an open or pending invitation without adding a completion. |
 | Exit | Sidebar and tray exit ask for confirmation, then retain existing unsaved pet-draft/editor guards. Cancel or closing the confirmation leaves the app running. |
 | Activity | Idle threshold of 1–60 minutes. Idle time and large dispatcher/sleep gaps do not accrue work time. |
@@ -39,13 +42,14 @@ observed. Those outcomes are not established by a passing build or animation tes
 | Duplicate reminder | Keeps the active session and does not replay the due sound or pet reaction. Concurrent preparations are coalesced. |
 | Completion history | Only pressing **완료** after starting adds a local record, including early completion and overtime. New records retain planned seconds and measured active session seconds; summaries use actual seconds when available. Sleep/stalled UI gaps do not accrue time. History is bounded to 2,000 entries; adding a record removes entries older than 90 days. |
 | Review/export | Seven-day counts and recorded rest time, previous-period navigation, and CSV export. The CSV retains planned_seconds and appends actual_seconds (blank for older records). Routine/profile snapshots and local dates are preserved. |
-| Desktop pet | Frameless, topmost, draggable, position-persistent, optionally hidden, and adjustable from 50–150% in 10% steps. Windows has OS-level transparent-pixel click-through; macOS does not. |
-| Original pet animation | Bundled Mochi (cat), 보리 (rabbit), 강아지 (dog), 고슴도치 (hedgehog) and 펭귄 (penguin) have ten clips, with random sleep/look/yawn after 20–40 eligible idle seconds. Press squashes, release bounces and plays surprise → looking around. The third consecutive snooze triggers sulking. During a break, one complete stretch precedes slow movement inside the current monitor work area. Pointer hover, dragging and context menus pause movement; completion, stop, hide and character change end it. Automatic movement does not overwrite saved manual position. |
-| Optional reactions | Packages may supply `attention` on invitation, `celebrate` on confirmed completion, and `click`. Missing event clips leave the pet unchanged. Expanded behaviors require the `unfold-original-v1` profile and all ten clips; the custom GIF/MP4 builder retains its five slots and existing playback. |
-| Hidden pet | A hidden pet appears temporarily for a new speech reminder without changing ShowPet. Explicit Hide Pet saves ShowPet=false and hides the current reminder without ending its session; routine refresh does not reveal it. Focus Reminder or the next new notification can reveal it again. Advance and completion notices expire after five seconds; invitation and active-break controls remain available. |
+| Desktop pet | Frameless, topmost, draggable, position-persistent, optionally hidden, and adjustable from 50–150% in 10% steps. Platform-specific transparent-region hit testing is implemented for macOS and Windows. Headless/fake native API checks do not establish actual Windows input behavior. |
+| Original pet animation | Bundled Mochi, 보리, 강아지, 고슴도치 and 펭귄 retain their original behavior profile and clips. Idle reactions and pointer press/release clips remain; the removed canvas squish, lift and bounce effects are not current requirements. The third consecutive snooze can trigger sulking. A break stretch precedes movement within the current work area; hover, dragging and menus hold movement. Automatic movement does not overwrite saved manual position. |
+| Optional reactions | Packages may provide invitation, completion, click, hover, pointer and movement reactions. Missing optional clips leave the pet unchanged. Original behavior requires its profile and clip contract; media and GLB authoring use their own supported action lists. |
+| Hidden pet | A hidden pet appears temporarily for a new speech reminder without changing ShowPet. Explicit Hide Pet saves ShowPet=false and suppresses the current reminder without ending its session. Advance/completion notices expire after five seconds. An invitation automatically snoozes once after 30 seconds from its first visible presentation; an active break remains until completion or cancellation. |
 | Character picker | A compact 200px selector lists the five bundled pets and valid characters in the local library. When an old installed pack has a bundled ID, the bundled version appears once and the user's original files remain on disk. |
-| Pet packs | The sidebar **펫 추가** page has **펫 팩 열기** and **펫 팩 만들기** tabs, preserving drafts while navigating. Open a local .unfoldpet file, inspect animations/version on the current theme background, 100–200% preview size, Pause/Resume and Replay, then save to install, update, or reinstall. Action selection sits below the preview beside size; there is no background selector. Built-in and user-authored IDs are protected. Invalid packs and changed installed files are rejected before replacement. No purchase recovery or remote download. [Pack guide](pet-packs.md) |
-| Custom pets | **펫 추가 → 펫 팩 만들기 → 파일 가져오기** assigns GIF/MP4 snapshots to idle, attention, stretch, celebrate and click. Idle is required. Save a validated .unfoldpet, then preview/install through the existing flow. GIF timing is preserved; MP4 up to 10 seconds/128 MiB becomes silent GIF at up to 192px and 12 fps. No background removal. |
+| Pet packs | **펫 관리 → 파일 열기…** opens `.unfoldpet` in a separate preview/install dialog. Preview animations/version, then install or reapply through that dialog. Editor drafts survive navigation. A pack content version lower than the installed version is allowed by the current compatibility policy; invalid data and changed installed files are checked before replacement. [Pack guide](pet-packs.md) |
+| Custom pets | The same file-open action accepts GIF, MP4, PNG, JPG, WEBP and BMP. Assign media to idle, attention, stretch, celebrate, click, hover, pointerDown and pointerUp; idle is required. Export a validated `.unfoldpet`, then preview/install. GIF timing is preserved; MP4 up to 10 seconds/128 MiB becomes silent GIF at up to 192px and 12 fps. No background removal. |
+| GLB pets | Open an embedded GLB model, map supported situations to animation/heading/speed/repeat settings, export or save/apply, and reopen installed GLB pets from the selector. The file-slot trash immediately clears the current model draft while preserving its name, original source file and installed/active pet. **펫 삭제** separately confirms deletion of an installed editable GLB pet and updates runtime selection. [GLB guide](glb-pets.md) |
 | Launch at login | Opt-in Windows registry/macOS LaunchAgent integration. Test it from a published app in its final location. |
 
 These are implementation descriptions, not blanket OS verification claims. See
@@ -53,7 +57,7 @@ These are implementation descriptions, not blanket OS verification claims. See
 
 ## Scope boundaries
 
-The MVP has no user-facing routine/profile setup, pixel editor, drawing tools or installed-character editing/deletion,
+The MVP has no user-facing routine/profile setup, pixel editor, drawing tools, or general pixel editing of installed characters,
 scheduled profile switching, meeting/full-screen detection, clinical exercise
 library, cloud sync, AI chat, achievements, XP, in-app shop, multiplayer, or
 coding-agent integration. Weekly review/export remains available; routine-library and work-profile data
@@ -61,15 +65,16 @@ are retained only for backward compatibility and internal diagnostics. [Compatib
 
 The commercial plan is free download, Google sign-in, then one-time payment: KRW 4,900 in Korea
 or US$3.99 overseas, with **no free trial**. Supabase manages accounts and purchase entitlements.
-Account/payment foundation code is being prepared separately; the running desktop app still has
-no sign-in or purchase gate and all current features work locally. Account UI, secure session
-storage, real OAuth, provider checkout and offline purchase recovery are not connected yet.
-Completion history, settings and pet files remain local. See the
+The desktop source connects account UI, Google browser sign-in, secure session storage,
+checkout requests and entitlement checks. Normal startup enables the purchase gate;
+internal diagnostic mode bypasses it explicitly. The presence of these paths is not
+proof of a completed real OAuth/payment transaction or offline purchase recovery.
+Those production checks remain separate release gates. Completion history, settings and pet files remain local. See the
 [paid launch plan](plans/2026-09-27-paid-launch.md) for staged acceptance criteria.
 
 The C# editor, pixel model, and Piskel codec remain because regression tests and
 `--smoke-test` exercise authoring/save/reopen behavior. They are not advertised as
-MVP features. Settings does not construct hidden Edit/Delete buttons.
+MVP features. The normal UI does not expose that general pixel editor; GLB management has its own explicit edit/delete flow.
 
 `CharacterLibrary` and the image codecs are runtime dependencies: the app uses
 them to discover and play character packages, including existing user artwork.

@@ -326,10 +326,12 @@ public sealed partial class SettingsWindow
             {
                 "dashboard" => timerControls.Children.OfType<Button>().First(),
                 "settings" => controls.FirstOrDefault(control => control.Name == "BubbleDirection"),
-                "pets" => controls.OfType<TabItem>().FirstOrDefault(tab => tab.IsSelected),
+                "pets" => controls.OfType<TextBox>().FirstOrDefault(input =>
+                    input.Name is "CustomPetName" or "GlbPetName" && input.IsEnabled && input.IsEffectivelyVisible),
                 _ => controls.OfType<Button>().FirstOrDefault(button => button.IsEnabled && button.IsEffectivelyVisible)
             };
-            target?.Focus(keyboard ? NavigationMethod.Tab : NavigationMethod.Unspecified);
+            if (target is not null && target.Focus(keyboard ? NavigationMethod.Tab : NavigationMethod.Unspecified))
+                target.BringIntoView();
         }, DispatcherPriority.Loaded);
     }
     private void SelectNavigation(string key)

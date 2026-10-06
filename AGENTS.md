@@ -2,7 +2,7 @@
 
 - 현재 체크아웃의 코드와 빌드 입력으로 구현 상태를 확인한다. 현재 앱은 C#·Avalonia 기반이다.
 - 모든 기능 구현은 사용자의 마지막 수정 버전을 기준으로 한다. 작업 시작 전에 `git worktree list`, 각 후보의 브랜치·HEAD·미커밋 변경, 프로젝트 버전과 실행 대상 경로를 확인한다. 현재 대화의 작업 디렉터리를 최신 버전으로 가정하지 않는다.
-- 2026-10-04 확인 기준 최신 개발본은 `/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold`의 `codex/beta-v1.0.4` (`1.0.4-beta`)다. 이 경로와 버전은 다음 작업에서 다시 확인한다. `release/mvp`의 `0.2.2`는 이전 소스다. 검증·실행도 확인한 최신 경로에서 수행한다.
+- 2026-10-06 확인 기준 최신 개발본은 `/Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold`의 `codex/glb-import-compat` (`1.1.0-beta`, `c44ef12`와 현재 미커밋 변경)다. 이 경로와 버전은 다음 작업에서 다시 확인한다. `release/mvp`의 `0.2.2`는 이전 소스다. 검증·실행도 확인한 최신 경로에서 수행한다.
 - 문서 위치는 `docs/README.md`에서 찾는다. `archive/`와 `reference/`는 현재 실행 지침이 아니다.
 - 제품 범위가 필요한 작업은 `docs/mvp.md`, 설치·게시 작업은 `docs/cross-platform.md`를 참고한다.
 - 검증 방법과 한계는 `docs/verification.md`를 참고한다.

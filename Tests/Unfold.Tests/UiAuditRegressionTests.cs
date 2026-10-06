@@ -2,8 +2,10 @@ using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
 using Avalonia.Input;
+using Avalonia.Input.Raw;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
@@ -234,6 +236,52 @@ public class UiAuditRegressionTests
         Press(window, "SettingsNavTimer"); Layout(window);
         Assert.DoesNotContain("선택됨", AutomationProperties.GetName(settingsNav));
         Assert.True(Find<Button>(window, "TimerToggle").IsFocused);
+    }
+
+    [AvaloniaTheory]
+    [InlineData(640, 560, false)]
+    [InlineData(1120, 800, false)]
+    [InlineData(640, 560, true)]
+    [InlineData(1120, 800, true)]
+    public async Task KeyboardPetNavigationFocusesTheVisibleEditorAndReturnsToTheSidebar(double width, double height, bool glb)
+    {
+        using var scope = new SettingsScope(); var window = scope.Window;
+        window.Width = width; window.Height = height; Layout(window);
+        var nav = Find<Button>(window, "SettingsNavPacks");
+        void EnterPetPage()
+        {
+            nav.Focus(NavigationMethod.Tab);
+            window.KeyPress(Key.Enter, RawInputModifiers.None, PhysicalKey.Enter, null);
+            window.KeyRelease(Key.Enter, RawInputModifiers.None, PhysicalKey.Enter, null);
+            Layout(window); Layout(window);
+        }
+        EnterPetPage();
+        if (glb)
+        {
+            var path = Path.Combine(scope.Root, "focus.glb"); File.WriteAllBytes(path, GlbTests.Fixture(morph: true));
+            await window.GetVisualDescendants().OfType<PetBuilderView>().Single().OpenPath(path);
+            Layout(window);
+        }
+        var scroll = Find<ScrollViewer>(window, "PageBodyScroll"); scroll.ScrollToEnd(); Layout(window);
+        Press(window, "SettingsNavTimer"); Layout(window);
+        EnterPetPage();
+        var name = Find<TextBox>(window, glb ? "GlbPetName" : "CustomPetName");
+        Assert.True(name.IsFocused); Assert.True(name.IsEnabled); Assert.True(name.IsEffectivelyVisible);
+        Assert.DoesNotContain(window.GetVisualDescendants().OfType<TextBox>(), text => text.Name == (glb ? "CustomPetName" : "GlbPetName"));
+        Assert.Contains("선택됨", AutomationProperties.GetName(nav));
+        var origin = name.TranslatePoint(default, scroll)!.Value;
+        Assert.InRange(origin.Y, 0, scroll.Viewport.Height - name.Bounds.Height);
+        Assert.True(scroll.Extent.Width <= scroll.Viewport.Width + 1);
+        // Move backward through the real tab order rather than synthesizing a sidebar click.
+        for (var i = 0; i < 6 && window.FocusManager!.GetFocusedElement() is Control focused &&
+            !focused.GetVisualAncestors().Any(control => control.Name == "SettingsNavigationRail"); i++)
+        {
+            window.KeyPress(Key.Tab, RawInputModifiers.Shift, PhysicalKey.Tab, null);
+            window.KeyRelease(Key.Tab, RawInputModifiers.Shift, PhysicalKey.Tab, null);
+            Layout(window);
+        }
+        var returned = Assert.IsAssignableFrom<Control>(window.FocusManager!.GetFocusedElement());
+        Assert.Contains(returned.GetVisualAncestors(), control => control.Name == "SettingsNavigationRail");
     }
 
     [Fact]

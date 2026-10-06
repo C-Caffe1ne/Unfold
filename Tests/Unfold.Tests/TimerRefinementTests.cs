@@ -90,6 +90,34 @@ public class TimerRefinementTests
         Assert.Empty(runtime.BreakHistory.Completions); Assert.Equal(0, runtime.CompletionSoundRequests);
     }
 
+    [AvaloniaTheory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task AlreadyExpiredInvitationHidesTemporaryPetInTheSameRefresh(bool paused)
+    {
+        using var scope = new Scope(); var runtime = scope.Runtime;
+        var doc = new PixelDocument(16, 16); Array.Fill(doc.Layers[0].Frames[0], 0xFFFFFFFFu);
+        var pack = runtime.Library.Save(doc); await runtime.Reload();
+        await runtime.UpdateSettings(runtime.Settings with { SelectedCharacterId = pack.Manifest.Id, ShowPet = false, SnoozeMinutes = 9 });
+        runtime.Stop(); runtime.TogglePause(); if (paused) runtime.TogglePause();
+        await runtime.ShowReminder();
+        Assert.True(runtime.ActivePet!.IsVisible);
+        // Model an invitation whose deadline elapsed before the refresh scheduled its timer.
+        runtime.Reminder.Cancel();
+        var session = new BreakSession(BreakRoutines.All[0], runtime.Settings.SelectedCharacterId);
+        Assert.True(runtime.Reminder.Invite(session));
+        runtime.Reminder.MarkInvitationPresented(TimeSpan.FromSeconds(-31));
+        var refresh = typeof(AppRuntime).GetMethod("RefreshPetNotice",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        refresh.Invoke(runtime, null);
+        Assert.Null(runtime.Reminder.Session); Assert.False(runtime.Reminder.HasNotice);
+        Assert.False(runtime.ActivePet.IsVisible);
+        Assert.Equal(BreakSessionState.Snoozed, session.State);
+        Assert.Equal(TimeSpan.FromMinutes(9), runtime.Clock.Remaining);
+        Assert.Equal(paused, runtime.Clock.Paused); Assert.False(runtime.Clock.Stopped);
+        Assert.Equal(1, runtime.Reminder.ConsecutiveSnoozes);
+        Assert.Empty(runtime.BreakHistory.Completions);
+    }
+
     [AvaloniaFact]
     public void HomeCanSaveAndReloadOneMinute()
     {

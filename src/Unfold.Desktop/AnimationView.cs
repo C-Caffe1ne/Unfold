@@ -128,7 +128,14 @@ public sealed class AnimationView : Control, IDisposable
             var image = liveBackImage is { } back && back.Width == pixels
                 ? back : new PixelImage(pixels, pixels, new uint[pixels * pixels]);
             liveBackImage = null;
-            await Task.Run(() => source.RenderFrameInto(next, pixels, image.Pixels));
+            // A completed one-shot keeps the exact end pose when resized or
+            // refreshed; indexed frames continue to exclude the loop boundary.
+            var terminal = ended || (!loop && completed);
+            await Task.Run(() =>
+            {
+                if (terminal) source.RenderTerminalFrameInto(pixels, image.Pixels);
+                else source.RenderFrameInto(next, pixels, image.Pixels);
+            });
             if (disposed || request != liveGeneration) return;
             if (bitmaps.Length == 1 && bitmaps[0] is WriteableBitmap bitmap && bitmap.PixelSize.Width == pixels && bitmap.PixelSize.Height == pixels)
                 Ui.WriteBitmap(bitmap, image);

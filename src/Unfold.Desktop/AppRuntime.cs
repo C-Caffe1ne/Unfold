@@ -53,6 +53,7 @@ public sealed partial class AppRuntime : IDisposable
     private readonly string settingsFile = Path.Combine(AppPaths.DataRoot, "settings.json");
     private readonly string historyFile = Path.Combine(AppPaths.DataRoot, "break-history.json");
     private readonly Stopwatch monotonic = Stopwatch.StartNew();
+    internal TimeSpan DiagnosticTime => monotonic.Elapsed;
     private readonly DispatcherTimer timer = new() { Interval = TimeSpan.FromSeconds(1) };
     private readonly DispatcherTimer noticeExpiryTimer = new();
     private TimeSpan? scheduledNoticeExpiry;
@@ -543,7 +544,9 @@ public sealed partial class AppRuntime : IDisposable
         var remaining = deadline - monotonic.Elapsed;
         if (remaining <= TimeSpan.Zero)
         {
-            Reminder.Tick(monotonic.Elapsed); scheduledNoticeExpiry = null; return;
+            Reminder.Tick(monotonic.Elapsed); scheduledNoticeExpiry = null;
+            // Expiry happened after this refresh's visibility decision. Apply the new notice now.
+            RefreshPetNotice(); return;
         }
         // Completion can happen between work-clock ticks. Expire at its own deadline,
         // without adding up to another second while waiting for the work timer.

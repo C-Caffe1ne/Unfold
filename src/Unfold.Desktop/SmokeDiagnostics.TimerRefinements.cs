@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text.Json;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -61,25 +62,62 @@ internal static partial class SmokeDiagnostics
             runtime.Stop(); runtime.TogglePause(); runtime.TogglePause();
             var completions = runtime.BreakHistory.Completions.Count;
             var snoozes = runtime.Reminder.ConsecutiveSnoozes;
+            object Snapshot() => new { configuredSnoozeMinutes = runtime.Settings.SnoozeMinutes,
+                paused = runtime.Clock.Paused, stopped = runtime.Clock.Stopped, remainingSeconds = runtime.Clock.Remaining.TotalSeconds,
+                visible = runtime.ActivePet?.IsVisible, notice = runtime.Reminder.Notice.ToString(),
+                deadlineSeconds = runtime.Reminder.NoticeExpiresAt?.TotalSeconds,
+                completions = runtime.BreakHistory.Completions.Count, snoozes = runtime.Reminder.ConsecutiveSnoozes };
+            var before = Snapshot();
+            var presentation = Stopwatch.StartNew();
             await runtime.ShowReminder();
+            var showReminderSeconds = presentation.Elapsed.TotalSeconds;
             var waiting = Stopwatch.StartNew();
             var deadline = runtime.Reminder.NoticeExpiresAt;
             if (deadline is null || runtime.ActivePet?.IsVisible != true)
                 throw new InvalidOperationException("Visible invitation did not arm its timeout.");
             Capture(runtime.ActivePet, Path.Combine(directory, "timer-refinement-auto-snooze-before.png"));
-            await Task.Delay(TimeSpan.FromSeconds(29));
-            if (runtime.Reminder.Notice != PetNotice.Invitation || runtime.Reminder.NoticeExpiresAt != deadline)
-                throw new InvalidOperationException("Invitation expired early or its deadline drifted on refresh.");
-            await Until(() => runtime.Reminder.Session is null);
+            // The invitation deadline is armed before ShowReminder's asynchronous work finishes.
+            // Compare with that same monotonic clock, not a stopwatch started after presentation.
+            var beforeExpiry = deadline.Value - TimeSpan.FromSeconds(1);
+            var earlyDelay = beforeExpiry - runtime.DiagnosticTime;
+            if (earlyDelay > TimeSpan.Zero) await Task.Delay(earlyDelay);
+            var earlyObservation = runtime.DiagnosticTime;
+            var failures = new List<string>();
+            if (earlyObservation < deadline.Value &&
+                (runtime.Reminder.Notice != PetNotice.Invitation || runtime.Reminder.NoticeExpiresAt != deadline))
+                failures.Add("Invitation expired before its deadline or its deadline drifted.");
+            try { await Until(() => runtime.Reminder.Session is null); }
+            catch (TimeoutException) { failures.Add("Invitation session did not finish after its deadline."); }
+            var sessionEndedAt = runtime.DiagnosticTime;
+            var visibleAtSessionEnd = runtime.ActivePet.IsVisible;
+            // Session ends before native presentation is refreshed. Observe both transitions;
+            // the original two-second deadline latency bound still applies to the settled state.
+            try { await Until(() => !runtime.ActivePet.IsVisible); }
+            catch (TimeoutException) { failures.Add("Temporary pet did not hide after its session ended."); }
             var autoSnoozeSeconds = waiting.Elapsed.TotalSeconds;
-            if (autoSnoozeSeconds < 29.8 || autoSnoozeSeconds > 32 || runtime.ActivePet.IsVisible ||
-                !runtime.Clock.Paused || runtime.Clock.Remaining != TimeSpan.FromMinutes(3) ||
-                runtime.BreakHistory.Completions.Count != completions || runtime.Reminder.ConsecutiveSnoozes != snoozes + 1)
-                throw new InvalidOperationException("Automatic snooze changed pause, duration, visibility or completion history.");
+            var observedAt = runtime.DiagnosticTime;
+            var deadlineLatenessSeconds = (observedAt - deadline.Value).TotalSeconds;
+            if (deadlineLatenessSeconds < 0 || deadlineLatenessSeconds > 2)
+                failures.Add($"Automatic snooze deadline latency: {deadlineLatenessSeconds:F6}s.");
+            if (runtime.ActivePet.IsVisible) failures.Add("Temporary pet remained visible.");
+            if (!runtime.Clock.Paused || runtime.Clock.Stopped) failures.Add("Paused/running state changed.");
+            if (runtime.Clock.Remaining != TimeSpan.FromMinutes(3)) failures.Add("Configured three-minute delay was not preserved.");
+            if (runtime.BreakHistory.Completions.Count != completions) failures.Add("Completion history changed.");
+            if (runtime.Reminder.ConsecutiveSnoozes != snoozes + 1) failures.Add("Snooze count did not advance exactly once.");
+            var measurement = new { before, after = Snapshot(), expectedPaused = true, expectedStopped = false,
+                expectedRemainingSeconds = 180, expectedVisible = false, expectedCompletions = completions,
+                expectedSnoozes = snoozes + 1, initialDeadlineSeconds = deadline.Value.TotalSeconds,
+                earlyObservationSeconds = earlyObservation.TotalSeconds, observedAtSeconds = observedAt.TotalSeconds,
+                sessionEndedAtSeconds = sessionEndedAt.TotalSeconds, visibleAtSessionEnd,
+                hideLatencyAfterSessionSeconds = (observedAt - sessionEndedAt).TotalSeconds,
+                showReminderSeconds, autoSnoozeSeconds, deadlineLatenessSeconds, failures };
+            File.WriteAllText(Path.Combine(directory, "timer-refinement-auto-snooze-measurements.json"),
+                JsonSerializer.Serialize(measurement, new JsonSerializerOptions { WriteIndented = true }));
+            if (failures.Count > 0) throw new InvalidOperationException(string.Join(" ", failures));
             Capture(settings, Path.Combine(directory, "timer-refinement-auto-snooze-after.png"));
             return new { oneMinutePersisted = true, version = AppRelease.DisplayVersion, sidebarSizes = new[] { "1120x800", "640x560" },
                 settingsUpdaterOpened = true, dangerColors = true, textMotion, autoSnoozeSeconds,
-                configuredSnoozeMinutes = 3, pausedStatePreserved = true, temporaryPetHidden = true, historyUnchanged = true };
+                deadlineLatenessSeconds, configuredSnoozeMinutes = 3, pausedStatePreserved = true, temporaryPetHidden = true, historyUnchanged = true };
         }
         finally
         {

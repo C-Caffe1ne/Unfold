@@ -13,7 +13,7 @@ namespace Unfold.Tests;
 [Collection("Timer settings")]
 public class GlbTests
 {
-    internal static byte[] Fixture(bool rootMotion = true, bool morph = false, string interpolation = "LINEAR")
+    internal static byte[] Fixture(bool rootMotion = true, bool morph = false, string interpolation = "LINEAR", float duration = .2f)
     {
         using var buffer = new MemoryStream(); using var writer = new BinaryWriter(buffer);
         var views = new List<object>(); var accessors = new List<object>();
@@ -28,7 +28,7 @@ public class GlbTests
         var jo = (int)buffer.Position; writer.Write(new byte[12]); views.Add(new { buffer = 0, byteOffset = jo, byteLength = 12 });
         accessors.Add(new { bufferView = views.Count - 1, componentType = 5121, count = 3, type = "VEC4" }); var joints = accessors.Count - 1;
         var weights = Data([1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0], "VEC4", 3);
-        var time = Data([0, .2f], "SCALAR", 2);
+        var time = Data([0, duration], "SCALAR", 2);
         var translation = Data([0, 0, 0, 1, 0, 0], "VEC3", 2);
         var rotation = Data([0, 0, 0, 1, 0, 1, 0, 0], "VEC4", 2);
         var delta = Data([0, 0, 0, 0, 0, 0, .2f, 0, 0], "VEC3", 3);
@@ -261,10 +261,19 @@ public class GlbTests
                 Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
                 Assert.Equal(Matrix.Identity, pet.PetView.RenderTransform?.Value ?? Matrix.Identity);
             }
-            // Select a painted point in window coordinates, including the speech layout offset.
-            var local = new Point(96, 130); var point = pet.PetView.TranslatePoint(local, pet)!.Value;
-            pet.MouseDown(point, Avalonia.Input.MouseButton.Left); pet.MouseUp(point, Avalonia.Input.MouseButton.Left);
-            await Until(() => pet.ActiveAnimation == "click"); await Until(() => pet.ActiveAnimation == "idle");
+            // Verify that pointer input targets pixels already painted by the GLB consumer.
+            var local = new Point(96, 130);
+            await Until(() => pet.PetView.RenderedPixelSize == pet.PetView.TargetPixelSize);
+            Assert.True(pet.PetView.OpaqueAt(local, includeEdgeTolerance: false),
+                $"Input point is transparent: bounds={pet.PetView.Bounds}, pixels={pet.PetView.RenderedPixelSize}, action={pet.ActiveAnimation}");
+            var point = pet.PetView.TranslatePoint(local, pet)!.Value;
+            pet.MouseDown(point, Avalonia.Input.MouseButton.Left);
+            Assert.True(pet.PointerPhase == PetPointerPhase.Pending,
+                $"MouseDown did not enter Pending: phase={pet.PointerPhase}, action={pet.ActiveAnimation}, point={point}");
+            pet.MouseUp(point, Avalonia.Input.MouseButton.Left);
+            Assert.True(pet.ActiveAnimation == "click",
+                $"MouseUp did not start click: phase={pet.PointerPhase}, action={pet.ActiveAnimation}");
+            await Until(() => pet.ActiveAnimation == "idle");
             point = pet.PetView.TranslatePoint(local, pet)!.Value;
             pet.MouseDown(point, Avalonia.Input.MouseButton.Left); pet.MouseMove(point + new Vector(20, 0));
             Assert.Equal(PetPointerPhase.Pickup, pet.PointerPhase); pet.AdvanceCompanion(.2); FixedCanvas();
@@ -335,6 +344,50 @@ public class GlbTests
         }
         finally { runtime.Dispose(); Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", previous); }
     }
+    [AvaloniaTheory]
+    [InlineData(0.25, .2f)]
+    [InlineData(1.25, .2f)]
+    [InlineData(3, .2f)]
+    [InlineData(3, .02f)]
+    public async Task OneShotCompletionUsesTheEndPoseAndKeepsItAfterResize(double speed, float duration)
+    {
+        var model = GlbModel.Parse(Fixture(rootMotion: false, morph: true, duration: duration));
+        var definition = new GlbDefinition("model.glb");
+        var clip = model.CreateAnimation("Idle", definition, "Idle", speed);
+        using var view = new AnimationView { Width = 192, Height = 192 };
+        var window = new Window { Width = 400, Height = 400, Content = view };
+        var completed = 0; view.Completed += () => completed++;
+        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        PixelImage Current() => (PixelImage)typeof(AnimationView).GetField("liveImage", flags)!.GetValue(view)!;
+        PixelImage End(int size)
+        {
+            var bounds = typeof(GlbModel).GetMethod("Bounds", flags)!.Invoke(model, [definition, "Idle"]);
+            return (PixelImage)typeof(GlbModel).GetMethod("RenderAntialiased", flags)!.Invoke(model,
+                ["Idle", model.Animations[0].Duration, definition, "Idle", bounds!, size])!;
+        }
+        async Task Advance(bool refresh = false)
+            => await (Task)typeof(AnimationView).GetMethod("AdvanceLive", flags)!.Invoke(view, [refresh])!;
+        try
+        {
+            window.Show(); Dispatcher.UIThread.RunJobs(); view.SetFrames(clip, false, false);
+            ((DispatcherTimer)typeof(AnimationView).GetField("timer", flags)!.GetValue(view)!).Stop();
+            // Force the completion boundary without relying on timer scheduling.
+            typeof(AnimationView).GetField("totalMs", flags)!.SetValue(view, 0d);
+            await Advance();
+            Assert.Equal(End(Current().Width).Pixels, Current().Pixels);
+            Assert.Equal(1, completed);
+            await Advance(); Assert.Equal(1, completed);
+            view.SetRunning(false); view.Width = view.Height = 288; window.UpdateLayout(); Dispatcher.UIThread.RunJobs();
+            for (var i = 0; i < 100 && Current().Width != view.TargetPixelSize; i++)
+            { await Task.Delay(10, TestContext.Current.CancellationToken); Dispatcher.UIThread.RunJobs(); }
+            Assert.True(Current().Width >= 288);
+            await Advance(refresh: true);
+            Assert.Equal(End(Current().Width).Pixels, Current().Pixels);
+            view.SetRunning(true); await Advance(); Assert.Equal(1, completed);
+        }
+        finally { view.Dispose(); window.Close(); }
+    }
+
     [AvaloniaFact]
     public async Task PausingDiscardsAnInFlightCompletion()
     {

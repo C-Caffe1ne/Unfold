@@ -254,7 +254,7 @@ public sealed class GlbAnimationFrames : IReadOnlyList<AnimationFrame>
     private readonly GlbModel model;
     private readonly string name, reference;
     private readonly GlbDefinition definition;
-    private readonly double speed;
+    private readonly double speed, clipDuration;
     private readonly (Vector3 Min, Vector3 Max) bounds;
     private readonly AnimationFrame firstFrame;
     private readonly Dictionary<(int Index, int Size), AnimationFrame> cache = [];
@@ -266,7 +266,8 @@ public sealed class GlbAnimationFrames : IReadOnlyList<AnimationFrame>
     {
         if (!double.IsFinite(speed) || speed is < .25 or > 3) throw new InvalidDataException("GLB 재생 속도는 0.25~3배로 지정해 주세요.");
         this.model = model; this.name = name; this.definition = definition; this.reference = reference; this.speed = speed;
-        DurationSeconds = (model.Animations.FirstOrDefault(c => c.Name == name)?.Duration ?? throw new InvalidDataException("Unknown GLB clip.")) / speed;
+        clipDuration = model.Animations.FirstOrDefault(c => c.Name == name)?.Duration ?? throw new InvalidDataException("Unknown GLB clip.");
+        DurationSeconds = clipDuration / speed;
         Count = Math.Max(1, (int)Math.Ceiling(DurationSeconds * 20)); bounds = model.Bounds(definition, reference);
         firstFrame = RenderFrame(0, 192);
     }
@@ -291,6 +292,10 @@ public sealed class GlbAnimationFrames : IReadOnlyList<AnimationFrame>
         if (index < 0 || index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
         model.RenderAntialiasedInto(name, index * FrameDuration.TotalSeconds * speed, definition, reference, bounds, pixelSize, pixels);
     }
+    /// <summary>Render the one-shot ending pose without adding it to the looping frame cadence.
+    /// The caller owns the buffer, just as with RenderFrameInto.</summary>
+    public void RenderTerminalFrameInto(int pixelSize, Span<uint> pixels)
+        => model.RenderAntialiasedInto(name, clipDuration, definition, reference, bounds, pixelSize, pixels);
     private AnimationFrame RenderFrame(int index, int size)
         => new(model.RenderAntialiased(name, index * FrameDuration.TotalSeconds * speed, definition, reference, bounds, size), FrameDuration);
     public IEnumerator<AnimationFrame> GetEnumerator() { for (var i = 0; i < Count; i++) yield return this[i]; }

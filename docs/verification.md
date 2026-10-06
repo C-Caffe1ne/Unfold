@@ -1,5 +1,9 @@
 # 검증 안내
 
+## 2026-10-06 최신 개발본 후속 수정
+
+[분야별 구현·검증 결과](validation/2026-10-06-audit-followup.md)에 748개 Release 검사, GLB 속도·종료 포즈, 펫 페이지 포커스, 자동 미루기 즉시 만료 갱신과 독립 ARM64 게시본 진단을 기록했다. 실제 Windows·장시간 메모리·설치 업데이트의 남은 범위를 구별한다.
+
 ## Beta v1.1.0 공개 배포
 
 [Beta v1.1.0 배포 검증](validation/2026-10-05-beta-v1.1.0-release.md)에 로컬 소스 커밋과 설치 파일만 공개한 경계,
@@ -37,7 +41,7 @@ Windows 실기·네이티브 포인터 입력 미검증과 Intel 진단의 최�
 현재 계약과 검증은 [펫 캔버스 효과 제거](validation/2026-10-05-pet-canvas-motion.md)에 있다.
 아래 과거 검증 기록의 캔버스 효과는 당시 동작이며 현재 요구사항이 아니다.
 
-최신 Beta v1.0.4의 GLB 기능 통합과 기존 Beta 회귀 결과는
+Beta v1.0.4 당시 GLB 기능 통합과 기존 Beta 회귀 결과는
 [Beta GLB 통합 검증](validation/2026-10-04-beta-glb-pets.md)에 기록했다.
 
 

@@ -217,8 +217,11 @@ internal sealed class GlbPetView : UserControl, IDisposable
             ItemsSource = angles.Select(value => value switch { 0 => "정면", 90 => "오른쪽 90°", 180 => "뒤 180°", -90 => "왼쪽 90°", _ => $"{value:0.##}°" }).ToArray(),
             SelectedIndex = angles.IndexOf(angle) };
         var repeat = new ComboBox { Name = "GlbRepeat_" + key, ItemsSource = new[] { "한 번", "반복" }, SelectedIndex = mapping?.Loop == true ? 1 : 0 };
-        var speeds = new[] { .25, .5, 1, 1.5, 2, 3 };
-        var speed = new ComboBox { Name = "GlbSpeed_" + key, ItemsSource = new[] { "0.25배", "0.5배", "1배", "1.5배", "2배", "3배" }, SelectedIndex = System.Array.IndexOf(speeds, mapping?.Speed ?? 1) };
+        var speeds = new[] { .25, .5, 1, 1.5, 2, 3 }.ToList();
+        var playbackSpeed = mapping?.Speed ?? 1;
+        if (!speeds.Contains(playbackSpeed)) speeds.Add(playbackSpeed);
+        var speed = new ComboBox { Name = "GlbSpeed_" + key,
+            ItemsSource = speeds.Select(value => $"{value}배").ToArray(), SelectedIndex = speeds.IndexOf(playbackSpeed) };
         foreach (var choice in new[] { clip, heading, repeat, speed }) StyleChoice(choice);
         AutomationProperties.SetName(clip, GlbPetDraft.ActionName(key) + " 애니메이션");
         AutomationProperties.SetName(heading, GlbPetDraft.ActionName(key) + " 바라보는 방향");
