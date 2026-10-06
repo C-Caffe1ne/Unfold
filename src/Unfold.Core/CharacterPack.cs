@@ -117,7 +117,7 @@ public sealed class CharacterPack : IDisposable
     private static CharacterAudit ValidatePayload(string directory, CharacterPackMetadata metadata)
     {
         var package = CharacterLibrary.LoadPackage(directory);
-        if (package.Manifest.Animations.Count > 16 || package.Manifest.Animations.Values.Where(animation => animation.Gif is null)
+        if (package.Manifest.Animations.Count > 16 || package.Manifest.Animations.Values.Where(animation => animation.Gif is null && animation.ModelClip is null)
             .Sum(animation => (long)package.Manifest.SpriteSheet.FrameWidth * package.Manifest.SpriteSheet.FrameHeight * animation.Frames!.Length * 4) > ImageCodec.MaxDecodedAnimationBytes)
             throw new InvalidDataException("Pet pack exceeds 16 clips or its decoded sprite budget.");
         var audit = CharacterAssetAudit.InspectPackage(directory);

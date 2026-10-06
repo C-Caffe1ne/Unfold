@@ -199,7 +199,7 @@ internal sealed class PetPackView : UserControl, IDisposable
             previewReady = true;
             status.Foreground = DesignSystem.Muted;
             playbackStatus.Text = returnTo is not null ? "기본" :
-                $"{ClipName(key)} · {frames.Sum(frame => frame.Duration.TotalSeconds):0.###}초 · {(current.Character.Manifest.Animations[key].PingPong ? "핑퐁" : current.Character.Manifest.Animations[key].Loop ? "반복" : "한 번")}";
+                $"{ClipName(key)} · {(frames is GlbAnimationFrames glb ? glb.DurationSeconds : frames.Sum(frame => frame.Duration.TotalSeconds)):0.###}초 · {(current.Character.Manifest.Animations[key].PingPong ? "핑퐁" : current.Character.Manifest.Animations[key].Loop ? "반복" : "한 번")}";
         }
         catch (Exception error) { AppPaths.Log(error); if (!closed && request == generation) { previewReady = false; status.Foreground = DesignSystem.Error; status.Text = "미리보기를 재생하지 못했어요. " + Ui.ErrorText(error); install.IsEnabled = false; } }
         finally { if (!closed && request == generation) { loadingPreview = false; UpdatePlayback(); } }

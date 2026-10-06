@@ -1,0 +1,37 @@
+Media tools ready: /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/.tools/media-lgpl/osx-arm64
+  복원할 프로젝트를 확인하는 중...
+  /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/Unfold.Desktop.csproj을(를) 147밀리초 동안 복원했습니다.
+  /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Core/Unfold.Core.csproj을(를) 144밀리초 동안 복원했습니다.
+  Unfold.Core -> /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Core/bin/Release/net10.0/Unfold.Core.dll
+  Unfold.Desktop -> /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/bin/Release/net10.0/osx-arm64/Unfold.dll
+  Unfold.Desktop -> /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/artifacts/osx-arm64/
+NuGet 패키지 서명 확인을 건너뛰는 중입니다.
+'vpk' 도구(버전 '1.2.0')가 복원되었습니다. 사용 가능한 명령: vpk
+
+도구 'vpk'의 최신 버전을 사용할 수 있습니다(버전 '1.2.161'). 매니페스트 파일을 업데이트해 보세요.
+
+복원했습니다.
+[20:38:41 INF] Velopack CLI 1.2.0, for distributing applications.
+[20:38:41 INF] Beginning to package Velopack release 1.0.3-beta.
+[20:38:41 INF] Releases Directory: /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/artifacts/update-releases/osx-arm64
+[20:38:41 INF] Starting: Pre-process steps
+[20:38:41 INF] Complete: Pre-process steps
+[20:38:41 INF] Starting: Code-sign application
+[20:38:41 WRN] Package will not be signed or notarized. Missing the --signAppIdentity and --notaryProfile options.
+[20:38:41 INF] Complete: Code-sign application
+[20:38:41 INF] Starting: Building portable package
+[20:38:41 INF] Starting: Building release 1.0.3-beta
+[20:38:44 INF] Complete: Building release 1.0.3-beta
+[20:38:47 INF] Complete: Building portable package
+[20:38:47 INF] Starting: Post-process steps
+[20:38:47 INF] Complete: Post-process steps
+[20:38:47 INF] Finished in 00:00:06.4576790.
+/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/artifacts/Unfold.app: code has no resources but signature indicates they must be present
+Traceback (most recent call last):
+  File "/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/Scripts/package-updates.py", line 116, in <module>
+    main()
+  File "/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/Scripts/package-updates.py", line 107, in main
+    subprocess.run(["codesign", "--verify", "--deep", "--strict", str(app)], check=True)
+  File "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py", line 528, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['codesign', '--verify', '--deep', '--strict', '/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/artifacts/Unfold.app']' returned non-zero exit status 1.

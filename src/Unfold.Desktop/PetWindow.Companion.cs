@@ -16,7 +16,7 @@ public sealed partial class PetWindow
     private long lastCompanionTick = Stopwatch.GetTimestamp();
     internal bool HasOriginalBehavior => runtime.Selected?.HasOriginalBehavior == true;
     internal string ActiveAnimation { get; private set; } = "idle";
-    internal bool IsRoaming => HasOriginalBehavior && walkingSession is not null &&
+    internal bool IsRoaming => HasOriginalBehavior && runtime.Selected?.Manifest.Animations.ContainsKey("walk") == true && walkingSession is not null &&
         runtime.Reminder.Session == walkingSession && runtime.Reminder.Notice == PetNotice.Resting;
 
     private void ResetCompanion()

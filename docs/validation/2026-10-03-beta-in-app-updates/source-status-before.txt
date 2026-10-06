@@ -1,0 +1,265 @@
+ M .github/workflows/desktop.yml
+ M Assets/Account/connection.json
+ M Assets/Account/entry-screen.json
+ M README.md
+ M Scripts/make-macos-bundle.sh
+ M THIRD-PARTY-NOTICES.md
+ M Tests/Unfold.Tests/AccountClientTests.cs
+ M Tests/Unfold.Tests/AccountScreenTests.cs
+ M Tests/Unfold.Tests/BreakReviewTests.cs
+ M Tests/Unfold.Tests/ConfirmationActionTests.cs
+ M Tests/Unfold.Tests/CustomPetTests.cs
+ M Tests/Unfold.Tests/DesignSystemTests.cs
+ M Tests/Unfold.Tests/Fixtures/README.md
+ M Tests/Unfold.Tests/NotificationLayoutTests.cs
+ M Tests/Unfold.Tests/OriginalCompanionTests.cs
+ M Tests/Unfold.Tests/PetHoverTests.cs
+ M Tests/Unfold.Tests/PetPackWindowTests.cs
+ M Tests/Unfold.Tests/PetSaveResetTests.cs
+ M Tests/Unfold.Tests/PetTabsUiTests.cs
+ M Tests/Unfold.Tests/ResponsiveLayoutTests.cs
+ M Tests/Unfold.Tests/SettingsDashboardTests.cs
+ M Tests/Unfold.Tests/SettingsPreferencesTests.cs
+ M Tests/Unfold.Tests/SoundCleanupTests.cs
+ M Tests/Unfold.Tests/SoundVolumeTests.cs
+ M Tests/Unfold.Tests/ThemeTests.cs
+ M Tests/Unfold.Tests/TimerControlTests.cs
+ M Tests/Unfold.Tests/UiAuditRegressionTests.cs
+ M Tests/Unfold.Tests/UiTests.cs
+ M Tests/Unfold.Tests/packages.lock.json
+ M docs/README.md
+ M docs/account-screen.md
+ M docs/cross-platform.md
+ M docs/design-system.md
+ M docs/pet-packs.md
+ M docs/plans/2026-09-27-paid-launch.md
+ M docs/settings-ui.md
+ M docs/stretch-notifications.md
+ M docs/validation/2026-09-28-account-screen.md
+ M src/Unfold.Core/AppSettings.Recovery.cs
+ M src/Unfold.Core/AppSettings.cs
+ M src/Unfold.Core/CharacterAssetAudit.cs
+ M src/Unfold.Core/CharacterLibrary.cs
+ M src/Unfold.Core/CustomPetDraft.cs
+ M src/Unfold.Core/ImageCodec.cs
+ M src/Unfold.Core/ReminderSounds.cs
+ M src/Unfold.Core/SupabaseAccountClient.cs
+ M src/Unfold.Desktop/AccountScreenContent.cs
+ M src/Unfold.Desktop/AccountScreenModel.cs
+ M src/Unfold.Desktop/AccountWindow.axaml
+ M src/Unfold.Desktop/AccountWindow.axaml.cs
+ M src/Unfold.Desktop/AnimationView.cs
+ M src/Unfold.Desktop/AppRuntime.cs
+ M src/Unfold.Desktop/BreakReviewWindow.cs
+ M src/Unfold.Desktop/CustomPetWindow.cs
+ M src/Unfold.Desktop/DesignSystem.Themes.cs
+ M src/Unfold.Desktop/DesignSystem.cs
+ M src/Unfold.Desktop/DesktopAccountService.cs
+ M src/Unfold.Desktop/EditorWindow.cs
+ M src/Unfold.Desktop/PetMediaImporter.cs
+ M src/Unfold.Desktop/PetPackWindow.cs
+ M src/Unfold.Desktop/PetWindow.Companion.cs
+ M src/Unfold.Desktop/PetWindow.cs
+ M src/Unfold.Desktop/Program.cs
+ M src/Unfold.Desktop/ReminderSoundPlayer.cs
+ M src/Unfold.Desktop/SettingsWindow.Layout.cs
+ M src/Unfold.Desktop/SettingsWindow.Notifications.cs
+ M src/Unfold.Desktop/SettingsWindow.Preferences.cs
+ M src/Unfold.Desktop/SettingsWindow.Themes.cs
+ M src/Unfold.Desktop/SettingsWindow.cs
+ M src/Unfold.Desktop/SmokeDiagnostics.cs
+ M src/Unfold.Desktop/TimerControls.cs
+ M src/Unfold.Desktop/Ui.cs
+ M src/Unfold.Desktop/Unfold.Desktop.csproj
+ M src/Unfold.Desktop/packages.lock.json
+ M supabase/.env.example
+ M supabase/README.md
+ M supabase/config.toml
+ M supabase/functions/_shared/checkout.mjs
+ M supabase/functions/_shared/lemon-webhook.mjs
+ M supabase/functions/_shared/lemon.mjs
+ M supabase/functions/_shared/payment-http.mjs
+ M supabase/functions/_shared/payment-store.mjs
+ M supabase/functions/create-checkout/index.ts
+ M supabase/functions/lemon-webhook/index.ts
+ M supabase/tests/entrypoint.test.mjs
+ M supabase/tests/fixtures/lemon.mjs
+ M supabase/tests/lemon-handlers.test.mjs
+?? Art/Brand/unfold-lilac-brand-kit-v1.zip
+?? Art/Brand/unfold-lilac-v1/README.md
+?? Art/Brand/unfold-lilac-v1/SHA256SUMS.txt
+?? Art/Brand/unfold-lilac-v1/assets.json
+?? Art/Brand/unfold-lilac-v1/desktop/Unfold.iconset/icon_128x128.png
+?? Art/Brand/unfold-lilac-v1/desktop/Unfold.iconset/icon_128x128@2x.png
+?? Art/Brand/unfold-lilac-v1/desktop/Unfold.iconset/icon_16x16.png
+?? Art/Brand/unfold-lilac-v1/desktop/Unfold.iconset/icon_16x16@2x.png
+?? Art/Brand/unfold-lilac-v1/desktop/Unfold.iconset/icon_256x256.png
+?? Art/Brand/unfold-lilac-v1/desktop/Unfold.iconset/icon_256x256@2x.png
+?? Art/Brand/unfold-lilac-v1/desktop/Unfold.iconset/icon_32x32.png
+?? Art/Brand/unfold-lilac-v1/desktop/Unfold.iconset/icon_32x32@2x.png
+?? Art/Brand/unfold-lilac-v1/desktop/Unfold.iconset/icon_512x512.png
+?? Art/Brand/unfold-lilac-v1/desktop/Unfold.iconset/icon_512x512@2x.png
+?? Art/Brand/unfold-lilac-v1/desktop/unfold.icns
+?? Art/Brand/unfold-lilac-v1/desktop/unfold.ico
+?? Art/Brand/unfold-lilac-v1/png/app-icon/unfold-1024.png
+?? Art/Brand/unfold-lilac-v1/png/app-icon/unfold-128.png
+?? Art/Brand/unfold-lilac-v1/png/app-icon/unfold-16.png
+?? Art/Brand/unfold-lilac-v1/png/app-icon/unfold-192.png
+?? Art/Brand/unfold-lilac-v1/png/app-icon/unfold-24.png
+?? Art/Brand/unfold-lilac-v1/png/app-icon/unfold-256.png
+?? Art/Brand/unfold-lilac-v1/png/app-icon/unfold-32.png
+?? Art/Brand/unfold-lilac-v1/png/app-icon/unfold-48.png
+?? Art/Brand/unfold-lilac-v1/png/app-icon/unfold-512.png
+?? Art/Brand/unfold-lilac-v1/png/app-icon/unfold-64.png
+?? Art/Brand/unfold-lilac-v1/png/app-icon/unfold-96.png
+?? Art/Brand/unfold-lilac-v1/png/logo/logo-light-1280.png
+?? Art/Brand/unfold-lilac-v1/png/logo/logo-light-2560.png
+?? Art/Brand/unfold-lilac-v1/png/logo/logo-light-320.png
+?? Art/Brand/unfold-lilac-v1/png/logo/logo-light-640.png
+?? Art/Brand/unfold-lilac-v1/png/logo/logo-lilac-1280.png
+?? Art/Brand/unfold-lilac-v1/png/logo/logo-lilac-2560.png
+?? Art/Brand/unfold-lilac-v1/png/logo/logo-lilac-320.png
+?? Art/Brand/unfold-lilac-v1/png/logo/logo-lilac-640.png
+?? Art/Brand/unfold-lilac-v1/png/symbol/symbol-lilac-1024.png
+?? Art/Brand/unfold-lilac-v1/png/symbol/symbol-lilac-128.png
+?? Art/Brand/unfold-lilac-v1/png/symbol/symbol-lilac-16.png
+?? Art/Brand/unfold-lilac-v1/png/symbol/symbol-lilac-192.png
+?? Art/Brand/unfold-lilac-v1/png/symbol/symbol-lilac-24.png
+?? Art/Brand/unfold-lilac-v1/png/symbol/symbol-lilac-256.png
+?? Art/Brand/unfold-lilac-v1/png/symbol/symbol-lilac-32.png
+?? Art/Brand/unfold-lilac-v1/png/symbol/symbol-lilac-48.png
+?? Art/Brand/unfold-lilac-v1/png/symbol/symbol-lilac-512.png
+?? Art/Brand/unfold-lilac-v1/png/symbol/symbol-lilac-64.png
+?? Art/Brand/unfold-lilac-v1/png/symbol/symbol-lilac-96.png
+?? Art/Brand/unfold-lilac-v1/preview.png
+?? Art/Brand/unfold-lilac-v1/preview.svg
+?? Art/Brand/unfold-lilac-v1/scripts/build-brand.cjs
+?? Art/Brand/unfold-lilac-v1/scripts/package-brand.py
+?? Art/Brand/unfold-lilac-v1/source/approved-pause-v2.png
+?? Art/Brand/unfold-lilac-v1/svg/app-icon-lilac.svg
+?? Art/Brand/unfold-lilac-v1/svg/favicon.svg
+?? Art/Brand/unfold-lilac-v1/svg/logo-light.svg
+?? Art/Brand/unfold-lilac-v1/svg/logo-lilac.svg
+?? Art/Brand/unfold-lilac-v1/svg/maskable-icon.svg
+?? Art/Brand/unfold-lilac-v1/svg/safari-pinned-tab.svg
+?? Art/Brand/unfold-lilac-v1/svg/symbol-ink.svg
+?? Art/Brand/unfold-lilac-v1/svg/symbol-light.svg
+?? Art/Brand/unfold-lilac-v1/svg/symbol-lilac.svg
+?? Art/Brand/unfold-lilac-v1/validation.json
+?? Art/Brand/unfold-lilac-v1/web/android-chrome-192x192.png
+?? Art/Brand/unfold-lilac-v1/web/android-chrome-512x512.png
+?? Art/Brand/unfold-lilac-v1/web/apple-touch-icon.png
+?? Art/Brand/unfold-lilac-v1/web/favicon-128x128.png
+?? Art/Brand/unfold-lilac-v1/web/favicon-16x16.png
+?? Art/Brand/unfold-lilac-v1/web/favicon-24x24.png
+?? Art/Brand/unfold-lilac-v1/web/favicon-256x256.png
+?? Art/Brand/unfold-lilac-v1/web/favicon-32x32.png
+?? Art/Brand/unfold-lilac-v1/web/favicon-48x48.png
+?? Art/Brand/unfold-lilac-v1/web/favicon-64x64.png
+?? Art/Brand/unfold-lilac-v1/web/favicon.ico
+?? Art/Brand/unfold-lilac-v1/web/favicon.svg
+?? Art/Brand/unfold-lilac-v1/web/head-snippet.html
+?? Art/Brand/unfold-lilac-v1/web/logo-light.svg
+?? Art/Brand/unfold-lilac-v1/web/logo-lilac.svg
+?? Art/Brand/unfold-lilac-v1/web/maskable-icon-512x512.png
+?? Art/Brand/unfold-lilac-v1/web/safari-pinned-tab.svg
+?? Art/Brand/unfold-lilac-v1/web/site.webmanifest
+?? Assets/Fonts/LICENSE.txt
+?? Assets/Fonts/NoonnuBasicGothicRegular.otf
+?? Assets/Icons/Directions/README.md
+?? Assets/Icons/Directions/down.svg
+?? Assets/Icons/Directions/left.svg
+?? Assets/Icons/Directions/right.svg
+?? Assets/Icons/Directions/sources.json
+?? Assets/Icons/Directions/up.svg
+?? Assets/Icons/Google/google.svg
+?? Assets/Icons/Navigation/README.md
+?? Assets/Icons/Navigation/exit.svg
+?? Assets/Icons/Navigation/history.svg
+?? Assets/Icons/Navigation/home.svg
+?? Assets/Icons/Navigation/pet-add.svg
+?? Assets/Icons/Navigation/settings.svg
+?? Assets/Icons/Navigation/sources.json
+?? Assets/Icons/Navigation/theme.svg
+?? Assets/Icons/Playback/README.md
+?? Assets/Icons/Playback/pause.svg
+?? Assets/Icons/Playback/play.svg
+?? Assets/Icons/Playback/stop.svg
+?? Assets/Icons/Sound/play.svg
+?? Assets/Icons/Sound/stop.svg
+?? Assets/Icons/Sound/volume-high.svg
+?? Assets/Icons/Sound/volume-low.svg
+?? Assets/Icons/Sound/volume-muted.svg
+?? Assets/Licenses/Svg.Skia.txt
+?? Packaging/Unfold.Windows.nsi
+?? Scripts/notarize-macos.sh
+?? Scripts/package-installers-zip.py
+?? Scripts/package-macos-dmg.sh
+?? Scripts/package-windows-installer.py
+?? Scripts/package-windows.py
+?? Scripts/sign-macos-app.sh
+?? Scripts/verify-windows-installer.ps1
+?? Tests/Packaging/test_macos_notarization.py
+?? Tests/Unfold.Tests/AccountAccessCodeTests.cs
+?? Tests/Unfold.Tests/AccountSessionPersistenceTests.cs
+?? Tests/Unfold.Tests/AccountWindowDragTests.cs
+?? Tests/Unfold.Tests/AnimatedCountdownTests.cs
+?? Tests/Unfold.Tests/BrandTrayIconTests.cs
+?? Tests/Unfold.Tests/CustomPetInteractionTests.cs
+?? Tests/Unfold.Tests/DirectionIconTests.cs
+?? Tests/Unfold.Tests/Fixtures/sound-short.mp3
+?? Tests/Unfold.Tests/Fixtures/sound-too-long.mp3
+?? Tests/Unfold.Tests/Mp3SoundTests.cs
+?? Tests/Unfold.Tests/NavigationIconTests.cs
+?? Tests/Unfold.Tests/PurchaseGateTests.cs
+?? Tests/Unfold.Tests/SettingsAccountTests.cs
+?? Tests/Unfold.Tests/SettingsNavigationGuardTests.cs
+?? Tests/Unfold.Tests/StaticPetMediaTests.cs
+?? Tests/Unfold.Tests/WindowControlTests.cs
+?? docs/access-codes.md
+?? docs/releases/beta-v1.0.0-launch.md
+?? docs/releases/v1.0.0-beta.md
+?? docs/releases/v1.0.1-beta.md
+?? docs/releases/v1.0.2-beta.md
+?? docs/validation/2026-09-29-account-window-drag-native.json
+?? docs/validation/2026-09-29-account-window-drag.md
+?? docs/validation/2026-09-29-navigation-icons.md
+?? docs/validation/2026-09-30-access-codes.md
+?? docs/validation/2026-09-30-beta-v1.0.0.md
+?? docs/validation/2026-09-30-direction-icons.md
+?? docs/validation/2026-09-30-media-import.md
+?? docs/validation/2026-09-30-settings-account.md
+?? docs/validation/2026-09-30-sound-icons.md
+?? docs/validation/2026-09-30-sound-mixer.md
+?? docs/validation/2026-09-30-windows-hover-ghost-analysis.md
+?? docs/validation/2026-10-01-account-branding.md
+?? docs/validation/2026-10-01-installers.md
+?? docs/validation/2026-10-01-macos-notarization.md
+?? docs/validation/2026-10-01-session-persistence.md
+?? docs/validation/2026-10-01-status-icons.md
+?? docs/validation/2026-10-01-tray-checkout-update.md
+?? docs/validation/2026-10-01-v1.0.2-release.md
+?? docs/validation/2026-10-01-web-installers.md
+?? src/Unfold.Desktop/AccountSessionVault.cs
+?? src/Unfold.Desktop/AnimatedCountdown.cs
+?? src/Unfold.Desktop/AppRelease.cs
+?? src/Unfold.Desktop/AppRuntime.Account.cs
+?? src/Unfold.Desktop/BrandTrayIcon.cs
+?? src/Unfold.Desktop/DesignSystem.Directions.cs
+?? src/Unfold.Desktop/DirectionIcon.cs
+?? src/Unfold.Desktop/MediaConversion.cs
+?? src/Unfold.Desktop/NativeAccountCredentialStore.cs
+?? src/Unfold.Desktop/NavigationIcon.cs
+?? src/Unfold.Desktop/PlaybackIcon.cs
+?? src/Unfold.Desktop/ReminderSoundImporter.cs
+?? src/Unfold.Desktop/SettingsWindow.Chrome.cs
+?? src/Unfold.Desktop/SoundIcons.cs
+?? src/Unfold.Desktop/SvgIcon.cs
+?? supabase/functions/_shared/access-codes.mjs
+?? supabase/functions/get-app-access/index.ts
+?? supabase/functions/redeem-access-code/index.ts
+?? supabase/migrations/202609300001_lemon_live.sql
+?? supabase/migrations/202609300002_access_codes.sql
+?? supabase/scripts/create-access-code.mjs
+?? supabase/tests/access-codes.test.mjs
+?? supabase/tests/lemon-live.test.mjs

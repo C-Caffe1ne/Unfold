@@ -1,0 +1,48 @@
+Media tools ready: /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/.tools/media-lgpl/osx-arm64
+  복원할 프로젝트를 확인하는 중...
+  /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Core/Unfold.Core.csproj을(를) 140밀리초 동안 복원했습니다.
+  /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/Unfold.Desktop.csproj을(를) 153밀리초 동안 복원했습니다.
+  Unfold.Core -> /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Core/bin/Release/net10.0/Unfold.Core.dll
+  Unfold.Desktop -> /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/bin/Release/net10.0/osx-arm64/Unfold.dll
+  Unfold.Desktop -> /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/artifacts/osx-arm64/
+'vpk' 도구(버전 '1.2.0')가 복원되었습니다. 사용 가능한 명령: vpk
+
+복원했습니다.
+[20:58:58 INF] Velopack CLI 1.2.0, for distributing applications.
+[20:58:58 INF] Beginning to package Velopack release 1.0.3-beta.
+[20:58:58 INF] Releases Directory: /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/artifacts/update-releases/osx-arm64
+[20:58:58 INF] Starting: Pre-process steps
+[20:58:58 INF] Complete: Pre-process steps
+[20:58:58 INF] Starting: Code-sign application
+[20:58:58 WRN] Package will be signed but not notarized. Missing the --notaryProfile option.
+[20:58:58 INF] Code signing application bundle recursively (with --deep)...
+[20:58:59 INF] Complete: Code-sign application
+[20:58:59 INF] Starting: Building portable package
+[20:58:59 INF] Starting: Building release 1.0.3-beta
+[20:59:01 INF] Complete: Building release 1.0.3-beta
+[20:59:04 INF] Complete: Building portable package
+[20:59:04 INF] Starting: Post-process steps
+[20:59:04 INF] Complete: Post-process steps
+[20:59:04 INF] Finished in 00:00:06.2349110.
+/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/artifacts/update-releases/osx-arm64/releases.osx-arm64-beta.json
+created: /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/artifacts/Unfold-v1.0.3-beta-osx-arm64.tmp.dmg
+Protective Master Boot Record(MBR : 0) 체크섬 처리 중…
+Protective Master Boot Record(MBR : : 확인됨 CRC32 $DD8D975B
+GPT Header(Primary GPT Header : 1) 체크섬 처리 중…
+  GPT Header(Primary GPT Header : 1): 확인됨 CRC32 $26C8FBA5
+GPT Partition Data(Primary GPT Table : 2) 체크섬 처리 중…
+GPT Partition Data(Primary GPT Table: 확인됨 CRC32 $2A532042
+(Apple_Free : 3) 체크섬 처리 중…
+                    (Apple_Free : 3): 확인됨 CRC32 $00000000
+disk image(Apple_HFS : 4) 체크섬 처리 중…
+           disk image(Apple_HFS : 4): 확인됨 CRC32 $1377E6AA
+(Apple_Free : 5) 체크섬 처리 중…
+                    (Apple_Free : 5): 확인됨 CRC32 $00000000
+GPT Partition Data(Backup GPT Table : 6) 체크섬 처리 중…
+GPT Partition Data(Backup GPT Table : 확인됨 CRC32 $2A532042
+GPT Header(Backup GPT Header : 7) 체크섬 처리 중…
+   GPT Header(Backup GPT Header : 7): 확인됨 CRC32 $FE0C024E
+확인됨 CRC32 $31997A90
+hdiutil: verify: checksum of "/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/artifacts/Unfold-v1.0.3-beta-osx-arm64.tmp.dmg" is VALID
+/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/artifacts/Unfold-v1.0.3-beta-osx-arm64.dmg
+/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/artifacts/Unfold.app

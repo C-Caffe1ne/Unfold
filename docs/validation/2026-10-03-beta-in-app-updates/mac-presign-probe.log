@@ -1,0 +1,59 @@
+/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/Tools/ffmpeg: replacing existing signature
+/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libcoreclr.dylib: replacing existing signature
+/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libSystem.Native.dylib: replacing existing signature
+/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libHarfBuzzSharp.dylib: replacing existing signature
+/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libAvaloniaNative.dylib: replacing existing signature
+/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libSystem.IO.Compression.Native.dylib: replacing existing signature
+/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libclrgcexp.dylib: replacing existing signature
+/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libSkiaSharp.dylib: replacing existing signature
+/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libSystem.Globalization.Native.dylib: replacing existing signature
+/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libSystem.Security.Cryptography.Native.Apple.dylib: replacing existing signature
+/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libmscordaccore.dylib: replacing existing signature
+/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libhostfxr.dylib: replacing existing signature
+/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libSystem.Net.Security.Native.dylib: replacing existing signature
+/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libmscordbi.dylib: replacing existing signature
+/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libhostpolicy.dylib: replacing existing signature
+/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/UpdateMac: replacing existing signature
+/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libclrjit.dylib: replacing existing signature
+/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libclrgc.dylib: replacing existing signature
+/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app: replacing existing signature
+--prepared:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libSystem.Native.dylib
+--validated:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libSystem.Native.dylib
+--prepared:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libHarfBuzzSharp.dylib
+--validated:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libHarfBuzzSharp.dylib
+--prepared:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libcoreclr.dylib
+--validated:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libcoreclr.dylib
+--prepared:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libSystem.IO.Compression.Native.dylib
+--validated:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libSystem.IO.Compression.Native.dylib
+--prepared:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libAvaloniaNative.dylib
+--validated:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libAvaloniaNative.dylib
+--prepared:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libclrgcexp.dylib
+--validated:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libclrgcexp.dylib
+--prepared:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libSystem.Globalization.Native.dylib
+--validated:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libSystem.Globalization.Native.dylib
+--prepared:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libSystem.Security.Cryptography.Native.Apple.dylib
+--validated:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libSystem.Security.Cryptography.Native.Apple.dylib
+--prepared:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libhostfxr.dylib
+--validated:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libhostfxr.dylib
+--prepared:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libSystem.Net.Security.Native.dylib
+--validated:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libSystem.Net.Security.Native.dylib
+--prepared:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libmscordaccore.dylib
+--validated:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libmscordaccore.dylib
+--prepared:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libmscordbi.dylib
+--validated:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libmscordbi.dylib
+--prepared:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libhostpolicy.dylib
+--validated:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libhostpolicy.dylib
+--prepared:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libclrjit.dylib
+--validated:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libclrjit.dylib
+--prepared:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libclrgc.dylib
+--validated:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libclrgc.dylib
+--prepared:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/Tools/ffmpeg
+--validated:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/Tools/ffmpeg
+--prepared:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/UpdateMac
+--validated:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/UpdateMac
+--prepared:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libSkiaSharp.dylib
+--validated:/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libSkiaSharp.dylib
+/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app: valid on disk
+/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app: satisfies its Designated Requirement
+Failed to load /Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/Resources/Managed/libhostfxr.dylib, error: dlopen(/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/Resources/Managed/libhostfxr.dylib, 0x0001): tried: '/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/Resources/Managed/libhostfxr.dylib' (code signature in <30D1D861-4A3B-3EBE-B273-5E6512BF3DCF> '/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libhostfxr.dylib' not valid for use in process: mapping process and mapped file (non-platform) have different Team IDs), '/System/Volumes/Preboot/Cryptexes/OS/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/Resources/Managed/libhostfxr.dylib' (no such file), '/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/Resources/Managed/libhostfxr.dylib' (code signature in <30D1D861-4A3B-3EBE-B273-5E6512BF3DCF> '/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libhostfxr.dylib' not valid for use in process: mapping process and mapped file (non-platform) have different Team IDs), '/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libhostfxr.dylib' (code signature in <30D1D861-4A3B-3EBE-B273-5E6512BF3DCF> '/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libhostfxr.dylib' not valid for use in process: mapping process and mapped file (non-platform) have different Team IDs), '/System/Volumes/Preboot/Cryptexes/OS/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libhostfxr.dylib' (no such file), '/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libhostfxr.dylib' (code signature in <30D1D861-4A3B-3EBE-B273-5E6512BF3DCF> '/Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/MacOS/libhostfxr.dylib' not valid for use in process: mapping process and mapped file (non-platform) have different Team IDs)
+The library libhostfxr.dylib was found, but loading it from /Users/hwanghyeonseong/Documents/GitHub/Unfold/artifacts/local-in-app-updates-2026-10-03/Unfold.app/Contents/Resources/Managed/libhostfxr.dylib failed

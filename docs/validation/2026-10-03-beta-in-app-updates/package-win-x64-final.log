@@ -1,0 +1,23 @@
+[20:58:46 INF] Directive enabled for cross-compiling from OSX (current os) to Windows.
+[20:58:47 INF] Velopack CLI 1.2.0, for distributing applications.
+[20:58:47 INF] Beginning to package Velopack release 1.0.3-beta.
+[20:58:47 INF] Releases Directory: /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/artifacts/update-releases/win-x64
+[20:58:47 INF] Starting: Pre-process steps
+[20:58:47 INF] Verified VelopackApp.Run() in 'System.Int32 Unfold.Desktop.Program::Main(System.String)'.
+[20:58:47 INF] Shortcuts: StartMenuRoot
+[20:58:47 INF] Complete: Pre-process steps
+[20:58:47 INF] Starting: Code-sign application
+[20:58:47 WRN] No signing parameters provided, 233 file(s) will not be signed.
+[20:58:47 INF] Complete: Code-sign application
+[20:58:47 INF] Starting: Building portable package
+[20:58:47 INF] Starting: Building release 1.0.3-beta
+[20:58:50 INF] Complete: Building portable package
+[20:58:50 INF] Complete: Building release 1.0.3-beta
+[20:58:50 INF] Starting: Building setup package
+[20:58:50 INF] Setup bundle created 'DokhuStudio.Unfold.Updates-win-x64-beta-Setup.exe'.
+[20:58:50 WRN] No signing parameters provided, 1 file(s) will not be signed.
+[20:58:50 INF] Complete: Building setup package
+[20:58:50 INF] Starting: Post-process steps
+[20:58:51 INF] Complete: Post-process steps
+[20:58:51 INF] Finished in 00:00:04.0130390.
+/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/artifacts/update-releases/win-x64/releases.win-x64-beta.json

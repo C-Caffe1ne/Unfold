@@ -1,0 +1,32 @@
+{
+  "success": true,
+  "root": "/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-native-update-final-n14jg8wl",
+  "fromFixtureMetadata": "1.0.2-beta",
+  "targetVersion": "1.0.3-beta",
+  "temporaryManagedFixture": true,
+  "sdkDownloadVerified": true,
+  "nativeBundleReplacement": true,
+  "nativeAutomaticRestart": true,
+  "restartedSmokeSuccess": true,
+  "oldBundleFileRemoved": true,
+  "dataSentinelUnchanged": true,
+  "signatureVerifiedAfterNupkgExtraction": true,
+  "helper": {
+    "executable": "/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-native-update-final-n14jg8wl/Unfold.app/Contents/MacOS/UpdateMac",
+    "arguments": [
+      "--silent",
+      "apply",
+      "--package",
+      "/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-native-update-final-n14jg8wl/packages/DokhuStudio.Unfold.Updates-1.0.3-beta-osx-arm64-beta-full.nupkg",
+      "--waitPid",
+      "93235",
+      "--rootDir",
+      "/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-native-update-final-n14jg8wl/Unfold.app",
+      "--packageDir",
+      "/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-native-update-final-n14jg8wl/packages",
+      "--",
+      "--smoke-test"
+    ],
+    "pid": 93236
+  }
+}

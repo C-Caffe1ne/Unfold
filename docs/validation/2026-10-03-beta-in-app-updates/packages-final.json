@@ -1,0 +1,58 @@
+{
+  "success": true,
+  "version": "1.0.3-beta",
+  "platforms": {
+    "win-x64": {
+      "success": true,
+      "feed": "releases.win-x64-beta.json",
+      "packages": [
+        {
+          "filename": "DokhuStudio.Unfold.Updates-1.0.3-beta-win-x64-beta-full.nupkg",
+          "bytes": 84653074,
+          "sha256": "5f286317ef36d00f1373835114fa74ce993ab7f5707c912031e7d9ea680bd7be"
+        }
+      ],
+      "mainExeMachine": "AMD64",
+      "stableLauncher": true,
+      "nativeUpdater": true,
+      "portableFileCount": 262
+    },
+    "osx-arm64": {
+      "success": true,
+      "feed": "releases.osx-arm64-beta.json",
+      "packages": [
+        {
+          "filename": "DokhuStudio.Unfold.Updates-1.0.3-beta-osx-arm64-beta-full.nupkg",
+          "bytes": 78084703,
+          "sha256": "3491c3255e3bef352800ff8ceeba7017a2c41c9ec21a29deb1986b37ea1b9155"
+        }
+      ],
+      "bundleIdentifier": "app.unfold.desktop",
+      "bundleVersion": "1000003",
+      "appEntitlements": {
+        "com.apple.security.cs.allow-jit": true
+      },
+      "signatureType": "ad-hoc",
+      "relativeBundleLinks": true
+    },
+    "osx-x64": {
+      "success": true,
+      "feed": "releases.osx-x64-beta.json",
+      "packages": [
+        {
+          "filename": "DokhuStudio.Unfold.Updates-1.0.3-beta-osx-x64-beta-full.nupkg",
+          "bytes": 82187036,
+          "sha256": "df4627a48fd33efca09331fc9c80a8fe07d85ef6c70366d4f9f7d0d3d846cf0a"
+        }
+      ],
+      "bundleIdentifier": "app.unfold.desktop",
+      "bundleVersion": "1000003",
+      "appEntitlements": {
+        "com.apple.security.cs.allow-jit": true
+      },
+      "signatureType": "ad-hoc",
+      "relativeBundleLinks": true
+    }
+  },
+  "published": false
+}

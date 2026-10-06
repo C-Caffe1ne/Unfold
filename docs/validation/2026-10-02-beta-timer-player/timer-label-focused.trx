@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="b2ecc647-3a49-4b3e-817d-6ce52da26720" name="@hwanghyeonseong-ui-MacBookAir 2026-10-02 18:21:03" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-02T18:21:03.9379400+09:00" queuing="2026-10-02T18:21:03.9379400+09:00" start="2026-10-02T18:21:00.0392880+09:00" finish="2026-10-02T18:21:03.9482740+09:00" />
+  <TestSettings name="default" id="16292b72-76aa-4072-910b-78c2c5dac9bb">
+    <Deployment runDeploymentRoot="_hwanghyeonseong-ui-MacBookAir_2026-10-02_18_21_03" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="656cb961-0816-46dc-bb00-8113c3cc5785" testId="7c8910e8-a17f-17d0-7da0-44443ff7573a" testName="Unfold.Tests.TimerControlTests.StoppedTimerStillAllowsCancellingAnActiveBreak" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.0523469" startTime="2026-10-02T18:21:03.8058450+09:00" endTime="2026-10-02T18:21:03.8582340+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="656cb961-0816-46dc-bb00-8113c3cc5785" />
+    <UnitTestResult executionId="365cc1f6-9a4c-4f1b-b499-af9a74e3f52e" testId="7b09609b-3ad0-e9ad-f18d-4a37165d4051" testName="Unfold.Tests.TimerControlTests.IconButtonsControlTheClockHaveLabelsAndFitAtMinimumSize" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.6542431" startTime="2026-10-02T18:21:02.5353640+09:00" endTime="2026-10-02T18:21:03.1940910+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="365cc1f6-9a4c-4f1b-b499-af9a74e3f52e" />
+    <UnitTestResult executionId="4cedfa3d-e0ae-46b8-b789-b7232fd89f88" testId="9e536c7b-a81b-03d0-8767-5a45b227580b" testName="Unfold.Tests.TimerControlTests.ResetRestoresTheIntervalAndWaitsForExplicitResume" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.0001480" startTime="2026-10-02T18:21:03.8034290+09:00" endTime="2026-10-02T18:21:03.8036010+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4cedfa3d-e0ae-46b8-b789-b7232fd89f88" />
+    <UnitTestResult executionId="f43c5b2b-7a84-4a5f-ae15-b5f86807f122" testId="01ee9b61-b23d-9b4e-0889-7262325dd123" testName="Unfold.Tests.TimerControlTests.TypedIntervalWaitsForApplyAndKeepsTheNewValuePaused" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.0739742" startTime="2026-10-02T18:21:03.7284220+09:00" endTime="2026-10-02T18:21:03.8024410+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f43c5b2b-7a84-4a5f-ae15-b5f86807f122" />
+    <UnitTestResult executionId="4e2b7acf-4e87-4411-a1ba-1bc5870c3865" testId="94881387-6a93-1baf-6c8a-8401766206eb" testName="Unfold.Tests.TimerControlTests.StopPauseAndResetHaveDistinctResumeBehavior" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.0003949" startTime="2026-10-02T18:21:03.7258060+09:00" endTime="2026-10-02T18:21:03.7262480+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4e2b7acf-4e87-4411-a1ba-1bc5870c3865" />
+    <UnitTestResult executionId="7ffc790f-98ed-4839-bd54-352537005102" testId="084a3eb4-a73f-d6eb-d788-6a8ba36039fd" testName="Unfold.Tests.TimerControlTests.CenteredPlayerKeepsButtonSurfacesSteadyAndDimsOnlyTheInactiveCountdown" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.1172671" startTime="2026-10-02T18:21:03.4784780+09:00" endTime="2026-10-02T18:21:03.5958010+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7ffc790f-98ed-4839-bd54-352537005102" />
+    <UnitTestResult executionId="521ccf7c-4afb-4278-a0f8-0161b488eaa7" testId="951202a6-7324-ad2b-74e9-a390cc291126" testName="Unfold.Tests.TimerControlTests.HomeAndSettingsApplyPersistTheirOwnTimeValues" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.1778443" startTime="2026-10-02T18:21:03.2977880+09:00" endTime="2026-10-02T18:21:03.4756800+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="521ccf7c-4afb-4278-a0f8-0161b488eaa7" />
+    <UnitTestResult executionId="7e7e756e-8946-4a9f-91ed-0f4185e4a8e1" testId="00b18a7f-fdfc-56af-71fa-d0f4e7f473d0" testName="Unfold.Tests.TimerControlTests.RunningTimerLocksIntervalAndPausedTimerAppliesOneMinuteStepsExplicitly" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.0569549" startTime="2026-10-02T18:21:03.6667780+09:00" endTime="2026-10-02T18:21:03.7237870+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7e7e756e-8946-4a9f-91ed-0f4185e4a8e1" />
+    <UnitTestResult executionId="cab3b352-f903-4f87-aa3d-62f47fe31111" testId="3a2af169-e713-8536-c332-39844e2d8081" testName="Unfold.Tests.TimerControlTests.RuntimeRejectsIntervalChangesWhileRunningAndAllowsThemWhilePaused" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.0919860" startTime="2026-10-02T18:21:03.2026890+09:00" endTime="2026-10-02T18:21:03.2947400+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="cab3b352-f903-4f87-aa3d-62f47fe31111" />
+    <UnitTestResult executionId="c7e479f3-e4ba-495f-b6e1-173a3a9aef35" testId="12e6ef0d-4e8f-311b-ef44-f746752c5040" testName="Unfold.Tests.TimerControlTests.HomeSaveAppearsOnlyForChangesAndRejectsInvalidRawInput" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.0626932" startTime="2026-10-02T18:21:03.5997480+09:00" endTime="2026-10-02T18:21:03.6624800+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c7e479f3-e4ba-495f-b6e1-173a3a9aef35" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Unfold.Tests.TimerControlTests.ResetRestoresTheIntervalAndWaitsForExplicitResume" storage="/users/hwanghyeonseong/.codex/worktrees/6bca/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="9e536c7b-a81b-03d0-8767-5a45b227580b">
+      <Execution id="4cedfa3d-e0ae-46b8-b789-b7232fd89f88" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.TimerControlTests" name="ResetRestoresTheIntervalAndWaitsForExplicitResume" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.TimerControlTests.CenteredPlayerKeepsButtonSurfacesSteadyAndDimsOnlyTheInactiveCountdown" storage="/users/hwanghyeonseong/.codex/worktrees/6bca/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="084a3eb4-a73f-d6eb-d788-6a8ba36039fd">
+      <Execution id="7ffc790f-98ed-4839-bd54-352537005102" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.TimerControlTests" name="CenteredPlayerKeepsButtonSurfacesSteadyAndDimsOnlyTheInactiveCountdown" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.TimerControlTests.StopPauseAndResetHaveDistinctResumeBehavior" storage="/users/hwanghyeonseong/.codex/worktrees/6bca/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="94881387-6a93-1baf-6c8a-8401766206eb">
+      <Execution id="4e2b7acf-4e87-4411-a1ba-1bc5870c3865" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.TimerControlTests" name="StopPauseAndResetHaveDistinctResumeBehavior" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.TimerControlTests.TypedIntervalWaitsForApplyAndKeepsTheNewValuePaused" storage="/users/hwanghyeonseong/.codex/worktrees/6bca/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="01ee9b61-b23d-9b4e-0889-7262325dd123">
+      <Execution id="f43c5b2b-7a84-4a5f-ae15-b5f86807f122" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.TimerControlTests" name="TypedIntervalWaitsForApplyAndKeepsTheNewValuePaused" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.TimerControlTests.HomeSaveAppearsOnlyForChangesAndRejectsInvalidRawInput" storage="/users/hwanghyeonseong/.codex/worktrees/6bca/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="12e6ef0d-4e8f-311b-ef44-f746752c5040">
+      <Execution id="c7e479f3-e4ba-495f-b6e1-173a3a9aef35" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.TimerControlTests" name="HomeSaveAppearsOnlyForChangesAndRejectsInvalidRawInput" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.TimerControlTests.RuntimeRejectsIntervalChangesWhileRunningAndAllowsThemWhilePaused" storage="/users/hwanghyeonseong/.codex/worktrees/6bca/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="3a2af169-e713-8536-c332-39844e2d8081">
+      <Execution id="cab3b352-f903-4f87-aa3d-62f47fe31111" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.TimerControlTests" name="RuntimeRejectsIntervalChangesWhileRunningAndAllowsThemWhilePaused" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.TimerControlTests.HomeAndSettingsApplyPersistTheirOwnTimeValues" storage="/users/hwanghyeonseong/.codex/worktrees/6bca/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="951202a6-7324-ad2b-74e9-a390cc291126">
+      <Execution id="521ccf7c-4afb-4278-a0f8-0161b488eaa7" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.TimerControlTests" name="HomeAndSettingsApplyPersistTheirOwnTimeValues" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.TimerControlTests.RunningTimerLocksIntervalAndPausedTimerAppliesOneMinuteStepsExplicitly" storage="/users/hwanghyeonseong/.codex/worktrees/6bca/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="00b18a7f-fdfc-56af-71fa-d0f4e7f473d0">
+      <Execution id="7e7e756e-8946-4a9f-91ed-0f4185e4a8e1" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.TimerControlTests" name="RunningTimerLocksIntervalAndPausedTimerAppliesOneMinuteStepsExplicitly" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.TimerControlTests.IconButtonsControlTheClockHaveLabelsAndFitAtMinimumSize" storage="/users/hwanghyeonseong/.codex/worktrees/6bca/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="7b09609b-3ad0-e9ad-f18d-4a37165d4051">
+      <Execution id="365cc1f6-9a4c-4f1b-b499-af9a74e3f52e" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.TimerControlTests" name="IconButtonsControlTheClockHaveLabelsAndFitAtMinimumSize" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.TimerControlTests.StoppedTimerStillAllowsCancellingAnActiveBreak" storage="/users/hwanghyeonseong/.codex/worktrees/6bca/unfold/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="7c8910e8-a17f-17d0-7da0-44443ff7573a">
+      <Execution id="656cb961-0816-46dc-bb00-8113c3cc5785" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.TimerControlTests" name="StoppedTimerStillAllowsCancellingAnActiveBreak" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="7c8910e8-a17f-17d0-7da0-44443ff7573a" executionId="656cb961-0816-46dc-bb00-8113c3cc5785" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="7b09609b-3ad0-e9ad-f18d-4a37165d4051" executionId="365cc1f6-9a4c-4f1b-b499-af9a74e3f52e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="9e536c7b-a81b-03d0-8767-5a45b227580b" executionId="4cedfa3d-e0ae-46b8-b789-b7232fd89f88" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="01ee9b61-b23d-9b4e-0889-7262325dd123" executionId="f43c5b2b-7a84-4a5f-ae15-b5f86807f122" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="94881387-6a93-1baf-6c8a-8401766206eb" executionId="4e2b7acf-4e87-4411-a1ba-1bc5870c3865" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="084a3eb4-a73f-d6eb-d788-6a8ba36039fd" executionId="7ffc790f-98ed-4839-bd54-352537005102" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="951202a6-7324-ad2b-74e9-a390cc291126" executionId="521ccf7c-4afb-4278-a0f8-0161b488eaa7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="00b18a7f-fdfc-56af-71fa-d0f4e7f473d0" executionId="7e7e756e-8946-4a9f-91ed-0f4185e4a8e1" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3a2af169-e713-8536-c332-39844e2d8081" executionId="cab3b352-f903-4f87-aa3d-62f47fe31111" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="12e6ef0d-4e8f-311b-ef44-f746752c5040" executionId="c7e479f3-e4ba-495f-b6e1-173a3a9aef35" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="목록에 없는 결과" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="로드된 모든 결과" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="10" executed="10" passed="10" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.12)
+[xUnit.net 00:00:00.85]   Discovering: Unfold.Tests
+[xUnit.net 00:00:01.14]   Discovered:  Unfold.Tests
+[xUnit.net 00:00:01.68]   Starting:    Unfold.Tests
+[xUnit.net 00:00:03.33]   Finished:    Unfold.Tests
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

@@ -1,0 +1,334 @@
+--- /dev/null
++++ b/Tests/Unfold.Tests/WindowControlTests.cs
+@@ -0,0 +1,128 @@
++using Avalonia;
++using Avalonia.Automation;
++using Avalonia.Controls;
++using Avalonia.Controls.ApplicationLifetimes;
++using Avalonia.Headless;
++using Avalonia.Headless.XUnit;
++using Avalonia.Input;
++using Avalonia.Interactivity;
++using Avalonia.Threading;
++using Avalonia.VisualTree;
++using Unfold.Desktop;
++
++namespace Unfold.Tests;
++
++[Collection("Timer settings")]
++public class WindowControlTests
++{
++    [AvaloniaFact]
++    public void WindowButtonsMinimizeMaximizeRestoreAndCloseWithoutStoppingTheTimer()
++    {
++        using var scope = new Scope();
++        var window = scope.Window;
++        Assert.Equal(WindowDecorations.BorderOnly, window.WindowDecorations);
++        Assert.True(window.ExtendClientAreaToDecorationsHint);
++        Assert.True(window.CanResize);
++        Press(window, "SettingsWindowMinimize");
++        Assert.Equal(WindowState.Minimized, window.WindowState);
++        window.WindowState = WindowState.Normal;
++        Press(window, "SettingsWindowMaximize");
++        Assert.Equal(WindowState.Maximized, window.WindowState);
++        Assert.Equal("복원", AutomationProperties.GetName(Find<Button>(window, "SettingsWindowMaximize")));
++        Press(window, "SettingsWindowMaximize");
++        Assert.Equal(WindowState.Normal, window.WindowState);
++        Assert.Equal("최대화", AutomationProperties.GetName(Find<Button>(window, "SettingsWindowMaximize")));
++        var paused = scope.Runtime.Clock.Paused;
++        var stopped = scope.Runtime.Clock.Stopped;
++        Press(window, "SettingsWindowClose");
++        Assert.False(window.IsVisible);
++        Assert.Equal(paused, scope.Runtime.Clock.Paused);
++        Assert.Equal(stopped, scope.Runtime.Clock.Stopped);
++        window.Show(); Layout(window);
++        Assert.True(window.IsVisible);
++        Assert.Equal(3, Find<StackPanel>(window, "SettingsWindowControls").Children.Count);
++        window.CanResize = false;
++        Assert.False(Find<Button>(window, "SettingsWindowMaximize").IsEnabled);
++        window.CanMinimize = false;
++        Assert.False(Find<Button>(window, "SettingsWindowMinimize").IsEnabled);
++    }
++
++    [AvaloniaFact]
++    public void WindowButtonsAndDragRegionStayAboveTheExistingPageAtBothWindowSizes()
++    {
++        using var scope = new Scope();
++        var window = scope.Window;
++        foreach (var size in new[] { new Size(1120, 800), new Size(640, 560) })
++        {
++            window.Width = size.Width; window.Height = size.Height; Layout(window);
++            var region = Find<Border>(window, "SettingsWindowDragRegion");
++            var point = region.TranslatePoint(new Point(200, 12), window)!.Value;
++            Assert.Same(region, window.InputHitTest(point));
++            var nav = Find<Button>(window, "SettingsNavTimer");
++            Assert.True(nav.TranslatePoint(default, window)!.Value.Y > point.Y);
++            foreach (var name in new[] { "SettingsWindowClose", "SettingsWindowMinimize", "SettingsWindowMaximize" })
++            {
++                var button = Find<Button>(window, name);
++                var center = button.TranslatePoint(new Point(button.Bounds.Width / 2, button.Bounds.Height / 2), window)!.Value;
++                var hit = Assert.IsAssignableFrom<Control>(window.InputHitTest(center));
++                Assert.True(ReferenceEquals(hit, button) || hit.GetVisualAncestors().Contains(button));
++            }
++        }
++    }
++
++    [AvaloniaFact]
++    public void MacHeaderDragMovesTheWindowAndStopsOnReleaseAndCaptureLoss()
++    {
++        Assert.SkipUnless(OperatingSystem.IsMacOS(), "macOS uses managed dragging.");
++        using var scope = new Scope();
++        var window = scope.Window;
++        var region = Find<Border>(window, "SettingsWindowDragRegion");
++        var point = region.TranslatePoint(new Point(220, 12), window)!.Value;
++        window.Position = new PixelPoint(100, 200);
++        var initial = window.Position;
++        IPointer? pointer = null;
++        region.AddHandler(InputElement.PointerPressedEvent, (_, args) => pointer = args.Pointer, RoutingStrategies.Tunnel, true);
++        window.MouseDown(point, MouseButton.Left);
++        window.MouseMove(point + new Vector(80, 40)); Layout(window);
++        Assert.Equal(new PixelPoint(initial.X + (int)Math.Round(80 * window.DesktopScaling),
++            initial.Y + (int)Math.Round(40 * window.DesktopScaling)), window.Position);
++        var moved = window.Position;
++        window.MouseUp(point, MouseButton.Left);
++        window.MouseMove(point + new Vector(30, 20)); Layout(window);
++        Assert.Equal(moved, window.Position);
++        point += new Vector(140, 0);
++        window.MouseDown(point, MouseButton.Left);
++        Assert.NotNull(pointer); pointer.Capture(null);
++        window.MouseMove(point + new Vector(30, 20), RawInputModifiers.LeftMouseButton); Layout(window);
++        Assert.Equal(moved, window.Position);
++        window.MouseUp(point, MouseButton.Left);
++        window.MouseDown(point, MouseButton.Right);
++        window.MouseMove(point + new Vector(30, 20), RawInputModifiers.RightMouseButton); Layout(window);
++        Assert.Equal(moved, window.Position);
++        window.MouseUp(point, MouseButton.Right);
++    }
++
++    private static T Find<T>(Window window, string name) where T : Control => window.GetVisualDescendants().OfType<T>().Single(item => item.Name == name);
++    private static void Press(Window window, string name) { Find<Button>(window, name).RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Layout(window); }
++    private static void Layout(Window window) { Dispatcher.UIThread.RunJobs(); window.UpdateLayout(); }
++
++    private sealed class Scope : IDisposable
++    {
++        private readonly TempDirectory temp = new();
++        private readonly string? previous = Environment.GetEnvironmentVariable("UNFOLD_DATA_DIR");
++        private readonly ClassicDesktopStyleApplicationLifetime lifetime = new();
++        public AppRuntime Runtime { get; }
++        public SettingsWindow Window { get; }
++        public Scope()
++        {
++            Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", temp.Path);
++            Runtime = new(lifetime) { ConfirmActionOverride = (_, _, _) => Task.FromResult(0) };
++            Window = new(Runtime); Window.Show(); Layout(Window);
++        }
++        public void Dispose()
++        {
++            Window.HideToTray(); Window.Dispose(); Runtime.Dispose(); lifetime.Dispose();
++            Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", previous); temp.Dispose();
++        }
++    }
++}
+--- /dev/null
++++ b/src/Unfold.Desktop/SettingsWindow.Chrome.cs
+@@ -0,0 +1,108 @@
++using Avalonia;
++using Avalonia.Automation;
++using Avalonia.Controls;
++using Avalonia.Controls.Chrome;
++using Avalonia.Input;
++using Avalonia.Layout;
++using Avalonia.Media;
++
++namespace Unfold.Desktop;
++
++public sealed partial class SettingsWindow
++{
++    private IPointer? windowMovePointer;
++    private PixelPoint windowMoveStart, windowPositionStart;
++    private Border? windowDragRegion;
++
++    private Control BuildWindowControls()
++    {
++        windowDragRegion = new Border { Name = "SettingsWindowDragRegion", Background = Brushes.Transparent };
++        WindowDecorationProperties.SetElementRole(windowDragRegion, WindowDecorationsElementRole.User);
++        windowDragRegion.PointerPressed += (_, args) =>
++        {
++            if (windowMovePointer is not null || !args.GetCurrentPoint(this).Properties.IsLeftButtonPressed) return;
++            if (args.ClickCount == 2) { ToggleWindowMaximized(); args.Handled = true; return; }
++            if (OperatingSystem.IsMacOS())
++            {
++                if (WindowState != WindowState.Normal) return;
++                // As in the account window, managed dragging also works for macOS
++                // windows without a native title bar.
++                windowMoveStart = WindowPointerScreenPosition(args); windowPositionStart = Position;
++                windowMovePointer = args.Pointer; args.Pointer.Capture(windowDragRegion);
++            }
++            else BeginMoveDrag(args);
++            args.Handled = true;
++        };
++        windowDragRegion.PointerMoved += (_, args) =>
++        {
++            if (windowMovePointer != args.Pointer) return;
++            var delta = WindowPointerScreenPosition(args) - windowMoveStart;
++            Position = new PixelPoint(windowPositionStart.X + delta.X, windowPositionStart.Y + delta.Y);
++            args.Handled = true;
++        };
++        windowDragRegion.PointerReleased += (_, args) =>
++        {
++            if (windowMovePointer != args.Pointer || args.InitialPressMouseButton != MouseButton.Left) return;
++            EndWindowMove(); args.Handled = true;
++        };
++        windowDragRegion.PointerCaptureLost += (_, _) => EndWindowMove();
++        Deactivated += (_, _) => EndWindowMove();
++
++        var close = WindowButton("SettingsWindowClose", "닫기", "#FF5F57", "M1,1 L7,7 M7,1 L1,7", Close);
++        var minimize = WindowButton("SettingsWindowMinimize", "최소화", "#FEBC2E", "M1,4 L7,4", () => WindowState = WindowState.Minimized);
++        var maximize = WindowButton("SettingsWindowMaximize", "최대화", "#28C840", "M1,4 L1,1 L4,1 M4,7 L7,7 L7,4", ToggleWindowMaximized);
++        void RefreshWindowControls()
++        {
++            minimize.IsEnabled = CanMinimize;
++            maximize.IsEnabled = CanResize && CanMaximize;
++            var label = WindowState is WindowState.Maximized or WindowState.FullScreen ? "복원" : "최대화";
++            AutomationProperties.SetName(maximize, label); ToolTip.SetTip(maximize, label);
++        }
++        PropertyChanged += (_, args) =>
++        {
++            if (args.Property == WindowStateProperty || args.Property == CanMinimizeProperty ||
++                args.Property == CanMaximizeProperty || args.Property == CanResizeProperty)
++            { EndWindowMove(); RefreshWindowControls(); }
++        };
++        RefreshWindowControls();
++        var buttons = new StackPanel { Name = "SettingsWindowControls", Orientation = Orientation.Horizontal,
++            Spacing = 0, HorizontalAlignment = HorizontalAlignment.Left };
++        buttons.Children.Add(close); buttons.Children.Add(minimize); buttons.Children.Add(maximize);
++        var bar = new Grid { Name = "SettingsWindowControlBar", Height = 24 };
++        bar.Children.Add(windowDragRegion); bar.Children.Add(buttons);
++        return bar;
++    }
++
++    private static Button WindowButton(string name, string label, string color, string glyph, Action action)
++    {
++        var face = new Grid { Width = 14, Height = 14, IsHitTestVisible = false };
++        face.Children.Add(new Avalonia.Controls.Shapes.Ellipse { Fill = Brush.Parse(color) });
++        var path = new Avalonia.Controls.Shapes.Path { Data = Geometry.Parse(glyph), Width = 8, Height = 8,
++            Stroke = Brush.Parse("#66000000"), StrokeThickness = 1, Stretch = Stretch.Uniform,
++            HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
++        face.Children.Add(path);
++        var button = new Button { Name = name, Content = face, Width = 28, Height = 24, MinWidth = 0, MinHeight = 0,
++            Padding = new(0), CornerRadius = new(12), Background = Brushes.Transparent, BorderThickness = new(0),
++            HorizontalContentAlignment = HorizontalAlignment.Center, VerticalContentAlignment = VerticalAlignment.Center };
++        WindowDecorationProperties.SetElementRole(button, WindowDecorationsElementRole.User);
++        AutomationProperties.SetName(button, label); ToolTip.SetTip(button, label); ToolTip.SetShowDelay(button, 500);
++        button.Click += (_, _) => action();
++        return button;
++    }
++
++    private void ToggleWindowMaximized() => WindowState = WindowState is WindowState.Maximized or WindowState.FullScreen
++        ? WindowState.Normal : WindowState.Maximized;
++
++    private PixelPoint WindowPointerScreenPosition(PointerEventArgs args)
++    {
++        var point = args.GetPosition(this);
++        return new PixelPoint(Position.X + (int)Math.Round(point.X * DesktopScaling),
++            Position.Y + (int)Math.Round(point.Y * DesktopScaling));
++    }
++
++    private void EndWindowMove()
++    {
++        var pointer = windowMovePointer; windowMovePointer = null;
++        if (pointer is not null && pointer.Captured == windowDragRegion) pointer.Capture(null);
++    }
++}
+--- a/src/Unfold.Desktop/SettingsWindow.Layout.cs
++++ b/src/Unfold.Desktop/SettingsWindow.Layout.cs
+@@ -70,8 +70,11 @@
+         dashboardPage = dashboardScroll; settingsPageHost.Content = dashboardScroll;
+         var frame = new Grid { ColumnDefinitions = new("64,16,*") };
+         frame.Children.Add(BuildNavigation()); Grid.SetColumn(settingsPageHost, 2); frame.Children.Add(settingsPageHost);
+-        return new Border { Name = "SettingsFrame", Margin = new(16), Padding = new(14), CornerRadius = new(32),
+-            Background = Shell, BorderBrush = Outline, BorderThickness = new(1), Child = frame };
++        var layout = new Grid { RowDefinitions = new("24,*") };
++        layout.Children.Add(BuildWindowControls()); Grid.SetRow(frame, 1); layout.Children.Add(frame);
++        // Use the existing top inset for window controls; keep the page's content bounds.
++        return new Border { Name = "SettingsFrame", Margin = new(16, 4, 16, 16), Padding = new(14, 2, 14, 14), CornerRadius = new(32),
++            Background = Shell, BorderBrush = Outline, BorderThickness = new(1), Child = layout };
+     }
+ 
+     private Border BuildNavigation()
+--- a/src/Unfold.Desktop/SettingsWindow.cs
++++ b/src/Unfold.Desktop/SettingsWindow.cs
+@@ -41,6 +41,9 @@
+     public SettingsWindow(AppRuntime runtime)
+     {
+         this.runtime = runtime; Title = $"Unfold · 휴식 알림 · {AppRelease.DisplayVersion}"; Width = 1120; Height = 800; MinWidth = 640; MinHeight = 560;
++        WindowDecorations = WindowDecorations.BorderOnly;
++        ExtendClientAreaToDecorationsHint = true;
++        ExtendClientAreaTitleBarHeightHint = 0;
+         Background = Ui.Background;
+         interval = new NumericUpDown { Name = "ReminderInterval", Minimum = 5, Maximum = 240, Value = runtime.Settings.IntervalMinutes, Increment = 1, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch, FormatString = "0" };
+         breakDuration = new NumericUpDown { Name = "BreakDurationMinutes", Minimum = 1, Maximum = 10, Value = runtime.Settings.BreakDurationMinutes, Increment = 1, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch, FormatString = "0" };
+@@ -136,8 +139,8 @@
+         Refresh();
+         CleanupImportedSounds();
+     }
+-    public void Dispose() { if (disposed) return; disposed = true; countdown.Dispose(); soundImportCancellation.Cancel(); soundImportCancellation.Dispose(); SuspendPreview(); runtime.Changed -= Refresh; runtime.CloseReminderPreview(); stopSoundPreview?.Invoke(); settingsSoundPlayer.Dispose(); CleanupImportedSounds(); preview.Dispose(); petPage?.Dispose(); }
+-    public void HideToTray() { countdown.StopAnimation(); runtime.CloseReminderPreview(); stopSoundPreview?.Invoke(); SuspendPreview(); Hide(); }
++    public void Dispose() { if (disposed) return; disposed = true; EndWindowMove(); countdown.Dispose(); soundImportCancellation.Cancel(); soundImportCancellation.Dispose(); SuspendPreview(); runtime.Changed -= Refresh; runtime.CloseReminderPreview(); stopSoundPreview?.Invoke(); settingsSoundPlayer.Dispose(); CleanupImportedSounds(); preview.Dispose(); petPage?.Dispose(); }
++    public void HideToTray() { EndWindowMove(); countdown.StopAnimation(); runtime.CloseReminderPreview(); stopSoundPreview?.Invoke(); SuspendPreview(); Hide(); }
+     private void TimingEdited()
+     {
+         if (updating) return;
+--- a/src/Unfold.Desktop/SmokeDiagnostics.cs
++++ b/src/Unfold.Desktop/SmokeDiagnostics.cs
+@@ -32,6 +32,7 @@
+             var accountScreen = await VerifyAccountScreen(runtime, desktop, directory);
+             var settingsLayout = await VerifySettingsLayout(settings, directory);
+             await VerifyResponsiveLayout(settings, directory);
++            await VerifyWindowControls(runtime, settings, directory);
+             await VerifyActionConfirmations(runtime, settings, directory);
+             var intervalInput = settings.GetVisualDescendants().OfType<NumericUpDown>().Single(input => input.Name == "ReminderInterval");
+             var breakDurationInput = settings.GetVisualDescendants().OfType<NumericUpDown>().Single(input => input.Name == "BreakDurationMinutes");
+@@ -234,7 +235,8 @@
+                 completedBreaks = runtime.BreakHistory.Completions.Count, simulatedSessionTiming = true, simulatedActionConfirmation = true,
+                 savedCustomRoutines = runtime.Settings.AdditionalRoutines.Count + (runtime.Settings.CustomRoutine is null ? 0 : 1),
+                 workProfiles = runtime.Settings.WorkProfiles.Count, exportedBreaks = 1, simulatedExportDestination = true,
+-                timerPausedApplyWaitSeconds = 1.2, timerStopWaitSeconds = 1.2, timerControlsVerified = true, timerDigitMotionVerified = true, petSpeechDirectionsVerified = true,
++                timerPausedApplyWaitSeconds = 1.2, timerStopWaitSeconds = 1.2, timerControlsVerified = true, timerDigitMotionVerified = true,
++                windowControlsVerified = true, petSpeechDirectionsVerified = true,
+                 petContextMenuVerified = true, petScaleAndDebugPreviewVerified = true, speechTitleOnlyGeometryVerified = true,
+                 soundRequestsVerified = true, hiddenPetNoticeVerified = true, stopWhileOpening,
+                 petPackInstallUpdateRepairVerified = true, simulatedPackPicker = true, settingsLayout, weeklyReview, reviewLayout, themes,
+@@ -948,6 +950,32 @@
+             Press(window, "SettingsNavTimer"); await Task.Delay(80); window.UpdateLayout();
+         }
+     }
++    private static async Task VerifyWindowControls(AppRuntime runtime, Window window, string directory)
++    {
++        if (window.WindowDecorations != WindowDecorations.BorderOnly || !window.ExtendClientAreaToDecorationsHint)
++            throw new InvalidOperationException("The settings window still has a native title bar.");
++        var originalSize = new Size(window.Width, window.Height);
++        var originalPosition = window.Position;
++        var paused = runtime.Clock.Paused; var stopped = runtime.Clock.Stopped;
++        Press(window, "SettingsWindowMinimize");
++        await Until(() => window.WindowState == WindowState.Minimized);
++        window.WindowState = WindowState.Normal; await Task.Delay(80);
++        Press(window, "SettingsWindowMaximize");
++        await Until(() => window.WindowState == WindowState.Maximized);
++        Press(window, "SettingsWindowMaximize");
++        await Until(() => window.WindowState == WindowState.Normal);
++        Press(window, "SettingsWindowClose");
++        if (window.IsVisible || runtime.Clock.Paused != paused || runtime.Clock.Stopped != stopped)
++            throw new InvalidOperationException("Closing the settings window changed the timer instead of hiding the window.");
++        runtime.ShowSettings();
++        window.Width = originalSize.Width; window.Height = originalSize.Height; window.Position = originalPosition;
++        await Task.Delay(80); window.UpdateLayout();
++        var controls = window.GetVisualDescendants().OfType<StackPanel>().Single(item => item.Name == "SettingsWindowControls");
++        if (controls.Children.Count != 3 || !window.IsVisible)
++            throw new InvalidOperationException("The settings window did not restore its three window controls.");
++        Capture(window, Path.Combine(directory, "window-controls.png"));
++    }
++
+     private static async Task VerifyActionConfirmations(AppRuntime runtime, Window owner, string directory)
+     {
+         var original = runtime.ConfirmActionOverride;

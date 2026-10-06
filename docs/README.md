@@ -13,6 +13,7 @@
 | 문서 | 역할 |
 |---|---|
 | [에이전트 작업 안내](../AGENTS.md) | Codex·Claude 공통 프로젝트 지침. Claude는 `CLAUDE.md`에서 가져온다. |
+| [GLB 펫 구현·검증](validation/2026-10-04-glb-pets.md) | GLB 가져오기, 행동 매핑, 방향 고정, 실시간 재생과 검증 범위 |
 | [프로젝트 README](../README.md) | 사용자 소개, 빠른 실행, 저장소 구조 |
 | [저장소 정리 계획·검증](validation/2026-10-02-repository-cleanup.md) | 용량 조사, 사전 오류 검사, 생성물 정리와 현재 소스 실행 경계 |
 | [A안 계정 화면 편집](account-screen.md) | 최초 로그인·구매 화면의 JSON·XAML·테마 편집 위치와 현재 연결 범위 |

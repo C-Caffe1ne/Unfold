@@ -1,0 +1,606 @@
+--- /dev/null
++++ b/Tests/Unfold.Tests/AnimatedCountdownTests.cs
+@@ -0,0 +1,87 @@
++using Avalonia.Controls;
++using Avalonia.Headless.XUnit;
++using Avalonia.Threading;
++using Unfold.Desktop;
++
++namespace Unfold.Tests;
++
++[Collection("Timer settings")]
++public sealed class AnimatedCountdownTests
++{
++    [AvaloniaFact]
++    public void MinuteBorrowAnimatesChangedDigitsAndPauseCancelsTheTransition()
++    {
++        using var countdown = new AnimatedCountdown { FontSize = 64, LineHeight = 74 };
++        var window = new Window { Content = countdown, Width = 400, Height = 180 };
++        window.Show(); Dispatcher.UIThread.RunJobs();
++        try
++        {
++            countdown.UpdateTime(TimeSpan.FromMinutes(1), true);
++            countdown.UpdateTime(TimeSpan.FromSeconds(59), true);
++            Assert.Equal("00:59", countdown.Text);
++            Assert.Equal(new[] { 1, 3, 4 }, countdown.AnimatedDigitIndices.Order().ToArray());
++            Assert.True(countdown.HasDigitMotion);
++            // A repeated runtime refresh must not restart or interrupt a digit transition.
++            countdown.UpdateTime(TimeSpan.FromSeconds(59), true);
++            Assert.True(countdown.HasDigitMotion);
++            countdown.UpdateTime(TimeSpan.FromSeconds(59), false);
++            Assert.False(countdown.HasDigitMotion); Assert.Empty(countdown.AnimatedDigitIndices);
++            Assert.Equal(.55, countdown.Opacity); Assert.Equal("00:59", countdown.Text);
++            countdown.UpdateTime(TimeSpan.FromSeconds(59), true);
++            Assert.False(countdown.HasDigitMotion); Assert.Equal(1, countdown.Opacity);
++            countdown.UpdateTime(TimeSpan.FromSeconds(58), true);
++            Assert.Equal(new[] { 4 }, countdown.AnimatedDigitIndices.ToArray());
++        }
++        finally { window.Close(); }
++    }
++
++    [AvaloniaFact]
++    public void ResetLongIntervalsAndHiddenControlsDoNotRollThroughIntermediateTimes()
++    {
++        using var countdown = new AnimatedCountdown { FontSize = 64, LineHeight = 74 };
++        var window = new Window { Content = countdown, Width = 500, Height = 180 };
++        window.Show(); Dispatcher.UIThread.RunJobs();
++        try
++        {
++            countdown.UpdateTime(TimeSpan.FromMinutes(60), true);
++            window.UpdateLayout(); var twoDigitWidth = countdown.DesiredSize.Width;
++            countdown.UpdateTime(TimeSpan.FromMinutes(240), false);
++            window.UpdateLayout();
++            Assert.Equal("240:00", countdown.Text);
++            Assert.True(countdown.DesiredSize.Width > twoDigitWidth);
++            Assert.False(countdown.HasDigitMotion);
++            countdown.UpdateTime(TimeSpan.FromSeconds(59), true);
++            countdown.UpdateTime(TimeSpan.FromSeconds(58), true);
++            Assert.True(countdown.HasDigitMotion);
++            window.Content = null;
++            Assert.False(countdown.HasDigitMotion);
++            countdown.UpdateTime(TimeSpan.FromSeconds(57), true);
++            Assert.Equal("00:57", countdown.Text); Assert.False(countdown.HasDigitMotion);
++        }
++        finally { window.Close(); }
++    }
++
++    [AvaloniaFact]
++    public void DisabledMotionAndDisposalStopTheFrameTimer()
++    {
++        using var countdown = new AnimatedCountdown { FontSize = 64, LineHeight = 74 };
++        var window = new Window { Content = countdown, Width = 400, Height = 180 };
++        window.Show(); Dispatcher.UIThread.RunJobs();
++        try
++        {
++            countdown.UpdateTime(TimeSpan.FromSeconds(59), true);
++            countdown.UpdateTime(TimeSpan.FromSeconds(58), true);
++            Assert.True(countdown.HasDigitMotion);
++            countdown.AnimationsEnabled = false;
++            countdown.UpdateTime(TimeSpan.FromSeconds(57), true);
++            Assert.False(countdown.HasDigitMotion); Assert.Equal("00:57", countdown.Text);
++            countdown.AnimationsEnabled = true;
++            countdown.UpdateTime(TimeSpan.FromSeconds(56), true);
++            Assert.True(countdown.HasDigitMotion);
++            countdown.Dispose(); Assert.False(countdown.HasDigitMotion);
++            countdown.UpdateTime(TimeSpan.FromSeconds(55), true);
++            Assert.Equal("00:56", countdown.Text);
++        }
++        finally { window.Close(); }
++    }
++}
+--- a/Tests/Unfold.Tests/SettingsDashboardTests.cs
++++ b/Tests/Unfold.Tests/SettingsDashboardTests.cs
+@@ -48,7 +48,7 @@
+                 Assert.True(origin.Y >= 0 && origin.Y + control.Bounds.Height <= window.ClientSize.Height + 1, name);
+             }
+             var hero = Find<Border>(window, "SettingsCompanionCard"); var timer = Find<Border>(window, "SettingsTimerCard");
+-            Assert.Equal(196, timer.Bounds.Height);
++            Assert.Equal(DesignSystem.HomeTimerHeight, timer.Bounds.Height);
+             Assert.Equal(20, hero.Bounds.Top - timer.Bounds.Bottom);
+             Assert.Equal(timer.TranslatePoint(default, window)!.Value.Y,
+                 Find<Border>(window, "SettingsHomeTimingCard").TranslatePoint(default, window)!.Value.Y);
+@@ -104,8 +104,9 @@
+                 Assert.Equal(actualSize, stage.Width); Assert.Equal(actualSize, stage.Height);
+                 Assert.Equal($"{scale}%", value.Text);
+                 Assert.True(previewScroll.Extent.Width <= previewScroll.Viewport.Width + 1);
+-                Assert.Equal(size == new Size(860, 680) && scale == 150,
+-                    previewScroll.Extent.Height > previewScroll.Viewport.Height + 1);
++                var expectsScroll = size == new Size(860, 680) && scale == 150;
++                Assert.True(expectsScroll == (previewScroll.Extent.Height > previewScroll.Viewport.Height + 1),
++                    $"Window={size}, scale={scale}, extent={previewScroll.Extent}, viewport={previewScroll.Viewport}");
+             }
+         }
+         Assert.Equal("150%", value.Text); Assert.Equal(150, scope.Runtime.Settings.PetScalePercent);
+@@ -138,7 +139,7 @@
+             Assert.True(point.Y >= 0 && point.Y + control.Bounds.Height <= card.Bounds.Height, pair.Item1);
+         }
+         Assert.Equal(2, name.MaxLines);
+-        Assert.Equal(196, Find<Border>(window, "SettingsTimerCard").Bounds.Height);
++        Assert.Equal(DesignSystem.HomeTimerHeight, Find<Border>(window, "SettingsTimerCard").Bounds.Height);
+     }
+ 
+     [AvaloniaFact]
+@@ -151,7 +152,12 @@
+             Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+             Assert.Equal(title, Find<TextBlock>(window, "TimerStateText").Text);
+             var badge = Find<Border>(window, "TimerStateBadge"); var toggle = Find<Button>(window, "TimerToggle");
+-            Assert.True(badge.TranslatePoint(default, window)!.Value.X + badge.Bounds.Width < toggle.TranslatePoint(default, window)!.Value.X);
++            var badgePoint = badge.TranslatePoint(default, window)!.Value;
++            var togglePoint = toggle.TranslatePoint(default, window)!.Value;
++            Assert.True(badgePoint.Y + badge.Bounds.Height < togglePoint.Y);
++            var countdown = Find<AnimatedCountdown>(window, "TimerCountdown");
++            Assert.True(badgePoint.Y + badge.Bounds.Height <= countdown.TranslatePoint(default, window)!.Value.Y);
++            Assert.True(countdown.TranslatePoint(default, window)!.Value.Y + countdown.Bounds.Height <= togglePoint.Y);
+             Assert.DoesNotContain(window.GetVisualDescendants().OfType<TextBlock>(), text => text.Name == "TimerStateDetail");
+         }
+         AssertState("진행 중");
+--- a/Tests/Unfold.Tests/TimerControlTests.cs
++++ b/Tests/Unfold.Tests/TimerControlTests.cs
+@@ -162,20 +162,20 @@
+         {
+             var button = Button(scope.Window, name);
+             Assert.Equal(name == "TimerStop" ? PlaybackGlyph.Stop : PlaybackGlyph.Pause,
+-                Assert.IsType<PlaybackIcon>(button.Content).Glyph);
++                button.GetVisualDescendants().OfType<PlaybackIcon>().Single().Glyph);
+             Assert.False(string.IsNullOrWhiteSpace(AutomationProperties.GetName(button))); Assert.NotNull(ToolTip.GetTip(button));
+             var position = button.TranslatePoint(default, scope.Window)!.Value;
+             Assert.True(position.X >= 0 && position.X + button.Bounds.Width <= scope.Window.ClientSize.Width);
+             Assert.True(position.Y >= 0 && position.Y + button.Bounds.Height <= scope.Window.ClientSize.Height);
+         }
+         Press(scope.Window, "TimerToggle"); Assert.True(scope.Runtime.Clock.Paused);
+-        Assert.Equal(PlaybackGlyph.Play, Assert.IsType<PlaybackIcon>(Button(scope.Window, "TimerToggle").Content).Glyph);
++        Assert.Equal(PlaybackGlyph.Play, Button(scope.Window, "TimerToggle").GetVisualDescendants().OfType<PlaybackIcon>().Single().Glyph);
+         Assert.StartsWith("일시정지", scope.Window.GetVisualDescendants().OfType<TextBlock>().Single(text => text.Name == "TimerStateText").Text);
+         Assert.Equal(DesignSystem.Warning, scope.Window.GetVisualDescendants().OfType<Avalonia.Controls.Shapes.Ellipse>().Single(dot => dot.Name == "TimerStateIndicator").Fill);
+         Assert.Equal("타이머 계속", AutomationProperties.GetName(Button(scope.Window, "TimerToggle")));
+         Press(scope.Window, "TimerStop"); Assert.True(scope.Runtime.Clock.Stopped);
+         Assert.Equal(scope.Runtime.Clock.Interval, scope.Runtime.Clock.Remaining);
+-        Assert.Equal("60:00", scope.Window.GetVisualDescendants().OfType<TextBlock>().Single(text => text.Name == "TimerCountdown").Text);
++        Assert.Equal("60:00", scope.Window.GetVisualDescendants().OfType<AnimatedCountdown>().Single(text => text.Name == "TimerCountdown").Text);
+         Assert.StartsWith("중지됨", scope.Window.GetVisualDescendants().OfType<TextBlock>().Single(text => text.Name == "TimerStateText").Text);
+         Assert.DoesNotContain(scope.Window.GetVisualDescendants().OfType<TextBlock>(), text => text.Name == "TimerStateDetail");
+         Assert.Equal(DesignSystem.Stopped, scope.Window.GetVisualDescendants().OfType<Avalonia.Controls.Shapes.Ellipse>().Single(dot => dot.Name == "TimerStateIndicator").Fill);
+@@ -184,7 +184,57 @@
+         scope.Window.KeyPress(Key.Space, RawInputModifiers.None, PhysicalKey.Space, " ");
+         scope.Window.KeyRelease(Key.Space, RawInputModifiers.None, PhysicalKey.Space, " ");
+         Assert.False(scope.Runtime.Clock.Paused); Assert.Equal(scope.Runtime.Clock.Interval, scope.Runtime.Clock.Remaining);
+-        Assert.Equal(PlaybackGlyph.Pause, Assert.IsType<PlaybackIcon>(play.Content).Glyph);
++        Assert.Equal(PlaybackGlyph.Pause, play.GetVisualDescendants().OfType<PlaybackIcon>().Single().Glyph);
++    }
++    [AvaloniaFact]
++    public void CenteredPlayerKeepsButtonSurfacesSteadyAndDimsOnlyTheInactiveCountdown()
++    {
++        using var scope = new SettingsScope();
++        scope.Window.Width = scope.Window.MinWidth; scope.Window.Height = scope.Window.MinHeight;
++        Dispatcher.UIThread.RunJobs(); scope.Window.UpdateLayout();
++        var countdown = scope.Window.GetVisualDescendants().OfType<AnimatedCountdown>().Single();
++        var badge = scope.Window.GetVisualDescendants().OfType<Border>().Single(control => control.Name == "TimerStateBadge");
++        var play = Button(scope.Window, "TimerToggle");
++        var presenter = play.GetVisualDescendants().OfType<Avalonia.Controls.Presenters.ContentPresenter>()
++            .Single(control => control.Name == "PART_ContentPresenter");
++        var bounds = play.Bounds;
++        var point = play.TranslatePoint(new Point(10, 10), scope.Window)!.Value;
++        scope.Window.MouseMove(point); Dispatcher.UIThread.RunJobs();
++        Assert.Equal(DesignSystem.Accent, presenter.Background);
++        scope.Window.MouseDown(point, MouseButton.Left); Dispatcher.UIThread.RunJobs();
++        Assert.Equal(DesignSystem.Accent, presenter.Background); Assert.Equal(bounds, play.Bounds);
++        scope.Window.MouseUp(point, MouseButton.Left); Dispatcher.UIThread.RunJobs();
++        Assert.True(scope.Runtime.Clock.Paused);
++        Assert.Equal(.55, countdown.Opacity); Assert.Equal(1, badge.Opacity);
++        Assert.False(countdown.HasDigitMotion);
++        Assert.Contains(play.GetVisualDescendants().OfType<TextBlock>(), text => text.Text == "계속");
++        Press(scope.Window, "TimerStop");
++        Assert.Equal("60:00", countdown.Text); Assert.Equal(.55, countdown.Opacity);
++        Assert.False(Button(scope.Window, "TimerStop").IsEnabled);
++        Assert.Contains(play.GetVisualDescendants().OfType<TextBlock>(), text => text.Text == "시작");
++        Press(scope.Window, "TimerToggle");
++        Assert.Equal(1, countdown.Opacity); Assert.True(Button(scope.Window, "TimerStop").IsEnabled);
++        Assert.Contains(play.GetVisualDescendants().OfType<TextBlock>(), text => text.Text == "일시정지");
++        foreach (var palette in DesignSystem.Themes)
++        {
++            scope.Runtime.SetTheme(palette.Id);
++            Press(scope.Window, "TimerToggle"); Assert.Equal(.55, countdown.Opacity);
++            Assert.Equal(DesignSystem.Cream, countdown.Foreground);
++            Press(scope.Window, "TimerToggle"); Assert.Equal(1, countdown.Opacity);
++        }
++    }
++    [AvaloniaFact]
++    public async Task StoppedTimerStillAllowsCancellingAnActiveBreak()
++    {
++        using var scope = new SettingsScope();
++        Press(scope.Window, "TimerStop");
++        Assert.True(scope.Runtime.Clock.Stopped); Assert.False(Button(scope.Window, "TimerStop").IsEnabled);
++        scope.Runtime.Reminder.Invite(new(BreakRoutines.All[0], "default-cat"));
++        await scope.Runtime.UpdateSettings(scope.Runtime.Settings);
++        Assert.NotNull(scope.Runtime.ActiveReminder); Assert.True(Button(scope.Window, "TimerStop").IsEnabled);
++        Press(scope.Window, "TimerStop");
++        Assert.Null(scope.Runtime.ActiveReminder); Assert.True(scope.Runtime.Clock.Stopped);
++        Assert.False(Button(scope.Window, "TimerStop").IsEnabled);
+     }
+     private sealed class SettingsScope : IDisposable
+     {
+--- /dev/null
++++ b/src/Unfold.Desktop/AnimatedCountdown.cs
+@@ -0,0 +1,153 @@
++using System.Diagnostics;
++using System.Globalization;
++using Avalonia;
++using Avalonia.Controls;
++using Avalonia.Controls.Primitives;
++using Avalonia.Automation.Peers;
++using Avalonia.Media;
++using Avalonia.Threading;
++
++namespace Unfold.Desktop;
++
++/// <summary>Draws only changed digits as a clipped vertical transition; Text remains the current time for automation.</summary>
++internal sealed class AnimatedCountdown : TemplatedControl, IDisposable
++{
++    public static readonly StyledProperty<string> TextProperty = AvaloniaProperty.Register<AnimatedCountdown, string>(nameof(Text), "60:00");
++    public static readonly StyledProperty<double> LineHeightProperty = AvaloniaProperty.Register<AnimatedCountdown, double>(nameof(LineHeight), 74);
++    private static readonly TimeSpan MotionDuration = TimeSpan.FromMilliseconds(380);
++    private readonly DispatcherTimer frameTimer = new() { Interval = TimeSpan.FromMilliseconds(16) };
++    private readonly Stopwatch motionClock = new();
++    private readonly Dictionary<char, FormattedText> glyphs = [];
++    private readonly HashSet<int> movingDigits = [];
++    private string previousText = "";
++    private int? previousSeconds;
++    private bool previouslyActive, disposed;
++    private Typeface? cachedTypeface;
++    private double cachedSize, digitWidth;
++    private IBrush? cachedBrush;
++
++    public bool AnimationsEnabled { get; set; } = true;
++    internal IReadOnlyCollection<int> AnimatedDigitIndices => movingDigits;
++    internal bool HasDigitMotion => frameTimer.IsEnabled;
++    public string Text { get => GetValue(TextProperty); set => SetValue(TextProperty, value); }
++    public double LineHeight { get => GetValue(LineHeightProperty); set => SetValue(LineHeightProperty, value); }
++
++    static AnimatedCountdown()
++    {
++        AffectsMeasure<AnimatedCountdown>(TextProperty, LineHeightProperty, FontSizeProperty, FontFamilyProperty,
++            FontStyleProperty, FontWeightProperty, FontStretchProperty);
++        AffectsRender<AnimatedCountdown>(TextProperty, ForegroundProperty);
++    }
++
++    public AnimatedCountdown()
++    {
++        FontFamily = DesignSystem.AppFont; FontSize = 64; Foreground = DesignSystem.Cream;
++        frameTimer.Tick += OnFrame;
++    }
++
++    public void UpdateTime(TimeSpan remaining, bool active)
++    {
++        if (disposed) return;
++        var seconds = (int)Math.Floor(Math.Max(0, remaining.TotalSeconds));
++        var next = $"{seconds / 60:00}:{seconds % 60:00}";
++        var current = Text ?? "";
++        var animate = AnimationsEnabled && active && previouslyActive && IsEffectivelyVisible &&
++            VisualRoot is not null && previousSeconds == seconds + 1 && current.Length == next.Length;
++        previousSeconds = seconds; previouslyActive = active;
++        Opacity = active ? 1 : .55;
++        if (current == next)
++        {
++            if (!active || !AnimationsEnabled) StopAnimation();
++            return;
++        }
++        StopAnimation();
++        previousText = current; Text = next;
++        if (animate)
++        {
++            for (var index = 0; index < next.Length; index++)
++                if (current[index] != next[index] && next[index] != ':') movingDigits.Add(index);
++            if (movingDigits.Count > 0) { motionClock.Restart(); frameTimer.Start(); }
++        }
++        InvalidateVisual();
++    }
++
++    public void StopAnimation()
++    {
++        frameTimer.Stop(); motionClock.Reset(); movingDigits.Clear(); InvalidateVisual();
++    }
++
++    private void OnFrame(object? sender, EventArgs args)
++    {
++        if (!IsEffectivelyVisible || motionClock.Elapsed >= MotionDuration) StopAnimation();
++        else InvalidateVisual();
++    }
++
++    private void PrepareGlyphs()
++    {
++        var typeface = new Typeface(FontFamily, FontStyle, FontWeight, FontStretch);
++        if (cachedTypeface == typeface && cachedSize == FontSize && ReferenceEquals(cachedBrush, Foreground)) return;
++        cachedTypeface = typeface; cachedSize = FontSize; cachedBrush = Foreground; glyphs.Clear();
++        foreach (var value in "0123456789:")
++            glyphs[value] = new FormattedText(value.ToString(), CultureInfo.InvariantCulture, FlowDirection,
++                typeface, FontSize, Foreground);
++        digitWidth = glyphs.Where(pair => pair.Key != ':').Max(pair => pair.Value.WidthIncludingTrailingWhitespace);
++    }
++
++    protected override Size MeasureOverride(Size availableSize)
++    {
++        PrepareGlyphs();
++        var value = Text ?? "";
++        var width = value.Sum(character => character == ':' ? glyphs[':'].WidthIncludingTrailingWhitespace : digitWidth);
++        var height = LineHeight > 0 && double.IsFinite(LineHeight) ? LineHeight : glyphs.Values.Max(glyph => glyph.Height);
++        return new Size(width, height);
++    }
++
++    public override void Render(DrawingContext context)
++    {
++        PrepareGlyphs();
++        var value = Text ?? "";
++        var progress = Math.Clamp(motionClock.Elapsed.TotalMilliseconds / MotionDuration.TotalMilliseconds, 0, 1);
++        double x = 0;
++        for (var index = 0; index < value.Length; index++)
++        {
++            var character = value[index];
++            if (!glyphs.TryGetValue(character, out var next)) continue;
++            var width = character == ':' ? next.WidthIncludingTrailingWhitespace : digitWidth;
++            using (context.PushClip(new Rect(x, 0, width, Bounds.Height)))
++            {
++                var nextY = (Bounds.Height - next.Height) / 2;
++                if (movingDigits.Contains(index))
++                {
++                    var old = glyphs[previousText[index]];
++                    var outgoing = Math.Clamp(progress / .42, 0, 1);
++                    var incoming = Math.Clamp((progress - .42) / .58, 0, 1);
++                    if (outgoing < 1)
++                        context.DrawText(old, new Point(x + (width - old.WidthIncludingTrailingWhitespace) / 2,
++                            (Bounds.Height - old.Height) / 2 - Bounds.Height * outgoing * outgoing));
++                    nextY += Bounds.Height * Math.Pow(1 - incoming, 3);
++                }
++                context.DrawText(next, new Point(x + (width - next.WidthIncludingTrailingWhitespace) / 2, nextY));
++            }
++            x += width;
++        }
++    }
++
++    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs args)
++    {
++        StopAnimation(); base.OnDetachedFromVisualTree(args);
++    }
++
++    protected override AutomationPeer OnCreateAutomationPeer() => new CountdownAutomationPeer(this);
++
++    private sealed class CountdownAutomationPeer(AnimatedCountdown owner) : ControlAutomationPeer(owner)
++    {
++        protected override AutomationControlType GetAutomationControlTypeCore() => AutomationControlType.Text;
++        protected override string GetNameCore() => "남은 시간 " + owner.Text;
++    }
++
++    public void Dispose()
++    {
++        if (disposed) return;
++        disposed = true; StopAnimation(); frameTimer.Tick -= OnFrame;
++    }
++}
+--- a/src/Unfold.Desktop/DesignSystem.cs
++++ b/src/Unfold.Desktop/DesignSystem.cs
+@@ -22,7 +22,7 @@
+         SettingsPreviewWidth = 80, SettingsImportWidth = 104, SettingsResetWidth = 64;
+     public const double FocusRingWidth = 2, FocusRingOffset = 2;
+     public static readonly FontFamily AppFont = new("avares://Unfold/Assets/Fonts#눈누 기초고딕 Regular");
+-    public const double HomeTimerHeight = 196, HomeControlHeight = 40, HomeChoiceWidth = 200,
++    public const double HomeTimerHeight = 216, HomeControlHeight = 40, HomeChoiceWidth = 200,
+         HomeNumberWidth = 160, HomeActionWidth = 80, HomePetScaleWidth = 280;
+     public const double ReviewContentWidth = 760, ReviewControlHeight = 40, ReviewDateHeight = 44;
+     public const double PetContentWidth = 760, PetControlHeight = 40, PetChoiceWidth = 200,
+@@ -87,6 +87,14 @@
+         AddButtonState(styles, "primary", ":pressed", Accent, Ink);
+         AddButtonState(styles, "danger", ":pointerover", Hover, Error);
+         AddButtonState(styles, "danger", ":pressed", OutlineSubtle, Error);
++        // Timer controls keep a steady surface on hover/press; keyboard focus remains visible.
++        foreach (var state in new[] { ":pointerover", ":pressed" })
++        {
++            AddButtonState(styles, "timer-control", state, Raised, Cream);
++            styles.Add(new Style(s => s.OfType<Button>().Class("unfold-action").Class("timer-control")
++                .Class("primary").Class(state).Template().OfType<ContentPresenter>().Name("PART_ContentPresenter"))
++            { Setters = { new Setter(ContentPresenter.BackgroundProperty, Accent), new Setter(ContentPresenter.ForegroundProperty, Ink) } });
++        }
+         AddButtonState(styles, null, ":disabled", DisabledFill, DisabledText);
+         styles.Add(new Style(s => s.OfType<Button>().Class("unfold-action").Class(":disabled")) { Setters =
+         { new Setter(Visual.OpacityProperty, 1d) }});
+--- a/src/Unfold.Desktop/SettingsWindow.Layout.cs
++++ b/src/Unfold.Desktop/SettingsWindow.Layout.cs
+@@ -131,26 +131,21 @@
+ 
+     private Border BuildTimerCard()
+     {
+-        countdown.FontSize = 64; countdown.Foreground = Cream; countdown.FontWeight = FontWeight.Light;
+-        countdown.LineHeight = 70;
++        countdown.FontSize = 64; countdown.Foreground = Cream; countdown.FontWeight = FontWeight.Normal;
++        countdown.LineHeight = 74;
++        countdown.HorizontalAlignment = HorizontalAlignment.Center; countdown.VerticalAlignment = VerticalAlignment.Center;
+         state.Foreground = Muted; state.FontSize = Caption;
+-        foreach (var button in timerControls.Children.OfType<Button>())
+-        {
+-            button.Classes.Add("timer-control");
+-        }
+-        var toggle = timerControls.Children.OfType<Button>().First(); toggle.Classes.Add("primary");
+         var header = new Grid { ColumnDefinitions = new("*,Auto") };
+         header.Children.Add(Label("다음 휴식까지", Body, Cream)); Grid.SetColumn(intervalHint, 1); header.Children.Add(intervalHint);
+-        var footer = new Grid { ColumnDefinitions = new("*,12,Auto") };
+         var statusContent = new Grid { ColumnDefinitions = new("Auto,7,*") };
+         statusContent.Children.Add(timerStateDot); Grid.SetColumn(state, 2); statusContent.Children.Add(state);
+-        timerStateBadge.Child = statusContent; timerStateBadge.HorizontalAlignment = HorizontalAlignment.Left;
+-        timerStateBadge.VerticalAlignment = VerticalAlignment.Bottom; footer.Children.Add(timerStateBadge);
+-        timerControls.VerticalAlignment = VerticalAlignment.Bottom;
+-        Grid.SetColumn(timerControls, 2); footer.Children.Add(timerControls);
+-        var body = new Grid { RowDefinitions = new("Auto,*,Auto"), Margin = new(Inset) };
+-        body.Children.Add(header); Grid.SetRow(countdown, 1); body.Children.Add(countdown);
+-        Grid.SetRow(footer, 2); body.Children.Add(footer);
++        timerStateBadge.Child = statusContent; timerStateBadge.HorizontalAlignment = HorizontalAlignment.Center;
++        timerStateBadge.VerticalAlignment = VerticalAlignment.Center;
++        timerControls.HorizontalAlignment = HorizontalAlignment.Center;
++        var body = new Grid { RowDefinitions = new("Auto,8,Auto,*,Auto"), Margin = new(Inset) };
++        body.Children.Add(header); Grid.SetRow(timerStateBadge, 2); body.Children.Add(timerStateBadge);
++        Grid.SetRow(countdown, 3); body.Children.Add(countdown);
++        Grid.SetRow(timerControls, 4); body.Children.Add(timerControls);
+         return Card("SettingsTimerCard", body, Surface, CardRadius);
+     }
+ 
+--- a/src/Unfold.Desktop/SettingsWindow.cs
++++ b/src/Unfold.Desktop/SettingsWindow.cs
+@@ -12,7 +12,8 @@
+ public sealed partial class SettingsWindow : Window, IDisposable
+ {
+     private readonly AppRuntime runtime;
+-    private readonly TextBlock countdown = Ui.Text("60:00", 52, Ui.Accent), state = Ui.Text("진행 준비", 13);
++    private readonly AnimatedCountdown countdown = new();
++    private readonly TextBlock state = Ui.Text("진행 준비", 13);
+     private readonly Avalonia.Controls.Shapes.Ellipse timerStateDot = new() { Name = "TimerStateIndicator", Width = 8, Height = 8, Fill = DesignSystem.Muted };
+     private readonly Border timerStateBadge = new() { Name = "TimerStateBadge", Background = DesignSystem.Raised, CornerRadius = new(12), Padding = new(10, 6) };
+     private readonly ComboBox characters = new() { Name = "CharacterPicker", MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch };
+@@ -135,8 +136,8 @@
+         Refresh();
+         CleanupImportedSounds();
+     }
+-    public void Dispose() { if (disposed) return; disposed = true; soundImportCancellation.Cancel(); soundImportCancellation.Dispose(); SuspendPreview(); runtime.Changed -= Refresh; runtime.CloseReminderPreview(); stopSoundPreview?.Invoke(); settingsSoundPlayer.Dispose(); CleanupImportedSounds(); preview.Dispose(); petPage?.Dispose(); }
+-    public void HideToTray() { runtime.CloseReminderPreview(); stopSoundPreview?.Invoke(); SuspendPreview(); Hide(); }
++    public void Dispose() { if (disposed) return; disposed = true; countdown.Dispose(); soundImportCancellation.Cancel(); soundImportCancellation.Dispose(); SuspendPreview(); runtime.Changed -= Refresh; runtime.CloseReminderPreview(); stopSoundPreview?.Invoke(); settingsSoundPlayer.Dispose(); CleanupImportedSounds(); preview.Dispose(); petPage?.Dispose(); }
++    public void HideToTray() { countdown.StopAnimation(); runtime.CloseReminderPreview(); stopSoundPreview?.Invoke(); SuspendPreview(); Hide(); }
+     private void TimingEdited()
+     {
+         if (updating) return;
+@@ -203,7 +204,9 @@
+         if (disposed || updating) return; updating = true;
+         try
+         {
+-            countdown.Text = $"{(int)runtime.Clock.Remaining.TotalMinutes:00}:{runtime.Clock.Remaining.Seconds:00}";
++            var timerActive = runtime.ActivityError is null && !runtime.Clock.Stopped && !runtime.Clock.Paused &&
++                !runtime.Clock.IdlePaused && runtime.ActiveReminder is null;
++            countdown.UpdateTime(runtime.Clock.Remaining, timerActive);
+             var stateBrush = DesignSystem.Success;
+             state.Text = runtime.ActivityError is not null ? "상태 확인 필요" :
+                 runtime.Reminder.Notice == PetNotice.Invitation ? "휴식 대기 중" :
+@@ -224,7 +227,7 @@
+             intervalHint.Text = $"{runtime.Settings.IntervalMinutes}분 간격";
+             historyStatus.Text = runtime.BreakHistoryError ?? "";
+             historyStatus.IsVisible = runtime.BreakHistoryError is not null;
+-            timerControls.Refresh(runtime.Clock);
++            timerControls.Refresh(runtime.Clock, runtime.ActiveReminder is not null);
+             var canEditInterval = runtime.CanEditTimerInterval;
+             interval.IsEnabled = canEditInterval;
+             var discardedInterval = !canEditInterval &&
+--- a/src/Unfold.Desktop/SmokeDiagnostics.cs
++++ b/src/Unfold.Desktop/SmokeDiagnostics.cs
+@@ -37,8 +37,12 @@
+             var breakDurationInput = settings.GetVisualDescendants().OfType<NumericUpDown>().Single(input => input.Name == "BreakDurationMinutes");
+             if (intervalInput.IsEnabled) throw new InvalidOperationException("The running timer allowed interval editing.");
+             if (!breakDurationInput.IsEnabled) throw new InvalidOperationException("The running timer blocked the next break duration.");
++            Capture(settings, Path.Combine(directory, "timer-running.png"));
++            await VerifyCountdownMotion(directory);
+             Press(settings, "TimerToggle"); await Task.Delay(100);
+-            if (!runtime.Clock.Paused || !intervalInput.IsEnabled) throw new InvalidOperationException("Pause did not enable interval editing.");
++            if (!runtime.Clock.Paused || !intervalInput.IsEnabled ||
++                settings.GetVisualDescendants().OfType<AnimatedCountdown>().Single().Opacity != .55)
++                throw new InvalidOperationException("Pause did not enable interval editing or dim the countdown.");
+             intervalInput.Value = 25; breakDurationInput.Value = 3; await Task.Delay(100);
+             if (runtime.Settings.IntervalMinutes == 25 || runtime.Settings.BreakDurationMinutes == 3)
+                 throw new InvalidOperationException("Changing home time fields applied before pressing Apply.");
+@@ -53,7 +57,7 @@
+             Capture(settings, Path.Combine(directory, "timer-paused.png"));
+             Press(settings, "TimerToggle"); if (runtime.Clock.Paused) throw new InvalidOperationException("Play did not resume the timer.");
+             Press(settings, "TimerStop"); await Task.Delay(1200);
+-            var stoppedCountdown = settings.GetVisualDescendants().OfType<TextBlock>().Single(text => text.Name == "TimerCountdown");
++            var stoppedCountdown = settings.GetVisualDescendants().OfType<AnimatedCountdown>().Single(text => text.Name == "TimerCountdown");
+             if (!runtime.Clock.Stopped || runtime.Clock.Remaining != TimeSpan.FromMinutes(25) || stoppedCountdown.Text != "25:00" ||
+                 settings.GetVisualDescendants().OfType<TextBlock>().Any(text => text.Name == "TimerStateDetail"))
+                 throw new InvalidOperationException("Stop did not keep the configured interval visible.");
+@@ -230,7 +234,7 @@
+                 completedBreaks = runtime.BreakHistory.Completions.Count, simulatedSessionTiming = true, simulatedActionConfirmation = true,
+                 savedCustomRoutines = runtime.Settings.AdditionalRoutines.Count + (runtime.Settings.CustomRoutine is null ? 0 : 1),
+                 workProfiles = runtime.Settings.WorkProfiles.Count, exportedBreaks = 1, simulatedExportDestination = true,
+-                timerPausedApplyWaitSeconds = 1.2, timerStopWaitSeconds = 1.2, timerControlsVerified = true, petSpeechDirectionsVerified = true,
++                timerPausedApplyWaitSeconds = 1.2, timerStopWaitSeconds = 1.2, timerControlsVerified = true, timerDigitMotionVerified = true, petSpeechDirectionsVerified = true,
+                 petContextMenuVerified = true, petScaleAndDebugPreviewVerified = true, speechTitleOnlyGeometryVerified = true,
+                 soundRequestsVerified = true, hiddenPetNoticeVerified = true, stopWhileOpening,
+                 petPackInstallUpdateRepairVerified = true, simulatedPackPicker = true, settingsLayout, weeklyReview, reviewLayout, themes,
+@@ -804,7 +808,7 @@
+             var timing = Find<Border>("SettingsHomeTimingCard");
+             var timerTop = timer.TranslatePoint(default, window)!.Value.Y;
+             var petTop = pet.TranslatePoint(default, window)!.Value.Y;
+-            if (Math.Abs(timer.Bounds.Height - 196) > .5 || Math.Abs(petTop - timerTop - timer.Bounds.Height - 20) > .5 ||
++            if (Math.Abs(timer.Bounds.Height - DesignSystem.HomeTimerHeight) > .5 || Math.Abs(petTop - timerTop - timer.Bounds.Height - 20) > .5 ||
+                 Math.Abs(timing.TranslatePoint(default, window)!.Value.Y - timerTop) > .5)
+                 throw new InvalidOperationException("Home does not keep the timer above the pet with aligned timing settings.");
+             foreach (var name in new[] { "ReminderInterval", "BreakDurationMinutes" })
+@@ -965,6 +969,29 @@
+         }
+         finally { runtime.ConfirmActionOverride = original; }
+     }
++    private static async Task VerifyCountdownMotion(string directory)
++    {
++        // OS idle detection may intentionally hold the work clock during a diagnostic.
++        // Probe the real renderer with one controlled second, independently of that clock.
++        using var countdown = new AnimatedCountdown { FontSize = 64, LineHeight = 74,
++            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
++            VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center };
++        var window = new Window { Title = "Unfold · 타이머 동작 검증", Width = 360, Height = 150,
++            Background = DesignSystem.Surface, Content = countdown };
++        AppRuntime.PrepareDiagnosticWindow(window); window.Show();
++        try
++        {
++            await Task.Delay(50);
++            countdown.UpdateTime(TimeSpan.FromSeconds(2848), true);
++            countdown.UpdateTime(TimeSpan.FromSeconds(2847), true);
++            if (!countdown.HasDigitMotion) throw new InvalidOperationException("Countdown renderer did not animate a changed digit.");
++            await Task.Delay(60); Capture(window, Path.Combine(directory, "timer-roll-out.png"));
++            await Task.Delay(150); Capture(window, Path.Combine(directory, "timer-roll-in.png"));
++            countdown.UpdateTime(TimeSpan.FromSeconds(2847), false);
++            if (countdown.HasDigitMotion || countdown.Text != "47:27") throw new InvalidOperationException("Pause did not settle the digit transition.");
++        }
++        finally { window.Close(); }
++    }
+     private static async Task Until(Func<bool> ready)
+     {
+         for (var attempt = 0; attempt < 400 && !ready(); attempt++) await Task.Delay(25);
+--- a/src/Unfold.Desktop/TimerControls.cs
++++ b/src/Unfold.Desktop/TimerControls.cs
+@@ -9,25 +9,37 @@
+ public sealed class TimerControls : StackPanel
+ {
+     private readonly Button toggle;
++    private readonly Button stop;
++    private readonly PlaybackIcon toggleIcon = new(PlaybackGlyph.Pause) { Width = 18, Height = 18 };
++    private readonly TextBlock toggleText = new() { Text = "일시정지", VerticalAlignment = VerticalAlignment.Center };
+     private string? currentLabel;
+     public TimerControls(Action togglePause, Action stop)
+     {
+-        Orientation = Orientation.Horizontal; Spacing = 8;
+-        toggle = IconButton("TimerToggle", "타이머 일시정지", PlaybackGlyph.Pause, togglePause);
+-        Children.Add(toggle); Children.Add(IconButton("TimerStop", "타이머 정지", PlaybackGlyph.Stop, stop));
++        Orientation = Orientation.Horizontal; Spacing = 14;
++        toggle = ActionButton("TimerToggle", "타이머 일시정지", toggleIcon, toggleText, togglePause);
++        toggle.Classes.Add("primary");
++        this.stop = ActionButton("TimerStop", "타이머 중지", new PlaybackIcon(PlaybackGlyph.Stop) { Width = 18, Height = 18 },
++            new TextBlock { Text = "중지", VerticalAlignment = VerticalAlignment.Center }, stop);
++        Children.Add(toggle); Children.Add(this.stop);
+     }
+-    public void Refresh(StretchClock clock)
++    public void Refresh(StretchClock clock, bool hasActiveReminder = false)
+     {
+         var label = clock.Stopped ? "타이머 시작" : clock.Paused ? "타이머 계속" : "타이머 일시정지";
++        stop.IsEnabled = !clock.Stopped || hasActiveReminder;
+         if (label == currentLabel) return;
+-        currentLabel = label; ((PlaybackIcon)toggle.Content!).Glyph = clock.Paused ? PlaybackGlyph.Play : PlaybackGlyph.Pause;
++        currentLabel = label;
++        toggleIcon.Glyph = clock.Paused || clock.Stopped ? PlaybackGlyph.Play : PlaybackGlyph.Pause;
++        toggleText.Text = clock.Stopped ? "시작" : clock.Paused ? "계속" : "일시정지";
+         AutomationProperties.SetName(toggle, label); ToolTip.SetTip(toggle, label);
+     }
+-    private static Button IconButton(string name, string label, PlaybackGlyph icon, Action action)
++    private static Button ActionButton(string name, string label, PlaybackIcon icon, TextBlock text, Action action)
+     {
+-        var button = new Button { Name = name, Classes = { "unfold-action" }, Width = 44, Height = 44, Padding = new Thickness(8),
++        var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 7 };
++        row.Children.Add(icon); row.Children.Add(text);
++        var button = new Button { Name = name, Classes = { "unfold-action", "timer-control" }, Width = 110, Height = 44,
++            Padding = new Thickness(12, 8), FontSize = DesignSystem.Caption,
+             HorizontalContentAlignment = HorizontalAlignment.Center, VerticalContentAlignment = VerticalAlignment.Center,
+-            Content = new PlaybackIcon(icon) };
++            Content = row };
+         AutomationProperties.SetName(button, label); ToolTip.SetTip(button, label); ToolTip.SetShowDelay(button, 500);
+         button.Click += (_, _) => action(); return button;
+     }

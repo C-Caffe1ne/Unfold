@@ -1,0 +1,23 @@
+{
+  "source": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+  "version": "1.0.2-beta",
+  "baseCommit": "37c6de354ceb390500d4bcb586bde1a74d16e205",
+  "ownedFiles": {
+    "Tests/Unfold.Tests/SettingsPreferencesTests.cs": "8944b8fee3c159fd7cdff29f17acd11057fab92993ea5d624925d79f5982cd4c",
+    "Tests/Unfold.Tests/Mp3SoundTests.cs": "e848b44cf8cc009db5976951f3da70166c05f06f4c08b2f27c349c9cec62aaf3",
+    "Tests/Unfold.Tests/SettingsDashboardTests.cs": "0f888348ed4d22459c5941ca323c9170ab8c9e4a833126cb6b5b20904a938c92",
+    "Tests/Unfold.Tests/SettingsNavigationGuardTests.cs": "803050386e79e2378f58455f301fbbc7d31f74a7d739337295578dbeb4b84719",
+    "Tests/Unfold.Tests/SoundCleanupTests.cs": "63ebcb6041f13431acd6dedf5b11309b5e74d3748df9533f44bd5944509e1bef",
+    "Tests/Unfold.Tests/NotificationLayoutTests.cs": "8e615fd39e5435d9a5643e4c80221fbde96cda673d3790220df565cc0fde9c84",
+    "Tests/Unfold.Tests/TimerControlTests.cs": "54b31c0c8d3aeb6c6049167d19363a6c1f1eeab61a3fcbb8187570d940ef1980",
+    "Tests/Unfold.Tests/UiAuditRegressionTests.cs": "d6a07d3d28bc0bc01af91e300f948e24d8c04dd91275f0aff5f6f8bea08f1897",
+    "Tests/Unfold.Tests/ThemeTests.cs": "97c4c26836e3316b676fd83cd10a37ef050ea322d4a36df0e958500be53b0975",
+    "Tests/Unfold.Tests/ResponsiveLayoutTests.cs": "e7104ae55a3f38e9b30a7bec352eaa5525fb269d2a72e641cb9fb0ffa0ef2c4c",
+    "src/Unfold.Desktop/Ui.cs": "b8280f9ae776107593f8cc55762fbd674d405ac52fd1b16e0dbdf9980265deed",
+    "src/Unfold.Desktop/SettingsWindow.Preferences.cs": "7785c9d16f170d0ece0a7a3430c092f50fb7b113f9b7fa71b1361367f31d88e6",
+    "src/Unfold.Desktop/SmokeDiagnostics.cs": "a581c771fc5b511f16d15a327a64ec32ee4142a008c7fe586f06da2ff463c130",
+    "src/Unfold.Desktop/SettingsWindow.Layout.cs": "30b89608181f1ea62d878abb793f4791081ca09262b612e0ece513f4c8102b6d",
+    "src/Unfold.Desktop/SettingsWindow.Notifications.cs": "ec9177c34dee7490ac98ff1a6f3b6e8cf20cd54686c9b6379e7dce689ae76b21"
+  },
+  "unownedTrackedChangesPreserved": true
+}

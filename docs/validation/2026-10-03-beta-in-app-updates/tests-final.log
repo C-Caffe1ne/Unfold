@@ -1,0 +1,77 @@
+  복원할 프로젝트를 확인하는 중...
+  /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/Unfold.Desktop.csproj을(를) 954밀리초 동안 복원했습니다.
+  /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Core/Unfold.Core.csproj을(를) 952밀리초 동안 복원했습니다.
+  /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/Tests/Unfold.Tests/Unfold.Tests.csproj을(를) 957밀리초 동안 복원했습니다.
+  Unfold.Core -> /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Core/bin/Release/net10.0/Unfold.Core.dll
+  Unfold.Desktop -> /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/bin/Release/net10.0/Unfold.dll
+  Unfold.Tests -> /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll
+/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll(.NETCoreApp,Version=v10.0)에 대한 테스트 실행
+지정된 패턴과 일치한 총 테스트 파일 수는 1개입니다.
+[xUnit.net 00:00:18.89]     Unfold.Tests.SettingsAccountTests.VerifiedEmailSurvivesClosingTheAccountWindowAndLogoutClearsIt [FAIL]
+[xUnit.net 00:00:18.98]     Unfold.Tests.SettingsAccountTests.DiagnosticDismissalDoesNotInventAUserEmailAndCanReturnToLoginWithoutServerLogout [FAIL]
+[xUnit.net 00:00:19.07]     Unfold.Tests.SettingsAccountTests.LogoutIsSingleFlightAndDisposalCancelsItWithoutReopeningAWindow [FAIL]
+  실패 Unfold.Tests.SettingsAccountTests.VerifiedEmailSurvivesClosingTheAccountWindowAndLogoutClearsIt [97 ms]
+  오류 메시지:
+   System.InvalidOperationException : No VelopackLocator has been set. Either call VelopackApp.Build().Run() or provide IVelopackLocator as a method parameter.
+  스택 추적:
+     at Velopack.Locators.VelopackLocator.get_Current()
+   at Velopack.UpdateManager..ctor(IUpdateSource source, UpdateOptions options, IVelopackLocator locator)
+   at Unfold.Desktop.VelopackUpdateBackend..ctor(UpdateManager manager) in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/AppUpdates.cs:line 37
+   at Unfold.Desktop.AppUpdates..ctor(IAppUpdateBackend backend) in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/AppUpdates.cs:line 78
+   at Unfold.Desktop.AppRuntime.get_Updates() in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/AppRuntime.Updates.cs:line 12
+   at Unfold.Desktop.AppRuntime.InitializeUpdates(NativeMenu menu) in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/AppRuntime.Updates.cs:line 23
+   at Unfold.Desktop.AppRuntime.BuildTray() in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/AppRuntime.cs:line 569
+   at Unfold.Desktop.AppRuntime.Start(Boolean background, Boolean diagnostic) in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/AppRuntime.cs:line 152
+   at Unfold.Desktop.AppRuntime.Start(Boolean background, Boolean diagnostic) in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/AppRuntime.cs:line 169
+   at Unfold.Tests.SettingsAccountTests.Scope.Start() in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/Tests/Unfold.Tests/SettingsAccountTests.cs:line 136
+   at Unfold.Tests.SettingsAccountTests.VerifiedEmailSurvivesClosingTheAccountWindowAndLogoutClearsIt() in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/Tests/Unfold.Tests/SettingsAccountTests.cs:line 20
+--- End of stack trace from previous location ---
+  실패 Unfold.Tests.SettingsAccountTests.DiagnosticDismissalDoesNotInventAUserEmailAndCanReturnToLoginWithoutServerLogout [90 ms]
+  오류 메시지:
+   System.InvalidOperationException : No VelopackLocator has been set. Either call VelopackApp.Build().Run() or provide IVelopackLocator as a method parameter.
+  스택 추적:
+     at Velopack.Locators.VelopackLocator.get_Current()
+   at Velopack.UpdateManager..ctor(IUpdateSource source, UpdateOptions options, IVelopackLocator locator)
+   at Unfold.Desktop.VelopackUpdateBackend..ctor(UpdateManager manager) in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/AppUpdates.cs:line 37
+   at Unfold.Desktop.AppUpdates..ctor(IAppUpdateBackend backend) in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/AppUpdates.cs:line 78
+   at Unfold.Desktop.AppRuntime.get_Updates() in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/AppRuntime.Updates.cs:line 12
+   at Unfold.Desktop.AppRuntime.InitializeUpdates(NativeMenu menu) in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/AppRuntime.Updates.cs:line 23
+   at Unfold.Desktop.AppRuntime.BuildTray() in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/AppRuntime.cs:line 569
+   at Unfold.Desktop.AppRuntime.Start(Boolean background, Boolean diagnostic) in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/AppRuntime.cs:line 152
+   at Unfold.Desktop.AppRuntime.Start(Boolean background, Boolean diagnostic) in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/AppRuntime.cs:line 169
+   at Unfold.Tests.SettingsAccountTests.Scope.Start() in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/Tests/Unfold.Tests/SettingsAccountTests.cs:line 136
+   at Unfold.Tests.SettingsAccountTests.DiagnosticDismissalDoesNotInventAUserEmailAndCanReturnToLoginWithoutServerLogout() in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/Tests/Unfold.Tests/SettingsAccountTests.cs:line 86
+--- End of stack trace from previous location ---
+  실패 Unfold.Tests.SettingsAccountTests.LogoutIsSingleFlightAndDisposalCancelsItWithoutReopeningAWindow [87 ms]
+  오류 메시지:
+   System.InvalidOperationException : No VelopackLocator has been set. Either call VelopackApp.Build().Run() or provide IVelopackLocator as a method parameter.
+  스택 추적:
+     at Velopack.Locators.VelopackLocator.get_Current()
+   at Velopack.UpdateManager..ctor(IUpdateSource source, UpdateOptions options, IVelopackLocator locator)
+   at Unfold.Desktop.VelopackUpdateBackend..ctor(UpdateManager manager) in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/AppUpdates.cs:line 37
+   at Unfold.Desktop.AppUpdates..ctor(IAppUpdateBackend backend) in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/AppUpdates.cs:line 78
+   at Unfold.Desktop.AppRuntime.get_Updates() in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/AppRuntime.Updates.cs:line 12
+   at Unfold.Desktop.AppRuntime.InitializeUpdates(NativeMenu menu) in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/AppRuntime.Updates.cs:line 23
+   at Unfold.Desktop.AppRuntime.BuildTray() in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/AppRuntime.cs:line 569
+   at Unfold.Desktop.AppRuntime.Start(Boolean background, Boolean diagnostic) in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/AppRuntime.cs:line 152
+   at Unfold.Desktop.AppRuntime.Start(Boolean background, Boolean diagnostic) in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/AppRuntime.cs:line 169
+   at Unfold.Tests.SettingsAccountTests.Scope.Start() in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/Tests/Unfold.Tests/SettingsAccountTests.cs:line 136
+   at Unfold.Tests.SettingsAccountTests.LogoutIsSingleFlightAndDisposalCancelsItWithoutReopeningAWindow() in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/Tests/Unfold.Tests/SettingsAccountTests.cs:line 72
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:19.17]     Unfold.Tests.SettingsAccountTests.OfflineLogoutStillClearsLocalIdentityAndReportsTheServerFailure [FAIL]
+  실패 Unfold.Tests.SettingsAccountTests.OfflineLogoutStillClearsLocalIdentityAndReportsTheServerFailure [94 ms]
+  오류 메시지:
+   System.InvalidOperationException : No VelopackLocator has been set. Either call VelopackApp.Build().Run() or provide IVelopackLocator as a method parameter.
+  스택 추적:
+     at Velopack.Locators.VelopackLocator.get_Current()
+   at Velopack.UpdateManager..ctor(IUpdateSource source, UpdateOptions options, IVelopackLocator locator)
+   at Unfold.Desktop.VelopackUpdateBackend..ctor(UpdateManager manager) in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/AppUpdates.cs:line 37
+   at Unfold.Desktop.AppUpdates..ctor(IAppUpdateBackend backend) in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/AppUpdates.cs:line 78
+   at Unfold.Desktop.AppRuntime.get_Updates() in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/AppRuntime.Updates.cs:line 12
+   at Unfold.Desktop.AppRuntime.InitializeUpdates(NativeMenu menu) in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/AppRuntime.Updates.cs:line 23
+   at Unfold.Desktop.AppRuntime.BuildTray() in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/AppRuntime.cs:line 569
+   at Unfold.Desktop.AppRuntime.Start(Boolean background, Boolean diagnostic) in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/AppRuntime.cs:line 152
+   at Unfold.Desktop.AppRuntime.Start(Boolean background, Boolean diagnostic) in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/AppRuntime.cs:line 169
+   at Unfold.Tests.SettingsAccountTests.Scope.Start() in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/Tests/Unfold.Tests/SettingsAccountTests.cs:line 136
+   at Unfold.Tests.SettingsAccountTests.OfflineLogoutStillClearsLocalIdentityAndReportsTheServerFailure() in /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/Tests/Unfold.Tests/SettingsAccountTests.cs:line 56
+--- End of stack trace from previous location ---

@@ -1,0 +1,16 @@
+{
+  "source": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+  "baseVersion": "1.0.2-beta",
+  "head": "37c6de354ceb390500d4bcb586bde1a74d16e205",
+  "files": {
+    "Tests/Unfold.Tests/SettingsDashboardTests.cs": "7a527a84ef85f7ddc35e759db78ce4a2972e9a83ac728c11db4b72de586e2bb8",
+    "Tests/Unfold.Tests/AnimatedCountdownTests.cs": "eea5ac49899cdddfbefb773adae3654ec6e2cfca5ae019dd501b9032909024cf",
+    "Tests/Unfold.Tests/TimerControlTests.cs": "0a4c9e5fbe9507d42a969a59b46f2dca6e20dd49edc0254b39975e50dba8edfb",
+    "src/Unfold.Desktop/TimerControls.cs": "493ee8cf76548fadfc3b59599e70a93b9449553f27ca5934dce3e435c0553baf",
+    "src/Unfold.Desktop/AnimatedCountdown.cs": "7558733b6f680c829928382dab710b31dc624e911ac0ccbd818787b97b5ddc8b",
+    "src/Unfold.Desktop/SettingsWindow.cs": "2b03e3d85e49d997b48bd136e10047e8acb8415cc6000702c477dab0c01539e6",
+    "src/Unfold.Desktop/SmokeDiagnostics.cs": "7ffe979848ca1b59fe980da4ef80d537b3af289d6c6dd6b4a9ceb05348d40958",
+    "src/Unfold.Desktop/SettingsWindow.Layout.cs": "d43957cd2103f8902f0a4077bf222ee4b94c828aaf4b4338fadb049b04996cb7",
+    "src/Unfold.Desktop/DesignSystem.cs": "0c28ecca7b4393b019b0b8d3232f6b9fa1f29acbbef7e9d529eefdcc9e94b2c2"
+  }
+}

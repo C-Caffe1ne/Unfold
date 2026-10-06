@@ -58,6 +58,7 @@ public sealed partial class PetWindow : Window
         bubble = new(runtime.StartBreak, runtime.SnoozeBreak, runtime.CompleteBreak);
         canvas.Children.Add(animation); canvas.Children.Add(bubble); canvas.Children.Add(tail); canvas.Children.Add(tailOutline); Content = canvas;
         animation.Completed += PointerClipCompleted;
+        animation.PlaybackFailed += _ => { InvalidatePlayback(); ResetCompanion(); if (runtime.Selected is { } selected) ShowReminderFallback(selected); };
         bubble.IsVisible = tail.IsVisible = tailOutline.IsVisible = false;
         var menu = new ContextMenu();
         var settings = new MenuItem { Header = "설정" }; settings.Click += (_, _) => runtime.ShowSettings();
@@ -172,6 +173,12 @@ public sealed partial class PetWindow : Window
             // ships a click clip, and otherwise leaves the idle loop alone — so the early
             // return has to happen before generation moves, or it would cancel a stretch.
             key = preferred ?? (selected?.Manifest.Animations.ContainsKey("click") == true ? "click" : null);
+            if (key == "stretch" && selected?.IsGlb == true && !selected.Manifest.Animations.ContainsKey("stretch") &&
+                selected.Manifest.Animations.ContainsKey("walk") && runtime.Reminder.Notice == PetNotice.Resting)
+            {
+                walkingSession = runtime.Reminder.Session;
+                await RestoreBaseAnimation(InvalidatePlayback()); return;
+            }
             if (key is null || selected?.Manifest.Animations.ContainsKey(key) != true) return;
             current = InvalidatePlayback();
             var cancellation = reactionCancellation = new CancellationTokenSource();
@@ -187,7 +194,7 @@ public sealed partial class PetWindow : Window
                 var frames = await runtime.Clip(key); if (current != generation) return;
                 animation.SetRunning(true);
                 var definition = selected.Manifest.Animations[key];
-                animation.SetFrames(frames, !selected.HasOriginalBehavior && definition.Loop, selected.Manifest.RenderStyle == "pixel", selected.HasOriginalBehavior, definition.PingPong);
+                animation.SetFrames(frames, (selected.IsGlb || !selected.HasOriginalBehavior) && definition.Loop, selected.Manifest.RenderStyle == "pixel", selected.HasOriginalBehavior, definition.PingPong);
                 await completed.Task.WaitAsync(cancellation.Token);
                 if (current != generation) return;
                 if (selected.HasOriginalBehavior && key == "stretch" && session is not null &&
@@ -287,7 +294,7 @@ public sealed partial class PetWindow : Window
             (hoveringPet || animation.OpaqueAt(local));
         if (hoveringPet == hovered) return;
         hoveringPet = hovered;
-        if (!HasOriginalBehavior && !runtime.PresentedReminder.HasNotice)
+        if ((!HasOriginalBehavior || runtime.Selected?.IsGlb == true) && !runtime.PresentedReminder.HasNotice)
         {
             if (hovered) _ = React("hover");
             else if (ActiveAnimation == "hover") _ = RestoreBaseAnimation(InvalidatePlayback());
