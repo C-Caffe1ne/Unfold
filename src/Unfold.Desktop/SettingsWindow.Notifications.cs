@@ -19,23 +19,34 @@ public sealed partial class SettingsWindow
 
     private Border BuildNotificationSettingsCard()
     {
-        bubbleDirection.ItemsSource = Enum.GetValues<BubbleDirection>();
-        bubbleDirection.Classes.Add("settings-choice");
-        bubbleDirection.Width = DesignSystem.SettingsChoiceWidth;
-        bubbleDirection.Height = DesignSystem.SettingsControlHeight;
-        bubbleDirection.HorizontalAlignment = HorizontalAlignment.Right;
-        bubbleDirection.MaxDropDownHeight = 180;
-        bubbleDirection.ItemTemplate = new FuncDataTemplate<BubbleDirection>((value, _) => new TextBlock
+        var opacityLabel = SettingsLabel("말풍선 불투명도");
+        var opacityValue = Ui.Caption("100%"); opacityValue.Name = "BubbleOpacityValue";
+        bubbleOpacity.HorizontalAlignment = HorizontalAlignment.Stretch;
+        AutomationProperties.SetName(bubbleOpacity, "말풍선 불투명도, 퍼센트");
+        var opacityControls = new Grid { Width = 320, ColumnDefinitions = new("*,12,56") };
+        opacityControls.Children.Add(bubbleOpacity); Grid.SetColumn(opacityValue, 2); opacityControls.Children.Add(opacityValue);
+        bubbleOpacity.PropertyChanged += (_, e) => { if (e.Property == Slider.ValueProperty) { opacityValue.Text = $"{bubbleOpacity.Value:0}%"; PreferencesEdited(); } };
+        Control DialogueRow(string caption, TextBox input)
         {
-            Text = value switch { BubbleDirection.Top => "위", BubbleDirection.Bottom => "아래", BubbleDirection.Left => "왼쪽", _ => "오른쪽" },
-            VerticalAlignment = VerticalAlignment.Center
+            AutomationProperties.SetName(input, caption + " 펫 대사");
+            input.TextChanged += (_, _) => PreferencesEdited();
+            return Ui.Column(SettingsLabel(caption), input);
+        }
+        var resetDialogue = Ui.Button("기본 대사로 복원", () =>
+        {
+            var defaults = new AppSettings();
+            restoringPreferences = true;
+            try { advanceDialogue.Text = defaults.AdvanceDialogue; invitationDialogue.Text = defaults.InvitationDialogue;
+                restingDialogue.Text = defaults.RestingDialogue; overtimeDialogue.Text = defaults.OvertimeDialogue; completedDialogue.Text = defaults.CompletedDialogue; }
+            finally { restoringPreferences = false; }
+            PreferencesEdited();
         });
-        bubbleDirection.ContainerPrepared += (_, e) => e.Container.Classes.Add("settings-choice-item");
-        var directionLabel = SettingsLabel("말풍선 위치");
-        Ui.KeyboardFocusLabel(bubbleDirection, directionLabel);
-        AutomationProperties.SetLabeledBy(bubbleDirection, directionLabel);
-        AutomationProperties.SetName(bubbleDirection, "말풍선 위치");
-        var position = NotificationSettingRow("BubbleDirectionRow", directionLabel, bubbleDirection);
+        resetDialogue.Name = "ResetPetDialogue";
+        var bubbleFields = Ui.Column(NotificationSettingRow("BubbleOpacityRow", opacityLabel, opacityControls),
+            DialogueRow("사전 알림", advanceDialogue), DialogueRow("휴식 초대", invitationDialogue),
+            DialogueRow("휴식 중", restingDialogue), DialogueRow("휴식 시간 초과", overtimeDialogue),
+            DialogueRow("휴식 완료", completedDialogue), resetDialogue);
+        bubbleFields.Spacing = DesignSystem.SettingsRowGap;
         soundsEnabled.FontSize = DesignSystem.Body;
         var previewButtons = new Dictionary<ReminderSound, Button>();
         CancellationTokenSource? previewCancellation = null;
@@ -189,9 +200,8 @@ public sealed partial class SettingsWindow
         var volume = NotificationSettingRow("ReminderVolumeRow", volumeLabel, volumeControls);
         var soundGroup = Ui.Column(volume, soundRows, soundsEnabled);
         soundGroup.Spacing = DesignSystem.SettingsRowGap; soundGroup.Margin = new(0, 24, 0, 0);
-        var fields = Ui.Column(position, soundGroup); fields.Spacing = 0;
+        var fields = Ui.Column(bubbleFields, soundGroup); fields.Spacing = 0;
         var body = Ui.Column(SettingsHeading("알림 설정"), fields);
-        bubbleDirection.SelectionChanged += (_, _) => PreferencesEdited();
         soundsEnabled.IsCheckedChanged += (_, _) => PreferencesEdited();
         RefreshPlaybackButtons();
         body.Margin = new(DesignSystem.Inset); body.Spacing = DesignSystem.Inset;

@@ -232,7 +232,7 @@ public class UiAuditRegressionTests
         var settingsNav = Find<Button>(window, "SettingsNavSettings"); settingsNav.Focus(NavigationMethod.Tab);
         Press(window, "SettingsNavSettings"); Layout(window);
         Assert.Contains("선택됨", AutomationProperties.GetName(settingsNav));
-        Assert.True(Find<ComboBox>(window, "BubbleDirection").IsFocused);
+        Assert.True(Find<Slider>(window, "BubbleOpacityPercent").IsFocused);
         Press(window, "SettingsNavTimer"); Layout(window);
         Assert.DoesNotContain("선택됨", AutomationProperties.GetName(settingsNav));
         Assert.True(Find<Button>(window, "TimerToggle").IsFocused);

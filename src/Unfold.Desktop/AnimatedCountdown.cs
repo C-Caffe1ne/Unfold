@@ -25,6 +25,7 @@ internal sealed class AnimatedCountdown : TemplatedControl, IDisposable
     private Typeface? cachedTypeface;
     private double cachedSize, digitWidth;
     private IBrush? cachedBrush;
+    private string cachedCharacters = "";
 
     public bool AnimationsEnabled { get; set; } = true;
     internal IReadOnlyCollection<int> AnimatedDigitIndices => movingDigits;
@@ -45,11 +46,11 @@ internal sealed class AnimatedCountdown : TemplatedControl, IDisposable
         frameTimer.Tick += OnFrame;
     }
 
-    public void UpdateTime(TimeSpan remaining, bool active)
+    public void UpdateTime(TimeSpan remaining, bool active, string prefix = "", string suffix = "")
     {
         if (disposed) return;
         var seconds = (int)Math.Floor(Math.Max(0, remaining.TotalSeconds));
-        var next = $"{seconds / 60:00}:{seconds % 60:00}";
+        var next = $"{prefix}{seconds / 60:00}:{seconds % 60:00}{suffix}";
         var current = Text ?? "";
         var animate = AnimationsEnabled && active && previouslyActive && IsEffectivelyVisible &&
             VisualRoot is not null && previousSeconds == seconds + 1 && current.Length == next.Length;
@@ -65,7 +66,7 @@ internal sealed class AnimatedCountdown : TemplatedControl, IDisposable
         if (animate)
         {
             for (var index = 0; index < next.Length; index++)
-                if (current[index] != next[index] && next[index] != ':') movingDigits.Add(index);
+                if (current[index] != next[index] && char.IsAsciiDigit(next[index])) movingDigits.Add(index);
             if (movingDigits.Count > 0) { motionClock.Restart(); frameTimer.Start(); }
         }
         InvalidateVisual();
@@ -85,19 +86,21 @@ internal sealed class AnimatedCountdown : TemplatedControl, IDisposable
     private void PrepareGlyphs()
     {
         var typeface = new Typeface(FontFamily, FontStyle, FontWeight, FontStretch);
-        if (cachedTypeface == typeface && cachedSize == FontSize && ReferenceEquals(cachedBrush, Foreground)) return;
+        var characters = string.Concat("0123456789:", Text, previousText);
+        if (cachedTypeface == typeface && cachedSize == FontSize && ReferenceEquals(cachedBrush, Foreground) && cachedCharacters == characters) return;
+        cachedCharacters = characters;
         cachedTypeface = typeface; cachedSize = FontSize; cachedBrush = Foreground; glyphs.Clear();
-        foreach (var value in "0123456789:")
+        foreach (var value in characters.Distinct())
             glyphs[value] = new FormattedText(value.ToString(), CultureInfo.InvariantCulture, FlowDirection,
                 typeface, FontSize, Foreground);
-        digitWidth = glyphs.Where(pair => pair.Key != ':').Max(pair => pair.Value.WidthIncludingTrailingWhitespace);
+        digitWidth = glyphs.Where(pair => char.IsAsciiDigit(pair.Key)).Max(pair => pair.Value.WidthIncludingTrailingWhitespace);
     }
 
     protected override Size MeasureOverride(Size availableSize)
     {
         PrepareGlyphs();
         var value = Text ?? "";
-        var width = value.Sum(character => character == ':' ? glyphs[':'].WidthIncludingTrailingWhitespace : digitWidth);
+        var width = value.Sum(character => char.IsAsciiDigit(character) ? digitWidth : glyphs[character].WidthIncludingTrailingWhitespace);
         var height = LineHeight > 0 && double.IsFinite(LineHeight) ? LineHeight : glyphs.Values.Max(glyph => glyph.Height);
         return new Size(width, height);
     }
@@ -107,12 +110,13 @@ internal sealed class AnimatedCountdown : TemplatedControl, IDisposable
         PrepareGlyphs();
         var value = Text ?? "";
         var progress = Math.Clamp(motionClock.Elapsed.TotalMilliseconds / MotionDuration.TotalMilliseconds, 0, 1);
-        double x = 0;
+        var totalWidth = value.Sum(character => char.IsAsciiDigit(character) ? digitWidth : glyphs[character].WidthIncludingTrailingWhitespace);
+        double x = Math.Max(0, (Bounds.Width - totalWidth) / 2);
         for (var index = 0; index < value.Length; index++)
         {
             var character = value[index];
             if (!glyphs.TryGetValue(character, out var next)) continue;
-            var width = character == ':' ? next.WidthIncludingTrailingWhitespace : digitWidth;
+            var width = char.IsAsciiDigit(character) ? digitWidth : next.WidthIncludingTrailingWhitespace;
             using (context.PushClip(new Rect(x, 0, width, Bounds.Height)))
             {
                 var nextY = (Bounds.Height - next.Height) / 2;

@@ -247,8 +247,9 @@ public sealed partial class PetWindow : Window
         var hover = ShowingHover;
         var keepHoverLayout = hover && down is not null && bubble.IsVisible &&
             bubble.Width == DesignSystem.SpeechHoverWidth && layoutScale == DesktopScaling;
-        if (hover) bubble.RefreshHover(DateTime.Now, runtime.Clock);
-        else bubble.Refresh(reminder, runtime.Settings.SnoozeMinutes);
+        if (!reminder.HasNotice) bubble.RefreshHover(DateTime.Now, runtime.Clock);
+        else bubble.Refresh(reminder, runtime.Settings.SnoozeMinutes, runtime.Settings);
+        bubble.Opacity = tail.Opacity = tailOutline.Opacity = runtime.Settings.BubbleOpacityPercent / 100d;
         // Clock ticks may update text while dragging, but must not flip the
         // bubble's edge placement underneath a captured pointer.
         if (keepHoverLayout) return;
@@ -261,12 +262,9 @@ public sealed partial class PetWindow : Window
         // Reserve the hover surface even while its contents are hidden. Resizing
         // a native window and repainting its backing surface are not atomic on
         // either desktop platform; equal final anchors can still flash a shifted frame.
-        var reserveHover = !reminder.HasNotice;
-        var bubbleHeight = reserveHover ? DesignSystem.SpeechHoverHeight : bubble.Height;
-        var bubbleWidth = reserveHover ? DesignSystem.SpeechHoverWidth : bubble.Width;
-        var next = work is { } area && !runtime.DiagnosticMode && (reserveHover || OperatingSystem.IsMacOS())
-            ? PetBubbleLayout.CreateExpanded(runtime.Settings.BubbleDirection, anchor, DesktopScaling, area, petSize, bubbleHeight, bubbleWidth)
-            : PetBubbleLayout.Create(runtime.Settings.BubbleDirection, true, bubbleHeight, petSize, bubbleWidth);
+        var direction = work is { } region ? PetBubbleLayout.AutomaticDirection(anchor, DesktopScaling, region, petSize) : BubbleDirection.Right;
+        var next = PetBubbleLayout.CreateSurface(direction, anchor, DesktopScaling, runtime.DiagnosticMode ? null : work,
+            petSize, bubble.Height, bubble.Width);
         bubble.IsVisible = tail.IsVisible = tailOutline.IsVisible = expanded;
         if (layout.Size == next.Size && layout.Pet == next.Pet && layout.Bubble == next.Bubble && layoutScale == DesktopScaling) return;
         layoutScale = DesktopScaling; layout = next; Width = layout.Size.Width; Height = layout.Size.Height;

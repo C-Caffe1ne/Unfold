@@ -17,8 +17,8 @@ public sealed class PetSpeechBubble : Border
     private readonly Grid invitation = new() { ColumnDefinitions = new("*,8,*") };
     private readonly Grid reminderBody;
     private readonly StackPanel hoverBody;
-    private readonly AnimatedTimeText currentTime = new() { FontSize = DesignSystem.Title, Foreground = DesignSystem.Cream },
-        remaining = new() { FontSize = DesignSystem.Body };
+    private readonly AnimatedTimeText currentTime = new() { FontSize = DesignSystem.Title, Foreground = DesignSystem.Cream };
+    private readonly AnimatedCountdown remaining = new() { FontSize = DesignSystem.Body, LineHeight = 28 };
 
     public PetSpeechBubble(Action startBreak, Action snoozeBreak, Action completeBreak)
     {
@@ -26,7 +26,7 @@ public sealed class PetSpeechBubble : Border
         Background = DesignSystem.Shell; BorderBrush = DesignSystem.Outline; BorderThickness = new(1);
         CornerRadius = DesignSystem.CardRadius; Padding = new(20, 14);
         title.Name = "PetBreakTitle"; title.FontWeight = FontWeight.SemiBold;
-        title.TextWrapping = TextWrapping.Wrap; title.TextAlignment = TextAlignment.Center;
+        title.TextWrapping = TextWrapping.Wrap; title.TextTrimming = TextTrimming.CharacterEllipsis; title.TextAlignment = TextAlignment.Center;
         title.HorizontalAlignment = HorizontalAlignment.Stretch;
         timer.Name = "PetBreakTimer"; timer.HorizontalAlignment = HorizontalAlignment.Stretch;
         timer.TextAlignment = TextAlignment.Center;
@@ -47,7 +47,9 @@ public sealed class PetSpeechBubble : Border
         reminderBody.Children.Add(title); Grid.SetRow(footer, 1); reminderBody.Children.Add(footer);
         currentTime.Name = "PetHoverTime"; currentTime.FontWeight = FontWeight.SemiBold;
         remaining.Name = "PetHoverRemaining"; remaining.Foreground = DesignSystem.Muted;
-        currentTime.TextAlignment = remaining.TextAlignment = TextAlignment.Center;
+        currentTime.TextAlignment = TextAlignment.Center;
+        timer.FontFamily = currentTime.FontFamily = DesignSystem.AppFont;
+        timer.FontWeight = FontWeight.SemiBold;
         hoverBody = new StackPanel { Spacing = DesignSystem.SpeechGap, VerticalAlignment = VerticalAlignment.Center, IsVisible = false };
         hoverBody.Children.Add(currentTime); hoverBody.Children.Add(remaining);
         var content = new Grid(); content.Children.Add(reminderBody); content.Children.Add(hoverBody);
@@ -55,12 +57,12 @@ public sealed class PetSpeechBubble : Border
         PropertyChanged += (_, e) =>
         {
             if (e.Property == IsVisibleProperty && !IsVisible)
-            { currentTime.StopMotion(); remaining.StopMotion(); timer.StopMotion(); }
+            { currentTime.StopMotion(); remaining.StopAnimation(); timer.StopMotion(); }
         };
     }
-    public void Refresh(PetReminder reminder, int snoozeMinutes)
+    public void Refresh(PetReminder reminder, int snoozeMinutes, AppSettings? settings = null)
     {
-        currentTime.StopMotion(); remaining.StopMotion();
+        currentTime.StopMotion(); remaining.StopAnimation();
         Width = DesignSystem.SpeechBubbleWidth; reminderBody.IsVisible = true; hoverBody.IsVisible = false;
         IsHitTestVisible = true; AutomationProperties.SetName(this, "펫의 스트레칭 알림");
         Height = reminder.Notice switch
@@ -71,14 +73,16 @@ public sealed class PetSpeechBubble : Border
             PetNotice.Completed => DesignSystem.SpeechCompletedHeight,
             _ => DesignSystem.SpeechInvitationHeight
         };
+        settings ??= new AppSettings();
         var session = reminder.Session;
         title.Text = reminder.Notice switch
         {
-            PetNotice.Advance => "5분 뒤에 스트레칭해요",
-            PetNotice.Invitation => "스트레칭할 시간이에요",
-            PetNotice.Resting => session?.Remaining < TimeSpan.Zero ? "조금 더 쉬어도 좋아요" : "함께 쉬어 가요",
-            PetNotice.Completed => "스트레칭을 마쳤어요!", _ => ""
+            PetNotice.Advance => settings.AdvanceDialogue,
+            PetNotice.Invitation => settings.InvitationDialogue,
+            PetNotice.Resting => session?.Remaining < TimeSpan.Zero ? settings.OvertimeDialogue : settings.RestingDialogue,
+            PetNotice.Completed => settings.CompletedDialogue, _ => ""
         };
+        ToolTip.SetTip(title, title.Text);
         invitation.IsVisible = reminder.Notice == PetNotice.Invitation;
         complete.IsVisible = timer.IsVisible = reminder.Notice == PetNotice.Resting;
         complete.IsEnabled = session?.State is BreakSessionState.InProgress or BreakSessionState.AwaitingConfirmation;
@@ -94,9 +98,8 @@ public sealed class PetSpeechBubble : Border
         reminderBody.IsVisible = false; hoverBody.IsVisible = true; IsHitTestVisible = false;
         currentTime.UpdateValue(now.ToString("tt hh:mm", CultureInfo.GetCultureInfo("ko-KR")));
         var duration = clock.Stopped ? clock.Interval : clock.Remaining;
-        var time = $"{(int)duration.TotalMinutes:00}:{duration.Seconds:00}";
         var state = clock.Stopped ? " · 중지" : clock.Paused ? " · 일시정지" : clock.IdlePaused ? " · 자리 비움" : "";
-        remaining.UpdateValue($"스트레칭 {time}{state}", !clock.Stopped && !clock.Paused && !clock.IdlePaused);
+        remaining.UpdateTime(duration, !clock.Stopped && !clock.Paused && !clock.IdlePaused, "스트레칭 ", state);
         AutomationProperties.SetName(this, "현재 시각과 스트레칭 남은 시간");
     }
     internal void FocusAction() => (complete.IsVisible ? complete : start).Focus(Avalonia.Input.NavigationMethod.Tab);
@@ -146,7 +149,8 @@ public sealed record PetBubbleLayout(Size Size, Point Pet, Point Bubble, IReadOn
         };
         // Keep the pet at its screen anchor. Flip the bubble when its preferred
         // side has no room, then slide its cross-axis alignment at the edges.
-        foreach (var direction in new[] { preferred, opposite, BubbleDirection.Top, BubbleDirection.Bottom, BubbleDirection.Left, BubbleDirection.Right }.Distinct())
+        foreach (var direction in (preferred is BubbleDirection.Top or BubbleDirection.Bottom
+            ? new[] { preferred, opposite, BubbleDirection.Left, BubbleDirection.Right } : new[] { preferred, opposite }).Distinct())
         {
             var layout = Create(direction, true, bubbleHeight, petSize, bubbleWidth);
             if (layout.Size.Width * scale > work.Width || layout.Size.Height * scale > work.Height) continue;
@@ -159,6 +163,21 @@ public sealed record PetBubbleLayout(Size Size, Point Pet, Point Bubble, IReadOn
             return layout with { Pet = pet, Tail = layout.Tail.Select(point => point + shift).ToArray() };
         }
         return Create(preferred, true, bubbleHeight, petSize, bubbleWidth);
+    }
+    internal static BubbleDirection AutomaticDirection(PixelPoint anchor, double scale, PixelRect area, double petSize) =>
+        anchor.X + petSize * scale / 2 < area.X + area.Width / 2d ? BubbleDirection.Right : BubbleDirection.Left;
+
+    internal static PetBubbleLayout CreateSurface(BubbleDirection direction, PixelPoint anchor, double scale,
+        PixelRect? area, double petSize, double bubbleHeight, double bubbleWidth)
+    {
+        var surfaceHeight = new[] { DesignSystem.SpeechHoverHeight, DesignSystem.SpeechAdvanceHeight,
+            DesignSystem.SpeechInvitationHeight, DesignSystem.SpeechRestingHeight, DesignSystem.SpeechCompletedHeight }.Max();
+        var surfaceWidth = Math.Max(DesignSystem.SpeechHoverWidth, DesignSystem.SpeechBubbleWidth);
+        var surface = area is { } work ? CreateExpanded(direction, anchor, scale, work, petSize, surfaceHeight, surfaceWidth)
+            : Create(direction, true, surfaceHeight, petSize, surfaceWidth);
+        var actual = Create(direction, true, bubbleHeight, petSize, bubbleWidth);
+        var shift = surface.Pet - actual.Pet;
+        return surface with { Bubble = actual.Bubble + shift, Tail = actual.Tail.Select(point => point + shift).ToArray() };
     }
     public PixelPoint Position(PixelPoint petAnchor, double scale, PixelRect work)
     {

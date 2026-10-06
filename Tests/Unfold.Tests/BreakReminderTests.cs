@@ -134,7 +134,7 @@ public class BreakReminderTests
                 await runtime.UpdateSettings(runtime.Settings with { BubbleDirection = direction, PetScalePercent = scale });
                 pet.RefreshSpeech(); Dispatcher.UIThread.RunJobs(); pet.UpdateLayout();
                 var petSize = DesignSystem.PetBaseSize * scale / 100d;
-                Assert.Equal(PetBubbleLayout.Create(direction, true, DesignSystem.SpeechInvitationHeight, petSize).Size, pet.ClientSize);
+                Assert.Equal(PetBubbleLayout.CreateSurface(BubbleDirection.Right, default, 1, null, petSize, DesignSystem.SpeechInvitationHeight, DesignSystem.SpeechBubbleWidth).Size, pet.ClientSize);
                 Assert.Equal(new Size(petSize, petSize), pet.PetView.Bounds.Size);
                 var tail = pet.GetVisualDescendants().OfType<Avalonia.Controls.Shapes.Polygon>().Single(shape => shape.Name == "PetSpeechTail");
                 Assert.Null(tail.Stroke); Assert.Equal(0, tail.StrokeThickness); Assert.Equal(DesignSystem.Shell, tail.Fill);
@@ -188,7 +188,8 @@ public class BreakReminderTests
         try
         {
             pet.Show(); pet.RefreshSpeech(); Dispatcher.UIThread.RunJobs(); pet.UpdateLayout();
-            var idleSize = pet.ClientSize; var idleAnchor = pet.PetAnchor;
+            var idleSize = pet.ClientSize; var idleAnchor = pet.PetAnchor; var idlePosition = pet.Position;
+            var idleOrigin = pet.PetView.TranslatePoint(default, pet);
             var remaining = runtime.Clock.Remaining;
             var history = runtime.BreakHistory.Completions.Count;
             var dueSounds = runtime.DueSoundRequests;
@@ -197,6 +198,8 @@ public class BreakReminderTests
             {
                 await runtime.ShowReminderPreview(notice);
                 pet.RefreshSpeech(); Dispatcher.UIThread.RunJobs(); pet.UpdateLayout();
+                Assert.Equal(idleSize, pet.ClientSize); Assert.Equal(idlePosition, pet.Position);
+                Assert.Equal(idleOrigin, pet.PetView.TranslatePoint(default, pet)); Assert.Equal(idleAnchor, pet.PetAnchor);
                 Assert.Equal(notice, runtime.PreviewNotice);
                 Assert.Equal(notice, runtime.PresentedReminder.Notice);
                 Assert.False(runtime.Reminder.HasNotice);

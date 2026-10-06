@@ -74,7 +74,7 @@ public class SettingsPreferencesTests
             slider.Value = 0; slider.Value = 100; Layout(window); Assert.Equal(SoundVolumeGlyph.High, icon.Glyph);
         }
         var card = Find<Border>(window, "SettingsNotificationCard");
-        Assert.DoesNotContain(card.GetVisualDescendants().OfType<TextBlock>(), text => text.Text?.Contains('%') == true);
+        Assert.DoesNotContain(card.GetVisualDescendants().OfType<TextBlock>(), text => text.Name != "BubbleOpacityValue" && text.Text?.Contains('%') == true);
     }
 
     [AvaloniaFact]
@@ -173,13 +173,13 @@ public class SettingsPreferencesTests
     public void NotificationAndTimerPreferencesApplyWithoutChangingTheHomeTimingDraft()
     {
         using var scope = new Scope(); var window = scope.Window;
-        var direction = Find<ComboBox>(window, "BubbleDirection");
+        var direction = Find<Slider>(window, "BubbleOpacityPercent");
         var sounds = Find<CheckBox>(window, "ReminderSoundsEnabled");
         var idle = Find<NumericUpDown>(window, "ReminderIdle");
         var snooze = Find<NumericUpDown>(window, "SnoozeMinutes");
-        direction.SelectedItem = BubbleDirection.Right; sounds.IsChecked = false; idle.Value = 8; snooze.Value = 12;
+        direction.Value = 70; sounds.IsChecked = false; idle.Value = 8; snooze.Value = 12;
         var persisted = AppSettings.Load(Path.Combine(scope.Root, "settings.json"));
-        Assert.Equal(BubbleDirection.Right, persisted.BubbleDirection); Assert.False(persisted.ReminderSoundsEnabled);
+        Assert.Equal(70, persisted.BubbleOpacityPercent); Assert.False(persisted.ReminderSoundsEnabled);
         Assert.Equal(8, persisted.IdleMinutes); Assert.Equal(12, persisted.SnoozeMinutes);
         Press(window, "SettingsNavTimer");
         Find<NumericUpDown>(window, "BreakDurationMinutes").Value = 3;
@@ -193,16 +193,16 @@ public class SettingsPreferencesTests
     {
         using var scope = new Scope(); var window = scope.Window;
         var path = Path.Combine(scope.Root, "settings.json"); Directory.CreateDirectory(path);
-        Find<ComboBox>(window, "BubbleDirection").SelectedItem = BubbleDirection.Left;
+        Find<Slider>(window, "BubbleOpacityPercent").Value = 40;
         Find<NumericUpDown>(window, "ReminderIdle").Value = 17;
         var volume = Find<Slider>(window, "ReminderVolumePercent"); volume.Value = 23;
         Assert.Contains("저장하지 못했어요", Find<TextBlock>(window, "PreferencesStatus").Text);
         Assert.True(Find<TextBlock>(window, "PreferencesStatus").IsVisible);
-        Assert.Equal(BubbleDirection.Top, scope.Runtime.Settings.BubbleDirection); Assert.Equal(5, scope.Runtime.Settings.IdleMinutes);
+        Assert.Equal(100, scope.Runtime.Settings.BubbleOpacityPercent); Assert.Equal(5, scope.Runtime.Settings.IdleMinutes);
         Assert.Equal(100, scope.Runtime.Settings.ReminderVolumePercent); Assert.Equal(23, volume.Value);
         Directory.Delete(path); volume.Value = 24;
         Assert.Equal(17, AppSettings.Load(path).IdleMinutes); Assert.Equal(24, AppSettings.Load(path).ReminderVolumePercent);
-        Assert.Equal(BubbleDirection.Left, scope.Runtime.Settings.BubbleDirection);
+        Assert.Equal(40, scope.Runtime.Settings.BubbleOpacityPercent);
         Assert.False(Find<TextBlock>(window, "PreferencesStatus").IsVisible);
     }
 
@@ -217,8 +217,8 @@ public class SettingsPreferencesTests
             Assert.Equal(5, scope.Runtime.Settings.IdleMinutes);
             Assert.True(Find<TextBlock>(window, "PreferencesStatus").IsVisible);
         }
-        Find<ComboBox>(window, "BubbleDirection").SelectedItem = BubbleDirection.Left;
-        Assert.Equal(BubbleDirection.Left, scope.Runtime.Settings.BubbleDirection); Assert.Equal(5, scope.Runtime.Settings.IdleMinutes);
+        Find<Slider>(window, "BubbleOpacityPercent").Value = 40;
+        Assert.Equal(40, scope.Runtime.Settings.BubbleOpacityPercent); Assert.Equal(5, scope.Runtime.Settings.IdleMinutes);
         idle.Value = 9; idle.Text = "9"; Layout(window);
         Assert.Equal(9, AppSettings.Load(Path.Combine(scope.Root, "settings.json")).IdleMinutes);
         Assert.False(Find<TextBlock>(window, "PreferencesStatus").IsVisible);
@@ -280,26 +280,9 @@ public class SettingsPreferencesTests
         var volume = Find<Slider>(window, "ReminderVolumePercent"); var volumeIcon = Find<SoundVolumeIcon>(window, "ReminderVolumeIcon");
         Assert.True(volume.Bounds.Width > 0);
         Assert.True(volumeIcon.TranslatePoint(default, window)!.Value.X + volumeIcon.Bounds.Width <= volume.TranslatePoint(default, window)!.Value.X);
-        var choice = Find<ComboBox>(window, "BubbleDirection");
-        var closedBorder = choice.GetVisualDescendants().OfType<Border>().Single(border => border.Name == "Background");
-        var original = (closedBorder.Background, closedBorder.BorderBrush, closedBorder.BorderThickness);
-        window.MouseMove(choice.TranslatePoint(new Point(8, 8), window)!.Value); Layout(window);
-        Assert.Equal(original, (closedBorder.Background, closedBorder.BorderBrush, closedBorder.BorderThickness));
-        choice.IsDropDownOpen = true; Layout(window);
-        try
-        {
-            var popup = choice.GetVisualDescendants().OfType<Popup>().Single();
-            var surface = Assert.IsType<Border>(popup.Child);
-            Assert.Equal(new Thickness(1), surface.BorderThickness); Assert.Equal(new Thickness(4), surface.Padding);
-            Assert.Equal(DesignSystem.Surface, surface.Background);
-            Assert.Equal(choice.Bounds.Width, surface.Bounds.Width);
-            Assert.Equal(4, choice.ItemCount);
-            var selected = Assert.IsType<ComboBoxItem>(choice.ContainerFromIndex(0));
-            Assert.Equal(DesignSystem.Ink, selected.GetVisualDescendants().OfType<TextBlock>().Single().Foreground);
-        }
-        finally { choice.IsDropDownOpen = false; }
-        var scroll = Find<ScrollViewer>(window, "SettingsPreferencesScroll");
-        Assert.True(scroll.Extent.Width <= scroll.Viewport.Width + 1);
+        var opacity = Find<Slider>(window, "BubbleOpacityPercent");
+        Assert.Equal(0, opacity.Minimum); Assert.Equal(100, opacity.Maximum);
+
     }
 
     private static T Find<T>(Control root, string name) where T : Control => root.GetVisualDescendants().OfType<T>().Single(c => c.Name == name);

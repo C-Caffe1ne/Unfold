@@ -10,7 +10,10 @@ namespace Unfold.Desktop;
 
 public sealed partial class SettingsWindow
 {
-    private readonly ComboBox bubbleDirection = new() { Name = "BubbleDirection" };
+    private readonly Slider bubbleOpacity = SoundVolumeSlider("BubbleOpacityPercent");
+    private readonly TextBox advanceDialogue = DialogueInput("AdvanceDialogue"), invitationDialogue = DialogueInput("InvitationDialogue"),
+        restingDialogue = DialogueInput("RestingDialogue"), overtimeDialogue = DialogueInput("OvertimeDialogue"), completedDialogue = DialogueInput("CompletedDialogue");
+    private static TextBox DialogueInput(string name) => new() { Name = name, MaxLength = 120, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch };
     private readonly CheckBox soundsEnabled = new() { Name = "ReminderSoundsEnabled", Content = "알림 효과음 사용" };
     private readonly Slider soundVolume = new() { Name = "ReminderVolumePercent", Minimum = 0, Maximum = 100,
         TickFrequency = 1, IsSnapToTickEnabled = true, SmallChange = 1, LargeChange = 10, Value = 100, Classes = { "thumb-hover-slider" } };
@@ -32,10 +35,10 @@ public sealed partial class SettingsWindow
     private long preferencesEditVersion;
     private readonly ReminderSounds importedSounds = new(Path.Combine(AppPaths.DataRoot, "Sounds"));
 
-    private sealed record PreferencesValues(BubbleDirection Direction, bool SoundsEnabled, int VolumePercent, int DueVolumePercent, int CompletedVolumePercent,
+    private sealed record PreferencesValues(int BubbleOpacity, string Advance, string Invitation, string Resting, string Overtime, string Completed, bool SoundsEnabled, int VolumePercent, int DueVolumePercent, int CompletedVolumePercent,
         string? DueId, string? CompletedId, string? DueName, string? CompletedName, int Idle, int Snooze, bool DebugTools)
     {
-        public static PreferencesValues From(AppSettings settings) => new(settings.BubbleDirection, settings.ReminderSoundsEnabled, settings.ReminderVolumePercent,
+        public static PreferencesValues From(AppSettings settings) => new(settings.BubbleOpacityPercent, settings.AdvanceDialogue, settings.InvitationDialogue, settings.RestingDialogue, settings.OvertimeDialogue, settings.CompletedDialogue, settings.ReminderSoundsEnabled, settings.ReminderVolumePercent,
             settings.ReminderSoundVolumePercent, settings.CompletionSoundVolumePercent,
             settings.ReminderSoundId, settings.CompletionSoundId, settings.ReminderSoundName, settings.CompletionSoundName,
             settings.IdleMinutes, settings.SnoozeMinutes, settings.DebugToolsEnabled);
@@ -46,12 +49,12 @@ public sealed partial class SettingsWindow
         static bool ValidMinutes(NumericUpDown input) => input.Value is decimal number && number is >= 1 and <= 60 &&
             decimal.Truncate(number) == number && decimal.TryParse(input.Text, NumberStyles.Number, CultureInfo.CurrentCulture, out var text) && text == number;
         var idleValid = ValidMinutes(idle); var snoozeValid = ValidMinutes(snooze);
-        value = new(bubbleDirection.SelectedItem is BubbleDirection direction ? direction : runtime.Settings.BubbleDirection,
+        value = new((int)Math.Round(bubbleOpacity.Value), advanceDialogue.Text ?? "", invitationDialogue.Text ?? "", restingDialogue.Text ?? "", overtimeDialogue.Text ?? "", completedDialogue.Text ?? "",
             soundsEnabled.IsChecked == true, (int)Math.Round(soundVolume.Value),
             (int)Math.Round(dueSoundVolume.Value), (int)Math.Round(completedSoundVolume.Value), dueSoundId, completedSoundId, dueSoundName, completedSoundName,
             idleValid ? (int)idle.Value!.Value : runtime.Settings.IdleMinutes,
             snoozeValid ? (int)snooze.Value!.Value : runtime.Settings.SnoozeMinutes, debugToolsEnabled.IsChecked == true);
-        return idleValid && snoozeValid && bubbleDirection.SelectedItem is BubbleDirection;
+        return idleValid && snoozeValid && new[] { value.Advance, value.Invitation, value.Resting, value.Overtime, value.Completed }.All(text => !string.IsNullOrWhiteSpace(text));
     }
 
     private void RefreshPreferencesState()
@@ -64,7 +67,8 @@ public sealed partial class SettingsWindow
         if (updating || restoringPreferences || observedPreferences is null || disposed || soundImports > 0) return;
         preferencesStatus.IsVisible = false;
         if (!TryReadPreferences(out var pending))
-            ShowPreferencesError("자리 비움과 다시 알림 시간은 1~60분의 정수로 입력해 주세요.");
+            ShowPreferencesError("시간은 1~60분, 대사는 1~120자로 입력해 주세요.");
+        if (new[] { pending!.Advance, pending.Invitation, pending.Resting, pending.Overtime, pending.Completed }.Any(string.IsNullOrWhiteSpace)) return;
         _ = ApplyPreferences(pending!, ++preferencesEditVersion);
     }
 
@@ -79,7 +83,9 @@ public sealed partial class SettingsWindow
         restoringPreferences = true;
         try
         {
-            bubbleDirection.SelectedItem = saved.Direction; soundsEnabled.IsChecked = saved.SoundsEnabled;
+            bubbleOpacity.Value = saved.BubbleOpacity;
+            advanceDialogue.Text = saved.Advance; invitationDialogue.Text = saved.Invitation; restingDialogue.Text = saved.Resting;
+            overtimeDialogue.Text = saved.Overtime; completedDialogue.Text = saved.Completed; soundsEnabled.IsChecked = saved.SoundsEnabled;
             soundVolume.Value = saved.VolumePercent;
             dueSoundVolume.Value = saved.DueVolumePercent; completedSoundVolume.Value = saved.CompletedVolumePercent;
             debugToolsEnabled.IsChecked = saved.DebugTools;
@@ -119,7 +125,8 @@ public sealed partial class SettingsWindow
             // Each edit starts immediately so rapid edits and hiding the window keep the newest value.
             var apply = runtime.UpdateSettings(current with
             {
-                BubbleDirection = pending.Direction, ReminderSoundsEnabled = pending.SoundsEnabled, ReminderVolumePercent = pending.VolumePercent,
+                BubbleOpacityPercent = pending.BubbleOpacity, AdvanceDialogue = pending.Advance, InvitationDialogue = pending.Invitation,
+                RestingDialogue = pending.Resting, OvertimeDialogue = pending.Overtime, CompletedDialogue = pending.Completed, ReminderSoundsEnabled = pending.SoundsEnabled, ReminderVolumePercent = pending.VolumePercent,
                 ReminderSoundVolumePercent = pending.DueVolumePercent, CompletionSoundVolumePercent = pending.CompletedVolumePercent,
                 ReminderSoundId = pending.DueId, CompletionSoundId = pending.CompletedId,
                 ReminderSoundName = pending.DueName, CompletionSoundName = pending.CompletedName,

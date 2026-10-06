@@ -1,4 +1,5 @@
 using Avalonia;
+using PixelPoint = Avalonia.PixelPoint;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Headless.XUnit;
@@ -21,12 +22,12 @@ public class NotificationLayoutTests
     {
         using var scope = new Scope(); var window = scope.Window;
         var card = Find<Border>(window, "SettingsNotificationCard"); card.Width = cardWidth; Layout(window);
-        var direction = Find<ComboBox>(window, "BubbleDirection");
+        var direction = Find<Slider>(window, "BubbleOpacityPercent");
         var volume = Find<Slider>(window, "ReminderVolumePercent");
         var volumeControls = Find<Grid>(window, "ReminderVolumeControls");
-        AssertRightAligned(Find<Grid>(window, "BubbleDirectionRow"), direction);
+        AssertRightAligned(Find<Grid>(window, "BubbleOpacityRow"), (Control)direction.Parent!);
         AssertRightAligned(Find<Grid>(window, "ReminderVolumeRow"), volumeControls);
-        Assert.Equal(stacked ? 2 : 0, Grid.GetRow(direction));
+        Assert.Equal(stacked ? 2 : 0, Grid.GetRow((Control)direction.Parent!));
         Assert.Equal(stacked ? 2 : 0, Grid.GetRow(volumeControls));
         Assert.InRange(volume.Bounds.Width, 200, 280);
         foreach (var name in new[] { "ReminderSoundVolumePercent", "CompletionSoundVolumePercent" })
@@ -52,20 +53,77 @@ public class NotificationLayoutTests
     {
         using var scope = new Scope(); var window = scope.Window;
         var card = Find<Border>(window, "SettingsNotificationCard");
-        var direction = Find<ComboBox>(window, "BubbleDirection");
+        var direction = Find<Slider>(window, "BubbleOpacityPercent");
         var volume = Find<Slider>(window, "ReminderVolumePercent");
-        direction.SelectedItem = BubbleDirection.Right; volume.Value = 42;
+        direction.Value = 70; volume.Value = 42;
         foreach (var width in new[] { 468, 760, 340, 760 })
         {
             card.Width = width; Layout(window);
-            Assert.Equal(BubbleDirection.Right, direction.SelectedItem); Assert.Equal(42, volume.Value);
+            Assert.Equal(70, direction.Value); Assert.Equal(42, volume.Value);
             Assert.Equal(SoundVolumeGlyph.Low, Find<SoundVolumeIcon>(window, "ReminderVolumeIcon").Glyph);
             Assert.Equal(42, scope.Runtime.Settings.ReminderVolumePercent);
-            Assert.Equal(width < 528 ? 2 : 0, Grid.GetRow(direction));
-            AssertRightAligned(Find<Grid>(window, "BubbleDirectionRow"), direction);
+            Assert.Equal(width < 528 ? 2 : 0, Grid.GetRow((Control)direction.Parent!));
+            AssertRightAligned(Find<Grid>(window, "BubbleOpacityRow"), (Control)direction.Parent!);
         }
-        Assert.Equal(BubbleDirection.Right, scope.Runtime.Settings.BubbleDirection);
+        Assert.Equal(70, scope.Runtime.Settings.BubbleOpacityPercent);
         Assert.Equal(42, scope.Runtime.Settings.ReminderVolumePercent);
+    }
+
+    [AvaloniaFact]
+    public void BubbleOpacityAndDialoguePersistAndResetWithoutPositionSelector()
+    {
+        using var scope = new Scope(); var window = scope.Window;
+        Assert.DoesNotContain(window.GetVisualDescendants().OfType<Control>(), c => c.Name == "BubbleDirection");
+        var opacity = Find<Slider>(window, "BubbleOpacityPercent");
+        foreach (var value in new[] { 0, 37, 100 })
+        {
+            opacity.Value = value;
+            Assert.Equal(value, scope.Runtime.Settings.BubbleOpacityPercent);
+        }
+        var input = Find<TextBox>(window, "InvitationDialogue");
+        input.Text = "잠깐 같이 쉬어요"; Layout(window);
+        Assert.Equal(input.Text, scope.Runtime.Settings.InvitationDialogue);
+        input.Text = ""; Layout(window);
+        Assert.Equal("잠깐 같이 쉬어요", scope.Runtime.Settings.InvitationDialogue);
+        Find<Button>(window, "ResetPetDialogue").RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Layout(window);
+        Assert.Equal(new AppSettings().InvitationDialogue, scope.Runtime.Settings.InvitationDialogue);
+    }
+
+    [Theory]
+    [InlineData(-1920, -1800, BubbleDirection.Right)]
+    [InlineData(-1920, -400, BubbleDirection.Left)]
+    [InlineData(0, 20, BubbleDirection.Right)]
+    [InlineData(0, 1700, BubbleDirection.Left)]
+    public void AutomaticSideAndSurfaceRemainStableAcrossAllBubbleStates(int screenX, int petX, BubbleDirection expected)
+    {
+        var area = new PixelRect(screenX, 0, 1920, 1080); var anchor = new PixelPoint(petX, 700);
+        var direction = PetBubbleLayout.AutomaticDirection(anchor, 1, area, 192);
+        Assert.Equal(expected, direction);
+        var sizes = new[] { (DesignSystem.SpeechHoverHeight, DesignSystem.SpeechHoverWidth),
+            (DesignSystem.SpeechInvitationHeight, DesignSystem.SpeechBubbleWidth),
+            (DesignSystem.SpeechRestingHeight, DesignSystem.SpeechBubbleWidth),
+            (DesignSystem.SpeechCompletedHeight, DesignSystem.SpeechBubbleWidth) };
+        var layouts = sizes.Select(size => PetBubbleLayout.CreateSurface(direction, anchor, 1, area, 192, size.Item1, size.Item2)).ToArray();
+        foreach (var layout in layouts)
+        {
+            Assert.Equal(layouts[0].Size, layout.Size); Assert.Equal(layouts[0].Pet, layout.Pet);
+            Assert.Equal(layouts[0].Position(anchor, 1, area), layout.Position(anchor, 1, area));
+            Assert.Equal(anchor, layout.Position(anchor, 1, area) + new PixelPoint((int)layout.Pet.X, (int)layout.Pet.Y));
+        }
+    }
+
+    [Fact]
+    public void BubbleSettingsRoundTripAndCorruptFieldsRecoverIndependently()
+    {
+        using var temp = new TempDirectory(); var path = Path.Combine(temp.Path, "settings.json");
+        var settings = new AppSettings { BubbleOpacityPercent = 0, InvitationDialogue = "함께 쉬어요", RestingDialogue = "잘 쉬고 있나요?" };
+        settings.Save(path); var loaded = AppSettings.Load(path);
+        Assert.Equal(0, loaded.BubbleOpacityPercent); Assert.Equal(settings.InvitationDialogue, loaded.InvitationDialogue);
+        Assert.Equal(settings.RestingDialogue, loaded.RestingDialogue);
+        File.WriteAllText(path, "{\"BubbleOpacityPercent\":101,\"InvitationDialogue\":null,\"IntervalMinutes\":33}");
+        loaded = AppSettings.Load(path); Assert.Equal(100, loaded.BubbleOpacityPercent);
+        Assert.Equal(new AppSettings().InvitationDialogue, loaded.InvitationDialogue); Assert.Equal(33, loaded.IntervalMinutes);
+        Assert.Throws<InvalidDataException>(() => (settings with { BubbleOpacityPercent = -1 }).Save(path));
     }
 
     private static void AssertRightAligned(Control row, Control editor)

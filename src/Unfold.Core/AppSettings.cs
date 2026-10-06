@@ -18,6 +18,12 @@ public sealed partial record AppSettings
     public IReadOnlyList<WorkProfile> WorkProfiles { get; init; } = [];
     public string? ActiveProfileId { get; init; }
     public BubbleDirection BubbleDirection { get; init; } = BubbleDirection.Top;
+    public int BubbleOpacityPercent { get; init; } = 100;
+    public string AdvanceDialogue { get; init; } = "5분 뒤에 스트레칭해요";
+    public string InvitationDialogue { get; init; } = "스트레칭할 시간이에요";
+    public string RestingDialogue { get; init; } = "함께 쉬어 가요";
+    public string OvertimeDialogue { get; init; } = "조금 더 쉬어도 좋아요";
+    public string CompletedDialogue { get; init; } = "스트레칭을 마쳤어요!";
     public int SnoozeMinutes { get; init; } = 5;
     public bool DebugToolsEnabled { get; init; }
     public bool ReminderSoundsEnabled { get; init; } = true;
@@ -64,6 +70,13 @@ public sealed partial record AppSettings
         if (!CharacterLibrary.SafeId(value.SelectedCharacterId))
             value = value with { SelectedCharacterId = fallback.SelectedCharacterId };
         if (!Enum.IsDefined(value.BubbleDirection)) value = value with { BubbleDirection = fallback.BubbleDirection };
+        if (value.BubbleOpacityPercent is < 0 or > 100) value = value with { BubbleOpacityPercent = fallback.BubbleOpacityPercent };
+        value = value with {
+            AdvanceDialogue = RecoverDialogue(value.AdvanceDialogue, fallback.AdvanceDialogue),
+            InvitationDialogue = RecoverDialogue(value.InvitationDialogue, fallback.InvitationDialogue),
+            RestingDialogue = RecoverDialogue(value.RestingDialogue, fallback.RestingDialogue),
+            OvertimeDialogue = RecoverDialogue(value.OvertimeDialogue, fallback.OvertimeDialogue),
+            CompletedDialogue = RecoverDialogue(value.CompletedDialogue, fallback.CompletedDialogue) };
         if (value.SnoozeMinutes is < 1 or > 60) value = value with { SnoozeMinutes = fallback.SnoozeMinutes };
         if (value.ReminderVolumePercent is < 0 or > 100) value = value with { ReminderVolumePercent = fallback.ReminderVolumePercent };
         if (value.ReminderSoundVolumePercent is < 0 or > 100) value = value with { ReminderSoundVolumePercent = fallback.ReminderSoundVolumePercent };
@@ -73,6 +86,8 @@ public sealed partial record AppSettings
         if (!ValidSoundId(value.CompletionSoundId)) value = value with { CompletionSoundId = null, CompletionSoundName = null };
         return value;
     }
+    private static bool ValidDialogue(string? text) => !string.IsNullOrWhiteSpace(text) && text.Length <= 120;
+    private static string RecoverDialogue(string? text, string fallback) => ValidDialogue(text) ? text! : fallback;
     private static bool ValidSoundId(string? id) => id is null || (id.Length == 64 && id.All(c => char.IsAsciiHexDigit(c)));
     private static void Validate(AppSettings value)
     {
@@ -81,6 +96,10 @@ public sealed partial record AppSettings
             value.IdleMinutes is < 1 or > 60 || value.PetScalePercent is < 50 or > 150 || value.PetScalePercent % 10 != 0 ||
             !CharacterLibrary.SafeId(value.SelectedCharacterId))
             throw new InvalidDataException("Invalid settings values.");
+        if (value.BubbleOpacityPercent is < 0 or > 100 ||
+            !ValidDialogue(value.AdvanceDialogue) || !ValidDialogue(value.InvitationDialogue) ||
+            !ValidDialogue(value.RestingDialogue) || !ValidDialogue(value.OvertimeDialogue) || !ValidDialogue(value.CompletedDialogue))
+            throw new InvalidDataException("Invalid bubble settings.");
         if (!Enum.IsDefined(value.BubbleDirection) || value.SnoozeMinutes is < 1 or > 60 || value.ReminderVolumePercent is < 0 or > 100 ||
             value.ReminderSoundVolumePercent is < 0 or > 100 || value.CompletionSoundVolumePercent is < 0 or > 100 ||
             !ValidSoundId(value.ReminderSoundId) || !ValidSoundId(value.CompletionSoundId))

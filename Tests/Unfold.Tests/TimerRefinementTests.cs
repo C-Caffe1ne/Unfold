@@ -190,16 +190,16 @@ public class TimerRefinementTests
         {
             window.Show(); Layout(window);
             var time = Find<AnimatedTimeText>(window, "PetHoverTime");
-            var remaining = Find<AnimatedTimeText>(window, "PetHoverRemaining");
+            var remaining = Find<AnimatedCountdown>(window, "PetHoverRemaining");
             Assert.Equal(expected, time.Text); Assert.False(time.HasMotion);
             clock.Tick(TimeSpan.FromSeconds(1), TimeSpan.Zero, TimeSpan.FromMinutes(5));
             bubble.RefreshHover(now.AddSeconds(1), clock);
-            Assert.Equal(expected, time.Text); Assert.False(time.HasMotion); Assert.True(remaining.HasMotion);
+            Assert.Equal(expected, time.Text); Assert.False(time.HasMotion); Assert.True(remaining.HasDigitMotion);
             var size = window.ClientSize;
             bubble.RefreshHover(now.AddMinutes(1), clock); Assert.True(time.HasMotion);
             bubble.RefreshHover(now.AddMinutes(1), clock); Assert.True(time.HasMotion);
             Layout(window); Assert.Equal(size, window.ClientSize);
-            bubble.IsVisible = false; Assert.False(time.HasMotion); Assert.False(remaining.HasMotion);
+            bubble.IsVisible = false; Assert.False(time.HasMotion); Assert.False(remaining.HasDigitMotion);
         }
         finally { window.Close(); }
     }

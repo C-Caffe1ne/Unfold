@@ -138,21 +138,21 @@ internal static partial class SmokeDiagnostics
         {
             await Task.Delay(100); window.UpdateLayout();
             var wallClock = bubble.GetVisualDescendants().OfType<AnimatedTimeText>().Single(c => c.Name == "PetHoverTime");
-            var countdown = bubble.GetVisualDescendants().OfType<AnimatedTimeText>().Single(c => c.Name == "PetHoverRemaining");
+            var countdown = bubble.GetVisualDescendants().OfType<AnimatedCountdown>().Single(c => c.Name == "PetHoverRemaining");
             var resting = bubble.GetVisualDescendants().OfType<AnimatedTimeText>().Single(c => c.Name == "PetBreakTimer");
             if (wallClock.Text != "오후 01:07") throw new InvalidOperationException("Hover clock has the wrong time format.");
             var bounds = bubble.Bounds; var position = window.Position; var clientSize = window.ClientSize;
             clock.Tick(TimeSpan.FromSeconds(1), TimeSpan.Zero, TimeSpan.FromMinutes(5));
             bubble.RefreshHover(now.AddMinutes(1), clock);
-            if (!wallClock.HasMotion || !countdown.HasMotion || wallClock.Opacity != .55)
+            if (!wallClock.HasMotion || !countdown.HasDigitMotion || wallClock.Opacity != .55)
                 throw new InvalidOperationException("Bubble time text did not start its transition.");
             Capture(window, Path.Combine(directory, "timer-refinement-hover-start.png"));
             await Task.Delay(65);
             if (wallClock.Opacity <= .55 || wallClock.Opacity >= 1)
                 throw new InvalidOperationException("Bubble time text did not advance its transition.");
             Capture(window, Path.Combine(directory, "timer-refinement-hover-mid.png"));
-            await Task.Delay(180);
-            if (wallClock.HasMotion || countdown.HasMotion || wallClock.Opacity != 1 || bubble.Bounds != bounds ||
+            await Task.Delay(380);
+            if (wallClock.HasMotion || countdown.HasDigitMotion || wallClock.Opacity != 1 || bubble.Bounds != bounds ||
                 window.Position != position || window.ClientSize != clientSize)
                 throw new InvalidOperationException("Text motion did not settle or moved the bubble/window.");
             Capture(window, Path.Combine(directory, "timer-refinement-hover-settled.png"));
@@ -164,7 +164,7 @@ internal static partial class SmokeDiagnostics
             await Task.Delay(180);
             if (resting.HasMotion || resting.Opacity != 1) throw new InvalidOperationException("Rest countdown did not settle.");
             Capture(window, Path.Combine(directory, "timer-refinement-rest-settled.png"));
-            return new { hoverFormat = wallClock.Text, hoverAnimated = true, restAnimated = true, durationMs = 180, windowGeometryStable = true };
+            return new { hoverFormat = wallClock.Text, hoverAnimated = true, restAnimated = true, wallClockDurationMs = 180, countdownDurationMs = 380, windowGeometryStable = true };
         }
         finally { window.Close(); }
     }

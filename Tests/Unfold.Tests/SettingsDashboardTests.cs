@@ -343,13 +343,13 @@ public class SettingsDashboardTests
         scope.Runtime.Clock.Tick(TimeSpan.FromSeconds(8), TimeSpan.Zero, TimeSpan.FromMinutes(5));
         var remaining = scope.Runtime.Clock.Remaining;
         Click(window, "SettingsNavSettings"); Dispatcher.UIThread.RunJobs();
-        Find<ComboBox>(window, "BubbleDirection").SelectedItem = BubbleDirection.Right;
+        Find<Slider>(window, "BubbleOpacityPercent").Value = 70;
         Find<CheckBox>(window, "ReminderSoundsEnabled").IsChecked = false;
-        Assert.Equal(BubbleDirection.Right, scope.Runtime.Settings.BubbleDirection);
+        Assert.Equal(70, scope.Runtime.Settings.BubbleOpacityPercent);
         Find<NumericUpDown>(window, "SnoozeMinutes").Value = 12;
         Dispatcher.UIThread.RunJobs();
         var settings = AppSettings.Load(Path.Combine(scope.Root, "settings.json"));
-        Assert.Equal(BubbleDirection.Right, settings.BubbleDirection); Assert.Equal(12, settings.SnoozeMinutes);
+        Assert.Equal(70, settings.BubbleOpacityPercent); Assert.Equal(12, settings.SnoozeMinutes);
         Assert.False(settings.ReminderSoundsEnabled); Assert.Equal(remaining, scope.Runtime.Clock.Remaining);
         Assert.False(scope.Runtime.Clock.Paused);
         Find<NumericUpDown>(window, "SnoozeMinutes").Value = 2.5m;

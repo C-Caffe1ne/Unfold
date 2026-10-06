@@ -894,7 +894,7 @@ internal static partial class SmokeDiagnostics
             throw new InvalidOperationException("Preferences still show Save or Cancel actions.");
         var scroll = Find<ScrollViewer>("SettingsPreferencesScroll");
         var idle = Find<NumericUpDown>("ReminderIdle"); var oldIdle = idle.Value;
-        var choice = Find<ComboBox>("BubbleDirection");
+        var opacity = Find<Slider>("BubbleOpacityPercent");
         foreach (var size in new[] { new Size(860, 680), new Size(1120, 800) })
         {
             window.Width = size.Width; window.Height = size.Height; await Task.Delay(100); window.UpdateLayout();
@@ -916,17 +916,12 @@ internal static partial class SmokeDiagnostics
         Press(window, "SettingsNavReview");
         if (window.OwnedWindows.Count != 0) throw new InvalidOperationException("Navigation still prompts to save settings.");
         Press(window, "SettingsNavSettings"); idle.Value = oldIdle; await Task.Delay(80);
-        choice.IsDropDownOpen = true; await Task.Delay(150); window.UpdateLayout();
-        try
-        {
-            var popup = choice.GetVisualDescendants().OfType<Popup>().Single();
-            if (popup.Child is not Border surface || surface.Bounds.Width <= 0 || surface.Bounds.Height <= 0)
-                throw new InvalidOperationException("The preferences dropdown did not create a visible surface.");
-            using var image = new RenderTargetBitmap(new PixelSize((int)Math.Ceiling(surface.Bounds.Width), (int)Math.Ceiling(surface.Bounds.Height)), new Vector(96, 96));
-            image.Render(surface); image.Save(Path.Combine(directory, "settings-direction-popup.png"), PngBitmapEncoderOptions.Default);
-        }
-        finally { choice.IsDropDownOpen = false; }
-        return new { automaticApply = true, saveCancelRemoved = true, navigationWithoutModal = true, dropdownCaptured = true };
+        var oldOpacity = opacity.Value; opacity.Value = 37; await Task.Delay(80);
+        if (AppSettings.Load(Path.Combine(AppPaths.DataRoot, "settings.json")).BubbleOpacityPercent != 37)
+            throw new InvalidOperationException("Bubble opacity did not persist.");
+        opacity.Value = oldOpacity;
+        return new { automaticApply = true, saveCancelRemoved = true, navigationWithoutModal = true, automaticBubblePosition = true };
+
     }
     private static bool PackSaved(Window window) =>
         !window.GetVisualDescendants().OfType<Button>().Single(button => button.Name == "InstallPetPack").IsEnabled &&

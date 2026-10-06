@@ -325,7 +325,7 @@ public sealed partial class SettingsWindow
             Control? target = key switch
             {
                 "dashboard" => timerControls.Children.OfType<Button>().First(),
-                "settings" => controls.FirstOrDefault(control => control.Name == "BubbleDirection"),
+                "settings" => controls.FirstOrDefault(control => control.Name == "BubbleOpacityPercent"),
                 "pets" => controls.OfType<TextBox>().FirstOrDefault(input =>
                     input.Name is "CustomPetName" or "GlbPetName" && input.IsEnabled && input.IsEffectivelyVisible),
                 _ => controls.OfType<Button>().FirstOrDefault(button => button.IsEnabled && button.IsEffectivelyVisible)
