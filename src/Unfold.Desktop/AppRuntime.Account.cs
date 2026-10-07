@@ -7,7 +7,56 @@ public sealed partial class AppRuntime
     private bool purchaseGateEnabled, accessGranted, accessCheckPending;
     private int accessGeneration;
     private DateTimeOffset nextAccessCheck;
+    private bool accountStartupPending;
+    private AccountScreenModel? restoringAccount;
     internal bool AccessAllowed => !purchaseGateEnabled || accessGranted;
+
+    private AccountScreenModel CreateAccountModel()
+    {
+        var model = new AccountScreenModel(AccountContent, CreateAccountService(), accountSession);
+        model.SessionChanged += AccountSessionChanged;
+        return model;
+    }
+
+    private void AccountSessionChanged(AccountSession? value)
+    {
+        if (value is null || value.UserId != accountSession?.UserId) LockPurchaseAccess();
+        accountSession = value; Changed?.Invoke();
+    }
+
+    private async Task RestoreAccountAtStartup()
+    {
+        var model = CreateAccountModel();
+        restoringAccount = model;
+        try
+        {
+            // Do not create a login window until saved-session and access checks finish.
+            await model.RestoreAsync();
+            if (disposed || quitting || restoringAccount != model) return;
+            accountStartupPending = false;
+            if (model.PurchaseReady && accountSession is not null)
+                await GrantPurchaseAccess(!backgroundStart);
+            else
+            {
+                // Keep the restored identity, error and retry action in the fallback screen.
+                ShowAccount(model);
+                restoringAccount = null; // The window now owns the model.
+            }
+        }
+        finally
+        {
+            if (restoringAccount == model) CancelAccountRestore();
+        }
+    }
+
+    private void CancelAccountRestore()
+    {
+        accountStartupPending = false;
+        if (restoringAccount is not { } model) return;
+        restoringAccount = null;
+        model.SessionChanged -= AccountSessionChanged;
+        model.Dispose();
+    }
 
     private async Task GrantPurchaseAccess(bool showSettings = true)
     {

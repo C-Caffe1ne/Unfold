@@ -1,0 +1,351 @@
+{
+  "baselineCommit": "f9cd48d1e4f2168a75414b3a38119d197ff5c9ad",
+  "version": "1.1.1-beta",
+  "tests": {
+    "startup-before": {
+      "total": "15",
+      "executed": "15",
+      "passed": "9",
+      "failed": "6",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "account-focused": {
+      "total": "110",
+      "executed": "110",
+      "passed": "110",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "release-full": {
+      "total": "743",
+      "executed": "743",
+      "passed": "743",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    }
+  },
+  "nativeStartup": {
+    "foreground": {
+      "success": true,
+      "platform": "macOS native Avalonia",
+      "mode": "foreground",
+      "accountWindows": 0,
+      "homeWindows": 1,
+      "sessionRestored": true,
+      "snapshots": [
+        {
+          "phase": "restoring",
+          "accountVisible": false,
+          "access": false,
+          "homeVisible": false
+        },
+        {
+          "phase": "checking-access",
+          "accountVisible": false,
+          "access": false,
+          "homeVisible": false
+        },
+        {
+          "phase": "ready",
+          "accountVisible": false,
+          "access": true,
+          "homeVisible": true
+        }
+      ],
+      "backend": "mock session and purchase service; no live OAuth or user credentials"
+    },
+    "background": {
+      "success": true,
+      "platform": "macOS native Avalonia",
+      "mode": "background",
+      "accountWindows": 0,
+      "homeWindows": 0,
+      "sessionRestored": true,
+      "snapshots": [
+        {
+          "phase": "restoring",
+          "accountVisible": false,
+          "access": false,
+          "homeVisible": false
+        },
+        {
+          "phase": "checking-access",
+          "accountVisible": false,
+          "access": false,
+          "homeVisible": false
+        },
+        {
+          "phase": "ready",
+          "accountVisible": false,
+          "access": true,
+          "homeVisible": false
+        }
+      ],
+      "backend": "mock session and purchase service; no live OAuth or user credentials"
+    },
+    "activate": {
+      "success": true,
+      "platform": "macOS native Avalonia",
+      "mode": "activate",
+      "accountWindows": 0,
+      "homeWindows": 1,
+      "sessionRestored": true,
+      "snapshots": [
+        {
+          "phase": "restoring",
+          "accountVisible": false,
+          "access": false,
+          "homeVisible": false
+        },
+        {
+          "phase": "checking-access",
+          "accountVisible": false,
+          "access": false,
+          "homeVisible": false
+        },
+        {
+          "phase": "ready",
+          "accountVisible": false,
+          "access": true,
+          "homeVisible": true
+        }
+      ],
+      "backend": "mock session and purchase service; no live OAuth or user credentials"
+    }
+  },
+  "nativeSmoke": {
+    "success": true,
+    "startupMs": 1101.0941,
+    "totalMs": 55000.2544,
+    "workingSetBytes": 89735168,
+    "managedBytes": 331389840,
+    "oneCoreCpuPercent": 0.9307342844201001,
+    "characters": 8,
+    "imageFiles": 100,
+    "completedBreaks": 1,
+    "simulatedSessionTiming": true,
+    "simulatedActionConfirmation": true,
+    "savedCustomRoutines": 2,
+    "workProfiles": 1,
+    "exportedBreaks": 1,
+    "simulatedExportDestination": true,
+    "timerPausedApplyWaitSeconds": 1.2,
+    "timerStopWaitSeconds": 1.2,
+    "timerControlsVerified": true,
+    "timerDigitMotionVerified": true,
+    "nativeWindowConfigurationVerified": true,
+    "windowLifecycleVerified": true,
+    "nativeWindowClientFrameVerified": true,
+    "nativeCaptionInputVerified": false,
+    "timerRefinements": {
+      "oneMinutePersisted": true,
+      "version": "Beta v1.1.1",
+      "sidebarSizes": [
+        "1120x800",
+        "640x560"
+      ],
+      "settingsUpdaterOpened": true,
+      "dangerColors": true,
+      "textMotion": {
+        "hoverFormat": "오후 01:08",
+        "hoverAnimated": true,
+        "restAnimated": true,
+        "wallClockDurationMs": 180,
+        "countdownDurationMs": 380,
+        "windowGeometryStable": true
+      },
+      "autoSnoozeSeconds": 30.0352192,
+      "deadlineLatenessSeconds": 0.0375838,
+      "configuredSnoozeMinutes": 3,
+      "pausedStatePreserved": true,
+      "temporaryPetHidden": true,
+      "historyUnchanged": true
+    },
+    "appUpdateDialogVerified": true,
+    "updaterInstalled": false,
+    "petSpeechDirectionsVerified": true,
+    "petContextMenuVerified": true,
+    "petScaleAndDebugPreviewVerified": true,
+    "speechTitleOnlyGeometryVerified": true,
+    "soundRequestsVerified": true,
+    "hiddenPetNoticeVerified": true,
+    "stopWhileOpening": false,
+    "petPackInstallUpdateRepairVerified": true,
+    "simulatedPackPicker": true,
+    "settingsLayout": {
+      "minimumWidth": 860,
+      "minimumHeight": 680,
+      "timerAndPetVisible": true,
+      "detailsScrollVerified": true,
+      "noHorizontalOverflow": true,
+      "inWindowTabsVerified": true,
+      "settingsTabVerified": true,
+      "homeTimingVerified": true,
+      "petManagementBuilderVerified": true,
+      "routineProfileEntryRemoved": true,
+      "petDraftPreserved": true,
+      "petCardAddButtonRemoved": true,
+      "petSelectorWidth": 200,
+      "settingsOptionsScrollRequired": true,
+      "settingsOptionsExtentHeight": 1715,
+      "settingsOptionsViewportHeight": 613,
+      "settingsOptionsTopOffset": 0,
+      "settingsOptionsBottomOffset": 1102,
+      "settingsOptionsCapturesDiffer": true,
+      "settingsOptionsCaptureFiles": [
+        "settings-options-top.png",
+        "settings-options-bottom.png"
+      ],
+      "settingsPreferencesStyling": {
+        "automaticApply": true,
+        "saveCancelRemoved": true,
+        "navigationWithoutModal": true,
+        "automaticBubblePosition": true
+      },
+      "homeDashboard": {
+        "timerFirst": true,
+        "measurements": [
+          {
+            "width": 1120,
+            "height": 800,
+            "timerTop": 36,
+            "timerHeight": 216,
+            "petTop": 272,
+            "petHeight": 497,
+            "capture": "home-default.png"
+          },
+          {
+            "width": 860,
+            "height": 680,
+            "timerTop": 36,
+            "timerHeight": 216,
+            "petTop": 272,
+            "petHeight": 377,
+            "capture": "home-minimum.png"
+          }
+        ],
+        "longNameAndErrorLayoutFixture": true,
+        "compactControls": true
+      }
+    },
+    "weeklyReview": {
+      "expandedCaptured": true,
+      "captureFile": "weekly-review-expanded.png",
+      "routineNameVisible": false,
+      "completionTimeVisible": true,
+      "actualDurationVisible": true
+    },
+    "reviewLayout": {
+      "measurements": [
+        {
+          "width": 1120,
+          "height": 800,
+          "cardWidth": 760,
+          "footerTop": 729,
+          "scrollRequired": false,
+          "capture": "review-default.png"
+        },
+        {
+          "width": 860,
+          "height": 680,
+          "cardWidth": 694,
+          "footerTop": 609,
+          "scrollRequired": true,
+          "capture": "review-minimum.png"
+        },
+        {
+          "width": 620,
+          "height": 650,
+          "cardWidth": 530,
+          "footerTop": 577,
+          "scrollRequired": true,
+          "capture": "review-compatibility.png"
+        },
+        {
+          "width": 560,
+          "height": 600,
+          "cardWidth": 470,
+          "footerTop": 527,
+          "scrollRequired": true,
+          "capture": "review-compatibility-minimum.png"
+        }
+      ],
+      "completionAndActualOnly": true,
+      "noHorizontalOverflow": true,
+      "pinnedFooter": true
+    },
+    "themes": {
+      "palettes": [
+        "유연한 라일락",
+        "다정한 오트",
+        "숨 고르는 숲",
+        "밤의 버터"
+      ],
+      "persisted": true,
+      "minimumNavigationFits": true,
+      "simulatedSelection": true
+    },
+    "customPetGifAuthoringVerified": true,
+    "petCardPreviewVerified": true,
+    "legacySettingsRoundTripVerified": true,
+    "legacyCharacterSourceVerified": true,
+    "sharedDesignDialogsVerified": true,
+    "pinnedPageActionsVerified": true,
+    "accountScreen": {
+      "contentLoaded": true,
+      "diagnosticDismissal": true,
+      "duplicatePrevented": true,
+      "noHorizontalOverflow": true,
+      "quitAvailable": true,
+      "footerBypassRemoved": true,
+      "authenticationPerformed": false,
+      "paymentPerformed": false
+    },
+    "responsiveMinimum": {
+      "width": 640,
+      "height": 560,
+      "verified": true
+    },
+    "actionConfirmationCancelVerified": true,
+    "idleSeconds": 40.6243251,
+    "os": "Unix 26.6.2",
+    "framework": "10.0.12"
+  },
+  "authBackend": "mock",
+  "liveOAuthVerified": false,
+  "installedAppReplaced": false,
+  "windowsNativeVerified": false
+}

@@ -43,6 +43,7 @@
 | [Beta v1.0.0 릴리스 노트](releases/v1.0.0-beta.md) | 판매용 구매 잠금, 현재 기능, 설치·업데이트와 운영 미연결 경계 |
 | [A안 계정 화면 편집](account-screen.md) | 최초 로그인·구매 화면의 JSON·XAML·테마 편집 위치와 현재 연결 범위 |
 | [로그인 유지 검증](validation/2026-10-01-session-persistence.md) | OS 보안 저장, 재실행 복원·토큰 갱신, 로그아웃 삭제와 실기 검증 한계 |
+| [재실행 로그인 화면 수정](validation/2026-10-07-login-startup.md) | 세션 복원 후 화면 표시, 정상 재실행의 계정 창 열림 0회, 복원 취소·로그아웃 경합 검사 |
 | [설정 이동·계정 로그아웃 검증](validation/2026-09-30-settings-account.md) | 미저장 변경 확인, Google 이메일 표시, 메모리 세션·로그아웃과 검증 한계 |
 | [Lemon Squeezy 전환 구현·검증](validation/2026-09-28-lemon-squeezy-transition.md) | 결제 생성·웹훅·누적 환불, Supabase 적용 상태와 사용자가 준비할 외부 설정 |
 | [Paddle 샌드박스 이력](validation/2026-09-28-paddle-onboarding.md) | 공급자 전환 전 수행한 샌드박스 검증 기록. 현재 결제 경로에서는 사용하지 않음 |

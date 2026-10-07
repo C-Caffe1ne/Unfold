@@ -1,8 +1,10 @@
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Headless.XUnit;
+using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Unfold.Core;
 using Unfold.Desktop;
@@ -304,6 +306,129 @@ public class AccountSessionPersistenceTests
 [Collection("Timer settings")]
 public class AccountRestoreRuntimeTests
 {
+    [AvaloniaTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task DelayedSessionAndPurchaseChecksNeverOpenTheLoginWindow(bool background)
+    {
+        using var scope = new Scope();
+        var loginWindows = 0;
+        using var opened = Window.WindowOpenedEvent.AddClassHandler<AccountWindow>((_, _) => loginWindows++);
+        var session = new TaskCompletionSource<AccountSession?>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var purchase = new TaskCompletionSource<PurchaseAccess>(TaskCreationOptions.RunContinuationsAsynchronously);
+        scope.Service.RestoreSession = _ => session.Task;
+        scope.Service.PurchaseCheck = (_, _) => purchase.Task;
+        var start = scope.Runtime.Start(background);
+        await Wait(() => scope.Service.RestoreCalls == 1);
+        Assert.Null(scope.Runtime.ActiveAccount); Assert.False(scope.Runtime.AccessAllowed);
+        Assert.True(scope.Runtime.Clock.Stopped); Assert.False(scope.Lifetime.MainWindow!.IsVisible);
+        scope.Runtime.ShowAccount();
+        Assert.Null(scope.Runtime.ActiveAccount);
+        session.SetResult(FakeAccountService.Session);
+        await Wait(() => scope.Service.PurchaseCalls == 1);
+        Assert.Null(scope.Runtime.ActiveAccount); Assert.False(scope.Runtime.AccessAllowed);
+        purchase.SetResult(PurchaseAccess.Active); await start;
+        Assert.Equal(0, loginWindows); Assert.Null(scope.Runtime.ActiveAccount);
+        Assert.True(scope.Runtime.AccessAllowed); Assert.Equal(!background, scope.Lifetime.MainWindow.IsVisible);
+        Assert.Equal(0, scope.Service.SignInCalls); Assert.True(scope.Service.Disposed);
+    }
+
+    [AvaloniaFact]
+    public async Task SettingsRequestedDuringBackgroundRestoreOpensOnlyAfterVerification()
+    {
+        using var scope = new Scope(); scope.Service.Purchase = PurchaseAccess.Active;
+        var session = new TaskCompletionSource<AccountSession?>(TaskCreationOptions.RunContinuationsAsynchronously);
+        scope.Service.RestoreSession = _ => session.Task;
+        var start = scope.Runtime.Start(true);
+        await Wait(() => scope.Service.RestoreCalls == 1);
+        scope.Runtime.ShowSettings();
+        Assert.Null(scope.Runtime.ActiveAccount); Assert.False(scope.Lifetime.MainWindow!.IsVisible);
+        session.SetResult(FakeAccountService.Session); await start;
+        Assert.True(scope.Runtime.AccessAllowed); Assert.True(scope.Lifetime.MainWindow.IsVisible);
+    }
+
+    [AvaloniaTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task MissingOrInvalidSessionShowsLoginAfterRestorationFinishes(bool invalid)
+    {
+        using var scope = new Scope();
+        var session = new TaskCompletionSource<AccountSession?>(TaskCreationOptions.RunContinuationsAsynchronously);
+        scope.Service.RestoreSession = _ => session.Task;
+        var start = scope.Runtime.Start(false);
+        await Wait(() => scope.Service.RestoreCalls == 1);
+        Assert.Null(scope.Runtime.ActiveAccount);
+        if (invalid) session.SetException(new AccountException(AccountFailure.AuthenticationRequired));
+        else session.SetResult(null);
+        await start;
+        Assert.False(scope.Runtime.AccessAllowed); Assert.Null(scope.Runtime.AccountSession);
+        Assert.True(scope.Runtime.ActiveAccount!.IsVisible); Assert.True(scope.Runtime.ActiveAccount.Model.IsLogin);
+        Assert.False(scope.Lifetime.MainWindow!.IsVisible); Assert.False(scope.Service.Disposed);
+    }
+
+    [AvaloniaFact]
+    public async Task StartupNetworkFailurePreservesTheRestoreRetryWithoutGoogleSignIn()
+    {
+        using var scope = new Scope(); scope.Service.Purchase = PurchaseAccess.Active;
+        scope.Service.RestoreSession = _ => Task.FromException<AccountSession?>(new AccountException(AccountFailure.Unavailable));
+        await scope.Runtime.Start(false);
+        var account = scope.Runtime.ActiveAccount!;
+        Assert.True(account.IsVisible); Assert.False(scope.Runtime.AccessAllowed);
+        Assert.Equal(account.Model.Copy.RestoreUnavailable, account.Model.Status);
+        Assert.Equal(account.Model.Copy.RetryButton, account.Model.PrimaryText);
+        Assert.False(scope.Service.Disposed);
+        scope.Service.RestoreSession = _ => Task.FromResult<AccountSession?>(FakeAccountService.Session);
+        account.FindControl<Button>("AccountPrimary")!.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        await Wait(() => scope.Runtime.AccessAllowed && scope.Lifetime.MainWindow!.IsVisible);
+        Assert.Null(scope.Runtime.ActiveAccount); Assert.Equal(0, scope.Service.SignInCalls);
+        Assert.Equal(2, scope.Service.RestoreCalls);
+    }
+
+    [AvaloniaFact]
+    public async Task DisposingDuringStartupDoesNotPublishALateSessionOrOpenWindows()
+    {
+        using var scope = new Scope(); scope.Service.Purchase = PurchaseAccess.Active;
+        var session = new TaskCompletionSource<AccountSession?>(TaskCreationOptions.RunContinuationsAsynchronously);
+        scope.Service.RestoreSession = _ => session.Task;
+        var start = scope.Runtime.Start(false);
+        await Wait(() => scope.Service.RestoreCalls == 1);
+        scope.Runtime.Dispose(); Assert.True(scope.Service.Disposed);
+        session.SetResult(FakeAccountService.Session); await start;
+        Assert.Null(scope.Runtime.AccountSession); Assert.Null(scope.Runtime.ActiveAccount);
+        Assert.False(scope.Runtime.AccessAllowed); Assert.Equal(0, scope.Service.PurchaseCalls);
+    }
+
+    [AvaloniaFact]
+    public async Task SignOutDuringStartupCannotBeUndoneByALateRestore()
+    {
+        using var scope = new Scope(); scope.Service.Purchase = PurchaseAccess.Active;
+        var session = new TaskCompletionSource<AccountSession?>(TaskCreationOptions.RunContinuationsAsynchronously);
+        scope.Service.RestoreSession = _ => session.Task;
+        var start = scope.Runtime.Start(false);
+        await Wait(() => scope.Service.RestoreCalls == 1);
+        await scope.Runtime.SignOut();
+        session.SetResult(FakeAccountService.Session); await start;
+        Assert.Null(scope.Runtime.AccountSession); Assert.False(scope.Runtime.AccessAllowed);
+        Assert.True(scope.Runtime.ActiveAccount!.IsVisible); Assert.True(scope.Runtime.ActiveAccount.Model.IsLogin);
+        Assert.Equal(1, scope.Service.ClearCalls); Assert.Equal(0, scope.Service.PurchaseCalls);
+    }
+
+    [AvaloniaFact]
+    public async Task QuitDuringStartupCancelsRestoreWithoutShowingLoginOrHome()
+    {
+        using var scope = new Scope();
+        var session = new TaskCompletionSource<AccountSession?>(TaskCreationOptions.RunContinuationsAsynchronously);
+        scope.Service.RestoreSession = _ => session.Task;
+        var start = scope.Runtime.Start(false);
+        await Wait(() => scope.Service.RestoreCalls == 1);
+        scope.Runtime.ConfirmActionOverride = (_, _, _) => throw new InvalidOperationException("Startup has no visible window or running timer to confirm.");
+        await scope.Runtime.Quit();
+        Assert.True(scope.Service.Disposed);
+        session.SetResult(FakeAccountService.Session); await start;
+        Assert.Null(scope.Runtime.ActiveAccount); Assert.Null(scope.Runtime.AccountSession);
+        Assert.False(scope.Runtime.AccessAllowed);
+    }
+
     [AvaloniaTheory]
     [InlineData(false)]
     [InlineData(true)]

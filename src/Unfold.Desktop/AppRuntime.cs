@@ -133,6 +133,7 @@ public sealed partial class AppRuntime : IDisposable
         DiagnosticMode = diagnostic;
         backgroundStart = background;
         purchaseGateEnabled = !diagnostic;
+        accountStartupPending = purchaseGateEnabled;
         settingsWindow = new(this); desktop.MainWindow = settingsWindow;
         instanceActivation = new SingleInstance(() =>
         {
@@ -148,14 +149,13 @@ public sealed partial class AppRuntime : IDisposable
                 foreach (var directory in Directory.EnumerateDirectories(AppPaths.BuiltInRoot)) builtIns.Add(CharacterLibrary.LoadPackage(directory, true));
                 if (builtIns.Count == 0) throw new InvalidDataException("기본 펫을 찾지 못했어요. Unfold를 다시 설치해 주세요.");
             });
-            await Reload(); BuildTray();
+            await Reload();
+            if (disposed || quitting) return;
+            BuildTray();
             if (purchaseGateEnabled)
             {
                 Clock.Stop(monotonic.Elapsed);
-                ShowAccount();
-                var entry = accountWindow!;
-                await entry.Model.RestoreAsync();
-                if (!disposed && !quitting && accountWindow == entry && entry.Model.PurchaseReady) entry.Close();
+                if (accountStartupPending) await RestoreAccountAtStartup();
             }
             else
             {
@@ -166,6 +166,8 @@ public sealed partial class AppRuntime : IDisposable
         catch (Exception error)
         {
             if (diagnostic) throw;
+            CancelAccountRestore();
+            if (disposed || quitting) return;
             ShowSettings();
             await Ui.Error((Window?)accountWindow ?? settingsWindow, error);
         }
@@ -253,7 +255,7 @@ public sealed partial class AppRuntime : IDisposable
     }
     public void Reset() { if (!AccessAllowed) return; CancelReminder(); Clock.Reset(monotonic.Elapsed); Changed?.Invoke(); }
     private void CancelReminder() { reminderGeneration++; Reminder.Cancel(); RefreshPetNotice(); }
-    public void ShowSettings() { if (!AccessAllowed) { ShowAccount(); return; } if (settingsWindow is null) return; settingsWindow.Show(); settingsWindow.ResumePreview(); settingsWindow.WindowState = WindowState.Normal; if (!DiagnosticMode) settingsWindow.Activate(); }
+    public void ShowSettings() { if (accountStartupPending) { backgroundStart = false; return; } if (!AccessAllowed) { ShowAccount(); return; } if (settingsWindow is null) return; settingsWindow.Show(); settingsWindow.ResumePreview(); settingsWindow.WindowState = WindowState.Normal; if (!DiagnosticMode) settingsWindow.Activate(); }
     internal static bool HasSeenCurrentAccountWelcome(string path)
     {
         if (!File.Exists(path)) return false;
@@ -266,20 +268,17 @@ public sealed partial class AppRuntime : IDisposable
     }
     public void ShowAccount()
     {
-        if (disposed || quitting || AccountSignOutPending) return;
+        if (disposed || quitting || AccountSignOutPending || accountStartupPending) return;
         if (accountWindow is not null) { accountWindow.WindowState = WindowState.Normal; accountWindow.Activate(); return; }
-        var model = new AccountScreenModel(AccountContent, CreateAccountService(), accountSession);
-        void SessionChanged(AccountSession? value)
-        {
-            if (value is null || value.UserId != accountSession?.UserId) LockPurchaseAccess();
-            accountSession = value; Changed?.Invoke();
-        }
-        model.SessionChanged += SessionChanged;
+        ShowAccount(CreateAccountModel());
+    }
+    private void ShowAccount(AccountScreenModel model)
+    {
         var window = new AccountWindow(model, Quit, purchaseGateEnabled, () => disposed || quitting || AccountSignOutPending);
         accountWindow = window;
         window.Closed += async (_, _) =>
         {
-            model.SessionChanged -= SessionChanged;
+            model.SessionChanged -= AccountSessionChanged;
             accountWindow = null;
             if (disposed || quitting) return;
             if (purchaseGateEnabled)
@@ -302,6 +301,7 @@ public sealed partial class AppRuntime : IDisposable
     {
         if (disposed || AccountSignOutPending) return;
         AccountSignOutPending = true;
+        CancelAccountRestore();
         LockPurchaseAccess();
         var session = accountSession;
         accountSession = null;
@@ -566,7 +566,9 @@ public sealed partial class AppRuntime : IDisposable
         quitPending = true;
         try
         {
-            if (await ConfirmAction("Unfold를 종료할까요?", "Unfold를 종료하면 타이머와 휴식 알림도 종료돼요.", "종료", "취소") != 0 || disposed) return;
+            // Startup has no visible owner or running paid features to confirm.
+            if (!accountStartupPending && await ConfirmAction("Unfold를 종료할까요?", "Unfold를 종료하면 타이머와 휴식 알림도 종료돼요.", "종료", "취소") != 0) return;
+            if (disposed) return;
             var lockedOwner = AccessAllowed ? null : accountWindow;
             if (settingsWindow is not null && !await settingsWindow.CanCloseDraft(lockedOwner)) return;
             quitting = true; Dispose(); desktop.Shutdown();
@@ -588,7 +590,7 @@ public sealed partial class AppRuntime : IDisposable
         }
         return Ui.Confirm(owner, title, message, choices);
     }
-    public void Dispose() { if (disposed) return; disposed = true; DisposeUpdates(); accountLifetime.Cancel(); accountLifetime.Dispose(); accountSession = null; accountWindow?.Close(); timer.Stop(); noticeExpiryTimer.Stop(); scheduledNoticeExpiry = null; settingsWindow?.Dispose(); instanceActivation?.Dispose(); instanceActivation = null; tray?.Dispose(); tray = null; pet?.ClosePet(); pet = null; soundPlayer.Dispose(); }
+    public void Dispose() { if (disposed) return; disposed = true; DisposeUpdates(); CancelAccountRestore(); accountLifetime.Cancel(); accountLifetime.Dispose(); accountSession = null; accountWindow?.Close(); timer.Stop(); noticeExpiryTimer.Stop(); scheduledNoticeExpiry = null; settingsWindow?.Dispose(); instanceActivation?.Dispose(); instanceActivation = null; tray?.Dispose(); tray = null; pet?.ClosePet(); pet = null; soundPlayer.Dispose(); }
     internal static void PrepareDiagnosticWindow(Window window)
     {
         // macOS can constrain an off-screen window down to 1x1 without explicit minimums.
