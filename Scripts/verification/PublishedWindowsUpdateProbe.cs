@@ -16,7 +16,10 @@ var evidence = args[1];
 var locator = new WindowsVelopackLocator(new ProbeProcess(root, evidence), new NullVelopackLogger());
 if (locator.RootAppDir != root || locator.CurrentlyInstalledVersion?.ToString() != "1.1.0-beta")
     throw new Exception("Wrong installed baseline.");
-var manager = new UpdateManager(new GithubSource(AppUpdateConfiguration.Repository, null, true),
+File.WriteAllText(Path.Combine(evidence,"before-check.json"),JsonSerializer.Serialize(new { installedVersion=locator.CurrentlyInstalledVersion!.ToString(), channel=locator.Channel, isolatedWindowsCI=true }));
+// Hosted runners share anonymous GitHub API quotas. The job token has contents:read only.
+var token = Environment.GetEnvironmentVariable("UNFOLD_QA_GITHUB_TOKEN") ?? throw new Exception("Missing temporary CI read token.");
+var manager = new UpdateManager(new GithubSource(AppUpdateConfiguration.Repository, token, true),
     new UpdateOptions { ExplicitChannel = "win-x64-beta", AllowVersionDowngrade = false }, locator);
 using var updates = new AppUpdates(new VelopackUpdateBackend(manager, "win-x64-beta"));
 await updates.Check();

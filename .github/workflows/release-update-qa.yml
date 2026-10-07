@@ -26,6 +26,8 @@ jobs:
         run: ./Scripts/prepare-windows-ci-display.ps1
       - name: Verify published update and restart
         shell: pwsh
+        env:
+          UNFOLD_QA_GITHUB_TOKEN: ${{ github.token }}
         run: ./Scripts/verify-published-windows-update.ps1
       - uses: actions/upload-artifact@v4
         if: always()
