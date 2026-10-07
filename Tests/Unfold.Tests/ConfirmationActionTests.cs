@@ -73,20 +73,22 @@ public class ConfirmationActionTests
     }
 
     [AvaloniaFact]
-    public async Task QuitApprovalStillRunsTheUnsavedEditorGuard()
+    public async Task QuitApprovalStillRunsTheUnsavedPetDraftGuard()
     {
         using var scope = new Scope(); var runtime = scope.Runtime;
-        await runtime.OpenEditor(); var editor = Assert.IsType<EditorWindow>(runtime.ActiveEditor);
-        editor.Session.BeginStroke(new(1, 1)); editor.Session.EndStroke();
-        Assert.True(editor.Session.IsDirty);
-        var pending = runtime.Quit(); Choice(await Dialog(scope.Owner), "종료");
-        var guard = await Dialog(editor);
-        Assert.True(editor.Session.IsDirty); Assert.False(pending.IsCompleted);
+        await runtime.Start(false, true);
+        var settings = Assert.IsType<SettingsWindow>(scope.MainWindow);
+        settings.GetVisualDescendants().OfType<Button>().Single(c => c.Name == "SettingsNavPacks").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        Dispatcher.UIThread.RunJobs();
+        var name = settings.GetVisualDescendants().OfType<TextBox>().Single(c => c.Name == "CustomPetName");
+        name.Text = "저장하지 않은 펫";
+        var pending = runtime.Quit(); Choice(await Dialog(settings), "종료");
+        var guard = await Dialog(settings);
+        Assert.Equal("저장하지 않은 펫", name.Text); Assert.False(pending.IsCompleted);
         guard.Close(); await pending;
-        Assert.True(editor.Session.IsDirty); Assert.True(editor.IsVisible);
-        // A cancelled document guard releases the gate and does not cache exit approval.
-        pending = runtime.Quit(); Choice(await Dialog(scope.Owner), "취소"); await pending;
-        Assert.True(editor.Session.IsDirty); Assert.True(editor.IsVisible);
+        Assert.Equal("저장하지 않은 펫", name.Text); Assert.True(settings.IsVisible);
+        pending = runtime.Quit(); Choice(await Dialog(settings), "취소"); await pending;
+        Assert.Equal("저장하지 않은 펫", name.Text); Assert.True(settings.IsVisible);
     }
 
     [AvaloniaFact]
@@ -144,6 +146,7 @@ public class ConfirmationActionTests
         private readonly ClassicDesktopStyleApplicationLifetime lifetime = new();
         public string DataRoot => temp.Path;
         public AppRuntime Runtime { get; }
+        public Window? MainWindow => lifetime.MainWindow;
         public Window Owner { get; } = new() { Width = 600, Height = 400 };
         public Scope()
         {
@@ -152,7 +155,7 @@ public class ConfirmationActionTests
         }
         public void Dispose()
         {
-            Runtime.ActiveEditor?.CloseAfterApproval(); Runtime.Dispose(); Owner.Close(); lifetime.Dispose();
+            Runtime.Dispose(); Owner.Close(); lifetime.Dispose();
             Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", previous); temp.Dispose();
         }
     }

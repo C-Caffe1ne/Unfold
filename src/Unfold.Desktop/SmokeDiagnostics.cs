@@ -84,51 +84,37 @@ internal static partial class SmokeDiagnostics
             if (runtime.Settings.IntervalMinutes != 30 || !runtime.Clock.Stopped || runtime.Clock.Remaining != TimeSpan.FromMinutes(30))
                 throw new InvalidOperationException("Applying an interval changed the stopped state.");
             Press(settings, "TimerToggle");
-            var routineEditor = new RoutineEditorWindow(null, routine => runtime.UpdateSettings(runtime.Settings with
-                { CustomRoutine = routine, BreakRoutineId = routine.Id }));
-            AppRuntime.PrepareDiagnosticWindow(routineEditor); routineEditor.Show();
-            await Task.Delay(100);
-            var fields = routineEditor.GetVisualDescendants().OfType<TextBox>().Where(input => input.Name is "Step1" or "Step2" or "Step3").ToDictionary(input => input.Name!);
-            fields["Step1"].Text = "Look away and enjoy a short pause."; fields["Step2"].Text = ""; fields["Step3"].Text = "";
-            Capture(routineEditor, Path.Combine(directory, "routine-editor.png")); Press(routineEditor, "내 루틴 저장");
-            await Task.Delay(100);
-            if (AppSettings.Load(Path.Combine(AppPaths.DataRoot, "settings.json")).CustomRoutine?.DurationSeconds != 20)
-                throw new InvalidOperationException("Custom routine was not saved.");
+            // Load an old settings fixture directly: removed authoring windows must not
+            // be needed to preserve existing routines/profiles or captured history.
             var writing = new BreakRoutine("diagnostic-writing", "글쓰기 휴식", [new("손을 편안하게 쉬어 주세요.", 20)]);
-            var additionalEditor = new RoutineEditorWindow(writing, routine => runtime.UpdateSettings(runtime.Settings.SaveRoutine(routine)));
-            AppRuntime.PrepareDiagnosticWindow(additionalEditor); additionalEditor.Show(); await Task.Delay(100);
-            Capture(additionalEditor, Path.Combine(directory, "additional-routine.png")); Press(additionalEditor, "내 루틴 저장");
-            await Task.Delay(100);
-            var profileEditor = new ProfileEditorWindow(runtime.Settings, null, profile => runtime.UpdateSettings(runtime.Settings.SaveProfile(profile)));
-            AppRuntime.PrepareDiagnosticWindow(profileEditor); profileEditor.Show(); await Task.Delay(100);
-            profileEditor.GetVisualDescendants().OfType<NumericUpDown>().Single(input => input.Name == "ProfileInterval").Value = 45;
-            Capture(profileEditor, Path.Combine(directory, "profile-editor.png")); Press(profileEditor, "프로필 저장"); await Task.Delay(100);
-            var personalization = new PersonalizationWindow(() => runtime.Settings, runtime.UpdateSettings);
-            AppRuntime.PrepareDiagnosticWindow(personalization); personalization.Show(); await Task.Delay(100);
-            Capture(personalization, Path.Combine(directory, "routine-library.png"));
-            personalization.GetVisualDescendants().OfType<TabControl>().Single().SelectedIndex = 1; await Task.Delay(100);
-            Capture(personalization, Path.Combine(directory, "work-profiles.png"));
-            await VerifySharedDialogs(personalization, directory);
-            runtime.TogglePause(); Press(personalization, "프로필 적용"); await Task.Delay(100);
-            if (!runtime.Clock.Paused || runtime.Clock.Remaining != TimeSpan.FromMinutes(45)) throw new InvalidOperationException("Applying a profile changed Pause or missed its interval.");
+            var profile = new WorkProfile("diagnostic-profile", "기존 업무 프로필", 45, 5, writing.Id);
+            var legacySettings = runtime.Settings with
+            {
+                CustomRoutine = new(BreakRoutines.CustomId, "기존 내 루틴", [new("잠깐 쉬어 주세요.", 20)]),
+                AdditionalRoutines = [writing], WorkProfiles = [profile], ActiveProfileId = profile.Id,
+                BreakRoutineId = writing.Id, IntervalMinutes = profile.IntervalMinutes
+            };
+            var legacyFile = Path.Combine(directory, "legacy-settings.json");
+            legacySettings.Save(legacyFile);
+            runtime.TogglePause();
+            await runtime.UpdateSettings(AppSettings.Load(legacyFile));
+            if (!runtime.Clock.Paused || runtime.Clock.Remaining != TimeSpan.FromMinutes(45))
+                throw new InvalidOperationException("Restoring legacy settings changed Pause or missed its interval.");
             Press(desktop.MainWindow!, "SettingsNavTimer"); await Task.Delay(100);
             if (desktop.MainWindow!.GetVisualDescendants().OfType<NumericUpDown>().Single(input => input.Name == "ReminderInterval").Value != 45)
-                throw new InvalidOperationException("Home did not reflect the applied profile interval.");
-            runtime.TogglePause(); personalization.Close();
+                throw new InvalidOperationException("Home did not reflect the restored legacy interval.");
+            runtime.TogglePause();
             var applied = AppSettings.Load(Path.Combine(AppPaths.DataRoot, "settings.json"));
-            if (applied.AdditionalRoutines.Count != 1 || applied.ActiveProfileId is null || applied.BreakRoutineId != writing.Id)
-                throw new InvalidOperationException("Routine library/profile did not persist.");
+            if (applied.AdditionalRoutines.Count != 1 || applied.WorkProfiles.Count != 1 || applied.CustomRoutine is null ||
+                applied.ActiveProfileId != profile.Id || applied.BreakRoutineId != writing.Id)
+                throw new InvalidOperationException("Legacy routine/profile data did not persist.");
+            await VerifySharedDialogs(settings, directory);
+            // Retain old pixel-pet source/package compatibility without a pixel editor.
             var doc = new PixelDocument(32, 32) { Name = "Smoke verification" };
             doc.Draw(PixelTool.Rectangle, new(5, 5), new(25, 25), 0xFFF4B860, 1, 0, 0);
             var saved = runtime.Library.Save(doc); await runtime.Reload();
-            await runtime.OpenEditor(saved);
-            var editor = runtime.ActiveEditor ?? throw new InvalidOperationException("Editor did not open.");
-            editor.Session.BeginStroke(new(1, 1)); editor.Session.ContinueStroke(new(25, 1)); editor.Session.EndStroke();
-            if (!await editor.SaveDocument()) throw new InvalidOperationException("Editor save failed.");
-            // SaveDocument starts the catalog refresh via its callback. Wait for selection before taking the library lock again.
-            await Until(() => runtime.Selected?.Manifest.Id == saved.Manifest.Id);
-            if (!runtime.Library.OpenForEditing(saved.Manifest.Id).Document.ContentEquals(editor.Session.Document)) throw new InvalidOperationException("Saved drawing differs from reopened source.");
-            await Task.Delay(250); Capture(editor, Path.Combine(directory, "editor.png"));
+            if (!runtime.Library.OpenForEditing(saved.Manifest.Id).Document.ContentEquals(doc))
+                throw new InvalidOperationException("Legacy character source differs after reloading.");
             await runtime.UpdateSettings(runtime.Settings with { SelectedCharacterId = "default-cat" });
             var windowsBeforeReminder = desktop.Windows.Count;
             await runtime.ShowReminder();
@@ -155,9 +141,10 @@ internal static partial class SmokeDiagnostics
             Press(reminder, "PetBreakStart");
             if (session.State != BreakSessionState.InProgress) throw new InvalidOperationException("Start button did not begin the break.");
             VerifySpeechBubble(reminder, "함께 쉬어 가요", DesignSystem.SpeechRestingHeight, session.CurrentStep.Instruction);
-            await runtime.UpdateSettings(runtime.Settings.SaveRoutine(writing with { Name = "Revised writing pause", Steps = [new("Different next time.", 40)] }));
+            await runtime.UpdateSettings(runtime.Settings with
+            { AdditionalRoutines = [writing with { Name = "Revised writing pause", Steps = [new("Different next time.", 40)] }] });
             if (session.Routine.DurationSeconds != 20 || session.DurationSeconds != 180 || session.ProfileId != applied.ActiveProfileId)
-                throw new InvalidOperationException("Editing a routine changed an in-progress break.");
+                throw new InvalidOperationException("Reloading legacy routine data changed an in-progress break.");
             // Establish a synthetic monotonic origin, then advance in valid increments.
             var simulated = TimeSpan.FromDays(1); session.Tick(simulated);
             for (var seconds = 10; seconds <= 190; seconds += 10) session.Tick(simulated + TimeSpan.FromSeconds(seconds));
@@ -234,7 +221,6 @@ internal static partial class SmokeDiagnostics
             await runtime.UpdateSettings(runtime.Settings with { PetScalePercent = 100 });
             var soundLibrary = new ReminderSounds(Path.Combine(directory, "sounds"));
             foreach (var sound in Enum.GetValues<ReminderSound>()) ReminderSounds.Validate(File.ReadAllBytes(soundLibrary.Resolve(sound, null)));
-            editor.CloseAfterApproval();
             await VerifyPetPacks(runtime, saved, directory);
             await VerifyCustomPet(runtime, directory);
             var timerRefinements = await VerifyTimerRefinements(runtime, settings, directory);
@@ -258,6 +244,7 @@ internal static partial class SmokeDiagnostics
                 soundRequestsVerified = true, hiddenPetNoticeVerified = true, stopWhileOpening,
                 petPackInstallUpdateRepairVerified = true, simulatedPackPicker = true, settingsLayout, weeklyReview, reviewLayout, themes,
                 customPetGifAuthoringVerified = true, petCardPreviewVerified = true,
+                legacySettingsRoundTripVerified = true, legacyCharacterSourceVerified = true,
                 sharedDesignDialogsVerified = true, pinnedPageActionsVerified = true, accountScreen,
                 responsiveMinimum = new { width = 640, height = 560, verified = true }, actionConfirmationCancelVerified = true,
                 idleSeconds = PlatformServices.IdleTime().TotalSeconds, os = Environment.OSVersion.ToString(), framework = Environment.Version.ToString() };

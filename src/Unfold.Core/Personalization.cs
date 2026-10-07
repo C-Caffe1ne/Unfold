@@ -1,5 +1,6 @@
 namespace Unfold.Core;
 
+// Retained only to read and preserve routine/profile data from older app versions.
 public sealed record WorkProfile(string Id, string Name, int IntervalMinutes, int IdleMinutes, string RoutineId)
 {
     public override string ToString() => $"{Name} · {IntervalMinutes}분마다";
@@ -54,51 +55,4 @@ public sealed partial record AppSettings
         if (routine.Steps.Count > 3) throw new ArgumentException("내 루틴은 최대 3단계로 만들어 주세요.");
     }
     private static BreakRoutine Snapshot(BreakRoutine routine) => routine with { Steps = Array.AsReadOnly(routine.Steps.ToArray()) };
-
-    public AppSettings SaveRoutine(BreakRoutine routine)
-    {
-        ValidateUserRoutine(routine);
-        if (BreakRoutines.Find(routine.Id) is not null) throw new ArgumentException("기본 루틴은 편집할 수 없어요.");
-        var result = routine.Id == BreakRoutines.CustomId
-            ? this with { CustomRoutine = routine }
-            : this with { AdditionalRoutines = AdditionalRoutines.Where(item => item.Id != routine.Id).Append(routine).ToArray() };
-        return (result with { BreakRoutineId = routine.Id, ActiveProfileId = null }).ValidatePersonalization();
-    }
-    public AppSettings RemoveRoutine(string id)
-    {
-        if (BreakRoutines.Find(id) is not null) throw new ArgumentException("기본 루틴은 삭제할 수 없어요.");
-        var usedBy = WorkProfiles.Where(profile => profile.RoutineId == id).Select(profile => profile.Name).ToArray();
-        if (usedBy.Length > 0) throw new ArgumentException($"먼저 다음 프로필에서 사용 중인 루틴을 바꿔 주세요: {string.Join(", ", usedBy)}.");
-        return (this with
-        {
-            CustomRoutine = CustomRoutine?.Id == id ? null : CustomRoutine,
-            AdditionalRoutines = AdditionalRoutines.Where(routine => routine.Id != id).ToArray(),
-            BreakRoutineId = BreakRoutineId == id ? BreakRoutines.DefaultId : BreakRoutineId
-        }).ValidatePersonalization();
-    }
-    public AppSettings ApplyReminder(int interval, int idle, string routineId)
-    {
-        new WorkProfile("validation", "설정", interval, idle, routineId).Validate();
-        if (!BreakRoutines.ForSettings(this).Any(routine => routine.Id == routineId)) throw new ArgumentException("목록에 있는 루틴을 선택해 주세요.");
-        return this with { IntervalMinutes = interval, IdleMinutes = idle, BreakRoutineId = routineId, ActiveProfileId = null };
-    }
-    public AppSettings SaveProfile(WorkProfile profile)
-    {
-        profile.Validate();
-        return (this with
-        {
-            WorkProfiles = WorkProfiles.Where(item => item.Id != profile.Id).Append(profile).ToArray(),
-            ActiveProfileId = ActiveProfileId == profile.Id ? null : ActiveProfileId
-        }).ValidatePersonalization();
-    }
-    public AppSettings RemoveProfile(string id) => this with
-    {
-        WorkProfiles = Array.AsReadOnly(WorkProfiles.Where(profile => profile.Id != id).ToArray()),
-        ActiveProfileId = ActiveProfileId == id ? null : ActiveProfileId
-    };
-    public AppSettings ApplyProfile(string id)
-    {
-        var profile = WorkProfiles.FirstOrDefault(item => item.Id == id) ?? throw new ArgumentException("목록에 있는 프로필을 선택해 주세요.");
-        return ApplyReminder(profile.IntervalMinutes, profile.IdleMinutes, profile.RoutineId) with { ActiveProfileId = profile.Id };
-    }
 }

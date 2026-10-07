@@ -26,8 +26,7 @@ public class PurchaseGateTests
         account.Close(); Assert.True(account.IsVisible);
         scope.Runtime.ShowSettings(); scope.Runtime.TogglePause(); scope.Runtime.Reset();
         await scope.Runtime.ShowReminder(); await scope.Runtime.ShowReminderPreview(PetNotice.Invitation);
-        await scope.Runtime.OpenEditor();
-        AssertLocked(scope); Assert.Null(scope.Runtime.ActiveEditor);
+        AssertLocked(scope);
         Assert.Null(scope.Runtime.ActiveReminder); Assert.Null(scope.Runtime.PreviewNotice);
         Assert.Equal(0, scope.Runtime.DueSoundRequests);
         await Assert.ThrowsAsync<AccountException>(() => scope.Runtime.UpdateSettings(scope.Runtime.Settings with { ShowPet = false }));

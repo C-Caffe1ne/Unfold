@@ -1,10 +1,11 @@
 # 문서 안내
 
-현재 제품은 **C#·Avalonia 기반 Unfold Beta**다. 2026-10-06 확인 기준 최신 개발본은 `codex/glb-import-compat`의 `1.1.0-beta`이며, 2026-10-06 기존 변경 보존 커밋은 `18a3a31`이다. 이후 작업 기준은 현재 HEAD에서 다시 확인한다. `release/mvp`의 `0.2.2`는 이전 소스다.
+현재 제품은 **C#·Avalonia 기반 Unfold Beta**다. 2026-10-07 확인 기준 최신 제품 소스는 `codex/glb-import-compat`의 `1.1.1-beta`, 커밋 `bbdb4a8`이다. 미사용 기능 정리는 이 기준에서 만든 `codex/remove-unused-features`에서 수행했다. 이후 작업 기준은 전체 작업트리와 배포 태그에서 다시 확인한다. `release/mvp`의 `0.2.2`는 이전 소스다.
 기능 구현 전에 [작업 안내](../AGENTS.md)에 따라 마지막 수정본의 브랜치·HEAD·미커밋 변경·프로젝트 버전과 실행 경로를 다시 확인한다. 아래 문서는 구현·범위·실행 방법을 설명하며 과거 Swift 구현과 Garden 실험은 보관 자료다.
 
 | 문서 | 역할 |
 |---|---|
+| [미사용 기능 제거 검증](validation/2026-10-07-unused-features.md) | 최신 제품 커밋 기준, 루틴·프로필 설정과 픽셀 에디터 제거·기존 데이터 호환·종료/업데이트 회귀 검사 |
 | [Agency 다음 단계 검증](validation/2026-10-06-agency-next-stage.md) | 실제 macOS native GLB 36분 자원 추세·Windows 환경/양식과 남은 비교 조건 |
 | [Agency 준비 작업 검증](validation/2026-10-06-agency-execution.md) | 기존 변경 커밋·집중 검사·전체/대체경로 결과와 검증 한계 |
 | [Agency Agents 실행 작업표](plans/2026-10-06-agency-execution.md) | 브랜치별 보존 커밋, 이번 검증 결과와 담당·소유권·남은 환경 조건 |
@@ -155,4 +156,5 @@
 C#에서 연결되지 않은 Edit/Delete 버튼과 삭제 처리, 사용하지 않는
 `StretchClock.ResumeFromSleep`를 제거했다. 당시 제거했던 `AnimationView.Completed`는
 이후 병합된 재생 회귀 테스트와 펫 팩 반응 미리보기에서 사용하므로 복구했다.
-캐릭터 로딩·저장 호환성과 진단용 에디터는 기존 호출 경로와 테스트가 사용하므로 유지한다.
+캐릭터 로딩·저장 호환성은 기존 파일을 지원하도록 유지한다. 진단용 픽셀 에디터와
+루틴·프로필 편집기는 [2026-10-07 정리](validation/2026-10-07-unused-features.md)에서 제거했다.

@@ -46,31 +46,6 @@ public class PixelTests
     }
     [Theory] [InlineData(0, 1)] [InlineData(1, 129)] [InlineData(int.MaxValue, 2)]
     public void InvalidSizeRejectedBeforeAllocation(int width, int height) => Assert.Throws<InvalidDataException>(() => new PixelDocument(width, height));
-    [Fact] public void StrokeUndoIsOneTransactionAndBranchDropsRedo()
-    {
-        var session = new EditorSession(new(8, 8)); session.BeginStroke(new(0, 0)); session.ContinueStroke(new(7, 7)); session.EndStroke();
-        var result = session.Document.Clone(); session.Undo(); Assert.False(session.IsDirty); Assert.False(session.CanUndo);
-        session.Redo(); Assert.True(session.Document.ContentEquals(result)); session.MarkSaved(); Assert.False(session.IsDirty);
-        session.Undo(); Assert.True(session.IsDirty); session.Edit(d => d.AddFrame(0, true)); Assert.False(session.CanRedo);
-    }
-    [Fact] public void ShapePreviewReplacesPreviousOutline()
-    {
-        var session = new EditorSession(new(8, 8)) { Tool = PixelTool.Rectangle };
-        session.BeginStroke(new(0, 0)); session.ContinueStroke(new(3, 3)); session.ContinueStroke(new(5, 5)); session.EndStroke();
-        Assert.Equal(0u, session.Composite(0)[27]); Assert.NotEqual(0u, session.Composite(0)[45]);
-    }
-    [Fact] public void CanvasReentryDoesNotBridgeOutsideGap()
-    {
-        var session = new EditorSession(new(8, 8)); session.BeginStroke(new(0, 0)); session.ContinueStroke(new(-1, -1)); session.ContinueStroke(new(7, 7)); session.EndStroke();
-        Assert.Equal(2, session.Composite(0).Count(p => p != 0));
-    }
-    [Fact] public void UndoClampsSelectionAndHistoryStaysBounded()
-    {
-        var session = new EditorSession(new(64, 64)); session.Edit(d => d.AddLayer()); session.Layer = 1; session.Undo(); Assert.Equal(0, session.Layer);
-        for (var i = 0; i < 140; i++) { var index = i; session.Edit(d => d.Layers[0].Frames[0][0] = (uint)index); }
-        Assert.True(session.HistoryBytes <= 32 * 1024 * 1024);
-        var undos = 0; while (session.CanUndo) { session.Undo(); undos++; } Assert.InRange(undos, 1, 100);
-    }
 }
 
 public class CodecTests

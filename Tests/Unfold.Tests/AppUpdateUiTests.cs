@@ -59,16 +59,19 @@ public class AppUpdateUiTests
     }
 
     [AvaloniaFact]
-    public async Task UnsavedEditorCancelStopsUpdateBeforeTheHelperIsLaunched()
+    public async Task UnsavedPetDraftCancelStopsUpdateBeforeTheHelperIsLaunched()
     {
         using var scope = new Scope(); var backend = new UpdateTestBackend { Pending = new("1.0.4-beta", new object()) };
-        scope.Runtime.SetUpdateBackend(backend); await scope.Runtime.Start(false, true); await scope.Runtime.OpenEditor();
-        var editor = Assert.IsType<EditorWindow>(scope.Runtime.ActiveEditor);
-        editor.Session.BeginStroke(new(1, 1)); editor.Session.EndStroke();
+        scope.Runtime.SetUpdateBackend(backend); await scope.Runtime.Start(false, true);
+        var settings = Assert.IsType<SettingsWindow>(scope.MainWindow);
+        settings.GetVisualDescendants().OfType<Button>().Single(c => c.Name == "SettingsNavPacks").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        Dispatcher.UIThread.RunJobs();
+        var name = settings.GetVisualDescendants().OfType<TextBox>().Single(c => c.Name == "CustomPetName");
+        name.Text = "저장하지 않은 펫";
         var restart = scope.Runtime.RestartForUpdate(); Dispatcher.UIThread.RunJobs();
-        for (var i = 0; i < 50 && !editor.OwnedWindows.Any(); i++) { Dispatcher.UIThread.RunJobs(); await Task.Delay(10, TestContext.Current.CancellationToken); }
-        Assert.Single(editor.OwnedWindows).Close(); Assert.False(await restart);
-        Assert.Equal(0, backend.Applies); Assert.True(editor.Session.IsDirty); Assert.True(editor.IsVisible);
+        for (var i = 0; i < 50 && !settings.OwnedWindows.Any(); i++) { Dispatcher.UIThread.RunJobs(); await Task.Delay(10, TestContext.Current.CancellationToken); }
+        Assert.Single(settings.OwnedWindows).Close(); Assert.False(await restart);
+        Assert.Equal(0, backend.Applies); Assert.Equal("저장하지 않은 펫", name.Text); Assert.True(settings.IsVisible);
     }
 
     [AvaloniaFact]
@@ -89,7 +92,8 @@ public class AppUpdateUiTests
         private readonly string? previous = Environment.GetEnvironmentVariable("UNFOLD_DATA_DIR");
         private readonly ClassicDesktopStyleApplicationLifetime lifetime = new();
         internal AppRuntime Runtime { get; }
+        internal Window? MainWindow => lifetime.MainWindow;
         internal Scope() { Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", temp.Path); Runtime = new(lifetime); }
-        public void Dispose() { Runtime.ActiveEditor?.CloseAfterApproval(); Runtime.Dispose(); lifetime.Dispose(); Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", previous); temp.Dispose(); }
+        public void Dispose() { Runtime.Dispose(); lifetime.Dispose(); Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", previous); temp.Dispose(); }
     }
 }

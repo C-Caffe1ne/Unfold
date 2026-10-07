@@ -1,6 +1,6 @@
 # Unfold
 
-**Beta v1.0.0** · C#/.NET 10 · Avalonia · macOS / Windows
+**Beta v1.1.1** · C#/.NET 10 · Avalonia · macOS / Windows
 
 A small desktop companion that reminds you to stretch while you work.
 
@@ -44,8 +44,9 @@ remain interactive; transparent pixels pass through to the window underneath. Ac
 and distribution readiness are tracked separately from automated tests in the
 [verification guide](docs/verification.md).
 
-The pixel editor is retained for diagnostics and regression tests. It has no
-user-facing entry point in this MVP. See [MVP scope](docs/mvp.md) for the full boundary.
+The unused pixel editor and routine/profile authoring components have been removed.
+Existing pet sources, routine/profile settings and history remain compatible.
+See [MVP scope](docs/mvp.md) for the full boundary.
 The beta requires Google sign-in and either a verified Live purchase or a valid account-bound free grant.
 Testers can redeem `admin` from the bottom-right code button after sign-in.
 Live server activation and public-distribution signing are pending. See the

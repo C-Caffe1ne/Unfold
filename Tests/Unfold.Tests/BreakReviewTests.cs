@@ -22,6 +22,23 @@ public class BreakReviewTests
 {
     private static readonly DateOnly Today = new(2026, 9, 17);
 
+    [AvaloniaFact]
+    public void ReviewNavigationAndExportUseTheVisibleSnapshot()
+    {
+        var today = new DateOnly(2026, 9, 13); BreakReview? exported = null;
+        var window = new BreakReviewWindow(new BreakHistory().Review,
+            exportReview: value => { exported = value; return Task.FromResult<string?>("review.csv"); }, currentDay: today);
+        try
+        {
+            window.Show(); Layout(window); Assert.False(Button(window, "다음 7일").IsEnabled);
+            Press(window, "이전 7일"); Press(window, "CSV 내보내기");
+            Assert.NotNull(exported); Assert.Equal(today.AddDays(-7), exported.EndDay); Assert.Equal(7, exported.Days.Count);
+            Assert.Contains("완료한 휴식 0회", Find<TextBlock>(window, "ReviewStatus").Text);
+            Press(window, "다음 7일"); Assert.Equal(today, window.Review.EndDay);
+        }
+        finally { window.Close(); }
+    }
+
     private static T Find<T>(Window window, string name) where T : Control =>
         window.GetVisualDescendants().OfType<T>().Single(control => control.Name == name);
 

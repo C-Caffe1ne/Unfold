@@ -36,7 +36,6 @@ public sealed partial class AppRuntime : IDisposable
     public IReadOnlyList<BreakRoutine> Routines { get; private set; }
     public string? BreakHistoryError { get; private set; }
     public bool CanEditTimerInterval => Clock.Paused || Clock.Stopped;
-    internal EditorWindow? ActiveEditor => editor;
     internal AccountWindow? ActiveAccount => accountWindow;
     internal AccountSession? AccountSession => accountSession;
     internal bool AccountSignOutPending { get; private set; }
@@ -67,7 +66,6 @@ public sealed partial class AppRuntime : IDisposable
     private readonly CancellationTokenSource accountLifetime = new();
     internal AccountScreenContent AccountContent { get; } = AccountScreenContent.Load();
     private readonly string accountWelcomeFile = Path.Combine(AppPaths.DataRoot, "account-welcome-seen");
-    private EditorWindow? editor;
     private PetWindow? pet;
     private readonly ReminderSoundPlayer soundPlayer = new();
     internal int DueSoundRequests { get; private set; }
@@ -75,7 +73,7 @@ public sealed partial class AppRuntime : IDisposable
     private bool quitting;
     private bool backgroundStart;
     private bool disposed;
-    private bool quitPending, stopPending, openingEditor;
+    private bool quitPending, stopPending;
     private bool petNoticeSuppressed;
     internal Func<string, string, string[], Task<int>>? ConfirmActionOverride { get; set; }
     private bool openingReminder, historyWritable = true;
@@ -408,42 +406,6 @@ public sealed partial class AppRuntime : IDisposable
         if (pet == current && ShouldShowPet) current.ShowPet();
     }
     private bool ShouldShowPet => AccessAllowed && (Settings.ShowPet || (!petNoticeSuppressed && PresentedReminder.HasNotice));
-    public async Task OpenEditor(CharacterPackage? character = null)
-    {
-        if (!AccessAllowed || openingEditor || quitting) return;
-        openingEditor = true;
-        try
-        {
-            if (editor is not null)
-            {
-                editor.Show(); editor.Activate();
-                if (character?.Manifest.Id == editor.Session.CharacterId && character is not null) return;
-                if (!await editor.CanCloseDocument()) return;
-            }
-            EditorSession session;
-            if (character is not null)
-            {
-                if (character.IsBuiltIn) throw new InvalidOperationException("Create a new character to edit your own pixel art.");
-                var opened = await Task.Run(() => Library.OpenForEditing(character.Manifest.Id));
-                session = new(opened.Document) { CharacterId = character.Manifest.Id, Revision = opened.Revision };
-            }
-            else session = new(new PixelDocument());
-            if (!AccessAllowed || disposed || quitting) return;
-            editor?.CloseAfterApproval();
-            editor = new EditorWindow(Library, session, SavedCharacter);
-            if (DiagnosticMode) PrepareDiagnosticWindow(editor);
-            var openedEditor = editor;
-            openedEditor.Closed += (_, _) => { if (editor == openedEditor) editor = null; };
-            openedEditor.Show(); if (!DiagnosticMode) openedEditor.Activate();
-        }
-        catch (Exception error) { ShowSettings(); await Ui.Error(settingsWindow!, error); }
-        finally { openingEditor = false; }
-    }
-    private async void SavedCharacter(CharacterPackage character)
-    {
-        try { await Reload(); await UpdateSettings(Settings with { SelectedCharacterId = character.Manifest.Id }); }
-        catch (Exception error) { if (editor is not null) await Ui.Error(editor, error); else AppPaths.Log(error); }
-    }
     public async Task ShowReminder()
     {
         if (!AccessAllowed || disposed || quitting) return;
@@ -607,8 +569,7 @@ public sealed partial class AppRuntime : IDisposable
             if (await ConfirmAction("Unfold를 종료할까요?", "Unfold를 종료하면 타이머와 휴식 알림도 종료돼요.", "종료", "취소") != 0 || disposed) return;
             var lockedOwner = AccessAllowed ? null : accountWindow;
             if (settingsWindow is not null && !await settingsWindow.CanCloseDraft(lockedOwner)) return;
-            if (editor is not null && !await editor.CanCloseDocument(lockedOwner)) return;
-            quitting = true; editor?.CloseAfterApproval(); Dispose(); desktop.Shutdown();
+            quitting = true; Dispose(); desktop.Shutdown();
         }
         finally { quitPending = false; }
     }

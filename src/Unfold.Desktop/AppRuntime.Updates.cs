@@ -51,9 +51,8 @@ public sealed partial class AppRuntime
         try
         {
             if (settingsWindow is not null && !await settingsWindow.CanCloseDraft(updateWindow)) return false;
-            if (editor is not null && !await editor.CanCloseDocument(updateWindow)) return false;
             if (disposed || quitting || Reminder.Session is not null || !Updates.PrepareApply()) return false;
-            quitting = true; editor?.CloseAfterApproval(); Dispose(); desktop.Shutdown(); return true;
+            quitting = true; Dispose(); desktop.Shutdown(); return true;
         }
         catch (Exception error) { Updates.ReportApplyError(error); return false; }
         finally { updateRestartPending = false; }

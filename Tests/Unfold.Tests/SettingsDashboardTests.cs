@@ -180,7 +180,7 @@ public class SettingsDashboardTests
         using var scope = new Scope(); var window = scope.Window;
         var legacyRoutine = new BreakRoutine("legacy-routine", "기존 루틴", [new("숨을 고르세요.", 30)]);
         var legacyProfile = new WorkProfile("legacy-profile", "기존 프로필", 45, 3, legacyRoutine.Id);
-        await scope.Runtime.UpdateSettings(scope.Runtime.Settings.SaveRoutine(legacyRoutine).SaveProfile(legacyProfile));
+        await scope.Runtime.UpdateSettings(scope.Runtime.Settings with { AdditionalRoutines = [legacyRoutine], WorkProfiles = [legacyProfile], BreakRoutineId = legacyRoutine.Id });
         Dispatcher.UIThread.RunJobs();
         var breakDuration = Find<NumericUpDown>(window, "BreakDurationMinutes"); breakDuration.Value = 3;
         window.Width = window.MinWidth; window.Height = window.MinHeight; Dispatcher.UIThread.RunJobs();

@@ -1,0 +1,21 @@
+{
+  "baseline": "bbdb4a8416aec232f50a13c4e58e555b5bfa2f9a",
+  "retiredTypeSourceReferences": [],
+  "compiledMetadataContainsRetiredTypes": {
+    "Unfold.Core": {
+      "EditorSession": false
+    },
+    "Unfold.Desktop": {
+      "RoutineEditorWindow": false,
+      "ProfileEditorWindow": false,
+      "PersonalizationWindow": false,
+      "EditorWindow": false,
+      "PixelCanvas": false
+    }
+  },
+  "protectedRuntimeFilesCompared": 15,
+  "changedProtectedFiles": [],
+  "assetFilesCompared": 575,
+  "changedOrMissingAssets": [],
+  "homeCaptureBytesIdentical": true
+}

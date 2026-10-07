@@ -48,27 +48,6 @@ public class LocalizationTests
         finally { window?.Close(); CultureInfo.CurrentCulture = culture; CultureInfo.CurrentUICulture = uiCulture; }
     }
 
-    [AvaloniaFact]
-    public void KoreanTextInputAndEnterSavePreserveTheRoutineId()
-    {
-        BreakRoutine? saved = null;
-        var window = new RoutineEditorWindow(new("writing", "Writing pause", [new("Rest my hands", 20)]), routine =>
-        { saved = routine; return Task.CompletedTask; });
-        try
-        {
-            window.Show(); Dispatcher.UIThread.RunJobs();
-            var name = window.GetVisualDescendants().OfType<TextBox>().Single(input => input.Name == "RoutineName");
-            Assert.Equal("루틴 이름", AutomationProperties.GetName(name));
-            name.Focus(); name.SelectAll(); window.KeyTextInput("손목 쉬어 주기");
-            window.KeyPress(Key.Enter, RawInputModifiers.None, PhysicalKey.Enter, null);
-            // The default button closes and disposes the window on key-down.
-            Dispatcher.UIThread.RunJobs();
-            Assert.NotNull(saved); Assert.False(window.IsVisible);
-            Assert.Equal("writing", saved.Id); Assert.Equal("손목 쉬어 주기", saved.Name);
-            Assert.Equal("Rest my hands", Assert.Single(saved.Steps).Instruction);
-        }
-        finally { window.Close(); }
-    }
 
     [Theory]
     [InlineData("End of Central Directory record could not be found.", "파일 형식")]

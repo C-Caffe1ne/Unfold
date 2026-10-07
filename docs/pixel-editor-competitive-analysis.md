@@ -1,5 +1,7 @@
 # 픽셀 에디터 기능 노출 시 경쟁 가능성 분석
 
+> 과거 검토 기록: 아래 구현 조사는 2026-09-14 당시 기준이다. 픽셀 에디터·편집 상태·캔버스는 [2026-10-07 정리](validation/2026-10-07-unused-features.md)에서 제거했다. 현재 실행 지침으로 사용하지 않는다.
+
 2026-09-14 · [경쟁 서비스 비교 분석](competitive-analysis.md)의 후속. 현재 코드베이스의 실제 에디터 구현(`src/Unfold.Core/PixelDocument.cs`, `EditorSession.cs`, `src/Unfold.Desktop/EditorWindow.cs`, `PiskelCodec.cs`)과 "내 캐릭터 직접 만들기" 카테고리의 실제 경쟁 제품을 조사해 판단한 결과다. `docs/mvp.md`와 `docs/business-model.md`는 이미 **"에디터 확장은 이번 BM의 전제가 아니다" / "에디터를 확장하거나... 기술 스택을 바꾸지 않는다"**고 명시하고 있으므로, 이 문서는 그 결정을 뒤집을 근거가 있는지를 검증하는 성격이다. `docs/reference/revenue-first-product-validation.md`의 판단 원칙(시장 증거 우선, 기능 추가=문제 해결이라는 착각 경계)을 참고했다.
 
 ---

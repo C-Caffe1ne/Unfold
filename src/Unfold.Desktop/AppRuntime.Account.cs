@@ -43,7 +43,6 @@ public sealed partial class AppRuntime
         timer.Stop(); noticeExpiryTimer.Stop(); scheduledNoticeExpiry = null;
         ClearReminderPreview(); CancelReminder(); Clock.Stop(monotonic.Elapsed);
         soundPlayer.Stop(); pet?.HidePet(); settingsWindow?.HideToTray();
-        editor?.Hide();
         RefreshTray(); Changed?.Invoke();
     }
 

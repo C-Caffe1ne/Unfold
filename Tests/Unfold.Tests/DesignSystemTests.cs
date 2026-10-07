@@ -84,9 +84,6 @@ public class DesignSystemTests
     {
         using var temp = new TempDirectory();
         Window[] windows = [
-            new RoutineEditorWindow(null, _ => Task.CompletedTask),
-            new ProfileEditorWindow(new(), null, _ => Task.CompletedTask),
-            new PersonalizationWindow(() => new(), _ => Task.CompletedTask),
             new BreakReviewWindow(new BreakHistory().Review),
             new PetPackWindow(new(temp.Path), _ => Task.CompletedTask)
         ];
@@ -106,20 +103,7 @@ public class DesignSystemTests
                 Assert.Equal(original, actions.TranslatePoint(default, window));
                 foreach (var button in actions.GetVisualDescendants().OfType<Button>())
                 { Fits(window, button); Assert.Contains("unfold-action", button.Classes); }
-                if (window is PersonalizationWindow)
-                {
-                    var tabs = Find<TabControl>(window, "PersonalizationTabs");
-                    foreach (var tab in new[] { 0, 1 })
-                    {
-                        tabs.SelectedIndex = tab; Layout(window);
-                        foreach (var label in tab == 0 ? new[] { "새 루틴", "루틴 편집", "루틴 사용", "루틴 삭제" } :
-                            new[] { "새 프로필", "프로필 편집", "프로필 적용", "프로필 삭제" })
-                        {
-                            var button = Button(window, label); Fits(window, button);
-                            Assert.Contains(actions, button.GetVisualAncestors());
-                        }
-                    }
-                }
+
             }
             finally { window.Close(); }
         }
@@ -130,9 +114,6 @@ public class DesignSystemTests
     {
         using var temp = new TempDirectory();
         Window[] windows = [
-            new RoutineEditorWindow(null, _ => Task.CompletedTask),
-            new ProfileEditorWindow(new(), null, _ => Task.CompletedTask),
-            new PersonalizationWindow(() => new(), _ => Task.CompletedTask),
             new BreakReviewWindow(new BreakHistory().Review),
             new PetPackWindow(new(temp.Path), _ => Task.CompletedTask)
         ];
@@ -189,20 +170,14 @@ public class DesignSystemTests
     }
 
     [AvaloniaFact]
-    public async Task NestedEditorsAndDeleteConfirmationShareTheThemeAndCancelSafely()
+    public async Task SharedDialogsShareTheThemeAndCancelSafely()
     {
         using var profile = new ProfileScope();
-        var settings = new AppSettings().SaveRoutine(new(BreakRoutines.CustomId, "나의 루틴", [new("쉬어 가요.", 20)]));
-        var window = new PersonalizationWindow(() => settings, value => { settings = value; return Task.CompletedTask; });
+        var window = new Window { Width = 640, Height = 560 };
         window.Show(); Layout(window);
         try
         {
-            Press(window, "루틴 편집"); Layout(window);
-            var editor = Assert.IsType<RoutineEditorWindow>(Assert.Single(window.OwnedWindows));
-            Assert.Equal(DesignSystem.Shell, Find<Border>(editor, "PageFrame").Background);
-            Assert.Equal(DesignSystem.Accent, Button(editor, "내 루틴 저장").Background);
-            editor.Close(); Layout(window);
-            Press(window, "루틴 삭제"); Layout(window);
+            var deletion = Ui.Confirm(window, "삭제 확인", "진단 항목을 삭제할까요?", "삭제", "취소"); Layout(window);
             var confirm = Assert.Single(window.OwnedWindows);
             IsAppModal(confirm);
             Assert.Equal(DesignSystem.Shell, Find<Border>(confirm, "PageFrame").Background);
@@ -213,7 +188,7 @@ public class DesignSystemTests
             Assert.False(Button(confirm, "삭제").IsDefault);
             confirm.KeyPress(Key.Escape, RawInputModifiers.None, PhysicalKey.Escape, "");
             await Task.Yield(); Layout(window);
-            Assert.Empty(window.OwnedWindows); Assert.NotNull(settings.CustomRoutine);
+            Assert.Equal(1, await deletion); Assert.Empty(window.OwnedWindows);
             var prompt = Ui.Prompt(window, "이름 바꾸기", "내 이름"); Layout(window);
             var name = Assert.Single(window.OwnedWindows);
             IsAppModal(name);
@@ -379,22 +354,16 @@ public class DesignSystemTests
         finally { window.Close(); }
     }
     [AvaloniaFact]
-    public void ValidationAndExportFeedbackRemainVisibleAbovePinnedActions()
+    public void ExportFailureFeedbackRemainsVisibleAbovePinnedActions()
     {
-        var routine = new RoutineEditorWindow(null, _ => Task.CompletedTask);
-        var profile = new ProfileEditorWindow(new(), null, _ => Task.CompletedTask);
         var review = new BreakReviewWindow(new BreakHistory().Review, exportReview: _ => throw new IOException("No space"));
         try
         {
-            routine.Show(); Layout(routine); Find<TextBox>(routine, "RoutineName").Text = "";
-            Press(routine, "내 루틴 저장"); Layout(routine); Fits(routine, Find<TextBlock>(routine, "RoutineError"));
-            profile.Show(); Layout(profile); Find<TextBox>(profile, "ProfileName").Text = "";
-            Press(profile, "프로필 저장"); Layout(profile); Fits(profile, Find<TextBlock>(profile, "ProfileError"));
             review.Width = review.MinWidth; review.Height = review.MinHeight; review.Show(); Layout(review);
             Press(review, "CSV 내보내기"); Layout(review);
             var message = Find<TextBlock>(review, "ReviewStatus"); Assert.Contains("내보내지 못했어요", message.Text); Fits(review, message);
         }
-        finally { routine.Close(); profile.Close(); review.Close(); }
+        finally { review.Close(); }
     }
     [AvaloniaFact]
     public void InputsKeepTheirAppearanceWhileHoveredAndEdited()

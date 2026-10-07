@@ -139,10 +139,10 @@ public class TimerControlTests
 
         await scope.Runtime.UpdateSettings(scope.Runtime.Settings with { IdleMinutes = 12 });
         Assert.Equal(12, scope.Runtime.Settings.IdleMinutes);
-        await scope.Runtime.UpdateSettings(scope.Runtime.Settings.SaveProfile(
-            new("same-interval", "같은 간격", 60, 12, BreakRoutines.DefaultId)));
+        await scope.Runtime.UpdateSettings(scope.Runtime.Settings with
+            { WorkProfiles = [new("same-interval", "같은 간격", 60, 12, BreakRoutines.DefaultId)] });
         await Assert.ThrowsAsync<ArgumentException>(() => scope.Runtime.UpdateSettings(
-            scope.Runtime.Settings.ApplyProfile("same-interval")));
+            scope.Runtime.Settings with { ActiveProfileId = "same-interval" }));
         Assert.Null(scope.Runtime.Settings.ActiveProfileId);
         Press(scope.Window, "TimerToggle");
         await scope.Runtime.UpdateSettings(scope.Runtime.Settings with { IntervalMinutes = 30 });

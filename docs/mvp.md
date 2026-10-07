@@ -6,10 +6,11 @@ A small desktop companion that reminds you to stretch while you work.
 
 Mochi와 잠깐 쉬고, 내 리듬으로 돌아오는 작은 데스크톱 동료.
 
-This document describes the current **Unfold Beta 1.1.0** development source:
-`codex/glb-import-compat`; the existing GLB compatibility and Windows input changes
-were preserved in commit `18a3a31` on 2026-10-06. Recheck the current HEAD for later changes. Recheck the worktree and version
-before implementation; `release/mvp` is an older source.
+This document describes the current **Unfold Beta 1.1.1** source.
+The 2026-10-07 cleanup starts from product commit `bbdb4a8` on
+`codex/glb-import-compat` and lives on `codex/remove-unused-features`.
+Recheck all worktrees and the latest deployment before implementation;
+`release/mvp` is an older source.
 The application uses C#/.NET 10 and Avalonia. [Product direction](product-direction.md)
 and [development plan](development-plan.md) describe the paid-value hypotheses.
 Account and purchase-access flows exist in the desktop source; their production
@@ -32,11 +33,11 @@ observed. Those outcomes are not established by a passing build or animation tes
 | Settings layout | Sidebar order is timer, pet management, review, settings. The home shows the timer and companion; notification sounds, idle time and snooze are in Settings. Pet management is one editor page; opening a file selects the media or GLB editor by extension, without open/create or format tabs. Default 1120×800, minimum 640×560; narrow layouts scroll and preserve editor drafts. [Dashboard guide](settings-ui.md) |
 | Timer | The home time card groups the 1–240 minute work interval and 1–10 minute next break duration. Work interval edits require Pause or Stop; break duration changes apply to the next session. The home **저장** action persists these values. Settings notification/idle/snooze preferences save automatically and report validation/save errors. Intervals of five minutes or less do not emit an advance warning. |
 | Timer controls | The state badge explicitly distinguishes running, paused, stopped, idle-paused, and break-held states. The two labelled, keyboard-accessible icon buttons are Play/Pause and Stop. Pause keeps the remaining time; Stop asks for confirmation, then displays the configured full interval; Play resumes or starts that interval after Stop. Approved Stop dismisses an open or pending invitation without adding a completion. |
-| Exit | Sidebar and tray exit ask for confirmation, then retain existing unsaved pet-draft/editor guards. Cancel or closing the confirmation leaves the app running. |
+| Exit | Sidebar and tray exit ask for confirmation, then retain the unsaved pet-draft guard. Cancel or closing the confirmation leaves the app running. |
 | Activity | Idle threshold of 1–60 minutes. Idle time and large dispatcher/sleep gaps do not accrue work time. |
 | Reminder | The pet delivers a five-active-minutes warning, due invitation, and explicit completion notice in an attached speech bubble with centered text. Due offers **n분 뒤에** and **휴식 시작**; a running bubble counts the configured break duration and has **완료** below it. Complete at any time after starting; overtime shows +mm:ss and caps at +60:00 without auto-completing. A duration change affects the next invitation, not an open session. The Settings tab configures sounds, bubble position, and opt-in state previews; the pet context menu contains Settings and Hide Pet. No separate reminder window or OS toast. [Speech guide](stretch-notifications.md) |
 | Routines | 잠깐의 여유, 눈 쉬어 주기, and 몸 풀어 주기 provide the prompt sequence. The configured 1–10 minute break duration scales that sequence for new sessions. The routine, duration and companion are captured when the invitation opens. They are gentle prompts, not measured exercise or medical advice. |
-| Routine/profile compatibility | Routine-library and work-profile setup are no longer exposed in the normal UI. Existing `settings.json` values remain readable so an upgrade does not delete user data, and existing history keeps its captured routine/profile labels. Internal diagnostic components remain for compatibility testing. |
+| Routine/profile compatibility | Routine-library and work-profile authoring components have been removed. Existing `settings.json` values remain readable so an upgrade does not delete user data, and existing history keeps its captured routine/profile labels. Compatibility tests use saved-data fixtures. |
 | Manual reminder | Stretch now has been removed from Settings, the tray menu, and the pet menu. Normal invitations come from the automatic timer. The shared reminder method remains available to internal diagnostics. |
 | Scheduling | Work time is held while an invitation/session is active. Completion starts a full interval; snooze schedules 1–60 active minutes (default 5). Both preserve manual Pause. Hiding the pet does not end a session; Stop cancels without a completion. |
 | Duplicate reminder | Keeps the active session and does not replay the due sound or pet reaction. Concurrent preparations are coalesced. |
@@ -72,9 +73,9 @@ proof of a completed real OAuth/payment transaction or offline purchase recovery
 Those production checks remain separate release gates. Completion history, settings and pet files remain local. See the
 [paid launch plan](plans/2026-09-27-paid-launch.md) for staged acceptance criteria.
 
-The C# editor, pixel model, and Piskel codec remain because regression tests and
-`--smoke-test` exercise authoring/save/reopen behavior. They are not advertised as
-MVP features. The normal UI does not expose that general pixel editor; GLB management has its own explicit edit/delete flow.
+The C# pixel editor, drawing canvas and editor session have been removed.
+The pixel model, Piskel codec and character-library source loading remain for
+existing pet-file compatibility. GLB management retains its explicit edit/delete flow.
 
 `CharacterLibrary` and the image codecs are runtime dependencies: the app uses
 them to discover and play character packages, including existing user artwork.

@@ -43,7 +43,8 @@ public class SettingsRecoveryTests
         using var temp = new TempDirectory(); var path = Path.Combine(temp.Path, "settings.json");
         var routine = new BreakRoutine("kept", "보존할 루틴", [new BreakStep("잠깐 쉬기", 30)]);
         var profile = new WorkProfile("kept-profile", "보존할 프로필", 37, 9, "kept");
-        var saved = new AppSettings().SaveRoutine(routine).SaveProfile(profile).ApplyProfile(profile.Id);
+        var saved = new AppSettings { AdditionalRoutines = [routine], WorkProfiles = [profile],
+            ActiveProfileId = profile.Id, BreakRoutineId = routine.Id, IntervalMinutes = profile.IntervalMinutes, IdleMinutes = profile.IdleMinutes };
         var json = JsonSerializer.SerializeToNode(saved, CharacterLibrary.JsonOptions)!.AsObject();
         var routines = json["additionalRoutines"]!.AsArray();
         routines.Insert(0, null);
@@ -157,7 +158,7 @@ public class SettingsRecoveryTests
     {
         using var temp = new TempDirectory(); var path = Path.Combine(temp.Path, "settings.json");
         var routine = new BreakRoutine("mine", "내 루틴", [new BreakStep("손을 쉬어요", 20)]);
-        new AppSettings { IntervalMinutes = 37, IdleMinutes = 9 }.SaveRoutine(routine).Save(path);
+        new AppSettings { IntervalMinutes = 37, IdleMinutes = 9, AdditionalRoutines = [routine], BreakRoutineId = routine.Id }.Save(path);
         var original = File.ReadAllText(path);
         var index = original.IndexOf("PetScalePercent", StringComparison.OrdinalIgnoreCase);
         // Guard against a silent no-op if the serialized name ever changes.
