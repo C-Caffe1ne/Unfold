@@ -6,6 +6,10 @@ namespace Unfold.Core;
 public sealed class ImportedPetClip
 {
     private readonly byte[] media;
+    private readonly PixelImage firstFrame;
+    private readonly object frameGate = new();
+    private WeakReference<IReadOnlyList<AnimationFrame>> decodedFrames;
+    public PixelImage Thumbnail => new(firstFrame.Width, firstFrame.Height, firstFrame.Pixels.ToArray());
     public bool IsStillImage { get; }
     public string FileName { get; }
     public int Width { get; }
@@ -19,6 +23,9 @@ public sealed class ImportedPetClip
         FileName = fileName; media = bytes; IsStillImage = isStillImage; Width = frames[0].Image.Width; Height = frames[0].Image.Height;
         FrameCount = frames.Count; Duration = TimeSpan.FromTicks(frames.Sum(frame => frame.Duration.Ticks));
         DecodedBytes = frames.Sum(frame => (long)frame.Image.Width * frame.Image.Height * 4);
+        var first = frames[0].Image;
+        firstFrame = new(first.Width, first.Height, first.Pixels.ToArray());
+        decodedFrames = new(frames);
     }
     public static ImportedPetClip FromGif(string fileName, byte[] bytes)
     {
@@ -37,8 +44,17 @@ public sealed class ImportedPetClip
         if (image.Pixels.All(pixel => pixel >> 24 == 0)) throw new InvalidDataException("완전히 투명한 이미지예요. 펫이 보이는 파일을 선택해 주세요.");
         return new(Path.GetFileName(fileName), ImageCodec.EncodePng(image), [new(image, TimeSpan.FromSeconds(1))], true);
     }
-    public IReadOnlyList<AnimationFrame> LoadFrames() => IsStillImage
-        ? [new(ImageCodec.DecodePng(media), TimeSpan.FromSeconds(1))] : ImageCodec.DecodeGif(media);
+    public IReadOnlyList<AnimationFrame> LoadFrames()
+    {
+        lock (frameGate)
+        {
+            if (decodedFrames.TryGetTarget(out var cached)) return cached;
+            IReadOnlyList<AnimationFrame> frames = IsStillImage
+                ? [new(ImageCodec.DecodePng(media), TimeSpan.FromSeconds(1))] : ImageCodec.DecodeGif(media);
+            decodedFrames = new(frames);
+            return frames;
+        }
+    }
     internal void Write(string path) => AtomicFile.Write(path, media);
 }
 
@@ -81,13 +97,13 @@ public sealed class CustomPetDraft
         try
         {
             foreach (var (key, clip) in clips.Where(pair => !pair.Value.IsStillImage)) clip.Write(Path.Combine(directory, key + ".gif"));
-            var cells = new List<(string Key, PixelImage Image)> { ("idle", idle.LoadFrames()[0].Image) };
+            var cells = new List<(string Key, PixelImage Image)> { ("idle", idle.Thumbnail) };
             if (clips.Values.Any(clip => clip.IsStillImage))
             {
                 // Keep the existing version-1 sheet/GIF contract; static actions use one sheet frame.
                 if (!idle.IsStillImage) cells[0] = ("idle", ImageCodec.DecodePetImage(ImageCodec.EncodePng(cells[0].Image)));
                 cells.AddRange(clips.Where(pair => pair.Key != "idle" && pair.Value.IsStillImage)
-                    .Select(pair => (pair.Key, pair.Value.LoadFrames()[0].Image)));
+                    .Select(pair => (pair.Key, pair.Value.Thumbnail)));
             }
             var width = cells.Max(cell => cell.Image.Width); var height = cells.Max(cell => cell.Image.Height);
             var sheet = new PixelImage(width * cells.Count, height, new uint[width * cells.Count * height]);

@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -56,6 +57,36 @@ public class ReminderRecoveryTests
         Assert.Equal(scope.CharacterId, scope.Runtime.Settings.SelectedCharacterId);
         Assert.Equal(scope.CharacterId, scope.Runtime.Reminder.Session!.CharacterId);
     }
+
+    [AvaloniaFact]
+    public async Task MissingAtlasAfterCollectionStillReopensUsableReminderControls()
+    {
+        using var scope = new Scope(); await scope.Load();
+        await scope.Runtime.ShowReminder(); Layout(scope.Pet);
+        var first = scope.Runtime.Reminder.Session;
+        scope.Runtime.SnoozeBreak();
+        var package = scope.Runtime.Selected!;
+        var weak = SheetReference(package);
+        File.Delete(CharacterLibrary.AssetPath(package.DirectoryPath, package.Manifest.SpriteSheet.File));
+        // Verify fallback ownership after the weak atlas is collected; this is
+        // separate from native resource measurements, which use normal GC.
+        GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect();
+        Assert.False(weak.TryGetTarget(out _));
+
+        await scope.Runtime.ShowReminder(); Layout(scope.Pet);
+        Assert.NotSame(first, scope.Runtime.Reminder.Session);
+        Assert.True(scope.Pet.IsVisible); Assert.Equal(1, scope.FrameCount);
+        Assert.True(scope.Pet.PetView.OpaqueAt(new(96, 96)));
+        Assert.Equal(PetNotice.Invitation, scope.Runtime.Reminder.Notice);
+        Click(scope.Pet, "PetBreakStart"); Layout(scope.Pet);
+        Assert.Equal(PetNotice.Resting, scope.Runtime.Reminder.Notice);
+        Click(scope.Pet, "PetBreakComplete");
+        Assert.Single(scope.Runtime.BreakHistory.Completions);
+        Assert.Equal(scope.CharacterId, scope.Runtime.Settings.SelectedCharacterId);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private static WeakReference<PixelImage> SheetReference(CharacterPackage package) => new(package.Sheet);
 
     [AvaloniaFact]
     public async Task LateIdleFailureDoesNotReplaceAnAlreadyRecoveredPet()
@@ -141,9 +172,7 @@ public class ReminderRecoveryTests
         public PetWindow Pet => Runtime.ActivePet!;
         public int FrameCount => ((IReadOnlyList<AnimationFrame>)typeof(AnimationView)
             .GetField("frames", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(Pet.PetView)!).Count;
-        private Dictionary<string, Task<IReadOnlyList<AnimationFrame>>> Cache =>
-            (Dictionary<string, Task<IReadOnlyList<AnimationFrame>>>)typeof(AppRuntime)
-                .GetField("clips", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(Runtime)!;
+        private ClipCacheTestAccess Cache => new(Runtime);
         private string IdleKey => $"{Runtime.Selected!.DirectoryPath}:idle";
         public Scope() { Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", temp.Path); Runtime = new(lifetime); }
         public async Task Load(bool withClick = false)

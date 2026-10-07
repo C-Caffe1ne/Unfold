@@ -264,7 +264,7 @@ internal sealed class CustomPetView : UserControl, IDisposable
             var clip = await PetMediaImporter.Import(path, cancellation.Token);
             if (closed) return false;
             draft.SetClip(key, clip);
-            var bitmap = Ui.Bitmap(clip.LoadFrames()[0].Image);
+            var bitmap = Ui.Bitmap(clip.Thumbnail);
             if (thumbnailBitmaps.Remove(key, out var previous)) previous.Dispose();
             thumbnailBitmaps[key] = bitmap; thumbnails[key].Source = bitmap;
             status.Foreground = DesignSystem.Muted; status.Text = CustomPetDraft.ActionName(key) + "에 파일을 넣었어요.";

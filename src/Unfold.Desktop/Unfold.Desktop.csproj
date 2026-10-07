@@ -10,6 +10,8 @@
     <MediaRuntimeIdentifier Condition="'$(MediaRuntimeIdentifier)' == ''">$(NETCoreSdkRuntimeIdentifier)</MediaRuntimeIdentifier>
   </PropertyGroup>
   <ItemGroup>
+    <!-- Reduce unused GC heap retention; this is not a process/heap hard limit. -->
+    <RuntimeHostConfigurationOption Include="System.GC.ConserveMemory" Value="7" />
     <Content Include="../../Assets/Fonts/LICENSE.txt" Link="Licenses/NoonnuBasicGothic.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="../../Assets/Licenses/*.txt" Link="Licenses/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <InternalsVisibleTo Include="Unfold.Tests" />

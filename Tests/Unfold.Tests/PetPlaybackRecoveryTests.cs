@@ -138,9 +138,7 @@ public class PetPlaybackRecoveryTests
         private static readonly byte[] Gif = File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "Fixtures", "pet-motion.gif"));
         public AppRuntime Runtime { get; }
         public PetWindow Pet => Runtime.ActivePet!;
-        public Dictionary<string, Task<IReadOnlyList<AnimationFrame>>> Cache =>
-            (Dictionary<string, Task<IReadOnlyList<AnimationFrame>>>)typeof(AppRuntime)
-                .GetField("clips", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(Runtime)!;
+        public ClipCacheTestAccess Cache => new(Runtime);
         public string Key(string key) => $"{Runtime.Selected!.DirectoryPath}:{key}";
         public Scope()
         {

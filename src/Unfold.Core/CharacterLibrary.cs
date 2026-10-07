@@ -37,13 +37,39 @@ public sealed class CharacterPackage
     public bool HasOriginalBehavior => IsGlb || Manifest.BehaviorProfile == OriginalCompanion.Profile &&
         OriginalCompanion.RequiredClips.All(Manifest.Animations.ContainsKey);
     public bool HasPointerArt => HasOriginalBehavior && OriginalCompanion.PointerClips.All(Manifest.Animations.ContainsKey);
-    private readonly Lazy<PixelImage> sheet;
-    public PixelImage Sheet => sheet.Value;
+    private readonly object sheetGate = new();
+    private WeakReference<PixelImage>? sheet;
+    /// <summary>The validated first cell, retained for read-only fallback rendering without file IO.</summary>
+    public PixelImage StillImage { get; private set; } = null!;
+    internal void CaptureStill(PixelImage image)
+    {
+        var sprite = Manifest.SpriteSheet;
+        var pixels = new uint[sprite.FrameWidth * sprite.FrameHeight];
+        for (var row = 0; row < sprite.FrameHeight; row++)
+            Array.Copy(image.Pixels, row * image.Width, pixels, row * sprite.FrameWidth, sprite.FrameWidth);
+        StillImage = new(sprite.FrameWidth, sprite.FrameHeight, pixels);
+    }
+    public PixelImage Sheet
+    {
+        get
+        {
+            lock (sheetGate)
+            {
+                if (sheet is not null && sheet.TryGetTarget(out var cached)) return cached;
+                var image = ImageCodec.DecodePng(ImageCodec.ReadBounded(CharacterLibrary.AssetPath(DirectoryPath, Manifest.SpriteSheet.File)));
+                var sprite = Manifest.SpriteSheet;
+                if (image.Width != sprite.Columns * sprite.FrameWidth || image.Height != sprite.Rows * sprite.FrameHeight)
+                    throw new InvalidDataException("Sprite sheet dimensions do not match the manifest.");
+                sheet = new(image);
+                return image;
+            }
+        }
+    }
     public override string ToString() => Manifest.Name;
-    internal CharacterPackage(string directory, CharacterManifest manifest, bool builtIn)
+    internal CharacterPackage(string directory, CharacterManifest manifest, bool builtIn, PixelImage? validatedStill = null)
     {
         DirectoryPath = directory; Manifest = manifest; IsBuiltIn = builtIn;
-        sheet = new(() => ImageCodec.DecodePng(ImageCodec.ReadBounded(CharacterLibrary.AssetPath(directory, manifest.SpriteSheet.File))));
+        if (validatedStill is not null) StillImage = validatedStill;
     }
     public IReadOnlyList<AnimationFrame> LoadAnimation(string key)
     {
@@ -56,13 +82,18 @@ public sealed class CharacterPackage
             throw new InvalidDataException("Decoded sprite animation exceeds the animation budget.");
         var image = Sheet;
         var frames = new List<AnimationFrame>();
+        var cells = new Dictionary<int, PixelImage>();
         foreach (var index in definition.Frames!)
         {
-            var pixels = new uint[sprite.FrameWidth * sprite.FrameHeight];
-            var x = index % sprite.Columns * sprite.FrameWidth; var y = index / sprite.Columns * sprite.FrameHeight;
-            for (var row = 0; row < sprite.FrameHeight; row++)
-                Array.Copy(image.Pixels, (y + row) * image.Width + x, pixels, row * sprite.FrameWidth, sprite.FrameWidth);
-            frames.Add(new(new(sprite.FrameWidth, sprite.FrameHeight, pixels), TimeSpan.FromSeconds(1 / definition.Fps!.Value)));
+            if (!cells.TryGetValue(index, out var cell))
+            {
+                var pixels = new uint[sprite.FrameWidth * sprite.FrameHeight];
+                var x = index % sprite.Columns * sprite.FrameWidth; var y = index / sprite.Columns * sprite.FrameHeight;
+                for (var row = 0; row < sprite.FrameHeight; row++)
+                    Array.Copy(image.Pixels, (y + row) * image.Width + x, pixels, row * sprite.FrameWidth, sprite.FrameWidth);
+                cells[index] = cell = new(sprite.FrameWidth, sprite.FrameHeight, pixels);
+            }
+            frames.Add(new(cell, TimeSpan.FromSeconds(1 / definition.Fps!.Value)));
         }
         return frames;
     }
@@ -111,6 +142,7 @@ public sealed partial class CharacterLibrary
         var package = new CharacterPackage(directory, manifest, builtIn);
         var image = package.Sheet;
         if (image.Width != s.Columns * s.FrameWidth || image.Height != s.Rows * s.FrameHeight) throw new InvalidDataException("Sprite sheet dimensions do not match the manifest.");
+        package.CaptureStill(image);
         if (!manifest.Animations.ContainsKey("idle")) throw new InvalidDataException("A character needs an idle animation.");
         if (manifest.Model is not null && manifest.Animations.Count > 16) throw new InvalidDataException("Pets support at most 16 event mappings.");
         if (manifest.Model is { } model)
@@ -186,7 +218,7 @@ public sealed partial class CharacterLibrary
                 new("spritesheet.png", document.FrameCount, 1, document.Width, document.Height),
                 new() { ["idle"] = new(Enumerable.Range(0, document.FrameCount).ToArray(), document.Fps) }, "pawprint.fill", "pixel");
             AtomicFile.Write(Path.Combine(staging, "character.json"), JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
-            _ = LoadPackage(staging); _ = PiskelCodec.Load(Path.Combine(staging, "source.piskel"));
+            var validated = LoadPackage(staging); _ = PiskelCodec.Load(Path.Combine(staging, "source.piskel"));
             if (id is not null && (!Directory.Exists(target) || Revision(target) != expectedRevision))
                 throw new IOException("The character changed while preparing this save. The library was not overwritten.");
             if (Directory.Exists(target)) Directory.Move(target, backup);
@@ -195,7 +227,7 @@ public sealed partial class CharacterLibrary
             // Installation has committed. Cleanup failures must not report a failed save.
             try { if (Directory.Exists(backup)) Directory.Delete(backup, true); }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { Warning?.Invoke($"Backup cleanup deferred: {ex.Message}"); }
-            return new CharacterPackage(target, manifest, false);
+            return new CharacterPackage(target, manifest, false, validated.StillImage);
         }
         finally { if (Directory.Exists(staging)) Directory.Delete(staging, true); }
     }

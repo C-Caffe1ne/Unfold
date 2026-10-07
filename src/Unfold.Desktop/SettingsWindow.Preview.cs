@@ -22,6 +22,8 @@ public sealed partial class SettingsWindow
     private void SuspendPreview()
     {
         previewGeneration++; previewLoading = false; previewRetry.Stop(); preview.SetRunning(false);
+        preview.SetFrames([], true);
+        previewCharacter = previewTarget = null;
     }
 
     private async Task RefreshPreview()
@@ -36,11 +38,7 @@ public sealed partial class SettingsWindow
             if (selected is null) preview.SetFrames([], true);
             else
             {
-                var sprite = selected.Manifest.SpriteSheet; var sheet = selected.Sheet;
-                var pixels = new uint[sprite.FrameWidth * sprite.FrameHeight];
-                for (var row = 0; row < sprite.FrameHeight; row++)
-                    Array.Copy(sheet.Pixels, row * sheet.Width, pixels, row * sprite.FrameWidth, sprite.FrameWidth);
-                preview.SetFrames([new(new(sprite.FrameWidth, sprite.FrameHeight, pixels), TimeSpan.FromSeconds(1))],
+                preview.SetFrames([new(selected.StillImage, TimeSpan.FromSeconds(1))],
                     true, selected.Manifest.RenderStyle == "pixel", selected.HasOriginalBehavior);
             }
         }

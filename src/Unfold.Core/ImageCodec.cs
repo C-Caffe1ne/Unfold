@@ -5,7 +5,7 @@ namespace Unfold.Core;
 public sealed record PixelImage(int Width, int Height, uint[] Pixels);
 public sealed record AnimationFrame(PixelImage Image, TimeSpan Duration);
 
-public static class ImageCodec
+public static partial class ImageCodec
 {
     public const int MaxFileBytes = 32 * 1024 * 1024;
     public const long MaxDecodedAnimationBytes = 128 * 1024 * 1024;
@@ -85,7 +85,13 @@ public static class ImageCodec
         using var encoded = bitmap.Encode(SKEncodedImageFormat.Png, 100);
         return encoded.ToArray();
     }
-    public static unsafe IReadOnlyList<AnimationFrame> DecodeGif(byte[] bytes)
+    /// <summary>Returns shared source frames. Treat their pixels as read-only; copy pixels before editing.</summary>
+    public static IReadOnlyList<AnimationFrame> DecodeGif(byte[] bytes)
+    {
+        if (bytes.Length > MaxFileBytes) throw new InvalidDataException("GIF exceeds 32 MiB.");
+        return SharedGifFrames(bytes);
+    }
+    private static unsafe IReadOnlyList<AnimationFrame> DecodeGifFrames(byte[] bytes)
     {
         if (bytes.Length > MaxFileBytes) throw new InvalidDataException("GIF exceeds 32 MiB.");
         using var data = SKData.CreateCopy(bytes);

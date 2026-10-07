@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -25,6 +26,32 @@ public class HomePreviewRecoveryTests
         scope.Repair(); await Until(() => scope.Frames.Count == 4);
         Assert.Same(scope.Runtime.Selected, Field<CharacterPackage>(scope.Window, "previewCharacter"));
     }
+
+    [AvaloniaFact]
+    public async Task MissingAtlasAfterCollectionKeepsTheValidatedStillAndAllowsGifRecovery()
+    {
+        using var scope = new Scope(); await scope.Load();
+        var package = scope.B;
+        var weak = SheetReference(package);
+        var png = CharacterLibrary.AssetPath(package.DirectoryPath, package.Manifest.SpriteSheet.File);
+        File.Delete(png);
+        // Reachability check only; native memory benchmarks never force GC.
+        GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect();
+        Assert.False(weak.TryGetTarget(out _));
+
+        await scope.SelectB(); await Until(() => scope.IdleTask?.IsFaulted == true);
+        Assert.Single(scope.Frames);
+        Assert.Same(package.StillImage, scope.Frames[0].Image);
+        Assert.Equal(0xFF00FF00u, scope.Frames[0].Image.Pixels[0]);
+        scope.Window.HideToTray(); Assert.Empty(scope.Frames);
+        scope.Window.Show(); scope.Window.ResumePreview();
+        await Until(() => scope.Frames.Count == 1 && scope.Frames[0].Image.Pixels[0] == 0xFF00FF00u);
+        scope.Repair(); await Until(() => scope.Frames.Count == 4);
+        Assert.False(File.Exists(png));
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private static WeakReference<PixelImage> SheetReference(CharacterPackage package) => new(package.Sheet);
 
     [AvaloniaFact]
     public async Task FailedRetriesAreBoundedAndReturningHomeRetriesAgain()
@@ -63,10 +90,9 @@ public class HomePreviewRecoveryTests
         }
         pending.SetResult(scope.GoodFrames); await Task.Delay(100, TestContext.Current.CancellationToken);
         Assert.False(Field<DispatcherTimer>(scope.Preview, "timer").IsEnabled);
-        if (action == "dispose") Assert.Empty(scope.Frames);
-        else
+        Assert.Empty(scope.Frames);
+        if (action != "dispose")
         {
-            Assert.Single(scope.Frames);
             if (action == "hide") { scope.Window.Show(); scope.Window.ResumePreview(); }
             else scope.Click("SettingsNavTimer");
             await Until(() => scope.Frames.Count == 4);
@@ -92,7 +118,8 @@ public class HomePreviewRecoveryTests
         public IReadOnlyList<AnimationFrame> GoodFrames => ImageCodec.DecodeGif(File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "Fixtures", "pet-motion.gif")));
         public string A { get; private set; } = "";
         private string b = "", gif = "";
-        private Dictionary<string, Task<IReadOnlyList<AnimationFrame>>> Cache => Field<Dictionary<string, Task<IReadOnlyList<AnimationFrame>>>>(Runtime, "clips");
+        public CharacterPackage B => Runtime.Characters.Single(p => p.Manifest.Id == b);
+        private ClipCacheTestAccess Cache => new(Runtime);
         private string Key => $"{Runtime.Characters.Single(p => p.Manifest.Id == b).DirectoryPath}:idle";
         public Task<IReadOnlyList<AnimationFrame>>? IdleTask => Cache.GetValueOrDefault(Key);
         public Scope()

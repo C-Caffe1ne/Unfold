@@ -157,12 +157,7 @@ public sealed partial class PetWindow : Window
     internal void ShowReminderFallback(CharacterPackage selected)
     {
         InvalidatePlayback(); ResetCompanion(); character = null; ActiveAnimation = "idle";
-        var sprite = selected.Manifest.SpriteSheet;
-        var sheet = selected.Sheet;
-        var pixels = new uint[sprite.FrameWidth * sprite.FrameHeight];
-        for (var row = 0; row < sprite.FrameHeight; row++)
-            Array.Copy(sheet.Pixels, row * sheet.Width, pixels, row * sprite.FrameWidth, sprite.FrameWidth);
-        animation.SetFrames([new(new(sprite.FrameWidth, sprite.FrameHeight, pixels), TimeSpan.FromSeconds(1))],
+        animation.SetFrames([new(selected.StillImage, TimeSpan.FromSeconds(1))],
             true, selected.Manifest.RenderStyle == "pixel", selected.HasOriginalBehavior);
         // Leave character unset so a later notice/focus request can retry the repaired GIF.
     }

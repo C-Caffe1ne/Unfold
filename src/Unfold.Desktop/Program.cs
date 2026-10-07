@@ -81,6 +81,9 @@ internal static class Program
 
     internal static AppBuilder ConfigureRendering(AppBuilder builder)
     {
+        // Cache reusable GPU resources without retaining full-size textures from
+        // recent previews. Active surfaces and rendering resolution are unchanged.
+        builder.With(new SkiaOptions { MaxGpuResourceSizeBytes = 4 * 1024 * 1024 });
         if (OperatingSystem.IsMacOS())
         {
             // Match the bundle's LSUIElement menu-bar app policy. Avalonia's default

@@ -1,0 +1,236 @@
+{
+  "baselineCommit": "a8fbd5bf6055f9d52359b13bd3678175ecc7ea71",
+  "version": "1.1.1-beta",
+  "budgetBytes": 400000000,
+  "overallTargetAchieved": false,
+  "scopeClosedByUser": "Finish 3D optimization and report current progress",
+  "finalRenderingPolicy": [
+    "OpenGl",
+    "Software"
+  ],
+  "excludedExperiments": [
+    "GCConserveMemory=9",
+    "Software-only native rendering"
+  ],
+  "finalSourceHashes": {
+    "Unfold.dll": "61d5f513cc07e2604a4ddb7e67d39e4b1ff159e958f425b9853f80d2977c496d",
+    "Unfold.Core.dll": "05317b7cd1921e1f191b2f39f65a606ffa933945e5468219e3665410e46b6d3b",
+    "Unfold.runtimeconfig.json": "b954131362b7e4bfb675b510bdec552b2823f45d9d1067d4c19f5f99e0876fb3"
+  },
+  "verification": {
+    "focusedPassed": 72,
+    "releasePassed": 763,
+    "releaseSkipped": 0,
+    "restoredFinalBuildWarnings": 0,
+    "restoredFinalBuildErrors": 0,
+    "finalFullDurationRerunPerformed": false,
+    "thirtyMinuteSoakPerformed": false
+  },
+  "measurements": [
+    {
+      "name": "baseline-complete-1",
+      "adoptedFinalSource": false,
+      "diagnosticOnly": false,
+      "mode": "complete",
+      "elapsedSeconds": 416.123115,
+      "durationFactor": 1,
+      "success": true,
+      "budgetPass": false,
+      "lifetimePhysicalPeakBytes": 670025264,
+      "lifetimeRssPeakBytes": 366133248,
+      "samplePhysicalPeakBytes": 669238832,
+      "managedPeakBytes": 513414680,
+      "allocatedDeltaBytes": 738170920,
+      "cpuMeanPercentOneCore": null,
+      "machErrors": [
+        0
+      ],
+      "requestedScreenScale": null,
+      "gcConserveMemory": null,
+      "gpuCacheBudgetBytes": null,
+      "nativeRenderingModes": null,
+      "nativePlatformGraphicsType": null,
+      "sourceManifest": null
+    },
+    {
+      "name": "baseline-media-final",
+      "adoptedFinalSource": false,
+      "diagnosticOnly": false,
+      "mode": "media",
+      "elapsedSeconds": 142.4348271,
+      "durationFactor": 1,
+      "success": true,
+      "budgetPass": false,
+      "lifetimePhysicalPeakBytes": 1128105808,
+      "lifetimeRssPeakBytes": 591740928,
+      "samplePhysicalPeakBytes": 1124517712,
+      "managedPeakBytes": 571940848,
+      "allocatedDeltaBytes": 626419248,
+      "cpuMeanPercentOneCore": null,
+      "machErrors": [
+        0
+      ],
+      "requestedScreenScale": null,
+      "gcConserveMemory": null,
+      "gpuCacheBudgetBytes": null,
+      "nativeRenderingModes": null,
+      "nativePlatformGraphicsType": null,
+      "sourceManifest": null
+    },
+    {
+      "name": "optimized-gc7-complete",
+      "adoptedFinalSource": false,
+      "diagnosticOnly": false,
+      "mode": "complete",
+      "elapsedSeconds": 415.7555697,
+      "durationFactor": 1,
+      "success": true,
+      "budgetPass": true,
+      "lifetimePhysicalPeakBytes": 339772712,
+      "lifetimeRssPeakBytes": 281804800,
+      "samplePhysicalPeakBytes": 336610600,
+      "managedPeakBytes": 149798392,
+      "allocatedDeltaBytes": 588639608,
+      "cpuMeanPercentOneCore": 22.354066205622846,
+      "machErrors": [
+        0
+      ],
+      "requestedScreenScale": null,
+      "gcConserveMemory": null,
+      "gpuCacheBudgetBytes": null,
+      "nativeRenderingModes": null,
+      "nativePlatformGraphicsType": null,
+      "sourceManifest": null
+    },
+    {
+      "name": "optimized-gc7-media",
+      "adoptedFinalSource": false,
+      "diagnosticOnly": false,
+      "mode": "media",
+      "elapsedSeconds": 142.2782969,
+      "durationFactor": 1,
+      "success": true,
+      "budgetPass": true,
+      "lifetimePhysicalPeakBytes": 353453352,
+      "lifetimeRssPeakBytes": 359415808,
+      "samplePhysicalPeakBytes": 352994576,
+      "managedPeakBytes": 192513256,
+      "allocatedDeltaBytes": 282427464,
+      "cpuMeanPercentOneCore": 13.0588754437933,
+      "machErrors": [
+        0
+      ],
+      "requestedScreenScale": null,
+      "gcConserveMemory": null,
+      "gpuCacheBudgetBytes": null,
+      "nativeRenderingModes": null,
+      "nativePlatformGraphicsType": null,
+      "sourceManifest": null
+    },
+    {
+      "name": "repo-streaming-gpu4-2x-preflight-complete",
+      "adoptedFinalSource": true,
+      "diagnosticOnly": true,
+      "mode": "complete",
+      "elapsedSeconds": 26.3578877,
+      "durationFactor": 0.02,
+      "success": true,
+      "budgetPass": false,
+      "lifetimePhysicalPeakBytes": 447071528,
+      "lifetimeRssPeakBytes": 271974400,
+      "samplePhysicalPeakBytes": 440108328,
+      "managedPeakBytes": 173958744,
+      "allocatedDeltaBytes": 373542104,
+      "cpuMeanPercentOneCore": 54.976527790373176,
+      "machErrors": [
+        0
+      ],
+      "requestedScreenScale": 2,
+      "gcConserveMemory": 7,
+      "gpuCacheBudgetBytes": 4194304,
+      "nativeRenderingModes": null,
+      "nativePlatformGraphicsType": null,
+      "sourceManifest": "artifacts/verification/memory-budget-2026-10-07/repo-streaming-gpu4-2x-preflight-complete/source-manifest.json"
+    },
+    {
+      "name": "repo-streaming-gpu4-2x-preflight-media",
+      "adoptedFinalSource": true,
+      "diagnosticOnly": true,
+      "mode": "media",
+      "elapsedSeconds": 6.3296002,
+      "durationFactor": 0.02,
+      "success": true,
+      "budgetPass": false,
+      "lifetimePhysicalPeakBytes": 406930704,
+      "lifetimeRssPeakBytes": 344588288,
+      "samplePhysicalPeakBytes": 398787856,
+      "managedPeakBytes": 158745464,
+      "allocatedDeltaBytes": 233250064,
+      "cpuMeanPercentOneCore": 62.77165438965675,
+      "machErrors": [
+        0
+      ],
+      "requestedScreenScale": 2,
+      "gcConserveMemory": 7,
+      "gpuCacheBudgetBytes": 4194304,
+      "nativeRenderingModes": null,
+      "nativePlatformGraphicsType": null,
+      "sourceManifest": "artifacts/verification/memory-budget-2026-10-07/repo-streaming-gpu4-2x-preflight-media/source-manifest.json"
+    },
+    {
+      "name": "final-software-2x-preflight-complete",
+      "adoptedFinalSource": false,
+      "diagnosticOnly": true,
+      "mode": "complete",
+      "elapsedSeconds": 26.8792081,
+      "durationFactor": 0.02,
+      "success": true,
+      "budgetPass": false,
+      "lifetimePhysicalPeakBytes": 418284840,
+      "lifetimeRssPeakBytes": 432275456,
+      "samplePhysicalPeakBytes": 380618024,
+      "managedPeakBytes": 170786552,
+      "allocatedDeltaBytes": 372054880,
+      "cpuMeanPercentOneCore": 55.51976512182897,
+      "machErrors": [
+        0
+      ],
+      "requestedScreenScale": 2,
+      "gcConserveMemory": 7,
+      "gpuCacheBudgetBytes": 4194304,
+      "nativeRenderingModes": [
+        "Software"
+      ],
+      "nativePlatformGraphicsType": null,
+      "sourceManifest": "artifacts/verification/memory-budget-2026-10-07/final-software-2x-preflight-complete/source-manifest.json"
+    },
+    {
+      "name": "final-software-2x-preflight-media",
+      "adoptedFinalSource": false,
+      "diagnosticOnly": true,
+      "mode": "media",
+      "elapsedSeconds": 7.496013,
+      "durationFactor": 0.02,
+      "success": true,
+      "budgetPass": true,
+      "lifetimePhysicalPeakBytes": 378668304,
+      "lifetimeRssPeakBytes": 390103040,
+      "samplePhysicalPeakBytes": 378651920,
+      "managedPeakBytes": 170859840,
+      "allocatedDeltaBytes": 233237944,
+      "cpuMeanPercentOneCore": 51.58501755789078,
+      "machErrors": [
+        0
+      ],
+      "requestedScreenScale": 2,
+      "gcConserveMemory": 7,
+      "gpuCacheBudgetBytes": 4194304,
+      "nativeRenderingModes": [
+        "Software"
+      ],
+      "nativePlatformGraphicsType": null,
+      "sourceManifest": "artifacts/verification/memory-budget-2026-10-07/final-software-2x-preflight-media/source-manifest.json"
+    }
+  ],
+  "boundary": "Baseline representative1x, latestquickRetina2x. HistoricalGIF DPIunrecorded. No forcedGC/heapcap; mock auth/purchase; physical input/FPS/Windows/deployment unverified."
+}

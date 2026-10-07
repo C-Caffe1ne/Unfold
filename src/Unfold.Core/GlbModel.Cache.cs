@@ -7,6 +7,21 @@ public sealed partial class GlbModel
     private static readonly object cacheGate = new();
     private static readonly Dictionary<string, WeakReference<GlbModel>> models = [];
 
+    private static GlbModel FromFile(string path)
+    {
+        using var stream = File.OpenRead(path);
+        if (stream.Length > ImageCodec.MaxFileBytes) throw new InvalidDataException("File exceeds the size limit.");
+        // Pack validation reads the same model repeatedly. Hash the open file without
+        // allocating another full GLB buffer, preserving content-based cache identity.
+        var hash = Convert.ToHexString(SHA256.HashData(stream));
+        lock (cacheGate)
+            if (models.TryGetValue(hash, out var weak) && weak.TryGetTarget(out var shared)) return shared;
+        stream.Position = 0;
+        var bytes = new byte[checked((int)stream.Length)];
+        stream.ReadExactly(bytes);
+        return FromSnapshot(bytes);
+    }
+
     // Content identity, not a filename or timestamp: pack replacement, renamed
     // copies and edits with preserved file dates all resolve to the right model.
     // Weak entries never keep an unused model alive, and keys are bounded too.

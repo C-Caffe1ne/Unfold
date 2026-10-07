@@ -56,7 +56,7 @@ public sealed partial class AppRuntime : IDisposable
     private readonly DispatcherTimer timer = new() { Interval = TimeSpan.FromSeconds(1) };
     private readonly DispatcherTimer noticeExpiryTimer = new();
     private TimeSpan? scheduledNoticeExpiry;
-    private readonly Dictionary<string, Task<IReadOnlyList<AnimationFrame>>> clips = [];
+    private readonly AnimationClipCache clips = new();
     private readonly List<CharacterPackage> builtIns = [];
     private TrayIcon? tray;
     private NativeMenuItem? trayStatus, trayPause, trayPet, trayFocusReminder;
@@ -379,12 +379,11 @@ public sealed partial class AppRuntime : IDisposable
     {
         if (selected is null) return Task.FromResult<IReadOnlyList<AnimationFrame>>([]);
         var cacheKey = $"{selected.DirectoryPath}:{key}";
-        if (clips.TryGetValue(cacheKey, out var cached) && !cached.IsFaulted && !cached.IsCanceled) return cached;
         // Sharing the in-flight task prevents the pet and settings preview
         // from decoding/uploading the same source independently on startup.
         // Retry a failed decode on the next request. No completion callback may evict
         // a newer task after Reload/character changes have replaced this cache entry.
-        return clips[cacheKey] = Task.Run(() => selected.LoadAnimation(key));
+        return clips.Get(cacheKey, () => selected.LoadAnimation(key));
     }
     private async Task UpdatePet()
     {
@@ -590,7 +589,7 @@ public sealed partial class AppRuntime : IDisposable
         }
         return Ui.Confirm(owner, title, message, choices);
     }
-    public void Dispose() { if (disposed) return; disposed = true; DisposeUpdates(); CancelAccountRestore(); accountLifetime.Cancel(); accountLifetime.Dispose(); accountSession = null; accountWindow?.Close(); timer.Stop(); noticeExpiryTimer.Stop(); scheduledNoticeExpiry = null; settingsWindow?.Dispose(); instanceActivation?.Dispose(); instanceActivation = null; tray?.Dispose(); tray = null; pet?.ClosePet(); pet = null; soundPlayer.Dispose(); }
+    public void Dispose() { if (disposed) return; disposed = true; DisposeUpdates(); CancelAccountRestore(); accountLifetime.Cancel(); accountLifetime.Dispose(); accountSession = null; accountWindow?.Close(); timer.Stop(); noticeExpiryTimer.Stop(); scheduledNoticeExpiry = null; settingsWindow?.Dispose(); clips.Clear(); instanceActivation?.Dispose(); instanceActivation = null; tray?.Dispose(); tray = null; pet?.ClosePet(); pet = null; soundPlayer.Dispose(); }
     internal static void PrepareDiagnosticWindow(Window window)
     {
         // macOS can constrain an off-screen window down to 1x1 without explicit minimums.

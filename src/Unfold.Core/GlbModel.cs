@@ -31,7 +31,7 @@ public sealed partial class GlbModel
     public int TriangleCount { get; }
     public int TextureCount { get; }
     public int JointCount => skins.SelectMany(s => s.Joints).Distinct().Count();
-    public static GlbModel Load(string path) => FromSnapshot(ImageCodec.ReadBounded(path));
+    public static GlbModel Load(string path) => FromFile(path);
     public static GlbModel Parse(byte[] bytes)
     {
         try { return new GlbModel(bytes); }

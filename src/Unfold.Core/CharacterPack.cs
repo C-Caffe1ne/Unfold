@@ -12,6 +12,7 @@ public sealed class CharacterPack : IDisposable
 {
     public const int MaxArchiveBytes = 64 * 1024 * 1024;
     public const int MaxFiles = 32;
+    private const int CopyBufferBytes = 16 * 1024;
     private readonly string temporaryRoot;
     private readonly CharacterPackMetadata metadata;
     private readonly byte[] metadataBytes;
@@ -27,37 +28,54 @@ public sealed class CharacterPack : IDisposable
     }
     public static CharacterPack Open(string archivePath)
     {
-        var bytes = ImageCodec.ReadBounded(archivePath, MaxArchiveBytes);
-        using var archive = new ZipArchive(new MemoryStream(bytes), ZipArchiveMode.Read);
-        if (archive.Entries.Count is < 3 or > MaxFiles) throw new InvalidDataException("A pet pack needs 3–32 files.");
-        var entries = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase); long total = 0;
-        foreach (var entry in archive.Entries)
-        {
-            ValidateFileName(entry.FullName);
-            // Reject Unix links/devices and Windows reparse points before extraction.
-            var kind = (entry.ExternalAttributes >> 16) & 0xF000;
-            if ((kind != 0 && kind != 0x8000) || (entry.ExternalAttributes & 0x410) != 0)
-                throw new InvalidDataException("Only regular files are allowed in a pet pack.");
-            if (entry.Length <= 0 || entry.Length > ImageCodec.MaxFileBytes || (total += entry.Length) > MaxArchiveBytes)
-                throw new InvalidDataException("Pet pack exceeds its file or total size limit.");
-            using var stream = entry.Open(); var content = new byte[checked((int)entry.Length)]; stream.ReadExactly(content);
-            if (stream.ReadByte() != -1 || !entries.TryAdd(entry.FullName, content))
-                throw new InvalidDataException("Duplicate or invalid archive entry.");
-        }
-        if (!entries.TryGetValue("pack.json", out var metadataBytes)) throw new InvalidDataException("Missing pack.json.");
-        var metadata = ReadMetadata(metadataBytes);
-        if (entries.Count != metadata.Files.Count + 1) throw new InvalidDataException("Pack inventory differs from its contents.");
+        using var source = OpenBounded(archivePath, MaxArchiveBytes);
+        return OpenSnapshot(source);
+    }
+    private static CharacterPack OpenSnapshot(FileStream source)
+    {
+        var archiveLength = source.Length;
+        byte[] metadataBytes; CharacterPackMetadata metadata; string directory;
         var root = Path.Combine(Path.GetTempPath(), $"Unfold-pack-{Guid.NewGuid():N}");
         try
         {
-            var directory = Path.Combine(root, metadata.Id); Directory.CreateDirectory(directory);
-            foreach (var (name, hash) in metadata.Files)
+            using (var archive = new ZipArchive(source, ZipArchiveMode.Read, leaveOpen: true))
             {
-                if (!entries.TryGetValue(name, out var content) || Hash(content) != hash)
-                    throw new InvalidDataException($"File checksum mismatch: {name}");
-                AtomicFile.Write(Path.Combine(directory, name), content);
+                if (archive.Entries.Count is < 3 or > MaxFiles) throw new InvalidDataException("A pet pack needs 3–32 files.");
+                var entries = new Dictionary<string, ZipArchiveEntry>(StringComparer.OrdinalIgnoreCase); long total = 0;
+                foreach (var entry in archive.Entries)
+                {
+                    ValidateFileName(entry.FullName);
+                    // Reject Unix links/devices and Windows reparse points before extraction.
+                    var kind = (entry.ExternalAttributes >> 16) & 0xF000;
+                    if ((kind != 0 && kind != 0x8000) || (entry.ExternalAttributes & 0x410) != 0)
+                        throw new InvalidDataException("Only regular files are allowed in a pet pack.");
+                    if (entry.Length <= 0 || entry.Length > ImageCodec.MaxFileBytes || (total += entry.Length) > MaxArchiveBytes)
+                        throw new InvalidDataException("Pet pack exceeds its file or total size limit.");
+                    if (!entries.TryAdd(entry.FullName, entry)) throw new InvalidDataException("Duplicate or invalid archive entry.");
+                }
+                if (!entries.TryGetValue("pack.json", out var metadataEntry)) throw new InvalidDataException("Missing pack.json.");
+                if (metadataEntry.Length > 64 * 1024) throw new InvalidDataException("Pack metadata exceeds 64 KiB.");
+                metadataBytes = new byte[checked((int)metadataEntry.Length)];
+                using (var input = metadataEntry.Open())
+                {
+                    input.ReadExactly(metadataBytes);
+                    if (input.ReadByte() != -1) throw new InvalidDataException("Invalid metadata entry length.");
+                }
+                metadata = ReadMetadata(metadataBytes);
+                if (entries.Count != metadata.Files.Count + 1) throw new InvalidDataException("Pack inventory differs from its contents.");
+                directory = Path.Combine(root, metadata.Id); Directory.CreateDirectory(directory);
+                foreach (var (name, hash) in metadata.Files)
+                {
+                    if (!entries.TryGetValue(name, out var entry)) throw new InvalidDataException($"File checksum mismatch: {name}");
+                    using var input = entry.Open();
+                    using var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write, FileShare.None);
+                    if (CopyExactAndHash(input, output, entry.Length, ImageCodec.MaxFileBytes) != hash)
+                        throw new InvalidDataException($"File checksum mismatch: {name}");
+                    output.Flush(true);
+                }
+                AtomicFile.Write(Path.Combine(directory, "pack.json"), metadataBytes);
             }
-            AtomicFile.Write(Path.Combine(directory, "pack.json"), metadataBytes);
+            if (source.Length != archiveLength) throw new InvalidDataException("The archive changed while being opened.");
             var audit = ValidatePayload(directory, metadata);
             return new(root, metadata, metadataBytes, audit);
         }
@@ -70,28 +88,34 @@ public sealed class CharacterPack : IDisposable
         if (audit.Errors.Count > 0) throw new InvalidDataException(string.Join("\n", audit.Errors));
         if (audit.Files.Count >= MaxFiles || audit.Files.Sum(file => file.Bytes) > MaxArchiveBytes - 64 * 1024)
             throw new InvalidDataException("Pet pack exceeds its file or total size limit.");
-        var files = new Dictionary<string, byte[]>(StringComparer.Ordinal);
-        foreach (var file in audit.Files)
-        {
-            ValidateFileName(file.Path);
-            files.Add(file.Path, ImageCodec.ReadBounded(CharacterLibrary.AssetPath(characterDirectory, file.Path)));
-        }
-        var metadata = new CharacterPackMetadata(1, audit.Id, contentVersion, files.ToDictionary(pair => pair.Key, pair => Hash(pair.Value)));
-        var json = JsonSerializer.SerializeToUtf8Bytes(metadata, CharacterLibrary.JsonOptions); _ = ReadMetadata(json);
-        using var buffer = new MemoryStream();
-        using (var archive = new ZipArchive(buffer, ZipArchiveMode.Create, true))
-        {
-            foreach (var (name, bytes) in files.Append(new("pack.json", json)))
-            { using var stream = archive.CreateEntry(name, CompressionLevel.Optimal).Open(); stream.Write(bytes); }
-        }
-        // Validate the exact distribution bytes, including aggregate budgets, before publishing them.
         var temporary = Path.Combine(Path.GetTempPath(), $"Unfold-pack-{Guid.NewGuid():N}.unfoldpet");
         var outputTemporary = Path.GetFullPath(outputPath) + $".{Guid.NewGuid():N}.tmp";
         try
         {
-            File.WriteAllBytes(temporary, buffer.ToArray()); using var verified = Open(temporary);
+            using (var file = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            {
+                using (var archive = new ZipArchive(file, ZipArchiveMode.Create, leaveOpen: true))
+                {
+                    var hashes = new Dictionary<string, string>(StringComparer.Ordinal); long total = 0;
+                    foreach (var asset in audit.Files)
+                    {
+                        ValidateFileName(asset.Path);
+                        using var input = OpenBounded(CharacterLibrary.AssetPath(characterDirectory, asset.Path), ImageCodec.MaxFileBytes);
+                        if ((total += input.Length) > MaxArchiveBytes - 64 * 1024)
+                            throw new InvalidDataException("Pet pack exceeds its file or total size limit.");
+                        using var output = archive.CreateEntry(asset.Path, CompressionLevel.Optimal).Open();
+                        hashes.Add(asset.Path, CopyExactAndHash(input, output, input.Length, ImageCodec.MaxFileBytes));
+                    }
+                    var metadata = new CharacterPackMetadata(1, audit.Id, contentVersion, hashes);
+                    var json = JsonSerializer.SerializeToUtf8Bytes(metadata, CharacterLibrary.JsonOptions); _ = ReadMetadata(json);
+                    using var metadataOutput = archive.CreateEntry("pack.json", CompressionLevel.Optimal).Open(); metadataOutput.Write(json);
+                }
+                file.Flush(true);
+            }
+            // Validate and publish the same read-locked distribution file, never a second source read.
+            using var snapshot = OpenBounded(temporary, MaxArchiveBytes); using var verified = OpenSnapshot(snapshot);
             using (var output = new FileStream(outputTemporary, FileMode.CreateNew, FileAccess.Write, FileShare.None))
-            { buffer.Position = 0; buffer.CopyTo(output); output.Flush(true); }
+            { snapshot.Position = 0; _ = CopyExactAndHash(snapshot, output, snapshot.Length, MaxArchiveBytes); output.Flush(true); }
             File.Move(outputTemporary, outputPath);
         }
         finally
@@ -106,13 +130,43 @@ public sealed class CharacterPack : IDisposable
         Directory.CreateDirectory(directory);
         foreach (var (name, hash) in metadata.Files)
         {
-            var bytes = ImageCodec.ReadBounded(CharacterLibrary.AssetPath(Character.DirectoryPath, name));
-            if (Hash(bytes) != hash) throw new InvalidDataException("The preview files changed. Reopen the original pack.");
-            AtomicFile.Write(Path.Combine(directory, name), bytes);
+            var target = Path.Combine(directory, name); var temporary = target + $".{Guid.NewGuid():N}.tmp";
+            try
+            {
+                using (var input = OpenBounded(CharacterLibrary.AssetPath(Character.DirectoryPath, name), ImageCodec.MaxFileBytes))
+                using (var output = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+                {
+                    if (CopyExactAndHash(input, output, input.Length, ImageCodec.MaxFileBytes) != hash)
+                        throw new InvalidDataException("The preview files changed. Reopen the original pack.");
+                    output.Flush(true);
+                }
+                File.Move(temporary, target, true);
+            }
+            finally { if (File.Exists(temporary)) File.Delete(temporary); }
         }
         AtomicFile.Write(Path.Combine(directory, "pack.json"), metadataBytes);
         _ = ValidatePayload(directory, metadata);
         return CharacterLibrary.LoadPackage(directory);
+    }
+    private static FileStream OpenBounded(string path, int maxBytes)
+    {
+        var input = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, CopyBufferBytes, FileOptions.SequentialScan);
+        if (input.Length <= maxBytes) return input;
+        input.Dispose(); throw new InvalidDataException("File exceeds the size limit.");
+    }
+    private static string CopyExactAndHash(Stream input, Stream output, long length, int maxBytes)
+    {
+        if (length < 0 || length > maxBytes) throw new InvalidDataException("File exceeds the size limit.");
+        using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+        Span<byte> buffer = stackalloc byte[CopyBufferBytes]; var remaining = length;
+        while (remaining > 0)
+        {
+            var read = input.Read(buffer[..(int)Math.Min(buffer.Length, remaining)]);
+            if (read == 0) throw new EndOfStreamException("The payload is shorter than its declared length.");
+            output.Write(buffer[..read]); hash.AppendData(buffer[..read]); remaining -= read;
+        }
+        if (input.ReadByte() != -1) throw new InvalidDataException("The payload exceeds its declared length.");
+        return Convert.ToHexString(hash.GetHashAndReset()).ToLowerInvariant();
     }
     private static CharacterAudit ValidatePayload(string directory, CharacterPackMetadata metadata)
     {
@@ -224,7 +278,7 @@ public sealed partial class CharacterLibrary
             catch { if (!Directory.Exists(target) && Directory.Exists(backup)) Directory.Move(backup, target); throw; }
             try { if (Directory.Exists(backup)) Directory.Delete(backup, true); }
             catch (Exception error) when (error is IOException or UnauthorizedAccessException) { Warning?.Invoke($"Backup cleanup deferred: {error.Message}"); }
-            return new(target, validated.Manifest, false);
+            return new(target, validated.Manifest, false, validated.StillImage);
         }
         finally
         {

@@ -9,7 +9,7 @@ using Unfold.Core;
 
 namespace Unfold.Desktop;
 
-/// <summary>Images decoded/uploaded once per clip. A timer runs only while attached.</summary>
+/// <summary>Decoded frames share one bitmap per view; changed frames update its pixels. A timer runs only while attached.</summary>
 public sealed class AnimationView : Control, IDisposable
 {
     private IReadOnlyList<AnimationFrame> frames = [];
@@ -68,7 +68,7 @@ public sealed class AnimationView : Control, IDisposable
     public void SetFrames(IReadOnlyList<AnimationFrame> clip, bool repeat, bool pixel = true, bool alignCompanion = false, bool pingPong = false)
     {
         if (disposed) return;
-        timer.Stop(); liveGeneration++; foreach (var bitmap in bitmaps) bitmap.Dispose();
+        timer.Stop(); liveGeneration++; foreach (var bitmap in bitmaps) bitmap.Dispose(); bitmaps = [];
         live = clip as GlbAnimationFrames; liveImage = liveBackImage = null;
         if (live is not null)
         {
@@ -84,7 +84,9 @@ public sealed class AnimationView : Control, IDisposable
             if (running) { elapsed.Restart(); if (HasTopLevel() && NeedsTimer) timer.Start(); } else elapsed.Reset();
             UpdatePoseTransform(); RefreshLiveResolution(); InvalidateVisual(); return;
         }
-        frames = pingPong && clip.Count > 2 ? clip.Concat(clip.Skip(1).Take(clip.Count - 2).Reverse()).ToArray() : clip; bitmaps = frames.Select(f => Ui.Bitmap(f.Image)).ToArray(); loop = repeat;
+        frames = pingPong && clip.Count > 2 ? clip.Concat(clip.Skip(1).Take(clip.Count - 2).Reverse()).ToArray() : clip;
+        if (frames.Count > 0) UploadFrame(frames[0].Image);
+        loop = repeat;
         frameOffsets = alignCompanion ? frames.Select(frame => CompanionOffset(frame.Image)).ToArray() : [];
         totalMs = frames.Sum(f => f.Duration.TotalMilliseconds); index = 0; completed = false;
         RenderOptions.SetBitmapInterpolationMode(this, pixel ? BitmapInterpolationMode.None : BitmapInterpolationMode.HighQuality);
@@ -107,14 +109,30 @@ public sealed class AnimationView : Control, IDisposable
         var ms = elapsed.Elapsed.TotalMilliseconds;
         if (!loop && ms >= totalMs)
         {
-            index = frames.Count - 1; timer.Stop(); elapsed.Stop(); InvalidateVisual();
+            var last = frames.Count - 1;
+            if (index != last) { index = last; UploadFrame(frames[index].Image); }
+            timer.Stop(); elapsed.Stop(); InvalidateVisual();
             if (!completed) { completed = true; Completed?.Invoke(); }
             return;
         }
         ms %= totalMs; var next = 0;
         while (next < frames.Count - 1 && ms >= frames[next].Duration.TotalMilliseconds) ms -= frames[next++].Duration.TotalMilliseconds;
         timer.Interval = TimeSpan.FromMilliseconds(Math.Max(5, frames[next].Duration.TotalMilliseconds - ms));
-        if (next != index) { index = next; InvalidateVisual(); }
+        if (next != index) { index = next; UploadFrame(frames[index].Image); InvalidateVisual(); }
+    }
+    private void UploadFrame(PixelImage image)
+    {
+        // Keep native pixels proportional to one displayed frame, including
+        // ping-pong playback. Each view owns its bitmap; source frames stay intact.
+        if (bitmaps.Length == 1 && bitmaps[0] is WriteableBitmap bitmap &&
+            bitmap.PixelSize.Width == image.Width && bitmap.PixelSize.Height == image.Height)
+            Ui.WriteBitmap(bitmap, image);
+        else
+        {
+            var replacement = Ui.Bitmap(image);
+            foreach (var old in bitmaps) old.Dispose();
+            bitmaps = [replacement];
+        }
     }
     private async Task AdvanceLive(bool refreshOnly = false)
     {
@@ -236,7 +254,7 @@ public sealed class AnimationView : Control, IDisposable
     public override void Render(DrawingContext context)
     {
         base.Render(context);
-        if (bitmaps.Length > 0) context.DrawImage(bitmaps[live is null ? index : 0], ImageRect());
+        if (bitmaps.Length > 0) context.DrawImage(bitmaps[0], ImageRect());
     }
     public void Dispose() { DetachTopLevel(); disposed = true; liveGeneration++; live = null; liveImage = liveBackImage = null; running = false; timer.Stop(); foreach (var bitmap in bitmaps) bitmap.Dispose(); bitmaps = []; frames = []; }
 }

@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <!-- Use the existing internal injection seam without rebuilding the product. -->
+    <AssemblyName>Unfold.Tests</AssemblyName>
+    <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="$(AppSource)/*.dll" Condition="'$(AppSource)' != ''">
+      <Private>true</Private>
+    </Reference>
+    <Content Include="$(NativeLibrary)" Condition="'$(NativeLibrary)' != ''" Link="libunfoldmemory.dylib" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <Target Name="ValidateBenchmarkInputs" BeforeTargets="ResolveReferences">
+    <Error Condition="'$(AppSource)' == ''" Text="Pass -p:AppSource=/absolute/path/to/the/selected/desktop/output." />
+    <Error Condition="!Exists('$(AppSource)/Unfold.dll') Or !Exists('$(AppSource)/Unfold.Core.dll') Or !Exists('$(AppSource)/Unfold.runtimeconfig.json')" Text="AppSource must contain the selected desktop DLLs and runtime configuration." />
+    <Error Condition="'$(NativeLibrary)' == '' Or !Exists('$(NativeLibrary)')" Text="Pass the macOS library compiled from MemInfo.c via -p:NativeLibrary. Use run.sh." />
+  </Target>
+</Project>

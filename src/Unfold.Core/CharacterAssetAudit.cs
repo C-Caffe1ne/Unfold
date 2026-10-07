@@ -82,8 +82,9 @@ public static class CharacterAssetAudit
             }
             foreach (var path in paths.Order(StringComparer.Ordinal))
             {
-                var data = ImageCodec.ReadBounded(CharacterLibrary.AssetPath(directory, path));
-                files.Add(new(path, data.LongLength, Convert.ToHexString(SHA256.HashData(data)).ToLowerInvariant()));
+                using var file = File.OpenRead(CharacterLibrary.AssetPath(directory, path));
+                if (file.Length > ImageCodec.MaxFileBytes) throw new InvalidDataException("File exceeds the size limit.");
+                files.Add(new(path, file.Length, Convert.ToHexString(SHA256.HashData(file)).ToLowerInvariant()));
             }
             foreach (var key in OneShots.Order(StringComparer.Ordinal))
                 if (!package.Manifest.Animations.ContainsKey(key)) warnings.Add($"{key} 반응이 없는 팩이에요. 해당 상황에서는 현재 동작을 유지해요.");
