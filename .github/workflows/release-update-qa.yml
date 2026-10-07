@@ -1,0 +1,35 @@
+name: Beta v1.1.1 Windows update QA
+on:
+  push:
+    branches: [codex/remove-unused-features]
+    paths:
+      - .github/workflows/release-update-qa.yml
+      - Scripts/verify-published-windows-update.ps1
+      - Scripts/verification/PublishedWindowsUpdateProbe.cs
+  workflow_dispatch:
+permissions:
+  contents: read
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+  AVALONIA_TELEMETRY_OPTOUT: '1'
+jobs:
+  published-update:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Prepare native diagnostic display
+        shell: pwsh
+        run: ./Scripts/prepare-windows-ci-display.ps1
+      - name: Verify published update and restart
+        shell: pwsh
+        run: ./Scripts/verify-published-windows-update.ps1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Unfold-published-win-x64-update
+          path: artifacts/validation/published-windows-update
+          if-no-files-found: error
