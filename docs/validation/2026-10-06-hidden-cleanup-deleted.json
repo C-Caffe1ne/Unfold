@@ -1,0 +1,1073 @@
+[
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": ".DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 14340,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 14340,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "tools/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "Art/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 8196,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "web/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "Tests/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": ".claude/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 10244,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "docs/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 8196,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "supabase/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": ".codex/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": ".specify/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": ".tools/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": ".superpowers/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "Assets/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 8196,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "src/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": ".DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/releases/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/pet-packs/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/local-timer-player-2026-10-02/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 1193438777,
+    "files": 862
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/local-timer-player-2026-10-02/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/rollbacks/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/local-dock-launch-2026-10-04/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 1194379814,
+    "files": 862
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/local-dock-launch-2026-10-04/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/local-in-app-updates-2026-10-03/Unfold-x64.app",
+    "reason": "old generated app copy",
+    "bytes": 179951985,
+    "files": 255
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/local-in-app-updates-2026-10-03/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 186120348,
+    "files": 255
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/local-in-app-updates-2026-10-03/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "Art/Brand/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 10244,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "Art/Characters/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 10244,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "Tests/UnfoldTests/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "Tests/Unfold.Tests/obj",
+    "reason": "rebuildable output",
+    "bytes": 1730496,
+    "files": 41
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "Tests/Unfold.Tests/bin",
+    "reason": "rebuildable output",
+    "bytes": 639384879,
+    "files": 242
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "Tests/Unfold.Tests/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "docs/archive/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "docs/validation/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 10244,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "supabase/functions/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "Assets/Characters/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 12292,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "src/Unfold.Desktop/obj",
+    "reason": "rebuildable output",
+    "bytes": 1354280,
+    "files": 34
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "src/Unfold.Desktop/bin",
+    "reason": "rebuildable output",
+    "bytes": 623127559,
+    "files": 95
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "src/Unfold.Desktop/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "src/Unfold.Core/obj",
+    "reason": "rebuildable output",
+    "bytes": 502272,
+    "files": 26
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "src/Unfold.Core/bin",
+    "reason": "rebuildable output",
+    "bytes": 305280,
+    "files": 3
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "src/Unfold.Core/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 180267833,
+    "files": 256
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": ".tools/media-downloads",
+    "reason": "download cache",
+    "bytes": 79146408,
+    "files": 3
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold",
+    "path": ".tools/media-downloads",
+    "reason": "download cache",
+    "bytes": 51659589,
+    "files": 2
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/releases/v0.2.2/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 8196,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/releases/v0.2.1/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/releases/v1.0.3-beta.1/Unfold-x64.app",
+    "reason": "old generated app copy",
+    "bytes": 179964654,
+    "files": 256
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/releases/v1.0.3-beta.1/Unfold-arm64.app",
+    "reason": "old generated app copy",
+    "bytes": 186132505,
+    "files": 256
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/releases/v1.0.3-beta.1/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/releases/v1.0.3-beta/Unfold-x64.app",
+    "reason": "old generated app copy",
+    "bytes": 179960883,
+    "files": 256
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/releases/v1.0.3-beta/Unfold-arm64.app",
+    "reason": "old generated app copy",
+    "bytes": 186129246,
+    "files": 256
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/releases/v1.0.3-beta/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 179960883,
+    "files": 256
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/releases/v1.0.3-beta/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 8196,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/audit-2026-10-06/evidence/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/rollbacks/bori-pixel-20260915-133522/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/execution-2026-10-06/evidence/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 10244,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/local-in-app-updates-2026-10-03/update-releases/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "Art/Brand/unfold-oat-v1/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 8196,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "Art/Brand/unfold-lilac-v1/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 10244,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "Art/Characters/bori-rabbit/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "tools/Unfold.MediaSetup/obj",
+    "reason": "rebuildable output",
+    "bytes": 209222,
+    "files": 20
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "tools/Unfold.MediaSetup/bin",
+    "reason": "rebuildable output",
+    "bytes": 150162,
+    "files": 5
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "Tests/Unfold.Tests/obj",
+    "reason": "rebuildable output",
+    "bytes": 2202307,
+    "files": 28
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "Tests/Unfold.Tests/bin",
+    "reason": "rebuildable output",
+    "bytes": 644211025,
+    "files": 251
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "src/Unfold.Desktop/obj",
+    "reason": "rebuildable output",
+    "bytes": 116013028,
+    "files": 192
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "src/Unfold.Desktop/bin",
+    "reason": "rebuildable output",
+    "bytes": 1115502922,
+    "files": 676
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "src/Unfold.Core/obj",
+    "reason": "rebuildable output",
+    "bytes": 515880,
+    "files": 22
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "src/Unfold.Core/bin",
+    "reason": "rebuildable output",
+    "bytes": 316344,
+    "files": 3
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/releases/v0.2.2/smoke-profile/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/releases/v0.2.2/pets-profile/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/releases/v0.2.1/verification/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/releases/v1.0.3-beta.1/update-releases/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/releases/v1.0.3-beta/osx-x64/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/releases/v1.0.3-beta/osx-arm64/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/releases/v1.0.3-beta/win-x64/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/releases/v1.0.3-beta/update-releases/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/validation/2026-10-04-v1.0.3-dock-release/https-update-harness/obj",
+    "reason": "rebuildable output",
+    "bytes": 215315,
+    "files": 22
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/validation/2026-10-04-v1.0.3-dock-release/https-update-harness/bin",
+    "reason": "rebuildable output",
+    "bytes": 428917,
+    "files": 6
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/validation/2026-10-03-beta-v1.0.3-release/https-update-harness/obj",
+    "reason": "rebuildable output",
+    "bytes": 215873,
+    "files": 22
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/validation/2026-10-03-beta-v1.0.3-release/https-update-harness/bin",
+    "reason": "rebuildable output",
+    "bytes": 429442,
+    "files": 6
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "Art/Brand/unfold-lilac-v1/desktop/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "Art/Brand/unfold-lilac-v1/png/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 10244,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": ".worktrees/pet-pack-ux/Tests/Unfold.Tests/obj",
+    "reason": "rebuildable output",
+    "bytes": 2501547,
+    "files": 28
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": ".worktrees/pet-pack-ux/Tests/Unfold.Tests/bin",
+    "reason": "rebuildable output",
+    "bytes": 618027162,
+    "files": 247
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": ".worktrees/pet-pack-ux/src/Unfold.Desktop/obj",
+    "reason": "rebuildable output",
+    "bytes": 2703823,
+    "files": 25
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": ".worktrees/pet-pack-ux/src/Unfold.Desktop/bin",
+    "reason": "rebuildable output",
+    "bytes": 600726646,
+    "files": 98
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": ".worktrees/pet-pack-ux/src/Unfold.Core/obj",
+    "reason": "rebuildable output",
+    "bytes": 877682,
+    "files": 33
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": ".worktrees/pet-pack-ux/src/Unfold.Core/bin",
+    "reason": "rebuildable output",
+    "bytes": 572204,
+    "files": 6
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/access-code-qa/native-osx-arm64/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 177934262,
+    "files": 255
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "docs/validation/2026-10-05-glb-memory/obj",
+    "reason": "rebuildable output",
+    "bytes": 383182,
+    "files": 23
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "docs/validation/2026-10-05-glb-memory/bin",
+    "reason": "rebuildable output",
+    "bytes": 627217180,
+    "files": 108
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/releases/v1.0.3-beta/osx-x64/Assets/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/releases/v1.0.3-beta/osx-arm64/Assets/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "artifacts/releases/v1.0.3-beta/win-x64/app/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": "Art/Brand/unfold-lilac-v1/png/app-icon/.DS_Store",
+    "reason": "Finder metadata",
+    "bytes": 6148,
+    "files": 1
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/releases/v1.0.0-beta/verify-osx-arm64/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 177882902,
+    "files": 255
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/releases/v1.0.0-beta/sales-verify-osx-arm64/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 177906784,
+    "files": 255
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/releases/v1.0.0-beta/final-verify-osx-x64/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 171810111,
+    "files": 255
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/releases/v1.0.0-beta/final-verify-osx-arm64/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 177905160,
+    "files": 255
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/releases/v1.0.0-beta/metadata-check/obj",
+    "reason": "rebuildable output",
+    "bytes": 205980,
+    "files": 20
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/releases/v1.0.0-beta/metadata-check/bin",
+    "reason": "rebuildable output",
+    "bytes": 146509,
+    "files": 5
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/releases/v1.0.0-beta/sales-verify-osx-x64/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 171811735,
+    "files": 255
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/verification/direction-icons/probe/obj",
+    "reason": "rebuildable output",
+    "bytes": 394501,
+    "files": 23
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/verification/direction-icons/probe/bin",
+    "reason": "rebuildable output",
+    "bytes": 600200326,
+    "files": 100
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/verification/access-code/probe/obj",
+    "reason": "rebuildable output",
+    "bytes": 395726,
+    "files": 23
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/verification/access-code/probe/bin",
+    "reason": "rebuildable output",
+    "bytes": 600208472,
+    "files": 100
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/verification/account-drag/probe/obj",
+    "reason": "rebuildable output",
+    "bytes": 381546,
+    "files": 23
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/verification/account-drag/probe/bin",
+    "reason": "rebuildable output",
+    "bytes": 596750803,
+    "files": 94
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/verification/settings-account/probe/obj",
+    "reason": "rebuildable output",
+    "bytes": 403882,
+    "files": 23
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/verification/settings-account/probe/bin",
+    "reason": "rebuildable output",
+    "bytes": 600227089,
+    "files": 100
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/verification/navigation-icons/probe/obj",
+    "reason": "rebuildable output",
+    "bytes": 391461,
+    "files": 23
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/verification/navigation-icons/probe/bin",
+    "reason": "rebuildable output",
+    "bytes": 599770637,
+    "files": 100
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/validation/2026-10-01-v1.0.2-release/osx-arm64-candidate/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 178035188,
+    "files": 255
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/validation/2026-10-01-v1.0.2-release/osx-x64-candidate/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 171933483,
+    "files": 255
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/validation/2026-10-01-v1.0.2-release/macos-installed/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 178035188,
+    "files": 255
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/validation/2026-10-01-v1.0.2-release/native-probe/obj",
+    "reason": "rebuildable output",
+    "bytes": 396900,
+    "files": 23
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/validation/2026-10-01-v1.0.2-release/native-probe/bin",
+    "reason": "rebuildable output",
+    "bytes": 628441028,
+    "files": 107
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/validation/2026-10-01-status-icons/probe/obj",
+    "reason": "rebuildable output",
+    "bytes": 210677,
+    "files": 20
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/validation/2026-10-01-status-icons/probe/bin",
+    "reason": "rebuildable output",
+    "bytes": 151031,
+    "files": 5
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/validation/2026-10-01-macos-notarization/browser-installed/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 178090717,
+    "files": 256
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/validation/2026-10-01-macos-notarization/osx-x64/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 171941204,
+    "files": 255
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/validation/2026-10-01-macos-notarization/osx-arm64/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 178049833,
+    "files": 256
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/validation/2026-10-01-tray-checkout-update/native-probe/obj",
+    "reason": "rebuildable output",
+    "bytes": 393952,
+    "files": 23
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/validation/2026-10-01-tray-checkout-update/native-probe/bin",
+    "reason": "rebuildable output",
+    "bytes": 626748095,
+    "files": 107
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/validation/2026-10-01-installers/macos-installed/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 178011474,
+    "files": 255
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/validation/2026-10-01-installers/intel-candidate/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 171908233,
+    "files": 255
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/validation/2026-10-01-account-branding/native-probe/obj",
+    "reason": "rebuildable output",
+    "bytes": 394148,
+    "files": 23
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/validation/2026-10-01-account-branding/native-probe/bin",
+    "reason": "rebuildable output",
+    "bytes": 626772480,
+    "files": 107
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/validation/2026-10-01-session-persistence/native-probe/obj",
+    "reason": "rebuildable output",
+    "bytes": 388102,
+    "files": 23
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/validation/2026-10-01-session-persistence/native-probe/bin",
+    "reason": "rebuildable output",
+    "bytes": 626735923,
+    "files": 107
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": ".worktrees/pet-pack-ux/artifacts/pet-pack-ux/s3/harness/obj",
+    "reason": "rebuildable output",
+    "bytes": 272629,
+    "files": 22
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": ".worktrees/pet-pack-ux/artifacts/pet-pack-ux/s3/harness/bin",
+    "reason": "rebuildable output",
+    "bytes": 304020549,
+    "files": 15
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": ".worktrees/pet-pack-ux/artifacts/pet-pack-ux/qa1/probe/obj",
+    "reason": "rebuildable output",
+    "bytes": 501281,
+    "files": 39
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": ".worktrees/pet-pack-ux/artifacts/pet-pack-ux/qa1/probe/bin",
+    "reason": "rebuildable output",
+    "bytes": 304052760,
+    "files": 15
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": ".worktrees/pet-pack-ux/artifacts/pet-pack-ux/s6b/probe/obj",
+    "reason": "rebuildable output",
+    "bytes": 309842,
+    "files": 23
+  },
+  {
+    "root": "/Users/hwanghyeonseong/Documents/GitHub/Unfold",
+    "path": ".worktrees/pet-pack-ux/artifacts/pet-pack-ux/s6b/probe/bin",
+    "reason": "rebuildable output",
+    "bytes": 586945249,
+    "files": 72
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/validation/2026-10-01-macos-notarization/osx-x64/notary-final/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 79246557,
+    "files": 5
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/validation/2026-10-01-macos-notarization/osx-x64/installed/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 171989012,
+    "files": 256
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/validation/2026-10-01-macos-notarization/osx-x64/distribution/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 171984827,
+    "files": 256
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/validation/2026-10-01-macos-notarization/osx-x64/release/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 171989012,
+    "files": 256
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/validation/2026-10-01-macos-notarization/osx-x64/notary-release/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 79254712,
+    "files": 5
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/validation/2026-10-01-macos-notarization/osx-arm64/notary/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 75067340,
+    "files": 5
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/validation/2026-10-01-macos-notarization/osx-arm64/notary-final/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 75114086,
+    "files": 5
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/validation/2026-10-01-macos-notarization/osx-arm64/installed/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 178090717,
+    "files": 256
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/validation/2026-10-01-macos-notarization/osx-arm64/distribution/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 178086532,
+    "files": 256
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/validation/2026-10-01-macos-notarization/osx-arm64/release/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 178090717,
+    "files": 256
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+    "path": "artifacts/validation/2026-10-01-macos-notarization/osx-arm64/notary-release/Unfold.app",
+    "reason": "old generated app copy",
+    "bytes": 75122239,
+    "files": 5
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold",
+    "path": "docs/validation/2026-10-06-glb-pipeline-memory/probes/benchmark/obj",
+    "reason": "rebuildable output",
+    "bytes": 280972,
+    "files": 22
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold",
+    "path": "docs/validation/2026-10-06-glb-pipeline-memory/probes/benchmark/bin",
+    "reason": "rebuildable output",
+    "bytes": 304097211,
+    "files": 15
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold",
+    "path": "docs/validation/2026-10-06-glb-pipeline-memory/probes/playback/obj",
+    "reason": "rebuildable output",
+    "bytes": 432867,
+    "files": 23
+  },
+  {
+    "root": "/Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold",
+    "path": "docs/validation/2026-10-06-glb-pipeline-memory/probes/playback/bin",
+    "reason": "rebuildable output",
+    "bytes": 629287001,
+    "files": 110
+  }
+]
