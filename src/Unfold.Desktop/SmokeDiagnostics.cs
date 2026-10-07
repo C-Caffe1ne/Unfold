@@ -983,14 +983,20 @@ internal static partial class SmokeDiagnostics
         var inset = window.IsExtendedIntoWindowDecorations ? window.WindowDecorationMargin : default;
         File.WriteAllText(Path.Combine(directory, "native-window-layout.json"), JsonSerializer.Serialize(new
         {
-            window.ClientSize, window.RenderScaling, window.ActualTransparencyLevel,
+            window.ClientSize, window.RenderScaling, actualTransparencyLevel = window.ActualTransparencyLevel.ToString(),
             window.IsExtendedIntoWindowDecorations, window.WindowDecorationMargin,
             surfaceSize = surface.Bounds.Size, surface.CornerRadius, frame.Margin, frame.BorderThickness,
             expectedInset = inset
         }));
         var path = Path.Combine(directory, "native-window-client.png");
         Capture(window, path);
-        if (window.ActualTransparencyLevel != WindowTransparencyLevel.None ||
+        // Win32 composition can report Transparent even for an opaque client
+        // because its surface has no redirection bitmap. Verify the requested
+        // mode, opaque background and rendered pixels instead of that flag alone.
+        var nativeSurfaceLevel = window.ActualTransparencyLevel == WindowTransparencyLevel.None ||
+            OperatingSystem.IsWindows() && window.ActualTransparencyLevel == WindowTransparencyLevel.Transparent;
+        if (!nativeSurfaceLevel || window.TransparencyLevelHint.Contains(WindowTransparencyLevel.Transparent) ||
+            surface.Background is not ISolidColorBrush { Color.A: 255 } ||
             surface.Bounds.Size != window.ClientSize || surface.CornerRadius != default ||
             frame.Margin != inset || frame.BorderThickness != default)
             throw new InvalidOperationException("The native window client area has an incorrect background or title bar inset.");
