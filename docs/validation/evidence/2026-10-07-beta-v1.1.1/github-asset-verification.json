@@ -1,0 +1,58 @@
+{
+  "success": true,
+  "sourceCommit": "887d0127e57e5145062d0d558fb71b113284542d",
+  "releaseId": 405686621,
+  "url": "https://github.com/C-Caffe1ne/Unfold/releases/tag/v1.1.1-beta",
+  "assets": [
+    {
+      "name": "DokhuStudio.Unfold.Updates-1.1.1-beta-osx-arm64-beta-full.nupkg",
+      "bytes": 80498769,
+      "digest": "sha256:d088193112183f061c8687506bb9719123911e80133041f77cc95d3db6f34e15"
+    },
+    {
+      "name": "DokhuStudio.Unfold.Updates-1.1.1-beta-osx-x64-beta-full.nupkg",
+      "bytes": 84666319,
+      "digest": "sha256:b56d86a4070c49f09750139e34ced4b006e18047fdee9e324003899c412b58f8"
+    },
+    {
+      "name": "DokhuStudio.Unfold.Updates-1.1.1-beta-win-x64-beta-full.nupkg",
+      "bytes": 84829168,
+      "digest": "sha256:35e0b38a09b9798f2eca7b3e856c6a33ea6fb376118622e41c34df3c1150e764"
+    },
+    {
+      "name": "releases.osx-arm64-beta.json",
+      "bytes": 4475,
+      "digest": "sha256:5f3127d7f96f2bb1600956713489c4005fdbba41fd4fd69b46b7670fd761336f"
+    },
+    {
+      "name": "releases.osx-x64-beta.json",
+      "bytes": 4473,
+      "digest": "sha256:0a161db65593938d19386dbbdc8865b69f56ecf02cab69d36ebdf2cfcb992a4f"
+    },
+    {
+      "name": "releases.win-x64-beta.json",
+      "bytes": 4473,
+      "digest": "sha256:7443aa1190eaca2ec4dc0d8588fd65593acd6a2e87aa31e3d4ec397270360a8d"
+    },
+    {
+      "name": "Unfold-v1.1.1-beta-notarized-ZIP-SHA256SUMS.txt",
+      "bytes": 343,
+      "digest": "sha256:a2a86fc353801c1b25506596f4fc7cd2b714a1fba68f89638b7cc71326598691"
+    },
+    {
+      "name": "Unfold-v1.1.1-beta-osx-arm64-notarized-installer.zip",
+      "bytes": 77395387,
+      "digest": "sha256:21f2771479de9bf88647ff178660664796564df5fc48833330002a54122d125f"
+    },
+    {
+      "name": "Unfold-v1.1.1-beta-osx-x64-notarized-installer.zip",
+      "bytes": 81568346,
+      "digest": "sha256:dd4bc03ab093e5756a2915d888daefcc12b1510a1108fade29e06202a80bf567"
+    },
+    {
+      "name": "Unfold-v1.1.1-beta-win-x64-installer.zip",
+      "bytes": 86647476,
+      "digest": "sha256:c6f62c1cefa6c3018fb37176c99845705773f1abeded4c1d7eef86293897d2b7"
+    }
+  ]
+}

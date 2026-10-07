@@ -1,0 +1,237 @@
+{
+  "success": true,
+  "webCommit": "c4baa082345e828ced8e977b75508573805d3f62",
+  "checks": [
+    {
+      "path": "/",
+      "http": 200,
+      "matchesCommit": true
+    },
+    {
+      "path": "/install",
+      "http": 200,
+      "matchesCommit": true
+    },
+    {
+      "path": "/dashboard",
+      "http": 200,
+      "matchesCommit": true
+    },
+    {
+      "path": "/changelog",
+      "http": 200,
+      "matchesCommit": true
+    },
+    {
+      "path": "/downloads/Unfold-v1.0.0-beta-osx-arm64.zip",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.0.0-beta/Unfold-v1.0.0-beta-osx-arm64.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.0.0-beta-osx-x64.zip",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.0.0-beta/Unfold-v1.0.0-beta-osx-x64.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.0.0-beta-win-x64.zip",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.0.0-beta/Unfold-v1.0.0-beta-win-x64.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.0.0-beta-SHA256SUMS.txt",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.0.0-beta/Unfold-v1.0.0-beta-SHA256SUMS.txt"
+    },
+    {
+      "path": "/downloads/Unfold-v1.0.1-beta-osx-arm64-installer.zip",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.0.1-beta/Unfold-v1.0.1-beta-osx-arm64-installer.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.0.1-beta-osx-x64-installer.zip",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.0.1-beta/Unfold-v1.0.1-beta-osx-x64-installer.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.0.1-beta-win-x64-installer.zip",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.0.1-beta/Unfold-v1.0.1-beta-win-x64-installer.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.0.1-beta-ZIP-SHA256SUMS.txt",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.0.1-beta/Unfold-v1.0.1-beta-ZIP-SHA256SUMS.txt"
+    },
+    {
+      "path": "/downloads/Unfold-v1.0.2-beta-osx-arm64-installer.zip",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.0.2-beta/Unfold-v1.0.2-beta-osx-arm64-installer.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.0.2-beta-osx-x64-installer.zip",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.0.2-beta/Unfold-v1.0.2-beta-osx-x64-installer.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.0.2-beta-win-x64-installer.zip",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.0.2-beta/Unfold-v1.0.2-beta-win-x64-installer.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.0.2-beta-ZIP-SHA256SUMS.txt",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.0.2-beta/Unfold-v1.0.2-beta-ZIP-SHA256SUMS.txt"
+    },
+    {
+      "path": "/downloads/Unfold-v1.0.2-beta-osx-arm64-notarized-installer.zip",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.0.2-beta/Unfold-v1.0.2-beta-osx-arm64-notarized-installer.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.0.2-beta-osx-x64-notarized-installer.zip",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.0.2-beta/Unfold-v1.0.2-beta-osx-x64-notarized-installer.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.0.2-beta-notarized-ZIP-SHA256SUMS.txt",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.0.2-beta/Unfold-v1.0.2-beta-notarized-ZIP-SHA256SUMS.txt"
+    },
+    {
+      "path": "/downloads/Unfold-v1.0.3-beta-osx-arm64-notarized-installer.zip",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.0.3-beta/Unfold-v1.0.3-beta-osx-arm64-notarized-installer.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.0.3-beta-osx-x64-notarized-installer.zip",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.0.3-beta/Unfold-v1.0.3-beta-osx-x64-notarized-installer.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.0.3-beta-win-x64-installer.zip",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.0.3-beta/Unfold-v1.0.3-beta-win-x64-installer.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.0.3-beta-notarized-ZIP-SHA256SUMS.txt",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.0.3-beta/Unfold-v1.0.3-beta-notarized-ZIP-SHA256SUMS.txt"
+    },
+    {
+      "path": "/downloads/Unfold-v1.0.3-beta.1-osx-arm64-notarized-installer.zip",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.0.3-beta.1/Unfold-v1.0.3-beta.1-osx-arm64-notarized-installer.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.0.3-beta.1-osx-x64-notarized-installer.zip",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.0.3-beta.1/Unfold-v1.0.3-beta.1-osx-x64-notarized-installer.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.0.3-beta.1-win-x64-installer.zip",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.0.3-beta.1/Unfold-v1.0.3-beta.1-win-x64-installer.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.0.3-beta.1-notarized-ZIP-SHA256SUMS.txt",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.0.3-beta.1/Unfold-v1.0.3-beta.1-notarized-ZIP-SHA256SUMS.txt"
+    },
+    {
+      "path": "/downloads/Unfold-v1.0.4-beta-osx-arm64-notarized-installer.zip",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.0.4-beta/Unfold-v1.0.4-beta-osx-arm64-notarized-installer.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.0.4-beta-osx-x64-notarized-installer.zip",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.0.4-beta/Unfold-v1.0.4-beta-osx-x64-notarized-installer.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.0.4-beta-win-x64-installer.zip",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.0.4-beta/Unfold-v1.0.4-beta-win-x64-installer.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.0.4-beta-notarized-ZIP-SHA256SUMS.txt",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.0.4-beta/Unfold-v1.0.4-beta-notarized-ZIP-SHA256SUMS.txt"
+    },
+    {
+      "path": "/downloads/Unfold-v1.1.0-beta-osx-arm64-notarized-installer.zip",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.1.0-beta/Unfold-v1.1.0-beta-osx-arm64-notarized-installer.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.1.0-beta-osx-x64-notarized-installer.zip",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.1.0-beta/Unfold-v1.1.0-beta-osx-x64-notarized-installer.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.1.0-beta-win-x64-installer.zip",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.1.0-beta/Unfold-v1.1.0-beta-win-x64-installer.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.1.0-beta-notarized-ZIP-SHA256SUMS.txt",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.1.0-beta/Unfold-v1.1.0-beta-notarized-ZIP-SHA256SUMS.txt"
+    },
+    {
+      "path": "/downloads/Unfold-v1.1.1-beta-osx-arm64-notarized-installer.zip",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.1.1-beta/Unfold-v1.1.1-beta-osx-arm64-notarized-installer.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.1.1-beta-osx-x64-notarized-installer.zip",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.1.1-beta/Unfold-v1.1.1-beta-osx-x64-notarized-installer.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.1.1-beta-win-x64-installer.zip",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.1.1-beta/Unfold-v1.1.1-beta-win-x64-installer.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.1.1-beta-notarized-ZIP-SHA256SUMS.txt",
+      "http": 302,
+      "destination": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.1.1-beta/Unfold-v1.1.1-beta-notarized-ZIP-SHA256SUMS.txt"
+    },
+    {
+      "path": "/downloads/Unfold-v1.1.1-beta-osx-arm64-notarized-installer.zip",
+      "bytes": 77395387,
+      "sha256": "21f2771479de9bf88647ff178660664796564df5fc48833330002a54122d125f",
+      "downloadVerified": true
+    },
+    {
+      "path": "/downloads/Unfold-v1.1.1-beta-osx-x64-notarized-installer.zip",
+      "bytes": 81568346,
+      "sha256": "dd4bc03ab093e5756a2915d888daefcc12b1510a1108fade29e06202a80bf567",
+      "downloadVerified": true
+    },
+    {
+      "path": "/downloads/Unfold-v1.1.1-beta-win-x64-installer.zip",
+      "bytes": 86647476,
+      "sha256": "c6f62c1cefa6c3018fb37176c99845705773f1abeded4c1d7eef86293897d2b7",
+      "downloadVerified": true
+    },
+    {
+      "path": "/downloads/Unfold-v1.1.1-beta-notarized-ZIP-SHA256SUMS.txt",
+      "bytes": 343,
+      "sha256": "a2a86fc353801c1b25506596f4fc7cd2b714a1fba68f89638b7cc71326598691",
+      "downloadVerified": true
+    },
+    {
+      "path": "/docs/downloads.md",
+      "http": 404
+    },
+    {
+      "path": "/tools/verify-site.py",
+      "http": 404
+    },
+    {
+      "path": "/unknown/nested",
+      "http": 404
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "success": true,
+  "submissions": [
+    {
+      "id": "0fbc4e6d-51a2-42fd-bf5b-e686975656dc",
+      "name": "Unfold-v1.1.1-beta-osx-x64.tmp.dmg",
+      "createdDate": "2026-10-07T11:12:28.007Z",
+      "status": "Accepted"
+    },
+    {
+      "status": "Accepted",
+      "createdDate": "2026-10-07T11:11:02.024Z",
+      "name": "notarize.zip",
+      "id": "d98316d9-a37a-44f9-a01e-0db97bd4d119"
+    },
+    {
+      "id": "b3c68bbf-1767-4faf-afa7-e01c8df7fef1",
+      "createdDate": "2026-10-07T11:08:38.820Z",
+      "name": "Unfold-v1.1.1-beta-osx-arm64.tmp.dmg",
+      "status": "Accepted"
+    },
+    {
+      "createdDate": "2026-10-07T11:07:18.474Z",
+      "id": "b6b5dc7f-06f7-4d32-a6c0-862bedc8b85d",
+      "status": "Accepted",
+      "name": "notarize.zip"
+    }
+  ]
+}

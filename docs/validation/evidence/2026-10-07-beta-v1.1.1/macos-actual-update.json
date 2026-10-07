@@ -1,0 +1,19 @@
+{
+  "success": true,
+  "runtime": "osx-arm64",
+  "fromVersion": "1.1.0-beta",
+  "version": "1.1.1-beta",
+  "nativeHelper": "UpdateMac 1.2.0",
+  "realAppUpdatesPrepareApply": true,
+  "applicationReplaced": true,
+  "restartedWithDiagnosticArgument": true,
+  "userInstallationUntouched": true,
+  "codesignVerified": true,
+  "staplerVerified": true,
+  "gatekeeperVerified": true,
+  "packageSha256": "d088193112183f061c8687506bb9719123911e80133041f77cc95d3db6f34e15",
+  "smokeFile": "/private/tmp/unfold-release-1.1.1/actual-upgrade/restarted-profile/verification/smoke.json",
+  "smokeSuccess": true,
+  "smokeImages": 100,
+  "workingSetBytes": 172933120
+}

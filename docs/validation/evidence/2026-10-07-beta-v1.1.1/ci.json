@@ -1,0 +1,17 @@
+{
+  "success": true,
+  "run": 37611505352,
+  "sourceCommit": "887d0127e57e5145062d0d558fb71b113284542d",
+  "jobs": [
+    {
+      "name": "build (macos-latest, osx-arm64)",
+      "conclusion": "success",
+      "url": "https://github.com/C-Caffe1ne/Unfold/actions/runs/37611505352/job/112759581660"
+    },
+    {
+      "name": "build (windows-latest, win-x64)",
+      "conclusion": "success",
+      "url": "https://github.com/C-Caffe1ne/Unfold/actions/runs/37611505352/job/112759582059"
+    }
+  ]
+}

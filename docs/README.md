@@ -5,6 +5,7 @@
 
 | 문서 | 역할 |
 |---|---|
+| [Beta v1.1.1 배포·업데이트 검증](validation/2026-10-07-beta-v1.1.1-release.md) | Mac 공증·Windows native CI·공개 다운로드·실제 Mac/Windows 업데이트 교체·재시작과 검증 경계 |
 | [400MB 메모리 검증](validation/2026-10-07-memory-budget.md) | 최신 소스·동일 native 실행기의 전후 측정, 캐시·2D 재생·가져오기 최적화와 복구 회귀 검사 |
 | [400MB 최적화 계획](plans/2026-10-07-memory-budget.md) | Agency 역할·측정 기준·변경 순서·장시간 검증과 임의 입력 경계 |
 | [미사용 기능 제거 검증](validation/2026-10-07-unused-features.md) | 최신 제품 커밋 기준, 루틴·프로필 설정과 픽셀 에디터 제거·기존 데이터 호환·종료/업데이트 회귀 검사 |
