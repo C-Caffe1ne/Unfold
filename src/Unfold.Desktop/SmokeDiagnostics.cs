@@ -981,6 +981,15 @@ internal static partial class SmokeDiagnostics
         var surface = window.GetVisualDescendants().OfType<Border>().Single(item => item.Name == "SettingsWindowSurface");
         var frame = window.GetVisualDescendants().OfType<Border>().Single(item => item.Name == "SettingsFrame");
         var inset = window.IsExtendedIntoWindowDecorations ? window.WindowDecorationMargin : default;
+        File.WriteAllText(Path.Combine(directory, "native-window-layout.json"), JsonSerializer.Serialize(new
+        {
+            window.ClientSize, window.RenderScaling, window.ActualTransparencyLevel,
+            window.IsExtendedIntoWindowDecorations, window.WindowDecorationMargin,
+            surfaceSize = surface.Bounds.Size, surface.CornerRadius, frame.Margin, frame.BorderThickness,
+            expectedInset = inset
+        }));
+        var path = Path.Combine(directory, "native-window-client.png");
+        Capture(window, path);
         if (window.ActualTransparencyLevel != WindowTransparencyLevel.None ||
             surface.Bounds.Size != window.ClientSize || surface.CornerRadius != default ||
             frame.Margin != inset || frame.BorderThickness != default)
@@ -991,8 +1000,6 @@ internal static partial class SmokeDiagnostics
             if (hit is null || WindowDecorationProperties.GetElementRole(hit) != WindowDecorationsElementRole.TitleBar)
                 throw new InvalidOperationException("The extended title bar does not route input to native window dragging.");
         }
-        var path = Path.Combine(directory, "native-window-client.png");
-        Capture(window, path);
         var pixels = ImageCodec.DecodePng(File.ReadAllBytes(path));
         foreach (var (x, y) in new[] { (1, 1), (pixels.Width - 2, 1), (1, pixels.Height - 2), (pixels.Width - 2, pixels.Height - 2) })
             if ((pixels.Pixels[y * pixels.Width + x] >> 24) != 255)
