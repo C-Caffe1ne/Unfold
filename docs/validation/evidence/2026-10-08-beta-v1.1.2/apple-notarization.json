@@ -1,0 +1,20 @@
+[
+  {
+    "runtime": "osx-arm64",
+    "appAccepted": true,
+    "appSubmission": "d8c23fba-d7da-4a8a-9900-b36d6c315bbb",
+    "dmgAccepted": true,
+    "dmgSubmission": "b989d105-8d9b-4311-9e89-65d83764f5b9",
+    "ticketsValidated": true,
+    "gatekeeperPassed": true
+  },
+  {
+    "runtime": "osx-x64",
+    "appAccepted": true,
+    "appSubmission": "07f7633f-2368-43dd-af5d-b9f2c97ea608",
+    "dmgAccepted": true,
+    "dmgSubmission": "9ab08783-9694-4753-a1fe-1155d4591eea",
+    "ticketsValidated": true,
+    "gatekeeperPassed": true
+  }
+]

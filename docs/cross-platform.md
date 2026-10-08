@@ -3,9 +3,9 @@
 Unfold is a C#/.NET 10 and Avalonia stretch reminder with desktop pets. Published
 packages include .NET. Swift, Xcode, and the Piskel web runtime are not required.
 
-As of 2026-10-08, development is **Beta v1.1.2** (`1.1.2-beta`, source `2715fd1`).
-The latest public release is **Beta v1.1.1** (`v1.1.1-beta`, source `887d0127`).
-Both include Mochi (cat), 보리 (rabbit), 강아지 (dog), 고슴도치 (hedgehog)
+As of 2026-10-08, the latest public release is **Beta v1.1.2**
+(`1.1.2-beta`, tag `v1.1.2-beta`, source `ce86c7b`).
+It includes Mochi (cat), 보리 (rabbit), 강아지 (dog), 고슴도치 (hedgehog)
 and 펭귄 (penguin). Choose them from Home without installing separate packs.
 When `docs/releases/v<version>.md` exists, packaging includes it as `RELEASE-NOTES.md` in the Windows portable/installed
 `current` folder and inside `Unfold.app/Contents/Resources/` on macOS.
@@ -17,10 +17,13 @@ store. Restart restores the session and verifies server access without another G
 sign-in or code entry. Logout deletes the stored credential. Network failure preserves it
 for retry but does not grant offline access.
 Windows code signing is pending. Public Mac distribution uses Developer ID signing and
-Apple notarization. See the [current public release notes](releases/v1.1.1-beta.md)
-and [release/update verification](validation/2026-10-07-beta-v1.1.1-release.md).
+Apple notarization. See the [current public release notes](releases/v1.1.2-beta.md)
+and [release/update verification](validation/2026-10-08-beta-v1.1.2-release.md).
 Beta v1.0.3 and later managed installations can check for updates from the tray/menu bar;
-the public 1.1.1 release and current development build also provide **설정 → 앱 정보 → 업데이트 확인**.
+Beta v1.1.1 and later also provide **설정 → 앱 정보 → 업데이트 확인**.
+Beta v1.1.2 shows a modal with release notes once per launch when a newer version is
+available, after account restoration. Background launches defer the notice until the
+account or Settings window opens. Download and restart require the user's action.
 v1.0.2 and earlier require a one-time manual installation of a newer release.
 `Unfold --version` prints the release identity without opening the app or creating a user profile.
 
@@ -69,7 +72,7 @@ and `UNFOLD_NOTARY_PROFILE` to select a local notarytool keychain profile. The b
 script signs all nested native files, submits the app and staples its ticket, then
 creates, notarizes and staples the DMG. Rejection stops packaging. Credentials are
 never stored in the repository. `UNFOLD_NOTARY_LOG_DIR` selects the diagnostic log folder.
-Use the `-notarized-installer.zip` Mac assets for the signed Beta v1.1.1 distribution;
+Use the `-notarized-installer.zip` Mac assets for the signed Beta v1.1.2 distribution;
 the earlier Mac installer ZIPs remain available as historical ad-hoc builds.
 
 ## Visible controls
@@ -239,7 +242,10 @@ It does not prove running-app protection, migration from a legacy startup entry,
 an older-version update, or preservation of actual settings/history/pets/login credentials.
 Those require separate target-OS scenarios. Beta v1.1.1 additionally has a
 recorded public 1.1.0 → 1.1.1 update/apply/restart check in Windows CI; see the
-[release report](validation/2026-10-07-beta-v1.1.1-release.md).
+[v1.1.1 release report](validation/2026-10-07-beta-v1.1.1-release.md).
+Beta v1.1.2 has a recorded public 1.1.1 → 1.1.2 apply/restart check on Mac ARM64
+and Windows x64 CI, with isolated data markers preserved; see the
+[v1.1.2 release report](validation/2026-10-08-beta-v1.1.2-release.md).
 Run this verifier only
 in a disposable environment; it refuses an existing installation or startup entry.
 This is automated diagnostic coverage,

@@ -6,11 +6,13 @@ A small desktop companion that reminds you to stretch while you work.
 
 Mochi와 잠깐 쉬고, 내 리듬으로 돌아오는 작은 데스크톱 동료.
 
-This document describes **Unfold Beta v1.1.2 development** (`1.1.2-beta`),
-based on product commit `2715fd1` on `codex/remove-unused-features`.
-The latest public release is **Beta v1.1.1** (`v1.1.1-beta`, source `887d0127`).
-The 1.1.2 changes separate legacy compatibility code and remove obsolete authoring
-documents; they do not create a new public installer.
+This document describes **Unfold Beta v1.1.2** (`1.1.2-beta`),
+based on release source `ce86c7b` on `codex/remove-unused-features`.
+The latest public release is **Beta v1.1.2** (`v1.1.2-beta`, source `ce86c7b`).
+It includes installed custom-pet editing/deletion, OGG effects and complete previews,
+theme color fixes, startup notices for available updates and legacy authoring cleanup.
+See the [release notes](releases/v1.1.2-beta.md) and
+[release verification](validation/2026-10-08-beta-v1.1.2-release.md).
 Recheck all worktrees and the latest deployment before implementation;
 `release/mvp` is an older source.
 The application uses C#/.NET 10 and Avalonia. [Product direction](product-direction.md)

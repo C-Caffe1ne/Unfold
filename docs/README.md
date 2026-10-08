@@ -1,7 +1,7 @@
 # 문서 안내
 
-현재 제품은 **C#·Avalonia 기반 Unfold Beta**다. 2026-10-08부터 후속 개발 버전은 **Beta v1.1.2** (`1.1.2-beta`, 제품 커밋 `2715fd1`)이며, 작업 경로는 `/Users/hwanghyeonseong/Documents/GitHub/Unfold/.worktrees/remove-unused-features`, 브랜치는 `codex/remove-unused-features`다.
-최신 공개 배포본은 `v1.1.1-beta` (`887d0127`)다. 개발 버전 지정과 문서 수정은 공개 설치본을 교체하지 않는다.
+현재 제품은 **C#·Avalonia 기반 Unfold Beta**다. 2026-10-08 현재 버전은 **Beta v1.1.2** (`1.1.2-beta`, 배포 소스 `ce86c7b`)이며, 작업 경로는 `/Users/hwanghyeonseong/Documents/GitHub/Unfold/.worktrees/remove-unused-features`, 브랜치는 `codex/remove-unused-features`다.
+최신 공개 배포본은 `v1.1.2-beta` (소스 `ce86c7b`)다. 설치 파일·업데이트 채널·웹 반영과 실제 Mac/Windows 업데이트 결과는 [배포 검증](validation/2026-10-08-beta-v1.1.2-release.md)에 기록한다.
 
 ## 현재 사용 안내
 
@@ -11,7 +11,7 @@
 | [설정·타이머](settings-ui.md), [말풍선·효과음](stretch-notifications.md) | 설정 자동 저장·홈 시간 저장·대사·불투명도·자동 배치 |
 | [펫 관리](pet-packs.md), [GLB 펫](glb-pets.md) | 통합 편집·설치·동작 설정·입력 제한 |
 | [계정](account-screen.md), [이용 코드](access-codes.md) | OS 보안 저장·로그인 복원·구매/무료 권한 |
-| [설치·업데이트](cross-platform.md), [공개 릴리스 노트](releases/v1.1.1-beta.md) | 실제 배포 파일·아키텍처·서명·업데이트 방법 |
+| [설치·업데이트](cross-platform.md), [공개 릴리스 노트](releases/v1.1.2-beta.md) | 실제 배포 파일·아키텍처·서명·업데이트 방법 |
 | [검증 안내](verification.md), [배포 체크리스트](release-checklist.md) | 기록된 검사·OS별 한계와 새 설치본 검사 절차 |
 | [개발 계획](development-plan.md) | 현재 1.1.2 작업 기준과 과거 계획의 구분 |
 | [문서 최신화 결과](validation/2026-10-08-docs-refresh.md) | 코드 대조·링크 복구·보존 범위 |
@@ -23,6 +23,7 @@
 
 | 문서 | 역할 |
 |---|---|
+| [Beta v1.1.2 배포·업데이트 검증](validation/2026-10-08-beta-v1.1.2-release.md) | Mac 서명·공증, Windows native CI, 세 공개 업데이트 채널, 실제 1.1.1→1.1.2 교체·재시작과 웹 반영 |
 | [툴팁·아이콘·글자 테마 색상 검증](validation/2026-10-08-theme-control-colors.md) | 밝은 테마 전환의 이전 색 잔류·입력 안내·비활성 색 보완, 네 테마의 macOS 기본·최소 창과 열린 툴팁 확인 |
 | [소리 설정 수정 검증](validation/2026-10-08-sound-settings.md) | 세 음량 %·OGG 지원·미리듣기 자연 종료, 784개 검사와 macOS 네이티브 재생·최소 창 확인 |
 | [커스텀 펫 편집·삭제 검증](validation/2026-10-08-pet-management-edit-delete.md) | 설치한 모든 형식의 편집·저장·삭제, 원본/행동 보존, 777개 회귀 검사와 macOS 최소 창 확인 |

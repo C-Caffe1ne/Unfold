@@ -1,0 +1,12 @@
+{
+  "runtime": "win-x64",
+  "applicationReplaced": true,
+  "smokeSuccess": true,
+  "fromVersion": "1.1.1-beta",
+  "restartedWithDiagnosticArgument": true,
+  "version": "1.1.2-beta",
+  "userDataPreserved": true,
+  "realAppUpdatesPrepareApply": true,
+  "success": true,
+  "smokeImages": 100
+}

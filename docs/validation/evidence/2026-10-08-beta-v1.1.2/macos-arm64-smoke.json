@@ -1,0 +1,198 @@
+{
+  "success": true,
+  "startupMs": 1143.7017,
+  "totalMs": 55348.8775,
+  "workingSetBytes": 214597632,
+  "managedBytes": 80352168,
+  "oneCoreCpuPercent": 2.0512934103882907,
+  "characters": 8,
+  "imageFiles": 100,
+  "completedBreaks": 1,
+  "simulatedSessionTiming": true,
+  "simulatedActionConfirmation": true,
+  "savedCustomRoutines": 2,
+  "workProfiles": 1,
+  "exportedBreaks": 1,
+  "simulatedExportDestination": true,
+  "timerPausedApplyWaitSeconds": 1.2,
+  "timerStopWaitSeconds": 1.2,
+  "timerControlsVerified": true,
+  "timerDigitMotionVerified": true,
+  "nativeWindowConfigurationVerified": true,
+  "windowLifecycleVerified": true,
+  "nativeWindowClientFrameVerified": true,
+  "nativeCaptionInputVerified": false,
+  "timerRefinements": {
+    "oneMinutePersisted": true,
+    "version": "Beta v1.1.2",
+    "sidebarSizes": [
+      "1120x800",
+      "640x560"
+    ],
+    "settingsUpdaterOpened": true,
+    "dangerColors": true,
+    "textMotion": {
+      "hoverFormat": "\uC624\uD6C4 01:08",
+      "hoverAnimated": true,
+      "restAnimated": true,
+      "wallClockDurationMs": 180,
+      "countdownDurationMs": 380,
+      "windowGeometryStable": true
+    },
+    "autoSnoozeSeconds": 30.013612,
+    "deadlineLatenessSeconds": 0.0137713,
+    "configuredSnoozeMinutes": 3,
+    "pausedStatePreserved": true,
+    "temporaryPetHidden": true,
+    "historyUnchanged": true
+  },
+  "appUpdateDialogVerified": true,
+  "updaterInstalled": true,
+  "petSpeechDirectionsVerified": true,
+  "petContextMenuVerified": true,
+  "petScaleAndDebugPreviewVerified": true,
+  "speechTitleOnlyGeometryVerified": true,
+  "soundRequestsVerified": true,
+  "hiddenPetNoticeVerified": true,
+  "stopWhileOpening": false,
+  "petPackInstallUpdateRepairVerified": true,
+  "simulatedPackPicker": true,
+  "settingsLayout": {
+    "minimumWidth": 860,
+    "minimumHeight": 680,
+    "timerAndPetVisible": true,
+    "detailsScrollVerified": true,
+    "noHorizontalOverflow": true,
+    "inWindowTabsVerified": true,
+    "settingsTabVerified": true,
+    "homeTimingVerified": true,
+    "petManagementBuilderVerified": true,
+    "routineProfileEntryRemoved": true,
+    "petDraftPreserved": true,
+    "petCardAddButtonRemoved": true,
+    "petSelectorWidth": 200,
+    "settingsOptionsScrollRequired": true,
+    "settingsOptionsExtentHeight": 1715,
+    "settingsOptionsViewportHeight": 613,
+    "settingsOptionsTopOffset": 0,
+    "settingsOptionsBottomOffset": 1102,
+    "settingsOptionsCapturesDiffer": true,
+    "settingsOptionsCaptureFiles": [
+      "settings-options-top.png",
+      "settings-options-bottom.png"
+    ],
+    "settingsPreferencesStyling": {
+      "automaticApply": true,
+      "saveCancelRemoved": true,
+      "navigationWithoutModal": true,
+      "automaticBubblePosition": true
+    },
+    "homeDashboard": {
+      "timerFirst": true,
+      "measurements": [
+        {
+          "width": 1120,
+          "height": 800,
+          "timerTop": 36,
+          "timerHeight": 216,
+          "petTop": 272,
+          "petHeight": 497,
+          "capture": "home-default.png"
+        },
+        {
+          "width": 860,
+          "height": 680,
+          "timerTop": 36,
+          "timerHeight": 216,
+          "petTop": 272,
+          "petHeight": 377,
+          "capture": "home-minimum.png"
+        }
+      ],
+      "longNameAndErrorLayoutFixture": true,
+      "compactControls": true
+    }
+  },
+  "weeklyReview": {
+    "expandedCaptured": true,
+    "captureFile": "weekly-review-expanded.png",
+    "routineNameVisible": false,
+    "completionTimeVisible": true,
+    "actualDurationVisible": true
+  },
+  "reviewLayout": {
+    "measurements": [
+      {
+        "width": 1120,
+        "height": 800,
+        "cardWidth": 760,
+        "footerTop": 729,
+        "scrollRequired": false,
+        "capture": "review-default.png"
+      },
+      {
+        "width": 860,
+        "height": 680,
+        "cardWidth": 694,
+        "footerTop": 609,
+        "scrollRequired": true,
+        "capture": "review-minimum.png"
+      },
+      {
+        "width": 620,
+        "height": 650,
+        "cardWidth": 530,
+        "footerTop": 577,
+        "scrollRequired": true,
+        "capture": "review-compatibility.png"
+      },
+      {
+        "width": 560,
+        "height": 600,
+        "cardWidth": 470,
+        "footerTop": 527,
+        "scrollRequired": true,
+        "capture": "review-compatibility-minimum.png"
+      }
+    ],
+    "completionAndActualOnly": true,
+    "noHorizontalOverflow": true,
+    "pinnedFooter": true
+  },
+  "themes": {
+    "palettes": [
+      "\uC720\uC5F0\uD55C \uB77C\uC77C\uB77D",
+      "\uB2E4\uC815\uD55C \uC624\uD2B8",
+      "\uC228 \uACE0\uB974\uB294 \uC232",
+      "\uBC24\uC758 \uBC84\uD130"
+    ],
+    "persisted": true,
+    "minimumNavigationFits": true,
+    "simulatedSelection": true
+  },
+  "customPetGifAuthoringVerified": true,
+  "petCardPreviewVerified": true,
+  "legacySettingsRoundTripVerified": true,
+  "legacyCharacterSourceVerified": true,
+  "sharedDesignDialogsVerified": true,
+  "pinnedPageActionsVerified": true,
+  "accountScreen": {
+    "contentLoaded": true,
+    "diagnosticDismissal": true,
+    "duplicatePrevented": true,
+    "noHorizontalOverflow": true,
+    "quitAvailable": true,
+    "footerBypassRemoved": true,
+    "authenticationPerformed": false,
+    "paymentPerformed": false
+  },
+  "responsiveMinimum": {
+    "width": 640,
+    "height": 560,
+    "verified": true
+  },
+  "actionConfirmationCancelVerified": true,
+  "idleSeconds": 40.0569106,
+  "os": "Unix 26.6.2",
+  "framework": "10.0.12"
+}

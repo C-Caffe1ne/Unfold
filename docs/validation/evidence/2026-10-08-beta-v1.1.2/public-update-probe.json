@@ -1,0 +1,47 @@
+[
+  {
+    "runtime": "osx-arm64",
+    "source": "github",
+    "fromVersion": "1.1.1-beta",
+    "version": "1.1.2-beta",
+    "state": "Ready",
+    "resumedState": "Ready",
+    "currentState": "Current",
+    "file": "DokhuStudio.Unfold.Updates-1.1.2-beta-osx-arm64-beta-full.nupkg",
+    "bytes": 80538823,
+    "sha256": "16485978f33e7073c86a87f7eb8ad10400330061f23c597b2874988072cf9b5f",
+    "notesFromFeed": true,
+    "notesFromDownloadedPackage": true,
+    "applyExecuted": false
+  },
+  {
+    "runtime": "osx-x64",
+    "source": "github",
+    "fromVersion": "1.1.1-beta",
+    "version": "1.1.2-beta",
+    "state": "Ready",
+    "resumedState": "Ready",
+    "currentState": "Current",
+    "file": "DokhuStudio.Unfold.Updates-1.1.2-beta-osx-x64-beta-full.nupkg",
+    "bytes": 84709764,
+    "sha256": "03619265969a14e17eb1977d032712670a39099a19a91c2cfd1435a38f79ff63",
+    "notesFromFeed": true,
+    "notesFromDownloadedPackage": true,
+    "applyExecuted": false
+  },
+  {
+    "runtime": "win-x64",
+    "source": "github",
+    "fromVersion": "1.1.1-beta",
+    "version": "1.1.2-beta",
+    "state": "Ready",
+    "resumedState": "Ready",
+    "currentState": "Current",
+    "file": "DokhuStudio.Unfold.Updates-1.1.2-beta-win-x64-beta-full.nupkg",
+    "bytes": 84870876,
+    "sha256": "6d176691dff660a368d7e0d33143f9cd3f7340eef580475747c93f7396bd2a02",
+    "notesFromFeed": true,
+    "notesFromDownloadedPackage": true,
+    "applyExecuted": false
+  }
+]

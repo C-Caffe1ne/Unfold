@@ -1,0 +1,14 @@
+{
+  "databaseId": 37777538306,
+  "url": "https://github.com/C-Caffe1ne/Unfold/actions/runs/37777538306",
+  "headSha": "d5c7da925c34d012d5a5146ad9d1c739a5917463",
+  "status": "completed",
+  "conclusion": "success",
+  "jobs": [
+    {
+      "name": "published-update",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ]
+}

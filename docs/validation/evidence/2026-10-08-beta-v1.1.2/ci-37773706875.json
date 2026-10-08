@@ -1,0 +1,19 @@
+{
+  "databaseId": 37773706875,
+  "url": "https://github.com/C-Caffe1ne/Unfold/actions/runs/37773706875",
+  "headSha": "ce86c7b2de38532a926ff5ecc28bd3b2d5b43e1f",
+  "status": "completed",
+  "conclusion": "success",
+  "jobs": [
+    {
+      "name": "build (windows-latest, win-x64)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "build (macos-latest, osx-arm64)",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ]
+}

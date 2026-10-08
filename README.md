@@ -1,8 +1,8 @@
 # Unfold
 
-**Beta v1.1.2 (development)** · C#/.NET 10 · Avalonia · macOS / Windows
+**Beta v1.1.2** · C#/.NET 10 · Avalonia · macOS / Windows
 
-Current development version: `1.1.2-beta`. Latest public release: `v1.1.1-beta`.
+Current version: `1.1.2-beta`. Latest public release: `v1.1.2-beta` (source `ce86c7b`).
 
 A small desktop companion that reminds you to stretch while you work.
 
@@ -36,7 +36,9 @@ Closing Settings keeps Unfold running. Use **Unfold 종료** in the tray menu to
 - A 1–240 minute timer with one-minute adjustment while paused or stopped, followed by Save.
 - A clear running/paused/stopped state badge and icon controls for Play/Pause and Stop. Stop shows the saved full interval.
 - Four color themes with Lilac as the default, Korean UI and custom SVG icons.
-- Custom pets from GIF/MP4 or still images; WAV/MP3 effects with master and separate notification volumes.
+- Custom pets from GLB, GIF/MP4 or still images, with editing and confirmed deletion of installed custom pets.
+- WAV/MP3/OGG effects, percentage volume displays and previews that finish naturally.
+- Startup update notices with release notes when a newer version is available.
 - Google sign-in, checkout/purchase-confirmation screens, email display and sign-out.
 - Account-bound free access codes for testers, restored after sign-in without entering the code again.
 - Opt-in launch at login; configure it from the published app in its final location.
@@ -53,10 +55,10 @@ The beta requires Google sign-in and either a verified Live purchase or a valid 
 Testers can redeem `admin` from the bottom-right code button after sign-in.
 Saved sign-in is restored before the account window opens. Production OAuth and
 payment checks are tracked separately in the [account guide](docs/account-screen.md).
-Public Beta v1.1.1 Mac installers are Developer ID signed and notarized; Windows
+Public Beta v1.1.2 Mac installers are Developer ID signed and notarized; Windows
 installers are unsigned. See the [compatibility and review guide](docs/personalization.md).
 The [pet pack guide](docs/pet-packs.md) explains local installation and recovery.
-[Latest public release notes](docs/releases/v1.1.1-beta.md) describe installation, included work and beta limitations.
+[Latest public release notes](docs/releases/v1.1.2-beta.md) describe installation, included work and beta limitations.
 
 ## Build and verify
 

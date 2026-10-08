@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "runtime": "osx-arm64",
+  "fromVersion": "1.1.1-beta",
+  "version": "1.1.2-beta",
+  "realAppUpdatesPrepareApply": true,
+  "applicationReplaced": true,
+  "restartedWithDiagnosticArgument": true,
+  "isolatedDataMarkerPreserved": true,
+  "smokeImages": 100,
+  "smokeFile": "/private/tmp/unfold-release-1.1.2/actual-upgrade/restarted-profile/verification/smoke.json"
+}

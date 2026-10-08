@@ -1,0 +1,52 @@
+[
+  {
+    "name": "Unfold-v1.1.2-beta-osx-arm64-notarized-installer.zip",
+    "bytes": 77425330,
+    "sha256": "331195d0e0e70aec7565358ce8cf04fc02fe4f78a559b606592dee07fc23c520"
+  },
+  {
+    "name": "Unfold-v1.1.2-beta-osx-x64-notarized-installer.zip",
+    "bytes": 81631423,
+    "sha256": "d3817beaf309914ccd08b3e76c64faabddc944bb26de1893db1003c8880f4e93"
+  },
+  {
+    "name": "Unfold-v1.1.2-beta-win-x64-installer.zip",
+    "bytes": 86689249,
+    "sha256": "a8cc4937a18b76845e212a161f8d101f950b32ab85256f327d068e1330b043ef"
+  },
+  {
+    "name": "Unfold-v1.1.2-beta-notarized-ZIP-SHA256SUMS.txt",
+    "bytes": 343,
+    "sha256": "0ffe8000e71d20e359418c40c4f588dee51da551bd2d99d03247fe5bf99ccaa5"
+  },
+  {
+    "name": "releases.osx-arm64-beta.json",
+    "bytes": 4843,
+    "sha256": "8864ae6b155d90dacacbb4db4e157def8df095454368492b9a6917e12c5f42c1"
+  },
+  {
+    "name": "DokhuStudio.Unfold.Updates-1.1.2-beta-osx-arm64-beta-full.nupkg",
+    "bytes": 80538823,
+    "sha256": "16485978f33e7073c86a87f7eb8ad10400330061f23c597b2874988072cf9b5f"
+  },
+  {
+    "name": "releases.osx-x64-beta.json",
+    "bytes": 4841,
+    "sha256": "2ef60036558a430adc7b1ff9787da9d4ce33aa863ce728ffc3df52bca6a9c710"
+  },
+  {
+    "name": "DokhuStudio.Unfold.Updates-1.1.2-beta-osx-x64-beta-full.nupkg",
+    "bytes": 84709764,
+    "sha256": "03619265969a14e17eb1977d032712670a39099a19a91c2cfd1435a38f79ff63"
+  },
+  {
+    "name": "releases.win-x64-beta.json",
+    "bytes": 4841,
+    "sha256": "d62cc4d323900e7b3930d1dac245fe485a444eaad25e2c814b0e60e85552b52f"
+  },
+  {
+    "name": "DokhuStudio.Unfold.Updates-1.1.2-beta-win-x64-beta-full.nupkg",
+    "bytes": 84870876,
+    "sha256": "6d176691dff660a368d7e0d33143f9cd3f7340eef580475747c93f7396bd2a02"
+  }
+]
