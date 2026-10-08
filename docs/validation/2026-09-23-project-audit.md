@@ -34,7 +34,7 @@ P2는 조건부 기능 오류로 다음 안정화 작업에서 수정할 항목,
 
 기존 `.invalid-*` 백업은 생성된다. 따라서 원본이 즉시 영구 삭제되는 문제는 아니지만, 앱은 정상 값까지 잃은 기본 설정으로 동작하며 이후 저장도 그 값을 사용한다. 현재 UI에서 제거된 루틴 데이터가 현재 타이머 설정에 영향을 줄 수 있다.
 
-- 근거: [AppSettings.cs](../../src/Unfold.Core/AppSettings.cs) 30–53행, [Personalization.cs](../../src/Unfold.Core/Personalization.cs) 19–41행, [AppRuntime.cs](../../src/Unfold.Desktop/AppRuntime.cs) 79–90행.
+- 근거: [AppSettings.cs](../../src/Unfold.Core/AppSettings.cs) 30–53행, [이전 개인화 설정 호환](../../src/Unfold.Core/Compatibility/AppSettings.Personalization.cs) 19–41행, [AppRuntime.cs](../../src/Unfold.Desktop/AppRuntime.cs) 79–90행.
 - 최소 수정 방향: 유효한 JSON은 필드별 자료형까지 검사해 복구하고, 호환성용 루틴·프로필의 잘못된 항목을 다른 설정과 분리한다. 원본 백업과 저장 시 엄격한 검증은 유지한다.
 - 완료 기준: 위 두 실패 사례에서도 37분·9분과 그 밖의 정상 설정을 유지하고, 손상된 필드·참조만 안전하게 복구한다. 전체 JSON 구문 오류는 별도 복구 경로로 남긴다.
 

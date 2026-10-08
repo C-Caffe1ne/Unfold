@@ -3,6 +3,7 @@ using System.Text.Json;
 
 namespace Unfold.Core;
 
+// Legacy pixel-pet source compatibility and isolated diagnostics; no editor UI.
 public static class PiskelCodec
 {
     public const int MaxSourceBytes = 48 * 1024 * 1024;
@@ -95,11 +96,5 @@ public static class PiskelCodec
         for (var frame = 0; frame < frames.Count; frame++) for (var y = 0; y < height; y++)
             Array.Copy(frames[frame], y * width, pixels, y * sheetWidth + frame * width, width);
         return new(sheetWidth, height, pixels);
-    }
-    public static PixelDocument ImportPng(string path)
-    {
-        var image = ImageCodec.DecodePng(ImageCodec.ReadBounded(path), PixelDocument.MaxSide, PixelDocument.MaxSide);
-        var document = new PixelDocument(image.Width, image.Height) { Name = Path.GetFileNameWithoutExtension(path) };
-        document.Layers[0].Frames[0] = image.Pixels; return document;
     }
 }

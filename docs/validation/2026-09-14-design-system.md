@@ -53,15 +53,12 @@ dotnet test Tests/Unfold.Tests/Unfold.Tests.csproj -c Release --no-restore -m:1 
 ## 화면
 
 - [설정](images/2026-09-14-design-system/settings.png) · [최소 설정](images/2026-09-14-design-system/settings-minimum.png) · [스크롤 끝](images/2026-09-14-design-system/settings-minimum-scrolled.png)
-- [내 루틴](images/2026-09-14-design-system/routine-editor.png) · [업무 프로필 편집](images/2026-09-14-design-system/profile-editor.png)
-- [루틴 목록](images/2026-09-14-design-system/routine-library.png) · [프로필 목록](images/2026-09-14-design-system/work-profiles.png)
 - [기록·내보내기](images/2026-09-14-design-system/weekly-review.png) · [휴식 알림](images/2026-09-14-design-system/reminder.png)
 - [펫 팩](images/2026-09-14-design-system/pack-preview.png) · [잘못된 팩](images/2026-09-14-design-system/pack-error.png)
 - [삭제 확인](images/2026-09-14-design-system/dialog-confirm.png) · [이름 입력](images/2026-09-14-design-system/dialog-prompt.png) · [오류](images/2026-09-14-design-system/dialog-error.png)
 
-![업무 프로필 편집](images/2026-09-14-design-system/profile-editor.png)
-
-![루틴과 업무 프로필](images/2026-09-14-design-system/work-profiles.png)
+2026-10-08에 제거된 루틴·프로필 화면의 과거 캡처를 정리했다.
+당시 이미지는 커밋 `dda83e6750eef4ceceb8db85b82c49c778de34b8`에서 복구할 수 있다.
 
 ## 검증 한계
 

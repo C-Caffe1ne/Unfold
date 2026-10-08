@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-08",
+  "phase": "Beta v1.1.2 development version transition",
+  "sourceHeadAtBuild": "dda83e6750eef4ceceb8db85b82c49c778de34b8",
+  "version": "1.1.2-beta",
+  "displayVersion": "Beta v1.1.2",
+  "compiledAssemblyVersion": "1.1.2.0",
+  "compiledReleasePropertiesVerified": true,
+  "releaseBuildPassed": true,
+  "focusedTests": {
+    "total": 30,
+    "passed": 30,
+    "failed": 0,
+    "notExecuted": 0
+  },
+  "testClasses": [
+    "AppReleaseTests",
+    "AppUpdateTests"
+  ],
+  "trx": "/private/tmp/unfold-legacy-cleanup-lnn12ua1/version-results/beta-v1.1.2.trx",
+  "latestPublicRelease": "v1.1.1-beta",
+  "newPublicReleaseCreated": false
+}

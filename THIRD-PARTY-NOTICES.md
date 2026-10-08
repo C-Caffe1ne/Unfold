@@ -27,7 +27,7 @@ Dependency packages retain their upstream notices. Published .NET runtime files
 include the runtime's LICENSE and ThirdPartyNotices documents. Exact dependency
 versions are recorded in NuGet lock files.
 
-The Piskel web runtime is not distributed. The retained C# diagnostic editor
-implements Piskel v2 file-format compatibility through `PiskelCodec`; it does not
-embed the upstream web application. Built-in character files are the existing
-project assets.
+The Piskel web runtime and C# pixel-editor UI are not distributed. The files under
+`src/Unfold.Core/Compatibility/` retain Piskel v2 source compatibility and isolated
+diagnostic round trips; they do not embed the upstream web application.
+Built-in character files are the existing project assets.

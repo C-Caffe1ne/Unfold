@@ -240,11 +240,11 @@ for development; the bundled executable and then `PATH` are the fallbacks. GIF a
 FFmpeg. Windows Arm uses the x64 FFmpeg process via Windows x64 emulation; actual Windows/Arm
 execution still needs target-OS testing.
 
-## Diagnostic authoring path
+## Legacy compatibility diagnostics
 
-The retained C# editor, pixel model, and Piskel v2 codec are exercised by regression
-tests and the explicit `--smoke-test` diagnostic. They are not visible MVP features.
-The authoring model supports 1–128 px per side, 1–24 frames, and 1–16 layers;
+The pixel-editor UI has been removed. The legacy pixel model and Piskel v2 codec
+under `src/Unfold.Core/Compatibility/` are exercised by regression tests and the
+explicit `--smoke-test` diagnostic. The source model supports 1–128 px per side, 1–24 frames, and 1–16 layers;
 existing PNG sprite sheets and GIF character clips are decoded for playback.
 
 From a repository checkout:
@@ -256,7 +256,7 @@ dotnet run --project src/Unfold.Desktop -c Release --no-build -- --smoke-test
 Without `UNFOLD_DATA_DIR`, this creates a new temporary profile. With an override,
 use a new empty directory, never a real user library. The diagnostic opens off-screen
 windows, suppresses system notifications, creates and edits test artwork, checks a
-save/reopen round trip, edits routines/profiles, exercises reminder start/confirm/snooze/close,
+save/reopen round trip, restores saved routine/profile fixtures, exercises reminder start/confirm/snooze/close,
 exports review CSV and checks timer controls. It also previews, installs, updates and repairs a
 diagnostic pet pack, and rejects a malformed archive. It captures diagnostic PNGs, records a short process
 sample, and exits. Read `verification/smoke.json` in that profile.

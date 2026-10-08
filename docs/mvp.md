@@ -74,8 +74,9 @@ Those production checks remain separate release gates. Completion history, setti
 [paid launch plan](plans/2026-09-27-paid-launch.md) for staged acceptance criteria.
 
 The C# pixel editor, drawing canvas and editor session have been removed.
-The pixel model, Piskel codec and character-library source loading remain for
-existing pet-file compatibility. GLB management retains its explicit edit/delete flow.
+The legacy pixel model, Piskel codec and character-library source operations are
+grouped under `src/Unfold.Core/Compatibility/` for existing pet files and isolated
+diagnostics. GLB management retains its explicit edit/delete flow.
 
 `CharacterLibrary` and the image codecs are runtime dependencies: the app uses
 them to discover and play character packages, including existing user artwork.

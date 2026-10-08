@@ -1,6 +1,6 @@
 namespace Unfold.Core;
 
-// Retained only to read and preserve routine/profile data from older app versions.
+// Compatibility only: retain saved routine/profile data without restoring authoring UI.
 public sealed record WorkProfile(string Id, string Name, int IntervalMinutes, int IdleMinutes, string RoutineId)
 {
     public override string ToString() => $"{Name} · {IntervalMinutes}분마다";

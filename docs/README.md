@@ -1,6 +1,8 @@
 # 문서 안내
 
-현재 제품은 **C#·Avalonia 기반 Unfold Beta**다. 2026-10-07 메모리 최적화의 기준은 미사용 기능 제거·로그인 복원 수정을 포함한 `codex/remove-unused-features`의 `1.1.1-beta`, 커밋 `a8fbd5b`다. 최적화와 실제 macOS 측정은 같은 작업트리에서 이어서 수행했다. 이후 작업 기준은 전체 작업트리와 배포 태그에서 다시 확인한다. `release/mvp`의 `0.2.2`는 이전 소스다.
+현재 제품은 **C#·Avalonia 기반 Unfold Beta**다. 2026-10-08부터 후속 개발 버전은 **Beta v1.1.2** (`1.1.2-beta`)이며, 작업 경로는 `/Users/hwanghyeonseong/Documents/GitHub/Unfold/.worktrees/remove-unused-features`, 브랜치는 `codex/remove-unused-features`다. 최신 공개 배포본은 `v1.1.1-beta`다.
+
+2026-10-07 메모리 최적화의 기준은 미사용 기능 제거·로그인 복원 수정을 포함한 `codex/remove-unused-features`의 `1.1.1-beta`, 커밋 `a8fbd5b`다. 최적화와 실제 macOS 측정은 같은 작업트리에서 이어서 수행했다. 이후 작업 기준은 전체 작업트리와 배포 태그에서 다시 확인한다. `release/mvp`의 `0.2.2`는 이전 소스다.
 기능 구현 전에 [작업 안내](../AGENTS.md)에 따라 마지막 수정본의 브랜치·HEAD·미커밋 변경·프로젝트 버전과 실행 경로를 다시 확인한다. 아래 문서는 구현·범위·실행 방법을 설명하며 과거 Swift 구현과 Garden 실험은 보관 자료다.
 
 | 문서 | 역할 |
@@ -9,6 +11,7 @@
 | [400MB 메모리 검증](validation/2026-10-07-memory-budget.md) | 최신 소스·동일 native 실행기의 전후 측정, 캐시·2D 재생·가져오기 최적화와 복구 회귀 검사 |
 | [400MB 최적화 계획](plans/2026-10-07-memory-budget.md) | Agency 역할·측정 기준·변경 순서·장시간 검증과 임의 입력 경계 |
 | [미사용 기능 제거 검증](validation/2026-10-07-unused-features.md) | 최신 제품 커밋 기준, 루틴·프로필 설정과 픽셀 에디터 제거·기존 데이터 호환·종료/업데이트 회귀 검사 |
+| [과거 편집 기능 파일 정리 검증](validation/2026-10-08-legacy-authoring-cleanup.md) | Piskel·루틴·프로필의 폐기 문서/캡처 제거, 호환 코드 분리와 정리 전후 검사 |
 | [Agency 다음 단계 검증](validation/2026-10-06-agency-next-stage.md) | 실제 macOS native GLB 36분 자원 추세·Windows 환경/양식과 남은 비교 조건 |
 | [Agency 준비 작업 검증](validation/2026-10-06-agency-execution.md) | 기존 변경 커밋·집중 검사·전체/대체경로 결과와 검증 한계 |
 | [Agency Agents 실행 작업표](plans/2026-10-06-agency-execution.md) | 브랜치별 보존 커밋, 이번 검증 결과와 담당·소유권·남은 환경 조건 |

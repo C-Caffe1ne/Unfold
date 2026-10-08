@@ -1,0 +1,262 @@
+{
+  "date": "2026-10-08",
+  "baselineCommit": "dda83e6750eef4ceceb8db85b82c49c778de34b8",
+  "releaseSourceCommit": "887d0127e57e5145062d0d558fb71b113284542d",
+  "version": "1.1.1-beta",
+  "validationPhase": "legacy-cleanup-before-1.1.2-version-bump",
+  "worktree": "/Users/hwanghyeonseong/Documents/GitHub/Unfold/.worktrees/remove-unused-features",
+  "preTests": {
+    "total": 763,
+    "passed": 763,
+    "failed": 0,
+    "notExecuted": 0
+  },
+  "postTests": {
+    "total": 763,
+    "passed": 763,
+    "failed": 0,
+    "notExecuted": 0
+  },
+  "deletedFiles": [
+    {
+      "path": "docs/archive/swift/native-pixel-editor.md",
+      "bytes": 15689,
+      "sha256": "bb8e13c25c77c29808743d0fb492ef7aadae41d0c7c958490357ec15de3c7ff7"
+    },
+    {
+      "path": "docs/archive/swift/superpowers/handoffs/2026-09-06-piskel-reskin-and-tool-rail-handoff.md",
+      "bytes": 17185,
+      "sha256": "c18b0069d2524c85310ec3a5f9ff4dc48283e680574453cbe54f45385569d5e8"
+    },
+    {
+      "path": "docs/archive/swift/superpowers/plans/2026-09-03-piskel-character-editor-STATUS.md",
+      "bytes": 19515,
+      "sha256": "1c167bddeb790c74788767e0ef2ef91893b59d4ba47bf2ed3d88aeb5581362fd"
+    },
+    {
+      "path": "docs/archive/swift/superpowers/plans/2026-09-03-piskel-character-editor.md",
+      "bytes": 110687,
+      "sha256": "675a1abc826be32c6144f6f847120be212e49236aa1efda5a4cda06d4ee417f9"
+    },
+    {
+      "path": "docs/archive/swift/superpowers/plans/2026-09-06-piskel-dark-reskin.md",
+      "bytes": 16444,
+      "sha256": "53ec7158f8fa7e1a57a46f215d1c548e80ee131b66bd4c697e7977b244fbc2c3"
+    },
+    {
+      "path": "docs/archive/swift/superpowers/plans/2026-09-06-piskel-tool-rail-consolidation.md",
+      "bytes": 11557,
+      "sha256": "02d90073e11561529b663bf32da5eacb9c00321adb924952e18ec47e7177f353"
+    },
+    {
+      "path": "docs/archive/swift/superpowers/plans/2026-09-08-editor-file-io-generalization.md",
+      "bytes": 95644,
+      "sha256": "e6d76b919adb4053e3c1d89d4aa548658cb3b81221f76c859a950bbe86372cc8"
+    },
+    {
+      "path": "docs/archive/swift/superpowers/plans/2026-09-09-editor-features.md",
+      "bytes": 4171,
+      "sha256": "4b1d28f93c826534b055279c754bef5e3567f17e540bea7bb8fcdf5ea5f7fb33"
+    },
+    {
+      "path": "docs/archive/swift/superpowers/specs/2026-09-03-piskel-character-editor-design.md",
+      "bytes": 11991,
+      "sha256": "387d44909416d41fb3b5156bcde063569236e6f6a1ae8928dd484afdb1232f1f"
+    },
+    {
+      "path": "docs/archive/swift/superpowers/specs/2026-09-06-piskel-dark-reskin-design.md",
+      "bytes": 10548,
+      "sha256": "8f2610f46cd39beabc5c27f28425c1bdff32b4f72786c53c9b2c3d91a3ec6c9e"
+    },
+    {
+      "path": "docs/archive/swift/superpowers/specs/2026-09-06-piskel-tool-rail-consolidation-design.md",
+      "bytes": 9233,
+      "sha256": "0b6e58e4de5bb826cb46e27f1f5ac67013eb05d9276cc9b2d7c50a84ed211b2e"
+    },
+    {
+      "path": "docs/archive/swift/superpowers/specs/2026-09-08-editor-file-io-generalization-design.md",
+      "bytes": 18618,
+      "sha256": "1524895e3dfffd949aa17a597d97cc991e6f3859fd0cdc25e5367ef7e3ac06c8"
+    },
+    {
+      "path": "docs/archive/swift/superpowers/specs/2026-09-09-editor-features-design.md",
+      "bytes": 2399,
+      "sha256": "fc5d4ce7e141b91cd3155eea579a650d0d3615c5afb2f7f21fa8989fb612503e"
+    },
+    {
+      "path": "docs/pixel-editor-competitive-analysis.md",
+      "bytes": 14243,
+      "sha256": "63213c48f593ca01a98e15e3893acdbb17cb98eab8c5045acd65d9b35f5ebdc1"
+    },
+    {
+      "path": "docs/validation/images/2026-09-14-design-system/additional-routine.png",
+      "bytes": 44953,
+      "sha256": "2f1014516eaedbb05bbf099bd8662e19d083169f6a2a4f09ef7073044ad15e4f"
+    },
+    {
+      "path": "docs/validation/images/2026-09-14-design-system/profile-editor.png",
+      "bytes": 34889,
+      "sha256": "fdfd9474c1cace0365acbf7192f0f9e41686b644e07c77627b26371dcca7a075"
+    },
+    {
+      "path": "docs/validation/images/2026-09-14-design-system/routine-editor.png",
+      "bytes": 40917,
+      "sha256": "d5984eccab49d70b027f441e8556aae6b789297fdd1e2d21350df9315a114836"
+    },
+    {
+      "path": "docs/validation/images/2026-09-14-design-system/routine-library.png",
+      "bytes": 45789,
+      "sha256": "96e96c9e226be34a63acf60cb938a65e03f8107dad1135a2c481255ff6585055"
+    },
+    {
+      "path": "docs/validation/images/2026-09-14-design-system/work-profiles.png",
+      "bytes": 44086,
+      "sha256": "2af1b9abc91392318b50cbc08b5c2a38e318fb4e224074ddaa262567f1427b36"
+    },
+    {
+      "path": "docs/validation/images/2026-09-14-input-fields/additional-routine.png",
+      "bytes": 44591,
+      "sha256": "951fd8cb80a4ca15747bf5e2ef4199371e078fa10eeb3b0da72d5afd385f61ab"
+    },
+    {
+      "path": "docs/validation/images/2026-09-14-input-fields/profile-editor.png",
+      "bytes": 34576,
+      "sha256": "a284475a0f6749d058a482dc7e61a048a700f59f423b34c459f0de77e4381333"
+    },
+    {
+      "path": "docs/validation/images/2026-09-14-input-fields/routine-editor.png",
+      "bytes": 40660,
+      "sha256": "cf12e248de2a788f96520924a45e796cdec63804a00e06a1ed6d609f496caa18"
+    },
+    {
+      "path": "docs/validation/images/2026-09-14-input-fields/routine-library.png",
+      "bytes": 45789,
+      "sha256": "96e96c9e226be34a63acf60cb938a65e03f8107dad1135a2c481255ff6585055"
+    },
+    {
+      "path": "docs/validation/images/2026-09-14-input-fields/work-profiles.png",
+      "bytes": 44086,
+      "sha256": "2af1b9abc91392318b50cbc08b5c2a38e318fb4e224074ddaa262567f1427b36"
+    },
+    {
+      "path": "docs/validation/images/2026-09-14-korean-ui/profile-editor.png",
+      "bytes": 27693,
+      "sha256": "dc23a3e50456711dd841917d10c6de355a12b9430d8060a62c5691e743052071"
+    },
+    {
+      "path": "docs/validation/images/2026-09-14-korean-ui/routine-editor.png",
+      "bytes": 28700,
+      "sha256": "9b5a85f2b38c7e9ff16bb392199219a3eb832b06e4a2cb26d1ff101988f12baf"
+    },
+    {
+      "path": "docs/validation/images/2026-09-14-korean-ui/routine-library.png",
+      "bytes": 34475,
+      "sha256": "e75e39fabd75cb0d5769d51444fcb94c3ee784a3ec11fb6a170158ae89dd7769"
+    },
+    {
+      "path": "docs/validation/images/2026-09-14-korean-ui/work-profiles.png",
+      "bytes": 32207,
+      "sha256": "0a5f9d542f008c60f94714ffbf0c3bb45380829aa30fd70c70790c534e898af3"
+    }
+  ],
+  "deletedBytes": 901335,
+  "codeContractChecks": {
+    "pixelModelUnchanged": true,
+    "settingsContractsUnchanged": true,
+    "piskelContractsUnchanged": true,
+    "libraryLegacyOperationsUnchanged": true,
+    "libraryRuntimeOperationsUnchanged": true
+  },
+  "preservation": {
+    "unchangedBuildInputFiles": 245,
+    "changedBuildInputs": [
+      "src/Unfold.Core/CharacterLibrary.cs",
+      "src/Unfold.Core/Personalization.cs",
+      "src/Unfold.Core/PiskelCodec.cs",
+      "src/Unfold.Core/PixelDocument.cs"
+    ],
+    "newBrokenLinks": [],
+    "existingBrokenLinkCount": 19,
+    "checkedLocalLinks": 988
+  },
+  "nativeSmoke": {
+    "success": true,
+    "os": "Unix 26.6.2",
+    "framework": "10.0.12",
+    "totalMs": 54714.834,
+    "legacySettingsRoundTripVerified": true,
+    "legacyCharacterSourceVerified": true,
+    "petPackInstallUpdateRepairVerified": true,
+    "timerControlsVerified": true,
+    "hiddenPetNoticeVerified": true,
+    "windowLifecycleVerified": true,
+    "settingsLayout": {
+      "minimumWidth": 860,
+      "minimumHeight": 680,
+      "timerAndPetVisible": true,
+      "detailsScrollVerified": true,
+      "noHorizontalOverflow": true,
+      "inWindowTabsVerified": true,
+      "settingsTabVerified": true,
+      "homeTimingVerified": true,
+      "petManagementBuilderVerified": true,
+      "routineProfileEntryRemoved": true,
+      "petDraftPreserved": true,
+      "petCardAddButtonRemoved": true,
+      "petSelectorWidth": 200,
+      "settingsOptionsScrollRequired": true,
+      "settingsOptionsExtentHeight": 1715,
+      "settingsOptionsViewportHeight": 613,
+      "settingsOptionsTopOffset": 0,
+      "settingsOptionsBottomOffset": 1102,
+      "settingsOptionsCapturesDiffer": true,
+      "settingsOptionsCaptureFiles": [
+        "settings-options-top.png",
+        "settings-options-bottom.png"
+      ],
+      "settingsPreferencesStyling": {
+        "automaticApply": true,
+        "saveCancelRemoved": true,
+        "navigationWithoutModal": true,
+        "automaticBubblePosition": true
+      },
+      "homeDashboard": {
+        "timerFirst": true,
+        "measurements": [
+          {
+            "width": 1120,
+            "height": 800,
+            "timerTop": 36,
+            "timerHeight": 216,
+            "petTop": 272,
+            "petHeight": 497,
+            "capture": "home-default.png"
+          },
+          {
+            "width": 860,
+            "height": 680,
+            "timerTop": 36,
+            "timerHeight": 216,
+            "petTop": 272,
+            "petHeight": 377,
+            "capture": "home-minimum.png"
+          }
+        ],
+        "longNameAndErrorLayoutFixture": true,
+        "compactControls": true
+      }
+    },
+    "responsiveMinimum": {
+      "width": 640,
+      "height": 560,
+      "verified": true
+    },
+    "nativeCaptionInputVerified": false
+  },
+  "nativePngCount": 100,
+  "temporaryEvidenceRoot": "/private/tmp/unfold-legacy-cleanup-lnn12ua1",
+  "physicalWindowsVerified": false,
+  "physicalNativeInputVerified": false,
+  "committed": false,
+  "deployed": false
+}

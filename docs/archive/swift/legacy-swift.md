@@ -19,8 +19,8 @@ playing end to end in the packaged app.
 
 The character editor uses a native SwiftUI/AppKit pixel canvas, with Piskel
 source compatibility, layers, animation frames, Undo/Redo, and PNG/Piskel file
-import/export. See [native pixel editor](native-pixel-editor.md) for features,
-format limits, and macOS verification status.
+import/export. The obsolete native pixel-editor guide was removed on 2026-10-08;
+its historical contents remain in commit `dda83e6750eef4ceceb8db85b82c49c778de34b8`.
 
 - macOS 13+
 - Swift 5.9+ toolchain (Xcode or Command Line Tools)

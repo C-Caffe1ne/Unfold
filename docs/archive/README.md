@@ -4,18 +4,17 @@
 작업 지시·승인 조건·담당 배정보다 우선한다. 현재 작업은 [문서 안내](../README.md)와
 [MVP 범위](../mvp.md)를 확인한다.
 
-## Swift/Piskel 기록
+## Swift 기록
 
 - [이전 Swift 앱 안내](swift/legacy-swift.md)
-- [이전 Swift 픽셀 에디터](swift/native-pixel-editor.md)
 - [Swift 설계 기록](swift/superpowers/specs/)
 - [Swift 구현 계획과 상태](swift/superpowers/plans/)
-- [Piskel 인수인계 기록](swift/superpowers/handoffs/)
 - [macOS 시스템 커서 실험](swift/validation/2026-09-08-macos-cursor-feasibility.md)
 
-이 문서들은 서로 다른 시점의 Swift/Piskel 작업을 설명한다. 일부 기능은 당시에도
-미완료였고, 이미 제거된 웹 리소스 경로도 등장한다. 당시 테스트 수와 OS 관찰은
-현재 C# 앱으로 이월되지 않는다.
+이 문서들은 과거 Swift 작업을 설명한다. 당시 테스트 수와 OS 관찰은
+현재 C# 앱으로 이월되지 않는다. 2026-10-08에 폐기된 Piskel·픽셀 에디터의
+설계·계획·인수인계 문서를 정리했다. 삭제한 기록은 기준 커밋
+`dda83e6750eef4ceceb8db85b82c49c778de34b8`에서 읽을 수 있다.
 
 현재 checkout에서 Swift 소스·테스트, `Package.swift`, Xcode 앱·아이콘 설정,
 Swift 전용 패키징 파일·스크립트·수동 CI·VS Code 실행 설정을 제거했다.

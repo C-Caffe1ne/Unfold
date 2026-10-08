@@ -11,7 +11,7 @@ public sealed class PixelLayer
     public PixelLayer Clone() => new() { Name = Name, Opacity = Opacity, Frames = Frames.Select(f => (uint[])f.Clone()).ToList() };
 }
 
-/// <summary>Top-left row-major, straight alpha 0xAARRGGBB pixels. No UI dependency.</summary>
+/// <summary>Legacy source model: top-left row-major, straight alpha 0xAARRGGBB pixels. No UI dependency.</summary>
 public sealed class PixelDocument
 {
     public const int MaxSide = 128, MaxFrames = 24, MaxLayers = 16;

@@ -1,6 +1,8 @@
 # Unfold
 
-**Beta v1.1.1** · C#/.NET 10 · Avalonia · macOS / Windows
+**Beta v1.1.2 (development)** · C#/.NET 10 · Avalonia · macOS / Windows
+
+Current development version: `1.1.2-beta`. Latest public release: `v1.1.1-beta`.
 
 A small desktop companion that reminds you to stretch while you work.
 

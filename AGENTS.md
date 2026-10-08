@@ -3,6 +3,7 @@
 - 현재 체크아웃의 코드와 빌드 입력으로 구현 상태를 확인한다. 현재 앱은 C#·Avalonia 기반이다.
 - 모든 기능 구현은 사용자의 마지막 수정 버전을 기준으로 한다. 작업 시작 전에 `git worktree list`, 각 후보의 브랜치·HEAD·미커밋 변경, 프로젝트 버전과 실행 대상 경로를 확인한다. 현재 대화의 작업 디렉터리를 최신 버전으로 가정하지 않는다.
 - 모든 작업은 가장 마지막 제품 코드 커밋 또는 최신 배포 버전을 기준으로 한다. 최신 배포 태그/소스와 후보 작업트리를 대조하고, 문서만 바뀐 커밋 날짜나 이름을 최신 제품의 근거로 삼지 않는다. 확인한 경로에서 검증·실행한다.
+- 2026-10-08부터 현재 후속 개발은 **Beta v1.1.2** (`1.1.2-beta`)로 지정한다. 확인한 작업 경로는 `/Users/hwanghyeonseong/Documents/GitHub/Unfold/.worktrees/remove-unused-features`, 브랜치는 `codex/remove-unused-features`다. 공개 배포본은 `v1.1.1-beta`이며, 다음 작업에서도 경로·HEAD·변경·배포 상태를 다시 확인한다.
 - 문서 위치는 `docs/README.md`에서 찾는다. `archive/`와 `reference/`는 현재 실행 지침이 아니다.
 - 제품 범위가 필요한 작업은 `docs/mvp.md`, 설치·게시 작업은 `docs/cross-platform.md`를 참고한다.
 - 검증 방법과 한계는 `docs/verification.md`를 참고한다.
