@@ -45,11 +45,19 @@ public static partial class DesignSystem
         var fluent = new FluentTheme();
         ApplyFluentPalette(app, fluent, Themes.Single(item => item.Id == CurrentTheme));
         app.Styles.Add(fluent);
+        InstallControlForegroundResources(app);
         var styles = new Styles();
         styles.Add(new Style(s => s.OfType<TemplatedControl>()) { Setters =
         { new Setter(TemplatedControl.FontFamilyProperty, AppFont) }});
         styles.Add(new Style(s => s.OfType<TextBlock>()) { Setters =
         { new Setter(TextBlock.FontFamilyProperty, AppFont) }});
+        styles.Add(new Style(s => s.OfType<ToolTip>()) { Setters =
+        {
+            new Setter(TemplatedControl.FontFamilyProperty, AppFont),
+            new Setter(TemplatedControl.BackgroundProperty, Surface),
+            new Setter(TemplatedControl.ForegroundProperty, Cream),
+            new Setter(TemplatedControl.BorderBrushProperty, OutlineStrong)
+        }});
         styles.Add(new Style(s => s.OfType<FlyoutPresenter>().Class("theme-picker")) { Setters =
         {
             new Setter(TemplatedControl.BackgroundProperty, Surface), new Setter(TemplatedControl.ForegroundProperty, Cream),
@@ -124,7 +132,15 @@ public static partial class DesignSystem
                     new Setter(TemplatedControl.BorderBrushProperty, OutlineStrong),
                     new Setter(TemplatedControl.BorderThicknessProperty, BorderStrong)
                 }});
+            styles.Add(new Style(s => s.Is(type).Class(":disabled")) { Setters =
+            { new Setter(TemplatedControl.ForegroundProperty, DisabledText) }});
         }
+        styles.Add(new Style(s => s.OfType<TextBox>()) { Setters =
+        { new Setter(TextBox.PlaceholderForegroundProperty, Muted) }});
+        styles.Add(new Style(s => s.OfType<TextBox>().Class(":disabled")) { Setters =
+        { new Setter(TextBox.PlaceholderForegroundProperty, DisabledText) }});
+        styles.Add(new Style(s => s.OfType<ComboBox>()) { Setters =
+        { new Setter(ComboBox.PlaceholderForegroundProperty, Muted) }});
         styles.Add(new Style(s => s.OfType<NumericUpDown>()) { Setters =
         {
             new Setter(NumericUpDown.TextAlignmentProperty, TextAlignment.Left),

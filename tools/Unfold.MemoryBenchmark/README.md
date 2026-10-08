@@ -1,5 +1,9 @@
 # macOS 앱 메모리 측정
 
+2026년 10월 8일 현재 개발 버전은 `1.1.2-beta`다. 측정할 제품은 각 실행의 `AppSource`와 DLL 해시로 고정한다.
+기존 [메모리 결과](../../docs/validation/2026-10-07-memory-budget.md)는 `1.1.1-beta`에서 수집했으며
+400 MB 상한과 최종 30분 반복 사용을 완료로 판정하지 않았다.
+
 선택한 **이미 빌드된 Unfold Desktop 출력**을 사용하는 native Avalonia 측정 도구다.
 제품을 다시 빌드하거나 실제 사용자 라이브러리·계정·설치 앱을 변경하지 않는다.
 현재 macOS에서만 지원한다. .NET 10 SDK, Python 3, Xcode command-line tools,

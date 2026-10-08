@@ -1,10 +1,14 @@
 # Unfold vs 유사 서비스 비교 분석
 
+이 문서는 **2026-09-14 당시 비교와 가격 가설의 기록**이다. Free/Plus·펫 1종·미구현 결제는 현재 제품 상태가 아니다.
+2026년 10월 8일 현재 개발은 Beta v1.1.2, 공개 배포는 Beta v1.1.1이며 기본 펫 5종·단일 유료 앱·계정 권한 확인을 제공한다.
+현재 기능과 판매 방향은 [MVP 범위](mvp.md), [제품 방향](product-direction.md)을 따른다. 아래 외부 서비스 수치는 이번 작업에서 재조사하지 않았다.
+
 2026-09-14 기준 · Unfold 저장소(`docs/business-model.md`, `docs/product-direction.md`, `docs/mvp.md`, `docs/development-plan.md`, `docs/pet-resources.md`, `docs/pet-packs.md`)와 각 서비스 공식 페이지·GitHub·SteamDB를 조사해 정리했다. 경쟁사 매출·판매량은 대부분 비공개이며, 아래 수치는 공개된 리뷰 수·SteamDB·서드파티 추정 사이트를 근거로 한 **참고용 추정치**다. Unfold 문서가 이미 지켜온 원칙대로, 확인되지 않은 값은 "추정"으로 표시했다.
 
 ---
 
-## 1. Unfold 요약 (비교의 기준점)
+## 1. 당시 Unfold 요약 (비교의 기준점)
 
 | 항목 | 내용 |
 |---|---|

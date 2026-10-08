@@ -1,5 +1,3 @@
-using System.Diagnostics;
-using System.Runtime.InteropServices;
 using Unfold.Core;
 
 namespace Unfold.Desktop;
@@ -11,13 +9,8 @@ public sealed class ReminderSoundPlayer : IDisposable
     private readonly Func<string, TimeSpan, CancellationToken, Task> playback;
     private CancellationTokenSource? current;
     private bool disposed;
-    // PlaySound has one process-wide channel. An older preview must never stop a newer notification.
-    private static readonly object windowsGate = new();
-    private static object? windowsOwner;
-    [DllImport("winmm.dll", CharSet = CharSet.Unicode, EntryPoint = "PlaySoundW")]
-    [return: MarshalAs(UnmanagedType.Bool)] private static extern bool PlaySound(string? path, nint module, uint flags);
-
     public ReminderSoundPlayer() : this(new(Path.Combine(AppPaths.DataRoot, "Sounds")), PlayPlatform) { }
+    internal ReminderSoundPlayer(ReminderSounds sounds) : this(sounds, PlayPlatform) { }
     internal ReminderSoundPlayer(ReminderSounds sounds, Func<string, TimeSpan, CancellationToken, Task> playback)
     { this.sounds = sounds; this.playback = playback; }
 
@@ -93,48 +86,7 @@ public sealed class ReminderSoundPlayer : IDisposable
         }
     }
 
-    private static async Task PlayPlatform(string path, TimeSpan duration, CancellationToken cancellationToken)
-    {
-        if (OperatingSystem.IsWindows())
-        {
-            var owner = new object();
-            lock (windowsGate)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                if (!PlaySound(path, 0, 0x20000 | 0x1 | 0x2)) throw new IOException("효과음을 재생하지 못했어요.");
-                windowsOwner = owner;
-            }
-            try { await Task.Delay(duration, cancellationToken).ConfigureAwait(false); }
-            finally
-            {
-                lock (windowsGate)
-                {
-                    if (windowsOwner == owner) { PlaySound(null, 0, 0); windowsOwner = null; }
-                }
-            }
-        }
-        else if (OperatingSystem.IsMacOS())
-        {
-            var info = new ProcessStartInfo("/usr/bin/afplay") { UseShellExecute = false, CreateNoWindow = true, RedirectStandardError = true };
-            info.ArgumentList.Add(path);
-            cancellationToken.ThrowIfCancellationRequested();
-            using var process = Process.Start(info) ?? throw new IOException("오디오 재생을 시작하지 못했어요.");
-            try
-            {
-                await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
-                if (process.ExitCode != 0) throw new IOException("오디오 장치에서 효과음을 재생하지 못했어요.");
-            }
-            finally
-            {
-                if (!process.HasExited)
-                {
-                    process.Kill();
-                    await process.WaitForExitAsync().ConfigureAwait(false);
-                }
-            }
-        }
-        else throw new PlatformNotSupportedException();
-    }
+    private static Task PlayPlatform(string path, TimeSpan duration, CancellationToken cancellationToken) => NativeSoundPlayback.Play(path, cancellationToken);
 
     public void Dispose()
     {

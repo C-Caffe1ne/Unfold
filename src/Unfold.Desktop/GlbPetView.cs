@@ -16,6 +16,8 @@ internal sealed class GlbPetView : UserControl, IDisposable
     private readonly CharacterLibrary library;
     private readonly Func<CharacterPackage, Task> installed;
     private readonly Func<string, Task>? removed;
+    private readonly Func<IReadOnlyList<CharacterPackage>>? existingPets;
+    private readonly Func<CharacterPackage, Task>? openPackage;
     private readonly Func<Task<string?>> chooseFile;
     private readonly AnimationView preview = new() { Name = "GlbPreview", Width = 240, Height = 240 };
     private readonly TextBlock status = Ui.Caption("");
@@ -24,7 +26,7 @@ internal sealed class GlbPetView : UserControl, IDisposable
     private readonly ComboBox previewAction = new() { Name = "GlbPreviewAction" };
     private readonly StackPanel rows = new() { Name = "GlbMappings", Spacing = 8 };
     private readonly Dictionary<string, Control> actionRows = [];
-    private readonly Button open, save, replay, pause, remove, fileAdd, fileRemove;
+    private readonly Button open, save, replay, pause, edit, remove, fileAdd, fileRemove;
     private readonly Image fileThumbnail = new() { Name = "GlbFileThumbnail", Width = 32, Height = 40, Stretch = Stretch.Uniform };
     private readonly TextBlock fileLabel = Ui.Caption("파일 없음");
     private Bitmap? thumbnailBitmap;
@@ -38,6 +40,7 @@ internal sealed class GlbPetView : UserControl, IDisposable
     public bool IsBusy { get; private set; }
     public bool HasUnsavedChanges { get; private set; }
     internal bool HasDraft => draft is not null;
+    internal string? EditingId => draft?.Id;
     internal bool IsPreviewLoading => loading;
     private string SelectedAction => GlbPetDraft.Actions[Math.Max(0, previewAction.SelectedIndex)];
     public event Action? BusyChanged;
@@ -45,13 +48,16 @@ internal sealed class GlbPetView : UserControl, IDisposable
     public GlbPetView(Window owner, CharacterLibrary library, Func<CharacterPackage, Task> installed,
         Func<Task<string?>>? chooseFile = null, bool showHeader = true, bool embedded = false,
         Func<string, Task>? created = null, Func<Task<string?>>? chooseOutput = null, Func<Task>? openFile = null,
-        Func<string, Task>? removed = null)
+        Func<string, Task>? removed = null, Func<IReadOnlyList<CharacterPackage>>? existingPets = null,
+        Func<CharacterPackage, Task>? openPackage = null)
     {
         this.owner = owner; this.library = library; this.installed = installed; this.chooseFile = chooseFile ?? PickFile;
         status.Name = "GlbStatus"; this.created = created; this.chooseOutput = chooseOutput; this.removed = removed;
+        this.existingPets = existingPets; this.openPackage = openPackage;
         status.IsVisible = false;
         status.PropertyChanged += (_, e) => { if (e.Property == TextBlock.TextProperty) status.IsVisible = !string.IsNullOrWhiteSpace(status.Text); };
         open = ActionButton("파일 열기…", openFile ?? Open); open.Name = embedded ? "OpenPetBuilderFile" : "OpenGlbPet";
+        edit = ActionButton("편집", async () => { if (StoredDraft is { } package) await OpenPackage(package); }); edit.Name = "EditGlbPet";
         remove = ActionButton("펫 삭제", Remove); remove.Name = "RemoveGlbPet"; Ui.Danger(remove);
         fileAdd = ActionButton("", openFile ?? Open); fileAdd.Name = "GlbFileAdd";
         fileRemove = Ui.Button("", () =>
@@ -82,6 +88,7 @@ internal sealed class GlbPetView : UserControl, IDisposable
         existing.SelectionChanged += async (_, _) =>
         {
             if (populating || IsBusy || existing.SelectedItem is not CharacterPackage package || package.Manifest.Id == draft?.Id) return;
+            if (!package.IsGlb) { if (openPackage is not null) await openPackage(package); RestoreExistingSelection(); return; }
             if (await CanDiscard()) await Read(() => new GlbPetDraft(package), isNew: false);
             RestoreExistingSelection();
         };
@@ -108,7 +115,7 @@ internal sealed class GlbPetView : UserControl, IDisposable
             Padding = new Thickness(8), Child = new Viewbox { Child = preview, Stretch = Stretch.Uniform } };
         var settingsPane = Ui.Column(Heading("행동 연결"), PetManagementView.Field("상황", previewAction), rows);
         settingsPane.Spacing = 10; settingsPane.Name = "GlbActionPane";
-        var workspace = new PetEditorWorkspace(owner, "Glb", stage, Ui.Column(PetManagementView.Field("3D 파일", fileRow), Ui.Row(pause, replay), existingField, Ui.Actions(remove)), settingsPane);
+        var workspace = new PetEditorWorkspace(owner, "Glb", stage, Ui.Column(PetManagementView.Field("3D 파일", fileRow), Ui.Row(pause, replay), existingField, Ui.Actions(edit, remove)), settingsPane);
         var identity = workspace.Identity("GlbIdentity", name, open);
         editor = workspace; editor.Name = "GlbEditor";
         var body = Ui.Column(identity, editor);
@@ -152,7 +159,7 @@ internal sealed class GlbPetView : UserControl, IDisposable
     internal void RefreshExisting()
     {
         populating = true;
-        try { existing.ItemsSource = library.List(loadModels: false).Where(p => p.IsGlb).ToArray(); }
+        try { existing.ItemsSource = existingPets?.Invoke() ?? library.List(loadModels: false).Where(p => p.IsGlb).ToArray(); }
         finally { populating = false; }
         RestoreExistingSelection(); SetControls();
     }
@@ -330,7 +337,7 @@ internal sealed class GlbPetView : UserControl, IDisposable
         {
             if (await Ui.Confirm(owner, "저장한 펫을 삭제할까요?",
                 $"'{stored.Manifest.Name}'을 앱에서 삭제해요. 원본 GLB 파일은 유지돼요.", "펫 삭제", "취소") != 0 || closed) return;
-            await Task.Run(() => library.Delete(stored.Manifest.Id));
+            await Task.Run(() => library.Delete(stored.Manifest.Id, draft!.Revision));
             if (closed) return;
             ClearDraft(); RefreshExisting(); LibraryChanged?.Invoke();
             if (removed is not null)
@@ -374,6 +381,7 @@ internal sealed class GlbPetView : UserControl, IDisposable
         open.IsEnabled = fileAdd.IsEnabled = !IsBusy; existing.IsEnabled = !IsBusy;
         fileRemove.IsEnabled = ready; fileLabel.Text = draft?.FileName ?? "파일 없음"; ToolTip.SetTip(fileLabel, draft?.FileName);
         remove.IsVisible = StoredDraft is not null; remove.IsEnabled = ready && remove.IsVisible;
+        edit.IsVisible = remove.IsVisible; edit.IsEnabled = ready && edit.IsVisible;
         existingField.IsVisible = true;
         editor.IsVisible = true;
         if (export is not null) export.IsEnabled = ready && !string.IsNullOrWhiteSpace(draft?.Name);

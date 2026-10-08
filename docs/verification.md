@@ -1,5 +1,25 @@
 # 검증 안내
 
+## 현재 개발본과 공개 배포 — 2026년 10월 8일
+
+개발 기준은 `codex/remove-unused-features`의 **Beta v1.1.2** (`1.1.2-beta`, 제품 커밋 `2715fd1`)다.
+최신 공개 배포는 **Beta v1.1.1** (`v1.1.1-beta`, 소스 `887d0127`)다.
+모든 새 실행은 확인한 작업트리와 새 `UNFOLD_DATA_DIR`을 사용한다.
+
+[편집 기능 파일 정리·버전 전환](validation/2026-10-08-legacy-authoring-cleanup.md)에서
+정리 전후 전체 Release 763개씩 통과, macOS native 진단 100장·성공,
+1.1.2 버전 전환 후 관련 30개 통과와 빌드된 앱의 실제 버전 표시를 확인했다.
+763개 전체 검사와 native 진단은 버전 전환 전 1.1.1 소스에서 수집했고,
+1.1.2는 이후 버전 표시·업데이트 관련 검사를 수행했다. 1.1.2 설치본을 새로 배포한 결과는 아니다.
+
+## Beta v1.1.1 공개 배포·업데이트
+
+[배포 검증](validation/2026-10-07-beta-v1.1.1-release.md)에 Mac arm64/x64 서명·공증,
+Windows x64 native CI 설치/실행과 공개 다운로드 파일·세 업데이트 채널 검사를 기록했다.
+Mac ARM64와 Windows x64 CI에서 공개 1.1.0 → 1.1.1 교체·재시작을 검증했다.
+Mac x64 실행은 Apple Silicon의 Rosetta 검사이며 물리 Intel·Windows 사용자 입력은 별도다.
+현재 앱의 **설정 → 앱 정보 → 업데이트 확인**에서 업데이트 창을 연다.
+
 ## 2026-10-07 앱 메모리 최적화
 
 [400MB 메모리 검증](validation/2026-10-07-memory-budget.md)에 최신 소스 기준의 실제 macOS 전후 측정,
@@ -158,7 +178,8 @@ headless Avalonia 테스트는 현재 설정·펫 관리·펫 말풍선의 입�
 저장하지 않은 펫 초안의 종료·업데이트 보호를 확인한다.
 이 테스트는 실제 펫 창의 클릭 통과나 알림 전달의 증거가 아니다.
 
-현재 개인화 기능의 결과는 [2026-09-13 2차 구현 검증](validation/2026-09-13-companion-stage2.md)에 있다.
+이전 개인화 기능의 결과는 [2026-09-13 2차 구현 검증](validation/2026-09-13-companion-stage2.md)에 있다.
+현재 루틴·업무 프로필 편집 UI와 픽셀 에디터는 제거했고, 저장 계약은 `src/Unfold.Core/Compatibility/`에서 유지한다.
 이후 타이머 조작 변경은 [타이머 수정 검증](validation/2026-09-13-timer-controls.md)에 있다.
 병합 복구·펫 팩 설치 기반은 [펫 팩 검증](validation/2026-09-13-pet-packs.md)에 있다.
 보리 아트 후보의 119개 테스트·재생 진단은 [보리 검증](validation/2026-09-14-bori-candidate.md)에 있다.

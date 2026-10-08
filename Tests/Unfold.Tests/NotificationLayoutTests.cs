@@ -29,7 +29,7 @@ public class NotificationLayoutTests
         AssertRightAligned(Find<Grid>(window, "ReminderVolumeRow"), volumeControls);
         Assert.Equal(stacked ? 2 : 0, Grid.GetRow((Control)direction.Parent!));
         Assert.Equal(stacked ? 2 : 0, Grid.GetRow(volumeControls));
-        Assert.InRange(volume.Bounds.Width, 200, 280);
+        Assert.InRange(volume.Bounds.Width, 150, 280);
         foreach (var name in new[] { "ReminderSoundVolumePercent", "CompletionSoundVolumePercent" })
             Assert.Equal(volume.Bounds.Width, Find<Slider>(window, name).Bounds.Width, 1);
         var icon = Find<SoundVolumeIcon>(window, "ReminderVolumeIcon");
@@ -40,7 +40,7 @@ public class NotificationLayoutTests
         foreach (var (rowName, buttonName) in new[] { ("DueSoundRow", "ResetDueSound"), ("CompletionSoundRow", "ResetCompletionSound") })
             AssertRightAligned(Find<Grid>(window, rowName), Find<Button>(window, buttonName));
         foreach (var control in card.GetVisualDescendants().OfType<Control>().Where(item =>
-            item.IsEffectivelyVisible && item is Button or ComboBox or Slider))
+            item.IsEffectivelyVisible && (item is Button or ComboBox or Slider || item.Name?.EndsWith("PercentValue") == true)))
         {
             var origin = control.TranslatePoint(default, card)!.Value;
             Assert.True(origin.X >= 0);

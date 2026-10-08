@@ -1,0 +1,968 @@
+{
+  "success": true,
+  "version": "1.1.2-beta",
+  "nativeMacOS": true,
+  "physicalInput": false,
+  "records": [
+    {
+      "theme": "\uC720\uC5F0\uD55C \uB77C\uC77C\uB77D",
+      "page": "home",
+      "mismatches": [
+        {
+          "type": "TextBox",
+          "name": "PART_TextBox",
+          "text": null,
+          "color": "#ff7a7a7a"
+        },
+        {
+          "type": "DataValidationErrors",
+          "name": null,
+          "text": null,
+          "color": "#ff7a7a7a"
+        },
+        {
+          "type": "ScrollViewer",
+          "name": "PART_ScrollViewer",
+          "text": null,
+          "color": "#ff7a7a7a"
+        }
+      ]
+    },
+    {
+      "theme": "\uC720\uC5F0\uD55C \uB77C\uC77C\uB77D",
+      "page": "tooltip",
+      "background": "#fff2f2f2",
+      "foreground": "#ff32283e",
+      "border": "Black",
+      "Bounds": {
+        "X": 0,
+        "Y": 0,
+        "Width": 40,
+        "Height": 29,
+        "Position": {
+          "X": 0,
+          "Y": 0
+        },
+        "Size": {
+          "AspectRatio": 1.3793103448275863,
+          "Width": 40,
+          "Height": 29
+        },
+        "Right": 40,
+        "Bottom": 29,
+        "Left": 0,
+        "Top": 0,
+        "TopLeft": {
+          "X": 0,
+          "Y": 0
+        },
+        "TopRight": {
+          "X": 40,
+          "Y": 0
+        },
+        "BottomLeft": {
+          "X": 0,
+          "Y": 29
+        },
+        "BottomRight": {
+          "X": 40,
+          "Y": 29
+        },
+        "Center": {
+          "X": 20,
+          "Y": 14.5
+        }
+      }
+    },
+    {
+      "theme": "\uC720\uC5F0\uD55C \uB77C\uC77C\uB77D",
+      "page": "themes",
+      "mismatches": []
+    },
+    {
+      "theme": "\uC720\uC5F0\uD55C \uB77C\uC77C\uB77D",
+      "page": "settings",
+      "mismatches": [
+        {
+          "type": "ScrollBar",
+          "name": "PART_VerticalScrollBar",
+          "text": null,
+          "color": "Transparent"
+        },
+        {
+          "type": "RepeatButton",
+          "name": "PART_PageUpButton",
+          "text": null,
+          "color": "Transparent"
+        },
+        {
+          "type": "RepeatButton",
+          "name": "PART_PageDownButton",
+          "text": null,
+          "color": "Transparent"
+        },
+        {
+          "type": "Thumb",
+          "name": null,
+          "text": null,
+          "color": "Transparent"
+        }
+      ]
+    },
+    {
+      "theme": "\uC720\uC5F0\uD55C \uB77C\uC77C\uB77D",
+      "page": "pets",
+      "mismatches": [
+        {
+          "type": "TextBlock",
+          "name": "PART_Placeholder",
+          "text": "\uD3AB \uC774\uB984",
+          "color": "#99000000"
+        },
+        {
+          "type": "ContentControl",
+          "name": "ContentPresenter",
+          "text": null,
+          "color": "#66000000"
+        },
+        {
+          "type": "TextBlock",
+          "name": null,
+          "text": "\uBC18\uBCF5",
+          "color": "#66000000"
+        },
+        {
+          "type": "PathIcon",
+          "name": "DropDownGlyph",
+          "text": null,
+          "color": "#66000000"
+        },
+        {
+          "type": "DirectionIcon",
+          "name": null,
+          "text": null,
+          "color": "#66000000"
+        }
+      ]
+    },
+    {
+      "theme": "\uB2E4\uC815\uD55C \uC624\uD2B8",
+      "page": "home",
+      "mismatches": [
+        {
+          "type": "PathIcon",
+          "name": "DropDownGlyph",
+          "text": null,
+          "color": "#ff70627f"
+        },
+        {
+          "type": "DirectionIcon",
+          "name": null,
+          "text": null,
+          "color": "#ff70627f"
+        },
+        {
+          "type": "ButtonSpinner",
+          "name": "PART_Spinner",
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "DataValidationErrors",
+          "name": null,
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "TextBox",
+          "name": "PART_TextBox",
+          "text": null,
+          "color": "#ff7a7a7a"
+        },
+        {
+          "type": "DataValidationErrors",
+          "name": null,
+          "text": null,
+          "color": "#ff7a7a7a"
+        },
+        {
+          "type": "ScrollViewer",
+          "name": "PART_ScrollViewer",
+          "text": null,
+          "color": "#ff7a7a7a"
+        },
+        {
+          "type": "ButtonSpinner",
+          "name": "PART_Spinner",
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "DataValidationErrors",
+          "name": null,
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "RepeatButton",
+          "name": "PART_IncreaseButton",
+          "text": null,
+          "color": "#ff32283e"
+        }
+      ]
+    },
+    {
+      "theme": "\uB2E4\uC815\uD55C \uC624\uD2B8",
+      "page": "tooltip",
+      "background": "#fff2f2f2",
+      "foreground": "#ff32283e",
+      "border": "Black",
+      "Bounds": {
+        "X": 0,
+        "Y": 0,
+        "Width": 40,
+        "Height": 29,
+        "Position": {
+          "X": 0,
+          "Y": 0
+        },
+        "Size": {
+          "AspectRatio": 1.3793103448275863,
+          "Width": 40,
+          "Height": 29
+        },
+        "Right": 40,
+        "Bottom": 29,
+        "Left": 0,
+        "Top": 0,
+        "TopLeft": {
+          "X": 0,
+          "Y": 0
+        },
+        "TopRight": {
+          "X": 40,
+          "Y": 0
+        },
+        "BottomLeft": {
+          "X": 0,
+          "Y": 29
+        },
+        "BottomRight": {
+          "X": 40,
+          "Y": 29
+        },
+        "Center": {
+          "X": 20,
+          "Y": 14.5
+        }
+      }
+    },
+    {
+      "theme": "\uB2E4\uC815\uD55C \uC624\uD2B8",
+      "page": "themes",
+      "mismatches": []
+    },
+    {
+      "theme": "\uB2E4\uC815\uD55C \uC624\uD2B8",
+      "page": "settings",
+      "mismatches": [
+        {
+          "type": "CheckBox",
+          "name": "ReminderSoundsEnabled",
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "AccessText",
+          "name": null,
+          "text": "\uC54C\uB9BC \uD6A8\uACFC\uC74C \uC0AC\uC6A9",
+          "color": "#ff32283e"
+        },
+        {
+          "type": "ButtonSpinner",
+          "name": "PART_Spinner",
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "DataValidationErrors",
+          "name": null,
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "RepeatButton",
+          "name": "PART_IncreaseButton",
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "RepeatButton",
+          "name": "PART_DecreaseButton",
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "ButtonSpinner",
+          "name": "PART_Spinner",
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "DataValidationErrors",
+          "name": null,
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "RepeatButton",
+          "name": "PART_IncreaseButton",
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "RepeatButton",
+          "name": "PART_DecreaseButton",
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "CheckBox",
+          "name": "DebugToolsEnabled",
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "AccessText",
+          "name": null,
+          "text": "\uB514\uBC84\uADF8 \uB3C4\uAD6C \uC0AC\uC6A9",
+          "color": "#ff32283e"
+        },
+        {
+          "type": "ScrollBar",
+          "name": "PART_VerticalScrollBar",
+          "text": null,
+          "color": "Transparent"
+        },
+        {
+          "type": "RepeatButton",
+          "name": "PART_LineUpButton",
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "PathIcon",
+          "name": null,
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "DirectionIcon",
+          "name": null,
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "RepeatButton",
+          "name": "PART_PageUpButton",
+          "text": null,
+          "color": "Transparent"
+        },
+        {
+          "type": "RepeatButton",
+          "name": "PART_PageDownButton",
+          "text": null,
+          "color": "Transparent"
+        },
+        {
+          "type": "Thumb",
+          "name": null,
+          "text": null,
+          "color": "Transparent"
+        },
+        {
+          "type": "RepeatButton",
+          "name": "PART_LineDownButton",
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "PathIcon",
+          "name": null,
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "DirectionIcon",
+          "name": null,
+          "text": null,
+          "color": "#ff32283e"
+        }
+      ]
+    },
+    {
+      "theme": "\uB2E4\uC815\uD55C \uC624\uD2B8",
+      "page": "pets",
+      "mismatches": [
+        {
+          "type": "TextBox",
+          "name": "CustomPetName",
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "DataValidationErrors",
+          "name": null,
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "ScrollViewer",
+          "name": "PART_ScrollViewer",
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "TextBlock",
+          "name": "PART_Placeholder",
+          "text": "\uD3AB \uC774\uB984",
+          "color": "#99000000"
+        },
+        {
+          "type": "TextBlock",
+          "name": "PlaceholderTextBlock",
+          "text": "\uD3AB \uC120\uD0DD",
+          "color": "#ff32283e"
+        },
+        {
+          "type": "PathIcon",
+          "name": "DropDownGlyph",
+          "text": null,
+          "color": "#ff70627f"
+        },
+        {
+          "type": "DirectionIcon",
+          "name": null,
+          "text": null,
+          "color": "#ff70627f"
+        },
+        {
+          "type": "PathIcon",
+          "name": "DropDownGlyph",
+          "text": null,
+          "color": "#ff70627f"
+        },
+        {
+          "type": "DirectionIcon",
+          "name": null,
+          "text": null,
+          "color": "#ff70627f"
+        },
+        {
+          "type": "ContentControl",
+          "name": "ContentPresenter",
+          "text": null,
+          "color": "#66000000"
+        },
+        {
+          "type": "TextBlock",
+          "name": null,
+          "text": "\uBC18\uBCF5",
+          "color": "#66000000"
+        },
+        {
+          "type": "PathIcon",
+          "name": "DropDownGlyph",
+          "text": null,
+          "color": "#66000000"
+        },
+        {
+          "type": "DirectionIcon",
+          "name": null,
+          "text": null,
+          "color": "#66000000"
+        }
+      ]
+    },
+    {
+      "theme": "\uC228 \uACE0\uB974\uB294 \uC232",
+      "page": "home",
+      "mismatches": [
+        {
+          "type": "PathIcon",
+          "name": "DropDownGlyph",
+          "text": null,
+          "color": "#ff70627f"
+        },
+        {
+          "type": "DirectionIcon",
+          "name": null,
+          "text": null,
+          "color": "#ff70627f"
+        },
+        {
+          "type": "ButtonSpinner",
+          "name": "PART_Spinner",
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "DataValidationErrors",
+          "name": null,
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "TextBox",
+          "name": "PART_TextBox",
+          "text": null,
+          "color": "#ff7a7a7a"
+        },
+        {
+          "type": "DataValidationErrors",
+          "name": null,
+          "text": null,
+          "color": "#ff7a7a7a"
+        },
+        {
+          "type": "ScrollViewer",
+          "name": "PART_ScrollViewer",
+          "text": null,
+          "color": "#ff7a7a7a"
+        },
+        {
+          "type": "ButtonSpinner",
+          "name": "PART_Spinner",
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "DataValidationErrors",
+          "name": null,
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "RepeatButton",
+          "name": "PART_IncreaseButton",
+          "text": null,
+          "color": "#ff32283e"
+        }
+      ]
+    },
+    {
+      "theme": "\uC228 \uACE0\uB974\uB294 \uC232",
+      "page": "tooltip",
+      "background": "#fff2f2f2",
+      "foreground": "#ff32283e",
+      "border": "Black",
+      "Bounds": {
+        "X": 0,
+        "Y": 0,
+        "Width": 40,
+        "Height": 29,
+        "Position": {
+          "X": 0,
+          "Y": 0
+        },
+        "Size": {
+          "AspectRatio": 1.3793103448275863,
+          "Width": 40,
+          "Height": 29
+        },
+        "Right": 40,
+        "Bottom": 29,
+        "Left": 0,
+        "Top": 0,
+        "TopLeft": {
+          "X": 0,
+          "Y": 0
+        },
+        "TopRight": {
+          "X": 40,
+          "Y": 0
+        },
+        "BottomLeft": {
+          "X": 0,
+          "Y": 29
+        },
+        "BottomRight": {
+          "X": 40,
+          "Y": 29
+        },
+        "Center": {
+          "X": 20,
+          "Y": 14.5
+        }
+      }
+    },
+    {
+      "theme": "\uC228 \uACE0\uB974\uB294 \uC232",
+      "page": "themes",
+      "mismatches": []
+    },
+    {
+      "theme": "\uC228 \uACE0\uB974\uB294 \uC232",
+      "page": "settings",
+      "mismatches": [
+        {
+          "type": "CheckBox",
+          "name": "ReminderSoundsEnabled",
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "AccessText",
+          "name": null,
+          "text": "\uC54C\uB9BC \uD6A8\uACFC\uC74C \uC0AC\uC6A9",
+          "color": "#ff32283e"
+        },
+        {
+          "type": "ButtonSpinner",
+          "name": "PART_Spinner",
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "DataValidationErrors",
+          "name": null,
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "RepeatButton",
+          "name": "PART_IncreaseButton",
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "RepeatButton",
+          "name": "PART_DecreaseButton",
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "ButtonSpinner",
+          "name": "PART_Spinner",
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "DataValidationErrors",
+          "name": null,
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "RepeatButton",
+          "name": "PART_IncreaseButton",
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "RepeatButton",
+          "name": "PART_DecreaseButton",
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "CheckBox",
+          "name": "DebugToolsEnabled",
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "AccessText",
+          "name": null,
+          "text": "\uB514\uBC84\uADF8 \uB3C4\uAD6C \uC0AC\uC6A9",
+          "color": "#ff32283e"
+        },
+        {
+          "type": "ScrollBar",
+          "name": "PART_VerticalScrollBar",
+          "text": null,
+          "color": "Transparent"
+        },
+        {
+          "type": "RepeatButton",
+          "name": "PART_LineUpButton",
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "PathIcon",
+          "name": null,
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "DirectionIcon",
+          "name": null,
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "RepeatButton",
+          "name": "PART_PageUpButton",
+          "text": null,
+          "color": "Transparent"
+        },
+        {
+          "type": "RepeatButton",
+          "name": "PART_PageDownButton",
+          "text": null,
+          "color": "Transparent"
+        },
+        {
+          "type": "Thumb",
+          "name": null,
+          "text": null,
+          "color": "Transparent"
+        },
+        {
+          "type": "RepeatButton",
+          "name": "PART_LineDownButton",
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "PathIcon",
+          "name": null,
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "DirectionIcon",
+          "name": null,
+          "text": null,
+          "color": "#ff32283e"
+        }
+      ]
+    },
+    {
+      "theme": "\uC228 \uACE0\uB974\uB294 \uC232",
+      "page": "pets",
+      "mismatches": [
+        {
+          "type": "TextBox",
+          "name": "CustomPetName",
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "DataValidationErrors",
+          "name": null,
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "ScrollViewer",
+          "name": "PART_ScrollViewer",
+          "text": null,
+          "color": "#ff32283e"
+        },
+        {
+          "type": "TextBlock",
+          "name": "PART_Placeholder",
+          "text": "\uD3AB \uC774\uB984",
+          "color": "#99000000"
+        },
+        {
+          "type": "TextBlock",
+          "name": "PlaceholderTextBlock",
+          "text": "\uD3AB \uC120\uD0DD",
+          "color": "#ff32283e"
+        },
+        {
+          "type": "PathIcon",
+          "name": "DropDownGlyph",
+          "text": null,
+          "color": "#ff70627f"
+        },
+        {
+          "type": "DirectionIcon",
+          "name": null,
+          "text": null,
+          "color": "#ff70627f"
+        },
+        {
+          "type": "PathIcon",
+          "name": "DropDownGlyph",
+          "text": null,
+          "color": "#ff70627f"
+        },
+        {
+          "type": "DirectionIcon",
+          "name": null,
+          "text": null,
+          "color": "#ff70627f"
+        },
+        {
+          "type": "ContentControl",
+          "name": "ContentPresenter",
+          "text": null,
+          "color": "#66000000"
+        },
+        {
+          "type": "TextBlock",
+          "name": null,
+          "text": "\uBC18\uBCF5",
+          "color": "#66000000"
+        },
+        {
+          "type": "PathIcon",
+          "name": "DropDownGlyph",
+          "text": null,
+          "color": "#66000000"
+        },
+        {
+          "type": "DirectionIcon",
+          "name": null,
+          "text": null,
+          "color": "#66000000"
+        }
+      ]
+    },
+    {
+      "theme": "\uBC24\uC758 \uBC84\uD130",
+      "page": "home",
+      "mismatches": [
+        {
+          "type": "TextBox",
+          "name": "PART_TextBox",
+          "text": null,
+          "color": "#ff858585"
+        },
+        {
+          "type": "DataValidationErrors",
+          "name": null,
+          "text": null,
+          "color": "#ff858585"
+        },
+        {
+          "type": "ScrollViewer",
+          "name": "PART_ScrollViewer",
+          "text": null,
+          "color": "#ff858585"
+        }
+      ]
+    },
+    {
+      "theme": "\uBC24\uC758 \uBC84\uD130",
+      "page": "tooltip",
+      "background": "#ff2b2b2b",
+      "foreground": "#fff0f1ed",
+      "border": "Black",
+      "Bounds": {
+        "X": 0,
+        "Y": 0,
+        "Width": 40,
+        "Height": 29,
+        "Position": {
+          "X": 0,
+          "Y": 0
+        },
+        "Size": {
+          "AspectRatio": 1.3793103448275863,
+          "Width": 40,
+          "Height": 29
+        },
+        "Right": 40,
+        "Bottom": 29,
+        "Left": 0,
+        "Top": 0,
+        "TopLeft": {
+          "X": 0,
+          "Y": 0
+        },
+        "TopRight": {
+          "X": 40,
+          "Y": 0
+        },
+        "BottomLeft": {
+          "X": 0,
+          "Y": 29
+        },
+        "BottomRight": {
+          "X": 40,
+          "Y": 29
+        },
+        "Center": {
+          "X": 20,
+          "Y": 14.5
+        }
+      }
+    },
+    {
+      "theme": "\uBC24\uC758 \uBC84\uD130",
+      "page": "themes",
+      "mismatches": []
+    },
+    {
+      "theme": "\uBC24\uC758 \uBC84\uD130",
+      "page": "settings",
+      "mismatches": [
+        {
+          "type": "ScrollBar",
+          "name": "PART_VerticalScrollBar",
+          "text": null,
+          "color": "Transparent"
+        },
+        {
+          "type": "RepeatButton",
+          "name": "PART_PageUpButton",
+          "text": null,
+          "color": "Transparent"
+        },
+        {
+          "type": "RepeatButton",
+          "name": "PART_PageDownButton",
+          "text": null,
+          "color": "Transparent"
+        },
+        {
+          "type": "Thumb",
+          "name": null,
+          "text": null,
+          "color": "Transparent"
+        }
+      ]
+    },
+    {
+      "theme": "\uBC24\uC758 \uBC84\uD130",
+      "page": "pets",
+      "mismatches": [
+        {
+          "type": "TextBlock",
+          "name": "PART_Placeholder",
+          "text": "\uD3AB \uC774\uB984",
+          "color": "#99ffffff"
+        },
+        {
+          "type": "ContentControl",
+          "name": "ContentPresenter",
+          "text": null,
+          "color": "#66ffffff"
+        },
+        {
+          "type": "TextBlock",
+          "name": null,
+          "text": "\uBC18\uBCF5",
+          "color": "#66ffffff"
+        },
+        {
+          "type": "PathIcon",
+          "name": "DropDownGlyph",
+          "text": null,
+          "color": "#66ffffff"
+        },
+        {
+          "type": "DirectionIcon",
+          "name": null,
+          "text": null,
+          "color": "#66ffffff"
+        }
+      ]
+    }
+  ]
+}

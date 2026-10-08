@@ -1,5 +1,7 @@
 # Paddle 샌드박스 설정·결제 검증
 
+2026년 10월 8일 문서 점검: 아래 `artifacts/` 캡처는 현재 체크아웃에 포함되지 않아 원래 경로만 기록한다. 당시 검사 결과·버전·수치는 유지한다.
+
 > 이 문서는 공급자 전환 전 검증 이력이다. 2026-09-28부터 현재 결제 경로는
 > [Lemon Squeezy](2026-09-28-lemon-squeezy-transition.md)를 사용하며, 당시 로컬 Paddle 도구는 제거했다.
 
@@ -8,7 +10,7 @@
 
 최종 Get started는 **2/4 완료(50%)**다. Create your catalog와 Build your pricing page and
 checkout은 Complete, Handle fulfillment and provisioning은 Not started, Test your integration은
-In progress로 표시됐다. [완료 단계 캡처](../../artifacts/paddle-onboarding/get-started-2026-09-28.png).
+In progress로 표시됐다. 완료 단계 캡처 (`artifacts/paddle-onboarding/get-started-2026-09-28.png`; 현재 체크아웃 미포함).
 
 ## 완료한 설정
 
@@ -26,7 +28,7 @@ In progress로 표시됐다. [완료 단계 캡처](../../artifacts/paddle-onboa
 | 실제 테스트 페이지 | `http://localhost:43822/` — Paddle.js 오버레이 직접 실행 |
 
 저장 후 두 가격의 Edit 화면을 다시 열어 결제 주기·세금·수량을 확인했다.
-[상품·가격 캡처](../../artifacts/paddle-onboarding/catalog-2026-09-28.png).
+상품·가격 캡처 (`artifacts/paddle-onboarding/catalog-2026-09-28.png`; 현재 체크아웃 미포함).
 
 ## 실제 브라우저 검증
 
@@ -45,10 +47,10 @@ In progress로 표시됐다. [완료 단계 캡처](../../artifacts/paddle-onboa
 - KR: `txn_01m3k870nqt0ash87fw1prse1a`
 - USD: `txn_01m3k8gtnfsb9f0pty0yyh65q6`
 
-[두 거래 완료 화면](../../artifacts/paddle-onboarding/transactions-2026-09-28.png),
-[한국 결제창](../../artifacts/paddle-onboarding/checkout-kr-2026-09-28.png),
-[해외 결제창](../../artifacts/paddle-onboarding/checkout-us-2026-09-28.png),
-[거절 상태](../../artifacts/paddle-onboarding/payment-declined-us-2026-09-28.png).
+두 거래 완료 화면 (`artifacts/paddle-onboarding/transactions-2026-09-28.png`; 현재 체크아웃 미포함),
+한국 결제창 (`artifacts/paddle-onboarding/checkout-kr-2026-09-28.png`; 현재 체크아웃 미포함),
+해외 결제창 (`artifacts/paddle-onboarding/checkout-us-2026-09-28.png`; 현재 체크아웃 미포함),
+거절 상태 (`artifacts/paddle-onboarding/payment-declined-us-2026-09-28.png`; 현재 체크아웃 미포함).
 캡처는 Git에서 제외되는 로컬 산출물이다.
 
 검증 중 고객 정보를 넘길 때 이메일 없이 주소만 넣으면 Paddle이 거절하는 점을 확인해,

@@ -1,5 +1,7 @@
 # 타이머 설정·아이콘 조작 수정
 
+2026년 10월 8일 문서 점검: 아래 `artifacts/` 캡처는 현재 체크아웃에 포함되지 않아 원래 경로만 기록한다. 당시 검사 결과·버전·수치는 유지한다.
+
 2026-09-13 · `release/mvp`, 기존 정리·개인화 데모 위의 작업 트리. macOS arm64, .NET 10.
 이번 범위는 간격 적용, Reset의 자동 재시작 제거, Stretch now 제거와 타이머 아이콘 조작이다.
 
@@ -77,8 +79,8 @@ UNFOLD_DATA_DIR=<새-테스트-프로필> <게시-디렉터리>/Unfold --smoke-t
 진단도 함께 실행하며, 휴식 세션의 시간과 CSV 목적지는 이전과 같이 주입한다.
 
 로컬 화면·로그는 git 제외 경로 `artifacts/verification/timer-controls/`에 보관한다.
-[Reset 후 화면](../../artifacts/verification/timer-controls/timer-reset.png),
-[정지 후 화면](../../artifacts/verification/timer-controls/timer-stopped.png).
+Reset 후 화면 (`artifacts/verification/timer-controls/timer-reset.png`; 현재 체크아웃 미포함),
+정지 후 화면 (`artifacts/verification/timer-controls/timer-stopped.png`; 현재 체크아웃 미포함).
 저장소 복제본에는 이 로컬 캡처 파일들이 포함되지 않는다.
 
 Windows 실기, 실제 사용자 키보드·마우스 조작 및 스크린리더 음성 출력,

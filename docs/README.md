@@ -1,13 +1,33 @@
 # 문서 안내
 
-현재 제품은 **C#·Avalonia 기반 Unfold Beta**다. 2026-10-08부터 후속 개발 버전은 **Beta v1.1.2** (`1.1.2-beta`)이며, 작업 경로는 `/Users/hwanghyeonseong/Documents/GitHub/Unfold/.worktrees/remove-unused-features`, 브랜치는 `codex/remove-unused-features`다. 최신 공개 배포본은 `v1.1.1-beta`다.
+현재 제품은 **C#·Avalonia 기반 Unfold Beta**다. 2026-10-08부터 후속 개발 버전은 **Beta v1.1.2** (`1.1.2-beta`, 제품 커밋 `2715fd1`)이며, 작업 경로는 `/Users/hwanghyeonseong/Documents/GitHub/Unfold/.worktrees/remove-unused-features`, 브랜치는 `codex/remove-unused-features`다.
+최신 공개 배포본은 `v1.1.1-beta` (`887d0127`)다. 개발 버전 지정과 문서 수정은 공개 설치본을 교체하지 않는다.
+
+## 현재 사용 안내
+
+| 문서 | 확인할 내용 |
+|---|---|
+| [MVP 범위](mvp.md) | 현재 기능·제외 범위와 이전 데이터 호환 |
+| [설정·타이머](settings-ui.md), [말풍선·효과음](stretch-notifications.md) | 설정 자동 저장·홈 시간 저장·대사·불투명도·자동 배치 |
+| [펫 관리](pet-packs.md), [GLB 펫](glb-pets.md) | 통합 편집·설치·동작 설정·입력 제한 |
+| [계정](account-screen.md), [이용 코드](access-codes.md) | OS 보안 저장·로그인 복원·구매/무료 권한 |
+| [설치·업데이트](cross-platform.md), [공개 릴리스 노트](releases/v1.1.1-beta.md) | 실제 배포 파일·아키텍처·서명·업데이트 방법 |
+| [검증 안내](verification.md), [배포 체크리스트](release-checklist.md) | 기록된 검사·OS별 한계와 새 설치본 검사 절차 |
+| [개발 계획](development-plan.md) | 현재 1.1.2 작업 기준과 과거 계획의 구분 |
+| [문서 최신화 결과](validation/2026-10-08-docs-refresh.md) | 코드 대조·링크 복구·보존 범위 |
+
+## 구현·검증 이력
 
 2026-10-07 메모리 최적화의 기준은 미사용 기능 제거·로그인 복원 수정을 포함한 `codex/remove-unused-features`의 `1.1.1-beta`, 커밋 `a8fbd5b`다. 최적화와 실제 macOS 측정은 같은 작업트리에서 이어서 수행했다. 이후 작업 기준은 전체 작업트리와 배포 태그에서 다시 확인한다. `release/mvp`의 `0.2.2`는 이전 소스다.
 기능 구현 전에 [작업 안내](../AGENTS.md)에 따라 마지막 수정본의 브랜치·HEAD·미커밋 변경·프로젝트 버전과 실행 경로를 다시 확인한다. 아래 문서는 구현·범위·실행 방법을 설명하며 과거 Swift 구현과 Garden 실험은 보관 자료다.
 
 | 문서 | 역할 |
 |---|---|
+| [툴팁·아이콘·글자 테마 색상 검증](validation/2026-10-08-theme-control-colors.md) | 밝은 테마 전환의 이전 색 잔류·입력 안내·비활성 색 보완, 네 테마의 macOS 기본·최소 창과 열린 툴팁 확인 |
+| [소리 설정 수정 검증](validation/2026-10-08-sound-settings.md) | 세 음량 %·OGG 지원·미리듣기 자연 종료, 784개 검사와 macOS 네이티브 재생·최소 창 확인 |
+| [커스텀 펫 편집·삭제 검증](validation/2026-10-08-pet-management-edit-delete.md) | 설치한 모든 형식의 편집·저장·삭제, 원본/행동 보존, 777개 회귀 검사와 macOS 최소 창 확인 |
 | [Beta v1.1.1 배포·업데이트 검증](validation/2026-10-07-beta-v1.1.1-release.md) | Mac 공증·Windows native CI·공개 다운로드·실제 Mac/Windows 업데이트 교체·재시작과 검증 경계 |
+| [시작 업데이트 안내 검증](validation/2026-10-08-startup-updates.md) | 계정 복원 뒤 새 버전 모달·변경내역·백그라운드 유예·중복 방지와 네 테마 Mac 실제 창 |
 | [400MB 메모리 검증](validation/2026-10-07-memory-budget.md) | 최신 소스·동일 native 실행기의 전후 측정, 캐시·2D 재생·가져오기 최적화와 복구 회귀 검사 |
 | [400MB 최적화 계획](plans/2026-10-07-memory-budget.md) | Agency 역할·측정 기준·변경 순서·장시간 검증과 임의 입력 경계 |
 | [미사용 기능 제거 검증](validation/2026-10-07-unused-features.md) | 최신 제품 커밋 기준, 루틴·프로필 설정과 픽셀 에디터 제거·기존 데이터 호환·종료/업데이트 회귀 검사 |
@@ -34,7 +54,7 @@
 | [GLB 공통 파이프라인 메모리 개선](validation/2026-10-06-glb-pipeline-memory.md) | 지연 로딩·모델 공유·연속 키프레임·재생 버퍼 재사용, 301개 입력 및 718개 회귀 검사 |
 | [GLB 메모리 최적화 검증](validation/2026-10-05-glb-memory.md) | 프레임 버퍼 재사용, 화질 동일성, 메모리 전후 측정과 Windows 검증 범위 |
 | [GLB 확대 화질 검증](validation/2026-10-04-glb-resolution.md) | 표시 크기·Retina 배율 대응, 가장자리 처리와 실제 모델 전후 비교 |
-| [GLB 가져오기 호환성](validation/2026-10-06-glb-compatibility.md) | Hikari 반투명 재질·중복 동작명 수정, 295개 전수 비교, 687개 회귀 검사와 미배포 경계 |
+| [GLB 가져오기 호환성](validation/2026-10-06-glb-compatibility.md) | Hikari 반투명 재질·중복 동작명 수정, 당시 로컬 295개 전수 비교·687개 회귀 검사. 이후 1.1.1 공개 배포에 포함 |
 | [GLB 펫 사용법](glb-pets.md) | 모델 가져오기, 상황별 행동 지정, 몸 방향 고정과 지원 범위 |
 | [Beta v1.0.4 GLB 통합 검증](validation/2026-10-04-beta-glb-pets.md) | 최신 소스 기준, 회귀 검사와 macOS 재생·설정 화면 증거 |
 | [프로젝트 README](../README.md) | 사용자 소개, 빠른 실행, 저장소 구조 |
@@ -84,7 +104,7 @@
 | [타이머 피드백 검증](validation/2026-09-15-timer-feedback.md) | 상태 배지, 실행 중 간격 잠금, 명시적 적용, 재생/일시정지·정지 버튼과 회귀 검사 |
 | [비활성 입력 필드 검증](validation/2026-09-15-disabled-input.md) | 숫자 입력의 내부 반경·배경 통일, 외곽 1px 테두리와 macOS 렌더링 확인 |
 | [말풍선 알림 검증](validation/2026-09-16-stretch-speech.md) | 조기·초과 완료, 4방향 배치, 효과음과 macOS 네이티브 진단 |
-| [스트레칭 말풍선 알림](stretch-notifications.md) | 알림 흐름, 4방향 위치, 초과 시간, 효과음과 기록 호환성 |
+| [스트레칭 말풍선 알림](stretch-notifications.md) | 알림 흐름, 자동 배치·대사·불투명도, 초과 시간, 효과음과 기록 호환성 |
 | [설정 대시보드](settings-ui.md) | 참고 이미지 기반 카드 배치, 바로가기와 창 크기 대응 |
 | [설정 대시보드 검증](validation/2026-09-14-settings-dashboard.md) | 130개 테스트, 기본·최소 크기 캡처와 설정 회귀 검증 |
 | [사이드바 탭 전환 검증](validation/2026-09-15-navigation-tabs.md) | 같은 창의 타이머·루틴·기록 탭, 펫 팩 항목 제거와 macOS 렌더링 검증 |
@@ -93,7 +113,7 @@
 | [Supabase 공개키 연결 검사](validation/2026-09-28-supabase-connection.md) | 실제 Auth 응답, Google 비활성·상품/함수 준비 상태와 다음 서버 설정 |
 | [계정별 무료 이용 코드](access-codes.md) | Google 로그인 후 코드 등록, 권한 복원, 운영자 코드 발급·회수 |
 | [무료 이용 코드 검증](validation/2026-09-30-access-codes.md) | 앱 모달·RLS·코드 제한과 실제 Supabase 반영 |
-| [Supabase 연결 안내](../supabase/README.md) | 로컬 설정·테스트, 서버 API·앱 계약과 실제 연결 전 조건 |
+| [Supabase 연결 안내](../supabase/README.md) | 현재 앱의 계정 계약, 추적된 샌드박스 소스와 과거 원격 반영 기록 |
 | [개발 계획](development-plan.md) | 구현 단계, 완료 조건과 후속 범위 |
 | [설정 탭 UI 개편 계획](plans/2026-09-18-settings-ui-redesign.md) | UI 우선·UX 후속 순서, 드롭다운·텍스트 위계·간격·레이아웃 검수와 구현 기준 |
 | [설정 탭 UI 개편 검증](validation/2026-09-18-settings-ui-redesign.md) | 하단 취소·저장, 변경 상태·오류 복구, 설정 전용 드롭다운, 202개 테스트와 macOS 캡처 |

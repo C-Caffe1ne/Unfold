@@ -20,7 +20,7 @@ public class Mp3SoundImporterTests
         var path = Path.Combine(temp.Path, "effect.WAV"); var data = ReminderSounds.Default(ReminderSound.Completed); File.WriteAllBytes(path, data);
         var id = await ReminderSoundImporter.Import(path, library, TestContext.Current.CancellationToken);
         Assert.Equal(data, File.ReadAllBytes(library.Resolve(ReminderSound.Completed, id, true)));
-        await Assert.ThrowsAsync<InvalidDataException>(() => ReminderSoundImporter.Import("unsupported.ogg", library, TestContext.Current.CancellationToken));
+        await Assert.ThrowsAsync<InvalidDataException>(() => ReminderSoundImporter.Import("unsupported.flac", library, TestContext.Current.CancellationToken));
     }
     [Fact(Skip = "Prepare media tools to run native MP3 conversion.", SkipUnless = nameof(HasMediaTool), SkipType = typeof(Mp3SoundImporterTests))]
     public async Task Mp3ConvertsToPlayableWavWithVolumeSupportAndSurvivesSourceDeletion()

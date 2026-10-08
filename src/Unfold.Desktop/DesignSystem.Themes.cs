@@ -84,4 +84,31 @@ public static partial class DesignSystem
         };
         app.RequestedThemeVariant = variant;
     }
+
+    private static void InstallControlForegroundResources(Application app)
+    {
+        // Fluent's non-accent brushes capture palette colors through StaticResource.
+        // Give the controls' DynamicResource keys our stable brushes so open templates,
+        // hover states and popups update even between two Light themes.
+        void Set(IBrush brush, params string[] keys)
+        { foreach (var key in keys) app.Resources[key] = brush; }
+
+        Set(Cream, "ButtonForeground", "ButtonForegroundPointerOver", "ButtonForegroundPressed",
+            "RepeatButtonForeground", "RepeatButtonForegroundPointerOver", "RepeatButtonForegroundPressed",
+            "TextControlForeground", "TextControlForegroundPointerOver", "TextControlForegroundFocused",
+            "ComboBoxForeground", "ComboBoxForegroundFocused", "ComboBoxForegroundFocusedPressed",
+            "ComboBoxItemForeground", "ComboBoxItemForegroundPointerOver", "ComboBoxItemForegroundPressed",
+            "ScrollBarButtonArrowForeground", "ScrollBarButtonArrowForegroundPointerOver", "ScrollBarButtonArrowForegroundPressed");
+        Set(DisabledText, "ButtonForegroundDisabled", "RepeatButtonForegroundDisabled", "TextControlForegroundDisabled",
+            "ComboBoxForegroundDisabled", "ComboBoxDropDownGlyphForegroundDisabled", "ComboBoxItemForegroundDisabled",
+            "ComboBoxItemForegroundSelectedDisabled", "ScrollBarButtonArrowForegroundDisabled");
+        Set(Muted, "ComboBoxDropDownGlyphForeground", "ComboBoxDropDownGlyphForegroundFocused",
+            "ComboBoxDropDownGlyphForegroundFocusedPressed");
+        Set(Ink, "ComboBoxItemForegroundSelected", "ComboBoxItemForegroundSelectedPointerOver", "ComboBoxItemForegroundSelectedPressed");
+        foreach (var state in new[] { "Unchecked", "Checked", "Indeterminate" })
+        {
+            Set(Cream, "CheckBoxForeground" + state, "CheckBoxForeground" + state + "PointerOver", "CheckBoxForeground" + state + "Pressed");
+            Set(DisabledText, "CheckBoxForeground" + state + "Disabled");
+        }
+    }
 }

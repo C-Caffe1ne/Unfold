@@ -135,6 +135,7 @@ public sealed partial class AppRuntime : IDisposable
         purchaseGateEnabled = !diagnostic;
         accountStartupPending = purchaseGateEnabled;
         settingsWindow = new(this); desktop.MainWindow = settingsWindow;
+        settingsWindow.Activated += (_, _) => TryShowStartupUpdate();
         instanceActivation = new SingleInstance(() =>
         {
             if (accountWindow is { IsVisible: true }) { accountWindow.WindowState = WindowState.Normal; accountWindow.Activate(); }
@@ -162,6 +163,8 @@ public sealed partial class AppRuntime : IDisposable
                 timer.Start(); Clock.Start(monotonic.Elapsed); await UpdatePet();
                 if (!background) ShowSettings();
             }
+            startupUpdatesReady = true;
+            TryShowStartupUpdate();
         }
         catch (Exception error)
         {
@@ -255,7 +258,7 @@ public sealed partial class AppRuntime : IDisposable
     }
     public void Reset() { if (!AccessAllowed) return; CancelReminder(); Clock.Reset(monotonic.Elapsed); Changed?.Invoke(); }
     private void CancelReminder() { reminderGeneration++; Reminder.Cancel(); RefreshPetNotice(); }
-    public void ShowSettings() { if (accountStartupPending) { backgroundStart = false; return; } if (!AccessAllowed) { ShowAccount(); return; } if (settingsWindow is null) return; settingsWindow.Show(); settingsWindow.ResumePreview(); settingsWindow.WindowState = WindowState.Normal; if (!DiagnosticMode) settingsWindow.Activate(); }
+    public void ShowSettings() { backgroundStart = false; if (accountStartupPending) return; if (!AccessAllowed) { ShowAccount(); return; } if (settingsWindow is null) return; settingsWindow.Show(); settingsWindow.ResumePreview(); settingsWindow.WindowState = WindowState.Normal; if (!DiagnosticMode) settingsWindow.Activate(); TryShowStartupUpdate(); }
     internal static bool HasSeenCurrentAccountWelcome(string path)
     {
         if (!File.Exists(path)) return false;
@@ -269,13 +272,15 @@ public sealed partial class AppRuntime : IDisposable
     public void ShowAccount()
     {
         if (disposed || quitting || AccountSignOutPending || accountStartupPending) return;
-        if (accountWindow is not null) { accountWindow.WindowState = WindowState.Normal; accountWindow.Activate(); return; }
+        backgroundStart = false;
+        if (accountWindow is not null) { accountWindow.WindowState = WindowState.Normal; accountWindow.Activate(); TryShowStartupUpdate(); return; }
         ShowAccount(CreateAccountModel());
     }
     private void ShowAccount(AccountScreenModel model)
     {
         var window = new AccountWindow(model, Quit, purchaseGateEnabled, () => disposed || quitting || AccountSignOutPending);
         accountWindow = window;
+        window.Activated += (_, _) => TryShowStartupUpdate();
         window.Closed += async (_, _) =>
         {
             model.SessionChanged -= AccountSessionChanged;
@@ -295,6 +300,7 @@ public sealed partial class AppRuntime : IDisposable
         };
         if (DiagnosticMode) PrepareDiagnosticWindow(window);
         window.Show();
+        TryShowStartupUpdate();
     }
     private IAccountScreenService CreateAccountService() => AccountServiceFactory?.Invoke() ?? new DesktopAccountService(AccountContent);
     public async Task SignOut()

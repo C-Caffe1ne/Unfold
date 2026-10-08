@@ -19,7 +19,7 @@ internal static class AppUpdateConfiguration
 }
 
 internal enum AppUpdateState { Idle, UnsupportedInstall, Checking, Current, Available, Downloading, Ready, Applying, Error }
-internal sealed record AppUpdateRelease(string Version, object Package);
+internal sealed record AppUpdateRelease(string Version, object Package, string? NotesMarkdown = null);
 
 internal interface IAppUpdateBackend
 {
@@ -47,7 +47,7 @@ internal sealed class VelopackUpdateBackend : IAppUpdateBackend
     public bool IsInstalled => manager.IsInstalled && manager.AppId == AppUpdateConfiguration.PackageId;
     public AppUpdateRelease? Pending => manager.UpdatePendingRestart is { } asset &&
         IsExpectedPackage(asset) && asset.Version > manager.CurrentVersion
-        ? new(asset.Version.ToString(), asset) : null;
+        ? new(asset.Version.ToString(), asset, asset.NotesMarkdown) : null;
     private bool IsExpectedPackage(VelopackAsset asset) => asset.PackageId == AppUpdateConfiguration.PackageId &&
         asset.Type == VelopackAssetType.Full && asset.FileName == Path.GetFileName(asset.FileName) &&
         asset.FileName.EndsWith($"-{channel}-full.nupkg", StringComparison.OrdinalIgnoreCase);
@@ -56,7 +56,7 @@ internal sealed class VelopackUpdateBackend : IAppUpdateBackend
         var update = await manager.CheckForUpdatesAsync().WaitAsync(token);
         if (update is not null && !IsExpectedPackage(update.TargetFullRelease))
             throw new InvalidDataException("The update package does not match this application and release channel.");
-        return update is null ? null : new(update.TargetFullRelease.Version.ToString(), update);
+        return update is null ? null : new(update.TargetFullRelease.Version.ToString(), update, update.TargetFullRelease.NotesMarkdown);
     }
     public Task Download(AppUpdateRelease release, Action<int> progress, CancellationToken token) =>
         manager.DownloadUpdatesAsync((UpdateInfo)release.Package, progress, token);

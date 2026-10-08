@@ -1,0 +1,297 @@
+{
+  "success": true,
+  "version": "1.1.2-beta",
+  "nativeMacOS": true,
+  "physicalInput": false,
+  "sizes": [
+    "1120x800",
+    "640x560"
+  ],
+  "openTooltipChangedInPlace": true,
+  "records": [
+    {
+      "theme": "\uC720\uC5F0\uD55C \uB77C\uC77C\uB77D",
+      "page": "home",
+      "mismatches": []
+    },
+    {
+      "theme": "\uC720\uC5F0\uD55C \uB77C\uC77C\uB77D",
+      "page": "tooltip",
+      "background": "#fffdfcff",
+      "foreground": "#ff32283e",
+      "border": "#ff9785aa",
+      "Bounds": {
+        "X": 0,
+        "Y": 0,
+        "Width": 40,
+        "Height": 29,
+        "Position": {
+          "X": 0,
+          "Y": 0
+        },
+        "Size": {
+          "AspectRatio": 1.3793103448275863,
+          "Width": 40,
+          "Height": 29
+        },
+        "Right": 40,
+        "Bottom": 29,
+        "Left": 0,
+        "Top": 0,
+        "TopLeft": {
+          "X": 0,
+          "Y": 0
+        },
+        "TopRight": {
+          "X": 40,
+          "Y": 0
+        },
+        "BottomLeft": {
+          "X": 0,
+          "Y": 29
+        },
+        "BottomRight": {
+          "X": 40,
+          "Y": 29
+        },
+        "Center": {
+          "X": 20,
+          "Y": 14.5
+        }
+      }
+    },
+    {
+      "theme": "\uC720\uC5F0\uD55C \uB77C\uC77C\uB77D",
+      "page": "themes",
+      "mismatches": []
+    },
+    {
+      "theme": "\uC720\uC5F0\uD55C \uB77C\uC77C\uB77D",
+      "page": "settings",
+      "mismatches": []
+    },
+    {
+      "theme": "\uC720\uC5F0\uD55C \uB77C\uC77C\uB77D",
+      "page": "settings-minimum",
+      "mismatches": []
+    },
+    {
+      "theme": "\uC720\uC5F0\uD55C \uB77C\uC77C\uB77D",
+      "page": "pets",
+      "mismatches": []
+    },
+    {
+      "theme": "\uB2E4\uC815\uD55C \uC624\uD2B8",
+      "page": "home",
+      "mismatches": []
+    },
+    {
+      "theme": "\uB2E4\uC815\uD55C \uC624\uD2B8",
+      "page": "tooltip",
+      "background": "#fffffcf7",
+      "foreground": "#ff342d28",
+      "border": "#ff9a8674",
+      "Bounds": {
+        "X": 0,
+        "Y": 0,
+        "Width": 40,
+        "Height": 29,
+        "Position": {
+          "X": 0,
+          "Y": 0
+        },
+        "Size": {
+          "AspectRatio": 1.3793103448275863,
+          "Width": 40,
+          "Height": 29
+        },
+        "Right": 40,
+        "Bottom": 29,
+        "Left": 0,
+        "Top": 0,
+        "TopLeft": {
+          "X": 0,
+          "Y": 0
+        },
+        "TopRight": {
+          "X": 40,
+          "Y": 0
+        },
+        "BottomLeft": {
+          "X": 0,
+          "Y": 29
+        },
+        "BottomRight": {
+          "X": 40,
+          "Y": 29
+        },
+        "Center": {
+          "X": 20,
+          "Y": 14.5
+        }
+      }
+    },
+    {
+      "theme": "\uB2E4\uC815\uD55C \uC624\uD2B8",
+      "page": "themes",
+      "mismatches": []
+    },
+    {
+      "theme": "\uB2E4\uC815\uD55C \uC624\uD2B8",
+      "page": "settings",
+      "mismatches": []
+    },
+    {
+      "theme": "\uB2E4\uC815\uD55C \uC624\uD2B8",
+      "page": "settings-minimum",
+      "mismatches": []
+    },
+    {
+      "theme": "\uB2E4\uC815\uD55C \uC624\uD2B8",
+      "page": "pets",
+      "mismatches": []
+    },
+    {
+      "theme": "\uC228 \uACE0\uB974\uB294 \uC232",
+      "page": "home",
+      "mismatches": []
+    },
+    {
+      "theme": "\uC228 \uACE0\uB974\uB294 \uC232",
+      "page": "tooltip",
+      "background": "#fffcfcf6",
+      "foreground": "#ff263d32",
+      "border": "#ff7b8c76",
+      "Bounds": {
+        "X": 0,
+        "Y": 0,
+        "Width": 40,
+        "Height": 29,
+        "Position": {
+          "X": 0,
+          "Y": 0
+        },
+        "Size": {
+          "AspectRatio": 1.3793103448275863,
+          "Width": 40,
+          "Height": 29
+        },
+        "Right": 40,
+        "Bottom": 29,
+        "Left": 0,
+        "Top": 0,
+        "TopLeft": {
+          "X": 0,
+          "Y": 0
+        },
+        "TopRight": {
+          "X": 40,
+          "Y": 0
+        },
+        "BottomLeft": {
+          "X": 0,
+          "Y": 29
+        },
+        "BottomRight": {
+          "X": 40,
+          "Y": 29
+        },
+        "Center": {
+          "X": 20,
+          "Y": 14.5
+        }
+      }
+    },
+    {
+      "theme": "\uC228 \uACE0\uB974\uB294 \uC232",
+      "page": "themes",
+      "mismatches": []
+    },
+    {
+      "theme": "\uC228 \uACE0\uB974\uB294 \uC232",
+      "page": "settings",
+      "mismatches": []
+    },
+    {
+      "theme": "\uC228 \uACE0\uB974\uB294 \uC232",
+      "page": "settings-minimum",
+      "mismatches": []
+    },
+    {
+      "theme": "\uC228 \uACE0\uB974\uB294 \uC232",
+      "page": "pets",
+      "mismatches": []
+    },
+    {
+      "theme": "\uBC24\uC758 \uBC84\uD130",
+      "page": "home",
+      "mismatches": []
+    },
+    {
+      "theme": "\uBC24\uC758 \uBC84\uD130",
+      "page": "tooltip",
+      "background": "#ff243047",
+      "foreground": "#fff0f1ed",
+      "border": "#ff8395ad",
+      "Bounds": {
+        "X": 0,
+        "Y": 0,
+        "Width": 40,
+        "Height": 29,
+        "Position": {
+          "X": 0,
+          "Y": 0
+        },
+        "Size": {
+          "AspectRatio": 1.3793103448275863,
+          "Width": 40,
+          "Height": 29
+        },
+        "Right": 40,
+        "Bottom": 29,
+        "Left": 0,
+        "Top": 0,
+        "TopLeft": {
+          "X": 0,
+          "Y": 0
+        },
+        "TopRight": {
+          "X": 40,
+          "Y": 0
+        },
+        "BottomLeft": {
+          "X": 0,
+          "Y": 29
+        },
+        "BottomRight": {
+          "X": 40,
+          "Y": 29
+        },
+        "Center": {
+          "X": 20,
+          "Y": 14.5
+        }
+      }
+    },
+    {
+      "theme": "\uBC24\uC758 \uBC84\uD130",
+      "page": "themes",
+      "mismatches": []
+    },
+    {
+      "theme": "\uBC24\uC758 \uBC84\uD130",
+      "page": "settings",
+      "mismatches": []
+    },
+    {
+      "theme": "\uBC24\uC758 \uBC84\uD130",
+      "page": "settings-minimum",
+      "mismatches": []
+    },
+    {
+      "theme": "\uBC24\uC758 \uBC84\uD130",
+      "page": "pets",
+      "mismatches": []
+    }
+  ]
+}

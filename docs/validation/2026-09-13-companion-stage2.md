@@ -1,5 +1,7 @@
 # 개인화 데모 2차 검증
 
+2026년 10월 8일 문서 점검: 아래 `artifacts/` 캡처는 현재 체크아웃에 포함되지 않아 원래 경로만 기록한다. 당시 검사 결과·버전·수치는 유지한다.
+
 2026-09-13 · `release/mvp`, 기준 커밋 `97f9a84` 위의 기존 정리·1차 구현에 적용한 작업 트리.
 macOS arm64, .NET SDK 10, 게시 앱 런타임 10.0.12. 커밋·공개 배포는 수행하지 않았다.
 
@@ -61,11 +63,11 @@ UNFOLD_DATA_DIR=<새-테스트-프로필> <게시-디렉터리>/Unfold --smoke-t
 로컬 원본 화면·CSV·테스트 로그는 git 제외 경로 `artifacts/verification/companion-stage2/`에
 보관한다. 저장소 복제본에는 포함되지 않는다.
 
-- [루틴 라이브러리](../../artifacts/verification/companion-stage2/routine-library.png)
-- [업무 프로필](../../artifacts/verification/companion-stage2/work-profiles.png)
-- [프로필 편집](../../artifacts/verification/companion-stage2/profile-editor.png)
-- [주간 회고](../../artifacts/verification/companion-stage2/weekly-review.png)
-- [완료 후 Settings](../../artifacts/verification/companion-stage2/settings-completed.png)
+- 루틴 라이브러리 (`artifacts/verification/companion-stage2/routine-library.png`; 현재 체크아웃 미포함)
+- 업무 프로필 (`artifacts/verification/companion-stage2/work-profiles.png`; 현재 체크아웃 미포함)
+- 프로필 편집 (`artifacts/verification/companion-stage2/profile-editor.png`; 현재 체크아웃 미포함)
+- 주간 회고 (`artifacts/verification/companion-stage2/weekly-review.png`; 현재 체크아웃 미포함)
+- 완료 후 Settings (`artifacts/verification/companion-stage2/settings-completed.png`; 현재 체크아웃 미포함)
 
 Settings 하단의 펫 옵션은 세로 스크롤로 접근한다. 새 관리 화면은 640×620,
 프로필 편집기는 500×520, 회고는 620×650에서 확인했다.

@@ -1,0 +1,21 @@
+{
+  "success": true,
+  "version": "1.1.2-beta",
+  "sourceWorktree": "/Users/hwanghyeonseong/Documents/GitHub/Unfold/.worktrees/remove-unused-features",
+  "nativeMacOS": true,
+  "physicalInput": false,
+  "injectedFilePicker": true,
+  "isolatedData": "/private/tmp/unfold-pet-management-native.HSQvKW/profile-3aed6799b26f4f87bc3548f10abed595",
+  "allCustomPetTypesListed": true,
+  "mediaEditedSavedApplied": true,
+  "mediaDeleteCancelPreserved": true,
+  "mediaDeletedFallback": true,
+  "glbEditedSavedApplied": true,
+  "glbDeletedFallback": true,
+  "sourcePreserved": true,
+  "responsiveSizes": [
+    "1120x800",
+    "640x560"
+  ],
+  "screenshots": 4
+}

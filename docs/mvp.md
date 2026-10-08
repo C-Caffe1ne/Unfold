@@ -6,9 +6,11 @@ A small desktop companion that reminds you to stretch while you work.
 
 Mochi와 잠깐 쉬고, 내 리듬으로 돌아오는 작은 데스크톱 동료.
 
-This document describes the current **Unfold Beta 1.1.1** source.
-The 2026-10-07 cleanup starts from product commit `bbdb4a8` on
-`codex/glb-import-compat` and lives on `codex/remove-unused-features`.
+This document describes **Unfold Beta v1.1.2 development** (`1.1.2-beta`),
+based on product commit `2715fd1` on `codex/remove-unused-features`.
+The latest public release is **Beta v1.1.1** (`v1.1.1-beta`, source `887d0127`).
+The 1.1.2 changes separate legacy compatibility code and remove obsolete authoring
+documents; they do not create a new public installer.
 Recheck all worktrees and the latest deployment before implementation;
 `release/mvp` is an older source.
 The application uses C#/.NET 10 and Avalonia. [Product direction](product-direction.md)
@@ -19,7 +21,7 @@ verification is separate from the local break and pet diagnostics.
 ## Core loop and implemented behavior
 
 ```text
-Active computer use → break invitation → start a chosen routine
+Active computer use → break invitation → start the configured break
 → visible original pet stretches once, then walks → timed break → user confirms completion
 → local record + next work interval
 ```
@@ -35,9 +37,9 @@ observed. Those outcomes are not established by a passing build or animation tes
 | Timer controls | The state badge explicitly distinguishes running, paused, stopped, idle-paused, and break-held states. The two labelled, keyboard-accessible icon buttons are Play/Pause and Stop. Pause keeps the remaining time; Stop asks for confirmation, then displays the configured full interval; Play resumes or starts that interval after Stop. Approved Stop dismisses an open or pending invitation without adding a completion. |
 | Exit | Sidebar and tray exit ask for confirmation, then retain the unsaved pet-draft guard. Cancel or closing the confirmation leaves the app running. |
 | Activity | Idle threshold of 1–60 minutes. Idle time and large dispatcher/sleep gaps do not accrue work time. |
-| Reminder | The pet delivers a five-active-minutes warning, due invitation, and explicit completion notice in an attached speech bubble with centered text. Due offers **n분 뒤에** and **휴식 시작**; a running bubble counts the configured break duration and has **완료** below it. Complete at any time after starting; overtime shows +mm:ss and caps at +60:00 without auto-completing. A duration change affects the next invitation, not an open session. The Settings tab configures sounds, bubble position, and opt-in state previews; the pet context menu contains Settings and Hide Pet. No separate reminder window or OS toast. [Speech guide](stretch-notifications.md) |
+| Reminder | The pet delivers a five-active-minutes warning, due invitation, and explicit completion notice in an attached speech bubble with centered text. Due offers **n분 뒤에** and **휴식 시작**; a running bubble counts the configured break duration and has **완료** below it. Complete at any time after starting; overtime shows +mm:ss and caps at +60:00 without auto-completing. A duration change affects the next invitation, not an open session. The Settings tab automatically saves sounds, opacity, five contextual dialogue strings, and opt-in state previews; bubble placement follows the pet and screen work area; the pet context menu contains Settings and Hide Pet. No separate reminder window or OS toast. [Speech guide](stretch-notifications.md) |
 | Routines | 잠깐의 여유, 눈 쉬어 주기, and 몸 풀어 주기 provide the prompt sequence. The configured 1–10 minute break duration scales that sequence for new sessions. The routine, duration and companion are captured when the invitation opens. They are gentle prompts, not measured exercise or medical advice. |
-| Routine/profile compatibility | Routine-library and work-profile authoring components have been removed. Existing `settings.json` values remain readable so an upgrade does not delete user data, and existing history keeps its captured routine/profile labels. Compatibility tests use saved-data fixtures. |
+| Routine/profile compatibility | Routine-library and work-profile authoring components have been removed. Existing `settings.json` values remain readable so an upgrade does not delete user data, and existing history keeps its captured routine/profile labels. Compatibility tests use saved-data fixtures. Models and old pixel-source operations live under `src/Unfold.Core/Compatibility/`. |
 | Manual reminder | Stretch now has been removed from Settings, the tray menu, and the pet menu. Normal invitations come from the automatic timer. The shared reminder method remains available to internal diagnostics. |
 | Scheduling | Work time is held while an invitation/session is active. Completion starts a full interval; snooze schedules 1–60 active minutes (default 5). Both preserve manual Pause. Hiding the pet does not end a session; Stop cancels without a completion. |
 | Duplicate reminder | Keeps the active session and does not replay the due sound or pet reaction. Concurrent preparations are coalesced. |
@@ -68,7 +70,9 @@ The commercial plan is free download, Google sign-in, then one-time payment: KRW
 or US$3.99 overseas, with **no free trial**. Supabase manages accounts and purchase entitlements.
 The desktop source connects account UI, Google browser sign-in, secure session storage,
 checkout requests and entitlement checks. Normal startup enables the purchase gate;
-internal diagnostic mode bypasses it explicitly. The presence of these paths is not
+internal diagnostic mode bypasses it explicitly. Saved OS credentials restore the session
+and access before showing an account window; logout deletes those credentials.
+The presence of these paths is not
 proof of a completed real OAuth/payment transaction or offline purchase recovery.
 Those production checks remain separate release gates. Completion history, settings and pet files remain local. See the
 [paid launch plan](plans/2026-09-27-paid-launch.md) for staged acceptance criteria.

@@ -1,5 +1,7 @@
 # 휴식 동료 1차 구현 검증
 
+2026년 10월 8일 문서 점검: 아래 `artifacts/` 캡처는 현재 체크아웃에 포함되지 않아 원래 경로만 기록한다. 당시 검사 결과·버전·수치는 유지한다.
+
 2026-09-13 · `release/mvp`, 기준 커밋 `97f9a84` 위의 현재 작업 트리.
 기존 C# 전환·문서 정리 변경에 이번 기능을 적용했다. 커밋·외부 배포는 수행하지 않았다.
 macOS arm64, .NET SDK 10, 게시 앱 런타임 10.0.12에서 확인했다.
@@ -54,9 +56,9 @@ UNFOLD_DATA_DIR=<새-테스트-프로필> <게시-디렉터리>/Unfold --smoke-t
 주요 컨트롤이 겹치지 않는 것을 확인했다. 스크롤 아래 내용까지 항상 한 화면에 들어간다는 뜻은 아니다.
 
 로컬 원본 화면은 git에서 제외되는 `artifacts/verification/companion-stage1/`에 보관한다:
-[설정](../../artifacts/verification/companion-stage1/settings-completed.png),
-[내 루틴 편집](../../artifacts/verification/companion-stage1/routine-editor.png),
-[완료 확인](../../artifacts/verification/companion-stage1/break-confirm.png).
+설정 (`artifacts/verification/companion-stage1/settings-completed.png`; 현재 체크아웃 미포함),
+내 루틴 편집 (`artifacts/verification/companion-stage1/routine-editor.png`; 현재 체크아웃 미포함),
+완료 확인 (`artifacts/verification/companion-stage1/break-confirm.png`; 현재 체크아웃 미포함).
 이 파일들은 현재 작업 공간의 증거이며 저장소 복제본에는 포함되지 않는다.
 
 **버튼 이벤트와 세션 시간을 프로그래밍 방식으로 진행한 off-screen 네이티브 진단**이다.

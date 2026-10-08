@@ -1,81 +1,93 @@
-# Release checklist
+# 배포 검증 체크리스트
 
-Manual checks for a packaged Unfold build, on top of `dotnet test Unfold.slnx -c
-Release --no-restore` and the `--smoke-test` diagnostic (see
-[cross-platform.md](cross-platform.md#verification)). Each item names the code
-path it exercises and what to look for. Use an isolated `UNFOLD_DATA_DIR` for
-every check below — never a real user's profile.
+2026년 10월 8일 · 개발 **Beta v1.1.2**, 최신 공개 배포 **Beta v1.1.1**.
+아래는 다음 설치본의 수동 검사 절차다. 항목이 있다는 사실을 통과 기록으로 취급하지 않는다.
+[검증 안내](verification.md), [플랫폼 안내](cross-platform.md)를 따르고 매 실행에 새 `UNFOLD_DATA_DIR`을 사용한다.
 
-## Fresh profile
+## 소스·설치 파일 고정
 
-1. Point `UNFOLD_DATA_DIR` at a new, empty directory and launch the packaged exe.
-2. Expect: default settings (60 min interval, 5 min idle, `default-cat`, pet
-   shown), tray icon appears, Settings opens with the built-in character
-   selected and previewing.
+1. 후보 작업트리의 브랜치·HEAD·미커밋 변경·csproj 버전·실행 경로를 확인한다.
+2. 검사할 DLL/설치 파일의 경로·버전·SHA-256·OS·아키텍처·배율을 기록한다.
+3. Release 테스트와 격리 `--smoke-test`의 결과를 확인한다. 과거 통과를 다른 버전·OS의 결과로 복사하지 않는다.
+4. 1.1.2는 개발 커밋이며 공개 설치본은 없다. 공개 설치·업데이트 검사는 실제 공개된 1.1.1 파일과 구분한다.
 
-## Invalid settings
+## 새 프로필과 로그인 복원
 
-1. With the app closed, write a `settings.json` with an out-of-range value, e.g.
-   `{"IntervalMinutes":9999,"IdleMinutes":5,"SelectedCharacterId":"default-cat","ShowPet":true}`,
-   into `UNFOLD_DATA_DIR`.
-2. Launch the app.
-3. Expect startup with defaults and a logged error. When copying is possible,
-   preserve the original contents in `settings.json.invalid-<timestamp>`.
-   Failure to create the backup must not prevent recovery.
-4. Repeat with malformed JSON, a JSON `null` root, and an unsafe character id.
-   Record results against the exact packaged build being released. The baseline
-   startup failure is documented in [the dated report](agent-reports/04-release.md).
+1. 새 데이터 폴더로 패키지 앱을 실행한다. 세션이 없으면 Google 로그인·구매/코드 확인 화면을 표시한다.
+2. 유효한 Live 구매 또는 무료 이용 권한 확인 전에는 홈·펫·타이머를 사용할 수 없는지 검사한다.
+3. 권한 확인 후 기본 작업 간격 60분, 휴식 1분, 자리 비움 5분, 다시 알림 5분,
+   `default-cat`, 펫 표시, 100% 크기·불투명도, 유연한 라일락 테마를 확인한다.
+4. 완전히 종료하고 재실행한다. 저장된 세션과 권한을 먼저 복원해 로그인 창이 잠깐 나타나지 않는지 확인한다.
+5. 통신 실패는 저장 자격 증명을 유지하고 재시도를 제공하는지, 로그아웃은 OS 보관 정보를 삭제하는지 확인한다.
+   설정·기록·펫 파일은 보존한다.
 
-## Timer idle / sleep
+구현 경로는 `AppRuntime.Account.cs`, `AccountScreenModel.cs`, `AccountSessionVault.cs`,
+`NativeAccountCredentialStore.cs`다. 실제 OAuth·운영 결제는 모의 인증 진단과 별도로 기록한다.
 
-1. Set a short interval and idle threshold, then leave the machine idle past the
-   threshold; confirm the tray countdown stops advancing (idle time excluded).
-2. Suspend/resume (sleep) the machine mid-countdown; confirm the elapsed time
-   does not jump by the sleep duration when it resumes.
-3. Use **Stretch now** from the tray, Settings, and the pet's right-click menu;
-   confirm each opens the same reminder and the pet stretches once per open
-   reminder (re-invoking while one is already open does not restart it).
+## 손상 설정 복구
 
-## Pet show / hide and monitors
+1. 앱 종료 후 격리 `settings.json`에 범위 밖 숫자, 잘못된 테마·캐릭터 ID·대사,
+   잘못된 JSON 또는 `null`을 각각 넣는다.
+2. 손상 필드를 기본값으로 복구하고 다른 유효한 설정은 보존하는지 확인한다.
+3. `settings.json.invalid-<timestamp>` 백업과 로그를 확인한다. 백업 실패가 앱 시작을 막지 않는지 검사한다.
+4. 기존 루틴·업무 프로필·기록의 타입·ID·이름을 보존한다. 해당 편집 메뉴나 픽셀 에디터가 다시 나타나면 안 된다.
 
-1. Toggle **Show desktop pet** in Settings; confirm the tray item flips between
-   **Hide Pet** / **Show Pet** and the pet window appears/disappears immediately.
-2. Toggle from the tray item instead; confirm the Settings checkbox reflects the
-   change (single setting, two entry points, persisted to `settings.json`).
-3. Drag the pet to a second monitor (if available) and near screen edges;
-   restart the app and confirm the saved position is honored and clamped inside
-   a visible monitor if the previous monitor is now unavailable.
+구현 경로는 `AppSettings.cs`, `AppSettings.Recovery.cs`, `AppRuntime.cs`, `src/Unfold.Core/Compatibility/`다.
 
-## Launch at login
+## 타이머·설정
 
-1. Enable **Launch at login** against a published (non-dev) build.
-2. Windows: confirm a `Run` registry value pointing at the published exe.
-   macOS: confirm a `LaunchAgents` plist is installed.
-3. Move the app to a new path with the option already on; per
-   [cross-platform.md](cross-platform.md#windows), toggle the option off and
-   back on and confirm the login entry now points at the new location.
-4. Disable the option and verify the registration is removed. Restore the prior
-   login configuration after testing; `UNFOLD_DATA_DIR` does not isolate OS login
-   registration.
+1. 홈 작업 간격은 일시정지/정지 상태에서 1~240분, 휴식은 1~10분을 입력하고 **저장**한다.
+2. 진행 중 작업 간격 입력 잠금, 일시정지의 남은 시간 유지, 중지 확인·취소와 재생의 전체 간격을 확인한다.
+3. 실제 자리 비움과 sleep/wake 동안 시간이 누적되지 않는지 확인한다.
+4. 설정의 음량·불투명도·대사·자리 비움·다시 알림을 바꾸고 재실행해 자동 저장을 확인한다.
+   설정 페이지에는 저장/취소 버튼과 탭 이동 저장 모달이 없어야 한다.
+5. 홈 시간·펫 초안이 자동 저장 설정과 독립적인지, 오류 안내와 수정 후 재시도가 동작하는지 검사한다.
 
-## Notifications
+## 말풍선과 기록
 
-1. With OS notifications enabled, trigger a reminder and confirm an OS-level
-   notification appears (Windows tray balloon / macOS `osascript` banner) in
-   addition to the in-app reminder window.
-2. With OS notifications disabled/blocked at the OS level, trigger a reminder
-   and confirm the in-app reminder window still appears. Only detectable API or
-   process failures are expected to be logged; OS suppression may be silent.
+1. 1분 작업 간격으로 자동 초대를 기다린다. 설정·트레이·펫 메뉴에 수동 즉시 휴식 명령이 없어야 한다.
+2. **n분 뒤에 / 휴식 시작 / 완료**, 초대 30초 자동 미루기, 조기 완료·초과 시간을 확인한다.
+3. 완료 버튼을 누를 때만 기록되고 중지·미루기·숨김이 완료 기록을 추가하지 않는지 확인한다.
+4. 화면 가장자리에서도 펫 위치를 유지하며 말풍선이 자동 배치되는지, 대사와 불투명도가 반영되는지 확인한다.
+5. 알림은 펫 말풍선이다. OS toast/배너·별도 휴식 창을 예상하지 않는다.
+6. WAV/MP3 가져오기·기본 복원·세 음량·미리듣기와 손상 사용자 소리의 기본 소리 대체를 확인한다.
+7. 오늘 기록·7일 회고·CSV의 계획/실제 초와 이전 루틴·프로필 이름을 확인한다.
 
-## OS matrix
+## 펫·화면·초안
 
-| Target | CI coverage | Manual coverage needed |
-| --- | --- | --- |
-| Windows x64 | `windows-latest` in `.github/workflows/desktop.yml` (test + publish) | This checklist, end to end |
-| Windows ARM64 | Not built in CI | Full checklist on real ARM64 hardware/VM before shipping that artifact |
-| macOS Apple Silicon (arm64) | `macos-latest` in CI (test + bundle) | This checklist on real hardware — CI only proves it compiles and unit-tests, not windowing/login/notifications |
-| macOS Intel (x64) | Not built in CI | Full checklist on real Intel hardware before shipping that artifact |
+1. 설정·트레이의 펫 표시와 재실행 위치·50~150% 크기를 확인한다.
+2. 기본 5종·미디어·GLB의 클릭·누름·드래그·놓기와 투명 픽셀 클릭 통과를 실제 입력으로 검사한다.
+3. 다중 모니터·배율 변경·최소 640×560 창에서 가로 넘침과 하단 조작 접근을 확인한다.
+4. **펫 관리 → 파일 열기…**, 선택 행동 편집, 미디어 재생 방식과 GLB 방향·속도·반복을 확인한다.
+5. 페이지/형식/창 숨김·저장 취소/실패·종료 확인에서 미저장 펫을 보존하는지 검사한다.
+6. 팩 설치·낮거나 같은 내용 버전 재적용·손상 파일 재설치, GLB 초안 비우기와 설치 펫 삭제를 구분한다.
 
-Do not record a macOS row as passed from evidence gathered on Windows, and do
-not record Windows ARM64 or macOS Intel as covered by the current CI matrix —
-both require a manual or separately-configured run.
+## 자동실행·설치 제거
+
+1. 최종 위치의 게시 앱에서 자동실행을 켠다. Windows는 안정적인 루트 launcher,
+   macOS는 `~/Library/LaunchAgents/app.unfold.desktop.plist`의 `--background`를 확인한다.
+2. 실제 OS 로그인 후 저장 세션 복원과 백그라운드 시작을 확인한다.
+3. 끄기·앱 이동을 검사하고 원래 OS 등록 상태를 복구한다. `UNFOLD_DATA_DIR`은 OS 자동실행 등록을 격리하지 않는다.
+4. 제거 후 사용자 데이터·계정 저장 위치를 보존하고 다른 앱의 자동실행 등록을 제거하지 않는지 검사한다.
+
+## 업데이트·서명
+
+1. 관리형 설치에서 **설정 → 앱 정보 → 업데이트 확인 → 다운로드 → 재시작하여 적용**을 실행한다.
+   소스 실행은 관리형 설치가 아니라 지원하지 않는 상태를 보여야 한다.
+2. 버전·앱 ID·아키텍처·beta/stable 채널·크기·해시를 확인하고 손상 다운로드 적용을 차단한다.
+3. 휴식·펫 초안 처리, 실제 updater 교체·자동 재시작·설정/기록 보존을 확인한다.
+4. Mac Developer ID·공증 티켓·Gatekeeper를 확인한다. 공개 1.1.1 Windows 파일은 코드 서명이 없다.
+5. 공개 1.1.0 → 1.1.1 Mac ARM64·Windows x64 CI의 교체/재시작 결과는
+   [배포 기록](validation/2026-10-07-beta-v1.1.1-release.md)에 있다. 새 버전·기기 증거는 별도로 수집한다.
+
+## OS별 증거
+
+| 대상 | 기록된 자동/실행 증거 | 별도 확인 범위 |
+|---|---|---|
+| Windows x64 | desktop CI 검사·설치·native 진단, 공개 1.1.1 updater 교체·재시작 | 물리 입력·IME·스크린리더·배율·장시간 사용 |
+| macOS arm64 | CI 빌드·격리 native 진단·공증, Mac ARM64 공개 updater 교체·재시작 | 사용자 입력·자동실행·sleep/wake·장시간 사용 |
+| macOS x64 | 공증과 Apple Silicon의 Rosetta 진단 | 물리 Intel 기기 |
+| Windows arm64 | 게시 스크립트 인수 지원 | 공개 1.1.1 파일 없음. 실제 ARM64 실행·미디어 변환·설치 전 검증 |
+
+검사한 소스·설치 파일·기기를 [Windows 실기 양식](windows-dogfooding-log.md) 또는 날짜별 검증 문서에 기록한다.
+한 OS·모의 입력·짧은 실행의 성공을 모든 기기·모든 입력·400 MB 상한으로 표시하지 않는다.

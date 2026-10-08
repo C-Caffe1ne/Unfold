@@ -1,5 +1,12 @@
 # Unfold 계정·구매 권한 기반
 
+2026년 10월 8일 · 앱 개발 기준은 **Beta v1.1.2**, 공개 배포는 **Beta v1.1.1**이다.
+현재 C# 앱은 Google 로그인·OS 보안 저장·세션 복원과 `get-app-access`·`redeem-access-code`를 연결한다.
+이 폴더에 추적된 서버 소스는 **2026-09-28 Lemon Squeezy 샌드박스 기반**이며
+무료 이용 코드 함수와 후속 마이그레이션 소스는 포함하지 않는다.
+앱 계약과 기존 서버 반영 증거는 [계정 안내](../docs/account-screen.md),
+[무료 이용 코드 안내](../docs/access-codes.md)를 따른다. 아래 원격 상태는 확인 당시의 기록이다.
+
 무료 다운로드, 무료 체험 없음, KRW 4,900 / USD 3.99 일회성 구매를 위한 서버 기반이다.
 2026-09-28에 결제 공급자를 Lemon Squeezy로 전환했다. 가격은 **세금 별도**이며,
 Supabase 테스트 프로젝트에는 한국 상품 매핑과 인증 필수 `create-checkout`, 서명 필수
@@ -39,11 +46,12 @@ DB 검사는 일회용 메모리 DB에 최소 `auth.users`, `auth.uid()`와 Supa
 마이그레이션을 실행한다. Auth 인증만 모의하며 SQL·RLS·권한 검사는 실제 엔진에서 실행한다.
 Supabase 전체 스택, PostgREST 실제 연결, JWT 게이트웨이, 운영 동시성·부하의 검증을 대체하지 않는다.
 
-## Supabase 개발 프로젝트 연결
+## Supabase 개발 프로젝트 연결 기록 — 2026-09-28
 
 사용자가 제공한 프로젝트 주소와 공개키로 연결한 뒤 2026-09-28에 테스트 스키마를 적용했다.
-공개키는 Git에서 제외되는 `supabase/.env.client`에 저장했다. 앱은 아직 이 파일을 읽지 않으며,
-기존 실행 흐름과 사용 잠금은 그대로다.
+공개키는 당시 Git에서 제외되는 `supabase/.env.client`에 저장했다.
+현재 앱은 이 파일 대신 `Assets/Account/connection.json`의 프로젝트 URL·공개 키·`live` 환경·한국 시장을 읽고,
+지원하는 환경 변수로 재정의할 수 있다. 현재 정상 시작 경로에는 계정/이용 권한 잠금이 있다.
 
 | 항목 | 값 |
 |---|---|
@@ -51,7 +59,7 @@ Supabase 전체 스택, PostgREST 실제 연결, JWT 게이트웨이, 운영 동
 | 프로젝트 참조 ID | `xrelgkdawkogrwxmwkcx` |
 | Google에 등록할 승인된 리디렉션 URI | `https://xrelgkdawkogrwxmwkcx.supabase.co/auth/v1/callback` |
 | Supabase Auth에 허용할 앱 반환 URL | `http://127.0.0.1:43821/auth/callback` |
-| 앱 공개키 | 로컬 `.env.client`에 저장. 공유 예시는 `client.env.example` 사용 |
+| 앱 공개키 | 현재 앱 빌드 입력은 `Assets/Account/connection.json`. 로컬 서버 공유 예시는 `client.env.example` 사용 |
 
 원격에는 `202609280002`~`202609280004` Lemon Squeezy 마이그레이션과 `create-checkout` 버전 27,
 `get-entitlement` 버전 10, `lemon-webhook` 버전 9가 적용됐다. `lemon_prices`에는 한국 매핑 1건만 있으며 Global 매핑은 없다.
@@ -61,7 +69,7 @@ Supabase 전체 스택, PostgREST 실제 연결, JWT 게이트웨이, 운영 동
 공개키는 앱용이며, Secret key와 `service_role` 키는 앱·웹 설정에 넣지 않는다.
 [공개키 확인 안내](https://supabase.com/docs/guides/getting-started/api-keys).
 
-### Lemon Squeezy 테스트 연결 상태
+### Lemon Squeezy 테스트 연결 기록 — 2026-09-28
 
 한국 Store `485125`, Product `1393777`, Variant `2176689`, Host
 `dokhustudio.lemonsqueezy.com`을 서버 카탈로그에 등록했다. 실제 Lemon API 미리보기는 `₩4,900`,
@@ -87,7 +95,7 @@ Checkout 생성 응답은 금액·상품·환경·만료·호스트를 모두 �
 Lemon 조회 응답에서 생성 시점 전용 `preview`가 생략될 수 있으므로 주문에 저장한 Checkout ID와 URL을
 기준으로 상품·환경·만료·호스트를 다시 확인한다.
 
-현재 원격 `paddle-webhook` 함수, Paddle API Secret과 사용하지 않는 고정 Checkout URL 설정은 제거됐다.
+당시 원격 `paddle-webhook` 함수, Paddle API Secret과 사용하지 않는 고정 Checkout URL 설정은 제거했다.
 Paddle Dashboard의 기존 알림 목적지도 비활성화해 실패 재전송을 막았다.
 
 ### Google 로그인 확인 사항
@@ -113,7 +121,7 @@ supabase functions serve get-entitlement --env-file supabase/.env
 `verify_jwt=true`를 유지하고 실제 사용자 access token으로 호출한다. Auth 검증을 건너뛰는
 진단 옵션이나 service-role 키를 앱/웹에 배포하지 않는다. 공개 key는 비밀 인증 수단이 아니다.
 
-## API 계약
+## 추적된 샌드박스 API 계약
 
 `GET /functions/v1/get-entitlement`
 
@@ -149,16 +157,20 @@ supabase functions serve get-entitlement --env-file supabase/.env
 - `order_created`와 `order_refunded`만 처리하며 다른 이벤트는 확인 응답 후 무시한다.
 - 서버에서 만든 내부 주문과 Store/Product/Variant/통화/원금/세금 별도 조건이 모두 맞아야 반영한다.
 
-## 앱 연결 준비
+## 현재 앱 연결
 
 `src/Unfold.Core/SupabaseAccountClient.cs`는 Desktop의 A안 계정 화면에서 명시적인 로그인 버튼을 통해 사용한다.
 
 - PKCE 인증 시도 생성, Google 인증 URL, 코드 교환, 세션 갱신, 구매 권한 조회.
 - 인증 시도 재사용/다른 콜백 차단, 토큰의 문자열 출력 방지, HTTP/응답 오류 구분.
 - Desktop에서 시스템 브라우저 실행과 IPv4 loopback 콜백을 연결했다. 실제 Google 계정 인증 완료는 별도 검증이 필요하다.
-- 세션은 계정 창이 열린 동안 메모리에만 둔다. macOS Keychain/Windows 자격 증명 저장소와 재실행 시 복원은 후속 작업이다.
+- 접근 토큰은 메모리에서 사용하고 갱신 토큰·계정 ID만 macOS Keychain/Windows 자격 증명 관리자에 저장한다.
+- 정상 시작은 저장된 세션과 `get-app-access`를 먼저 복원한다. 유효한 권한이면 로그인 창 없이 앱을 시작한다.
+- 로그아웃은 OS 보관 정보를 지우고 서버 세션 종료를 요청한다. 통신 오류는 저장 토큰을 보존하며 오프라인 권한을 부여하지 않는다.
+- `get-app-access`는 Live 구매 또는 계정별 무료 이용 권한을 판정하고, `redeem-access-code`는 로그인한 Google 계정에 코드를 등록한다.
+  두 함수의 소스는 이 체크아웃에 없으므로 이 폴더만으로 현재 운영 백엔드 전체를 재배포할 수 있다고 안내하지 않는다.
 
-사용자 결정에 따라 이번 단계에서는 앱 사용을 잠그지 않는다. 결제 연결·세션 보관·오프라인 정책을 갖춘 뒤 사용 잠금을 적용한다.
+현재 정상 실행은 이용 권한 확인 전 홈·타이머·펫을 잠근다. 격리 진단은 이를 명시적으로 우회하며 운영 OAuth·실제 결제를 검증하지 않는다.
 계정 변경과 로그아웃에서 로컬 설정·휴식 기록·펫 파일을 삭제하지 않는다.
 화면 문구·표시 가격·접속 설정의 편집 위치는 [계정 화면 편집 안내](../docs/account-screen.md)에 있다.
 

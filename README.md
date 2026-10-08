@@ -21,8 +21,8 @@ dotnet run --project src/Unfold.Desktop
 ```
 
 For a Windows portable build, extract the entire `Unfold-v<version>-win-x64.zip`
-archive and double-click `win-x64/Unfold.cmd`. Keep the `app` folder next to it; the
-published build includes .NET.
+archive and run the root `Unfold.exe` launcher. Keep the extracted folder intact;
+the published build includes .NET.
 
 Closing Settings keeps Unfold running. Use **Unfold 종료** in the tray menu to exit.
 
@@ -33,7 +33,7 @@ Closing Settings keeps Unfold running. Use **Unfold 종료** in the tray menu to
 - Separate stretch interval, break duration, away threshold and snooze settings.
 - Today's confirmed breaks, seven-day reviews, and local CSV export.
 - Local pet packs: preview animations, install, update, and reinstall from a saved `.unfoldpet` file.
-- A 5–240 minute timer with one-minute adjustment while paused or stopped, followed by Save.
+- A 1–240 minute timer with one-minute adjustment while paused or stopped, followed by Save.
 - A clear running/paused/stopped state badge and icon controls for Play/Pause and Stop. Stop shows the saved full interval.
 - Four color themes with Lilac as the default, Korean UI and custom SVG icons.
 - Custom pets from GIF/MP4 or still images; WAV/MP3 effects with master and separate notification volumes.
@@ -51,10 +51,12 @@ Existing pet sources, routine/profile settings and history remain compatible.
 See [MVP scope](docs/mvp.md) for the full boundary.
 The beta requires Google sign-in and either a verified Live purchase or a valid account-bound free grant.
 Testers can redeem `admin` from the bottom-right code button after sign-in.
-Live server activation and public-distribution signing are pending. See the
-[routine, profile, and review guide](docs/personalization.md) for usage and compatibility.
+Saved sign-in is restored before the account window opens. Production OAuth and
+payment checks are tracked separately in the [account guide](docs/account-screen.md).
+Public Beta v1.1.1 Mac installers are Developer ID signed and notarized; Windows
+installers are unsigned. See the [compatibility and review guide](docs/personalization.md).
 The [pet pack guide](docs/pet-packs.md) explains local installation and recovery.
-[Beta release notes](docs/releases/v1.0.0-beta.md) describe installation, included work and beta limitations.
+[Latest public release notes](docs/releases/v1.1.1-beta.md) describe installation, included work and beta limitations.
 
 ## Build and verify
 
@@ -75,13 +77,14 @@ bash Scripts/make-macos-bundle.sh osx-arm64
 ```
 
 The default macOS bundle is signed ad hoc for local testing. The script supports
-Developer ID signing but does not perform notarization. Installation, data paths,
+Developer ID signing and Apple notarization when the corresponding local
+certificate and notarytool profile are configured. Installation, data paths,
 and platform limits are documented in the [cross-platform guide](docs/cross-platform.md).
 
 ## Project layout
 
 ```text
-src/Unfold.Core/       Timer, settings, image codecs, character library, pixel model
+src/Unfold.Core/       Timer, settings, codecs, character library, legacy compatibility
 src/Unfold.Desktop/    Avalonia UI, runtime, platform adapters, diagnostics
 Tests/Unfold.Tests/    C# core, codec, library, and headless UI tests
 Assets/Characters/    Built-in character packages copied into the application

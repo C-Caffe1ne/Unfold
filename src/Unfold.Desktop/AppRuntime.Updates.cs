@@ -8,6 +8,7 @@ public sealed partial class AppRuntime
     private UpdateWindow? updateWindow;
     private NativeMenuItem? trayUpdate;
     private bool updateRestartPending;
+    private bool startupUpdatesReady, startupUpdateShown;
     private AppUpdates? updates;
     internal AppUpdates Updates => updates ??= new();
     internal UpdateWindow? ActiveUpdate => updateWindow;
@@ -29,8 +30,20 @@ public sealed partial class AppRuntime
         if (!Dispatcher.UIThread.CheckAccess()) { Dispatcher.UIThread.Post(RefreshUpdateMenu); return; }
         if (disposed || trayUpdate is null) return;
         trayUpdate.Header = Updates.Release is not null ? "업데이트 확인 · 새 버전 있음" : "업데이트 확인";
+        TryShowStartupUpdate();
     }
-    internal void ShowUpdates()
+    private void TryShowStartupUpdate()
+    {
+        if (!startupUpdatesReady || startupUpdateShown || DiagnosticMode || backgroundStart || disposed || quitting ||
+            Updates.State is not (AppUpdateState.Available or AppUpdateState.Ready)) return;
+        Window? owner = accountWindow is { IsVisible: true } ? accountWindow : settingsWindow;
+        if (owner is not { IsVisible: true, IsEnabled: true }) return;
+        if (owner.OwnedWindows.Any(window => window.IsDialog)) return;
+        startupUpdateShown = true;
+        ShowUpdates(modal: true);
+    }
+    internal void ShowUpdates() => ShowUpdates(false);
+    private void ShowUpdates(bool modal)
     {
         if (disposed || quitting) return;
         if (updateWindow is not null) { updateWindow.Activate(); return; }
@@ -39,7 +52,11 @@ public sealed partial class AppRuntime
         shown.Closed += (_, _) => { if (updateWindow == shown) updateWindow = null; };
         if (DiagnosticMode) PrepareDiagnosticWindow(shown);
         var owner = accountWindow is { IsVisible: true } ? accountWindow : (Window?)settingsWindow ?? desktop.MainWindow;
-        if (owner is { IsVisible: true }) shown.Show(owner); else shown.Show();
+        if (owner is { IsVisible: true })
+        {
+            if (modal) _ = shown.ShowDialog(owner); else shown.Show(owner);
+        }
+        else shown.Show();
         if (Updates.State is AppUpdateState.Idle or AppUpdateState.Current or AppUpdateState.Error && !Updates.Downloaded)
             _ = Updates.Check();
     }

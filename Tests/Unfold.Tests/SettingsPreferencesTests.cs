@@ -38,23 +38,30 @@ public class SettingsPreferencesTests
     }
 
     [AvaloniaFact]
-    public void ChangingAnyVolumeStopsTheCurrentPreviewAndKeepsOtherVolumes()
+    public void ChangingAnyVolumeKeepsTheCurrentPreviewPlayingAndAppliesToTheNextPlayback()
     {
         using var scope = new Scope(); var window = scope.Window;
         var tokens = new List<CancellationToken>();
         window.PlaySoundPreview = (_, _, token) => { tokens.Add(token); return Task.Delay(Timeout.Infinite, token); };
+        Press(window, "PreviewDueSound"); var token = tokens[^1];
         foreach (var name in new[] { "ReminderVolumePercent", "ReminderSoundVolumePercent", "CompletionSoundVolumePercent" })
         {
-            Press(window, "PreviewDueSound"); var token = tokens[^1]; Assert.False(token.IsCancellationRequested);
-            Find<Slider>(window, name).Value = 50; Layout(window); Assert.True(token.IsCancellationRequested);
-            Assert.False(Assert.IsType<SoundPreviewIcon>(Find<Button>(window, "PreviewDueSound").Content).IsPlaying);
+            Find<Slider>(window, name).Value = 50; Layout(window); Assert.False(token.IsCancellationRequested);
+            Assert.True(Assert.IsType<SoundPreviewIcon>(Find<Button>(window, "PreviewDueSound").Content).IsPlaying);
         }
+        Assert.Single(tokens);
+        Press(window, "PreviewDueSound"); Assert.True(token.IsCancellationRequested);
+        var next = new List<AppSettings>();
+        window.PlaySoundPreview = (_, settings, _) => { next.Add(settings); return Task.CompletedTask; };
+        Press(window, "PreviewDueSound");
+        Assert.Equal(50, Assert.Single(next).ReminderVolumePercent);
+        Assert.Equal(50, next[0].ReminderSoundVolumePercent); Assert.Equal(50, next[0].CompletionSoundVolumePercent);
         Assert.Equal(50, Find<Slider>(window, "ReminderSoundVolumePercent").Value);
         Assert.Equal(50, Find<Slider>(window, "CompletionSoundVolumePercent").Value);
     }
 
     [AvaloniaFact]
-    public void EachVolumeIconTracksMuteAndFiftyPercentBoundaryWithoutVisiblePercentText()
+    public void EachVolumeIconAndPercentageTrackTheSliderAndPersistedValues()
     {
         using var scope = new Scope(); var window = scope.Window;
         foreach (var (sliderName, iconName) in new[]
@@ -70,11 +77,14 @@ public class SettingsPreferencesTests
             {
                 slider.Value = value; Layout(window);
                 Assert.Equal(glyph, icon.Glyph);
+                Assert.Equal($"{value}%", Find<TextBlock>(window, sliderName + "Value").Text);
             }
             slider.Value = 0; slider.Value = 100; Layout(window); Assert.Equal(SoundVolumeGlyph.High, icon.Glyph);
         }
-        var card = Find<Border>(window, "SettingsNotificationCard");
-        Assert.DoesNotContain(card.GetVisualDescendants().OfType<TextBlock>(), text => text.Name != "BubbleOpacityValue" && text.Text?.Contains('%') == true);
+        using var reopened = new SettingsWindow(scope.Runtime); reopened.Show(); Layout(reopened); Press(reopened, "SettingsNavSettings"); Layout(reopened);
+        foreach (var name in new[] { "ReminderVolumePercent", "ReminderSoundVolumePercent", "CompletionSoundVolumePercent" })
+            Assert.Equal("100%", Find<TextBlock>(reopened, name + "Value").Text);
+        reopened.Dispose(); reopened.Hide();
     }
 
     [AvaloniaFact]
@@ -138,6 +148,9 @@ public class SettingsPreferencesTests
                 var x = slider.TranslatePoint(default, window)!.Value.X; var iconPoint = icon.TranslatePoint(default, window)!.Value;
                 var previewPoint = preview.TranslatePoint(default, window)!.Value;
                 Assert.True(slider.Bounds.Width > 0); Assert.True(iconPoint.X + icon.Bounds.Width <= x);
+                var percent = Find<TextBlock>(window, sliderName + "Value"); var percentPoint = percent.TranslatePoint(default, window)!.Value;
+                Assert.True(x + slider.Bounds.Width < percentPoint.X);
+                Assert.True(percentPoint.X + percent.Bounds.Width < previewPoint.X);
                 Assert.True(previewPoint.X >= x + slider.Bounds.Width);
                 Assert.InRange(Math.Abs(iconPoint.Y + icon.Bounds.Height / 2 - previewPoint.Y - preview.Bounds.Height / 2), 0, 1);
                 Assert.Same(icon.GetVisualParent(), preview.GetVisualParent());

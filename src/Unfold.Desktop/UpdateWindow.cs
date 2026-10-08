@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
+using System.Text.RegularExpressions;
 
 namespace Unfold.Desktop;
 
@@ -14,6 +15,8 @@ internal sealed class UpdateWindow : Window
     private readonly TextBlock status = Ui.Text("", DesignSystem.Body);
     private readonly ProgressBar progress = new() { Name = "UpdateProgress", Minimum = 0, Maximum = 100, Height = 8, IsVisible = false };
     private readonly Button action = Ui.Primary(Ui.Action("업데이트 확인"));
+    private readonly TextBlock notes = Ui.Text("", DesignSystem.Body);
+    private readonly StackPanel releaseNotes = new() { Spacing = 8, IsVisible = false };
     private bool closed;
     internal UpdateWindow(AppUpdates updates, Func<Task<bool>> restart)
     {
@@ -21,6 +24,10 @@ internal sealed class UpdateWindow : Window
         Title = "Unfold 업데이트"; Width = 440; MinWidth = 320; MinHeight = 230; SizeToContent = SizeToContent.Height;
         CanResize = false; WindowStartupLocation = WindowStartupLocation.CenterOwner;
         status.Name = "UpdateStatus"; status.TextWrapping = TextWrapping.Wrap;
+        notes.Name = "UpdateReleaseNotes"; notes.TextWrapping = TextWrapping.Wrap;
+        releaseNotes.Children.Add(Ui.Text("변경내용", DesignSystem.Section));
+        releaseNotes.Children.Add(new ScrollViewer { Content = notes, MaxHeight = 220,
+            HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled });
         action.Name = "UpdateAction";
         var close = Ui.Action("닫기"); close.IsCancel = true; close.Click += (_, _) => Close();
         action.Click += async (_, _) =>
@@ -42,7 +49,7 @@ internal sealed class UpdateWindow : Window
         var content = new StackPanel { Spacing = 20, Margin = new(24) };
         content.Children.Add(Ui.Text("Unfold 업데이트", DesignSystem.Title));
         content.Children.Add(Ui.Text($"현재 버전 · {AppRelease.DisplayVersion}", DesignSystem.Caption));
-        content.Children.Add(status); content.Children.Add(progress); content.Children.Add(actions);
+        content.Children.Add(status); content.Children.Add(releaseNotes); content.Children.Add(progress); content.Children.Add(actions);
         Content = new Border { Background = DesignSystem.Canvas, Child = content };
         AutomationProperties.SetName(progress, "업데이트 다운로드 진행률");
         updates.Changed += Changed; Closed += (_, _) => { closed = true; updates.Changed -= Changed; };
@@ -68,7 +75,17 @@ internal sealed class UpdateWindow : Window
             _ => "새 버전을 확인할 수 있어요."
         };
         progress.IsVisible = updates.State == AppUpdateState.Downloading; progress.Value = updates.Progress;
+        releaseNotes.IsVisible = updates.Release is not null;
+        notes.Text = PlainNotes(updates.Release?.NotesMarkdown);
         action.Content = updates.Downloaded ? "재시작하여 적용" : updates.Release is not null ? "업데이트 다운로드" : "업데이트 확인";
         action.IsEnabled = !updates.Busy && updates.State != AppUpdateState.UnsupportedInstall;
+    }
+    private static string PlainNotes(string? markdown)
+    {
+        if (string.IsNullOrWhiteSpace(markdown)) return "자세한 변경내용은 Unfold 웹의 변경 이력에서 확인할 수 있어요.";
+        // Render feed content as bounded plain text, never executable HTML or links.
+        var text = markdown[..Math.Min(markdown.Length, 12000)].Replace("\r\n", "\n");
+        text = Regex.Replace(text, @"(?m)^#{1,6}\s+", "");
+        return text.Replace("**", "").Replace("`", "").Trim();
     }
 }

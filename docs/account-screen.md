@@ -1,7 +1,8 @@
 # 최초 실행 계정 화면 편집
 
-2026-09-28 · 승인된 A안: 왼쪽 펫 패널, 오른쪽 Google 로그인·구매 화면.
-Beta v1.0.0은 Google 로그인 후 Live 구매 권한 또는 계정에 등록된 무료 이용 권한이 확인되면 홈·펫·타이머를 시작한다.
+2026년 10월 8일 · Beta v1.1.2 개발본 기준. 최신 공개 배포는 Beta v1.1.1이다.
+승인된 A안은 왼쪽 펫 패널, 오른쪽 Google 로그인·구매 화면이다.
+Google 로그인 또는 저장된 세션 복원 후 Live 구매 권한이나 계정의 무료 이용 권한이 확인되면 홈·펫·타이머를 시작한다.
 테스터는 로그인 후 `코드 입력`에서 `admin`을 등록한다. 앱 로컬 우회가 아니라 Supabase 계정에 저장되는 무료 권한이다.
 
 ## 편집 위치
@@ -68,7 +69,8 @@ dotnet test Tests/Unfold.Tests -c Release --filter 'FullyQualifiedName~Account'
 로그인 유지 수정은 [2026-10-01 검증](validation/2026-10-01-session-persistence.md)을 따른다.
 재실행 때 로그인 창이 잠깐 나타나던 시작 순서 수정은 [2026-10-07 검증](validation/2026-10-07-login-startup.md)에 기록했다.
 로고·Mochi 배치는 [계정 화면 브랜드 적용 검증](validation/2026-10-01-account-branding.md)을 따른다.
-이미 게시된 Beta v1.0.0 파일은 자동 변경되지 않는다. 수정된 빌드에서 한 번 Google 로그인해야 저장이 시작된다.
+공개 Beta v1.1.1은 세션 보안 저장과 로그인 창 표시 전 복원을 포함한다.
+Beta v1.1.2 지정만으로 설치된 앱이나 공개 업데이트 채널을 교체하지는 않는다.
 
 구현 참고: [Avalonia 데이터 바인딩](https://docs.avaloniaui.net/docs/data-binding/introduction-to-data-binding),
 [Supabase PKCE](https://supabase.com/docs/guides/auth/sessions/pkce-flow).

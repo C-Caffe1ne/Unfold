@@ -76,7 +76,7 @@
   "모든 상태의 설명 본문을 제거하고 하단 상태 안내와 네 가지 테마는 유지했다."(단, "하단 상태 안내" 유지
   여부는 UX-2 해설에서 별도로 재검토함.)
 - **구현 검증 문서**: `docs/validation/2026-09-20-speech-ui-implementation.md:13` "모든 상태의 설명 본문과
-  해당 툴팁을 제거했다." "[완료](images/2026-09-20-speech-ui-implementation/speech-completed.png) | 제목과
+  해당 툴팁을 제거했다." "[완료](../../../../docs/validation/images/2026-09-20-speech-ui-implementation/speech-completed.png) | 제목과
   접기 안내만 표시, 본문 제거 확인" — 캡처 목록 자체가 본문 제거를 결과로 기록.
 - **테스트 계약**: `Tests/Unfold.Tests/BreakReminderTests.cs:33-37`이 초대 상태에서 루틴 이름·
   `CurrentStep.Instruction`이 **어떤 TextBlock에도 없어야** 함을 `Assert.DoesNotContain`으로 단정.

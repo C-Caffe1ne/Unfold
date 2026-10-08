@@ -3,9 +3,11 @@
 Unfold is a C#/.NET 10 and Avalonia stretch reminder with desktop pets. Published
 packages include .NET. Swift, Xcode, and the Piskel web runtime are not required.
 
-Beta v1.0.4 (`1.0.4-beta`) includes Mochi (cat), 보리 (rabbit), 강아지 (dog), 고슴도치 (hedgehog)
+As of 2026-10-08, development is **Beta v1.1.2** (`1.1.2-beta`, source `2715fd1`).
+The latest public release is **Beta v1.1.1** (`v1.1.1-beta`, source `887d0127`).
+Both include Mochi (cat), 보리 (rabbit), 강아지 (dog), 고슴도치 (hedgehog)
 and 펭귄 (penguin). Choose them from Home without installing separate packs.
-Release notes are included as `RELEASE-NOTES.md` in the Windows portable/installed
+When `docs/releases/v<version>.md` exists, packaging includes it as `RELEASE-NOTES.md` in the Windows portable/installed
 `current` folder and inside `Unfold.app/Contents/Resources/` on macOS.
 This beta requires Google sign-in and a verified Live purchase or valid free grant before
 starting the timer, desktop pet, or settings. After sign-in, testers can use the bottom-right
@@ -15,9 +17,10 @@ store. Restart restores the session and verifies server access without another G
 sign-in or code entry. Logout deletes the stored credential. Network failure preserves it
 for retry but does not grant offline access.
 Windows code signing is pending. Public Mac distribution uses Developer ID signing and
-Apple notarization. See the [current release notes](releases/v1.0.4-beta.md).
+Apple notarization. See the [current public release notes](releases/v1.1.1-beta.md)
+and [release/update verification](validation/2026-10-07-beta-v1.1.1-release.md).
 Beta v1.0.3 and later managed installations can check for updates from the tray/menu bar;
-the current development build also provides **설정 → 앱 정보 → 업데이트 확인**.
+the public 1.1.1 release and current development build also provide **설정 → 앱 정보 → 업데이트 확인**.
 v1.0.2 and earlier require a one-time manual installation of a newer release.
 `Unfold --version` prints the release identity without opening the app or creating a user profile.
 
@@ -66,7 +69,7 @@ and `UNFOLD_NOTARY_PROFILE` to select a local notarytool keychain profile. The b
 script signs all nested native files, submits the app and staples its ticket, then
 creates, notarizes and staples the DMG. Rejection stops packaging. Credentials are
 never stored in the repository. `UNFOLD_NOTARY_LOG_DIR` selects the diagnostic log folder.
-Use the `-notarized-installer.zip` Mac assets for the signed Beta v1.0.4 distribution;
+Use the `-notarized-installer.zip` Mac assets for the signed Beta v1.1.1 distribution;
 the earlier Mac installer ZIPs remain available as historical ad-hoc builds.
 
 ## Visible controls
@@ -74,11 +77,13 @@ the earlier Mac installer ZIPs remain available as historical ad-hoc builds.
 - Tray/menu bar: countdown and current state, 설정, 펫 숨기기/펫 표시,
   시작/일시정지/계속, 타이머 정지, Unfold 종료.
 - Pet right-click menu: 설정, 펫 숨기기.
-- Settings: the timer home contains stretch interval and break duration; a separate settings tab contains idle time, snooze time, stretch/completion sounds and bubble position; character selection, pet visibility,
+- Settings: the timer home contains stretch interval and break duration; a separate settings tab contains idle time, snooze time, stretch/completion sounds, bubble opacity and five dialogue strings; character selection, pet visibility,
   launch at login, **Review & export**, **펫 관리**, today's confirmed breaks, and timer controls.
 - Pet speech reminder: **n분 뒤에**, **휴식 시작**, and **완료**. The bubble remains visible while its reminder state is active.
   An unanswered invitation automatically snoozes after 30 seconds using the configured snooze time.
-  Settings offers four bubble positions, 1–60 minute snooze, and due/completion WAV or MP3 effects.
+  Bubble position follows the pet and screen work area automatically. Settings offers
+  0–100% bubble opacity, five dialogue strings of 1–120 characters, 1–60 minute snooze,
+  and due/completion WAV, MP3 or OGG effects.
   There is no separate reminder window or OS toast.
   **완료** is available from the start of a break. Overtime caps at +60:00 without auto-completion.
   Snooze counts active time, not time away.
@@ -89,11 +94,13 @@ or to start a full interval after Stop. Stop dismisses an open invitation withou
 completion. Reset and Stretch now are no longer exposed.
 
 The timer state badge and tray status explicitly show running, paused, stopped, idle-paused,
-or break-held state. The home card's **스트레칭 시간 (분)** is disabled while running and accepts whole
+or break-held state. The home card's **스트레칭 알림 간격 (분)** is disabled while running and accepts whole
 minutes from 1 to 240 in one-minute steps while paused or stopped. **휴식 시간 (분)** accepts 1–10
 minutes and may be changed while working because it applies to the next break. A typed or stepped value
 does not change behavior until the home card's **저장** is pressed. The Settings tab uses its own
-**취소·저장** for idle/snooze time and notification preferences. Saving a new stretch interval keeps Pause or Stop intact.
+automatic saving for idle/snooze time and notification preferences, including sound import/reset.
+There are no Settings-page Save/Cancel buttons or navigation-save dialog.
+Saving a new stretch interval keeps Pause or Stop intact.
 
 All five bundled pets provide the original reactions plus pointer hold/release behaviors. Eligible idle time triggers sleep, looking around
 or yawning; a short click plays its assigned reaction without moving or scaling the pet canvas.
@@ -102,7 +109,7 @@ inside the current monitor's work area; completion, stop, hiding or selecting an
 A hidden pet can appear temporarily for a new reminder without changing the saved visibility setting.
 
 An open reminder holds the work timer and retains the break duration captured when it opened. Completion schedules a full work interval;
-snooze schedules five active minutes; skip/close keeps the remaining work interval.
+snooze schedules the configured 1–60 active minutes (default five); skip/close keeps the remaining work interval.
 Existing manual Pause remains in effect. An already-open reminder is reused.
 Routine and work-profile setup is no longer exposed in the normal UI. Review/export and
 legacy data compatibility are described in the [compatibility guide](personalization.md).
@@ -140,8 +147,9 @@ routine, not verified physical activity.
 The seven-day review exports only its displayed period to a user-selected local CSV file.
 No export is uploaded or shared automatically. Older settings and completion records remain readable.
 
-Existing valid user character packages remain selectable. The editor has no
-normal UI entry point in the MVP. Legacy Swift preferences and sandbox data are
+Existing valid user character packages remain selectable. The pixel editor has been removed;
+old source-file contracts remain under `src/Unfold.Core/Compatibility/`.
+Legacy Swift preferences and sandbox data are
 neither migrated nor deleted automatically.
 
 **펫 관리 → 파일 열기…** opens a local `.unfoldpet` file in a confirmation window before installation.
@@ -165,8 +173,8 @@ source pixels/timing. Opaque video backgrounds remain visible; there is no backg
 Still images retain aspect ratio and transparency, apply photo EXIF orientation, and shrink to at
 most 512px without enlarging small images. Inputs are bounded to 32 MiB, 8192px per side,
 and 16,777,216 pixels. They use single-frame PNG sheet clips in the existing version-1 pack format.
-MP3 effects are converted locally to mono/44.1 kHz/16-bit PCM WAV for the existing preview,
-volume, save/cancel and playback paths. Both source files and stored effects must be at most
+MP3 and OGG (Vorbis/Opus) effects are converted locally to mono/44.1 kHz/16-bit PCM WAV for the existing preview,
+volume, automatic-save and playback paths. Both source files and stored effects must be at most
 5 MiB; effects over 30 seconds are rejected rather than shortened. Source files are unchanged.
 
 ## Development and packaging
@@ -175,7 +183,7 @@ Run these commands from the repository with .NET SDK 10 installed:
 
 ```sh
 dotnet restore Unfold.slnx --locked-mode
-# MP4 / MP3 import: use the matching RID (win-x64, win-arm64, osx-arm64, osx-x64).
+# MP4 / MP3 / OGG import: use the matching RID (win-x64, win-arm64, osx-arm64, osx-x64).
 dotnet run --project tools/Unfold.MediaSetup -- osx-arm64 .
 dotnet test Unfold.slnx -c Release --no-restore
 dotnet run --project src/Unfold.Desktop
@@ -189,17 +197,21 @@ On Windows, publish using PowerShell:
 ./Scripts/publish-desktop.ps1 -Runtime win-arm64
 ```
 
-For the Windows x64 installation wizard, install NSIS 3 and Python 3, then package
-the published x64 payload:
+For the current updater-enabled Windows x64 installer, restore the pinned Velopack
+tool and package the published x64 payload:
 
 ```powershell
-python Scripts/package-windows-installer.py --compiler "${env:ProgramFiles(x86)}\NSIS\makensis.exe"
+dotnet tool restore
+python Scripts/package-updates.py --runtime win-x64
 ```
 
-This creates `artifacts/Unfold-v1.0.2-beta-win-x64-setup.exe`. It installs for the
+This creates `artifacts/Unfold-v<version>-win-x64-setup.exe`, a managed portable ZIP,
+and the update package/feed under `artifacts/update-releases/win-x64/`. It installs for the
 current user without requesting administrator privileges. The existing ZIP remains
 available as a portable alternative. The installer intentionally retains the user's
 settings, pet packs and saved credentials when uninstalling.
+The earlier NSIS helper `Scripts/package-windows-installer.py` is a legacy packaging
+path; it does not create the current managed update feed.
 
 Without PowerShell, prepare the matching media tools, publish Windows into
 `artifacts/win-x64/app`, then run `python3 Scripts/package-windows.py win-x64`.
@@ -225,7 +237,10 @@ job also defines an isolated packaged smoke run and a silent installer verificat
 installed version, login opt-out, reinstall, uninstall and preservation of a sentinel file.
 It does not prove running-app protection, migration from a legacy startup entry,
 an older-version update, or preservation of actual settings/history/pets/login credentials.
-Those require separate target-OS scenarios. Run this verifier only
+Those require separate target-OS scenarios. Beta v1.1.1 additionally has a
+recorded public 1.1.0 → 1.1.1 update/apply/restart check in Windows CI; see the
+[release report](validation/2026-10-07-beta-v1.1.1-release.md).
+Run this verifier only
 in a disposable environment; it refuses an existing installation or startup entry.
 This is automated diagnostic coverage,
 not physical OS interaction or evidence that the current workflow has already passed.
@@ -276,7 +291,7 @@ long-term resource use, or whether a person actually stretches.
 
 Use **업데이트 확인** in the tray/menu bar. A new release is downloaded inside Unfold;
 **재시작하여 적용** applies it after the user chooses to restart. Active breaks and unsaved
-pet/editor drafts must be resolved before applying. Closing the update window leaves the
+pet drafts must be resolved before applying. Closing the update window leaves the
 download running. Startup does not auto-apply a previously downloaded update.
 
 The app reads the public `C-Caffe1ne/Unfold` GitHub Releases. Each release must include

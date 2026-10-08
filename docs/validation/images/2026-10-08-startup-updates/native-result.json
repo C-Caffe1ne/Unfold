@@ -1,0 +1,224 @@
+{
+  "success": true,
+  "version": "1.1.2-beta",
+  "nativeMacOS": true,
+  "physicalInput": false,
+  "backgroundDeferred": true,
+  "oncePerLaunch": true,
+  "downloads": 0,
+  "applies": 0,
+  "records": [
+    {
+      "theme": "\uC720\uC5F0\uD55C \uB77C\uC77C\uB77D",
+      "Bounds": {
+        "X": 0,
+        "Y": 0,
+        "Width": 440,
+        "Height": 477,
+        "Position": {
+          "X": 0,
+          "Y": 0
+        },
+        "Size": {
+          "AspectRatio": 0.9224318658280922,
+          "Width": 440,
+          "Height": 477
+        },
+        "Right": 440,
+        "Bottom": 477,
+        "Left": 0,
+        "Top": 0,
+        "TopLeft": {
+          "X": 0,
+          "Y": 0
+        },
+        "TopRight": {
+          "X": 440,
+          "Y": 0
+        },
+        "BottomLeft": {
+          "X": 0,
+          "Y": 477
+        },
+        "BottomRight": {
+          "X": 440,
+          "Y": 477
+        },
+        "Center": {
+          "X": 220,
+          "Y": 238.5
+        }
+      },
+      "Extent": {
+        "AspectRatio": 0.9702970297029703,
+        "Width": 392,
+        "Height": 404
+      },
+      "Viewport": {
+        "AspectRatio": 1.7818181818181817,
+        "Width": 392,
+        "Height": 220
+      },
+      "isModal": true
+    },
+    {
+      "theme": "\uB2E4\uC815\uD55C \uC624\uD2B8",
+      "Bounds": {
+        "X": 0,
+        "Y": 0,
+        "Width": 440,
+        "Height": 477,
+        "Position": {
+          "X": 0,
+          "Y": 0
+        },
+        "Size": {
+          "AspectRatio": 0.9224318658280922,
+          "Width": 440,
+          "Height": 477
+        },
+        "Right": 440,
+        "Bottom": 477,
+        "Left": 0,
+        "Top": 0,
+        "TopLeft": {
+          "X": 0,
+          "Y": 0
+        },
+        "TopRight": {
+          "X": 440,
+          "Y": 0
+        },
+        "BottomLeft": {
+          "X": 0,
+          "Y": 477
+        },
+        "BottomRight": {
+          "X": 440,
+          "Y": 477
+        },
+        "Center": {
+          "X": 220,
+          "Y": 238.5
+        }
+      },
+      "Extent": {
+        "AspectRatio": 0.9702970297029703,
+        "Width": 392,
+        "Height": 404
+      },
+      "Viewport": {
+        "AspectRatio": 1.7818181818181817,
+        "Width": 392,
+        "Height": 220
+      },
+      "isModal": true
+    },
+    {
+      "theme": "\uC228 \uACE0\uB974\uB294 \uC232",
+      "Bounds": {
+        "X": 0,
+        "Y": 0,
+        "Width": 440,
+        "Height": 477,
+        "Position": {
+          "X": 0,
+          "Y": 0
+        },
+        "Size": {
+          "AspectRatio": 0.9224318658280922,
+          "Width": 440,
+          "Height": 477
+        },
+        "Right": 440,
+        "Bottom": 477,
+        "Left": 0,
+        "Top": 0,
+        "TopLeft": {
+          "X": 0,
+          "Y": 0
+        },
+        "TopRight": {
+          "X": 440,
+          "Y": 0
+        },
+        "BottomLeft": {
+          "X": 0,
+          "Y": 477
+        },
+        "BottomRight": {
+          "X": 440,
+          "Y": 477
+        },
+        "Center": {
+          "X": 220,
+          "Y": 238.5
+        }
+      },
+      "Extent": {
+        "AspectRatio": 0.9702970297029703,
+        "Width": 392,
+        "Height": 404
+      },
+      "Viewport": {
+        "AspectRatio": 1.7818181818181817,
+        "Width": 392,
+        "Height": 220
+      },
+      "isModal": true
+    },
+    {
+      "theme": "\uBC24\uC758 \uBC84\uD130",
+      "Bounds": {
+        "X": 0,
+        "Y": 0,
+        "Width": 440,
+        "Height": 477,
+        "Position": {
+          "X": 0,
+          "Y": 0
+        },
+        "Size": {
+          "AspectRatio": 0.9224318658280922,
+          "Width": 440,
+          "Height": 477
+        },
+        "Right": 440,
+        "Bottom": 477,
+        "Left": 0,
+        "Top": 0,
+        "TopLeft": {
+          "X": 0,
+          "Y": 0
+        },
+        "TopRight": {
+          "X": 440,
+          "Y": 0
+        },
+        "BottomLeft": {
+          "X": 0,
+          "Y": 477
+        },
+        "BottomRight": {
+          "X": 440,
+          "Y": 477
+        },
+        "Center": {
+          "X": 220,
+          "Y": 238.5
+        }
+      },
+      "Extent": {
+        "AspectRatio": 0.9702970297029703,
+        "Width": 392,
+        "Height": 404
+      },
+      "Viewport": {
+        "AspectRatio": 1.7818181818181817,
+        "Width": 392,
+        "Height": 220
+      },
+      "isModal": true
+    }
+  ]
+}

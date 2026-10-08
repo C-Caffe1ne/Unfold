@@ -9,6 +9,7 @@ public sealed class ImportedPetClip
     private readonly PixelImage firstFrame;
     private readonly object frameGate = new();
     private WeakReference<IReadOnlyList<AnimationFrame>> decodedFrames;
+    private readonly Func<IReadOnlyList<AnimationFrame>>? loadSpriteFrames;
     public PixelImage Thumbnail => new(firstFrame.Width, firstFrame.Height, firstFrame.Pixels.ToArray());
     public bool IsStillImage { get; }
     public string FileName { get; }
@@ -28,8 +29,9 @@ public sealed class ImportedPetClip
         decodedFrames = new(frames);
     }
     public static ImportedPetClip FromGif(string fileName, byte[] bytes)
+        => FromOwnedGif(fileName, bytes.ToArray());
+    internal static ImportedPetClip FromOwnedGif(string fileName, byte[] snapshot)
     {
-        var snapshot = bytes.ToArray();
         IReadOnlyList<AnimationFrame> frames;
         try { frames = ImageCodec.DecodeGif(snapshot); }
         catch (InvalidDataException error)
@@ -44,12 +46,34 @@ public sealed class ImportedPetClip
         if (image.Pixels.All(pixel => pixel >> 24 == 0)) throw new InvalidDataException("완전히 투명한 이미지예요. 펫이 보이는 파일을 선택해 주세요.");
         return new(Path.GetFileName(fileName), ImageCodec.EncodePng(image), [new(image, TimeSpan.FromSeconds(1))], true);
     }
+    internal ImportedPetClip(string fileName, byte[] sheet, SheetDefinition grid, AnimationDefinition definition, PixelImage image)
+    {
+        FileName = fileName; media = sheet; Width = grid.FrameWidth; Height = grid.FrameHeight;
+        FrameCount = definition.Frames!.Length; Duration = TimeSpan.FromSeconds(FrameCount / definition.Fps!.Value);
+        DecodedBytes = (long)Width * Height * FrameCount * 4;
+        PixelImage Cell(PixelImage source, int index)
+        {
+            var pixels = new uint[Width * Height]; var x = index % grid.Columns * Width; var y = index / grid.Columns * Height;
+            for (var row = 0; row < Height; row++) Array.Copy(source.Pixels, (y + row) * source.Width + x, pixels, row * Width, Width);
+            return new(Width, Height, pixels);
+        }
+        firstFrame = Cell(image, definition.Frames[0]); decodedFrames = new(null!);
+        loadSpriteFrames = () =>
+        {
+            var source = ImageCodec.DecodePng(sheet); var cells = new Dictionary<int, PixelImage>();
+            return definition.Frames.Select(index =>
+            {
+                if (!cells.TryGetValue(index, out var cell)) cells[index] = cell = Cell(source, index);
+                return new AnimationFrame(cell, TimeSpan.FromSeconds(1 / definition.Fps.Value));
+            }).ToArray();
+        };
+    }
     public IReadOnlyList<AnimationFrame> LoadFrames()
     {
         lock (frameGate)
         {
             if (decodedFrames.TryGetTarget(out var cached)) return cached;
-            IReadOnlyList<AnimationFrame> frames = IsStillImage
+            IReadOnlyList<AnimationFrame> frames = loadSpriteFrames is not null ? loadSpriteFrames() : IsStillImage
                 ? [new(ImageCodec.DecodePng(media), TimeSpan.FromSeconds(1))] : ImageCodec.DecodeGif(media);
             decodedFrames = new(frames);
             return frames;
@@ -58,24 +82,25 @@ public sealed class ImportedPetClip
     internal void Write(string path) => AtomicFile.Write(path, media);
 }
 
-public sealed class CustomPetDraft
+public sealed partial class CustomPetDraft
 {
     public static IReadOnlyList<string> Actions { get; } = Array.AsReadOnly(new[] { "idle", "attention", "stretch", "celebrate", "click", "hover", "pointerDown", "pointerUp" });
     private readonly Dictionary<string, ImportedPetClip> clips = [];
-    public string Id { get; } = "custom-" + Guid.NewGuid().ToString("N");
+    public string Id { get; private set; } = "custom-" + Guid.NewGuid().ToString("N");
+    public IReadOnlyList<string> AvailableActions => sourceManifest is null ? Actions : Actions.Concat(sourceManifest.Animations.Keys).Distinct(StringComparer.Ordinal).ToArray();
     public IReadOnlyDictionary<string, ImportedPetClip> Clips => new System.Collections.ObjectModel.ReadOnlyDictionary<string, ImportedPetClip>(clips);
     public static string ActionName(string key) => key switch
     {
         "idle" => "기본", "attention" => "알림", "stretch" => "휴식",
-        "celebrate" => "휴식 완료", "click" => "클릭 반응", "hover" => "마우스 호버", "pointerDown" => "마우스 눌림", "pointerUp" => "마우스 뗌", _ => key
+        "celebrate" => "휴식 완료", "click" => "클릭 반응", "hover" => "마우스 호버", "pointerDown" => "마우스 눌림", "pointerUp" => "마우스 뗌", _ => GlbPetDraft.ActionName(key)
     };
     public void SetClip(string action, ImportedPetClip clip)
     {
-        if (!Actions.Contains(action)) throw new ArgumentException("지원하지 않는 동작이에요.");
+        if (!AvailableActions.Contains(action)) throw new ArgumentException("지원하지 않는 동작이에요.");
         var others = clips.Where(pair => pair.Key != action).Select(pair => pair.Value).ToArray();
         if (others.Sum(item => item.DecodedBytes) + clip.DecodedBytes > ImageCodec.MaxDecodedAnimationBytes)
             throw new InvalidDataException("펫의 전체 애니메이션이 너무 커요. 이미지 크기나 프레임 수를 줄여 주세요. (최대 128 MiB)");
-        if (others.Sum(item => (long)item.FileBytes) + clip.FileBytes > CharacterPack.MaxArchiveBytes - ImageCodec.MaxFileBytes - 64 * 1024)
+        if (sourceManifest is null && others.Sum(item => (long)item.FileBytes) + clip.FileBytes > CharacterPack.MaxArchiveBytes - ImageCodec.MaxFileBytes - 64 * 1024)
             throw new InvalidDataException("펫 팩의 파일 용량이 너무 커요. 더 작은 파일을 선택해 주세요.");
         clips[action] = clip;
     }
@@ -83,7 +108,7 @@ public sealed class CustomPetDraft
     public int Playback(string action) => playback.GetValueOrDefault(action, action == "idle" ? 1 : 0);
     public void SetPlayback(string action, int mode)
     {
-        if (!Actions.Contains(action) || mode is < 0 or > 2) throw new ArgumentException("잘못된 재생 설정이에요.");
+        if (!AvailableActions.Contains(action) || mode is < 0 or > 2) throw new ArgumentException("잘못된 재생 설정이에요.");
         playback[action] = mode;
     }
     public void RemoveClip(string action) { clips.Remove(action); playback.Remove(action); }
@@ -92,6 +117,7 @@ public sealed class CustomPetDraft
         if (string.IsNullOrWhiteSpace(name) || name.Trim().Length > 80)
             throw new ArgumentException("펫 이름을 1~80자로 입력해 주세요.");
         if (!clips.TryGetValue("idle", out var idle)) throw new InvalidDataException("필수 동작인 ‘기본’에 파일을 넣어 주세요.");
+        if (sourceManifest is not null) { ExportEdited(name.Trim(), outputPath); return; }
         var root = Path.Combine(Path.GetTempPath(), "Unfold-custom-" + Guid.NewGuid().ToString("N"));
         var directory = Path.Combine(root, Id); Directory.CreateDirectory(directory);
         try

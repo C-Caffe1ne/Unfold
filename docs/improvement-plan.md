@@ -1,5 +1,8 @@
 # MVP improvement plan — 2026-09-12
 
+이 문서는 2026-09-12 작업 계획의 보관 기록이다. 현재 Beta v1.1.2 작업 기준과 완료 상태는
+[개발 계획](development-plan.md), [검증 안내](verification.md)를 따른다.
+
 목표: 현재 데스크탑 동료와 스트레칭 알림 MVP의 신뢰성과 배포 준비도를 개선한다. 신규 기능보다 오류 복구, 비동기 수명 관리, 화면 상태 일치, 정확한 배포 안내를 우선한다.
 
 기준점: `release/mvp`, `dc77ab9`. Windows에서 `dotnet test Unfold.slnx -c Release --no-restore` 36개 통과. 이 결과는 실제 macOS 동작이나 OS 알림 검증을 의미하지 않는다.

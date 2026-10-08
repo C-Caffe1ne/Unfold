@@ -16,6 +16,8 @@ public sealed class GlbPetDraft
     public static bool? RequiredLoop(string action) => action == "idle" ? true : null;
     private readonly byte[] bytes;
     private Version contentVersion = new(1, 0, 0);
+    private string? expectedRevision;
+    public string? Revision => expectedRevision;
     public GlbModel Model { get; }
     public string FileName { get; }
     public string Id { get; private set; }
@@ -38,12 +40,22 @@ public sealed class GlbPetDraft
         };
         foreach (var (key, clip) in defaults) if (clip is not null) Set(key, clip, key is "held" or "walk");
     }
-    public GlbPetDraft(CharacterPackage package) : this(CharacterLibrary.AssetPath(package.DirectoryPath, package.Manifest.Model?.File ?? throw new InvalidDataException("Not a GLB pet.")))
+    public GlbPetDraft(CharacterPackage package) : this(ReadInstalled(package)) { }
+    private GlbPetDraft((CharacterPackage Package, string Revision) snapshot) : this(snapshot.Package, snapshot.Revision) { }
+    private static (CharacterPackage, string) ReadInstalled(CharacterPackage package)
+    {
+        if (package.IsBuiltIn) throw new InvalidDataException("설치한 3D 펫을 선택해 주세요.");
+        var revision = CharacterLibrary.PetRevision(package.DirectoryPath);
+        return (CharacterLibrary.LoadPackage(package.DirectoryPath), revision);
+    }
+    private GlbPetDraft(CharacterPackage package, string revision) : this(CharacterLibrary.AssetPath(package.DirectoryPath, package.Manifest.Model?.File ?? throw new InvalidDataException("Not a GLB pet.")))
     {
         Id = package.Manifest.Id; Name = package.Manifest.Name; Heading = package.Manifest.Model!.Heading; RootNode = package.Manifest.Model.RootNode;
         var metadata = CharacterPack.ReadMetadata(ImageCodec.ReadBounded(CharacterLibrary.AssetPath(package.DirectoryPath, "pack.json"), 64 * 1024));
         var oldVersion = CharacterPack.ParseVersion(metadata.ContentVersion); contentVersion = new(oldVersion.Major, oldVersion.Minor, checked(oldVersion.Build + 1));
         Mappings.Clear(); foreach (var (key, mapping) in package.Manifest.Animations) Mappings[key] = mapping;
+        if (revision != CharacterLibrary.PetRevision(package.DirectoryPath)) throw new IOException("펫이 변경됐어요. 다시 선택해 주세요.");
+        expectedRevision = revision;
     }
     public void Set(string action, string? clip, bool loop = false, double speed = 1, float? heading = null)
     {
@@ -66,8 +78,9 @@ public sealed class GlbPetDraft
         WritePack(archive =>
         {
             using var pack = CharacterPack.Open(archive);
-            installed = library.Install(pack, library.InspectInstall(pack).Revision);
+            installed = expectedRevision is null ? library.Install(pack, null) : library.InstallEdited(pack, expectedRevision);
         });
+        expectedRevision = CharacterLibrary.PetRevision(installed!.DirectoryPath);
         return installed!;
     }
     public void Export(string path) => WritePack(archive => AtomicFile.Write(path, ImageCodec.ReadBounded(archive, CharacterPack.MaxArchiveBytes)));

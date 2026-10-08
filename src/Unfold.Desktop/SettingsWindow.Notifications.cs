@@ -84,15 +84,18 @@ public sealed partial class SettingsWindow
             slider.MinWidth = 0; slider.VerticalAlignment = VerticalAlignment.Center;
             icon.VerticalAlignment = VerticalAlignment.Center;
             icon.SetVolume(slider.Value);
+            var percent = Ui.Caption($"{slider.Value:0}%"); percent.Name = slider.Name + "Value";
+            percent.VerticalAlignment = VerticalAlignment.Center; percent.TextAlignment = TextAlignment.Right;
             var controls = new Grid { Name = name, Width = 360, Height = DesignSystem.SettingsControlHeight,
-                ColumnDefinitions = new($"24,12,*,12,{DesignSystem.SettingsControlHeight}") };
+                ColumnDefinitions = new($"24,12,*,12,44,12,{DesignSystem.SettingsControlHeight}") };
             controls.Children.Add(icon); Grid.SetColumn(slider, 2); controls.Children.Add(slider);
-            if (play is not null) { Grid.SetColumn(play, 4); controls.Children.Add(play); }
+            Grid.SetColumn(percent, 4); controls.Children.Add(percent);
+            if (play is not null) { Grid.SetColumn(play, 6); controls.Children.Add(play); }
             slider.PropertyChanged += (_, e) =>
             {
                 if (e.Property != Slider.ValueProperty) return;
-                icon.SetVolume(slider.Value);
-                stopSoundPreview?.Invoke(); PreferencesEdited();
+                icon.SetVolume(slider.Value); percent.Text = $"{slider.Value:0}%";
+                PreferencesEdited();
             };
             return controls;
         }

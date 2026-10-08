@@ -39,10 +39,12 @@ internal sealed class PetBuilderView : UserControl, IDisposable
             await OpenPackage(package); RefreshPets();
         };
         media = new(owner, created, chooseMedia: chooseMedia, chooseOutput: chooseOutput, showHeader: false,
-            openFile: OpenFile, petSelection: PetManagementView.Field("펫 선택", pets));
-        glb = new(owner, library, installed, showHeader: false, embedded: true, created: created, chooseOutput: chooseOutput, openFile: OpenFile, removed: removed);
+            openFile: OpenFile, petSelection: PetManagementView.Field("펫 선택", pets), library: library, installed: installed, removed: removed);
+        glb = new(owner, library, installed, showHeader: false, embedded: true, created: created, chooseOutput: chooseOutput, openFile: OpenFile, removed: removed,
+            existingPets: ManagedPets, openPackage: OpenPackage);
         AttachedToVisualTree += (_, _) => RefreshPets();
-        media.BusyChanged += UpdateBusy; glb.BusyChanged += UpdateBusy; glb.LibraryChanged += RefreshPets;
+        media.BusyChanged += UpdateBusy; glb.BusyChanged += UpdateBusy;
+        media.LibraryChanged += RefreshPets; glb.LibraryChanged += RefreshPets;
         editor.Content = media; Content = editor;
     }
     private async Task OpenFile()
@@ -67,12 +69,23 @@ internal sealed class PetBuilderView : UserControl, IDisposable
         else { editor.Content = media; await media.OpenPath(path); }
     }
     internal async Task OpenPackage(CharacterPackage package)
-    { if (!closed) { editor.Content = glb; await glb.OpenPackage(package); } }
+    {
+        if (closed || IsBusy || package.IsBuiltIn || !library.CanManage(package.Manifest.Id)) return;
+        if (package.IsGlb) { editor.Content = glb; await glb.OpenPackage(package); }
+        else if (await media.OpenPackage(package)) editor.Content = media;
+        RefreshPets();
+    }
+    private IReadOnlyList<CharacterPackage> ManagedPets() => library.List(loadModels: false).Where(package => library.CanManage(package.Manifest.Id)).ToArray();
     internal void RefreshPets()
     {
         if (closed) return;
         refreshingPets = true;
-        try { pets.ItemsSource = library.List(loadModels: false).Where(package => package.IsGlb).ToArray(); pets.SelectedIndex = -1; }
+        try
+        {
+            pets.ItemsSource = ManagedPets();
+            var id = editor.Content == glb ? glb.EditingId : media.EditingId;
+            pets.SelectedItem = pets.Items.OfType<CharacterPackage>().FirstOrDefault(package => package.Manifest.Id == id);
+        }
         finally { refreshingPets = false; }
         glb.RefreshExisting();
     }
@@ -82,7 +95,7 @@ internal sealed class PetBuilderView : UserControl, IDisposable
             FileTypeFilter = [new FilePickerFileType("펫 팩 · GLB · " + PetMediaImporter.SupportedFileTypes) { Patterns = ["*.unfoldpet", "*.glb", ..PetMediaImporter.FilePatterns] }] });
         return files.FirstOrDefault()?.TryGetLocalPath();
     }
-    private void UpdateBusy() { media.SetImportEnabled(!IsBusy); glb.SetImportEnabled(!IsBusy); BusyChanged?.Invoke(); }
+    private void UpdateBusy() { pets.IsEnabled = !IsBusy; media.SetImportEnabled(!IsBusy); glb.SetImportEnabled(!IsBusy); BusyChanged?.Invoke(); }
     internal async Task<bool> CanCloseDraft()
     {
         if (IsBusy) return false;

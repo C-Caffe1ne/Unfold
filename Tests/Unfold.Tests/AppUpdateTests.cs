@@ -95,11 +95,13 @@ public class AppUpdateTests : IDisposable
         using var updates = new AppUpdates(new VelopackUpdateBackend(manager, "osx-arm64-beta"));
         await updates.Check(); Assert.Equal(AppUpdateState.Available, updates.State);
         Assert.Equal("1.0.4-beta", updates.Release!.Version);
+        Assert.Equal("- 업데이트 안내 개선", updates.Release.NotesMarkdown);
         await updates.Download(); Assert.True(updates.Downloaded);
         Assert.Equal(fixture.PackageHash, Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(
             Path.Combine(temp.Path, "packages", Path.GetFileName(fixture.Package))))));
         using var restored = new AppUpdates(new VelopackUpdateBackend(manager, "osx-arm64-beta"));
         Assert.Equal(AppUpdateState.Ready, restored.State); Assert.True(restored.Downloaded);
+        Assert.Equal("- 업데이트 안내 개선", restored.Release!.NotesMarkdown);
     }
 
     [Fact]
@@ -184,12 +186,12 @@ public class AppUpdateTests : IDisposable
         using (var zip = ZipFile.Open(package, ZipArchiveMode.Create))
         {
             using var writer = new StreamWriter(zip.CreateEntry("package.nuspec").Open());
-            writer.Write($"<package><metadata><id>{AppUpdateConfiguration.PackageId}</id><version>{version}</version><authors>Unfold</authors><description>Isolated update test</description><channel>{channel}</channel></metadata></package>");
+            writer.Write($"<package><metadata><id>{AppUpdateConfiguration.PackageId}</id><version>{version}</version><authors>Unfold</authors><description>Isolated update test</description><channel>{channel}</channel><releaseNotes>- 업데이트 안내 개선</releaseNotes></metadata></package>");
         }
         var bytes = File.ReadAllBytes(package); var hash = Convert.ToHexString(SHA256.HashData(bytes));
         File.WriteAllText(Path.Combine(feed, $"releases.{channel}.json"), JsonSerializer.Serialize(new { Assets = new[] {
             new { PackageId = AppUpdateConfiguration.PackageId, Version = version, Type = "Full", FileName = name,
-                SHA1 = Convert.ToHexString(SHA1.HashData(bytes)), SHA256 = hash, Size = bytes.Length }
+                SHA1 = Convert.ToHexString(SHA1.HashData(bytes)), SHA256 = hash, Size = bytes.Length, NotesMarkdown = "- 업데이트 안내 개선" }
         } }));
         return (feed, package, hash);
     }
@@ -199,6 +201,7 @@ internal sealed class UpdateTestBackend : IAppUpdateBackend
 {
     public bool IsInstalled { get; init; } = true;
     public AppUpdateRelease? Pending { get; init; }
+    internal AppUpdateRelease? CheckResult = new("1.0.4-beta", new object());
     internal int Checks, Downloads, Applies;
     internal TaskCompletionSource? CheckGate, DownloadGate;
     internal Exception? CheckFailure, DownloadFailure, ApplyFailure;
@@ -207,7 +210,7 @@ internal sealed class UpdateTestBackend : IAppUpdateBackend
     {
         Checks++; if (CheckGate is not null) await CheckGate.Task.WaitAsync(token);
         if (CheckFailure is not null) throw CheckFailure;
-        return new("1.0.4-beta", new object());
+        return CheckResult;
     }
     public async Task Download(AppUpdateRelease release, Action<int> progress, CancellationToken token)
     {

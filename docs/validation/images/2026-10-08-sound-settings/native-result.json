@@ -1,0 +1,60 @@
+{
+  "success": true,
+  "version": "1.1.2-beta",
+  "source": "/Users/hwanghyeonseong/Documents/GitHub/Unfold/.worktrees/remove-unused-features",
+  "nativeMacOS": true,
+  "physicalInput": false,
+  "subjectiveListening": false,
+  "isolatedData": "/private/tmp/unfold-sound-settings.cfmp0e/native-a7b8266811f240919b869064eeaa3d61",
+  "vorbisAndOpusImported": true,
+  "volumeChangePreservedPlayback": true,
+  "stopSwitchReplayVerified": true,
+  "responsiveSizes": [
+    "1120x800",
+    "640x560"
+  ],
+  "records": [
+    {
+      "kind": "Due",
+      "duration": 1.2506802,
+      "elapsed": 1.7758348,
+      "cancelled": false,
+      "complete": true
+    },
+    {
+      "kind": "Completed",
+      "duration": 1.25,
+      "elapsed": 1.5163545,
+      "cancelled": false,
+      "complete": true
+    },
+    {
+      "kind": "Due",
+      "duration": 1.2506802,
+      "elapsed": 0.1573528,
+      "cancelled": true,
+      "complete": false
+    },
+    {
+      "kind": "Completed",
+      "duration": 1.25,
+      "elapsed": 1.513297,
+      "cancelled": false,
+      "complete": true
+    },
+    {
+      "kind": "Due",
+      "duration": 1.2506802,
+      "elapsed": 0.1456405,
+      "cancelled": true,
+      "complete": false
+    },
+    {
+      "kind": "Due",
+      "duration": 1.2506802,
+      "elapsed": 1.513025,
+      "cancelled": false,
+      "complete": true
+    }
+  ]
+}

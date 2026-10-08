@@ -14,6 +14,81 @@ namespace Unfold.Tests;
 public class AppUpdateUiTests
 {
     [AvaloniaFact]
+    public async Task ReleaseNotesWrapInABoundedScrollAreaAndMissingNotesHaveAFallback()
+    {
+        using var scope = new Scope(); var backend = new UpdateTestBackend
+        { CheckResult = new("1.1.3-beta", new object(), "## 개선 사항\n- **업데이트 안내**\n" + new string('가', 20000)) };
+        using var updates = new AppUpdates(backend); await updates.Check();
+        var window = new UpdateWindow(updates, () => Task.FromResult(false)); window.Show();
+        var notes = window.GetVisualDescendants().OfType<TextBlock>().Single(t => t.Name == "UpdateReleaseNotes");
+        Assert.StartsWith("개선 사항\n- 업데이트 안내", notes.Text); Assert.True(notes.Text!.Length <= 12000);
+        Assert.Equal(Avalonia.Media.TextWrapping.Wrap, notes.TextWrapping);
+        Assert.Equal(220, notes.FindAncestorOfType<ScrollViewer>()!.MaxHeight);
+        backend.CheckResult = new("1.1.3-beta", new object()); await updates.Check();
+        Assert.Contains("변경 이력", notes.Text); window.Close();
+    }
+
+    [AvaloniaFact]
+    public async Task StartupWaitsForLoginRestorationThenShowsOneModalWithoutDownloading()
+    {
+        using var scope = new Scope(); var backend = new UpdateTestBackend();
+        var restore = new TaskCompletionSource<AccountSession?>();
+        var service = new FakeAccountService { RestoreSession = _ => restore.Task, Purchase = PurchaseAccess.Active };
+        scope.Runtime.AccountServiceFactory = () => service; scope.Runtime.SetUpdateBackend(backend);
+        var start = scope.Runtime.Start(false); await Wait(() => service.RestoreCalls == 1);
+        Assert.Null(scope.Runtime.ActiveUpdate); Assert.Null(scope.Runtime.ActiveAccount);
+        restore.SetResult(FakeAccountService.Session); await start;
+        var notice = Assert.IsType<UpdateWindow>(scope.Runtime.ActiveUpdate);
+        Assert.Same(scope.MainWindow, notice.Owner); Assert.True(notice.IsDialog);
+        Assert.Equal(0, backend.Downloads); Assert.Equal(0, backend.Applies);
+        notice.Close(); Assert.True(scope.MainWindow!.IsEnabled);
+        scope.Runtime.ShowSettings(); await scope.Runtime.Updates.Check(); Dispatcher.UIThread.RunJobs();
+        Assert.Null(scope.Runtime.ActiveUpdate);
+    }
+
+    [AvaloniaFact]
+    public async Task BackgroundStartupDefersALateUpdateUntilTheUserOpensTheApp()
+    {
+        using var scope = new Scope(); var backend = new UpdateTestBackend { CheckGate = new() };
+        scope.Runtime.AccountServiceFactory = () => new FakeAccountService
+        { RestoreSession = _ => Task.FromResult<AccountSession?>(FakeAccountService.Session), Purchase = PurchaseAccess.Active };
+        scope.Runtime.SetUpdateBackend(backend); await scope.Runtime.Start(true);
+        backend.CheckGate.SetResult(); await Wait(() => scope.Runtime.Updates.State == AppUpdateState.Available);
+        Assert.Null(scope.Runtime.ActiveUpdate); Assert.False(scope.MainWindow!.IsVisible);
+        scope.Runtime.ShowSettings(); Assert.IsType<UpdateWindow>(scope.Runtime.ActiveUpdate);
+        Assert.True(scope.Runtime.ActiveUpdate!.IsDialog);
+    }
+
+    [AvaloniaTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task CurrentOrFailedChecksDoNotInterruptStartup(bool failed)
+    {
+        using var scope = new Scope(); var backend = new UpdateTestBackend { CheckResult = null,
+            CheckFailure = failed ? new IOException("offline") : null };
+        scope.Runtime.AccountServiceFactory = () => new FakeAccountService(); scope.Runtime.SetUpdateBackend(backend);
+        await scope.Runtime.Start(false); Dispatcher.UIThread.RunJobs();
+        Assert.Null(scope.Runtime.ActiveUpdate); Assert.True(scope.Runtime.ActiveAccount!.IsEnabled);
+    }
+
+    [AvaloniaFact]
+    public async Task PendingUpdateIsAnnouncedOnTheLoginScreenWithoutRestarting()
+    {
+        using var scope = new Scope(); var backend = new UpdateTestBackend { Pending = new("1.0.4-beta", new object()) };
+        scope.Runtime.AccountServiceFactory = () => new FakeAccountService(); scope.Runtime.SetUpdateBackend(backend);
+        await scope.Runtime.Start(false);
+        var notice = Assert.IsType<UpdateWindow>(scope.Runtime.ActiveUpdate);
+        Assert.Same(scope.Runtime.ActiveAccount, notice.Owner); Assert.True(notice.IsDialog);
+        Assert.Equal("재시작하여 적용", Action(notice).Content); Assert.Equal(0, backend.Applies);
+    }
+
+    private static async Task Wait(Func<bool> ready)
+    {
+        for (var i = 0; i < 100 && !ready(); i++) { Dispatcher.UIThread.RunJobs(); await Task.Delay(10, TestContext.Current.CancellationToken); }
+        Dispatcher.UIThread.RunJobs(); Assert.True(ready());
+    }
+
+    [AvaloniaFact]
     public async Task UpdateWindowShowsProgressAndClosingItKeepsTheDownload()
     {
         using var scope = new Scope(); var backend = new UpdateTestBackend { DownloadGate = new() };
