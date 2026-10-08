@@ -14,10 +14,10 @@ $sentinel = Join-Path $env:UNFOLD_DATA_DIR 'preserved-user-data.txt'
 Set-Content $sentinel 'Update must preserve user settings, history and custom pets.'
 $sentinelHash = (Get-FileHash $sentinel -Algorithm SHA256).Hash
 $zip = Join-Path $scratch 'previous.zip'
-Invoke-WebRequest 'https://github.com/C-Caffe1ne/Unfold/releases/download/v1.1.0-beta/Unfold-v1.1.0-beta-win-x64-installer.zip' -OutFile $zip
-if ((Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne 'f528a895196ce4175cc8c1e5abc61403f4f9dedf71173ab23c2987703c82cc21') { throw 'Previous installer ZIP changed.' }
+Invoke-WebRequest 'https://github.com/C-Caffe1ne/Unfold/releases/download/v1.1.1-beta/Unfold-v1.1.1-beta-win-x64-installer.zip' -OutFile $zip
+if ((Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne 'c6f62c1cefa6c3018fb37176c99845705773f1abeded4c1d7eef86293897d2b7') { throw 'Previous installer ZIP changed.' }
 Expand-Archive $zip (Join-Path $scratch 'previous')
-$installer = Join-Path $scratch 'previous/Unfold-v1.1.0-beta-win-x64-setup.exe'
+$installer = Join-Path $scratch 'previous/Unfold-v1.1.1-beta-win-x64-setup.exe'
 $process = Start-Process $installer -ArgumentList '--silent' -PassThru
 if (-not $process.WaitForExit(120000) -or $process.ExitCode -ne 0) { throw 'Previous installer failed.' }
 $probe = Join-Path $scratch 'probe'
@@ -43,8 +43,8 @@ $metadata = [xml](Get-Content -Raw (Join-Path $installed 'current/sq.version'))
 $ns = [Xml.XmlNamespaceManager]::new($metadata.NameTable)
 $ns.AddNamespace('n', 'http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd')
 $version = $metadata.SelectSingleNode('/n:package/n:metadata/n:version', $ns).InnerText
-if ($version -ne '1.1.1-beta' -or -not $smoke.success -or $smoke.imageFiles -ne 100 -or $smoke.timerRefinements.version -ne 'Beta v1.1.1') { throw 'Updated version or native restart diagnostic failed.' }
+if ($version -ne '1.1.2-beta' -or -not $smoke.success -or $smoke.imageFiles -ne 100 -or $smoke.timerRefinements.version -ne 'Beta v1.1.2') { throw 'Updated version or native restart diagnostic failed.' }
 if ((Get-FileHash $sentinel -Algorithm SHA256).Hash -ne $sentinelHash) { throw 'Update changed existing user data.' }
 Copy-Item (Join-Path $env:UNFOLD_DATA_DIR 'verification') (Join-Path $evidence 'verification') -Recurse
-@{ success = $true; runtime = 'win-x64'; fromVersion = '1.1.0-beta'; version = $version; realAppUpdatesPrepareApply = $true; applicationReplaced = $true; restartedWithDiagnosticArgument = $true; userDataPreserved = $true; smokeSuccess = $smoke.success; smokeImages = $smoke.imageFiles } | ConvertTo-Json | Set-Content (Join-Path $evidence 'result.json')
-Write-Output 'PASS: public 1.1.0 -> 1.1.1, real Update.exe apply/restart, 100 native diagnostic captures, preserved user data.'
+@{ success = $true; runtime = 'win-x64'; fromVersion = '1.1.1-beta'; version = $version; realAppUpdatesPrepareApply = $true; applicationReplaced = $true; restartedWithDiagnosticArgument = $true; userDataPreserved = $true; smokeSuccess = $smoke.success; smokeImages = $smoke.imageFiles } | ConvertTo-Json | Set-Content (Join-Path $evidence 'result.json')
+Write-Output 'PASS: public 1.1.1 -> 1.1.2, real Update.exe apply/restart, 100 native diagnostic captures, preserved user data.'

@@ -1,4 +1,4 @@
-name: Beta v1.1.1 Windows update QA
+name: Beta v1.1.2 Windows update QA
 on:
   push:
     branches: [codex/remove-unused-features]

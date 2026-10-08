@@ -18,6 +18,6 @@
 - macOS 실제 Avalonia 창에서 네 테마의 모달 표시·소유 창·긴 변경내역·가로 넘침 없음, 닫은 후 중복 없음, 자동 다운로드·재시작 없음 확인. 모달 크기 440×477, 변경내역 영역 392×220.
 - 격리된 새 `UNFOLD_DATA_DIR`와 합성 새 버전 피드를 사용했다. 실제 키보드·마우스 입력 검사는 아니다. 공개 배포와 실제 업데이트 적용은 별도 릴리스 검증 기록에 남긴다.
 
-![라일락 시작 업데이트 안내](images/2026-10-08-startup-updates/plum-startup.png)
+![라일락 시작 업데이트 안내](images/2026-10-08-startup-updates/Plum-startup.png)
 
 [네 테마 native 결과](images/2026-10-08-startup-updates/native-result.json)
