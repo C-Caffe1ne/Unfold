@@ -14,13 +14,13 @@ public class CustomPetDraftTests
     internal static string Fixture(string name = "pet-motion.gif") => Path.Combine(AppContext.BaseDirectory, "Fixtures", name);
     private static ImportedPetClip Clip() => ImportedPetClip.FromGif("my pet.gif", File.ReadAllBytes(Fixture()));
     [Fact]
-    public void EightActionsExportReopenInstallAndPreserveGifTimingAndPixels()
+    public void SupportedActionsExportReopenInstallAndPreserveGifTimingAndPixels()
     {
         using var temp = new TempDirectory(); var draft = new CustomPetDraft(); var clip = Clip();
         foreach (var action in CustomPetDraft.Actions) draft.SetClip(action, clip);
         var output = Path.Combine(temp.Path, "보리.unfoldpet"); draft.Export("나의 보리", output);
         using var pack = CharacterPack.Open(output);
-        Assert.Equal("나의 보리", pack.Character.Manifest.Name); Assert.Equal(8, pack.Character.Manifest.Animations.Count);
+        Assert.Equal("나의 보리", pack.Character.Manifest.Name); Assert.Equal(CustomPetDraft.Actions.Count, pack.Character.Manifest.Animations.Count);
         var library = new CharacterLibrary(Path.Combine(temp.Path, "library")); Assert.Empty(library.List());
         var installed = library.Install(pack, null);
         foreach (var key in CustomPetDraft.Actions)
@@ -39,13 +39,13 @@ public class CustomPetDraftTests
     {
         using var temp = new TempDirectory(); var draft = new CustomPetDraft();
         foreach (var key in CustomPetDraft.Actions) draft.SetClip(key, Clip());
-        draft.SetPlayback("idle", 0); draft.SetPlayback("attention", 2); draft.SetPlayback("stretch", 1); draft.SetPlayback("click", 1); draft.SetPlayback("hover", 1); draft.SetPlayback("pointerUp", 2);
+        draft.SetPlayback("idle", 0); draft.SetPlayback("attention", 2); draft.SetPlayback("stretch", 1); draft.SetPlayback("click", 1); draft.SetPlayback("celebrate", 1); draft.SetPlayback("pointerUp", 2);
         var path = Path.Combine(temp.Path, "modes.unfoldpet"); draft.Export("재생 설정", path);
         using var pack = CharacterPack.Open(path);
         var library = new CharacterLibrary(Path.Combine(temp.Path, "library"));
         var installed = library.Install(pack, null);
         Assert.False(installed.Manifest.Animations["idle"].Loop);
-        Assert.True(installed.Manifest.Animations["hover"].Loop);
+        Assert.True(installed.Manifest.Animations["celebrate"].Loop);
         Assert.True(installed.Manifest.Animations["attention"].PingPong);
         Assert.True(installed.Manifest.Animations["stretch"].Loop);
         Assert.True(installed.Manifest.Animations["click"].Loop);
@@ -303,7 +303,7 @@ public class CustomPetWindowTests
             window.Width = 1400; window.Height = 1600;
             Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
             PageBodyScrollGeometry.KeepsFullWidthWithoutScrollBar(window);
-            Assert.Equal(8, Find<StackPanel>(window, "CustomPetActionSlots").Children.Count);
+            Assert.Equal(CustomPetDraft.Actions.Count, Find<StackPanel>(window, "CustomPetActionSlots").Children.Count);
         }
         finally { window.Close(); }
     }

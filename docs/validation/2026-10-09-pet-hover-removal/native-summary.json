@@ -1,0 +1,224 @@
+{
+  "sample_interval_ms": 100,
+  "pets": {
+    "default-cat": {
+      "idle": {
+        "painted_pointer_samples": 530,
+        "running_samples": 530,
+        "frame_indices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "anchor_count": 1,
+        "first_anchor": "417, 419",
+        "last_anchor": "417, 419"
+      },
+      "sleep": {
+        "painted_pointer_samples": 53,
+        "running_samples": 53,
+        "frame_indices": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13
+        ],
+        "anchor_count": 1,
+        "first_anchor": "417, 419",
+        "last_anchor": "417, 419"
+      },
+      "stretch": {
+        "painted_pointer_samples": 15,
+        "running_samples": 15,
+        "frame_indices": [
+          0,
+          3,
+          4,
+          5,
+          6,
+          8
+        ],
+        "anchor_count": 1,
+        "first_anchor": "417, 419",
+        "last_anchor": "417, 419"
+      },
+      "walk": {
+        "painted_pointer_samples": 32,
+        "running_samples": 32,
+        "frame_indices": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "anchor_count": 32,
+        "first_anchor": "418, 418",
+        "last_anchor": "483, 339"
+      },
+      "yawn": {
+        "painted_pointer_samples": 18,
+        "running_samples": 18,
+        "frame_indices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "anchor_count": 1,
+        "first_anchor": "417, 419",
+        "last_anchor": "417, 419"
+      }
+    },
+    "glb": {
+      "idle": {
+        "painted_pointer_samples": 151,
+        "running_samples": 151,
+        "frame_indices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60,
+          61,
+          62,
+          63,
+          64
+        ],
+        "anchor_count": 1,
+        "first_anchor": "417, 419",
+        "last_anchor": "417, 419"
+      },
+      "walk": {
+        "painted_pointer_samples": 9,
+        "running_samples": 9,
+        "frame_indices": [
+          1,
+          3,
+          4,
+          7,
+          9,
+          10,
+          12,
+          14,
+          16
+        ],
+        "anchor_count": 9,
+        "first_anchor": "418, 419",
+        "last_anchor": "440, 413"
+      }
+    }
+  },
+  "transparent_background": {
+    "samples": 247,
+    "native_local_point": "2, 4",
+    "click_counts": [
+      0,
+      1
+    ],
+    "before": {
+      "at": "2026-10-09T06:35:28.734784+00:00",
+      "id": "default-cat",
+      "motion": "idle",
+      "IsRoaming": false,
+      "frame": 1,
+      "running": true,
+      "IsPointerOver": true,
+      "IsClickThrough": true,
+      "bubble": false,
+      "anchor": "517, 508",
+      "position": "517, 506",
+      "size": "524, 196",
+      "clicks": 0,
+      "pointer": "2, 4",
+      "accepts": false
+    },
+    "after": {
+      "at": "2026-10-09T06:35:44.975638+00:00",
+      "id": "default-cat",
+      "motion": "idle",
+      "IsRoaming": false,
+      "frame": 2,
+      "running": true,
+      "IsPointerOver": true,
+      "IsClickThrough": true,
+      "bubble": false,
+      "anchor": "517, 508",
+      "position": "517, 506",
+      "size": "524, 196",
+      "clicks": 1,
+      "pointer": "2, 4",
+      "accepts": false
+    }
+  }
+}

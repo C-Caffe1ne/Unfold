@@ -13,7 +13,7 @@ public sealed class PetDockPlacementTests
     [InlineData(2560, 1440, 288)]
     [InlineData(3008, 1692, 192)]
     [InlineData(3840, 2160, 288)]
-    public void MacDockDropHoverAndWalkingKeepThePetAtItsScreenAnchor(int width, int height, double petSize)
+    public void MacDockDropReminderAndWalkingKeepThePetAtItsScreenAnchor(int width, int height, double petSize)
     {
         // A 4K panel can expose several logical desktop sizes. macOS positions
         // use DesktopScaling=1 even when Retina rendering uses twice the pixels.
@@ -35,8 +35,9 @@ public sealed class PetDockPlacementTests
             Assert.Equal(anchor, collapsed.Position(anchor, 1, area));
             foreach (var preferred in Enum.GetValues<BubbleDirection>())
             {
-                var hover = PetBubbleLayout.CreateHover(preferred, anchor, 1, area, petSize);
-                AssertAnchoredAndVisible(hover, anchor, 1, area);
+                var reminder = PetBubbleLayout.CreateExpanded(preferred, anchor, 1, area, petSize,
+                    DesignSystem.SpeechInvitationHeight, DesignSystem.SpeechBubbleWidth);
+                AssertAnchoredAndVisible(reminder, anchor, 1, area);
             }
             var motion = new PetWanderMotion(new Random(42));
             var next = motion.Step(anchor, new Size(petSize, petSize), area, 1, .04);

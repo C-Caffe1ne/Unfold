@@ -1,0 +1,30 @@
+{
+  "total": "803",
+  "passed": "799",
+  "failed": "4",
+  "skipped": "0",
+  "time": "118.856",
+  "errors": "0",
+  "failures": [
+    {
+      "name": "Unfold.Tests.CustomPetDraftTests.EightActionsExportReopenInstallAndPreserveGifTimingAndPixels",
+      "type": "Xunit.Sdk.EqualException",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 8\nActual:   7"
+    },
+    {
+      "name": "Unfold.Tests.AccountLoopbackTests.CancelledBrowserCallbackReturnsToLoginAndDisposalReleasesPort",
+      "type": "System.Net.Sockets.SocketException",
+      "message": "System.Net.Sockets.SocketException : Permission denied"
+    },
+    {
+      "name": "Unfold.Tests.AccountLoopbackTests.OnlyExactLocalCallbackIsAcceptedAndNothingSecretIsEchoed",
+      "type": "System.Net.Sockets.SocketException",
+      "message": "System.Net.Sockets.SocketException : Permission denied"
+    },
+    {
+      "name": "Unfold.Tests.CustomPetWindowTests.SelectedActionFitsWithoutHorizontalScrollingAtEverySupportedWidth",
+      "type": "Xunit.Sdk.EqualException",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 8\nActual:   7"
+    }
+  ]
+}

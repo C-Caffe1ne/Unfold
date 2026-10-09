@@ -57,10 +57,10 @@ public class PetBuilderTests
         await editor.Open(editor.GlbPath);
         Assert.DoesNotContain(editor.Window.GetVisualDescendants().OfType<Control>(), c => c.Name == "PetBuilderFormat");
         editor.Find<TextBox>("GlbPetName").Text = "모델 펫";
-        editor.Find<ComboBox>("GlbHeading_idle").SelectedIndex = 1;
+        editor.Find<NumericUpDown>("GlbRotationY").Value = 90;
         editor.Page.IsVisible = false; editor.Layout(); editor.Page.IsVisible = true; editor.Layout();
         Assert.Equal("모델 펫", editor.Find<TextBox>("GlbPetName").Text);
-        Assert.Equal(1, editor.Find<ComboBox>("GlbHeading_idle").SelectedIndex);
+        Assert.Equal(90, editor.Find<NumericUpDown>("GlbRotationY").Value);
         // Opening another media action restores that format's existing name and idle mapping.
         mediaAction.SelectedItem = "click";
         await editor.Open(CustomPetDraftTests.Fixture());
@@ -98,7 +98,7 @@ public class PetBuilderTests
     {
         using var editor = new Editor(); await editor.Open(editor.GlbPath);
         editor.Find<TextBox>("GlbPetName").Text = "내 GLB 펫";
-        editor.Find<ComboBox>("GlbHeading_idle").SelectedIndex = 2;
+        editor.Find<NumericUpDown>("GlbRotationY").Value = 180;
         editor.Find<ComboBox>("GlbPreviewAction").SelectedItem = "click";
         editor.Find<ComboBox>("GlbClip_click").SelectedItem = "Idle";
         editor.Find<ComboBox>("GlbRepeat_click").SelectedIndex = 1;
@@ -115,7 +115,7 @@ public class PetBuilderTests
         using (var pack = CharacterPack.Open(output!))
         {
             Assert.True(pack.Character.IsGlb); Assert.Equal(180, pack.Character.Manifest.Animations["idle"].Heading);
-            Assert.Equal(0, pack.Character.Manifest.Animations["click"].Heading);
+            Assert.Equal(0, pack.Character.Manifest.Animations["click"].Heading ?? 0);
             Assert.Equal("내 GLB 펫", pack.Character.Manifest.Name);
             Assert.True(pack.Character.Manifest.Animations["click"].Loop);
             Assert.Equal(.5, pack.Character.Manifest.Animations["click"].Speed);

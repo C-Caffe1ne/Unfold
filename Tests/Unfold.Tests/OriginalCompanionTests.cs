@@ -280,8 +280,7 @@ public class OriginalCompanionTests
         pet.AdvanceCompanion(.25);
         pet.MouseUp(point, MouseButton.Left);
         Assert.Equal(PetPointerPhase.None, pet.PointerPhase);
-        // A newly selected custom pet may enter its own hover clip under the
-        // stationary pointer. The cancelled press must not trigger any press/release clip.
+        // The cancelled press must not trigger a reaction in the newly selected pet.
         Assert.DoesNotContain(pet.ActiveAnimation, new[] { "click", "pickup", "held", "land", "pointerDown", "pointerUp" });
         if (reason == "change") await Until(() => pet.ActiveAnimation == "idle");
         Assert.Equal("idle", pet.ActiveAnimation);
@@ -446,7 +445,7 @@ public class OriginalCompanionTests
     }
 
     [AvaloniaFact]
-    public async Task HidingAndChangingPetCancelPendingBehaviorsAndCustomPetsKeepFiveActions()
+    public async Task HidingAndChangingPetCancelPendingBehaviorsAndCustomPetsKeepSupportedActions()
     {
         using var scope = new Scope(); await scope.Select(original: true); var pet = scope.Pet;
         await scope.Runtime.ShowReminder(); scope.Runtime.StartBreak();
@@ -457,7 +456,7 @@ public class OriginalCompanionTests
         Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
         pet.ReleaseCompanionPress(true); pet.AdvanceCompanion(.2);
         Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
-        Assert.Equal(new[] { "idle", "attention", "stretch", "celebrate", "click", "hover", "pointerDown", "pointerUp" }, CustomPetDraft.Actions);
+        Assert.Equal(new[] { "idle", "attention", "stretch", "celebrate", "click", "pointerDown", "pointerUp" }, CustomPetDraft.Actions);
         scope.Runtime.Stop(); await scope.Runtime.ShowReminder(); scope.Runtime.StartBreak();
         await Until(() => pet.ActiveAnimation == "idle"); Assert.False(pet.IsRoaming);
         Assert.Equal("idle", pet.ActiveAnimation);

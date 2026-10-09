@@ -75,7 +75,7 @@ public sealed partial class PetWindow
             SetPointerClip(1, PetPointerPhase.Held);
         else if (PointerPhase == PetPointerPhase.Recovering)
             FinishPointerArt(clicked: false);
-        else if (PointerPhase == PetPointerPhase.None && ActiveAnimation == "walk" && runtime.Selected?.IsGlb == true)
+        else if (PointerPhase == PetPointerPhase.None && ActiveAnimation == "walk")
         {
             walkingSession = null; wander.Reset(); _ = RestoreBaseAnimation(InvalidatePlayback());
         }
@@ -87,7 +87,7 @@ public sealed partial class PetWindow
         InvalidatePlayback(); CancelCompanionPose();
         if (deferred is { } next && runtime.PresentedReminder.Session == next.Session && runtime.PresentedReminder.Notice == next.Notice)
             _ = React(next.Key);
-        else if (clicked) _ = React();
+        else if (clicked && runtime.Selected?.Manifest.Animations.ContainsKey("click") == true) _ = React();
         else _ = RestoreBaseAnimation(generation);
     }
 

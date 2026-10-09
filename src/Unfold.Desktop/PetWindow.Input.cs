@@ -34,7 +34,6 @@ public sealed partial class PetWindow
     internal void UpdateClickThrough()
     {
         if (!TryGetNativePointer(out var point)) return;
-        UpdateHover(PetPoint(point));
         var ignore = !AcceptsPointerAt(point);
         if (OperatingSystem.IsWindows())
         {

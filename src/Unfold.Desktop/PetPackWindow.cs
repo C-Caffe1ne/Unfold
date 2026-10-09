@@ -116,7 +116,7 @@ internal sealed class PetPackView : UserControl, IDisposable
     {
         "idle" => "기본", "attention" => "알림", "stretch" => "휴식",
         "celebrate" => "휴식 완료", "click" => "클릭 반응", "sleep" => "잠자기",
-        "look" => "두리번거리기", "yawn" => "하품", "sulk" => "삐지기", "walk" => "걷기", "hover" => "마우스 호버", "pointerDown" => "마우스 눌림", "pointerUp" => "마우스 뗌", _ => key ?? ""
+        "look" => "두리번거리기", "yawn" => "하품", "sulk" => "삐지기", "walk" => "걷기", "pointerDown" => "마우스 눌림", "pointerUp" => "마우스 뗌", _ => key ?? ""
     };
     private void UpdatePlayback()
     {
@@ -175,7 +175,7 @@ internal sealed class PetPackView : UserControl, IDisposable
             title.Text = pack.Character.Manifest.Name;
             packInfo.IsVisible = true;
             version.Text = $"버전 {pack.ContentVersion}" + (info.InstalledVersion is { } current ? $" · 설치된 버전 {current}" : " · 새로운 펫");
-            clips.ItemsSource = pack.Character.Manifest.Animations.Keys.Order().ToArray(); clips.SelectedItem = "idle"; clips.IsEnabled = true;
+            clips.ItemsSource = pack.Character.Manifest.Animations.Keys.Where(key => key != "hover").Order().ToArray(); clips.SelectedItem = "idle"; clips.IsEnabled = true;
             status.Text = info.Action switch
             {
                 "Update" => "업데이트 준비 완료", "Reinstall" => "재설치 준비 완료", "Replace" => "교체 준비 완료", _ => "저장 준비 완료"

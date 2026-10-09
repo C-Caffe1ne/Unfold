@@ -1,0 +1,70 @@
+{
+  "total": "12",
+  "passed": "0",
+  "failed": "12",
+  "skipped": "0",
+  "time": "10.271",
+  "errors": "0",
+  "failures": [
+    {
+      "name": "Unfold.Tests.PetMotionContinuationTests.StretchAndWalkKeepPlayingUnderThePointerAndTransparentBackground(kind: \\\"original\\\")",
+      "type": "Xunit.Sdk.TrueException",
+      "message": "Assert.True() Failure\nExpected: True\nActual:   False"
+    },
+    {
+      "name": "Unfold.Tests.PetMotionContinuationTests.StretchAndWalkKeepPlayingUnderThePointerAndTransparentBackground(kind: \\\"glb\\\")",
+      "type": "Xunit.Sdk.TrueException",
+      "message": "Assert.True() Failure\nExpected: True\nActual:   False"
+    },
+    {
+      "name": "Unfold.Tests.PetMotionContinuationTests.PointerEntryNeverShowsHoverOrReplacesTheCurrentMotion(kind: \\\"media\\\")",
+      "type": "Xunit.Sdk.EqualException",
+      "message": "Assert.Equal() Failure: Strings differ\n           ↓ (pos 0)\nExpected: \\\"idle\\\"\nActual:   \\\"hover\\\"\n           ↑ (pos 0)"
+    },
+    {
+      "name": "Unfold.Tests.PetMotionContinuationTests.PointerEntryNeverShowsHoverOrReplacesTheCurrentMotion(kind: \\\"original\\\")",
+      "type": "Xunit.Sdk.FalseException",
+      "message": "Assert.False() Failure\nExpected: False\nActual:   True"
+    },
+    {
+      "name": "Unfold.Tests.PetMotionContinuationTests.PointerEntryNeverShowsHoverOrReplacesTheCurrentMotion(kind: \\\"glb\\\")",
+      "type": "Xunit.Sdk.EqualException",
+      "message": "Assert.Equal() Failure: Strings differ\n           ↓ (pos 0)\nExpected: \\\"idle\\\"\nActual:   \\\"hover\\\"\n           ↑ (pos 0)"
+    },
+    {
+      "name": "Unfold.Tests.PetMotionContinuationTests.PointerEntryNeverShowsHoverOrReplacesTheCurrentMotion(kind: \\\"default-cat\\\")",
+      "type": "Xunit.Sdk.FalseException",
+      "message": "Assert.False() Failure\nExpected: False\nActual:   True"
+    },
+    {
+      "name": "Unfold.Tests.PetMotionContinuationTests.PointerEntryNeverShowsHoverOrReplacesTheCurrentMotion(kind: \\\"bori-rabbit\\\")",
+      "type": "Xunit.Sdk.FalseException",
+      "message": "Assert.False() Failure\nExpected: False\nActual:   True"
+    },
+    {
+      "name": "Unfold.Tests.PetMotionContinuationTests.PointerEntryNeverShowsHoverOrReplacesTheCurrentMotion(kind: \\\"puppy-dog\\\")",
+      "type": "Xunit.Sdk.FalseException",
+      "message": "Assert.False() Failure\nExpected: False\nActual:   True"
+    },
+    {
+      "name": "Unfold.Tests.PetMotionContinuationTests.PointerEntryNeverShowsHoverOrReplacesTheCurrentMotion(kind: \\\"hedgehog\\\")",
+      "type": "Xunit.Sdk.FalseException",
+      "message": "Assert.False() Failure\nExpected: False\nActual:   True"
+    },
+    {
+      "name": "Unfold.Tests.PetMotionContinuationTests.PointerEntryNeverShowsHoverOrReplacesTheCurrentMotion(kind: \\\"penguin\\\")",
+      "type": "Xunit.Sdk.FalseException",
+      "message": "Assert.False() Failure\nExpected: False\nActual:   True"
+    },
+    {
+      "name": "Unfold.Tests.PetMotionContinuationTests.ClickWithoutAClickClipStillRestoresAPendingIdleAfterACompletedMotion",
+      "type": "Xunit.Sdk.TrueException",
+      "message": "Pet motion did not continue or restore its base animation."
+    },
+    {
+      "name": "Unfold.Tests.PetMotionContinuationTests.AOneShotSpriteWalkReturnsToIdleAfterItsLastFrame",
+      "type": "Xunit.Sdk.TrueException",
+      "message": "Pet motion did not continue or restore its base animation."
+    }
+  ]
+}

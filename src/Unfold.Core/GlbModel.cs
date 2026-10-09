@@ -5,7 +5,15 @@ using System.Text.Json;
 namespace Unfold.Core;
 
 public sealed record GlbClipInfo(string Name, double Duration);
-public sealed record GlbDefinition(string File, float Heading = 0, string? RootNode = null);
+public sealed record GlbDefinition(string File, float Heading = 0, string? RootNode = null, GlbRotation? Rotation = null)
+{
+    [System.Text.Json.Serialization.JsonIgnore] public GlbRotation EffectiveRotation => Rotation ?? new(0, Heading, 0);
+    public GlbDefinition ForAnimation(AnimationDefinition animation) => this with
+    {
+        Heading = animation.Heading ?? Heading,
+        Rotation = animation.Rotation ?? (animation.Heading is not null ? null : Rotation)
+    };
+}
 
 /// <summary>Bounded, embedded glTF 2.0 reader. No URI, script or network execution.</summary>
 public sealed partial class GlbModel

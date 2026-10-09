@@ -1,0 +1,22 @@
+{
+  "rotation": {
+    "X": 25,
+    "Y": -40,
+    "Z": 30
+  },
+  "rendered": {
+    "X": 25,
+    "Y": -40,
+    "Z": 30
+  },
+  "size": 224,
+  "width": 1120,
+  "height": 800,
+  "draftChanged": false,
+  "profile": "/private/tmp/unfold-glb-xyz-native-20261009/profile-901dc5309d3242cb95c90d4143834ed1",
+  "installedRotation": {
+    "X": 25,
+    "Y": -40,
+    "Z": 30
+  }
+}

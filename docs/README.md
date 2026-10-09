@@ -1,6 +1,6 @@
 # 문서 안내
 
-현재 제품은 **C#·Avalonia 기반 Unfold Beta**다. 2026-10-08 현재 버전은 **Beta v1.1.2** (`1.1.2-beta`, 배포 소스 `ce86c7b`)이며, 작업 경로는 `/Users/hwanghyeonseong/Documents/GitHub/Unfold/.worktrees/remove-unused-features`, 브랜치는 `codex/remove-unused-features`다.
+현재 제품은 **C#·Avalonia 기반 Unfold Beta**다. 2026-10-09 현재 개발 버전은 **Beta v1.1.3** (`1.1.3-beta`, [변경내용](releases/v1.1.3-beta.md))이며, 작업 경로는 `/Users/hwanghyeonseong/Documents/GitHub/Unfold/.worktrees/remove-unused-features`, 브랜치는 `codex/remove-unused-features`다.
 최신 공개 배포본은 `v1.1.2-beta` (소스 `ce86c7b`)다. 설치 파일·업데이트 채널·웹 반영과 실제 Mac/Windows 업데이트 결과는 [배포 검증](validation/2026-10-08-beta-v1.1.2-release.md)에 기록한다.
 
 ## 현재 사용 안내
@@ -23,6 +23,8 @@
 
 | 문서 | 역할 |
 |---|---|
+| [Beta v1.1.3 커밋 검증](validation/2026-10-09-beta-v1.1.3-commit.md) | GLB XYZ 회전·저장, 탭 이름, 펫 호버·모션 수정의 커밋 범위와 버전 변경 후 56개 검사 |
+| [펫 호버 제거·모션 복귀 검증](validation/2026-10-09-pet-hover-removal.md) | 모든 펫의 호버 반응 제거, 투명 배경 입력 통과, 스트레칭·걷기 지속과 803개 검사·macOS 실제 입력 확인 |
 | [Beta v1.1.2 배포·업데이트 검증](validation/2026-10-08-beta-v1.1.2-release.md) | Mac 서명·공증, Windows native CI, 세 공개 업데이트 채널, 실제 1.1.1→1.1.2 교체·재시작과 웹 반영 |
 | [툴팁·아이콘·글자 테마 색상 검증](validation/2026-10-08-theme-control-colors.md) | 밝은 테마 전환의 이전 색 잔류·입력 안내·비활성 색 보완, 네 테마의 macOS 기본·최소 창과 열린 툴팁 확인 |
 | [소리 설정 수정 검증](validation/2026-10-08-sound-settings.md) | 세 음량 %·OGG 지원·미리듣기 자연 종료, 784개 검사와 macOS 네이티브 재생·최소 창 확인 |

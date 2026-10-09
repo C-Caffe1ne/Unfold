@@ -177,35 +177,8 @@ public class TimerRefinementTests
         Assert.Equal(1, await result);
     }
 
-    [AvaloniaTheory]
-    [InlineData(0, "오전 12:00")] [InlineData(11, "오전 11:00")]
-    [InlineData(12, "오후 12:00")] [InlineData(23, "오후 11:00")]
-    public void BubbleClockUsesKoreanTwelveHourTimeAndAnimatesOnlyWhenTextChanges(int hour, string expected)
-    {
-        var bubble = new PetSpeechBubble(() => { }, () => { }, () => { });
-        var window = new Window { Content = bubble, SizeToContent = SizeToContent.WidthAndHeight };
-        var clock = new StretchClock(TimeSpan.FromMinutes(1)); clock.Start(TimeSpan.Zero);
-        var now = new DateTime(2026, 10, 5, hour, 0, 0); bubble.RefreshHover(now, clock);
-        try
-        {
-            window.Show(); Layout(window);
-            var time = Find<AnimatedTimeText>(window, "PetHoverTime");
-            var remaining = Find<AnimatedCountdown>(window, "PetHoverRemaining");
-            Assert.Equal(expected, time.Text); Assert.False(time.HasMotion);
-            clock.Tick(TimeSpan.FromSeconds(1), TimeSpan.Zero, TimeSpan.FromMinutes(5));
-            bubble.RefreshHover(now.AddSeconds(1), clock);
-            Assert.Equal(expected, time.Text); Assert.False(time.HasMotion); Assert.True(remaining.HasDigitMotion);
-            var size = window.ClientSize;
-            bubble.RefreshHover(now.AddMinutes(1), clock); Assert.True(time.HasMotion);
-            bubble.RefreshHover(now.AddMinutes(1), clock); Assert.True(time.HasMotion);
-            Layout(window); Assert.Equal(size, window.ClientSize);
-            bubble.IsVisible = false; Assert.False(time.HasMotion); Assert.False(remaining.HasDigitMotion);
-        }
-        finally { window.Close(); }
-    }
-
     [AvaloniaFact]
-    public void RestTimerAnimatesButDetachAndHoverStopItsFrameTimer()
+    public void RestTimerAnimatesButHidingAndDetachStopItsFrameTimer()
     {
         var reminder = new PetReminder(); reminder.Invite(new(BreakRoutines.All[0], "default-cat")); reminder.Start(TimeSpan.Zero);
         var bubble = new PetSpeechBubble(() => { }, () => { }, () => { }); bubble.Refresh(reminder, 5);
@@ -215,7 +188,7 @@ public class TimerRefinementTests
             window.Show(); Layout(window); var text = Find<AnimatedTimeText>(window, "PetBreakTimer");
             reminder.Tick(TimeSpan.FromSeconds(1)); bubble.Refresh(reminder, 5);
             Assert.Equal("00:59", text.Text); Assert.True(text.HasMotion);
-            bubble.RefreshHover(DateTime.Now, new StretchClock(TimeSpan.FromMinutes(1))); Assert.False(text.HasMotion);
+            bubble.IsVisible = false; Assert.False(text.HasMotion); bubble.IsVisible = true;
             bubble.Refresh(reminder, 5); reminder.Tick(TimeSpan.FromSeconds(2)); bubble.Refresh(reminder, 5);
             Assert.True(text.HasMotion); window.Content = null; Assert.False(text.HasMotion);
         }

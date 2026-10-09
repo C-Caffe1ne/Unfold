@@ -42,8 +42,6 @@ public sealed partial class PetWindow : Window
     private IPointer? pressedPointer;
     private Avalonia.PixelPoint dragAnchor;
     private bool dragging, clickThrough;
-    private bool hoveringPet;
-    private bool ShowingHover => hoveringPet && IsVisible && ContextMenu?.IsOpen != true && !runtime.PresentedReminder.HasNotice;
     private long pressedAt;
     private int generation;
     private CancellationTokenSource? reactionCancellation;
@@ -70,16 +68,7 @@ public sealed partial class PetWindow : Window
         menu.Items.Add(settings); menu.Items.Add(hide); ContextMenu = menu;
         menu.Opened += (_, _) => { RefreshSpeech(); UpdateClickThrough(); };
         menu.Closed += (_, _) => { RefreshSpeech(); UpdateClickThrough(); };
-        // Track hover in stationary window coordinates so animation frames
-        // cannot repeatedly open and close the hover surface.
-        PointerEntered += (_, e) => UpdateHover(PetPoint(e.GetPosition(this)));
-        PointerMoved += (_, e) => { UpdateHover(PetPoint(e.GetPosition(this))); UpdateClickThrough(); };
-        PointerExited += (_, _) =>
-        {
-            // Native click-through can generate Exit while still over a
-            // transparent pixel inside the pet. Keep hover geometry stable.
-            UpdateHover(TryGetNativePointer(out var point) ? PetPoint(point) : null);
-        };
+        PointerMoved += (_, _) => UpdateClickThrough();
         AddHandler(PointerPressedEvent, (_, e) => interactionPointer = e.Pointer, Avalonia.Interactivity.RoutingStrategies.Tunnel);
         AddHandler(PointerReleasedEvent, (_, _) => interactionPointer = null, Avalonia.Interactivity.RoutingStrategies.Bubble, handledEventsToo: true);
         animation.PointerPressed += (_, e) =>
@@ -109,7 +98,7 @@ public sealed partial class PetWindow : Window
             var clicked = !dragging && Stopwatch.GetElapsedTime(pressedAt).TotalSeconds < PetPose.LiftDelay;
             down = null; pressedPointer = null; e.Pointer.Capture(null); ClampPosition(); runtime.SavePosition(PetAnchor);
             var handled = ReleaseCompanionPress(clicked);
-            UpdateHover(PetPoint(e.GetPosition(this))); RefreshSpeech();
+            RefreshSpeech();
             if (!HasOriginalBehavior && runtime.Selected?.Manifest.Animations.ContainsKey("pointerUp") == true) await React("pointerUp");
             else
             {
@@ -123,7 +112,6 @@ public sealed partial class PetWindow : Window
             down = null; pressedPointer = null; dragging = false;
             CancelCompanionPress();
             if (!HasOriginalBehavior && ActiveAnimation == "pointerDown") _ = RestoreBaseAnimation(InvalidatePlayback());
-            UpdateHover(null);
         };
         hitTimer.Tick += (_, _) => { UpdateClickThrough(); TickCompanion(); };
         Opened += (_, _) =>
@@ -133,7 +121,7 @@ public sealed partial class PetWindow : Window
             Position = runtime.Settings.PetX is int x && runtime.Settings.PetY is int y ? new(x, y) : new(work.Right - (int)(Width * DesktopScaling) - 24, work.Bottom - (int)(Height * DesktopScaling) - 24);
             ClampPosition(); hitTimer.Start();
         };
-        Closed += (_, _) => { hoveringPet = false; InvalidatePlayback(); ResetCompanion(); hitTimer.Stop(); animation.Dispose(); };
+        Closed += (_, _) => { InvalidatePlayback(); ResetCompanion(); hitTimer.Stop(); animation.Dispose(); };
     }
     public async Task SetCharacter()
     {
@@ -168,7 +156,7 @@ public sealed partial class PetWindow : Window
         try
         {
             var selected = runtime.Selected;
-            if (!IsVisible) return;
+            if (!IsVisible || preferred == "hover") return; // Older packs may still contain this retired event.
             if (DeferPointerReaction(preferred)) return;
             // Stretch belongs to reminders. A plain click reacts only when the character
             // ships a click clip, and otherwise leaves the idle loop alone — so the early
@@ -189,12 +177,14 @@ public sealed partial class PetWindow : Window
             ActiveAnimation = key; reacting = true; idleSchedule.Reset();
             var completed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
             void Finished() => completed.TrySetResult();
-            animation.Completed += Finished;
             try
             {
                 var frames = await runtime.Clip(key); if (current != generation) return;
                 animation.SetRunning(true);
                 var definition = selected.Manifest.Animations[key];
+                // Only this reaction's frames may complete its wait; the old clip
+                // can finish while the new clip is still decoding.
+                animation.Completed += Finished;
                 animation.SetFrames(frames, (selected.IsGlb || !selected.HasOriginalBehavior) && definition.Loop, selected.Manifest.RenderStyle == "pixel", selected.HasOriginalBehavior, definition.PingPong);
                 await completed.Task.WaitAsync(cancellation.Token);
                 if (current != generation) return;
@@ -232,29 +222,22 @@ public sealed partial class PetWindow : Window
         Show(); RefreshSpeech(); UpdateClickThrough(); lastCompanionTick = Stopwatch.GetTimestamp(); hitTimer.Start(); animation.SetRunning(true);
         if (originalStretchSession is not null && !reacting && !pressed) _ = React("stretch");
     }
-    public void HidePet() { hoveringPet = false; InvalidatePlayback(); ResetCompanion(); character = null; Hide(); hitTimer.Stop(); animation.SetRunning(false); RefreshSpeech(); }
+    public void HidePet() { InvalidatePlayback(); ResetCompanion(); character = null; Hide(); hitTimer.Stop(); animation.SetRunning(false); RefreshSpeech(); }
     public void ClosePet() { InvalidatePlayback(); ResetCompanion(); hitTimer.Stop(); Close(); }
     internal void FocusReminder() { Activate(); bubble.FocusAction(); }
     public void RefreshSpeech()
     {
         var reminder = runtime.PresentedReminder;
         RefreshCompanionContext();
-        var hover = ShowingHover;
-        var keepHoverLayout = hover && down is not null && bubble.IsVisible &&
-            bubble.Width == DesignSystem.SpeechHoverWidth && layoutScale == DesktopScaling;
-        if (!reminder.HasNotice) bubble.RefreshHover(DateTime.Now, runtime.Clock);
-        else bubble.Refresh(reminder, runtime.Settings.SnoozeMinutes, runtime.Settings);
+        bubble.Refresh(reminder, runtime.Settings.SnoozeMinutes, runtime.Settings);
         bubble.Opacity = tail.Opacity = tailOutline.Opacity = runtime.Settings.BubbleOpacityPercent / 100d;
-        // Clock ticks may update text while dragging, but must not flip the
-        // bubble's edge placement underneath a captured pointer.
-        if (keepHoverLayout) return;
         var petSize = DesignSystem.PetBaseSize * runtime.Settings.PetScalePercent / 100d;
         animation.Width = animation.Height = petSize;
-        var expanded = reminder.HasNotice || hover;
+        var expanded = reminder.HasNotice;
         var anchor = PetAnchor;
         var screen = Screens.ScreenFromPoint(anchor) ?? Screens.Primary;
         var work = screen is null ? (PixelRect?)null : PlacementArea(screen.Bounds, screen.WorkingArea, OperatingSystem.IsMacOS());
-        // Reserve the hover surface even while its contents are hidden. Resizing
+        // Reserve the reminder surface even while its contents are hidden. Resizing
         // a native window and repainting its backing surface are not atomic on
         // either desktop platform; equal final anchors can still flash a shifted frame.
         var direction = work is { } region ? PetBubbleLayout.AutomaticDirection(anchor, DesktopScaling, region, petSize) : BubbleDirection.Right;
@@ -277,8 +260,6 @@ public sealed partial class PetWindow : Window
             ? layout.Position(anchor, DesktopScaling, placementArea) : anchor;
     }
 
-    private Point PetPoint(Point windowPoint) => windowPoint - new Vector(layout.Pet.X, layout.Pet.Y);
-
     private PixelPoint PointerScreenPosition(PointerEventArgs e)
     {
         // The undecorated window origin is stable across sprite transforms. Keep
@@ -286,24 +267,6 @@ public sealed partial class PetWindow : Window
         var point = e.GetPosition(this);
         return new(Position.X + (int)Math.Round(point.X * DesktopScaling),
             Position.Y + (int)Math.Round(point.Y * DesktopScaling));
-    }
-
-    private void UpdateHover(Point? point)
-    {
-        if (down is not null) return;
-        // Enter on painted pixels, then retain hover over the stable pet area.
-        // Frame changes must not close/reopen the native surface.
-        var hovered = IsVisible && point is { } local && new Rect(animation.Bounds.Size).Contains(local) &&
-            (hoveringPet || animation.OpaqueAt(local));
-        if (hoveringPet == hovered) return;
-        hoveringPet = hovered;
-        if ((!HasOriginalBehavior || runtime.Selected?.IsGlb == true) && !runtime.PresentedReminder.HasNotice)
-        {
-            if (hovered) _ = React("hover");
-            else if (ActiveAnimation == "hover") _ = RestoreBaseAnimation(InvalidatePlayback());
-        }
-        // Finish the current pointer dispatch before changing its window coordinates.
-        Dispatcher.UIThread.Post(() => { if (IsVisible) RefreshSpeech(); }, DispatcherPriority.Background);
     }
 
     internal static PixelRect PlacementArea(PixelRect bounds, PixelRect workingArea, bool macOS)
@@ -320,7 +283,7 @@ public sealed partial class PetWindow : Window
         var screen = (OperatingSystem.IsMacOS() ? Screens.ScreenFromPoint(PetAnchor) : null)
             ?? Screens.ScreenFromWindow(this) ?? Screens.Primary;
         if (screen is null) return;
-        // The transparent reserved clock area must not push the pet away from
+        // The transparent reserved reminder area must not push the pet away from
         // screen edges when a drag ends. RefreshSpeech fits the bubble afterward.
         var area = PlacementArea(screen.Bounds, screen.WorkingArea, OperatingSystem.IsMacOS());
         var pet = PetBubbleLayout.Create(runtime.Settings.BubbleDirection, false, petSize: animation.Width);

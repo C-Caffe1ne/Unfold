@@ -112,7 +112,7 @@ public sealed partial class PetWindow
         if (!HasOriginalBehavior || !IsVisible || !double.IsFinite(seconds) || seconds <= 0 || seconds > .25) return;
         if (PointerPhase != PetPointerPhase.None) AdvancePointerArt(seconds);
         else if (pressed) poseSeconds += seconds;
-        var blocked = down is not null || pressed || PointerPhase != PetPointerPhase.None || reacting || IsPointerOver || ContextMenu?.IsOpen == true;
+        var blocked = down is not null || pressed || PointerPhase != PetPointerPhase.None || reacting || ContextMenu?.IsOpen == true;
         if (IsRoaming && ActiveAnimation == "walk")
         {
             animation.SetRunning(!blocked);

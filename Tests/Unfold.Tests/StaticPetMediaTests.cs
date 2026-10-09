@@ -123,14 +123,14 @@ public class StaticPetMediaTests
                 ? ImportedPetClip.FromGif("motion.gif", File.ReadAllBytes(CustomPetDraftTests.Fixture()))
                 : ImportedPetClip.FromImage("photo.png", Image(".png", 20 + index * 4, 10 + index * 2)));
         draft.SetPlayback("idle", 0); draft.SetPlayback("attention", 2);
-        draft.SetPlayback("hover", 1); draft.SetPlayback("pointerUp", 2);
+        draft.SetPlayback("celebrate", 1); draft.SetPlayback("pointerUp", 2);
         var output = Path.Combine(temp.Path, "mixed.unfoldpet"); draft.Export("혼합 펫", output);
         using var pack = CharacterPack.Open(output);
         var installed = new CharacterLibrary(Path.Combine(temp.Path, "Characters")).Install(pack, null);
         Assert.Empty(pack.Audit.Errors); Assert.Equal(1, installed.Manifest.Version);
         Assert.False(installed.Manifest.Animations["idle"].Loop);
         Assert.True(installed.Manifest.Animations["attention"].PingPong);
-        Assert.True(installed.Manifest.Animations["hover"].Loop);
+        Assert.True(installed.Manifest.Animations["celebrate"].Loop);
         Assert.True(installed.Manifest.Animations["pointerUp"].PingPong);
         foreach (var (action, clip) in draft.Clips)
         {

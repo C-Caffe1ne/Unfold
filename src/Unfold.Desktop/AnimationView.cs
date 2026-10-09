@@ -20,9 +20,20 @@ public sealed class AnimationView : Control, IDisposable
     private bool renderingLive;
     private int liveGeneration;
     private int livePixelSize = 192;
+    private GlbRotation? glbPreviewRotation, renderedPreviewRotation;
     private TopLevel? renderTopLevel;
     internal int RenderedPixelSize => liveImage?.Width ?? 0;
     internal int TargetPixelSize => livePixelSize;
+    internal GlbRotation? GlbPreviewRotation => glbPreviewRotation;
+    internal GlbRotation? RenderedGlbPreviewRotation => renderedPreviewRotation;
+    internal void SetGlbPreviewRotation(GlbRotation rotation)
+    {
+        if (disposed || !float.IsFinite(rotation.X) || !float.IsFinite(rotation.Y) || !float.IsFinite(rotation.Z)) return;
+        rotation = rotation.Normalize();
+        if (glbPreviewRotation == rotation) return;
+        glbPreviewRotation = rotation; liveGeneration++;
+        _ = AdvanceLive(refreshOnly: true);
+    }
     public event Action<Exception>? PlaybackFailed;
     private readonly DispatcherTimer timer = new() { Interval = TimeSpan.FromMilliseconds(16) };
     private readonly Stopwatch elapsed = new();
@@ -69,7 +80,7 @@ public sealed class AnimationView : Control, IDisposable
     {
         if (disposed) return;
         timer.Stop(); liveGeneration++; foreach (var bitmap in bitmaps) bitmap.Dispose(); bitmaps = [];
-        live = clip as GlbAnimationFrames; liveImage = liveBackImage = null;
+        live = clip as GlbAnimationFrames; liveImage = liveBackImage = null; renderedPreviewRotation = null;
         if (live is not null)
         {
             frames = clip;
@@ -139,8 +150,8 @@ public sealed class AnimationView : Control, IDisposable
         if (renderingLive || live is not { } source || !HasTopLevel() || (!refreshOnly && (completed || !running))) return;
         var ms = elapsed.Elapsed.TotalMilliseconds; var ended = !refreshOnly && !loop && ms >= totalMs;
         var next = refreshOnly ? index : ended ? source.Count - 1 : Math.Min(source.Count - 1, (int)((ms % totalMs) / source.FrameDuration.TotalMilliseconds));
-        if (next == index && !ended && RenderedPixelSize == livePixelSize) return;
-        var request = liveGeneration; var pixels = livePixelSize; renderingLive = true; var failed = false;
+        if (next == index && !ended && RenderedPixelSize == livePixelSize && renderedPreviewRotation == glbPreviewRotation) return;
+        var request = liveGeneration; var pixels = livePixelSize; var rotation = glbPreviewRotation; renderingLive = true; var failed = false;
         try
         {
             var image = liveBackImage is { } back && back.Width == pixels
@@ -151,7 +162,8 @@ public sealed class AnimationView : Control, IDisposable
             var terminal = ended || (!loop && completed);
             await Task.Run(() =>
             {
-                if (terminal) source.RenderTerminalFrameInto(pixels, image.Pixels);
+                if (rotation is { } orientation) source.RenderPreviewFrameInto(next, pixels, image.Pixels, orientation, terminal);
+                else if (terminal) source.RenderTerminalFrameInto(pixels, image.Pixels);
                 else source.RenderFrameInto(next, pixels, image.Pixels);
             });
             if (disposed || request != liveGeneration) return;
@@ -164,7 +176,7 @@ public sealed class AnimationView : Control, IDisposable
                 bitmaps = [replacement];
             }
             liveBackImage = liveImage?.Width == pixels ? liveImage : null;
-            liveImage = image; index = next; InvalidateVisual();
+            liveImage = image; index = next; renderedPreviewRotation = rotation; InvalidateVisual();
             if (ended) { timer.Stop(); elapsed.Stop(); completed = true; Completed?.Invoke(); }
         }
         catch (Exception error)
@@ -178,7 +190,8 @@ public sealed class AnimationView : Control, IDisposable
             renderingLive = false;
             // A resize/clip swap during rendering must also refresh a paused or
             // completed view, without advancing time or firing completion again.
-            if (!failed && !disposed && live is not null && HasTopLevel() && RenderedPixelSize != livePixelSize)
+            if (!failed && !disposed && live is not null && HasTopLevel() &&
+                (RenderedPixelSize != livePixelSize || renderedPreviewRotation != glbPreviewRotation))
                 _ = AdvanceLive(refreshOnly: true);
         }
     }
@@ -199,7 +212,7 @@ public sealed class AnimationView : Control, IDisposable
         var sy = Math.Sqrt(matrix.M21 * matrix.M21 + matrix.M22 * matrix.M22);
         var size = PixelSizeFor(Math.Min(Bounds.Width * sx, Bounds.Height * sy), top.RenderScaling);
         if (size != livePixelSize) { livePixelSize = size; liveGeneration++; }
-        if (RenderedPixelSize != livePixelSize) _ = AdvanceLive(refreshOnly: true);
+        if (RenderedPixelSize != livePixelSize || renderedPreviewRotation != glbPreviewRotation) _ = AdvanceLive(refreshOnly: true);
     }
     private void OnScalingChanged(object? sender, EventArgs e) => RefreshLiveResolution();
     private void DetachTopLevel()

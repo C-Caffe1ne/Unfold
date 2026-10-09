@@ -37,7 +37,8 @@ internal static class GlbDiagnostics
                 Capture(window, Path.Combine(directory, $"glb-editor-{scale.Width}-{scale.Height}.png"));
             }
             Find<ComboBox>("GlbPreviewAction").SelectedItem = "click";
-            Find<ComboBox>("GlbHeading_click").SelectedIndex = 1;
+            await Until(() => !window.GetVisualDescendants().OfType<GlbPetView>().Single().IsPreviewLoading);
+            Find<NumericUpDown>("GlbRotationY").Value = 90;
             Find<ComboBox>("GlbRepeat_click").SelectedIndex = 1;
             await Until(() => !window.GetVisualDescendants().OfType<GlbPetView>().Single().IsPreviewLoading);
             Capture(window, Path.Combine(directory, "glb-click-heading.png"));
@@ -191,10 +192,9 @@ internal static class GlbDiagnostics
                 foreach (var theme in DesignSystem.Themes)
                 {
                     runtime.SetTheme(theme.Id); await Task.Delay(100); settings.UpdateLayout();
-                    var clip = Find<ComboBox>("GlbClip_idle"); var heading = Find<ComboBox>("GlbHeading_idle");
-                    if (heading.TranslatePoint(default, settings)!.Value.Y <= clip.TranslatePoint(default, settings)!.Value.Y)
-                        throw new InvalidOperationException("Action heading is not below the animation selector.");
-                    if (settings.GetVisualDescendants().OfType<Control>().Any(c => c.Name is "GlbAdvanced" or "GlbRoot" or "PetBuilderFormat"))
+                    var rotation = Find<NumericUpDown>("GlbRotationY");
+                    if (!rotation.IsEffectivelyVisible) throw new InvalidOperationException("Preview rotation is hidden.");
+                    if (settings.GetVisualDescendants().OfType<Control>().Any(c => c.Name is "GlbAdvanced" or "GlbRoot" or "PetBuilderFormat" || c.Name?.StartsWith("GlbHeading_") == true))
                         throw new InvalidOperationException("Removed builder controls are still present.");
                     Capture(settings, Path.Combine(directory, $"action-editor-{theme.Id}.png"));
                 }

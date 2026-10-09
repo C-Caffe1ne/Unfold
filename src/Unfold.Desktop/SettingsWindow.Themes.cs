@@ -13,11 +13,7 @@ public sealed partial class SettingsWindow
     {
         var button = Ui.Action("");
         button.Name = "SettingsTheme";
-        button.Width = button.Height = 46;
-        button.Padding = new(9);
-        button.Content = new NavigationIcon("theme");
-        AutomationProperties.SetName(button, "테마");
-        ToolTip.SetTip(button, "테마"); ToolTip.SetShowDelay(button, 500);
+        ConfigureNavigationButton(button, "테마", "theme");
         var error = Ui.Caption(""); error.Name = "ThemeSaveError"; error.Foreground = DesignSystem.Error; error.IsVisible = false;
         var content = Ui.Column(Ui.Text("테마", DesignSystem.Section), error);
         content.Name = "ThemeChoices"; content.Width = 232; content.Spacing = 8;

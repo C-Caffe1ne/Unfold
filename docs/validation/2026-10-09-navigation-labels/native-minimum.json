@@ -1,0 +1,45 @@
+{
+  "mode": "minimum",
+  "page": "SettingsNavTimer",
+  "theme": 3,
+  "width": 640,
+  "height": 560,
+  "labels": [
+    {
+      "button": "SettingsNavTimer",
+      "label": "홈",
+      "bounds": "0, 0, 58, 64",
+      "origin": "38, 48"
+    },
+    {
+      "button": "SettingsNavPacks",
+      "label": "펫 관리",
+      "bounds": "0, 72, 58, 64",
+      "origin": "38, 120"
+    },
+    {
+      "button": "SettingsNavReview",
+      "label": "기록",
+      "bounds": "0, 144, 58, 64",
+      "origin": "38, 192"
+    },
+    {
+      "button": "SettingsTheme",
+      "label": "테마",
+      "bounds": "0, 216, 58, 64",
+      "origin": "38, 264"
+    },
+    {
+      "button": "SettingsNavSettings",
+      "label": "설정",
+      "bounds": "0, 0, 58, 64",
+      "origin": "38, 349"
+    },
+    {
+      "button": "SettingsQuit",
+      "label": "종료",
+      "bounds": "0, 72, 58, 64",
+      "origin": "38, 421"
+    }
+  ]
+}

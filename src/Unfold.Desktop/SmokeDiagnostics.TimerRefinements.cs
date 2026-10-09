@@ -130,41 +130,24 @@ internal static partial class SmokeDiagnostics
     {
         var bubble = new PetSpeechBubble(() => { }, () => { }, () => { })
             { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
-        var clock = new StretchClock(TimeSpan.FromMinutes(1)); clock.Start(TimeSpan.Zero);
-        var now = new DateTime(2026, 10, 5, 13, 7, 0); bubble.RefreshHover(now, clock);
+        var reminder = new PetReminder(); reminder.Invite(new(BreakRoutines.All[0], "default-cat")); reminder.Start(TimeSpan.Zero);
+        bubble.Refresh(reminder, 3);
         var window = new Window { Width = 380, Height = 260, Content = bubble, Background = DesignSystem.Surface };
         AppRuntime.PrepareDiagnosticWindow(window); window.Show();
         try
         {
             await Task.Delay(100); window.UpdateLayout();
-            var wallClock = bubble.GetVisualDescendants().OfType<AnimatedTimeText>().Single(c => c.Name == "PetHoverTime");
-            var countdown = bubble.GetVisualDescendants().OfType<AnimatedCountdown>().Single(c => c.Name == "PetHoverRemaining");
             var resting = bubble.GetVisualDescendants().OfType<AnimatedTimeText>().Single(c => c.Name == "PetBreakTimer");
-            if (wallClock.Text != "오후 01:07") throw new InvalidOperationException("Hover clock has the wrong time format.");
             var bounds = bubble.Bounds; var position = window.Position; var clientSize = window.ClientSize;
-            clock.Tick(TimeSpan.FromSeconds(1), TimeSpan.Zero, TimeSpan.FromMinutes(5));
-            bubble.RefreshHover(now.AddMinutes(1), clock);
-            if (!wallClock.HasMotion || !countdown.HasDigitMotion || wallClock.Opacity != .55)
-                throw new InvalidOperationException("Bubble time text did not start its transition.");
-            Capture(window, Path.Combine(directory, "timer-refinement-hover-start.png"));
-            await Task.Delay(65);
-            if (wallClock.Opacity <= .55 || wallClock.Opacity >= 1)
-                throw new InvalidOperationException("Bubble time text did not advance its transition.");
-            Capture(window, Path.Combine(directory, "timer-refinement-hover-mid.png"));
-            await Task.Delay(380);
-            if (wallClock.HasMotion || countdown.HasDigitMotion || wallClock.Opacity != 1 || bubble.Bounds != bounds ||
-                window.Position != position || window.ClientSize != clientSize)
-                throw new InvalidOperationException("Text motion did not settle or moved the bubble/window.");
-            Capture(window, Path.Combine(directory, "timer-refinement-hover-settled.png"));
-            var reminder = new PetReminder(); reminder.Invite(new(BreakRoutines.All[0], "default-cat")); reminder.Start(TimeSpan.Zero);
-            bubble.Refresh(reminder, 3); await Task.Delay(220);
+            await Task.Delay(220);
             reminder.Tick(TimeSpan.FromSeconds(1)); bubble.Refresh(reminder, 3);
             if (!resting.HasMotion || resting.Text != "00:59") throw new InvalidOperationException("Rest countdown did not animate.");
             await Task.Delay(65); Capture(window, Path.Combine(directory, "timer-refinement-rest-mid.png"));
             await Task.Delay(180);
-            if (resting.HasMotion || resting.Opacity != 1) throw new InvalidOperationException("Rest countdown did not settle.");
+            if (resting.HasMotion || resting.Opacity != 1 || bubble.Bounds != bounds || window.Position != position || window.ClientSize != clientSize)
+                throw new InvalidOperationException("Rest countdown did not settle or moved the bubble/window.");
             Capture(window, Path.Combine(directory, "timer-refinement-rest-settled.png"));
-            return new { hoverFormat = wallClock.Text, hoverAnimated = true, restAnimated = true, wallClockDurationMs = 180, countdownDurationMs = 380, windowGeometryStable = true };
+            return new { hoverRemoved = true, restAnimated = true, textMotionDurationMs = 180, windowGeometryStable = true };
         }
         finally { window.Close(); }
     }

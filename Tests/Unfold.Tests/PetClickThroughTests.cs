@@ -32,7 +32,7 @@ public class PetClickThroughTests
         using var scope = new Scope(); await scope.Load(); var pet = scope.Pet;
         foreach (var point in new Point[] { new(1, 1), new(47, 96), new(97, 97), new(191, 191), new(-1, 96) })
             Assert.False(pet.AcceptsPointerAt(scope.WindowPoint(point)));
-        Assert.True(pet.PetView.OpaqueAt(new(47, 96))); // Hover can retain its edge tolerance.
+        Assert.True(pet.PetView.OpaqueAt(new(47, 96))); // Tolerant visual picking must not enlarge native input.
         Assert.True(pet.AcceptsPointerAt(scope.WindowPoint(new(60, 96))));
         // An animation can expose or paint a pixel without moving the pointer.
         var pixels = new uint[32 * 32]; pixels[16 * 32 + 16] = 0xFFFFFFFF;
@@ -56,12 +56,12 @@ public class PetClickThroughTests
     }
 
     [AvaloniaFact]
-    public async Task HoverBubblePassesThroughAndReminderRemainsInteractive()
+    public async Task HiddenBubbleBackgroundPassesThroughAndReminderRemainsInteractive()
     {
         using var scope = new Scope(); await scope.Load(); var pet = scope.Pet;
         pet.MouseMove(scope.WindowPoint(new(60, 96))); Layout(pet);
         var bubble = pet.GetVisualDescendants().OfType<PetSpeechBubble>().Single();
-        Assert.True(bubble.IsVisible);
+        Assert.False(bubble.IsVisible);
         Assert.False(pet.AcceptsPointerAt(bubble.TranslatePoint(new(30, 30), pet)!.Value));
         Assert.False(pet.AcceptsPointerAt(scope.WindowPoint(new(1, 1))));
         await scope.Runtime.ShowReminder(); Layout(pet);

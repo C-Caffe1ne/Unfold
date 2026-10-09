@@ -135,18 +135,26 @@ public sealed partial class GlbModel
         lock (renderWorkspace)
         {
             var reference = FindClip(referenceName); var pose = Pose(reference, reference.Start, LockedRoot(definition), reference);
-            var heading = Matrix4x4.CreateRotationY(definition.Heading * MathF.PI / 180); var min = new Vector3(float.MaxValue); var max = new Vector3(float.MinValue);
+            var rotation = definition.EffectiveRotation.Matrix; var min = new Vector3(float.MaxValue); var max = new Vector3(float.MinValue);
             foreach (var node in visible) foreach (var primitive in meshes[nodes[node].Mesh])
             {
                 var vertices = renderWorkspace.Vertices(primitive.Positions.Length);
                 var joints = renderWorkspace.Joints(nodes[node].Skin < 0 ? 0 : skins[nodes[node].Skin].Joints.Length);
                 TransformVertices(node, primitive, pose.World, pose.Weights[node].Span, vertices, joints);
                 foreach (var v in vertices)
-                { var point = Vector3.Transform(v, heading); min = Vector3.Min(min, point); max = Vector3.Max(max, point); }
+                { var point = definition.Rotation is null ? Vector3.Transform(v, rotation) : v; min = Vector3.Min(min, point); max = Vector3.Max(max, point); }
             }
             if (!float.IsFinite(min.X) || !float.IsFinite(max.Y) || !float.IsFinite(max.X - min.X) || !float.IsFinite(max.Y - min.Y) || Math.Max(max.X - min.X, max.Y - min.Y) < .00001f) throw new InvalidDataException("GLB 모델의 표시 크기가 올바르지 않아요.");
-            return (min, max);
+            return definition.Rotation is null ? (min, max) : RotationBounds((min, max), definition.EffectiveRotation);
         }
+    }
+    internal static (Vector3 Min, Vector3 Max) RotationBounds((Vector3 Min, Vector3 Max) bounds, GlbRotation rotation)
+    {
+        var center = Vector3.Transform((bounds.Min + bounds.Max) * .5f, rotation.Matrix);
+        var radius = (bounds.Max - bounds.Min).Length() * .5f;
+        if (!float.IsFinite(center.X) || !float.IsFinite(center.Y) || !float.IsFinite(center.Z) || !float.IsFinite(radius) || radius < .00001f)
+            throw new InvalidDataException("GLB 모델의 회전 표시 크기가 올바르지 않아요.");
+        return (center - new Vector3(radius, radius, 0), center + new Vector3(radius, radius, 0));
     }
 
     public PixelImage Render(string name, double seconds, GlbDefinition definition, string referenceClip, int size = 192)
@@ -159,7 +167,8 @@ public sealed partial class GlbModel
     }
     private static void ValidateRender(int size, double seconds, GlbDefinition definition)
     {
-        if (size is < 32 or > 2048 || !double.IsFinite(seconds) || !float.IsFinite(definition.Heading))
+        var rotation = definition.EffectiveRotation;
+        if (size is < 32 or > 2048 || !double.IsFinite(seconds) || !float.IsFinite(rotation.X) || !float.IsFinite(rotation.Y) || !float.IsFinite(rotation.Z))
             throw new InvalidDataException("Invalid GLB render settings.");
     }
     internal PixelImage RenderAntialiased(string name, double seconds, GlbDefinition definition, string referenceName,
@@ -204,7 +213,7 @@ public sealed partial class GlbModel
     {
         var clip = FindClip(name); var reference = FindClip(referenceName);
         var pose = Pose(clip, clip.Start + (float)Math.Clamp(seconds, 0, clip.End - clip.Start), LockedRoot(definition), reference);
-        var heading = Matrix4x4.CreateRotationY(definition.Heading * MathF.PI / 180);
+        var rotation = definition.EffectiveRotation.Matrix;
         var width = bounds.Max.X - bounds.Min.X; var height = bounds.Max.Y - bounds.Min.Y;
         var scale = size * .78f / Math.Max(width, height); var center = (bounds.Min.X + bounds.Max.X) * .5f;
         pixels.Clear(); renderWorkspace.Blended.Clear();
@@ -215,7 +224,7 @@ public sealed partial class GlbModel
             var joints = renderWorkspace.Joints(nodes[node].Skin < 0 ? 0 : skins[nodes[node].Skin].Joints.Length);
             TransformVertices(node, primitive, pose.World, pose.Weights[node].Span, vertices, joints);
             for (var i = 0; i < vertices.Length; i++)
-            { var v = Vector3.Transform(vertices[i], heading); vertices[i] = new((v.X - center) * scale + size / 2f, size * .90f - (v.Y - bounds.Min.Y) * scale, v.Z); }
+            { var v = Vector3.Transform(vertices[i], rotation); vertices[i] = new((v.X - center) * scale + size / 2f, size * .90f - (v.Y - bounds.Min.Y) * scale, v.Z); }
             var material = materials[primitive.Material];
             for (var i = 0; i < primitive.Indices.Length; i += 3)
             {
@@ -305,6 +314,7 @@ public sealed class GlbAnimationFrames : IReadOnlyList<AnimationFrame>
     private readonly GlbDefinition definition;
     private readonly double speed, clipDuration;
     private readonly (Vector3 Min, Vector3 Max) bounds;
+    private (Vector3 Min, Vector3 Max)? previewBounds;
     private readonly AnimationFrame firstFrame;
     private readonly Dictionary<(int Index, int Size), AnimationFrame> cache = [];
     private readonly object gate = new();
@@ -345,6 +355,18 @@ public sealed class GlbAnimationFrames : IReadOnlyList<AnimationFrame>
     /// The caller owns the buffer, just as with RenderFrameInto.</summary>
     public void RenderTerminalFrameInto(int pixelSize, Span<uint> pixels)
         => model.RenderAntialiasedInto(name, clipDuration, definition, reference, bounds, pixelSize, pixels);
+    /// <summary>Render an absolute XYZ rotation without changing the shared clip.
+    /// The same bounds are used when the orientation is saved for playback.</summary>
+    public void RenderPreviewFrameInto(int index, int pixelSize, Span<uint> pixels, GlbRotation rotation, bool terminal = false)
+    {
+        if (index < 0 || index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
+        if (!rotation.IsValid) throw new ArgumentOutOfRangeException(nameof(rotation));
+        (Vector3 Min, Vector3 Max) sourceBounds;
+        lock (gate) sourceBounds = previewBounds ??= model.Bounds(definition with { Heading = 0, Rotation = null }, reference);
+        var cameraBounds = GlbModel.RotationBounds(sourceBounds, rotation);
+        model.RenderAntialiasedInto(name, terminal ? clipDuration : index * FrameDuration.TotalSeconds * speed,
+            definition with { Rotation = rotation }, reference, cameraBounds, pixelSize, pixels);
+    }
     private AnimationFrame RenderFrame(int index, int size)
         => new(model.RenderAntialiased(name, index * FrameDuration.TotalSeconds * speed, definition, reference, bounds, size), FrameDuration);
     public IEnumerator<AnimationFrame> GetEnumerator() { for (var i = 0; i < Count; i++) yield return this[i]; }

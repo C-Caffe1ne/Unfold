@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace Unfold.Core;
 
 public sealed record SheetDefinition(string File, int Columns, int Rows, int FrameWidth, int FrameHeight);
-public sealed record AnimationDefinition(int[]? Frames = null, double? Fps = null, string? Gif = null, bool Loop = true, bool PingPong = false, string? ModelClip = null, double Speed = 1, float? Heading = null);
+public sealed record AnimationDefinition(int[]? Frames = null, double? Fps = null, string? Gif = null, bool Loop = true, bool PingPong = false, string? ModelClip = null, double Speed = 1, float? Heading = null, GlbRotation? Rotation = null);
 public sealed record CharacterManifest(string Id, string Name, int Version, SheetDefinition SpriteSheet,
     Dictionary<string, AnimationDefinition> Animations, string? ThumbnailSymbol = null, string? RenderStyle = null,
     string? BehaviorProfile = null, GlbDefinition? Model = null);
@@ -72,7 +72,7 @@ public sealed class CharacterPackage
     public IReadOnlyList<AnimationFrame> LoadAnimation(string key)
     {
         if (!Manifest.Animations.TryGetValue(key, out var definition)) definition = Manifest.Animations["idle"];
-        if (IsGlb) return Model.CreateAnimation(definition.ModelClip!, Manifest.Model! with { Heading = definition.Heading ?? Manifest.Model!.Heading }, Manifest.Animations["idle"].ModelClip!, definition.Speed);
+        if (IsGlb) return Model.CreateAnimation(definition.ModelClip!, Manifest.Model!.ForAnimation(definition), Manifest.Animations["idle"].ModelClip!, definition.Speed);
         if (definition.Gif is not null)
             return ImageCodec.DecodeGif(ImageCodec.ReadBounded(CharacterLibrary.AssetPath(DirectoryPath, definition.Gif)));
         var sprite = Manifest.SpriteSheet;
@@ -146,14 +146,17 @@ public sealed partial class CharacterLibrary
         if (manifest.Model is { } model)
         {
             if (!float.IsFinite(model.Heading) || model.Heading is < -180 or > 180) throw new InvalidDataException("Invalid model heading.");
+            if (model.Rotation is { IsValid: false }) throw new InvalidDataException("Invalid model rotation.");
             var path = AssetPath(directory, model.File);
             if (!File.Exists(path)) throw new FileNotFoundException("Missing GLB model.", path);
             if (new FileInfo(path).Length > ImageCodec.MaxFileBytes) throw new InvalidDataException("GLB file exceeds 32 MiB.");
             foreach (var definition in manifest.Animations.Values)
                 if (definition is null || definition.ModelClip is null || !double.IsFinite(definition.Speed) || definition.Speed is < .25 or > 3 || definition.PingPong ||
-                    definition.Heading is { } heading && (!float.IsFinite(heading) || heading is < -180 or > 180))
+                    definition.Heading is { } heading && (!float.IsFinite(heading) || heading is < -180 or > 180) ||
+                    definition.Rotation is { IsValid: false })
                     throw new InvalidDataException("Invalid GLB animation mapping.");
-            if (!manifest.Animations["idle"].Loop || manifest.Animations.Keys.Any(key => !GlbPetDraft.Actions.Contains(key))) throw new InvalidDataException("Invalid GLB pet events.");
+            // Read older packs without offering or playing their retired hover event.
+            if (!manifest.Animations["idle"].Loop || manifest.Animations.Keys.Any(key => key != "hover" && !GlbPetDraft.Actions.Contains(key))) throw new InvalidDataException("Invalid GLB pet events.");
             if (loadModel) _ = package.Model;
             return package;
         }

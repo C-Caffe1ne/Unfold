@@ -74,7 +74,7 @@ public class GlbFileManagementTests
     {
         using var editor = new Editor(); await editor.Open(); var original = File.ReadAllBytes(editor.Source);
         // A pending pose request must not restore the file after pressing its trash button.
-        Find<ComboBox>(editor.Window, "GlbHeading_idle").SelectedIndex = 1;
+        Find<NumericUpDown>(editor.Window, "GlbRotationY").Value = 90;
         Press(editor.Window, "GlbFileRemove"); Assert.Empty(editor.Window.OwnedWindows); Layout(editor.Window);
         var glb = Find<GlbPetView>(editor.Window); var preview = Find<AnimationView>(editor.Window, "GlbPreview");
         Assert.False(glb.HasDraft); Assert.False(editor.Page.HasUnsavedDraft);

@@ -68,7 +68,7 @@ public sealed partial class SettingsWindow
         SizeChanged += (_, _) => UpdateDashboardLayout();
         UpdateDashboardLayout();
         dashboardPage = dashboardScroll; settingsPageHost.Content = dashboardScroll;
-        var frame = new Grid { ColumnDefinitions = new("64,16,*") };
+        var frame = new Grid { ColumnDefinitions = new("72,16,*") };
         frame.Children.Add(BuildNavigation()); Grid.SetColumn(settingsPageHost, 2); frame.Children.Add(settingsPageHost);
         var content = new Border { Name = "SettingsFrame", Padding = new(31, 8, 31, 31), Child = frame };
         // Fill the client area; the OS owns the outer frame and its corner shape.
@@ -88,14 +88,14 @@ public sealed partial class SettingsWindow
         navigationItems["review"] = review;
         SelectNavigation("dashboard");
         var links = Ui.Column(timer, pets, review, BuildThemeButton()); links.Name = "SettingsNavigationLinks";
-        links.Spacing = 12; rail.Children.Add(links);
+        links.Spacing = 8; rail.Children.Add(links);
         var quit = Ui.Danger(Nav("SettingsQuit", "종료", "exit", runtime.Quit));
         var version = new TextBlock { Name = "SidebarVersion", Text = AppRelease.DisplayVersion.Replace(" ", "\n"),
             FontSize = 10, Foreground = Muted, TextAlignment = TextAlignment.Center,
             HorizontalAlignment = HorizontalAlignment.Stretch, TextTrimming = TextTrimming.CharacterEllipsis };
         AutomationProperties.SetName(version, AppRelease.DisplayVersion);
         ToolTip.SetTip(version, AppRelease.DisplayVersion);
-        var bottom = Ui.Column(settings, quit, version); bottom.Spacing = 12;
+        var bottom = Ui.Column(settings, quit, version); bottom.Spacing = 8;
         Grid.SetRow(bottom, 1); rail.Children.Add(bottom);
         return new Border { Background = Surface, CornerRadius = new(28), Child = rail };
     }
@@ -361,13 +361,26 @@ public sealed partial class SettingsWindow
     private static Button Nav(string name, string label, string icon, Func<Task> action)
     {
         var button = ActionButton(label, action); button.Name = name;
+        ConfigureNavigationButton(button, label, icon);
+        return button;
+    }
+    private static void ConfigureNavigationButton(Button button, string label, string icon)
+    {
         button.Classes.Add("navigation");
         button.Tag = label;
-        button.Content = new NavigationIcon(icon);
-        button.Width = 46; button.Height = 46; button.Padding = new(9);
-        button.HorizontalContentAlignment = HorizontalAlignment.Center; button.VerticalContentAlignment = VerticalAlignment.Center;
+        button.Content = new StackPanel
+        {
+            Spacing = 4,
+            Children =
+            {
+                new NavigationIcon(icon) { HorizontalAlignment = HorizontalAlignment.Center },
+                new TextBlock { Name = button.Name + "Label", Text = label, FontSize = 11, LineHeight = 14,
+                    TextAlignment = TextAlignment.Center, TextWrapping = TextWrapping.NoWrap, IsHitTestVisible = false }
+            }
+        };
+        button.Width = 58; button.Height = 64; button.Padding = new(0, 6);
+        button.HorizontalContentAlignment = HorizontalAlignment.Stretch; button.VerticalContentAlignment = VerticalAlignment.Center;
         AutomationProperties.SetName(button, label); ToolTip.SetTip(button, label); ToolTip.SetShowDelay(button, 500);
-        return button;
     }
 
 }

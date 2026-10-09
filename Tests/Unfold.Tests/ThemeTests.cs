@@ -50,7 +50,8 @@ public class ThemeTests
         var flyout = (Flyout)themeButton.Flyout!;
         Assert.Equal(new[] { "ThemePlum", "ThemeOatLatte", "ThemeSage", "ThemeMidnightBlue" },
             ((Control)flyout.Content!).GetLogicalDescendants().OfType<Button>().Select(button => button.Name));
-        var point = themeButton.TranslatePoint(new Point(23, 23), window)!.Value;
+        var caption = Find<TextBlock>(window, "SettingsThemeLabel");
+        var point = caption.TranslatePoint(new Point(caption.Bounds.Width / 2, caption.Bounds.Height / 2), window)!.Value;
         window.MouseMove(point); window.MouseDown(point, MouseButton.Left); window.MouseUp(point, MouseButton.Left); Layout(window);
         Assert.True(flyout.IsOpen);
         // Dismissing the picker without choosing must not persist a different theme.

@@ -6,6 +6,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Unfold.Core;
@@ -249,6 +250,36 @@ public class SettingsDashboardTests
         var lower = Assert.IsType<StackPanel>(rail.Children.Single(child => Grid.GetRow(child) == 1));
         Assert.Equal(new[] { "홈", "펫 관리", "기록", "테마" }, upper.Children.OfType<Button>().Select(ToolTip.GetTip));
         Assert.Equal(new[] { "설정", "종료" }, lower.Children.OfType<Button>().Select(ToolTip.GetTip));
+        var theme = DesignSystem.CurrentTheme;
+        try
+        {
+            foreach (var size in new[] { new Size(1120, 800), new Size(640, 560) })
+            foreach (var palette in DesignSystem.Themes)
+            {
+                window.Width = size.Width; window.Height = size.Height; DesignSystem.ApplyTheme(palette.Id);
+                Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+                Assert.True(upper.Bounds.Bottom <= lower.Bounds.Top + .5, "Navigation groups must not overlap.");
+                foreach (var button in railButtons)
+                {
+                    var caption = button.GetVisualDescendants().OfType<TextBlock>().Single(c => c.Name == button.Name + "Label");
+                    var icon = button.GetVisualDescendants().OfType<NavigationIcon>().Single();
+                    Assert.Equal(ToolTip.GetTip(button), caption.Text);
+                    Assert.True(caption.IsEffectivelyVisible);
+                    Assert.True(caption.TextLayout.Width <= caption.Bounds.Width + .5, caption.Text);
+                    Assert.True(caption.TranslatePoint(default, button)!.Value.Y >= icon.TranslatePoint(default, button)!.Value.Y + icon.Bounds.Height);
+                    Assert.Equal(Assert.IsAssignableFrom<ISolidColorBrush>(icon.Foreground).Color,
+                        Assert.IsAssignableFrom<ISolidColorBrush>(caption.Foreground).Color);
+                    var origin = button.TranslatePoint(default, window)!.Value;
+                    Assert.True(origin.X >= 0 && origin.X + button.Bounds.Width <= window.ClientSize.Width + .5);
+                    Assert.True(origin.Y >= 0 && origin.Y + button.Bounds.Height <= window.ClientSize.Height + .5);
+                }
+            }
+        }
+        finally
+        {
+            DesignSystem.ApplyTheme(theme); window.Width = 1120; window.Height = 800;
+            Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+        }
         foreach (var removed in new[] { "SettingsNavRoutines", "SettingsEditRoutine", "ApplyRoutineSettings", "SettingsOpenLibrary" })
             Assert.DoesNotContain(window.GetVisualDescendants().OfType<Control>(), control => control.Name == removed);
         Assert.DoesNotContain(window.GetVisualDescendants().OfType<TabControl>(), control => control.Name == "PersonalizationTabs");

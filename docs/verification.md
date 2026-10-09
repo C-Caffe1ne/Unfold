@@ -1,10 +1,12 @@
 # 검증 안내
 
-## 현재 개발본과 공개 배포 — 2026년 10월 8일
+## 현재 개발본과 공개 배포 — 2026년 10월 9일
 
-개발 기준은 `codex/remove-unused-features`의 **Beta v1.1.2** (`1.1.2-beta`, 배포 소스 `ce86c7b`)다.
+개발 기준은 `codex/remove-unused-features`의 **Beta v1.1.3** (`1.1.3-beta`)다. 아직 공개 배포하지 않았다.
 최신 공개 배포는 **Beta v1.1.2** (`v1.1.2-beta`, 소스 `ce86c7b`)다.
 모든 새 실행은 확인한 작업트리와 새 `UNFOLD_DATA_DIR`을 사용한다.
+
+GLB XYZ 회전·저장·내비게이션 이름과 펫 호버 제거·모션 복귀를 포함한다. [호버 제거 검증](validation/2026-10-09-pet-hover-removal.md)의 전체 803개 검사와 macOS 입력 확인은 버전 전환 전 `1.1.2-beta` 개발본에서 수행했다. [1.1.3 커밋 검증](validation/2026-10-09-beta-v1.1.3-commit.md)에 버전 변경 후의 검사와 커밋 범위를 기록한다.
 
 ## Beta v1.1.2 공개 배포·업데이트
 

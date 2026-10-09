@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
+using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
@@ -26,7 +27,13 @@ internal sealed class GlbPetView : UserControl, IDisposable
     private readonly ComboBox previewAction = new() { Name = "GlbPreviewAction" };
     private readonly StackPanel rows = new() { Name = "GlbMappings", Spacing = 8 };
     private readonly Dictionary<string, Control> actionRows = [];
-    private readonly Button open, save, replay, pause, edit, remove, fileAdd, fileRemove;
+    private readonly Button open, save, replay, pause, edit, remove, fileAdd, fileRemove, resetRotation;
+    private readonly Border previewStage;
+    private IPointer? rotationPointer;
+    private Point rotationStart;
+    private GlbRotation rotationStartAngles;
+    private bool rotationRoll, syncingRotation;
+    private readonly NumericUpDown rotationX = RotationInput("X"), rotationY = RotationInput("Y"), rotationZ = RotationInput("Z");
     private readonly Image fileThumbnail = new() { Name = "GlbFileThumbnail", Width = 32, Height = 40, Stretch = Stretch.Uniform };
     private readonly TextBlock fileLabel = Ui.Caption("파일 없음");
     private Bitmap? thumbnailBitmap;
@@ -81,6 +88,15 @@ internal sealed class GlbPetView : UserControl, IDisposable
             if (previewCompleted) { await RestartPreview(); return; }
             paused = !paused; UpdatePlayback();
         }); pause.Name = "PauseGlbPet";
+        resetRotation = Ui.Button("회전 초기화", () => RotatePreview(new())); resetRotation.Name = "ResetGlbPreviewRotation";
+        ToolTip.SetTip(resetRotation, "선택한 행동의 X·Y·Z 회전을 0°로 되돌려요.");
+        SyncRotation(new());
+        foreach (var input in new[] { rotationX, rotationY, rotationZ })
+            input.ValueChanged += (_, _) =>
+            {
+                if (!syncingRotation && CanRotate && rotationX.Value is { } x && rotationY.Value is { } y && rotationZ.Value is { } z)
+                    RotatePreview(new((float)x, (float)y, (float)z));
+            };
         foreach (var choice in new[] { existing, previewAction }) StyleChoice(choice);
         previewAction.ItemTemplate = new FuncDataTemplate<string>((key, _) => ChoiceText(key is null ? "" :
             GlbPetDraft.ActionName(key)));
@@ -111,11 +127,44 @@ internal sealed class GlbPetView : UserControl, IDisposable
         existingField = PetManagementView.Field("펫 선택", existing);
         existing.PlaceholderText = "펫 선택"; AutomationProperties.SetName(existing, "펫 선택");
         open.VerticalAlignment = VerticalAlignment.Bottom; open.Height = DesignSystem.PetControlHeight;
-        var stage = new Border { Name = "GlbPreviewStage", Background = DesignSystem.Surface, CornerRadius = DesignSystem.CardRadius,
+        previewStage = new Border { Name = "GlbPreviewStage", Background = DesignSystem.Surface, CornerRadius = DesignSystem.CardRadius,
+            Focusable = true,
             Padding = new Thickness(8), Child = new Viewbox { Child = preview, Stretch = Stretch.Uniform } };
+        AutomationProperties.SetName(previewStage, "3D 펫 미리보기 회전");
+        ToolTip.SetTip(previewStage, "드래그로 X·Y축, Shift+드래그로 Z축을 회전해요. 방향 키로 X·Y축, Shift+← →로 Z축, Home으로 초기화해요.");
+        previewStage.PointerPressed += RotationPressed;
+        previewStage.PointerMoved += RotationMoved;
+        previewStage.PointerReleased += (_, e) => { if (e.Pointer == rotationPointer) { EndRotation(); e.Handled = true; } };
+        previewStage.PointerCaptureLost += (_, _) => EndRotation();
+        previewStage.DetachedFromVisualTree += (_, _) => EndRotation();
+        previewStage.KeyDown += (_, e) =>
+        {
+            if (!CanRotate) return;
+            var angles = preview.GlbPreviewRotation ?? new();
+            var roll = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
+            switch (e.Key)
+            {
+                case Key.Left: RotatePreview(roll ? angles with { Z = angles.Z - 15 } : angles with { Y = angles.Y - 15 }); break;
+                case Key.Right: RotatePreview(roll ? angles with { Z = angles.Z + 15 } : angles with { Y = angles.Y + 15 }); break;
+                case Key.Up: RotatePreview(angles with { X = angles.X - 15 }); break;
+                case Key.Down: RotatePreview(angles with { X = angles.X + 15 }); break;
+                case Key.Home: RotatePreview(new()); break;
+                default: return;
+            }
+            e.Handled = true;
+        };
         var settingsPane = Ui.Column(Heading("행동 연결"), PetManagementView.Field("상황", previewAction), rows);
         settingsPane.Spacing = 10; settingsPane.Name = "GlbActionPane";
-        var workspace = new PetEditorWorkspace(owner, "Glb", stage, Ui.Column(PetManagementView.Field("3D 파일", fileRow), Ui.Row(pause, replay), existingField, Ui.Actions(edit, remove)), settingsPane);
+        var rotationHint = Ui.Caption("드래그: X·Y / Shift+드래그: Z"); rotationHint.TextWrapping = TextWrapping.Wrap;
+        var rotationFields = new Grid { Name = "GlbRotationFields", ColumnDefinitions = new("*,8,*,8,*") };
+        var inputs = new[] { rotationX, rotationY, rotationZ };
+        for (var i = 0; i < inputs.Length; i++)
+        {
+            var field = PetManagementView.Field(new[] { "X (°)", "Y (°)", "Z (°)" }[i], inputs[i]);
+            Grid.SetColumn(field, i * 2); rotationFields.Children.Add(field);
+        }
+        var workspace = new PetEditorWorkspace(owner, "Glb", previewStage, Ui.Column(rotationHint, rotationFields, resetRotation,
+            PetManagementView.Field("3D 파일", fileRow), Ui.Row(pause, replay), existingField, Ui.Actions(edit, remove)), settingsPane);
         var identity = workspace.Identity("GlbIdentity", name, open);
         editor = workspace; editor.Name = "GlbEditor";
         var body = Ui.Column(identity, editor);
@@ -130,6 +179,52 @@ internal sealed class GlbPetView : UserControl, IDisposable
         Content = PetManagementView.Page("펫 팩 만들기", "", body, footer, showHeader);
         owner.PropertyChanged += OwnerChanged; AttachedToVisualTree += (_, _) => { RefreshExisting(); UpdatePlayback(); }; DetachedFromVisualTree += (_, _) => UpdatePlayback();
         RefreshExisting(); SetControls();
+    }
+    private static NumericUpDown RotationInput(string axis)
+    {
+        var input = new NumericUpDown { Name = "GlbRotation" + axis, Minimum = -180, Maximum = 180,
+            Value = 0, Increment = 5, FormatString = "0.##", ShowButtonSpinner = false, Height = DesignSystem.PetControlHeight,
+            HorizontalAlignment = HorizontalAlignment.Stretch };
+        AutomationProperties.SetName(input, axis + "축 회전 각도");
+        return input;
+    }
+    private bool CanRotate => !closed && !IsBusy && !loading && !previewFailed && draft?.Mappings.ContainsKey(SelectedAction) == true;
+    private void RotationPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (!CanRotate || !e.GetCurrentPoint(previewStage).Properties.IsLeftButtonPressed) return;
+        EndRotation(); rotationPointer = e.Pointer;
+        rotationStart = e.GetPosition(previewStage); rotationStartAngles = preview.GlbPreviewRotation ?? new();
+        rotationRoll = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
+        previewStage.Focus(); e.Pointer.Capture(previewStage); e.Handled = true;
+    }
+    private void RotationMoved(object? sender, PointerEventArgs e)
+    {
+        if (e.Pointer != rotationPointer || !CanRotate) return;
+        var delta = e.GetPosition(previewStage) - rotationStart;
+        var horizontal = (float)(delta.X * 360 / Math.Max(1, previewStage.Bounds.Width));
+        var vertical = (float)(delta.Y * 360 / Math.Max(1, previewStage.Bounds.Height));
+        RotatePreview(rotationRoll ? rotationStartAngles with { Z = rotationStartAngles.Z + horizontal } :
+            rotationStartAngles with { X = rotationStartAngles.X + vertical, Y = rotationStartAngles.Y + horizontal });
+        e.Handled = true;
+    }
+    private void RotatePreview(GlbRotation rotation)
+    {
+        if (!CanRotate || draft is not { } current) return;
+        rotation = rotation.Normalize();
+        if (current.RotationFor(SelectedAction) == rotation) return;
+        current.SetRotation(SelectedAction, rotation); SyncRotation(rotation); MarkChanged();
+    }
+    private void SyncRotation(GlbRotation rotation)
+    {
+        syncingRotation = true;
+        try { rotationX.Value = (decimal)rotation.X; rotationY.Value = (decimal)rotation.Y; rotationZ.Value = (decimal)rotation.Z; }
+        finally { syncingRotation = false; }
+        preview.SetGlbPreviewRotation(rotation);
+    }
+    private void EndRotation()
+    {
+        var pointer = rotationPointer; rotationPointer = null;
+        if (pointer?.Captured == previewStage) pointer.Capture(null);
     }
     private Button ActionButton(string text, Func<Task> action)
     {
@@ -192,6 +287,7 @@ internal sealed class GlbPetView : UserControl, IDisposable
         {
             var candidate = await Task.Run(read); if (closed) return;
             if (isNew && draft is null && !string.IsNullOrWhiteSpace(name.Text)) candidate.Name = name.Text;
+            EndRotation(); SyncRotation(new());
             ClearThumbnail(); draft = candidate; paused = false; Populate(); HasUnsavedChanges = isNew; RestoreExistingSelection();
             status.Foreground = DesignSystem.Muted;
             status.Text = "";
@@ -217,21 +313,14 @@ internal sealed class GlbPetView : UserControl, IDisposable
         var mapping = current.Mappings.GetValueOrDefault(key);
         var options = (key == "idle" ? current.Model.Animations.Select(a => a.Name) : new[] { "연결 안 함" }.Concat(current.Model.Animations.Select(a => a.Name))).ToArray();
         var clip = new ComboBox { Name = "GlbClip_" + key, ItemsSource = options, SelectedItem = mapping?.ModelClip ?? options[0] };
-        var angles = new[] { 0f, 90f, 180f, -90f }.ToList();
-        var angle = mapping?.Heading ?? current.Heading;
-        if (!angles.Contains(angle)) angles.Add(angle);
-        var heading = new ComboBox { Name = "GlbHeading_" + key,
-            ItemsSource = angles.Select(value => value switch { 0 => "정면", 90 => "오른쪽 90°", 180 => "뒤 180°", -90 => "왼쪽 90°", _ => $"{value:0.##}°" }).ToArray(),
-            SelectedIndex = angles.IndexOf(angle) };
         var repeat = new ComboBox { Name = "GlbRepeat_" + key, ItemsSource = new[] { "한 번", "반복" }, SelectedIndex = mapping?.Loop == true ? 1 : 0 };
         var speeds = new[] { .25, .5, 1, 1.5, 2, 3 }.ToList();
         var playbackSpeed = mapping?.Speed ?? 1;
         if (!speeds.Contains(playbackSpeed)) speeds.Add(playbackSpeed);
         var speed = new ComboBox { Name = "GlbSpeed_" + key,
             ItemsSource = speeds.Select(value => $"{value}배").ToArray(), SelectedIndex = speeds.IndexOf(playbackSpeed) };
-        foreach (var choice in new[] { clip, heading, repeat, speed }) StyleChoice(choice);
+        foreach (var choice in new[] { clip, repeat, speed }) StyleChoice(choice);
         AutomationProperties.SetName(clip, GlbPetDraft.ActionName(key) + " 애니메이션");
-        AutomationProperties.SetName(heading, GlbPetDraft.ActionName(key) + " 바라보는 방향");
         AutomationProperties.SetName(repeat, GlbPetDraft.ActionName(key) + " 재생 방식");
         AutomationProperties.SetName(speed, GlbPetDraft.ActionName(key) + " 재생 속도");
         var syncing = false;
@@ -241,25 +330,25 @@ internal sealed class GlbPetView : UserControl, IDisposable
             syncing = true;
             try { repeat.SelectedIndex = (value?.Loop ?? fixedLoop ?? false) ? 1 : 0; }
             finally { syncing = false; }
-            repeat.IsEnabled = assigned && fixedLoop is null; speed.IsEnabled = heading.IsEnabled = assigned;
+            repeat.IsEnabled = assigned && fixedLoop is null; speed.IsEnabled = assigned;
 
         }
         async void Changed(object? sender, SelectionChangedEventArgs e)
         {
-            if (populating || syncing || closed || draft != current || speed.SelectedIndex < 0 || heading.SelectedIndex < 0) return;
+            if (populating || syncing || closed || draft != current || speed.SelectedIndex < 0) return;
             try
             {
-                current.Set(key, key != "idle" && clip.SelectedIndex <= 0 ? null : clip.SelectedItem as string, repeat.SelectedIndex == 1, speeds[speed.SelectedIndex], angles[heading.SelectedIndex]);
+                current.Set(key, key != "idle" && clip.SelectedIndex <= 0 ? null : clip.SelectedItem as string, repeat.SelectedIndex == 1, speeds[speed.SelectedIndex]);
                 Sync(); MarkChanged(); RefreshActionChoices();
                 if (SelectedAction == key || key == "idle") await Play();
             }
             catch (Exception error) { Error(error); }
         }
-        clip.SelectionChanged += Changed; heading.SelectionChanged += Changed; repeat.SelectionChanged += Changed; speed.SelectionChanged += Changed;
+        clip.SelectionChanged += Changed; repeat.SelectionChanged += Changed; speed.SelectionChanged += Changed;
         var playback = new Grid { ColumnDefinitions = new("*,12,*") };
         playback.Children.Add(PetManagementView.Field("재생 방식", repeat));
         var speedField = PetManagementView.Field("속도", speed); Grid.SetColumn(speedField, 2); playback.Children.Add(speedField);
-        var row = Ui.Column(PetManagementView.Field("애니메이션", clip), PetManagementView.Field("바라보는 방향", heading), playback);
+        var row = Ui.Column(PetManagementView.Field("애니메이션", clip), playback);
         row.Name = "GlbActionRow_" + key; actionRows[key] = row; rows.Children.Add(row); Sync();
     }
     private void RefreshActionChoices()
@@ -278,11 +367,14 @@ internal sealed class GlbPetView : UserControl, IDisposable
     private async Task PlayAction(string action)
     {
         if (closed || draft is not { } current) return;
+        EndRotation();
         var request = ++generation; loading = true; previewCompleted = previewFailed = false; UpdatePlayback();
         try
         {
             var mapping = current.Mappings.GetValueOrDefault(action) ?? current.Mappings["idle"];
-            var definition = new GlbDefinition("model.glb", mapping.Heading ?? current.Heading, current.RootNode); var idle = current.Mappings["idle"].ModelClip!;
+            var definition = new GlbDefinition("model.glb", current.Heading, current.RootNode, current.Rotation).ForAnimation(mapping);
+            SyncRotation(definition.EffectiveRotation);
+            var idle = current.Mappings["idle"].ModelClip!;
             var frames = await Task.Run(() => current.Model.CreateAnimation(mapping.ModelClip!, definition, idle, mapping.Speed));
             if (closed || request != generation) return;
             preview.SetFrames(frames, mapping.Loop, false);
@@ -358,6 +450,7 @@ internal sealed class GlbPetView : UserControl, IDisposable
     {
         // Invalidate pending pose requests before dropping every editor-owned model reference.
         generation++; loading = paused = previewCompleted = previewFailed = false;
+        EndRotation(); SyncRotation(new());
         preview.SetRunning(false); preview.SetFrames([], false); ClearThumbnail(); draft = null;
         populating = true;
         try
@@ -389,6 +482,10 @@ internal sealed class GlbPetView : UserControl, IDisposable
         name.IsEnabled = !IsBusy; rows.IsEnabled = previewAction.IsEnabled = ready;
         replay.IsEnabled = ready && !loading; pause.IsEnabled = ready && !loading && !previewFailed;
         pause.Content = previewCompleted ? "다시 재생" : paused ? "계속 재생" : "일시정지";
+        resetRotation.IsEnabled = CanRotate && preview.GlbPreviewRotation != new GlbRotation();
+        rotationX.IsEnabled = rotationY.IsEnabled = rotationZ.IsEnabled = CanRotate;
+        previewStage.Cursor = CanRotate ? new Cursor(StandardCursorType.SizeAll) : null;
+        if (!CanRotate) EndRotation();
     }
     private void OwnerChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
     {
@@ -405,5 +502,5 @@ internal sealed class GlbPetView : UserControl, IDisposable
         return await Ui.Confirm(owner, "저장하지 않은 변경을 버릴까요?", "저장하지 않은 설정은 사라져요. 계속 편집하려면 돌아가 주세요.", "변경 버리기", "계속 편집") == 0;
     }
     public Task<bool> CanCloseDraft() => CanDiscard();
-    public void Dispose() { if (closed) return; closed = true; generation++; owner.PropertyChanged -= OwnerChanged; ClearThumbnail(); preview.Dispose(); }
+    public void Dispose() { if (closed) return; closed = true; generation++; EndRotation(); owner.PropertyChanged -= OwnerChanged; ClearThumbnail(); preview.Dispose(); }
 }

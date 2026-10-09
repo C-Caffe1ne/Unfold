@@ -99,8 +99,7 @@ public class NotificationLayoutTests
         var area = new PixelRect(screenX, 0, 1920, 1080); var anchor = new PixelPoint(petX, 700);
         var direction = PetBubbleLayout.AutomaticDirection(anchor, 1, area, 192);
         Assert.Equal(expected, direction);
-        var sizes = new[] { (DesignSystem.SpeechHoverHeight, DesignSystem.SpeechHoverWidth),
-            (DesignSystem.SpeechInvitationHeight, DesignSystem.SpeechBubbleWidth),
+        var sizes = new[] { (DesignSystem.SpeechInvitationHeight, DesignSystem.SpeechBubbleWidth),
             (DesignSystem.SpeechRestingHeight, DesignSystem.SpeechBubbleWidth),
             (DesignSystem.SpeechCompletedHeight, DesignSystem.SpeechBubbleWidth) };
         var layouts = sizes.Select(size => PetBubbleLayout.CreateSurface(direction, anchor, 1, area, 192, size.Item1, size.Item2)).ToArray();

@@ -159,14 +159,14 @@ public class GlbTests
         try
         {
             var input = Path.Combine(root, "test.glb"); var bytes = Fixture(morph: true); File.WriteAllBytes(input, bytes);
-            var draft = new GlbPetDraft(input); draft.Set("hover", "Idle", true, .5); draft.Set("pickup", "Idle");
+            var draft = new GlbPetDraft(input); draft.Set("look", "Idle", true, .5); draft.Set("pickup", "Idle");
             var library = new CharacterLibrary(Path.Combine(root, "library")); var package = draft.Save(library);
-            Assert.True(package.IsGlb); Assert.True(package.HasPointerArt); Assert.IsType<GlbAnimationFrames>(package.LoadAnimation("hover"));
-            var reopened = Assert.Single(library.List()); Assert.Equal(.5, reopened.Manifest.Animations["hover"].Speed);
+            Assert.True(package.IsGlb); Assert.True(package.HasPointerArt); Assert.IsType<GlbAnimationFrames>(package.LoadAnimation("look"));
+            var reopened = Assert.Single(library.List()); Assert.Equal(.5, reopened.Manifest.Animations["look"].Speed);
             Assert.Equal(bytes, File.ReadAllBytes(input));
-            var edit = new GlbPetDraft(reopened) { Name = "Edited" }; edit.Set("hover", null); edit.Save(library);
+            var edit = new GlbPetDraft(reopened) { Name = "Edited" }; edit.Set("look", null); edit.Save(library);
             Assert.Equal("Edited", Assert.Single(library.List()).Manifest.Name);
-            Assert.DoesNotContain("hover", library.List()[0].Manifest.Animations.Keys);
+            Assert.DoesNotContain("look", library.List()[0].Manifest.Animations.Keys);
         }
         finally { Directory.Delete(root, true); }
     }
@@ -247,7 +247,7 @@ public class GlbTests
         try
         {
             var file = Path.Combine(temp.Path, "pet.glb"); File.WriteAllBytes(file, Fixture(morph: true)); var draft = new GlbPetDraft(file);
-            foreach (var key in new[] { "click", "pickup", "held", "land", "hover", "attention", "celebrate" }) draft.Set(key, "Idle", key == "held");
+            foreach (var key in new[] { "click", "pickup", "held", "land", "look", "attention", "celebrate" }) draft.Set(key, "Idle", key == "held");
             draft.Set("walk", "Idle", true);
             var package = draft.Save(runtime.Library); await runtime.Start(true, true); runtime.Stop(); await runtime.SelectInstalledCharacter(package);
             var pet = runtime.ActivePet!; Dispatcher.UIThread.RunJobs(); pet.UpdateLayout();
@@ -282,7 +282,7 @@ public class GlbTests
             Assert.Equal("land", pet.ActiveAnimation); Assert.Equal(PetPointerPhase.Recovering, pet.PointerPhase); FixedCanvas();
             for (var i = 0; i < 65; i++) { pet.AdvanceCompanion(.01); FixedCanvas(); }
             await Until(() => pet.ActiveAnimation == "idle"); Assert.Equal(PetPointerPhase.None, pet.PointerPhase);
-            foreach (var key in new[] { "hover", "click", "attention", "celebrate" })
+            foreach (var key in new[] { "look", "click", "attention", "celebrate" })
             {
                 var reaction = pet.React(key); FixedCanvas(); pet.AdvanceCompanion(.1); FixedCanvas();
                 await reaction; FixedCanvas();

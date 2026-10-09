@@ -6,10 +6,10 @@ namespace Unfold.Core;
 public sealed class GlbPetDraft
 {
     public static IReadOnlyList<string> Actions { get; } = System.Array.AsReadOnly(new[]
-        { "idle", "hover", "click", "pickup", "held", "land", "attention", "stretch", "celebrate", "walk", "sleep", "look", "yawn", "sulk" });
+        { "idle", "click", "pickup", "held", "land", "attention", "stretch", "celebrate", "walk", "sleep", "look", "yawn", "sulk" });
     public static string ActionName(string key) => key switch
     {
-        "idle" => "기본 대기", "hover" => "마우스 올리기", "click" => "클릭", "pickup" => "들어 올리기", "held" => "드래그 중",
+        "idle" => "기본 대기", "click" => "클릭", "pickup" => "들어 올리기", "held" => "드래그 중",
         "land" => "놓기", "attention" => "휴식 알림", "stretch" => "휴식 시작", "celebrate" => "휴식 완료",
         "walk" => "화면 위 걷기", "sleep" => "잠자기", "look" => "두리번거리기", "yawn" => "하품", "sulk" => "휴식 미루기", _ => key
     };
@@ -23,6 +23,7 @@ public sealed class GlbPetDraft
     public string Id { get; private set; }
     public string Name { get; set; }
     public float Heading { get; set; }
+    public GlbRotation? Rotation { get; set; }
     public string? RootNode { get; set; }
     public Dictionary<string, AnimationDefinition> Mappings { get; } = new(StringComparer.Ordinal);
     public GlbPetDraft(string path)
@@ -33,7 +34,7 @@ public sealed class GlbPetDraft
         Set("idle", Match("Cafe_Idle", "Idle", "idle", "Normal_Idle") ?? Model.Animations[0].Name, true);
         var defaults = new Dictionary<string, string?>
         {
-            ["click"] = Match("Cafe_Reaction", "Click"), ["hover"] = Match("Cafe_Reaction", "Hover"),
+            ["click"] = Match("Cafe_Reaction", "Click"),
             ["pickup"] = Match("Formation_Pickup", "Pickup"), ["held"] = Match("Formation_Idle", "Held"),
             ["land"] = Match("Formation_Idle", "Land"), ["walk"] = Match("Cafe_Walk", "Walk", "walk"),
             ["celebrate"] = Match("Victory_Start", "Celebrate")
@@ -50,27 +51,37 @@ public sealed class GlbPetDraft
     }
     private GlbPetDraft(CharacterPackage package, string revision) : this(CharacterLibrary.AssetPath(package.DirectoryPath, package.Manifest.Model?.File ?? throw new InvalidDataException("Not a GLB pet.")))
     {
-        Id = package.Manifest.Id; Name = package.Manifest.Name; Heading = package.Manifest.Model!.Heading; RootNode = package.Manifest.Model.RootNode;
+        Id = package.Manifest.Id; Name = package.Manifest.Name; Heading = package.Manifest.Model!.Heading; RootNode = package.Manifest.Model.RootNode; Rotation = package.Manifest.Model.Rotation;
         var metadata = CharacterPack.ReadMetadata(ImageCodec.ReadBounded(CharacterLibrary.AssetPath(package.DirectoryPath, "pack.json"), 64 * 1024));
         var oldVersion = CharacterPack.ParseVersion(metadata.ContentVersion); contentVersion = new(oldVersion.Major, oldVersion.Minor, checked(oldVersion.Build + 1));
         Mappings.Clear(); foreach (var (key, mapping) in package.Manifest.Animations) Mappings[key] = mapping;
         if (revision != CharacterLibrary.PetRevision(package.DirectoryPath)) throw new IOException("펫이 변경됐어요. 다시 선택해 주세요.");
         expectedRevision = revision;
     }
-    public void Set(string action, string? clip, bool loop = false, double speed = 1, float? heading = null)
+    public void Set(string action, string? clip, bool loop = false, double speed = 1, float? heading = null, GlbRotation? rotation = null)
     {
         if (!Actions.Contains(action)) throw new InvalidDataException("Unknown GLB pet event.");
         if (clip is null) { if (action == "idle") throw new InvalidDataException("기본 대기 동작을 선택해 주세요."); Mappings.Remove(action); return; }
         if (!Model.Animations.Any(a => a.Name == clip) || !double.IsFinite(speed) || speed is < .25 or > 3) throw new InvalidDataException("Invalid GLB event mapping.");
-        heading ??= Mappings.GetValueOrDefault(action)?.Heading;
+        var previous = Mappings.GetValueOrDefault(action);
+        rotation ??= heading is null ? previous?.Rotation : null;
+        heading ??= previous?.Heading;
         if (heading is { } angle && (!float.IsFinite(angle) || angle is < -180 or > 180)) throw new InvalidDataException("Invalid action heading.");
+        if (rotation is { IsValid: false }) throw new InvalidDataException("Invalid action rotation.");
         loop = RequiredLoop(action) ?? loop;
-        Mappings[action] = new(ModelClip: clip, Speed: speed, Loop: loop, Heading: heading);
+        Mappings[action] = new(ModelClip: clip, Speed: speed, Loop: loop, Heading: rotation?.Y ?? heading, Rotation: rotation);
+    }
+    private GlbDefinition Definition => new("model.glb", Heading, RootNode, Rotation);
+    public GlbRotation RotationFor(string action) => Definition.ForAnimation(Mappings.GetValueOrDefault(action) ?? Mappings["idle"]).EffectiveRotation;
+    public void SetRotation(string action, GlbRotation rotation)
+    {
+        if (!rotation.IsValid || !Mappings.TryGetValue(action, out var mapping)) throw new InvalidDataException("Invalid action rotation.");
+        Set(action, mapping.ModelClip, mapping.Loop, mapping.Speed, rotation.Y, rotation);
     }
     public GlbAnimationFrames Preview(string action)
     {
         var clip = Mappings.GetValueOrDefault(action) ?? Mappings["idle"];
-        return Model.CreateAnimation(clip.ModelClip!, new("model.glb", clip.Heading ?? Heading, RootNode), Mappings["idle"].ModelClip!, clip.Speed);
+        return Model.CreateAnimation(clip.ModelClip!, Definition.ForAnimation(clip), Mappings["idle"].ModelClip!, clip.Speed);
     }
     public CharacterPackage Save(CharacterLibrary library)
     {
@@ -99,7 +110,7 @@ public sealed class GlbPetDraft
             var frame = Preview("idle")[0].Image;
             AtomicFile.Write(Path.Combine(directory, "preview.png"), ImageCodec.EncodePng(frame));
             var manifest = new CharacterManifest(Id, Name.Trim(), 1, new("preview.png", 1, 1, frame.Width, frame.Height), mappings,
-                RenderStyle: "smooth", Model: new("model.glb", Heading, RootNode));
+                RenderStyle: "smooth", Model: Definition);
             AtomicFile.Write(Path.Combine(directory, "character.json"), JsonSerializer.SerializeToUtf8Bytes(manifest, CharacterLibrary.JsonOptions));
             var archive = Path.Combine(root, "pet.unfoldpet"); CharacterPack.Create(directory, contentVersion.ToString(3), archive);
             complete(archive);

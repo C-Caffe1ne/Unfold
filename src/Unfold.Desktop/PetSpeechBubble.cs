@@ -4,7 +4,6 @@ using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
-using System.Globalization;
 using Unfold.Core;
 
 namespace Unfold.Desktop;
@@ -16,9 +15,6 @@ public sealed class PetSpeechBubble : Border
     private readonly Button start, snooze, complete;
     private readonly Grid invitation = new() { ColumnDefinitions = new("*,8,*") };
     private readonly Grid reminderBody;
-    private readonly StackPanel hoverBody;
-    private readonly AnimatedTimeText currentTime = new() { FontSize = DesignSystem.Title, Foreground = DesignSystem.Cream };
-    private readonly AnimatedCountdown remaining = new() { FontSize = DesignSystem.Body, LineHeight = 28 };
 
     public PetSpeechBubble(Action startBreak, Action snoozeBreak, Action completeBreak)
     {
@@ -45,25 +41,18 @@ public sealed class PetSpeechBubble : Border
         footer.Children.Add(timer); footer.Children.Add(actions);
         reminderBody = new Grid { RowDefinitions = new("*,Auto") };
         reminderBody.Children.Add(title); Grid.SetRow(footer, 1); reminderBody.Children.Add(footer);
-        currentTime.Name = "PetHoverTime"; currentTime.FontWeight = FontWeight.SemiBold;
-        remaining.Name = "PetHoverRemaining"; remaining.Foreground = DesignSystem.Muted;
-        currentTime.TextAlignment = TextAlignment.Center;
-        timer.FontFamily = currentTime.FontFamily = DesignSystem.AppFont;
+        timer.FontFamily = DesignSystem.AppFont;
         timer.FontWeight = FontWeight.SemiBold;
-        hoverBody = new StackPanel { Spacing = DesignSystem.SpeechGap, VerticalAlignment = VerticalAlignment.Center, IsVisible = false };
-        hoverBody.Children.Add(currentTime); hoverBody.Children.Add(remaining);
-        var content = new Grid(); content.Children.Add(reminderBody); content.Children.Add(hoverBody);
-        Child = content; AutomationProperties.SetName(this, "펫의 스트레칭 알림");
+        Child = reminderBody; AutomationProperties.SetName(this, "펫의 스트레칭 알림");
         PropertyChanged += (_, e) =>
         {
             if (e.Property == IsVisibleProperty && !IsVisible)
-            { currentTime.StopMotion(); remaining.StopAnimation(); timer.StopMotion(); }
+            { timer.StopMotion(); }
         };
     }
     public void Refresh(PetReminder reminder, int snoozeMinutes, AppSettings? settings = null)
     {
-        currentTime.StopMotion(); remaining.StopAnimation();
-        Width = DesignSystem.SpeechBubbleWidth; reminderBody.IsVisible = true; hoverBody.IsVisible = false;
+        Width = DesignSystem.SpeechBubbleWidth;
         IsHitTestVisible = true; AutomationProperties.SetName(this, "펫의 스트레칭 알림");
         Height = reminder.Notice switch
         {
@@ -90,17 +79,6 @@ public sealed class PetSpeechBubble : Border
         timer.UpdateValue(session is null ? "" : PetReminder.TimerText(session), reminder.Notice == PetNotice.Resting);
         timer.Foreground = session?.Remaining < TimeSpan.Zero ? DesignSystem.Warning : DesignSystem.Cream;
         AutomationProperties.SetName(timer, "휴식 타이머 " + timer.Text);
-    }
-    internal void RefreshHover(DateTime now, StretchClock clock)
-    {
-        timer.StopMotion();
-        Width = DesignSystem.SpeechHoverWidth; Height = DesignSystem.SpeechHoverHeight;
-        reminderBody.IsVisible = false; hoverBody.IsVisible = true; IsHitTestVisible = false;
-        currentTime.UpdateValue(now.ToString("tt hh:mm", CultureInfo.GetCultureInfo("ko-KR")));
-        var duration = clock.Stopped ? clock.Interval : clock.Remaining;
-        var state = clock.Stopped ? " · 중지" : clock.Paused ? " · 일시정지" : clock.IdlePaused ? " · 자리 비움" : "";
-        remaining.UpdateTime(duration, !clock.Stopped && !clock.Paused && !clock.IdlePaused, "스트레칭 ", state);
-        AutomationProperties.SetName(this, "현재 시각과 스트레칭 남은 시간");
     }
     internal void FocusAction() => (complete.IsVisible ? complete : start).Focus(Avalonia.Input.NavigationMethod.Tab);
 }
@@ -135,10 +113,6 @@ public sealed record PetBubbleLayout(Size Size, Point Pet, Point Bubble, IReadOn
             _ => throw new ArgumentOutOfRangeException(nameof(direction))
         };
     }
-    internal static PetBubbleLayout CreateHover(BubbleDirection preferred, PixelPoint anchor, double scale,
-        PixelRect work, double petSize) => CreateExpanded(preferred, anchor, scale, work, petSize,
-            DesignSystem.SpeechHoverHeight, DesignSystem.SpeechHoverWidth);
-
     internal static PetBubbleLayout CreateExpanded(BubbleDirection preferred, PixelPoint anchor, double scale,
         PixelRect work, double petSize, double bubbleHeight, double bubbleWidth)
     {
@@ -170,9 +144,9 @@ public sealed record PetBubbleLayout(Size Size, Point Pet, Point Bubble, IReadOn
     internal static PetBubbleLayout CreateSurface(BubbleDirection direction, PixelPoint anchor, double scale,
         PixelRect? area, double petSize, double bubbleHeight, double bubbleWidth)
     {
-        var surfaceHeight = new[] { DesignSystem.SpeechHoverHeight, DesignSystem.SpeechAdvanceHeight,
+        var surfaceHeight = new[] { DesignSystem.SpeechAdvanceHeight,
             DesignSystem.SpeechInvitationHeight, DesignSystem.SpeechRestingHeight, DesignSystem.SpeechCompletedHeight }.Max();
-        var surfaceWidth = Math.Max(DesignSystem.SpeechHoverWidth, DesignSystem.SpeechBubbleWidth);
+        var surfaceWidth = DesignSystem.SpeechBubbleWidth;
         var surface = area is { } work ? CreateExpanded(direction, anchor, scale, work, petSize, surfaceHeight, surfaceWidth)
             : Create(direction, true, surfaceHeight, petSize, surfaceWidth);
         var actual = Create(direction, true, bubbleHeight, petSize, bubbleWidth);

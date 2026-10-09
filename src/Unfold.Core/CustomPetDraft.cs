@@ -84,15 +84,16 @@ public sealed class ImportedPetClip
 
 public sealed partial class CustomPetDraft
 {
-    public static IReadOnlyList<string> Actions { get; } = Array.AsReadOnly(new[] { "idle", "attention", "stretch", "celebrate", "click", "hover", "pointerDown", "pointerUp" });
+    public static IReadOnlyList<string> Actions { get; } = Array.AsReadOnly(new[] { "idle", "attention", "stretch", "celebrate", "click", "pointerDown", "pointerUp" });
     private readonly Dictionary<string, ImportedPetClip> clips = [];
     public string Id { get; private set; } = "custom-" + Guid.NewGuid().ToString("N");
-    public IReadOnlyList<string> AvailableActions => sourceManifest is null ? Actions : Actions.Concat(sourceManifest.Animations.Keys).Distinct(StringComparer.Ordinal).ToArray();
+    public IReadOnlyList<string> AvailableActions => sourceManifest is null ? Actions : Actions.Concat(sourceManifest.Animations.Keys)
+        .Where(key => key != "hover").Distinct(StringComparer.Ordinal).ToArray();
     public IReadOnlyDictionary<string, ImportedPetClip> Clips => new System.Collections.ObjectModel.ReadOnlyDictionary<string, ImportedPetClip>(clips);
     public static string ActionName(string key) => key switch
     {
         "idle" => "기본", "attention" => "알림", "stretch" => "휴식",
-        "celebrate" => "휴식 완료", "click" => "클릭 반응", "hover" => "마우스 호버", "pointerDown" => "마우스 눌림", "pointerUp" => "마우스 뗌", _ => GlbPetDraft.ActionName(key)
+        "celebrate" => "휴식 완료", "click" => "클릭 반응", "pointerDown" => "마우스 눌림", "pointerUp" => "마우스 뗌", _ => GlbPetDraft.ActionName(key)
     };
     public void SetClip(string action, ImportedPetClip clip)
     {

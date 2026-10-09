@@ -30,7 +30,7 @@ public class CustomPetInteractionTests
     }
 
     [AvaloniaFact]
-    public async Task CustomPointerClipsRespondToHoverPressReleaseAndHoverExit()
+    public async Task CustomPointerClipsIgnoreHoverButStillRespondToPressAndRelease()
     {
         using var temp = new TempDirectory();
         var previous = Environment.GetEnvironmentVariable("UNFOLD_DATA_DIR");
@@ -55,9 +55,9 @@ public class CustomPetInteractionTests
                 Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
                 Assert.Equal(Matrix.Identity, pet.PetView.RenderTransform?.Value ?? Matrix.Identity);
             }
-            pet.MouseMove(Center()); await Until(() => pet.ActiveAnimation == "hover"); FixedCanvas();
+            pet.MouseMove(Center()); Assert.Equal("idle", pet.ActiveAnimation); FixedCanvas();
             pet.MouseMove(new(-10, -10)); await Until(() => pet.ActiveAnimation == "idle"); FixedCanvas();
-            pet.MouseMove(Center()); await Until(() => pet.ActiveAnimation == "hover"); FixedCanvas();
+            pet.MouseMove(Center()); Assert.Equal("idle", pet.ActiveAnimation); FixedCanvas();
             pet.MouseDown(Center(), MouseButton.Left); await Until(() => pet.ActiveAnimation == "pointerDown"); FixedCanvas();
             pet.MouseUp(Center(), MouseButton.Left); await Until(() => pet.ActiveAnimation == "pointerUp"); FixedCanvas();
             pet.HidePet(); Assert.False(pet.IsVisible);
@@ -65,7 +65,7 @@ public class CustomPetInteractionTests
             noRelease.Animations.Remove("pointerUp"); noRelease.Animations.Remove("click");
             AtomicFile.Write(Path.Combine(package.DirectoryPath, "character.json"), JsonSerializer.SerializeToUtf8Bytes(noRelease, CharacterLibrary.JsonOptions));
             await runtime.Reload(); await runtime.UpdateSettings(runtime.Settings with { ShowPet = true }); Layout(pet);
-            pet.MouseMove(Center()); await Until(() => pet.ActiveAnimation == "hover"); FixedCanvas();
+            pet.MouseMove(Center()); Assert.Equal("idle", pet.ActiveAnimation); FixedCanvas();
             pet.MouseDown(Center(), MouseButton.Left); await Until(() => pet.ActiveAnimation == "pointerDown"); FixedCanvas();
             pet.MouseUp(Center(), MouseButton.Left); await Until(() => pet.ActiveAnimation == "idle"); FixedCanvas();
         }

@@ -98,7 +98,7 @@ public class PetTabsUiTests
                 window.Width = dimensions.Width; window.Height = dimensions.Height; Layout(window);
                 var slots = Find<StackPanel>(window, "CustomPetActionSlots");
                 var scroll = Find<ScrollViewer>(window, "PageBodyScroll");
-                Assert.Equal(8, slots.Children.Count);
+                Assert.Equal(CustomPetDraft.Actions.Count, slots.Children.Count);
                 Assert.True(scroll.Extent.Width <= scroll.Viewport.Width + 1);
                 foreach (var key in CustomPetDraft.Actions)
                 {
