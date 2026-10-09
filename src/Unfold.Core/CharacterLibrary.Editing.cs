@@ -21,8 +21,6 @@ public sealed partial class CharacterLibrary
         try
         {
             var validated = pack.CopyTo(payload);
-            var source = AssetPath(target, "source.piskel");
-            if (File.Exists(source)) AtomicFile.Write(Path.Combine(payload, "source.piskel"), ImageCodec.ReadBounded(source, PiskelCodec.MaxSourceBytes));
             CheckRevision(); Directory.Move(target, backup);
             try { Directory.Move(payload, target); }
             catch { if (!Directory.Exists(target) && Directory.Exists(backup)) Directory.Move(backup, target); throw; }

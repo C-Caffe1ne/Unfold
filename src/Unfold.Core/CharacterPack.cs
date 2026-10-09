@@ -237,7 +237,7 @@ public sealed partial class CharacterLibrary
         if (collision is null) return new("Install", null, null);
         if (Path.GetFileName(collision) != pack.Id) throw new InvalidDataException("A companion already uses this ID with different casing.");
         var metaPath = AssetPath(collision, "pack.json");
-        if (!File.Exists(metaPath) || File.Exists(AssetPath(collision, "source.piskel")))
+        if (!File.Exists(metaPath))
             throw new InvalidDataException("This ID belongs to existing artwork. It cannot be replaced by a pet pack.");
         var metadata = CharacterPack.ReadMetadata(ImageCodec.ReadBounded(metaPath, 64 * 1024));
         if (metadata.Id != pack.Id) throw new InvalidDataException("Installed pack ID differs from its folder.");

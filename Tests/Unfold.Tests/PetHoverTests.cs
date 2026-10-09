@@ -103,11 +103,11 @@ public class PetHoverTests
         public Scope() { Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", temp.Path); Runtime = new(lifetime); }
         public async Task Load(bool original = false)
         {
-            var document = new PixelDocument(16, 16) { Name = "Hover fixture" };
+            var document = new SpriteFixture(16, 16) { Name = "Hover fixture" };
             // Leave enough transparent pixels around the hit-test's 1px tolerance.
             for (var y = 5; y <= 10; y++)
-            for (var x = 5; x <= 10; x++) document.Layers[0].Frames[0][y * 16 + x] = 0xFFFFFFFFu;
-            var package = Runtime.Library.Save(document);
+            for (var x = 5; x <= 10; x++) document.Pixels[y * 16 + x] = 0xFFFFFFFFu;
+            var package = Runtime.Library.InstallFixture(document);
             if (original)
             {
                 var manifest = package.Manifest with

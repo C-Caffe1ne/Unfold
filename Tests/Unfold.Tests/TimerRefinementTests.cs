@@ -23,7 +23,6 @@ public class TimerRefinementTests
         using var temp = new TempDirectory(); var path = Path.Combine(temp.Path, "settings.json");
         var settings = new AppSettings { IntervalMinutes = minutes };
         settings.Save(path); Assert.Equal(minutes, AppSettings.Load(path).IntervalMinutes);
-        new WorkProfile("short", "Short", minutes, 1, BreakRoutines.DefaultId).Validate();
         var clock = new StretchClock(TimeSpan.FromMinutes(minutes)); clock.Start(TimeSpan.Zero);
         for (var second = 1; second <= minutes * 60; second++)
         {
@@ -75,8 +74,8 @@ public class TimerRefinementTests
     public async Task AutomaticSnoozeUsesConfiguredMinutesAndPreservesManualPause(bool paused)
     {
         using var scope = new Scope(); var runtime = scope.Runtime;
-        var doc = new PixelDocument(16, 16); Array.Fill(doc.Layers[0].Frames[0], 0xFFFFFFFFu);
-        var pack = runtime.Library.Save(doc); await runtime.Reload(); runtime.Stop();
+        var doc = new SpriteFixture(16, 16); Array.Fill(doc.Pixels, 0xFFFFFFFFu);
+        var pack = runtime.Library.InstallFixture(doc); await runtime.Reload(); runtime.Stop();
         await runtime.UpdateSettings(runtime.Settings with { SelectedCharacterId = pack.Manifest.Id, ShowPet = false, SnoozeMinutes = 9 });
         runtime.TogglePause(); if (paused) runtime.TogglePause();
         await runtime.ShowReminder(); Layout(scope.Window);
@@ -95,8 +94,8 @@ public class TimerRefinementTests
     public async Task AlreadyExpiredInvitationHidesTemporaryPetInTheSameRefresh(bool paused)
     {
         using var scope = new Scope(); var runtime = scope.Runtime;
-        var doc = new PixelDocument(16, 16); Array.Fill(doc.Layers[0].Frames[0], 0xFFFFFFFFu);
-        var pack = runtime.Library.Save(doc); await runtime.Reload();
+        var doc = new SpriteFixture(16, 16); Array.Fill(doc.Pixels, 0xFFFFFFFFu);
+        var pack = runtime.Library.InstallFixture(doc); await runtime.Reload();
         await runtime.UpdateSettings(runtime.Settings with { SelectedCharacterId = pack.Manifest.Id, ShowPet = false, SnoozeMinutes = 9 });
         runtime.Stop(); runtime.TogglePause(); if (paused) runtime.TogglePause();
         await runtime.ShowReminder();

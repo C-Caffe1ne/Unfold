@@ -89,26 +89,11 @@ public class SettingsDashboardTests
         Assert.Equal(10, slider.TickFrequency); Assert.True(slider.IsSnapToTickEnabled);
         Assert.DoesNotContain(card.GetVisualDescendants().OfType<TextBlock>(), text => text.Text is "축소" or "기본" or "확대");
 
-        var host = Find<Control>(window, "CompanionPreview");
-        var stage = Find<Grid>(window, "CompanionPreviewStage");
-        var previewScroll = Find<ScrollViewer>(window, "CompanionPreviewScroll");
-        Assert.Single(stage.Children); Assert.Same(host, stage.Children[0]);
-        Assert.DoesNotContain(stage.Children, child => child is Avalonia.Controls.Shapes.Ellipse);
-        foreach (var size in new[] { new Size(1120, 800), new Size(860, 680) })
+        Assert.DoesNotContain(card.GetVisualDescendants(), control => control is AnimationView);
+        foreach (var scale in new[] { 50, 100, 150 })
         {
-            window.Width = size.Width; window.Height = size.Height;
-            foreach (var scale in new[] { 50, 100, 150 })
-            {
-                slider.Value = scale; Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
-                var actualSize = DesignSystem.PetBaseSize * scale / 100d;
-                Assert.Equal(actualSize, host.Width); Assert.Equal(actualSize, host.Height);
-                Assert.Equal(actualSize, stage.Width); Assert.Equal(actualSize, stage.Height);
-                Assert.Equal($"{scale}%", value.Text);
-                Assert.True(previewScroll.Extent.Width <= previewScroll.Viewport.Width + 1);
-                var expectsScroll = size == new Size(860, 680) && scale == 150;
-                Assert.True(expectsScroll == (previewScroll.Extent.Height > previewScroll.Viewport.Height + 1),
-                    $"Window={size}, scale={scale}, extent={previewScroll.Extent}, viewport={previewScroll.Viewport}");
-            }
+            slider.Value = scale; Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+            Assert.Equal($"{scale}%", value.Text);
         }
         Assert.Equal("150%", value.Text); Assert.Equal(150, scope.Runtime.Settings.PetScalePercent);
         Assert.Equal(150, AppSettings.Load(Path.Combine(scope.Root, "settings.json")).PetScalePercent);
@@ -176,12 +161,10 @@ public class SettingsDashboardTests
     }
 
     [AvaloniaFact]
-    public async Task ResizingPreservesTimerDraftsAndLegacyRoutineData()
+    public async Task ResizingPreservesTimerDraftsAndCurrentSettings()
     {
         using var scope = new Scope(); var window = scope.Window;
-        var legacyRoutine = new BreakRoutine("legacy-routine", "기존 루틴", [new("숨을 고르세요.", 30)]);
-        var legacyProfile = new WorkProfile("legacy-profile", "기존 프로필", 45, 3, legacyRoutine.Id);
-        await scope.Runtime.UpdateSettings(scope.Runtime.Settings with { AdditionalRoutines = [legacyRoutine], WorkProfiles = [legacyProfile], BreakRoutineId = legacyRoutine.Id });
+        await scope.Runtime.UpdateSettings(scope.Runtime.Settings with { IdleMinutes = 3 });
         Dispatcher.UIThread.RunJobs();
         var breakDuration = Find<NumericUpDown>(window, "BreakDurationMinutes"); breakDuration.Value = 3;
         window.Width = window.MinWidth; window.Height = window.MinHeight; Dispatcher.UIThread.RunJobs();
@@ -198,9 +181,6 @@ public class SettingsDashboardTests
         Dispatcher.UIThread.RunJobs();
         var loaded = AppSettings.Load(Path.Combine(scope.Root, "settings.json"));
         Assert.Equal(12, loaded.IdleMinutes); Assert.Equal(9, loaded.SnoozeMinutes); Assert.Equal(3, loaded.BreakDurationMinutes);
-        Assert.Equal(legacyRoutine.Id, loaded.BreakRoutineId);
-        Assert.Contains(loaded.AdditionalRoutines, routine => routine.Id == legacyRoutine.Id);
-        Assert.Contains(loaded.WorkProfiles, profile => profile.Id == legacyProfile.Id);
     }
 
     [AvaloniaFact]

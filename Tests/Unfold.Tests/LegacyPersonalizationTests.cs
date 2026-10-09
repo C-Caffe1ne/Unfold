@@ -6,61 +6,15 @@ namespace Unfold.Tests;
 public class LegacyPersonalizationTests
 {
     private static BreakRoutine Routine(string id = "writing", string name = "Writing pause") => new(id, name, [new("Rest my hands", 20)]);
-    private static BreakSession Completed(BreakRoutine? routine = null, WorkProfile? profile = null)
+    private static BreakSession Completed(BreakRoutine? routine = null)
     {
-        var session = new BreakSession(routine ?? Routine(), "default-cat", profile); session.Start(TimeSpan.Zero);
+        var session = new BreakSession(routine ?? Routine(), "default-cat"); session.Start(TimeSpan.Zero);
         session.Tick(TimeSpan.FromSeconds(10)); session.Tick(TimeSpan.FromSeconds(20)); Assert.True(session.Complete()); return session;
     }
-    [Fact]
-    public void LegacyRoutinesProfilesAndPreferencesSurviveCurrentSettingsSave()
-    {
-        using var temp = new TempDirectory(); var file = Path.Combine(temp.Path, "settings.json");
-        new AppSettings
-        {
-            CustomRoutine = Routine(BreakRoutines.CustomId), AdditionalRoutines = [Routine("drawing", "Drawing pause")],
-            WorkProfiles = [new("creative", "Creative work", 45, 3, "drawing")], ActiveProfileId = "creative",
-            IntervalMinutes = 45, IdleMinutes = 3, BreakRoutineId = "drawing", ShowPet = false, PetX = -120
-        }.Save(file);
-        var settings = AppSettings.Load(file);
-        (settings with { SnoozeMinutes = 9, Theme = AppTheme.MidnightBlue }).Save(file);
-        var loaded = AppSettings.Load(file);
-        Assert.NotNull(loaded.CustomRoutine); Assert.Single(loaded.AdditionalRoutines); Assert.Single(loaded.WorkProfiles);
-        Assert.Equal("creative", loaded.ActiveProfileId); Assert.Equal(45, loaded.IntervalMinutes); Assert.Equal(3, loaded.IdleMinutes);
-        Assert.Equal("drawing", loaded.BreakRoutineId); Assert.False(loaded.ShowPet); Assert.Equal(-120, loaded.PetX);
-        Assert.Equal(9, loaded.SnoozeMinutes); Assert.Equal(AppTheme.MidnightBlue, loaded.Theme);
-    }
-    [Fact]
-    public void ValidatingLegacySettingsSnapshotsExternalRoutineCollections()
-    {
-        var steps = new[] { new BreakStep("Original", 20) };
-        var settings = (new AppSettings { AdditionalRoutines = [new("writing", "Writing", steps)] }).ValidatePersonalization();
-        steps[0] = new("Changed outside", 1);
-        Assert.Equal("Original", Assert.Single(settings.AdditionalRoutines).Steps[0].Instruction);
-    }
-    [Fact]
-    public void LoadingDropsDanglingProfilesAndValidationRejectsInvalidLegacyLibraries()
-    {
-        using var temp = new TempDirectory(); var file = Path.Combine(temp.Path, "settings.json");
-        var json = "{\"workProfiles\":[{\"id\":\"work\",\"name\":\"Work\",\"intervalMinutes\":30,\"idleMinutes\":5,\"routineId\":\"missing\"}]}";
-        File.WriteAllText(file, json);
-        Assert.Empty(AppSettings.Load(file, out var needsBackup).WorkProfiles);
-        Assert.True(needsBackup); Assert.Equal(json, File.ReadAllText(file));
-        Assert.Throws<ArgumentException>(() => (new AppSettings { AdditionalRoutines = [Routine("WRITING"), Routine("writing")] }).ValidatePersonalization());
-        Assert.Throws<ArgumentException>(() => (new AppSettings { AdditionalRoutines = [Routine(BreakRoutines.DefaultId)] }).ValidatePersonalization());
-        Assert.Throws<ArgumentException>(() => (new AppSettings { AdditionalRoutines = Enumerable.Range(0, 20).Select(i => Routine($"routine-{i}")).ToArray() }).ValidatePersonalization());
-    }
-    [Fact]
-    public void SessionAndHistoryKeepProfileAndRoutineNamesAfterEdits()
-    {
-        var routine = Routine(); var profile = new WorkProfile("focus", "Focus", 45, 5, routine.Id);
-        var session = Completed(routine, profile);
-        var settings = new AppSettings { AdditionalRoutines = [routine with { Name = "Renamed" }],
-            WorkProfiles = [profile with { Name = "New profile name" }] };
-        var history = new BreakHistory(); history.Add(session, DateTimeOffset.Now);
-        var entry = Assert.Single(history.Completions);
-        Assert.Equal("Writing pause", entry.RoutineName); Assert.Equal("Focus", entry.ProfileName); Assert.Equal("focus", entry.ProfileId);
-        Assert.Equal("Renamed", Assert.Single(settings.AdditionalRoutines).Name);
-    }
+
+
+
+
     [Fact]
     public void SevenDayReviewIncludesEmptyDaysAndUsesCompletionLocalDate()
     {
@@ -87,9 +41,9 @@ public class LegacyPersonalizationTests
     public void LongKoreanNamesRoundTripAtTheHistoryRecordLimit()
     {
         using var temp = new TempDirectory(); var file = Path.Combine(temp.Path, "history.json");
-        var routine = Routine(name: new string('쉼', 60)); var profile = new WorkProfile("focus", new string('일', 60), 45, 5, routine.Id);
+        var routine = Routine(name: new string('쉼', 60));
         var history = new BreakHistory(); var date = DateTimeOffset.Now;
-        for (var i = 0; i < BreakHistory.MaxRecords; i++) history.Add(Completed(routine, profile), date.AddSeconds(i));
+        for (var i = 0; i < BreakHistory.MaxRecords; i++) history.Add(Completed(routine), date.AddSeconds(i));
         history.Save(file); Assert.Equal(BreakHistory.MaxRecords, BreakHistory.Load(file).Completions.Count);
     }
     [Fact]

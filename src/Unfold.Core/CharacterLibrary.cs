@@ -178,7 +178,7 @@ public sealed partial class CharacterLibrary
         foreach (var directory in Directory.EnumerateDirectories(Root).Order())
         {
             var id = Path.GetFileName(directory); if (!SafeId(id)) continue;
-            try { var item = LoadPackage(directory, builtIn: false, loadModel: loadModels); if (item.Manifest.Id != id) throw new InvalidDataException("Package ID differs from directory."); results.Add(item); }
+            try { var item = LoadPackage(directory, builtIn: false, loadModel: loadModels); if (item.Manifest.Id != id) throw new InvalidDataException("Package ID differs from directory."); RemoveRetiredArtworkSource(item); results.Add(item); }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException or JsonException or ArgumentException)
             { Warning?.Invoke($"Skipped {id}: {ex.Message}"); }
         }

@@ -137,10 +137,10 @@ public class PetClickThroughTests
         public Scope() { Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", temp.Path); Runtime = new(lifetime); }
         public async Task Load()
         {
-            var document = new PixelDocument(32, 32) { Name = "Input fixture" };
+            var document = new SpriteFixture(32, 32) { Name = "Input fixture" };
             for (var y = 8; y < 24; y++) for (var x = 8; x < 24; x++)
-                document.Layers[0].Frames[0][y * 32 + x] = x == 16 && y == 16 ? 0 : 0xFFFFFFFFu;
-            var package = Runtime.Library.Save(document); await Runtime.Reload(); Runtime.Stop();
+                document.Pixels[y * 32 + x] = x == 16 && y == 16 ? 0 : 0xFFFFFFFFu;
+            var package = Runtime.Library.InstallFixture(document); await Runtime.Reload(); Runtime.Stop();
             await Runtime.UpdateSettings(Runtime.Settings with { SelectedCharacterId = package.Manifest.Id,
                 ShowPet = true, ReminderSoundsEnabled = false, BubbleDirection = BubbleDirection.Bottom });
             Pet.Position = new(500, 400); Layout(Pet);

@@ -19,7 +19,7 @@ public class CharacterAssetAuditTests
     public void ExistingButCorruptGifFailsTheAudit()
     {
         using var temp = new TempDirectory(); var library = new CharacterLibrary(temp.Path);
-        var package = library.Save(CodecTests.Fixture());
+        var package = library.InstallFixture(CodecTests.Fixture());
         var manifest = package.Manifest;
         manifest.Animations["stretch"] = new(Gif: "broken.gif", Loop: false);
         File.WriteAllText(Path.Combine(package.DirectoryPath, "broken.gif"), "not a gif");

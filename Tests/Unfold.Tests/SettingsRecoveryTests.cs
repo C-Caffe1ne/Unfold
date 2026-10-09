@@ -14,9 +14,6 @@ public class SettingsRecoveryTests
     [InlineData("theme", "{}")]
     [InlineData("bubbleDirection", "\"sideways\"")]
     [InlineData("petX", "\"broken\"")]
-    [InlineData("customRoutine", "[]")]
-    [InlineData("additionalRoutines", "{}")]
-    [InlineData("workProfiles", "null")]
     [InlineData("reminderSoundId", "123")]
     public void WrongFieldTypesKeepUnrelatedSettingsAndRequestAnOriginalBackup(string field, string invalid)
     {
@@ -37,80 +34,19 @@ public class SettingsRecoveryTests
         Assert.False(needsBackup);
     }
 
-    [Fact]
-    public void DamagedLegacyEntriesDoNotDiscardValidRoutinesProfilesOrTheirSelection()
-    {
-        using var temp = new TempDirectory(); var path = Path.Combine(temp.Path, "settings.json");
-        var routine = new BreakRoutine("kept", "보존할 루틴", [new BreakStep("잠깐 쉬기", 30)]);
-        var profile = new WorkProfile("kept-profile", "보존할 프로필", 37, 9, "kept");
-        var saved = new AppSettings { AdditionalRoutines = [routine], WorkProfiles = [profile],
-            ActiveProfileId = profile.Id, BreakRoutineId = routine.Id, IntervalMinutes = profile.IntervalMinutes, IdleMinutes = profile.IdleMinutes };
-        var json = JsonSerializer.SerializeToNode(saved, CharacterLibrary.JsonOptions)!.AsObject();
-        var routines = json["additionalRoutines"]!.AsArray();
-        routines.Insert(0, null);
-        routines.Insert(0, JsonNode.Parse("{\"id\":42}"));
-        routines.Add(JsonSerializer.SerializeToNode(routine with { Id = "KEPT" }, CharacterLibrary.JsonOptions));
-        routines.Add(JsonSerializer.SerializeToNode(routine with { Id = BreakRoutines.DefaultId }, CharacterLibrary.JsonOptions));
-        routines.Add(JsonSerializer.SerializeToNode(routine with { Id = "bad", Steps = [] }, CharacterLibrary.JsonOptions));
-        var profiles = json["workProfiles"]!.AsArray();
-        profiles.Insert(0, JsonSerializer.SerializeToNode(profile with { RoutineId = "missing" }, CharacterLibrary.JsonOptions));
-        profiles.Insert(0, JsonNode.Parse("{\"intervalMinutes\":\"bad\"}"));
-        profiles.Add(null);
-        profiles.Add(JsonSerializer.SerializeToNode(profile with { Id = "KEPT-PROFILE" }, CharacterLibrary.JsonOptions));
-        File.WriteAllText(path, json.ToJsonString());
 
-        var loaded = AppSettings.Load(path, out var needsBackup);
-        Assert.True(needsBackup);
-        Assert.Equal("kept", Assert.Single(loaded.AdditionalRoutines).Id);
-        Assert.Equal(profile, Assert.Single(loaded.WorkProfiles));
-        Assert.Equal(profile.Id, loaded.ActiveProfileId); Assert.Equal(routine.Id, loaded.BreakRoutineId);
-        Assert.Equal(37, loaded.IntervalMinutes); Assert.Equal(9, loaded.IdleMinutes);
-        loaded.ValidatePersonalization();
-    }
 
-    [Fact]
-    public void LosingAnInvalidRoutineRemovesOnlyDependentProfilesAndRepairsSelections()
-    {
-        using var temp = new TempDirectory(); var path = Path.Combine(temp.Path, "settings.json");
-        var bad = new BreakRoutine("bad", "손상됨", []);
-        var kept = new WorkProfile("kept", "기본 루틴 사용", 37, 9, BreakRoutines.DefaultId);
-        var settings = new AppSettings { IntervalMinutes = 37, IdleMinutes = 9, AdditionalRoutines = [bad],
-            WorkProfiles = [kept, kept with { Id = "removed", RoutineId = "bad" }],
-            BreakRoutineId = "bad", ActiveProfileId = "removed" };
-        File.WriteAllBytes(path, JsonSerializer.SerializeToUtf8Bytes(settings, CharacterLibrary.JsonOptions));
-        var value = AppSettings.Load(path, out var needsBackup);
-        Assert.True(needsBackup); Assert.Empty(value.AdditionalRoutines);
-        Assert.Equal(kept, Assert.Single(value.WorkProfiles)); Assert.Null(value.ActiveProfileId);
-        Assert.Equal(BreakRoutines.DefaultId, value.BreakRoutineId);
-        Assert.Equal(37, value.IntervalMinutes); Assert.Equal(9, value.IdleMinutes);
-    }
 
-    [Fact]
-    public void RecoveryKeepsValidEntriesUpToTheExistingLibraryLimits()
-    {
-        using var temp = new TempDirectory(); var path = Path.Combine(temp.Path, "settings.json");
-        var settings = new AppSettings { IntervalMinutes = 37,
-            AdditionalRoutines = Enumerable.Range(0, 23).Select(i => new BreakRoutine($"r-{i}", "루틴", [new("쉬기", 20)])).ToArray(),
-            WorkProfiles = Enumerable.Range(0, 13).Select(i => new WorkProfile($"p-{i}", "프로필", 37, 5, $"r-{i}")).ToArray() };
-        File.WriteAllBytes(path, JsonSerializer.SerializeToUtf8Bytes(settings, CharacterLibrary.JsonOptions));
-        var value = AppSettings.Load(path, out var needsBackup);
-        Assert.True(needsBackup); Assert.Equal(37, value.IntervalMinutes);
-        Assert.Equal(AppSettings.MaxAdditionalRoutines, value.AdditionalRoutines.Count);
-        Assert.Equal(AppSettings.MaxWorkProfiles, value.WorkProfiles.Count);
-        value.ValidatePersonalization();
-    }
+
+
 
     [Fact]
     public void EveryHealthySettingSurvivesTheTolerantReader()
     {
         using var temp = new TempDirectory(); var path = Path.Combine(temp.Path, "settings.json");
-        var routine = new BreakRoutine(BreakRoutines.CustomId, "내 루틴", [new("쉬기", 30)]);
-        var profile = new WorkProfile("work", "업무", 37, 9, routine.Id);
         var value = new AppSettings { Theme = (AppTheme)1, IntervalMinutes = 37, IdleMinutes = 9,
             BreakDurationMinutes = 3, SelectedCharacterId = "penguin", ShowPet = false, PetScalePercent = 120,
-            CustomRoutine = routine, AdditionalRoutines = [routine with { Id = "another" }], WorkProfiles = [profile],
-            ActiveProfileId = profile.Id, BreakRoutineId = routine.Id, BubbleDirection = BubbleDirection.Right,
-            SnoozeMinutes = 7, DebugToolsEnabled = true, ReminderSoundsEnabled = false, ReminderVolumePercent = 42,
+            BubbleDirection = BubbleDirection.Right, SnoozeMinutes = 7, DebugToolsEnabled = true, ReminderSoundsEnabled = false, ReminderVolumePercent = 42,
             ReminderSoundId = new string('a', 64), CompletionSoundId = new string('b', 64),
             ReminderSoundName = "알림.wav", CompletionSoundName = "완료.wav", PetX = -123, PetY = 456 };
         value.Save(path);
@@ -154,11 +90,10 @@ public class SettingsRecoveryTests
     ];
 
     [Fact]
-    public void ADamagedScalarDoesNotDiscardTheSavedRoutineLibrary()
+    public void ADamagedScalarPreservesOtherPreferences()
     {
         using var temp = new TempDirectory(); var path = Path.Combine(temp.Path, "settings.json");
-        var routine = new BreakRoutine("mine", "내 루틴", [new BreakStep("손을 쉬어요", 20)]);
-        new AppSettings { IntervalMinutes = 37, IdleMinutes = 9, AdditionalRoutines = [routine], BreakRoutineId = routine.Id }.Save(path);
+        new AppSettings { IntervalMinutes = 37, IdleMinutes = 9, ShowPet = false }.Save(path);
         var original = File.ReadAllText(path);
         var index = original.IndexOf("PetScalePercent", StringComparison.OrdinalIgnoreCase);
         // Guard against a silent no-op if the serialized name ever changes.
@@ -170,7 +105,6 @@ public class SettingsRecoveryTests
         var value = AppSettings.Load(path);
         Assert.Equal(100, value.PetScalePercent);
         Assert.Equal(37, value.IntervalMinutes); Assert.Equal(9, value.IdleMinutes);
-        Assert.Equal("내 루틴", Assert.Single(value.AdditionalRoutines).Name);
     }
 
     [Fact]

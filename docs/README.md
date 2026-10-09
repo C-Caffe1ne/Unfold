@@ -33,6 +33,7 @@
 | [시작 업데이트 안내 검증](validation/2026-10-08-startup-updates.md) | 계정 복원 뒤 새 버전 모달·변경내역·백그라운드 유예·중복 방지와 네 테마 Mac 실제 창 |
 | [400MB 메모리 검증](validation/2026-10-07-memory-budget.md) | 최신 소스·동일 native 실행기의 전후 측정, 캐시·2D 재생·가져오기 최적화와 복구 회귀 검사 |
 | [400MB 최적화 계획](plans/2026-10-07-memory-budget.md) | Agency 역할·측정 기준·변경 순서·장시간 검증과 임의 입력 경계 |
+| [보존 코드·데이터 이전 제거 검증](validation/2026-10-09-retired-feature-removal.md) | Beta v1.1.3 루틴·프로필 설정, 타이머 펫 미리보기와 Piskel 제거·데이터 이전 검증 |
 | [미사용 기능 제거 검증](validation/2026-10-07-unused-features.md) | 최신 제품 커밋 기준, 루틴·프로필 설정과 픽셀 에디터 제거·기존 데이터 호환·종료/업데이트 회귀 검사 |
 | [과거 편집 기능 파일 정리 검증](validation/2026-10-08-legacy-authoring-cleanup.md) | Piskel·루틴·프로필의 폐기 문서/캡처 제거, 호환 코드 분리와 정리 전후 검사 |
 | [Agency 다음 단계 검증](validation/2026-10-06-agency-next-stage.md) | 실제 macOS native GLB 36분 자원 추세·Windows 환경/양식과 남은 비교 조건 |

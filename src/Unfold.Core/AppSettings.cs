@@ -12,11 +12,6 @@ public sealed partial record AppSettings
     public string SelectedCharacterId { get; init; } = "default-cat";
     public bool ShowPet { get; init; } = true;
     public int PetScalePercent { get; init; } = 100;
-    public string BreakRoutineId { get; init; } = BreakRoutines.DefaultId;
-    public BreakRoutine? CustomRoutine { get; init; }
-    public IReadOnlyList<BreakRoutine> AdditionalRoutines { get; init; } = [];
-    public IReadOnlyList<WorkProfile> WorkProfiles { get; init; } = [];
-    public string? ActiveProfileId { get; init; }
     public BubbleDirection BubbleDirection { get; init; } = BubbleDirection.Top;
     public int BubbleOpacityPercent { get; init; } = 100;
     public string AdvanceDialogue { get; init; } = "5분 뒤에 스트레칭해요";
@@ -37,20 +32,15 @@ public sealed partial record AppSettings
     public int? PetX { get; init; }
     public int? PetY { get; init; }
     public static AppSettings Load(string path) => Load(path, out _);
-    public static AppSettings Load(string path, out bool needsBackup)
+    public static AppSettings Load(string path, out bool needsBackup) => Load(path, out needsBackup, out _);
+    public static AppSettings Load(string path, out bool needsBackup, out bool needsMigration)
     {
-        needsBackup = false;
+        needsBackup = needsMigration = false;
         if (!File.Exists(path)) return new();
-        var value = ReadFields(ImageCodec.ReadBounded(path, 256 * 1024), out needsBackup);
+        var value = ReadFields(ImageCodec.ReadBounded(path, 256 * 1024), out needsBackup, out needsMigration);
         // An unknown theme must not discard otherwise valid timer or pet settings.
         if (!Enum.IsDefined(value.Theme)) value = value with { Theme = DefaultTheme };
         value = Recover(value);
-        value = value.RecoverPersonalization(ref needsBackup);
-        if (!BreakRoutines.ForSettings(value).Any(routine => routine.Id == value.BreakRoutineId))
-            value = value with { BreakRoutineId = BreakRoutines.DefaultId };
-        if (value.ActiveProfileId is { } active && !value.WorkProfiles.Any(profile => profile.Id == active &&
-            profile.IntervalMinutes == value.IntervalMinutes && profile.IdleMinutes == value.IdleMinutes && profile.RoutineId == value.BreakRoutineId))
-            value = value with { ActiveProfileId = null };
         return value;
     }
     public void Save(string path)

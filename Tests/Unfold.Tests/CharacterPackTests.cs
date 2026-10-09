@@ -54,10 +54,10 @@ public class CharacterPackTests
         using var temp = new TempDirectory(); var library = new CharacterLibrary(Path.Combine(temp.Path, "library"), ["test-pet"]);
         using var pack = CharacterPack.Open(CreatePack(temp.Path));
         Assert.Throws<InvalidDataException>(() => library.Install(pack, null));
-        var own = library.Save(CodecTests.Fixture()); var revision = CharacterLibrary.Revision(own.DirectoryPath);
+        var own = library.InstallFixture(CodecTests.Fixture()); var revision = CharacterLibrary.PetRevision(own.DirectoryPath);
         using var colliding = CharacterPack.Open(CreatePack(temp.Path, id: own.Manifest.Id));
         Assert.Throws<InvalidDataException>(() => library.InspectInstall(colliding));
-        Assert.Equal(revision, CharacterLibrary.Revision(own.DirectoryPath));
+        Assert.Equal(revision, CharacterLibrary.PetRevision(own.DirectoryPath));
     }
     [Fact]
     public void SameVersionWithDifferentContentCanBeExplicitlyReplaced()

@@ -147,9 +147,9 @@ public class PetPlaybackRecoveryTests
         }
         public async Task Select()
         {
-            var document = new PixelDocument(4, 4) { Name = "Recovery fixture" };
-            Array.Fill(document.Layers[0].Frames[0], 0xFFFFFFFFu);
-            var package = Runtime.Library.Save(document);
+            var document = new SpriteFixture(4, 4) { Name = "Recovery fixture" };
+            Array.Fill(document.Pixels, 0xFFFFFFFFu);
+            var package = Runtime.Library.InstallFixture(document);
             foreach (var key in OriginalCompanion.RequiredClips) File.WriteAllBytes(Path.Combine(package.DirectoryPath, key + ".gif"), Gif);
             var manifest = package.Manifest with { BehaviorProfile = OriginalCompanion.Profile,
                 Animations = OriginalCompanion.RequiredClips.ToDictionary(key => key,

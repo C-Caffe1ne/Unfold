@@ -97,14 +97,41 @@ public class PetEditingCoreTests
         Assert.Equal("최근 3D", new GlbPetDraft(model).Name);
     }
     [Fact]
-    public void LegacySourceAndBuiltInProtectionRemainIntact()
+    public void RetiredSourceIsRemovedWhilePlayableArtworkAndBuiltInProtectionRemainIntact()
     {
         using var temp = new TempDirectory(); var library = new CharacterLibrary(Path.Combine(temp.Path, "library"), ["default-cat"]);
-        var original = library.Save(CodecTests.Fixture()); var path = Path.Combine(original.DirectoryPath, "source.piskel"); var bytes = File.ReadAllBytes(path);
+        var original = library.InstallFixture(CodecTests.Fixture()); var path = Path.Combine(original.DirectoryPath, "source.piskel"); File.WriteAllText(path, "retired source");
+        var pixels = original.StillImage.Pixels.ToArray();
+        original = Assert.Single(library.List()); Assert.False(File.Exists(path));
         var edited = new CustomPetDraft(original).Save(library, "이전 펫 편집");
-        Assert.Equal(original.Manifest.Id, edited.Manifest.Id); Assert.Equal(bytes, File.ReadAllBytes(path));
+        Assert.Equal(original.Manifest.Id, edited.Manifest.Id); Assert.Equal(pixels, edited.StillImage.Pixels); Assert.False(File.Exists(path));
         Assert.False(library.CanManage("default-cat")); Assert.Throws<InvalidDataException>(() => library.Delete("default-cat"));
         Assert.Throws<InvalidDataException>(() => new CustomPetDraft(CharacterLibrary.LoadPackage(original.DirectoryPath, true)));
+    }
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public void InvalidPackageDoesNotDeleteUnverifiedSource(bool corruptGif)
+    {
+        using var temp = new TempDirectory(); var library = new CharacterLibrary(Path.Combine(temp.Path, "library"));
+        var pet = library.InstallFixture(CodecTests.Fixture());
+        var source = Path.Combine(pet.DirectoryPath, "source.piskel"); File.WriteAllText(source, "original");
+        if (corruptGif)
+        {
+            File.WriteAllText(Path.Combine(pet.DirectoryPath, "idle.gif"), "broken");
+            var manifest = pet.Manifest with { Animations = new() { ["idle"] = new(Gif: "idle.gif") } };
+            File.WriteAllBytes(Path.Combine(pet.DirectoryPath, "character.json"), JsonSerializer.SerializeToUtf8Bytes(manifest, CharacterLibrary.JsonOptions));
+        }
+        else File.WriteAllText(Path.Combine(pet.DirectoryPath, "spritesheet.png"), "broken");
+        _ = library.List(); Assert.Equal("original", File.ReadAllText(source));
+    }
+    [Fact]
+    public void RetiredSourceCleanupNeverDeletesALinkedExternalFile()
+    {
+        using var temp = new TempDirectory(); var library = new CharacterLibrary(Path.Combine(temp.Path, "library"));
+        var pet = library.InstallFixture(CodecTests.Fixture());
+        var outside = Path.Combine(temp.Path, "outside.piskel"); File.WriteAllText(outside, "original");
+        File.CreateSymbolicLink(Path.Combine(pet.DirectoryPath, "source.piskel"), outside);
+        Assert.Single(library.List()); Assert.Equal("original", File.ReadAllText(outside));
     }
     [Fact]
     public void StaleGlbEditsAndDeletionCannotReplaceANewerSavedPet()

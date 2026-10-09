@@ -106,9 +106,9 @@ public class MemoryBudgetTests
     {
         using var temp = new TempDirectory();
         var library = new CharacterLibrary(temp.Path);
-        var document = new PixelDocument(2, 1) { Name = "fallback" };
-        document.Layers[0].Frames[0] = [0xFFFF0000u, 0xFF0000FFu];
-        var package = library.Save(document);
+        var document = new SpriteFixture(2, 1) { Name = "fallback" };
+        document.Pixels = [0xFFFF0000u, 0xFF0000FFu];
+        var package = library.InstallFixture(document);
         File.Delete(Path.Combine(package.DirectoryPath, package.Manifest.SpriteSheet.File));
         Assert.Equal(new uint[] { 0xFFFF0000u, 0xFF0000FFu }, package.StillImage.Pixels);
     }

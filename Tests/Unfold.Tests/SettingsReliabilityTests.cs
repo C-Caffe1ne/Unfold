@@ -87,7 +87,6 @@ public class SettingsReliabilityTests
 
     [AvaloniaTheory]
     [InlineData("{\"intervalMinutes\":37,\"idleMinutes\":9,\"petScalePercent\":\"broken\"}")]
-    [InlineData("{\"intervalMinutes\":37,\"idleMinutes\":9,\"additionalRoutines\":[null]}")]
     public void PartialRecoveryBacksUpTheExactOriginalAndKeepsHealthySettings(string contents)
     {
         using var temp = new TempDirectory();

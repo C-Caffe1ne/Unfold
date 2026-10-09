@@ -510,9 +510,9 @@ public class OriginalCompanionTests
         }
         public async Task Select(bool original, bool pointerArt = false)
         {
-            var document = new PixelDocument(4, 4) { Name = "Interaction fixture" };
-            Array.Fill(document.Layers[0].Frames[0], 0xFFFFFFFFu);
-            var package = Runtime.Library.Save(document);
+            var document = new SpriteFixture(4, 4) { Name = "Interaction fixture" };
+            Array.Fill(document.Pixels, 0xFFFFFFFFu);
+            var package = Runtime.Library.InstallFixture(document);
             var keys = original ? OriginalCompanion.RequiredClips.Concat(pointerArt ? OriginalCompanion.PointerClips : []) : CustomPetDraft.Actions;
             var manifest = package.Manifest with
             {

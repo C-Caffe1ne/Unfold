@@ -130,8 +130,7 @@ public sealed partial class SettingsWindow
                 ReminderSoundVolumePercent = pending.DueVolumePercent, CompletionSoundVolumePercent = pending.CompletedVolumePercent,
                 ReminderSoundId = pending.DueId, CompletionSoundId = pending.CompletedId,
                 ReminderSoundName = pending.DueName, CompletionSoundName = pending.CompletedName,
-                IdleMinutes = pending.Idle, SnoozeMinutes = pending.Snooze, DebugToolsEnabled = pending.DebugTools,
-                ActiveProfileId = pending.Idle == current.IdleMinutes ? current.ActiveProfileId : null
+                IdleMinutes = pending.Idle, SnoozeMinutes = pending.Snooze, DebugToolsEnabled = pending.DebugTools
             });
             observedPreferences = PreferencesValues.From(runtime.Settings);
             await apply;

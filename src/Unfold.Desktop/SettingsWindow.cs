@@ -20,13 +20,10 @@ public sealed partial class SettingsWindow : Window, IDisposable
     private readonly TextBlock today = new() { FontSize = 16, IsVisible = false };
     private readonly TextBlock historyStatus = new() { FontSize = 12, TextWrapping = TextWrapping.Wrap,
         Foreground = DesignSystem.Error, IsVisible = false };
-    private readonly AnimationView preview = new() { Name = "CompanionPreview", Width = DesignSystem.PetBaseSize,
-        Height = DesignSystem.PetBaseSize, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
     private readonly Slider petScale = new() { Name = "PetScale", Minimum = 50, Maximum = 150,
         TickFrequency = 10, IsSnapToTickEnabled = true, Value = 100, Classes = { "thumb-hover-slider" } };
     private readonly TextBlock petScaleValue = new() { Name = "PetScaleValue", FontSize = DesignSystem.Body,
         Foreground = DesignSystem.Cream, Text = "100%" };
-    private Grid? companionPreviewStage;
     private readonly TimerControls timerControls;
     private readonly CheckBox showPet, launchAtLogin;
     private readonly NumericUpDown interval, breakDuration, idle, snooze;
@@ -108,13 +105,13 @@ public sealed partial class SettingsWindow : Window, IDisposable
         {
             if (e.Property != RangeBase.ValueProperty || updating) return;
             var percent = Math.Clamp((int)Math.Round(petScale.Value / 10) * 10, 50, 150);
-            SetPetScalePreview(percent);
+            RefreshPetScaleLabel(percent);
             if (percent == runtime.Settings.PetScalePercent) return;
             try { await runtime.UpdateSettings(runtime.Settings with { PetScalePercent = percent }); }
             catch (Exception error)
             {
                 updating = true; petScale.Value = runtime.Settings.PetScalePercent;
-                SetPetScalePreview(runtime.Settings.PetScalePercent); updating = false;
+                RefreshPetScaleLabel(runtime.Settings.PetScalePercent); updating = false;
                 await Ui.Error(this, error);
             }
         };
@@ -131,14 +128,12 @@ public sealed partial class SettingsWindow : Window, IDisposable
                 if (e.Property == NumericUpDown.ValueProperty || e.Property == NumericUpDown.TextProperty) PreferencesEdited();
             };
         Closing += (_, e) => { e.Cancel = true; HideToTray(); };
-        previewRetry.Tick += (_, _) => { previewRetry.Stop(); _ = RefreshPreview(); };
-        Opened += (_, _) => ResumePreview();
         runtime.Changed += Refresh; Closed += (_, _) => Dispose();
         Refresh();
         CleanupImportedSounds();
     }
-    public void Dispose() { if (disposed) return; disposed = true; countdown.Dispose(); soundImportCancellation.Cancel(); soundImportCancellation.Dispose(); SuspendPreview(); runtime.Changed -= Refresh; runtime.CloseReminderPreview(); stopSoundPreview?.Invoke(); settingsSoundPlayer.Dispose(); CleanupImportedSounds(); preview.Dispose(); petPage?.Dispose(); }
-    public void HideToTray() { countdown.StopAnimation(); runtime.CloseReminderPreview(); stopSoundPreview?.Invoke(); SuspendPreview(); Hide(); }
+    public void Dispose() { if (disposed) return; disposed = true; countdown.Dispose(); soundImportCancellation.Cancel(); soundImportCancellation.Dispose(); runtime.Changed -= Refresh; runtime.CloseReminderPreview(); stopSoundPreview?.Invoke(); settingsSoundPlayer.Dispose(); CleanupImportedSounds(); petPage?.Dispose(); }
+    public void HideToTray() { countdown.StopAnimation(); runtime.CloseReminderPreview(); stopSoundPreview?.Invoke(); Hide(); }
     private void TimingEdited()
     {
         if (updating) return;
@@ -161,13 +156,9 @@ public sealed partial class SettingsWindow : Window, IDisposable
         homeTimingApply.IsHitTestVisible = changed;
         homeTimingApply.IsEnabled = changed && validInterval && validRest && !savingHomeTiming;
     }
-    private void SetPetScalePreview(int percent)
+    private void RefreshPetScaleLabel(int percent)
     {
-        var actualSize = DesignSystem.PetBaseSize * percent / 100d;
         petScaleValue.Text = $"{percent}%";
-        preview.Width = preview.Height = actualSize;
-        if (companionPreviewStage is not null)
-            companionPreviewStage.Width = companionPreviewStage.Height = actualSize;
     }
     internal async Task<bool> CanCloseDraft(Window? lockedOwner = null)
     {
@@ -190,8 +181,7 @@ public sealed partial class SettingsWindow : Window, IDisposable
         savingHomeTiming = true; RefreshHomeTimingState();
         try
         {
-            var updated = runtime.Settings with { IntervalMinutes = minutes, BreakDurationMinutes = rest,
-                ActiveProfileId = minutes == runtime.Settings.IntervalMinutes ? runtime.Settings.ActiveProfileId : null };
+            var updated = runtime.Settings with { IntervalMinutes = minutes, BreakDurationMinutes = rest };
             await runtime.UpdateSettings(updated);
             homeTimingStatus.Foreground = DesignSystem.Muted; homeTimingStatus.Text = "저장했어요.";
             homeTimingStatus.IsVisible = true;
@@ -252,7 +242,7 @@ public sealed partial class SettingsWindow : Window, IDisposable
             }
             showPet.IsChecked = runtime.Settings.ShowPet;
             if ((int)petScale.Value != runtime.Settings.PetScalePercent) petScale.Value = runtime.Settings.PetScalePercent;
-            SetPetScalePreview(runtime.Settings.PetScalePercent);
+            RefreshPetScaleLabel(runtime.Settings.PetScalePercent);
             if (displayedInterval != runtime.Settings.IntervalMinutes) interval.Value = displayedInterval = runtime.Settings.IntervalMinutes;
             if (displayedBreakDuration != runtime.Settings.BreakDurationMinutes) breakDuration.Value = displayedBreakDuration = runtime.Settings.BreakDurationMinutes;
             RefreshHomeTimingState();
@@ -267,6 +257,5 @@ public sealed partial class SettingsWindow : Window, IDisposable
             ToolTip.SetTip(timerStateBadge, Ui.ErrorText(error));
         }
         finally { updating = false; }
-        _ = RefreshPreview();
     }
 }

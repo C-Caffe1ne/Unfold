@@ -35,7 +35,7 @@ public sealed class BreakHistory
     {
         if (session.State != BreakSessionState.Completed || completions.Any(item => item.SessionId == session.Id)) return false;
         var item = new CompletedBreak(session.Id, completedAt, session.Routine.Id, session.DurationSeconds, session.CharacterId,
-            session.Routine.Name, session.ProfileId, session.ProfileName, (int)Math.Ceiling(session.Elapsed.TotalSeconds));
+            session.Routine.Name, null, null, (int)Math.Ceiling(session.Elapsed.TotalSeconds));
         Validate(item);
         completions.RemoveAll(previous => previous.CompletedAt < completedAt.AddDays(-90));
         completions.Add(item);

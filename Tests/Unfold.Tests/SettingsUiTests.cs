@@ -38,15 +38,12 @@ public class SettingsUiTests
         }
     }
 
-    // Library.Save() and Reload() each construct their own CharacterPackage instances,
-    // so the object Save() hands back is never the one runtime.Selected/Characters will
-    // later expose. Re-fetching after Reload() keeps tests comparing the same identity
-    // SettingsWindow actually sees.
+    // Reload constructs fresh package instances; compare the current runtime identity.
     private static async Task<CharacterPackage> AddCharacter(AppRuntime runtime, string name, bool opaque)
     {
-        var document = new PixelDocument(4, 4) { Name = name };
-        if (opaque) document.Draw(PixelTool.Fill, new(0, 0), new(0, 0), 0xFFFFFFFF, 1, 0, 0);
-        var saved = runtime.Library.Save(document);
+        var document = new SpriteFixture(4, 4) { Name = name };
+        if (opaque) Array.Fill(document.Pixels, 0xFFFFFFFFu);
+        var saved = runtime.Library.InstallFixture(document);
         await runtime.Reload();
         return runtime.Characters.Single(c => c.Manifest.Id == saved.Manifest.Id);
     }
@@ -62,20 +59,12 @@ public class SettingsUiTests
 
     private static async Task<CharacterPackage> AddGifCharacter(AppRuntime runtime, string name)
     {
-        var saved = runtime.Library.Save(new PixelDocument(4, 4) { Name = name });
+        var saved = runtime.Library.InstallFixture(new SpriteFixture(4, 4) { Name = name });
         File.WriteAllBytes(Path.Combine(saved.DirectoryPath, "idle.gif"), SampleGif);
         var manifest = saved.Manifest with { Animations = new() { ["idle"] = new AnimationDefinition(Gif: "idle.gif") } };
         File.WriteAllBytes(Path.Combine(saved.DirectoryPath, "character.json"), JsonSerializer.SerializeToUtf8Bytes(manifest, CharacterLibrary.JsonOptions));
         await runtime.Reload();
         return runtime.Characters.Single(c => c.Manifest.Id == saved.Manifest.Id);
-    }
-
-    private static AnimationView Preview(Window window) => window.GetVisualDescendants().OfType<AnimationView>().Single();
-
-    private static bool AnyOpaque(AnimationView view)
-    {
-        for (var x = 6; x < 120; x += 12) for (var y = 6; y < 120; y += 12) if (view.OpaqueAt(new Point(x, y))) return true;
-        return false;
     }
 
     private static async Task Settle()
@@ -98,7 +87,6 @@ public class SettingsUiTests
     private static T Control<T>(Window window, Func<T, bool> match) where T : Avalonia.Controls.Control =>
         window.GetVisualDescendants().OfType<T>().Single(match);
 
-    private static readonly Point Center = new(60, 60);
 
     // Replacing a read-only file is allowed on Unix. A directory at the destination
     // makes AtomicFile.Write fail on both platforms without changing permissions.
@@ -183,7 +171,7 @@ public class SettingsUiTests
     }
 
     [AvaloniaFact]
-    public async Task LatestCharacterSelectionWinsThePreview()
+    public async Task LatestCharacterSelectionUpdatesWithoutATimerPreview()
     {
         using var fixture = new Fixture(); var runtime = fixture.Runtime;
         var blank = await AddCharacter(runtime, "Blank", opaque: false);
@@ -192,32 +180,29 @@ public class SettingsUiTests
 
         await runtime.UpdateSettings(runtime.Settings with { SelectedCharacterId = filled.Manifest.Id });
         await Settle();
-        Assert.True(Preview(window).OpaqueAt(Center));
+        Assert.Empty(window.GetVisualDescendants().OfType<AnimationView>());
 
         await runtime.UpdateSettings(runtime.Settings with { SelectedCharacterId = blank.Manifest.Id });
         await Settle();
-        Assert.False(Preview(window).OpaqueAt(Center));
+        Assert.Empty(window.GetVisualDescendants().OfType<AnimationView>());
 
         Assert.Equal(blank.Manifest.Id, runtime.Settings.SelectedCharacterId);
     }
 
     [AvaloniaFact]
-    public async Task PreviewRecoversAfterALoadFailureOnceTheCharacterIsReloaded()
+    public async Task TimerSettingsDoesNotDecodeRemovedPreviewForACorruptGif()
     {
         using var fixture = new Fixture(); var runtime = fixture.Runtime;
         var character = await AddGifCharacter(runtime, "Rex");
-        // ShowPet stays off for this selection: AppRuntime.UpdatePet() would otherwise
-        // load and cache the same "idle" clip for the pet window right here, while the
-        // GIF is still good, and that cache entry would hide the corruption below from
-        // SettingsWindow's own load.
+        // Disable desktop playback to verify that the timer page makes no animation request.
         await runtime.UpdateSettings(runtime.Settings with { ShowPet = false, SelectedCharacterId = character.Manifest.Id });
 
         var gif = Path.Combine(character.DirectoryPath, "idle.gif");
-        File.WriteAllBytes(gif, [0, 1, 2, 3]); // corrupt: the first load must fail
+        File.WriteAllBytes(gif, [0, 1, 2, 3]); // Timer settings must remain independent of this animation.
 
         var window = new SettingsWindow(runtime); window.Show(); Dispatcher.UIThread.RunJobs();
         await Settle();
-        Assert.False(AnyOpaque(Preview(window)));
+        Assert.Empty(window.GetVisualDescendants().OfType<AnimationView>());
 
         File.WriteAllBytes(gif, SampleGif); // repaired on disk
         // The real recovery path: Reload() constructs a fresh CharacterPackage instance
@@ -226,6 +211,6 @@ public class SettingsUiTests
         await runtime.Reload();
         await Settle();
 
-        Assert.True(AnyOpaque(Preview(window)));
+        Assert.Empty(window.GetVisualDescendants().OfType<AnimationView>());
     }
 }

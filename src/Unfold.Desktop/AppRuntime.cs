@@ -33,7 +33,6 @@ public sealed partial class AppRuntime : IDisposable
     public string? ActivityError { get; private set; }
     public bool DiagnosticMode { get; private set; }
     public BreakHistory BreakHistory { get; private set; }
-    public IReadOnlyList<BreakRoutine> Routines { get; private set; }
     public string? BreakHistoryError { get; private set; }
     public bool CanEditTimerInterval => Clock.Paused || Clock.Stopped;
     internal AccountWindow? ActiveAccount => accountWindow;
@@ -87,7 +86,8 @@ public sealed partial class AppRuntime : IDisposable
             ? Directory.EnumerateDirectories(AppPaths.BuiltInRoot).Select(path => Path.GetFileName(path)) : ["default-cat"]);
         Library.Warning += message => AppPaths.Log(new IOException(message));
         var backupSettings = false;
-        try { Settings = AppSettings.Load(settingsFile, out backupSettings); }
+        var migrateSettings = false;
+        try { Settings = AppSettings.Load(settingsFile, out backupSettings, out migrateSettings); }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Text.Json.JsonException or InvalidDataException)
         {
             AppPaths.Log(ex); Settings = new(); backupSettings = true;
@@ -103,7 +103,11 @@ public sealed partial class AppRuntime : IDisposable
             }
         }
         DesignSystem.ApplyTheme(Settings.Theme);
-        Routines = BreakRoutines.ForSettings(Settings);
+        if (migrateSettings)
+        {
+            try { Settings.Save(settingsFile); }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException) { AppPaths.Log(error); }
+        }
         Clock = new(TimeSpan.FromMinutes(Settings.IntervalMinutes));
         try { BreakHistory = BreakHistory.Load(historyFile); }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException or System.Text.Json.JsonException)
@@ -258,7 +262,7 @@ public sealed partial class AppRuntime : IDisposable
     }
     public void Reset() { if (!AccessAllowed) return; CancelReminder(); Clock.Reset(monotonic.Elapsed); Changed?.Invoke(); }
     private void CancelReminder() { reminderGeneration++; Reminder.Cancel(); RefreshPetNotice(); }
-    public void ShowSettings() { backgroundStart = false; if (accountStartupPending) return; if (!AccessAllowed) { ShowAccount(); return; } if (settingsWindow is null) return; settingsWindow.Show(); settingsWindow.ResumePreview(); settingsWindow.WindowState = WindowState.Normal; if (!DiagnosticMode) settingsWindow.Activate(); TryShowStartupUpdate(); }
+    public void ShowSettings() { backgroundStart = false; if (accountStartupPending) return; if (!AccessAllowed) { ShowAccount(); return; } if (settingsWindow is null) return; settingsWindow.Show(); settingsWindow.WindowState = WindowState.Normal; if (!DiagnosticMode) settingsWindow.Activate(); TryShowStartupUpdate(); }
     internal static bool HasSeenCurrentAccountWelcome(string path)
     {
         if (!File.Exists(path)) return false;
@@ -344,18 +348,15 @@ public sealed partial class AppRuntime : IDisposable
     private async Task UpdateSettings(AppSettings value, bool hideCurrentNotice)
     {
         if (!AccessAllowed) throw new AccountException(AccountFailure.AuthenticationRequired);
-        value = value.ValidatePersonalization();
-        var reschedulesTimer = value.IntervalMinutes != Settings.IntervalMinutes ||
-            (value.ActiveProfileId is not null && value.ActiveProfileId != Settings.ActiveProfileId);
+        var reschedulesTimer = value.IntervalMinutes != Settings.IntervalMinutes;
         if (reschedulesTimer && !CanEditTimerInterval)
-            throw new ArgumentException("타이머를 일시정지하거나 중지한 뒤 스트레칭 시간 또는 업무 프로필을 적용해 주세요.");
+            throw new ArgumentException("타이머를 일시정지하거나 중지한 뒤 스트레칭 시간을 적용해 주세요.");
         value.Save(settingsFile); var changedCharacter = value.SelectedCharacterId != Settings.SelectedCharacterId;
         var hidingPet = hideCurrentNotice || (!value.ShowPet && Settings.ShowPet);
         if (reschedulesTimer)
         {
             Clock.SetInterval(TimeSpan.FromMinutes(value.IntervalMinutes)); Clock.ScheduleAfterBreak(monotonic.Elapsed);
         }
-        Routines = BreakRoutines.ForSettings(value);
         Settings = value;
         if (hidingPet) { petNoticeSuppressed = true; ClearReminderPreview(); }
         else if (Settings.ShowPet) petNoticeSuppressed = false;
@@ -423,9 +424,8 @@ public sealed partial class AppRuntime : IDisposable
         {
             var selected = Selected;
             if (selected is null) return;
-            var routine = Routines.FirstOrDefault(item => item.Id == Settings.BreakRoutineId) ?? BreakRoutines.All[0];
-            var profile = Settings.WorkProfiles.FirstOrDefault(item => item.Id == Settings.ActiveProfileId);
-            var session = new BreakSession(routine, selected.Manifest.Id, profile, Settings.BreakDurationMinutes * 60);
+            var routine = BreakRoutines.All[0];
+            var session = new BreakSession(routine, selected.Manifest.Id, Settings.BreakDurationMinutes * 60);
             if (!Reminder.Invite(session)) return;
             petNoticeSuppressed = false;
             // Deliver the notice exactly once, independently of image decoding.
@@ -447,7 +447,7 @@ public sealed partial class AppRuntime : IDisposable
         if (!AccessAllowed) return;
         if (notice == PetNotice.None) { CloseReminderPreview(); return; }
         if (Reminder.HasNotice) throw new InvalidOperationException("진행 중인 알림을 먼저 완료하거나 미뤄 주세요.");
-        var routine = Routines.FirstOrDefault(item => item.Id == Settings.BreakRoutineId) ?? BreakRoutines.All[0];
+        var routine = BreakRoutines.All[0];
         var characterId = Selected?.Manifest.Id ?? Settings.SelectedCharacterId;
         var preview = new PetReminder();
         var session = new BreakSession(routine, characterId, durationSeconds: Settings.BreakDurationMinutes * 60);

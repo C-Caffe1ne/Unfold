@@ -41,7 +41,7 @@ observed. Those outcomes are not established by a passing build or animation tes
 | Activity | Idle threshold of 1–60 minutes. Idle time and large dispatcher/sleep gaps do not accrue work time. |
 | Reminder | The pet delivers a five-active-minutes warning, due invitation, and explicit completion notice in an attached speech bubble with centered text. Due offers **n분 뒤에** and **휴식 시작**; a running bubble counts the configured break duration and has **완료** below it. Complete at any time after starting; overtime shows +mm:ss and caps at +60:00 without auto-completing. A duration change affects the next invitation, not an open session. The Settings tab automatically saves sounds, opacity, five contextual dialogue strings, and opt-in state previews; bubble placement follows the pet and screen work area; the pet context menu contains Settings and Hide Pet. No separate reminder window or OS toast. [Speech guide](stretch-notifications.md) |
 | Routines | 잠깐의 여유, 눈 쉬어 주기, and 몸 풀어 주기 provide the prompt sequence. The configured 1–10 minute break duration scales that sequence for new sessions. The routine, duration and companion are captured when the invitation opens. They are gentle prompts, not measured exercise or medical advice. |
-| Routine/profile compatibility | Routine-library and work-profile authoring components have been removed. Existing `settings.json` values remain readable so an upgrade does not delete user data, and existing history keeps its captured routine/profile labels. Compatibility tests use saved-data fixtures. Models and old pixel-source operations live under `src/Unfold.Core/Compatibility/`. |
+| Retired data migration | On startup, retired routine/profile settings are removed without backup while current timer and pet preferences are kept. Historical routine/profile labels remain in records and CSV. Valid installed pets retain playable assets; their obsolete `source.piskel` files are removed without backup. |
 | Manual reminder | Stretch now has been removed from Settings, the tray menu, and the pet menu. Normal invitations come from the automatic timer. The shared reminder method remains available to internal diagnostics. |
 | Scheduling | Work time is held while an invitation/session is active. Completion starts a full interval; snooze schedules 1–60 active minutes (default 5). Both preserve manual Pause. Hiding the pet does not end a session; Stop cancels without a completion. |
 | Duplicate reminder | Keeps the active session and does not replay the due sound or pet reaction. Concurrent preparations are coalesced. |
@@ -65,8 +65,7 @@ These are implementation descriptions, not blanket OS verification claims. See
 The MVP has no user-facing routine/profile setup, pixel editor, drawing tools, or general pixel editing of installed characters,
 scheduled profile switching, meeting/full-screen detection, clinical exercise
 library, cloud sync, AI chat, achievements, XP, in-app shop, multiplayer, or
-coding-agent integration. Weekly review/export remains available; routine-library and work-profile data
-are retained only for backward compatibility and internal diagnostics. [Compatibility and review guide](personalization.md)
+coding-agent integration. Weekly review/export remains available; historical routine/profile labels remain available in stored records and CSV. [Compatibility and review guide](personalization.md)
 
 The commercial plan is free download, Google sign-in, then one-time payment: KRW 4,900 in Korea
 or US$3.99 overseas, with **no free trial**. Supabase manages accounts and purchase entitlements.
@@ -80,9 +79,9 @@ Those production checks remain separate release gates. Completion history, setti
 [paid launch plan](plans/2026-09-27-paid-launch.md) for staged acceptance criteria.
 
 The C# pixel editor, drawing canvas and editor session have been removed.
-The legacy pixel model, Piskel codec and character-library source operations are
-grouped under `src/Unfold.Core/Compatibility/` for existing pet files and isolated
-diagnostics. GLB management retains its explicit edit/delete flow.
+The legacy pixel model, Piskel codec and source editing operations have been removed.
+The timer page no longer renders a pet preview. Import and editing previews remain available,
+including GLB edit/delete management.
 
 `CharacterLibrary` and the image codecs are runtime dependencies: the app uses
 them to discover and play character packages, including existing user artwork.

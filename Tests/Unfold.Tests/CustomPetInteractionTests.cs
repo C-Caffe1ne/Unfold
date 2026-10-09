@@ -39,9 +39,9 @@ public class CustomPetInteractionTests
         using var runtime = new AppRuntime(lifetime);
         try
         {
-            var document = new PixelDocument(16, 16) { Name = "포인터 펫" };
-            Array.Fill(document.Layers[0].Frames[0], 0xFFFFFFFFu);
-            var package = runtime.Library.Save(document);
+            var document = new SpriteFixture(16, 16) { Name = "포인터 펫" };
+            Array.Fill(document.Pixels, 0xFFFFFFFFu);
+            var package = runtime.Library.InstallFixture(document);
             var manifest = package.Manifest with { Animations = CustomPetDraft.Actions.ToDictionary(key => key,
                 key => new AnimationDefinition([0, 0], 10, Loop: true)) };
             AtomicFile.Write(Path.Combine(package.DirectoryPath, "character.json"), JsonSerializer.SerializeToUtf8Bytes(manifest, CharacterLibrary.JsonOptions));

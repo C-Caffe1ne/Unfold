@@ -177,9 +177,9 @@ public class ReminderRecoveryTests
         public Scope() { Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", temp.Path); Runtime = new(lifetime); }
         public async Task Load(bool withClick = false)
         {
-            var document = new PixelDocument(4, 4) { Name = "Reminder recovery fixture" };
-            Array.Fill(document.Layers[0].Frames[0], 0xFFFFFFFFu);
-            var package = Runtime.Library.Save(document); CharacterId = package.Manifest.Id;
+            var document = new SpriteFixture(4, 4) { Name = "Reminder recovery fixture" };
+            Array.Fill(document.Pixels, 0xFFFFFFFFu);
+            var package = Runtime.Library.InstallFixture(document); CharacterId = package.Manifest.Id;
             gifPath = Path.Combine(package.DirectoryPath, "idle.gif"); File.WriteAllText(gifPath, "damaged");
             var manifest = package.Manifest with { Animations = new() { ["idle"] = new(Gif: "idle.gif") } };
             if (withClick)

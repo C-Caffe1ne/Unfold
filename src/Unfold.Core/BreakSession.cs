@@ -17,7 +17,6 @@ public sealed record BreakRoutine(string Id, string Name, IReadOnlyList<BreakSte
 public static class BreakRoutines
 {
     public const string DefaultId = "small-reset";
-    public const string CustomId = "my-routine";
     public static IReadOnlyList<BreakRoutine> All { get; } = Array.AsReadOnly(new[]
     {
         new BreakRoutine(DefaultId, "잠깐의 여유", Array.AsReadOnly(new[]
@@ -38,8 +37,7 @@ public static class BreakRoutines
         }))
     });
     public static BreakRoutine? Find(string id) => All.FirstOrDefault(routine => routine.Id == id);
-    public static IReadOnlyList<BreakRoutine> ForSettings(AppSettings settings) => Array.AsReadOnly(
-        All.Concat(settings.CustomRoutine is { } custom ? [custom] : Array.Empty<BreakRoutine>()).Concat(settings.AdditionalRoutines).ToArray());
+
 }
 
 public enum BreakSessionState { Ready, InProgress, AwaitingConfirmation, Completed, Snoozed, Skipped }
@@ -51,8 +49,6 @@ public sealed class BreakSession
     public BreakRoutine Routine { get; }
     public int DurationSeconds { get; }
     public string CharacterId { get; }
-    public string? ProfileId { get; }
-    public string? ProfileName { get; }
     public BreakSessionState State { get; private set; }
     public TimeSpan Elapsed { get; private set; }
     public static readonly TimeSpan MaximumOvertime = TimeSpan.FromMinutes(60);
@@ -60,18 +56,12 @@ public sealed class BreakSession
     public TimeSpan Remaining => TimeSpan.FromSeconds(DurationSeconds) - Elapsed;
     public bool IsTerminal => State is BreakSessionState.Completed or BreakSessionState.Snoozed or BreakSessionState.Skipped;
     private TimeSpan last;
-    public BreakSession(BreakRoutine routine, string characterId, WorkProfile? profile = null, int? durationSeconds = null)
+    public BreakSession(BreakRoutine routine, string characterId, int? durationSeconds = null)
     {
         routine.Validate();
         DurationSeconds = durationSeconds ?? routine.DurationSeconds;
         if (DurationSeconds is < 1 or > 600) throw new ArgumentOutOfRangeException(nameof(durationSeconds));
         if (!CharacterLibrary.SafeId(characterId)) throw new ArgumentException("Invalid character.");
-        if (profile is not null)
-        {
-            profile.Validate();
-            if (profile.RoutineId != routine.Id) throw new ArgumentException("The profile must use this routine.");
-            ProfileId = profile.Id; ProfileName = profile.Name;
-        }
         Routine = routine with { Steps = Array.AsReadOnly(routine.Steps.ToArray()) }; CharacterId = characterId;
     }
     public BreakStep CurrentStep

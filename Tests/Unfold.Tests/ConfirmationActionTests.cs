@@ -95,7 +95,7 @@ public class ConfirmationActionTests
     public async Task PetMenuHidesImmediatelyPersistsAndKeepsTheCurrentBreakRecoverable()
     {
         using var scope = new Scope(); var runtime = scope.Runtime;
-        var character = runtime.Library.Save(new PixelDocument(4, 4) { Name = "숨기기 검사" });
+        var character = runtime.Library.InstallFixture(new SpriteFixture(4, 4) { Name = "숨기기 검사" });
         await runtime.Reload();
         await runtime.UpdateSettings(runtime.Settings with { SelectedCharacterId = character.Manifest.Id, ReminderSoundsEnabled = false });
         var pet = Assert.IsType<PetWindow>(runtime.ActivePet);

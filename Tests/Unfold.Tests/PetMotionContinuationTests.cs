@@ -151,9 +151,9 @@ public class PetMotionContinuationTests
             }
             else if (kind is "media" or "original")
             {
-                var document = new PixelDocument(16, 16) { Name = "Motion continuation" };
-                for (var y = 5; y <= 10; y++) for (var x = 5; x <= 10; x++) document.Layers[0].Frames[0][y * 16 + x] = 0xFFFFFFFF;
-                var package = Runtime.Library.Save(document);
+                var document = new SpriteFixture(16, 16) { Name = "Motion continuation" };
+                for (var y = 5; y <= 10; y++) for (var x = 5; x <= 10; x++) document.Pixels[y * 16 + x] = 0xFFFFFFFF;
+                var package = Runtime.Library.InstallFixture(document);
                 var keys = kind == "original" ? OriginalCompanion.RequiredClips : CustomPetDraft.Actions;
                 var mappings = keys.ToDictionary(key => key, key => new AnimationDefinition([0, 0, 0, 0], 20,
                     Loop: key == "idle" || key == "walk" && walkLoop));

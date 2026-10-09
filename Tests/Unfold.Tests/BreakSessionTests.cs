@@ -97,34 +97,7 @@ public class BreakSessionTests
         File.WriteAllText(file, "{\"version\":99,\"completions\":[]}");
         Assert.Throws<InvalidDataException>(() => BreakHistory.Load(file));
     }
-    [Fact]
-    public void OlderSettingsGainDefaultRoutineAndUnknownRoutineFallsBack()
-    {
-        using var temp = new TempDirectory(); var file = Path.Combine(temp.Path, "settings.json");
-        File.WriteAllText(file, "{\"intervalMinutes\":45}");
-        Assert.Equal(BreakRoutines.DefaultId, AppSettings.Load(file).BreakRoutineId);
-        (new AppSettings { BreakRoutineId = "future-routine" }).Save(file);
-        Assert.Equal(BreakRoutines.DefaultId, AppSettings.Load(file).BreakRoutineId);
-    }
-    [Fact]
-    public void CustomRoutineSurvivesReloadAndAnOpenSessionKeepsItsSteps()
-    {
-        using var temp = new TempDirectory(); var file = Path.Combine(temp.Path, "settings.json");
-        var steps = new[] { new BreakStep("My own pause", 30), new BreakStep("Move at my pace", 45) };
-        var custom = new BreakRoutine(BreakRoutines.CustomId, "After writing", steps);
-        (new AppSettings { CustomRoutine = custom, BreakRoutineId = custom.Id }).Save(file);
-        var loaded = AppSettings.Load(file);
-        Assert.Equal(custom.Id, loaded.BreakRoutineId); Assert.Equal(75, loaded.CustomRoutine!.DurationSeconds);
-        Assert.Equal("After writing", loaded.CustomRoutine.Name); Assert.Equal(4, BreakRoutines.ForSettings(loaded).Count);
-        var session = new BreakSession(custom, "default-cat"); steps[0] = new BreakStep("Changed later", 1);
-        Assert.Equal(75, session.Routine.DurationSeconds); Assert.Equal("My own pause", session.CurrentStep.Instruction);
-    }
-    [Fact]
-    public void InvalidCustomRoutineFallsBackWithoutDiscardingOtherSettings()
-    {
-        using var temp = new TempDirectory(); var file = Path.Combine(temp.Path, "settings.json");
-        File.WriteAllText(file, "{\"intervalMinutes\":45,\"breakRoutineId\":\"my-routine\",\"customRoutine\":{\"id\":\"my-routine\",\"name\":\"Bad\",\"steps\":[{\"instruction\":\"Pause\",\"seconds\":-1}]}}");
-        var loaded = AppSettings.Load(file);
-        Assert.Equal(45, loaded.IntervalMinutes); Assert.Null(loaded.CustomRoutine); Assert.Equal(BreakRoutines.DefaultId, loaded.BreakRoutineId);
-    }
+
+
+
 }
