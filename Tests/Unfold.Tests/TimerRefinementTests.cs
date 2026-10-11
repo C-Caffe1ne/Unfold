@@ -118,13 +118,13 @@ public class TimerRefinementTests
     }
 
     [AvaloniaFact]
-    public void HomeCanSaveAndReloadOneMinute()
+    public void HomeAutoSavesAndReloadsOneMinute()
     {
         using var scope = new Scope(); scope.Runtime.Stop();
         var interval = Find<NumericUpDown>(scope.Window, "ReminderInterval");
         Assert.Equal(1, interval.Minimum);
         interval.Value = 1; interval.Text = "1"; Layout(scope.Window);
-        Press(scope.Window, "ApplyHomeTimingSettings"); Layout(scope.Window);
+        Dispatcher.UIThread.RunJobs();
         Assert.Equal(1, scope.Runtime.Settings.IntervalMinutes);
         Assert.Equal(1, AppSettings.Load(Path.Combine(scope.Root, "settings.json")).IntervalMinutes);
         Assert.Equal(TimeSpan.FromMinutes(1), scope.Runtime.Clock.Remaining);

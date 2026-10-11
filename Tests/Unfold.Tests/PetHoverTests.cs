@@ -39,9 +39,9 @@ public class PetHoverTests
         using var scope = new Scope(); await scope.Load(); var pet = scope.Pet;
         scope.Hover(); Assert.False(scope.Bubble.IsVisible);
         await scope.Runtime.ShowReminder(); Layout(pet);
-        var start = pet.GetVisualDescendants().OfType<Button>().Single(b => b.Name == "PetBreakStart");
+        var start = pet.Overlay.GetVisualDescendants().OfType<Button>().Single(b => b.Name == "PetBreakStart");
         Assert.True(start.IsEffectivelyVisible);
-        Assert.True(pet.AcceptsPointerAt(start.TranslatePoint(new(10, 10), pet)!.Value));
+        Assert.True(pet.Overlay.AcceptsPointerAt(start.TranslatePoint(new(10, 10), pet.Overlay)!.Value));
         pet.MouseMove(new(-10, -10)); Layout(pet); Assert.True(scope.Bubble.IsVisible);
         scope.Hover(); scope.Runtime.StartBreak(); Layout(pet);
         Assert.True(Text(pet, "PetBreakTimer").IsEffectivelyVisible);
@@ -81,7 +81,7 @@ public class PetHoverTests
             scope.Hover(); Assert.False(scope.Bubble.IsVisible);
             pet.MouseMove(pet.PetView.TranslatePoint(new(1, 1), pet)!.Value); Layout(pet);
             Assert.False(pet.AcceptsPointerAt(pet.PetView.TranslatePoint(new(1, 1), pet)!.Value));
-            Assert.False(pet.AcceptsPointerAt(scope.Bubble.TranslatePoint(new(5, 5), pet)!.Value));
+            Assert.False(pet.Overlay.AcceptsPointerAt(scope.Bubble.TranslatePoint(new(5, 5), pet.Overlay)!.Value));
             pet.MouseMove(new(-10, -10)); Layout(pet);
             Assert.Equal(size, pet.ClientSize); Assert.Equal(position, pet.Position);
             Assert.Equal(origin, pet.PetView.TranslatePoint(default, pet)); Assert.Equal(anchor, pet.PetAnchor);
@@ -89,8 +89,8 @@ public class PetHoverTests
         Assert.Equal(0, moves); Assert.Equal(0, sizes);
     }
 
-    private static TextBlock Text(Window window, string name) => window.GetVisualDescendants().OfType<TextBlock>().Single(text => text.Name == name);
-    private static void Layout(Window window) { Dispatcher.UIThread.RunJobs(); window.UpdateLayout(); }
+    private static TextBlock Text(Window window, string name) => (window is PetWindow pet ? pet.Overlay : window).GetVisualDescendants().OfType<TextBlock>().Single(text => text.Name == name);
+    private static void Layout(Window window) { Dispatcher.UIThread.RunJobs(); window.UpdateLayout(); if (window is PetWindow pet) pet.Overlay.UpdateLayout(); }
 
     private sealed class Scope : IDisposable
     {
@@ -99,7 +99,7 @@ public class PetHoverTests
         private readonly ClassicDesktopStyleApplicationLifetime lifetime = new();
         public AppRuntime Runtime { get; }
         public PetWindow Pet => Runtime.ActivePet!;
-        public PetSpeechBubble Bubble => Pet.GetVisualDescendants().OfType<PetSpeechBubble>().Single();
+        public PetSpeechBubble Bubble => Pet.Overlay.Bubble;
         public Scope() { Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", temp.Path); Runtime = new(lifetime); }
         public async Task Load(bool original = false)
         {

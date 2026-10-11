@@ -32,7 +32,7 @@ const store = {
   uncertain: order => rpc('mark_lemon_checkout_uncertain', [order]),
   release: order => rpc('release_lemon_checkout', [order]),
   find: async orderId => (await query("select * from public.orders where id=$1 and provider='lemon' and environment='test'", [orderId])).rows[0] ?? null,
-  apply: (order, fact) => rpc('apply_lemon_event', [order.id, fact.key, fact.providerOrderId, fact.kind, order.currency,
+  apply: (order, fact) => rpc('apply_lemon_event', [order.id, fact.key, fact.providerOrderId, fact.kind, order.currency, fact.itemPrice,
     fact.subtotal, fact.tax, fact.total, fact.refundedTotal]),
 };
 async function user() {
@@ -70,7 +70,7 @@ test('server checkout → signed order → entitlement → full refund, with dup
   assert.equal((await deliver(paid)).status, 200);
   assert.equal(await access(target), 'active');
   assert.equal((await (await deliver(paid)).json()).duplicate, true);
-  assert.equal((await store.find(target.id)).total_minor, 5390);
+  assert.equal(Number((await store.find(target.id)).total_minor), 5390);
   assert.equal((await deliver(orderEvent(target, sequence, 5390))).status, 200);
   assert.equal(await access(target), 'revoked');
   assert.equal((await deliver(orderEvent(target, sequence))).status, 200);
@@ -80,7 +80,7 @@ test('server checkout → signed order → entitlement → full refund, with dup
 test('USD purchase keeps the independent 399-cent principal', async () => {
   const target = await reserved('unfold-global');
   assert.equal((await deliver(orderEvent(target, ++sequence, 0, 0))).status, 200);
-  assert.equal((await store.find(target.id)).total_minor, 399);
+  assert.equal(Number((await store.find(target.id)).total_minor), 399);
   assert.equal(await access(target), 'active');
 });
 
@@ -94,7 +94,7 @@ test('cumulative partial refunds revoke only when the full charged total is retu
   assert.equal(await access(target), 'revoked');
   assert.equal((await deliver(orderEvent(target, providerOrder, 2000))).status, 200);
   assert.equal(await access(target), 'revoked');
-  assert.equal((await store.find(target.id)).refunded_total_minor, 5390);
+  assert.equal(Number((await store.find(target.id)).refunded_total_minor), 5390);
 });
 
 test('a fully refunded order delivered before paid is terminal; another paid order preserves access', async () => {
@@ -118,7 +118,7 @@ test('signed events with changed identity, principal, currency or tax mode never
     event => { event.data.attributes.first_order_item.product_id = 99; },
     event => { event.data.attributes.first_order_item.variant_id = 99; },
     event => { event.data.attributes.currency = 'USD'; },
-    event => { event.data.attributes.subtotal = 1; },
+    event => { event.data.attributes.first_order_item.price = 1; },
     event => { event.data.attributes.discount_total = 1; },
     event => { event.data.attributes.tax_inclusive = true; },
   ];
@@ -131,7 +131,7 @@ test('signed events with changed identity, principal, currency or tax mode never
 
 test('event conflicts, excess refunds and client access to server tables/RPCs are rejected', async () => {
   const target = await reserved();
-  const fact = { key: 'order_created:999', providerOrderId: '999', kind: 'paid', subtotal: 4900, tax: 490, total: 5390, refundedTotal: 0 };
+  const fact = { key: 'order_created:999', providerOrderId: '999', kind: 'paid', itemPrice: 4900, subtotal: 4900, tax: 490, total: 5390, refundedTotal: 0 };
   await store.apply(target, fact);
   await assert.rejects(store.apply(target, { ...fact, tax: 491, total: 5391 }), /event conflict/);
   await assert.rejects(store.apply(target, { ...fact, key: 'order_refunded:999:9999', kind: 'refund', refundedTotal: 9999 }), /does not match/);
@@ -165,4 +165,21 @@ test('reservation retries read-only failures and never repeats an uncertain remo
   assert.equal(creations, 1);
   assert.equal((await handle(checkoutRequest(body))).status, 409);
   assert.equal(creations, 1);
+});
+
+ test('tax-inclusive paid and refunded orders keep the contracted gross price', async () => {
+  const target = await reserved();
+  const provider = ++sequence;
+  const event = orderEvent(target, provider, 0, 0);
+  event.data.attributes.tax_inclusive = true;
+  event.data.attributes.tax = 44545;
+  event.data.attributes.subtotal = 445455;
+  assert.equal((await deliver(event)).status, 200);
+  assert.equal(await access(target), 'active');
+  event.meta.event_name = 'order_refunded';
+  event.data.attributes.status = 'refunded';
+  event.data.attributes.refunded = true;
+  event.data.attributes.refunded_amount = 490000;
+  assert.equal((await deliver(event)).status, 200);
+  assert.equal(await access(target), 'revoked');
 });

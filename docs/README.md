@@ -1,5 +1,7 @@
 # 문서 안내
 
+백엔드 관리: [보안 운영 절차](operations/backend-security.md), [적용·검증 결과](validation/2026-10-11-backend-security.md).
+
 현재 제품은 **C#·Avalonia 기반 Unfold Beta**다. 2026-10-09 현재 개발 버전은 **Beta v1.1.3** (`1.1.3-beta`, [변경내용](releases/v1.1.3-beta.md))이며, 작업 경로는 `/Users/hwanghyeonseong/Documents/GitHub/Unfold/.worktrees/remove-unused-features`, 브랜치는 `codex/remove-unused-features`다.
 최신 공개 배포본은 `v1.1.2-beta` (소스 `ce86c7b`)다. 설치 파일·업데이트 채널·웹 반영과 실제 Mac/Windows 업데이트 결과는 [배포 검증](validation/2026-10-08-beta-v1.1.2-release.md)에 기록한다.
 
@@ -23,6 +25,7 @@
 
 | 문서 | 역할 |
 |---|---|
+| [타이머 숫자 전환·자동 저장 검증](validation/2026-10-12-live-timer-settings.md) | 확인 없는 중지 복귀, 간격 증가·감소 애니메이션, 홈 시간 자동 저장·실패 복구와 790개 검사·macOS 렌더링 진단 |
 | [Beta v1.1.3 커밋 검증](validation/2026-10-09-beta-v1.1.3-commit.md) | GLB XYZ 회전·저장, 탭 이름, 펫 호버·모션 수정의 커밋 범위와 버전 변경 후 56개 검사 |
 | [펫 호버 제거·모션 복귀 검증](validation/2026-10-09-pet-hover-removal.md) | 모든 펫의 호버 반응 제거, 투명 배경 입력 통과, 스트레칭·걷기 지속과 803개 검사·macOS 실제 입력 확인 |
 | [Beta v1.1.2 배포·업데이트 검증](validation/2026-10-08-beta-v1.1.2-release.md) | Mac 서명·공증, Windows native CI, 세 공개 업데이트 채널, 실제 1.1.1→1.1.2 교체·재시작과 웹 반영 |
@@ -33,6 +36,7 @@
 | [시작 업데이트 안내 검증](validation/2026-10-08-startup-updates.md) | 계정 복원 뒤 새 버전 모달·변경내역·백그라운드 유예·중복 방지와 네 테마 Mac 실제 창 |
 | [400MB 메모리 검증](validation/2026-10-07-memory-budget.md) | 최신 소스·동일 native 실행기의 전후 측정, 캐시·2D 재생·가져오기 최적화와 복구 회귀 검사 |
 | [400MB 최적화 계획](plans/2026-10-07-memory-budget.md) | Agency 역할·측정 기준·변경 순서·장시간 검증과 임의 입력 경계 |
+| [홈 미리보기 복원·팩 미리보기 제거 정정](validation/2026-10-09-pack-preview-correction.md) | 사용자 첨부 화면 기준으로 제거 범위를 정정한 검증 |
 | [보존 코드·데이터 이전 제거 검증](validation/2026-10-09-retired-feature-removal.md) | Beta v1.1.3 루틴·프로필 설정, 타이머 펫 미리보기와 Piskel 제거·데이터 이전 검증 |
 | [미사용 기능 제거 검증](validation/2026-10-07-unused-features.md) | 최신 제품 커밋 기준, 루틴·프로필 설정과 픽셀 에디터 제거·기존 데이터 호환·종료/업데이트 회귀 검사 |
 | [과거 편집 기능 파일 정리 검증](validation/2026-10-08-legacy-authoring-cleanup.md) | Piskel·루틴·프로필의 폐기 문서/캡처 제거, 호환 코드 분리와 정리 전후 검사 |

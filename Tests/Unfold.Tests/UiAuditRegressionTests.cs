@@ -124,7 +124,7 @@ public class UiAuditRegressionTests
     }
 
     [AvaloniaFact]
-    public void HomeDistinguishesInvitationAndRestingAndEditsClearSavedFeedback()
+    public void HomeDistinguishesInvitationAndRestingAndAutoSavesWithoutFeedbackNoise()
     {
         using var scope = new SettingsScope(); var window = scope.Window;
         scope.Runtime.Reminder.Invite(new(BreakRoutines.All[0], "default-cat"));
@@ -134,10 +134,12 @@ public class UiAuditRegressionTests
         scope.Runtime.Stop();
         var interval = Find<NumericUpDown>(window, "ReminderInterval"); interval.Value = 61;
         Assert.False(Find<TextBlock>(window, "HomeTimingStatus").IsVisible);
-        Press(window, "ApplyHomeTimingSettings"); Assert.Contains("저장했어요", Find<TextBlock>(window, "HomeTimingStatus").Text);
-        interval.Value = 62; Assert.False(Find<TextBlock>(window, "HomeTimingStatus").IsVisible);
-        Press(window, "TimerToggle"); Assert.Equal(61, interval.Value);
-        Assert.Contains("되돌렸어요", Find<TextBlock>(window, "HomeTimingStatus").Text);
+        Dispatcher.UIThread.RunJobs(); Assert.Equal(61, scope.Runtime.Settings.IntervalMinutes);
+        interval.Value = 62; Dispatcher.UIThread.RunJobs();
+        Assert.False(Find<TextBlock>(window, "HomeTimingStatus").IsVisible);
+        Press(window, "TimerToggle"); Assert.Equal(62, interval.Value);
+        Assert.Equal(62, scope.Runtime.Settings.IntervalMinutes);
+        Assert.False(Find<TextBlock>(window, "HomeTimingStatus").IsVisible);
     }
 
     [AvaloniaFact]

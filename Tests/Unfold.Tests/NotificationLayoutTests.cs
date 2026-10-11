@@ -74,6 +74,13 @@ public class NotificationLayoutTests
     {
         using var scope = new Scope(); var window = scope.Window;
         Assert.DoesNotContain(window.GetVisualDescendants().OfType<Control>(), c => c.Name == "BubbleDirection");
+        var timerBar = Find<CheckBox>(window, "ShowPetTimer");
+        Assert.True(timerBar.IsChecked);
+        timerBar.IsChecked = false; Layout(window);
+        Assert.False(scope.Runtime.Settings.ShowPetTimer);
+        Assert.False(AppSettings.Load(Path.Combine(AppPaths.DataRoot, "settings.json")).ShowPetTimer);
+        timerBar.IsChecked = true; Layout(window);
+        Assert.True(scope.Runtime.Settings.ShowPetTimer);
         var opacity = Find<Slider>(window, "BubbleOpacityPercent");
         foreach (var value in new[] { 0, 37, 100 })
         {

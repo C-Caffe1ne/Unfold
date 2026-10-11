@@ -56,6 +56,7 @@ export function safeFailure(error, headers = {}) {
     headers: { 'Cache-Control': 'no-store', ...headers },
   });
 }
-export function sandboxOnly(environment) {
-  if (environment !== 'test') throw new Error('Payment server currently requires UNFOLD_ENVIRONMENT=test');
+export function paymentEnvironment(environment) {
+  if (!['test', 'live'].includes(environment)) throw new Error('UNFOLD_ENVIRONMENT must be test or live');
+  return environment;
 }

@@ -52,8 +52,8 @@ observed. Those outcomes are not established by a passing build or animation tes
 | Optional reactions | Packages may provide invitation, completion, click, pointer and movement reactions. Legacy hover mappings remain readable but are not played. Missing optional clips leave the pet unchanged. Original behavior requires its profile and clip contract; media and GLB authoring use their own supported action lists. |
 | Hidden pet | A hidden pet appears temporarily for a new speech reminder without changing ShowPet. Explicit Hide Pet saves ShowPet=false and suppresses the current reminder without ending its session. Advance/completion notices expire after five seconds. An invitation automatically snoozes once after 30 seconds from its first visible presentation; an active break remains until completion or cancellation. |
 | Character picker | A compact 200px selector lists the five bundled pets and valid characters in the local library. When an old installed pack has a bundled ID, the bundled version appears once and the user's original files remain on disk. |
-| Pet packs | **펫 관리 → 파일 열기…** opens `.unfoldpet` in a separate preview/install dialog. Preview animations/version, then install or reapply through that dialog. Editor drafts survive navigation. A pack content version lower than the installed version is allowed by the current compatibility policy; invalid data and changed installed files are checked before replacement. [Pack guide](pet-packs.md) |
-| Custom pets | The same file-open action accepts GIF, MP4, PNG, JPG, WEBP and BMP. Assign media to idle, attention, stretch, celebrate, click, pointerDown and pointerUp; idle is required. Export a validated `.unfoldpet`, then preview/install. GIF timing is preserved; MP4 up to 10 seconds/128 MiB becomes silent GIF at up to 192px and 12 fps. No background removal. |
+| Pet packs | **펫 관리 → 파일 열기…** validates `.unfoldpet`, then shows a save/update confirmation with name and version. The separate pack preview window has been removed. Editor drafts survive navigation. A pack content version lower than the installed version is allowed by the current compatibility policy; invalid data and changed installed files are checked before replacement. [Pack guide](pet-packs.md) |
+| Custom pets | The same file-open action accepts GIF, MP4, PNG, JPG, WEBP and BMP. Assign media to idle, attention, stretch, celebrate, click, pointerDown and pointerUp; idle is required. Export a validated `.unfoldpet`, then confirm saving it to the library. GIF timing is preserved; MP4 up to 10 seconds/128 MiB becomes silent GIF at up to 192px and 12 fps. No background removal. |
 | GLB pets | Open an embedded GLB model, map supported situations to animation/heading/speed/repeat settings, export or save/apply, and reopen installed GLB pets from the selector. The file-slot trash immediately clears the current model draft while preserving its name, original source file and installed/active pet. **펫 삭제** separately confirms deletion of an installed editable GLB pet and updates runtime selection. [GLB guide](glb-pets.md) |
 | Launch at login | Opt-in Windows registry/macOS LaunchAgent integration. Test it from a published app in its final location. |
 
@@ -80,7 +80,8 @@ Those production checks remain separate release gates. Completion history, setti
 
 The C# pixel editor, drawing canvas and editor session have been removed.
 The legacy pixel model, Piskel codec and source editing operations have been removed.
-The timer page no longer renders a pet preview. Import and editing previews remain available,
+The timer page retains its pet preview. The separate pack import preview window has been removed;
+media and GLB editing previews remain available,
 including GLB edit/delete management.
 
 `CharacterLibrary` and the image codecs are runtime dependencies: the app uses

@@ -116,7 +116,7 @@ public sealed partial class PetWindow
         if (IsRoaming && ActiveAnimation == "walk")
         {
             animation.SetRunning(!blocked);
-            if (!blocked && !runtime.DiagnosticMode)
+            if (!blocked && !Overlay.HoldsPlacement && !runtime.DiagnosticMode)
             {
                 var screen = (OperatingSystem.IsMacOS() ? Screens.ScreenFromPoint(PetAnchor) : null)
                     ?? Screens.ScreenFromWindow(this) ?? Screens.Primary;
@@ -130,7 +130,7 @@ public sealed partial class PetWindow
                         Position += wander.Step(anchor, new Size(animation.Width, animation.Height), area, DesktopScaling, seconds) - anchor;
                         RefreshSpeech();
                     }
-                    else Position = wander.Step(Position, layout.Size, area, DesktopScaling, seconds);
+                    else Position = wander.Step(Position, new Size(animation.Width, animation.Height), area, DesktopScaling, seconds);
                     animation.SetPose(PetPose.Neutral, wander.FacingLeft);
                 }
             }

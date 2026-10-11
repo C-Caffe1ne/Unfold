@@ -2,6 +2,8 @@
 
 2026-10-09 · Beta v1.1.3 개발본.
 
+> 후속 사용자 정정으로 홈 미리보기 제거는 복원했고, 실제 제거 대상은 별도 펫 팩 가져오기 미리보기 창이다. 아래는 정정 전 작업 기록이다. 현재 상태는 [정정 검증](2026-10-09-pack-preview-correction.md)을 참고한다.
+
 ## 작업 기준과 승인
 
 - 작업 경로: `/Users/hwanghyeonseong/Documents/GitHub/Unfold/.worktrees/remove-unused-features`.

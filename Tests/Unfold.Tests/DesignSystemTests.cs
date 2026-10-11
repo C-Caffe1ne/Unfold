@@ -85,7 +85,6 @@ public class DesignSystemTests
         using var temp = new TempDirectory();
         Window[] windows = [
             new BreakReviewWindow(new BreakHistory().Review),
-            new PetPackWindow(new(temp.Path), _ => Task.CompletedTask)
         ];
         foreach (var window in windows)
         {
@@ -115,7 +114,6 @@ public class DesignSystemTests
         using var temp = new TempDirectory();
         Window[] windows = [
             new BreakReviewWindow(new BreakHistory().Review),
-            new PetPackWindow(new(temp.Path), _ => Task.CompletedTask)
         ];
         foreach (var window in windows)
         {

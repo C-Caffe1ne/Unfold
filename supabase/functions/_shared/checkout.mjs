@@ -1,10 +1,10 @@
 import { ServiceError } from './entitlement.mjs';
-import { PaymentError, requirePayment, uuidPattern, readJson, safeFailure, sandboxOnly } from './payment-http.mjs';
+import { PaymentError, requirePayment, uuidPattern, readJson, safeFailure, paymentEnvironment } from './payment-http.mjs';
 import { validateVariant, validateCheckout, checkoutLink } from './lemon.mjs';
 
 export function createCheckoutHandler({ reader, store, lemon, environment, allowedOrigins = [], enabled = true,
   now = Date.now, report = () => {} }) {
-  sandboxOnly(environment);
+  paymentEnvironment(environment);
   return async request => {
     const headers = { 'Cache-Control': 'no-store', Vary: 'Origin' };
     const reply = (status, body) => Response.json(body, { status, headers });
@@ -29,7 +29,7 @@ export function createCheckoutHandler({ reader, store, lemon, environment, allow
       stage = 'reserve';
       const reserved = await store.reserve(userId, body.market === 'KR' ? 'unfold-kr' : 'unfold-global', body.request_id);
       const order = reserved?.order;
-      requirePayment(order?.user_id === userId && order.provider === 'lemon' && order.environment === 'test'
+      requirePayment(order?.user_id === userId && order.provider === 'lemon' && order.environment === environment
         && order.product_id === 'unfold' && order.status === 'pending' && uuidPattern.test(order.id)
         && typeof reserved.acquired === 'boolean', 'payment_store_unavailable', 503);
       let checkout;
@@ -54,7 +54,7 @@ export function createCheckoutHandler({ reader, store, lemon, environment, allow
       }
       const data = checkout.data;
       return reply(200, { schema_version: 1, order_id: order.id, checkout_id: data.id,
-        environment: 'test', checkout_url: checkoutLink(checkout, order) });
+        environment, checkout_url: checkoutLink(checkout, order) });
     } catch (error) {
       if (acquiredOrder) await (createAttempted ? store.uncertain(acquiredOrder) : store.release(acquiredOrder)).catch(() => {});
       if (error instanceof ServiceError) error = new PaymentError(error.message, error.status);

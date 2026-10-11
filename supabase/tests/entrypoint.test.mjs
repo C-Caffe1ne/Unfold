@@ -39,7 +39,15 @@ test('Lemon Squeezy entrypoints require server secrets and keep user JWT and web
     await assert.rejects(import('../functions/lemon-webhook/index.ts?missing-secret'), /webhook secret required/);
     values.UNFOLD_ENVIRONMENT = 'live';
     values.SUPABASE_URL = 'https://example.supabase.co';
-    await assert.rejects(import('../functions/create-checkout/index.ts?live-guard'), /requires/);
+    await assert.rejects(import('../functions/create-checkout/index.ts?live-guard'), /API key missing/);
+    values.LEMONSQUEEZY_LIVE_API_KEY = 'fixture-live-only';
+    await import('../functions/create-checkout/index.ts?live-key');
+    assert.equal((await handler(new Request('https://example.test', { method: 'POST' }))).status, 401);
+    values.LEMONSQUEEZY_WEBHOOK_SECRET = 'test-secret-must-not-be-used';
+    await assert.rejects(import('../functions/lemon-webhook/index.ts?live-no-secret'), /webhook secret required/);
+    values.LEMONSQUEEZY_LIVE_WEBHOOK_SECRET = 'fixture-live-webhook';
+    await import('../functions/lemon-webhook/index.ts?live-secret');
+    assert.equal((await handler(new Request('https://example.test', { method: 'POST' }))).status, 401);
     const { readFile } = await import('node:fs/promises');
     const config = await readFile(new URL('../config.toml', import.meta.url), 'utf8');
     assert.match(config, /\[functions.create-checkout\]\s+verify_jwt = true/);

@@ -1,6 +1,7 @@
-import { PaymentError, requirePayment, serverUrl, readJson, positiveId, uuidPattern } from './payment-http.mjs';
+import { PaymentError, requirePayment, serverUrl, readJson, positiveId, uuidPattern, paymentEnvironment } from './payment-http.mjs';
 
-export function createPaymentStore({ url, secretKey, allowLocalGateway = false, fetcher = fetch }) {
+export function createPaymentStore({ url, secretKey, allowLocalGateway = false, fetcher = fetch, environment = 'test' }) {
+  paymentEnvironment(environment);
   const base = serverUrl(url, allowLocalGateway);
   if (!secretKey) throw new Error('Supabase server key required');
   async function call(path, body, signal) {
@@ -28,7 +29,7 @@ export function createPaymentStore({ url, secretKey, allowLocalGateway = false, 
   const rpc = (name, data, signal) => call(`/rest/v1/rpc/${name}`, data, signal);
   return {
     reserve(userId, priceId, requestId) {
-      return rpc('reserve_lemon_checkout', { p_user_id: userId, p_price_id: priceId, p_request_id: requestId });
+      return rpc('reserve_lemon_checkout', { p_user_id: userId, p_price_id: priceId, p_request_id: requestId, p_environment: environment });
     },
     bind(orderId, checkoutId) { return rpc('bind_lemon_checkout', { p_order_id: orderId, p_checkout_id: checkoutId }); },
     uncertain(orderId) { return rpc('mark_lemon_checkout_uncertain', { p_order_id: orderId }); },
@@ -36,15 +37,15 @@ export function createPaymentStore({ url, secretKey, allowLocalGateway = false, 
     async find(orderId, signal) {
       requirePayment(uuidPattern.test(orderId));
       const query = new URLSearchParams({ select: 'id,user_id,product_id,provider,environment,provider_order_id,provider_checkout_id,provider_price_id,provider_product_id,provider_store_id,provider_checkout_host,currency,amount_minor,tax_minor,total_minor,refunded_total_minor,status',
-        id: `eq.${orderId}`, provider: 'eq.lemon', environment: 'eq.test', limit: '2' });
+        id: `eq.${orderId}`, provider: 'eq.lemon', environment: `eq.${environment}`, limit: '2' });
       const rows = await call(`/rest/v1/orders?${query}`, undefined, signal);
       requirePayment(Array.isArray(rows) && rows.length <= 1, 'payment_store_unavailable', 503);
       return rows[0] ?? null;
     },
     apply(order, event, signal) {
-      requirePayment(positiveId(event.providerOrderId));
+      requirePayment(order.environment === environment && positiveId(event.providerOrderId));
       return rpc('apply_lemon_event', { p_order_id: order.id, p_event_key: event.key, p_provider_order_id: event.providerOrderId,
-        p_kind: event.kind, p_currency: order.currency, p_subtotal: event.subtotal, p_tax: event.tax,
+        p_kind: event.kind, p_currency: order.currency, p_item_price: event.itemPrice, p_subtotal: event.subtotal, p_tax: event.tax,
         p_total: event.total, p_refunded_total: event.refundedTotal }, signal);
     },
   };

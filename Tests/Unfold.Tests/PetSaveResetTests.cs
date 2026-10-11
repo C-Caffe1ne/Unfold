@@ -87,56 +87,6 @@ public class PetSaveResetTests
         finally { owner.Close(); }
     }
 
-    [AvaloniaFact]
-    public async Task PackOpenCancellationAndSaveConflictPreserveTheCurrentInputAndPreview()
-    {
-        using var data = new DataScope();
-        var library = new CharacterLibrary(Path.Combine(data.Root, "library"));
-        using var first = CharacterPack.Open(CharacterPackTests.CreatePack(data.Root));
-        var existing = library.Install(first, null);
-        string? file = CharacterPackTests.CreatePack(data.Root, "2.0.0");
-        var selected = false;
-        var owner = new Window { Width = 860, Height = 680 };
-        using var view = new PetPackView(owner, library, _ => { selected = true; return Task.CompletedTask; },
-            () => Task.FromResult<string?>(file), showHeader: false);
-        owner.Content = view; owner.Show();
-        try
-        {
-            Press(owner, "OpenPetPack"); await Until(() => !view.IsBusy);
-            Assert.True(Find<Button>(owner, "InstallPetPack").IsEnabled);
-            Press(owner, "PausePackPreview");
-            Find<ComboBox>(owner, "PackClip").SelectedItem = "stretch";
-            await Until(() => Find<Button>(owner, "PausePackPreview").IsEnabled);
-            Find<ComboBox>(owner, "PackSize").SelectedIndex = 2;
-            Dispatcher.UIThread.RunJobs(); owner.UpdateLayout();
-            var playback = Find<TextBlock>(owner, "PackPlaybackStatus").Text;
-
-            file = null;
-            Press(owner, "OpenPetPack"); await Until(() => !view.IsBusy);
-            AssertPreviewPreserved(); Assert.True(Find<Button>(owner, "InstallPetPack").IsEnabled);
-
-            // An external edit after opening invalidates the expected library revision.
-            File.AppendAllText(Path.Combine(existing.DirectoryPath, "character.json"), " ");
-            Press(owner, "InstallPetPack"); await Until(() => !view.IsBusy);
-            AssertPreviewPreserved(); Assert.False(selected);
-            Assert.Contains("저장하지 못했어요.", Find<TextBlock>(owner, "PackStatus").Text);
-            Assert.Equal("1.0.0", library.InspectInstall(first).InstalledVersion);
-
-            void AssertPreviewPreserved()
-            {
-                Assert.Equal("stretch", Find<ComboBox>(owner, "PackClip").SelectedItem);
-                Assert.Equal(5, Find<ComboBox>(owner, "PackClip").ItemCount);
-                Assert.Same(DesignSystem.Surface, Find<Border>(owner, "PackPreviewSurface").Background);
-                Assert.Equal(2, Find<ComboBox>(owner, "PackSize").SelectedIndex);
-                Assert.Equal(playback, Find<TextBlock>(owner, "PackPlaybackStatus").Text);
-                Assert.True(Find<Button>(owner, "PausePackPreview").IsEnabled);
-                Assert.True(Find<WrapPanel>(owner, "PackInfo").IsVisible);
-                Assert.True(Find<AnimationView>(owner, "PackPreview").OpaqueAt(new Point(192, 192)));
-            }
-        }
-        finally { owner.Close(); }
-    }
-
     private sealed class DataScope : IDisposable
     {
         private readonly TempDirectory temp = new();

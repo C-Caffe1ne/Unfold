@@ -34,7 +34,7 @@ public sealed partial class SettingsWindow
     {
         Background = DesignSystem.Canvas;
         Classes.Add("unfold-page");
-        var main = new Grid { Name = "SettingsMain", VerticalAlignment = VerticalAlignment.Top, RowDefinitions = new($"{HomeTimerHeight},{Inset},Auto") };
+        var main = new Grid { Name = "SettingsMain", RowDefinitions = new($"{HomeTimerHeight},{Inset},*") };
         main.Children.Add(BuildTimerCard());
         var companion = BuildCompanionCard(); Grid.SetRow(companion, 2); main.Children.Add(companion);
 
@@ -56,7 +56,7 @@ public sealed partial class SettingsWindow
             dashboardScroll.VerticalScrollBarVisibility = compact ? ScrollBarVisibility.Auto : ScrollBarVisibility.Disabled;
             dashboard.ColumnDefinitions = new(compact ? "*" : "*,20,300");
             dashboard.RowDefinitions = new(compact ? "Auto,20,Auto" : "*");
-            main.RowDefinitions[2].Height = GridLength.Auto;
+            main.RowDefinitions[2].Height = compact ? new GridLength(420) : new GridLength(1, GridUnitType.Star);
             Grid.SetColumn(detailsScroll, compact ? 0 : 2); Grid.SetRow(detailsScroll, compact ? 2 : 0);
             detailsScroll.VerticalScrollBarVisibility = compact ? ScrollBarVisibility.Disabled : ScrollBarVisibility.Auto;
             if (compact && FocusManager?.GetFocusedElement() is Control focused && focused.GetVisualAncestors().Contains(dashboard))
@@ -102,12 +102,18 @@ public sealed partial class SettingsWindow
 
     private Border BuildCompanionCard()
     {
-        var content = new Grid { RowDefinitions = new("Auto,Auto"), Margin = new(Inset) };
+        var content = new Grid { RowDefinitions = new("*,Auto"), Margin = new(Inset) };
         companionName.Name = "CompanionName"; companionName.FontWeight = FontWeight.SemiBold;
         companionName.MaxLines = 2; companionName.TextTrimming = TextTrimming.CharacterEllipsis;
         var petLabel = Label("함께하는 펫", Body, Muted);
         var intro = Ui.Column(petLabel, companionName); intro.Spacing = 4; intro.IsHitTestVisible = false;
-        intro.Margin = new(0, 0, 0, Space); content.Children.Add(intro);
+        companionPreviewStage = new Grid { Name = "CompanionPreviewStage", Width = PetBaseSize, Height = PetBaseSize };
+        companionPreviewStage.Children.Add(preview);
+        var previewScroll = new ScrollViewer { Name = "CompanionPreviewScroll", Content = companionPreviewStage,
+            HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+            HorizontalContentAlignment = HorizontalAlignment.Center, VerticalContentAlignment = VerticalAlignment.Center };
+        var previewArea = new Grid { MinHeight = 100, ClipToBounds = true, Margin = new(0, 0, 0, Space) };
+        previewArea.Children.Add(previewScroll); previewArea.Children.Add(intro); content.Children.Add(previewArea);
         characters.Height = HomeControlHeight; characters.Width = HomeChoiceWidth; characters.HorizontalAlignment = HorizontalAlignment.Left;
         characters.Classes.Add("home-choice");
         characters.ContainerPrepared += (_, e) => e.Container.Classes.Add("home-choice-item");
@@ -173,11 +179,6 @@ public sealed partial class SettingsWindow
 
     private Border BuildHomeTimingCard()
     {
-        homeTimingApply.Classes.Add("primary");
-        homeTimingApply.Width = HomeActionWidth; homeTimingApply.Height = HomeControlHeight;
-        homeTimingApply.HorizontalAlignment = HorizontalAlignment.Right;
-        var header = new Grid { ColumnDefinitions = new("*,Auto") };
-        header.Children.Add(HomeHeading("시간 설정")); Grid.SetColumn(homeTimingApply, 1); header.Children.Add(homeTimingApply);
         Control Field(string text, NumericUpDown input)
         {
             var caption = Label(text, Body, Cream);
@@ -190,7 +191,7 @@ public sealed partial class SettingsWindow
         var rest = Field("휴식 시간 (분)", breakDuration);
         ToolTip.SetTip(breakDuration, "다음 휴식의 목표 시간을 1~10분으로 설정해요.");
         homeTimingStatus.FontSize = DesignSystem.Caption;
-        var body = Ui.Column(header, stretch, rest, homeTimingStatus);
+        var body = Ui.Column(HomeHeading("시간 설정"), stretch, rest, homeTimingStatus);
         body.Spacing = 16; body.Margin = new(Inset);
         return Card("SettingsHomeTimingCard", body, Surface, CardRadius);
     }
@@ -311,6 +312,7 @@ public sealed partial class SettingsWindow
         var keyboard = FocusManager?.GetFocusedElement() is Control focused && focused.Classes.Contains(":focus-visible");
         if (key != "settings") { stopSoundPreview?.Invoke(); runtime.CloseReminderPreview(); }
         settingsPageHost.Content = page; SelectNavigation(key);
+        if (key == "dashboard") ResumePreview(); else SuspendPreview();
         Dispatcher.UIThread.Post(() =>
         {
             if (!IsVisible || settingsPageHost.Content != page) return;

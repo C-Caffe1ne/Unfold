@@ -237,6 +237,7 @@ public static partial class Ui
         dialog.Content = ModalPage(dialog, title, "확인", ModalBody(messageText), actions);
         dialog.Opened += (_, _) => (buttons.FirstOrDefault(button => button.IsCancel) ?? buttons.FirstOrDefault())?.Focus();
         LockModalSize(dialog);
+        if (owner is PetOverlayWindow overlay) overlay.PositionDialog(dialog);
         // Showing a modal while the originating pointer event is still unwinding can make macOS
         // activate the newly disabled owner and then the dialog again, which appears as a bounce.
         await Dispatcher.UIThread.InvokeAsync(static () => { }, DispatcherPriority.Background);

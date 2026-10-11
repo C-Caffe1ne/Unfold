@@ -34,6 +34,7 @@ public sealed partial record AppSettings
             IdleMinutes = Read(nameof(IdleMinutes), defaults.IdleMinutes),
             SelectedCharacterId = Read(nameof(SelectedCharacterId), defaults.SelectedCharacterId),
             ShowPet = Read(nameof(ShowPet), defaults.ShowPet),
+            ShowPetTimer = Read(nameof(ShowPetTimer), defaults.ShowPetTimer),
             PetScalePercent = Read(nameof(PetScalePercent), defaults.PetScalePercent),
             BubbleOpacityPercent = Read(nameof(BubbleOpacityPercent), defaults.BubbleOpacityPercent),
             AdvanceDialogue = Read(nameof(AdvanceDialogue), defaults.AdvanceDialogue),

@@ -157,7 +157,7 @@ public class ReminderRecoveryTests
     }
 
     private static void Layout(Window window) { Dispatcher.UIThread.RunJobs(); window.UpdateLayout(); }
-    private static void Click(Window window, string name) => window.GetVisualDescendants().OfType<Button>()
+    private static void Click(Window window, string name) => (window is PetWindow pet ? pet.Overlay : window).GetVisualDescendants().OfType<Button>()
         .Single(button => button.Name == name).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
 
     private sealed class Scope : IDisposable

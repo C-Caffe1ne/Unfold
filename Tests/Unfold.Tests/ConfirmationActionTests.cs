@@ -13,31 +13,26 @@ namespace Unfold.Tests;
 public class ConfirmationActionTests
 {
     [AvaloniaFact]
-    public async Task StopRequiresApprovalAndDuplicateRequestsDoNotOpenMoreDialogs()
+    public async Task StopImmediatelyResetsTheTimerAndCancelsTheBreakWithoutConfirmation()
     {
         using var scope = new Scope(); var runtime = scope.Runtime;
         runtime.Clock.Start(TimeSpan.Zero);
         runtime.Clock.Tick(TimeSpan.FromSeconds(3), TimeSpan.Zero, TimeSpan.FromMinutes(5));
-        var remaining = runtime.Clock.Remaining;
         var session = new BreakSession(BreakRoutines.All[0], "default-cat");
         runtime.Reminder.Invite(session); runtime.StartBreak();
-
+        var confirmations = 0;
+        runtime.ConfirmActionOverride = (_, _, _) => { confirmations++; return Task.FromResult(1); };
         var pending = runtime.RequestStop();
-        Assert.Empty(scope.Owner.OwnedWindows);
-        var dialog = await Dialog(scope.Owner);
-        await runtime.RequestStop(); await runtime.Quit();
-        Assert.Single(scope.Owner.OwnedWindows);
-        Assert.False(runtime.Clock.Stopped); Assert.Same(session, runtime.Reminder.Session);
-        Choice(dialog, "취소"); await pending;
-        Assert.Equal(remaining, runtime.Clock.Remaining); Assert.Same(session, runtime.Reminder.Session);
-
-        pending = runtime.RequestStop(); (await Dialog(scope.Owner)).Close(); await pending;
-        Assert.False(runtime.Clock.Stopped); Assert.Same(session, runtime.Reminder.Session);
-
-        pending = runtime.RequestStop(); Choice(await Dialog(scope.Owner), "중지"); await pending;
+        Assert.True(pending.IsCompletedSuccessfully);
+        await pending;
         Assert.True(runtime.Clock.Stopped); Assert.Equal(runtime.Clock.Interval, runtime.Clock.Remaining);
         Assert.Null(runtime.Reminder.Session); Assert.False(runtime.Reminder.HasNotice);
         Assert.Empty(runtime.BreakHistory.Completions);
+        await runtime.RequestStop();
+        Dispatcher.UIThread.RunJobs();
+        Assert.Equal(0, confirmations);
+        Assert.Empty(scope.Owner.OwnedWindows);
+        Assert.True(runtime.Clock.Stopped);
     }
 
     [AvaloniaFact]

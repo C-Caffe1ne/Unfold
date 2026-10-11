@@ -325,10 +325,10 @@ public class CustomPetWindowTests
             Press(parent, "CreateCustomPetPack"); await Until(() => !page.IsBusy);
             Assert.Equal("새 펫", Find<TextBox>(parent, "CustomPetName").Text); Assert.Empty(parent.OwnedWindows);
             output = Path.Combine(temp.Path, "new.unfoldpet");
-            Press(parent, "CreateCustomPetPack"); await Until(() => parent.OwnedWindows.OfType<PetPackWindow>().Any());
-            var import = parent.OwnedWindows.OfType<PetPackWindow>().Single();
-            await Until(() => Find<Button>(import, "InstallPetPack").IsEnabled);
-            Assert.Empty(library.List()); Press(import, "InstallPetPack"); await Until(() => !page.IsBusy);
+            Press(parent, "CreateCustomPetPack"); await Until(() => parent.OwnedWindows.Any());
+            var import = parent.OwnedWindows.Single();
+            Assert.DoesNotContain(import.GetVisualDescendants().OfType<Control>(), c => c.Name == "PackPreview");
+            Assert.Empty(library.List()); import.GetVisualDescendants().OfType<Button>().Single(b => Equals(b.Content, "저장")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); await Until(() => !page.IsBusy);
             Assert.Equal("새 펫", Assert.Single(selected).Manifest.Name); Assert.Empty(parent.OwnedWindows);
             Assert.Equal("", Find<TextBox>(parent, "CustomPetName").Text);
             Assert.False(Find<Button>(parent, "CreateCustomPetPack").IsEnabled);

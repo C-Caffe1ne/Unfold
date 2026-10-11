@@ -183,7 +183,7 @@ public class SettingsPreferencesTests
     }
 
     [AvaloniaFact]
-    public void NotificationAndTimerPreferencesApplyWithoutChangingTheHomeTimingDraft()
+    public void NotificationAndTimerPreferencesApplyWithoutOverwritingAutoSavedHomeTiming()
     {
         using var scope = new Scope(); var window = scope.Window;
         var direction = Find<Slider>(window, "BubbleOpacityPercent");
@@ -197,7 +197,7 @@ public class SettingsPreferencesTests
         Press(window, "SettingsNavTimer");
         Find<NumericUpDown>(window, "BreakDurationMinutes").Value = 3;
         Press(window, "SettingsNavSettings"); idle.Value = 20;
-        Assert.Equal(20, scope.Runtime.Settings.IdleMinutes); Assert.Equal(1, scope.Runtime.Settings.BreakDurationMinutes);
+        Assert.Equal(20, scope.Runtime.Settings.IdleMinutes); Assert.Equal(3, scope.Runtime.Settings.BreakDurationMinutes);
         Press(window, "SettingsNavTimer"); Assert.Equal(3, Find<NumericUpDown>(window, "BreakDurationMinutes").Value);
     }
 

@@ -11,8 +11,8 @@ Deno.serve(createCheckoutHandler({
   environment,
   enabled,
   reader: createSupabaseReader({ url, publicKey: supabasePublicKey(get), allowLocalGateway: environment === 'test' }),
-  store: createPaymentStore({ url, secretKey: supabaseServerKey(get), allowLocalGateway: environment === 'test' }),
-  lemon: enabled ? createLemonClient({ environment, apiKey: get('LEMONSQUEEZY_TEST_API_KEY') }) : {},
+  store: createPaymentStore({ environment, url, secretKey: supabaseServerKey(get), allowLocalGateway: environment === 'test' }),
+  lemon: enabled ? createLemonClient({ environment, apiKey: get(environment === 'live' ? 'LEMONSQUEEZY_LIVE_API_KEY' : 'LEMONSQUEEZY_TEST_API_KEY') }) : {},
   allowedOrigins: (get('UNFOLD_ALLOWED_ORIGINS') ?? '').split(',').map(value => value.trim()).filter(Boolean),
   report: code => console.error(`create-checkout failed: ${code}`),
 }));

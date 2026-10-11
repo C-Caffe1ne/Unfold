@@ -89,11 +89,26 @@ public class SettingsDashboardTests
         Assert.Equal(10, slider.TickFrequency); Assert.True(slider.IsSnapToTickEnabled);
         Assert.DoesNotContain(card.GetVisualDescendants().OfType<TextBlock>(), text => text.Text is "축소" or "기본" or "확대");
 
-        Assert.DoesNotContain(card.GetVisualDescendants(), control => control is AnimationView);
-        foreach (var scale in new[] { 50, 100, 150 })
+        var host = Find<Control>(window, "CompanionPreview");
+        var stage = Find<Grid>(window, "CompanionPreviewStage");
+        var previewScroll = Find<ScrollViewer>(window, "CompanionPreviewScroll");
+        Assert.Single(stage.Children); Assert.Same(host, stage.Children[0]);
+        Assert.DoesNotContain(stage.Children, child => child is Avalonia.Controls.Shapes.Ellipse);
+        foreach (var size in new[] { new Size(1120, 800), new Size(860, 680) })
         {
-            slider.Value = scale; Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
-            Assert.Equal($"{scale}%", value.Text);
+            window.Width = size.Width; window.Height = size.Height;
+            foreach (var scale in new[] { 50, 100, 150 })
+            {
+                slider.Value = scale; Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+                var actualSize = DesignSystem.PetBaseSize * scale / 100d;
+                Assert.Equal(actualSize, host.Width); Assert.Equal(actualSize, host.Height);
+                Assert.Equal(actualSize, stage.Width); Assert.Equal(actualSize, stage.Height);
+                Assert.Equal($"{scale}%", value.Text);
+                Assert.True(previewScroll.Extent.Width <= previewScroll.Viewport.Width + 1);
+                var expectsScroll = size == new Size(860, 680) && scale == 150;
+                Assert.True(expectsScroll == (previewScroll.Extent.Height > previewScroll.Viewport.Height + 1),
+                    $"Window={size}, scale={scale}, extent={previewScroll.Extent}, viewport={previewScroll.Viewport}");
+            }
         }
         Assert.Equal("150%", value.Text); Assert.Equal(150, scope.Runtime.Settings.PetScalePercent);
         Assert.Equal(150, AppSettings.Load(Path.Combine(scope.Root, "settings.json")).PetScalePercent);
@@ -107,15 +122,20 @@ public class SettingsDashboardTests
         window.Width = 860; window.Height = 680;
         var name = Find<TextBlock>(window, "CompanionName");
         name.Text = "오래 함께할 아주 긴 이름을 가진 나만의 새로운 고양이 친구";
+        var interval = Find<NumericUpDown>(window, "ReminderInterval");
+        var previousInterval = scope.Runtime.Clock.Interval;
+        interval.Value = 75;
         var rest = Find<NumericUpDown>(window, "BreakDurationMinutes"); rest.Value = 4;
         // An actual failed save must keep the draft and the next action visible.
         var settingsFile = Path.Combine(scope.Root, "settings.json");
         if (File.Exists(settingsFile)) File.Delete(settingsFile);
         Directory.CreateDirectory(settingsFile);
-        Click(window, "ApplyHomeTimingSettings"); Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+        Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
         Assert.Contains("저장하지 못했어요", Find<TextBlock>(window, "HomeTimingStatus").Text);
         Assert.Equal(4, rest.Value); Assert.NotEqual(4, scope.Runtime.Settings.BreakDurationMinutes);
-        Assert.True(Find<Button>(window, "ApplyHomeTimingSettings").IsEnabled);
+        Assert.Equal(75, interval.Value); Assert.Equal(previousInterval, scope.Runtime.Clock.Interval);
+        Assert.NotEqual(75, scope.Runtime.Settings.IntervalMinutes);
+        Assert.True(rest.IsEnabled);
         foreach (var pair in new[] { ("CharacterPicker", "SettingsCompanionCard"), ("PetScale", "SettingsCompanionCard"),
             ("HomeTimingStatus", "SettingsHomeTimingCard"), ("TimerStop", "SettingsTimerCard") })
         {
@@ -126,6 +146,13 @@ public class SettingsDashboardTests
         }
         Assert.Equal(2, name.MaxLines);
         Assert.Equal(DesignSystem.HomeTimerHeight, Find<Border>(window, "SettingsTimerCard").Bounds.Height);
+        Directory.Delete(settingsFile);
+        rest.Value = 5; Dispatcher.UIThread.RunJobs();
+        Assert.Equal(5, scope.Runtime.Settings.BreakDurationMinutes);
+        Assert.Equal(5, AppSettings.Load(settingsFile).BreakDurationMinutes);
+        Assert.Equal(75, AppSettings.Load(settingsFile).IntervalMinutes);
+        Assert.Equal(TimeSpan.FromMinutes(75), scope.Runtime.Clock.Interval);
+        Assert.False(Find<TextBlock>(window, "HomeTimingStatus").IsVisible);
     }
 
     [AvaloniaFact]
@@ -161,7 +188,7 @@ public class SettingsDashboardTests
     }
 
     [AvaloniaFact]
-    public async Task ResizingPreservesTimerDraftsAndCurrentSettings()
+    public async Task ResizingPreservesAutoSavedTimingAndCurrentSettings()
     {
         using var scope = new Scope(); var window = scope.Window;
         await scope.Runtime.UpdateSettings(scope.Runtime.Settings with { IdleMinutes = 3 });
@@ -169,7 +196,7 @@ public class SettingsDashboardTests
         var breakDuration = Find<NumericUpDown>(window, "BreakDurationMinutes"); breakDuration.Value = 3;
         window.Width = window.MinWidth; window.Height = window.MinHeight; Dispatcher.UIThread.RunJobs();
         Assert.Equal(3, breakDuration.Value);
-        Click(window, "ApplyHomeTimingSettings"); Dispatcher.UIThread.RunJobs();
+        Assert.Equal(3, scope.Runtime.Settings.BreakDurationMinutes);
         Click(window, "SettingsNavSettings"); Dispatcher.UIThread.RunJobs();
         var idle = Find<NumericUpDown>(window, "ReminderIdle"); idle.Value = 12;
         var snooze = Find<NumericUpDown>(window, "SnoozeMinutes"); snooze.Value = 9;
@@ -201,17 +228,12 @@ public class SettingsDashboardTests
     }
 
     [AvaloniaFact]
-    public void HomeTimingApplyStaysAtTheCardTopRight()
+    public void HomeTimingCardKeepsBothInputsWithoutASaveAction()
     {
         using var scope = new Scope(); var window = scope.Window;
         window.UpdateLayout();
         var card = Find<Border>(window, "SettingsHomeTimingCard");
-        var apply = Find<Button>(window, "ApplyHomeTimingSettings");
-        var cardPosition = card.TranslatePoint(default, window)!.Value;
-        var applyPosition = apply.TranslatePoint(default, window)!.Value;
-        Assert.True(applyPosition.X > cardPosition.X + card.Bounds.Width / 2);
-        Assert.True(applyPosition.Y < cardPosition.Y + 60);
-        Assert.True(applyPosition.X + apply.Bounds.Width <= cardPosition.X + card.Bounds.Width);
+        Assert.DoesNotContain(card.GetVisualDescendants().OfType<Button>(), button => button.Name == "ApplyHomeTimingSettings");
         Assert.Contains(card.GetVisualDescendants().OfType<TextBlock>(), text => text.Text == "스트레칭 알림 간격 (분)");
         Assert.Contains(card.GetVisualDescendants().OfType<TextBlock>(), text => text.Text == "휴식 시간 (분)");
     }

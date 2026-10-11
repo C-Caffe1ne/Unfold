@@ -60,13 +60,13 @@ public class PetClickThroughTests
     {
         using var scope = new Scope(); await scope.Load(); var pet = scope.Pet;
         pet.MouseMove(scope.WindowPoint(new(60, 96))); Layout(pet);
-        var bubble = pet.GetVisualDescendants().OfType<PetSpeechBubble>().Single();
+        var bubble = pet.Overlay.Bubble;
         Assert.False(bubble.IsVisible);
-        Assert.False(pet.AcceptsPointerAt(bubble.TranslatePoint(new(30, 30), pet)!.Value));
+        Assert.False(pet.Overlay.AcceptsPointerAt(bubble.TranslatePoint(new(30, 30), pet.Overlay)!.Value));
         Assert.False(pet.AcceptsPointerAt(scope.WindowPoint(new(1, 1))));
         await scope.Runtime.ShowReminder(); Layout(pet);
-        var start = pet.GetVisualDescendants().OfType<Button>().Single(b => b.Name == "PetBreakStart");
-        Assert.True(pet.AcceptsPointerAt(start.TranslatePoint(new(10, 10), pet)!.Value));
+        var start = pet.Overlay.GetVisualDescendants().OfType<Button>().Single(b => b.Name == "PetBreakStart");
+        Assert.True(pet.Overlay.AcceptsPointerAt(start.TranslatePoint(new(10, 10), pet.Overlay)!.Value));
     }
 
     [AvaloniaFact]
@@ -126,7 +126,7 @@ public class PetClickThroughTests
         scope.Pet.UpdateClickThrough(); Assert.False(scope.Pet.IsClickThrough);
     }
 
-    private static void Layout(Window window) { Dispatcher.UIThread.RunJobs(); window.UpdateLayout(); }
+    private static void Layout(Window window) { Dispatcher.UIThread.RunJobs(); window.UpdateLayout(); if (window is PetWindow pet) pet.Overlay.UpdateLayout(); }
     private sealed class Scope : IDisposable
     {
         private readonly TempDirectory temp = new();

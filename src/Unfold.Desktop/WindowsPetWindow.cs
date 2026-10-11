@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using Avalonia.Controls;
+using Avalonia;
 using Avalonia.Platform;
 
 namespace Unfold.Desktop;
@@ -13,6 +14,14 @@ internal static class WindowsPetWindow
 
     internal static bool HasNativeHandle(IPlatformHandle? handle) =>
         handle is { HandleDescriptor: "HWND" } && handle.Handle != 0;
+
+    internal static bool TryGetPointer(Window window, out Point point)
+    {
+        point = default;
+        if (!OperatingSystem.IsWindows() || !HasNativeHandle(window.TryGetPlatformHandle()) || !GetCursorPos(out var cursor)) return false;
+        point = window.PointToClient(new PixelPoint(cursor.X, cursor.Y));
+        return true;
+    }
 
     internal static bool SetClickThrough(Window window, bool enabled) =>
         OperatingSystem.IsWindows() && HasNativeHandle(window.TryGetPlatformHandle()) &&
@@ -83,4 +92,6 @@ internal static class WindowsPetWindow
     [DllImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool SetWindowPos(nint hwnd, nint insertAfter, int x, int y, int width, int height, uint flags);
+    [StructLayout(LayoutKind.Sequential)] private struct CursorPoint { public int X, Y; }
+    [DllImport("user32.dll")] [return: MarshalAs(UnmanagedType.Bool)] private static extern bool GetCursorPos(out CursorPoint point);
 }

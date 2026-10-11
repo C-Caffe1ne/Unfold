@@ -22,6 +22,7 @@ internal sealed class AnimatedCountdown : TemplatedControl, IDisposable
     private string previousText = "";
     private int? previousSeconds;
     private bool previouslyActive, disposed;
+    private int motionDirection = 1;
     private Typeface? cachedTypeface;
     private double cachedSize, digitWidth;
     private IBrush? cachedBrush;
@@ -30,6 +31,7 @@ internal sealed class AnimatedCountdown : TemplatedControl, IDisposable
     public bool AnimationsEnabled { get; set; } = true;
     internal IReadOnlyCollection<int> AnimatedDigitIndices => movingDigits;
     internal bool HasDigitMotion => frameTimer.IsEnabled;
+    internal int MotionDirection => motionDirection;
     public string Text { get => GetValue(TextProperty); set => SetValue(TextProperty, value); }
     public double LineHeight { get => GetValue(LineHeightProperty); set => SetValue(LineHeightProperty, value); }
 
@@ -52,21 +54,24 @@ internal sealed class AnimatedCountdown : TemplatedControl, IDisposable
         var seconds = (int)Math.Floor(Math.Max(0, remaining.TotalSeconds));
         var next = $"{prefix}{seconds / 60:00}:{seconds % 60:00}{suffix}";
         var current = Text ?? "";
-        var animate = AnimationsEnabled && active && previouslyActive && IsEffectivelyVisible &&
-            VisualRoot is not null && previousSeconds == seconds + 1 && current.Length == next.Length;
+        var wasActive = previouslyActive;
+        var animate = AnimationsEnabled && previousSeconds is int prior && prior != seconds &&
+            IsEffectivelyVisible && VisualRoot is not null;
+        var direction = previousSeconds is int oldSeconds && seconds < oldSeconds ? -1 : 1;
         previousSeconds = seconds; previouslyActive = active;
         Opacity = active ? 1 : .55;
         if (current == next)
         {
-            if (!active || !AnimationsEnabled) StopAnimation();
+            if ((wasActive && !active) || !AnimationsEnabled) StopAnimation();
             return;
         }
         StopAnimation();
-        previousText = current; Text = next;
+        motionDirection = direction;
+        previousText = current.Length <= next.Length ? current.PadLeft(next.Length) : current[^next.Length..]; Text = next;
         if (animate)
         {
             for (var index = 0; index < next.Length; index++)
-                if (current[index] != next[index] && char.IsAsciiDigit(next[index])) movingDigits.Add(index);
+                if (previousText[index] != next[index] && char.IsAsciiDigit(next[index])) movingDigits.Add(index);
             if (movingDigits.Count > 0) { motionClock.Restart(); frameTimer.Start(); }
         }
         InvalidateVisual();
@@ -127,8 +132,8 @@ internal sealed class AnimatedCountdown : TemplatedControl, IDisposable
                     var incoming = Math.Clamp((progress - .42) / .58, 0, 1);
                     if (outgoing < 1)
                         context.DrawText(old, new Point(x + (width - old.WidthIncludingTrailingWhitespace) / 2,
-                            (Bounds.Height - old.Height) / 2 - Bounds.Height * outgoing * outgoing));
-                    nextY += Bounds.Height * Math.Pow(1 - incoming, 3);
+                            (Bounds.Height - old.Height) / 2 - motionDirection * Bounds.Height * outgoing * outgoing));
+                    nextY += motionDirection * Bounds.Height * Math.Pow(1 - incoming, 3);
                 }
                 context.DrawText(next, new Point(x + (width - next.WidthIncludingTrailingWhitespace) / 2, nextY));
             }

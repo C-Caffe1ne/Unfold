@@ -118,7 +118,7 @@ public class BreakReminderTests
     }
 
     [AvaloniaFact]
-    public async Task PetScaleAndAllDirectionsKeepSessionAndButtonsInsideOneWindow()
+    public async Task PetScaleAndAllDirectionsKeepSessionAndButtonsInAnIndependentWindow()
     {
         using var temp = new TempDirectory(); var previous = Environment.GetEnvironmentVariable("UNFOLD_DATA_DIR");
         Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", temp.Path);
@@ -134,25 +134,26 @@ public class BreakReminderTests
                 await runtime.UpdateSettings(runtime.Settings with { BubbleDirection = direction, PetScalePercent = scale });
                 pet.RefreshSpeech(); Dispatcher.UIThread.RunJobs(); pet.UpdateLayout();
                 var petSize = DesignSystem.PetBaseSize * scale / 100d;
-                Assert.Equal(PetBubbleLayout.CreateSurface(BubbleDirection.Right, default, 1, null, petSize, DesignSystem.SpeechInvitationHeight, DesignSystem.SpeechBubbleWidth).Size, pet.ClientSize);
+                Assert.Equal(new Size(petSize, petSize), pet.ClientSize);
+                pet.Overlay.UpdateLayout();
                 Assert.Equal(new Size(petSize, petSize), pet.PetView.Bounds.Size);
-                var tail = pet.GetVisualDescendants().OfType<Avalonia.Controls.Shapes.Polygon>().Single(shape => shape.Name == "PetSpeechTail");
+                var tail = pet.Overlay.GetVisualDescendants().OfType<Avalonia.Controls.Shapes.Polygon>().Single(shape => shape.Name == "PetSpeechTail");
                 Assert.Null(tail.Stroke); Assert.Equal(0, tail.StrokeThickness); Assert.Equal(DesignSystem.Shell, tail.Fill);
-                var outline = pet.GetVisualDescendants().OfType<Avalonia.Controls.Shapes.Polyline>().Single(shape => shape.Name == "PetSpeechTailOutline");
+                var outline = pet.Overlay.GetVisualDescendants().OfType<Avalonia.Controls.Shapes.Polyline>().Single(shape => shape.Name == "PetSpeechTailOutline");
                 Assert.Null(outline.Fill); Assert.Equal(DesignSystem.Outline, outline.Stroke); Assert.Equal(1, outline.StrokeThickness);
                 Assert.Equal([tail.Points[0], tail.Points[2], tail.Points[1]], outline.Points);
-                foreach (var button in pet.GetVisualDescendants().OfType<Button>().Where(button => button.IsEffectivelyVisible))
+                foreach (var button in pet.Overlay.GetVisualDescendants().OfType<Button>().Where(button => button.IsEffectivelyVisible))
                 {
-                    var point = button.TranslatePoint(default, pet)!.Value;
-                    Assert.True(point.X >= 0 && point.X + button.Bounds.Width <= pet.ClientSize.Width);
-                    Assert.True(point.Y >= 0 && point.Y + button.Bounds.Height <= pet.ClientSize.Height);
+                    var point = button.TranslatePoint(default, pet.Overlay)!.Value;
+                    Assert.True(point.X >= 0 && point.X + button.Bounds.Width <= pet.Overlay.ClientSize.Width);
+                    Assert.True(point.Y >= 0 && point.Y + button.Bounds.Height <= pet.Overlay.ClientSize.Height);
                 }
             }
             var menu = pet.ContextMenu!.Items.OfType<MenuItem>().ToArray();
             Assert.Equal(new object?[] { "설정", "펫 숨기기" }, menu.Select(item => item.Header));
             runtime.Reminder.Start(TimeSpan.Zero); runtime.Reminder.Tick(TimeSpan.FromSeconds(7));
             pet.RefreshSpeech(); Assert.Same(session, runtime.Reminder.Session);
-            Assert.Equal(TimeSpan.FromSeconds(7), session.Elapsed); Assert.Empty(pet.OwnedWindows);
+            Assert.Equal(TimeSpan.FromSeconds(7), session.Elapsed); Assert.Same(pet.Overlay, Assert.Single(pet.OwnedWindows));
             Assert.Equal(150, AppSettings.Load(Path.Combine(temp.Path, "settings.json")).PetScalePercent);
         }
         finally { pet.ClosePet(); Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", previous); }
@@ -207,18 +208,18 @@ public class BreakReminderTests
                 Assert.Equal(history, runtime.BreakHistory.Completions.Count);
                 Assert.Equal(dueSounds, runtime.DueSoundRequests);
                 Assert.Equal(completionSounds, runtime.CompletionSoundRequests);
-                Assert.True(pet.GetVisualDescendants().OfType<PetSpeechBubble>().Single().IsVisible);
+                Assert.True(pet.Overlay.Bubble.IsVisible);
             }
             runtime.CloseReminderPreview(); pet.RefreshSpeech(); Dispatcher.UIThread.RunJobs(); pet.UpdateLayout();
             Assert.Null(runtime.PreviewNotice); Assert.Equal(idleSize, pet.ClientSize);
             Assert.Equal(idleAnchor, pet.PetAnchor);
-            Assert.False(pet.GetVisualDescendants().OfType<PetSpeechBubble>().Single().IsVisible);
+            Assert.False(pet.Overlay.Bubble.IsVisible);
 
             var live = new BreakSession(BreakRoutines.All[0], "default-cat");
             Assert.True(runtime.Reminder.Invite(live));
             await Assert.ThrowsAsync<InvalidOperationException>(() => runtime.ShowReminderPreview(PetNotice.Advance));
             Assert.Same(live, runtime.Reminder.Session); Assert.Equal(PetNotice.Invitation, runtime.PresentedReminder.Notice);
-            Assert.Empty(pet.OwnedWindows);
+            Assert.Same(pet.Overlay, Assert.Single(pet.OwnedWindows));
         }
         finally { pet.ClosePet(); Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", previous); }
     }

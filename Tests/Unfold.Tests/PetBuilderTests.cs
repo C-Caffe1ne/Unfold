@@ -84,9 +84,9 @@ public class PetBuilderTests
         editor.Find<TextBox>("CustomPetName").Text = "테스트 펫";
         editor.Find<ComboBox>("CustomPetPlayback_idle").SelectedIndex = 2;
         editor.Press("CreateCustomPetPack");
-        await Until(() => editor.Window.OwnedWindows.OfType<PetPackWindow>().Any());
-        var import = editor.Window.OwnedWindows.OfType<PetPackWindow>().Single();
-        await Until(() => !import.IsBusy); import.Close();
+        await Until(() => editor.Window.OwnedWindows.Any());
+        var import = editor.Window.OwnedWindows.Single();
+        import.GetVisualDescendants().OfType<Button>().Single(b => Equals(b.Content, "취소")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
         await Until(() => !editor.Page.IsBusy); editor.Layout();
         Assert.NotNull(editor.Find<TextBox>("CustomPetName"));
         using var pack = CharacterPack.Open(editor.Output!);
@@ -108,9 +108,10 @@ public class PetBuilderTests
         Assert.True(editor.Page.HasUnsavedDraft); Assert.Empty(editor.Library.List());
         editor.Output = output;
         editor.Press("CreateGlbPetPack");
-        await Until(() => editor.Window.OwnedWindows.OfType<PetPackWindow>().Any());
-        var import = editor.Window.OwnedWindows.OfType<PetPackWindow>().Single();
-        await Until(() => !import.IsBusy); editor.Layout();
+        await Until(() => editor.Window.OwnedWindows.Any());
+        var import = editor.Window.OwnedWindows.Single();
+        editor.Layout();
+        Assert.DoesNotContain(import.GetVisualDescendants().OfType<Control>(), c => c.Name == "PackPreview");
         Assert.False(editor.Page.HasUnsavedDraft); Assert.Empty(editor.Library.List());
         using (var pack = CharacterPack.Open(output!))
         {
@@ -120,7 +121,7 @@ public class PetBuilderTests
             Assert.True(pack.Character.Manifest.Animations["click"].Loop);
             Assert.Equal(.5, pack.Character.Manifest.Animations["click"].Speed);
         }
-        var install = import.GetVisualDescendants().OfType<Button>().Single(c => c.Name == "InstallPetPack");
+        var install = import.GetVisualDescendants().OfType<Button>().Single(c => Equals(c.Content, "저장") || Equals(c.Content, "교체"));
         await Until(() => install.IsEnabled);
         install.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); await Until(() => !editor.Page.IsBusy);
         Assert.True(editor.Library.List().Single().IsGlb); editor.Layout();
@@ -148,9 +149,9 @@ public class PetBuilderTests
         editor.Find<TextBox>("CustomPetName").Text = "작성 중";
         editor.FilePath = CharacterPackTests.CreatePack(root, "1.0.0", color: 0xFFABCDEF);
         editor.Press("OpenPetBuilderFile");
-        await Until(() => editor.Window.OwnedWindows.OfType<PetPackWindow>().Any());
-        var import = editor.Window.OwnedWindows.OfType<PetPackWindow>().Single();
-        var install = import.GetVisualDescendants().OfType<Button>().Single(c => c.Name == "InstallPetPack");
+        await Until(() => editor.Window.OwnedWindows.Any());
+        var import = editor.Window.OwnedWindows.Single();
+        var install = import.GetVisualDescendants().OfType<Button>().Single(c => Equals(c.Content, "저장") || Equals(c.Content, "교체"));
         await Until(() => install.IsEnabled);
         install.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
         await Until(() => !editor.Page.IsBusy); editor.Layout();

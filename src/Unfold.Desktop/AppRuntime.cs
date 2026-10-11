@@ -34,7 +34,6 @@ public sealed partial class AppRuntime : IDisposable
     public bool DiagnosticMode { get; private set; }
     public BreakHistory BreakHistory { get; private set; }
     public string? BreakHistoryError { get; private set; }
-    public bool CanEditTimerInterval => Clock.Paused || Clock.Stopped;
     internal AccountWindow? ActiveAccount => accountWindow;
     internal AccountSession? AccountSession => accountSession;
     internal bool AccountSignOutPending { get; private set; }
@@ -249,20 +248,17 @@ public sealed partial class AppRuntime : IDisposable
     }
     public void TogglePause() { if (!AccessAllowed) return; Clock.TogglePause(monotonic.Elapsed); Changed?.Invoke(); }
     public void Stop() { CancelReminder(); Clock.Stop(monotonic.Elapsed); Changed?.Invoke(); }
-    public async Task RequestStop()
+    public Task RequestStop()
     {
-        if (!AccessAllowed || quitting || disposed || stopPending || quitPending || updateRestartPending) return;
+        if (!AccessAllowed || quitting || disposed || stopPending || quitPending || updateRestartPending) return Task.CompletedTask;
         stopPending = true;
-        try
-        {
-            if (await ConfirmAction("타이머를 중지할까요?", "타이머를 중지하면 남은 시간이 초기화되고 진행 중인 휴식이 취소돼요.", "중지", "취소") == 0 && !disposed)
-                Stop();
-        }
+        try { Stop(); }
         finally { stopPending = false; }
+        return Task.CompletedTask;
     }
     public void Reset() { if (!AccessAllowed) return; CancelReminder(); Clock.Reset(monotonic.Elapsed); Changed?.Invoke(); }
     private void CancelReminder() { reminderGeneration++; Reminder.Cancel(); RefreshPetNotice(); }
-    public void ShowSettings() { backgroundStart = false; if (accountStartupPending) return; if (!AccessAllowed) { ShowAccount(); return; } if (settingsWindow is null) return; settingsWindow.Show(); settingsWindow.WindowState = WindowState.Normal; if (!DiagnosticMode) settingsWindow.Activate(); TryShowStartupUpdate(); }
+    public void ShowSettings() { backgroundStart = false; if (accountStartupPending) return; if (!AccessAllowed) { ShowAccount(); return; } if (settingsWindow is null) return; settingsWindow.Show(); settingsWindow.ResumePreview(); settingsWindow.WindowState = WindowState.Normal; if (!DiagnosticMode) settingsWindow.Activate(); TryShowStartupUpdate(); }
     internal static bool HasSeenCurrentAccountWelcome(string path)
     {
         if (!File.Exists(path)) return false;
@@ -349,8 +345,6 @@ public sealed partial class AppRuntime : IDisposable
     {
         if (!AccessAllowed) throw new AccountException(AccountFailure.AuthenticationRequired);
         var reschedulesTimer = value.IntervalMinutes != Settings.IntervalMinutes;
-        if (reschedulesTimer && !CanEditTimerInterval)
-            throw new ArgumentException("타이머를 일시정지하거나 중지한 뒤 스트레칭 시간을 적용해 주세요.");
         value.Save(settingsFile); var changedCharacter = value.SelectedCharacterId != Settings.SelectedCharacterId;
         var hidingPet = hideCurrentNotice || (!value.ShowPet && Settings.ShowPet);
         if (reschedulesTimer)
@@ -581,9 +575,11 @@ public sealed partial class AppRuntime : IDisposable
         finally { quitPending = false; }
     }
     private Task<int> ConfirmAction(string title, string message, params string[] choices)
+        => ConfirmAction(null, title, message, choices);
+    private Task<int> ConfirmAction(Window? confirmationOwner, string title, string message, params string[] choices)
     {
         if (ConfirmActionOverride is { } confirm) return confirm(title, message, choices);
-        var owner = accountWindow is { IsVisible: true } ? accountWindow : (Window?)settingsWindow ?? desktop.MainWindow ?? pet;
+        var owner = accountWindow is { IsVisible: true } ? accountWindow : confirmationOwner ?? (Window?)settingsWindow ?? desktop.MainWindow ?? pet;
         if (owner is null)
         {
             settingsWindow = new(this); desktop.MainWindow = settingsWindow; owner = settingsWindow;

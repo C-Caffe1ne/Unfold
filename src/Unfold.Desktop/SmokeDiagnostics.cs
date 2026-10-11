@@ -50,22 +50,33 @@ internal static partial class SmokeDiagnostics
             await VerifyActionConfirmations(runtime, settings, directory);
             var intervalInput = settings.GetVisualDescendants().OfType<NumericUpDown>().Single(input => input.Name == "ReminderInterval");
             var breakDurationInput = settings.GetVisualDescendants().OfType<NumericUpDown>().Single(input => input.Name == "BreakDurationMinutes");
-            if (intervalInput.IsEnabled) throw new InvalidOperationException("The running timer allowed interval editing.");
+            if (!intervalInput.IsEnabled) throw new InvalidOperationException("The running timer blocked interval editing.");
+            if (settings.GetVisualDescendants().OfType<Button>().Any(button => button.Name == "ApplyHomeTimingSettings"))
+                throw new InvalidOperationException("The retired home timing save action is still present.");
             if (!breakDurationInput.IsEnabled) throw new InvalidOperationException("The running timer blocked the next break duration.");
             Capture(settings, Path.Combine(directory, "timer-running.png"));
             await VerifyCountdownMotion(directory);
+            var homeCountdown = settings.GetVisualDescendants().OfType<AnimatedCountdown>().Single();
+            foreach (var (minutes, direction, name) in new[] { (61, 1, "up"), (60, -1, "down") })
+            {
+                intervalInput.Value = minutes;
+                await Until(() => runtime.Settings.IntervalMinutes == minutes && homeCountdown.HasDigitMotion);
+                if (runtime.Clock.Paused || runtime.Clock.Stopped || homeCountdown.MotionDirection != direction)
+                    throw new InvalidOperationException("Editing an active interval changed its state or animated in the wrong direction.");
+                await Task.Delay(60); Capture(settings, Path.Combine(directory, $"timer-home-interval-{name}-out.png"));
+                await Task.Delay(150); Capture(settings, Path.Combine(directory, $"timer-home-interval-{name}-in.png"));
+                await Task.Delay(210);
+            }
             Press(settings, "TimerToggle"); await Task.Delay(100);
             if (!runtime.Clock.Paused || !intervalInput.IsEnabled ||
                 settings.GetVisualDescendants().OfType<AnimatedCountdown>().Single().Opacity != .55)
                 throw new InvalidOperationException("Pause did not enable interval editing or dim the countdown.");
-            intervalInput.Value = 25; breakDurationInput.Value = 3; await Task.Delay(100);
-            if (runtime.Settings.IntervalMinutes == 25 || runtime.Settings.BreakDurationMinutes == 3)
-                throw new InvalidOperationException("Changing home time fields applied before pressing Apply.");
-            Press(settings, "ApplyHomeTimingSettings"); await Task.Delay(100);
+            intervalInput.Value = 25; breakDurationInput.Value = 3;
+            await Until(() => runtime.Settings.IntervalMinutes == 25 && runtime.Settings.BreakDurationMinutes == 3);
             var appliedHomeTimes = AppSettings.Load(Path.Combine(AppPaths.DataRoot, "settings.json"));
             if (runtime.Settings.IntervalMinutes != 25 || runtime.Settings.BreakDurationMinutes != 3 ||
                 appliedHomeTimes.IntervalMinutes != 25 || appliedHomeTimes.BreakDurationMinutes != 3)
-                throw new InvalidOperationException("Apply did not update/persist the home time settings.");
+                throw new InvalidOperationException("Home time changes did not apply/persist automatically.");
             await Task.Delay(1200);
             if (!runtime.Clock.Paused || runtime.Clock.Remaining != TimeSpan.FromMinutes(25))
                 throw new InvalidOperationException("Applying the interval started the paused timer or ignored the new interval.");
@@ -77,10 +88,7 @@ internal static partial class SmokeDiagnostics
                 settings.GetVisualDescendants().OfType<TextBlock>().Any(text => text.Name == "TimerStateDetail"))
                 throw new InvalidOperationException("Stop did not keep the configured interval visible.");
             Capture(settings, Path.Combine(directory, "timer-stopped.png"));
-            intervalInput.Value = 30; await Task.Delay(100);
-            if (runtime.Settings.IntervalMinutes == 30 || !runtime.Clock.Stopped || runtime.Clock.Remaining != TimeSpan.FromMinutes(25))
-                throw new InvalidOperationException("Editing an interval applied early or restarted a stopped timer.");
-            Press(settings, "ApplyHomeTimingSettings");
+            intervalInput.Value = 30;
             await Until(() => runtime.Settings.IntervalMinutes == 30 && runtime.Clock.Remaining == TimeSpan.FromMinutes(30));
             if (runtime.Settings.IntervalMinutes != 30 || !runtime.Clock.Stopped || runtime.Clock.Remaining != TimeSpan.FromMinutes(30))
                 throw new InvalidOperationException("Applying an interval changed the stopped state.");
@@ -135,10 +143,10 @@ internal static partial class SmokeDiagnostics
             {
                 await runtime.UpdateSettings(runtime.Settings with { BubbleDirection = direction });
                 await Task.Delay(100); reminder.UpdateLayout();
-                Capture(reminder, Path.Combine(directory, "speech-" + direction.ToString().ToLowerInvariant() + ".png"));
+                Capture(reminder.Overlay, Path.Combine(directory, "speech-" + direction.ToString().ToLowerInvariant() + ".png"));
             }
             await runtime.UpdateSettings(runtime.Settings with { BubbleDirection = BubbleDirection.Top });
-            Press(reminder, "PetBreakStart");
+            Press(reminder.Overlay, "PetBreakStart");
             if (session.State != BreakSessionState.InProgress) throw new InvalidOperationException("Start button did not begin the break.");
             VerifySpeechBubble(reminder, "함께 쉬어 가요", DesignSystem.SpeechRestingHeight, session.CurrentStep.Instruction);
             await runtime.UpdateSettings(runtime.Settings with { BreakDurationMinutes = 4 });
@@ -151,20 +159,20 @@ internal static partial class SmokeDiagnostics
             if (session.State != BreakSessionState.AwaitingConfirmation || runtime.BreakHistory.Completions.Count != 0 || !PetReminder.TimerText(session).StartsWith('+'))
                 throw new InvalidOperationException("Overtime or explicit confirmation failed.");
             VerifySpeechBubble(reminder, "조금 더 쉬어도 좋아요", DesignSystem.SpeechRestingHeight, session.CurrentStep.Instruction);
-            await Task.Delay(100); Capture(reminder, Path.Combine(directory, "speech-overtime.png"));
+            await Task.Delay(100); Capture(reminder.Overlay, Path.Combine(directory, "speech-overtime.png"));
             var petMenu = reminder.ContextMenu?.Items.OfType<MenuItem>().ToArray() ?? [];
             if (!petMenu.Select(item => item.Header as string).SequenceEqual(new[] { "설정", "펫 숨기기" }) || runtime.Reminder.Session != session)
                 throw new InvalidOperationException("The pet context menu differs from settings/hide or lost the active session.");
-            Press(reminder, "PetBreakComplete");
+            Press(reminder.Overlay, "PetBreakComplete");
             var historyFile = Path.Combine(AppPaths.DataRoot, "break-history.json");
             if (runtime.ActiveReminder is not null || BreakHistory.Load(historyFile).Completions.Count != 1 || runtime.CompletionSoundRequests != 1)
                 throw new InvalidOperationException("Confirmed break was not saved/sounded exactly once.");
             VerifySpeechBubble(reminder, "스트레칭을 마쳤어요!", DesignSystem.SpeechCompletedHeight, "쉬었어요", "다음 휴식 때");
-            await Task.Delay(100); Capture(reminder, Path.Combine(directory, "speech-completed.png"));
+            await Task.Delay(100); Capture(reminder.Overlay, Path.Combine(directory, "speech-completed.png"));
             var completed = BreakHistory.Load(historyFile).Completions.Single();
             if (completed.RoutineName != BreakRoutines.All[0].Name || completed.ProfileId is not null || completed.Seconds != 180 || completed.ActualSeconds < 190)
                 throw new InvalidOperationException("History lost planned/actual duration or routine/profile context.");
-            await runtime.ShowReminder(); Press(reminder, "PetBreakSnooze");
+            await runtime.ShowReminder(); Press(reminder.Overlay, "PetBreakSnooze");
             if (runtime.Clock.Remaining != TimeSpan.FromMinutes(5)) throw new InvalidOperationException("Snooze did not schedule five minutes.");
             await runtime.ShowReminder(); runtime.Stop();
             if (runtime.BreakHistory.Completions.Count != 1) throw new InvalidOperationException("Snooze or stop was recorded as a completion.");
@@ -196,7 +204,7 @@ internal static partial class SmokeDiagnostics
             await runtime.UpdateSettings(runtime.Settings with { ShowPet = true, ReminderSoundsEnabled = true });
             runtime.Reminder.ShowAdvance(TimeSpan.FromDays(2)); reminder.RefreshSpeech();
             VerifySpeechBubble(reminder, "5분 뒤에 스트레칭해요", DesignSystem.SpeechAdvanceHeight, "하던 일을");
-            await Task.Delay(100); Capture(reminder, Path.Combine(directory, "speech-five-minutes.png"));
+            await Task.Delay(100); Capture(reminder.Overlay, Path.Combine(directory, "speech-five-minutes.png"));
             runtime.Stop();
             var previewRemaining = runtime.Clock.Remaining;
             var previewHistory = runtime.BreakHistory.Completions.Count;
@@ -242,7 +250,7 @@ internal static partial class SmokeDiagnostics
                 petContextMenuVerified = true, petScaleAndDebugPreviewVerified = true, speechTitleOnlyGeometryVerified = true,
                 soundRequestsVerified = true, hiddenPetNoticeVerified = true, stopWhileOpening,
                 petPackInstallUpdateRepairVerified = true, simulatedPackPicker = true, settingsLayout, weeklyReview, reviewLayout, themes,
-                customPetGifAuthoringVerified = true, timerPetPreviewRemoved = true,
+                customPetGifAuthoringVerified = true, timerPetPreviewRestored = true, packImportPreviewRemoved = true,
                 currentSettingsPreservedDuringMigration = true, pngPetSaveAndReloadVerified = true,
                 sharedDesignDialogsVerified = true, pinnedPageActionsVerified = true, accountScreen,
                 responsiveMinimum = new { width = 640, height = 560, verified = true }, actionConfirmationCancelVerified = true,
@@ -291,8 +299,8 @@ internal static partial class SmokeDiagnostics
     }
     private static void VerifySpeechBubble(PetWindow window, string expectedTitle, double expectedHeight, params string[] forbiddenBodyText)
     {
-        window.UpdateLayout();
-        var bubble = window.GetVisualDescendants().OfType<PetSpeechBubble>().Single();
+        window.Overlay.UpdateLayout();
+        var bubble = window.Overlay.Bubble;
         var title = bubble.GetVisualDescendants().OfType<TextBlock>().Single(text => text.Name == "PetBreakTitle");
         if (Math.Abs(bubble.Width - DesignSystem.SpeechBubbleWidth) > .5 || Math.Abs(bubble.Height - expectedHeight) > .5)
             throw new InvalidOperationException("Speech bubble dimensions differ from the approved state geometry.");
@@ -335,7 +343,7 @@ internal static partial class SmokeDiagnostics
                 if (runtime.Settings.Theme != palette.Id || AppSettings.Load(Path.Combine(AppPaths.DataRoot, "settings.json")).Theme != palette.Id)
                     throw new InvalidOperationException("Theme selection did not persist: " + palette.Name);
                 Capture(window, Path.Combine(directory, "theme-" + palette.Id + "-home.png"));
-                Capture(runtime.ActivePet!, Path.Combine(directory, "theme-" + palette.Id + "-speech.png"));
+                Capture(runtime.ActivePet!.Overlay, Path.Combine(directory, "theme-" + palette.Id + "-speech.png"));
                 flyout.ShowAt(button); await Task.Delay(80);
                 var presenter = choices.GetVisualAncestors().OfType<FlyoutPresenter>().Single();
                 using (var image = new RenderTargetBitmap(new PixelSize((int)presenter.Bounds.Width, (int)presenter.Bounds.Height), new Vector(96, 96)))
@@ -398,35 +406,41 @@ internal static partial class SmokeDiagnostics
         var second = Path.Combine(AppPaths.DataRoot, "diagnostic-v2.unfoldpet");
         await Task.Run(() => { CharacterPack.Create(source, "1.0.0", first); CharacterPack.Create(source, "1.1.0", second); });
         var selectedFile = first;
-        var window = new PetPackWindow(runtime.Library, runtime.SelectInstalledCharacter, () => Task.FromResult<string?>(selectedFile));
-        AppRuntime.PrepareDiagnosticWindow(window); window.Show();
-        Button InstallButton() => window.GetVisualDescendants().OfType<Button>().Single(button => button.Name == "InstallPetPack");
+        var window = new Window { Title = "Unfold · 펫 관리", Width = 860, Height = 680 };
+        using var page = new PetManagementView(window, runtime.Library, runtime.SelectInstalledCharacter,
+            chooseMedia: () => Task.FromResult<string?>(selectedFile));
+        window.Content = Ui.PageFrame(window, page); AppRuntime.PrepareDiagnosticWindow(window); window.Show();
+        async Task Save(string path, string action)
+        {
+            selectedFile = path; Press(window, "OpenPetBuilderFile"); await Until(() => window.OwnedWindows.Any());
+            var confirm = window.OwnedWindows.Single();
+            if (confirm.GetVisualDescendants().OfType<Control>().Any(control => control.Name == "PackPreview"))
+                throw new InvalidOperationException("Removed pack preview remains reachable.");
+            Capture(confirm, Path.Combine(directory, "pack-import-" + action + ".png"));
+            confirm.GetVisualDescendants().OfType<Button>().Single(button => Equals(button.Content, action))
+                .RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await Until(() => !page.IsBusy);
+        }
         try
         {
-            Press(window, "OpenPetPack"); await Until(() => InstallButton().IsEnabled);
-            if (runtime.Characters.Any(character => character.Manifest.Id == manifest.Id)) throw new InvalidOperationException("Preview installed a companion without confirmation.");
-            Capture(window, Path.Combine(directory, "pack-preview.png"));
-            Press(window, "InstallPetPack"); await Until(() => PackSaved(window));
-            if (runtime.Selected?.Manifest.Id != manifest.Id) throw new InvalidOperationException("Installed companion was not selected.");
-            Capture(window, Path.Combine(directory, "pack-installed.png"));
-            selectedFile = second; Press(window, "OpenPetPack"); await Until(() => InstallButton().IsEnabled);
-            if (window.GetVisualDescendants().OfType<TextBlock>().Single(text => text.Name == "PackStatus").Text != "업데이트 준비 완료")
-                throw new InvalidOperationException("New pack version was not recognized.");
-            Capture(window, Path.Combine(directory, "pack-update.png"));
-            Press(window, "InstallPetPack"); await Until(() => PackSaved(window));
+            await Save(first, "취소");
+            if (runtime.Characters.Any(character => character.Manifest.Id == manifest.Id)) throw new InvalidOperationException("Cancelled import saved a pet.");
+            await Save(first, "저장");
+            if (runtime.Selected?.Manifest.Id != manifest.Id) throw new InvalidOperationException("Imported pet was not selected.");
+            await Save(second, "업데이트");
+            using (var latest = CharacterPack.Open(second))
+                if (runtime.Library.InspectInstall(latest).InstalledVersion != "1.1.0") throw new InvalidOperationException("Pet update was not saved.");
             var sheet = Path.Combine(runtime.Library.PackagePath(manifest.Id), "spritesheet.png"); File.WriteAllText(sheet, "diagnostic corruption");
-            Press(window, "OpenPetPack"); await Until(() => InstallButton().IsEnabled);
-            if (window.GetVisualDescendants().OfType<TextBlock>().Single(text => text.Name == "PackStatus").Text != "재설치 준비 완료")
-                throw new InvalidOperationException("Repair was not offered for the installed version.");
-            Capture(window, Path.Combine(directory, "pack-reinstall.png"));
-            Press(window, "InstallPetPack"); await Until(() => PackSaved(window));
+            await Save(second, "재설치");
             if (!File.ReadAllBytes(sheet).SequenceEqual(File.ReadAllBytes(Path.Combine(source, "spritesheet.png"))))
-                throw new InvalidOperationException("Reinstall did not restore the companion's image.");
-            selectedFile = Path.Combine(AppPaths.DataRoot, "broken.unfoldpet"); File.WriteAllText(selectedFile, "not a zip");
-            Press(window, "OpenPetPack"); await Until(() => window.GetVisualDescendants().OfType<Button>().Single(button => button.Name == "OpenPetPack").IsEnabled);
-            if (InstallButton().IsEnabled || !runtime.Clock.Paused) throw new InvalidOperationException("Invalid pack remained installable or installation resumed the timer.");
-            Capture(window, Path.Combine(directory, "pack-error.png"));
-            _ = CharacterLibrary.LoadPackage(runtime.Library.PackagePath(manifest.Id)).LoadAnimation("idle");
+                throw new InvalidOperationException("Reinstall did not restore the pet image.");
+            selectedFile = Path.Combine(directory, "broken.unfoldpet"); File.WriteAllText(selectedFile, "not a zip");
+            Press(window, "OpenPetBuilderFile"); await Until(() => window.OwnedWindows.Any());
+            var error = window.OwnedWindows.Single();
+            error.GetVisualDescendants().OfType<Button>().Single(button => Equals(button.Content, "확인"))
+                .RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await Until(() => !page.IsBusy);
+            if (!runtime.Clock.Paused) throw new InvalidOperationException("Import resumed the timer.");
         }
         finally { window.Close(); }
     }
@@ -476,20 +490,9 @@ internal static partial class SmokeDiagnostics
         using var pack = CharacterPack.Open(output);
         if (pack.Character.Manifest.Animations.Count != 2 || pack.Character.Manifest.Animations["click"].Loop)
             throw new InvalidOperationException("Custom pet action mapping changed during export.");
-        var installWindow = new PetPackWindow(runtime.Library, runtime.SelectInstalledCharacter, () => Task.FromResult<string?>(output));
-        AppRuntime.PrepareDiagnosticWindow(installWindow); installWindow.Show();
-        try
-        {
-            Button Install() => installWindow.GetVisualDescendants().OfType<Button>().Single(button => button.Name == "InstallPetPack");
-            Press(installWindow, "OpenPetPack"); await Until(() => Install().IsEnabled);
-            await Until(() => installWindow.GetVisualDescendants().OfType<Button>().Single(button => button.Name == "PausePackPreview").IsEnabled);
-            await Task.Delay(100);
-            Capture(installWindow, Path.Combine(directory, "custom-pet-preview.png"));
-            Press(installWindow, "InstallPetPack"); await Until(() => PackSaved(installWindow));
-            if (runtime.Selected?.Manifest.Id != pack.Id || !runtime.Clock.Paused)
-                throw new InvalidOperationException("Custom pet installation did not select the pet or changed timer pause.");
-        }
-        finally { installWindow.Close(); }
+        await PetPackImport.Save(output, runtime.Library, runtime.SelectInstalledCharacter, (_, _) => Task.FromResult(true));
+        if (runtime.Selected?.Manifest.Id != pack.Id || !runtime.Clock.Paused)
+            throw new InvalidOperationException("Custom pet import did not select the pet or changed timer pause.");
     }
     // UI-04: the shared page body reserves the vertical scrollbar's track instead of letting
     // Fluent paint it over the content. Compare the real right edge of each control with the
@@ -909,10 +912,6 @@ internal static partial class SmokeDiagnostics
         return new { automaticApply = true, saveCancelRemoved = true, navigationWithoutModal = true, automaticBubblePosition = true };
 
     }
-    private static bool PackSaved(Window window) =>
-        !window.GetVisualDescendants().OfType<Button>().Single(button => button.Name == "InstallPetPack").IsEnabled &&
-        window.GetVisualDescendants().OfType<TextBlock>().Single(text => text.Name == "PackStatus").Text == "저장했어요.";
-
     private static async Task VerifyResponsiveLayout(Window window, string directory)
     {
         var originalSize = window.ClientSize;
@@ -1017,7 +1016,22 @@ internal static partial class SmokeDiagnostics
         runtime.ConfirmActionOverride = null;
         try
         {
-            foreach (var (action, capture) in new[] { ("TimerStop", "confirm-stop.png"), ("SettingsQuit", "confirm-quit.png") })
+            var now = runtime.DiagnosticTime;
+            runtime.Clock.Start(now);
+            runtime.Clock.Tick(now + TimeSpan.FromSeconds(3), TimeSpan.Zero, TimeSpan.FromMinutes(5));
+            await runtime.UpdateSettings(runtime.Settings);
+            var countdown = owner.GetVisualDescendants().OfType<AnimatedCountdown>().Single();
+            countdown.StopAnimation();
+            Press(owner, "TimerStop");
+            if (!runtime.Clock.Stopped || runtime.Clock.Remaining != runtime.Clock.Interval || owner.OwnedWindows.Any() ||
+                !countdown.HasDigitMotion || countdown.MotionDirection != 1)
+                throw new InvalidOperationException("Timer Stop did not stop immediately without a dialog.");
+            await Task.Delay(60);
+            Capture(owner, Path.Combine(directory, "timer-stopped-immediate.png"));
+            await Task.Delay(150); Capture(owner, Path.Combine(directory, "timer-stopped-reset-in.png"));
+            await Task.Delay(210); Capture(owner, Path.Combine(directory, "timer-stopped-reset-settled.png"));
+            Press(owner, "TimerToggle");
+            foreach (var (action, capture) in new[] { ("SettingsQuit", "confirm-quit.png") })
             {
                 var stopped = runtime.Clock.Stopped;
                 Press(owner, action);
@@ -1052,6 +1066,19 @@ internal static partial class SmokeDiagnostics
             await Task.Delay(150); Capture(window, Path.Combine(directory, "timer-roll-in.png"));
             countdown.UpdateTime(TimeSpan.FromSeconds(2847), false);
             if (countdown.HasDigitMotion || countdown.Text != "47:27") throw new InvalidOperationException("Pause did not settle the digit transition.");
+            foreach (var (seconds, direction, name) in new[] { (3600, 1, "reset"), (3540, -1, "interval-down"), (6000, 1, "interval-up") })
+            {
+                countdown.UpdateTime(TimeSpan.FromSeconds(seconds), false);
+                if (!countdown.HasDigitMotion || countdown.MotionDirection != direction)
+                    throw new InvalidOperationException("Reset/interval change did not animate in the expected direction.");
+                countdown.UpdateTime(TimeSpan.FromSeconds(seconds), false);
+                if (!countdown.HasDigitMotion) throw new InvalidOperationException("An inactive refresh interrupted interval/reset motion.");
+                await Task.Delay(60); Capture(window, Path.Combine(directory, $"timer-{name}-out.png"));
+                await Task.Delay(150); Capture(window, Path.Combine(directory, $"timer-{name}-in.png"));
+                await Task.Delay(210);
+                if (countdown.HasDigitMotion) throw new InvalidOperationException("Reset/interval digit motion did not settle.");
+                Capture(window, Path.Combine(directory, $"timer-{name}-settled.png"));
+            }
         }
         finally { window.Close(); }
     }

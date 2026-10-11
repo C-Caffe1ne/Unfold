@@ -50,7 +50,7 @@ def main():
             guide += f"1. ZIP 압축을 푼 뒤 {installer.name}을 실행하세요.\n2. 설치 마법사의 안내에 따라 설치하세요.\n"
         else:
             guide += f"1. ZIP 압축을 푼 뒤 {installer.name}을 여세요.\n2. Unfold.app을 Applications 폴더로 드래그하세요.\n3. 복사한 앱을 실행하고 디스크를 추출하세요.\n"
-        guide += "\n업데이트 전에는 실행 중인 Unfold를 완전히 종료하세요.\n앱에서 Google 로그인 후 전달받은 테스터 코드를 입력하세요.\n기존 설정·휴식 기록·커스텀 펫은 별도 데이터 폴더에 보관됩니다.\n"
+        guide += "\n업데이트 전에는 실행 중인 Unfold를 완전히 종료하세요.\n구매한 Google 계정으로 앱에 로그인하세요. 초대받은 테스터는 이용 코드를 입력할 수 있습니다.\n기존 설정·휴식 기록·커스텀 펫은 별도 데이터 폴더에 보관됩니다.\n"
         if args.notarized_macos:
             guide += "Developer ID 서명과 Apple 공증을 완료한 Mac 배포 파일입니다.\n앱과 DMG에 공증 티켓이 포함됩니다. 최초 실행 시 macOS의 일반적인 열기 확인창이 표시될 수 있습니다.\n"
         else:

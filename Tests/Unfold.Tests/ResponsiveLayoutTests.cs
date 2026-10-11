@@ -36,6 +36,8 @@ public class ResponsiveLayoutTests
                 Assert.Equal(timerPoint.X, timingPoint.X);
                 Assert.True(timingPoint.Y >= companionPoint.Y + companion.Bounds.Height);
                 Assert.True(scroll.Extent.Height > scroll.Viewport.Height);
+                var preview = Find<ScrollViewer>(window, "CompanionPreviewScroll");
+                Assert.True(preview.Extent.Height <= preview.Viewport.Height + 1);
                 rest.BringIntoView(); Layout(window); AssertInWindow(rest, window);
                 scroll.ScrollToEnd(); Layout(window); AssertInWindow(Find<Button>(window, "SettingsOpenReview"), window);
             }

@@ -11,6 +11,7 @@ public sealed partial record AppSettings
     public int IdleMinutes { get; init; } = 5;
     public string SelectedCharacterId { get; init; } = "default-cat";
     public bool ShowPet { get; init; } = true;
+    public bool ShowPetTimer { get; init; } = true;
     public int PetScalePercent { get; init; } = 100;
     public BubbleDirection BubbleDirection { get; init; } = BubbleDirection.Top;
     public int BubbleOpacityPercent { get; init; } = 100;

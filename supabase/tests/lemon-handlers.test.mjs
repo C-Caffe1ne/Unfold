@@ -28,7 +28,7 @@ test('checkout requires a caller, exact input and allowed origin before reservin
   const result = await cors(new Request('https://example.test', { method: 'OPTIONS', headers: { Origin: 'https://web.example.test' } }));
   assert.equal(result.status, 204);
   assert.equal(result.headers.get('access-control-allow-origin'), 'https://web.example.test');
-  assert.throws(() => makeCheckout({ environment: 'live' }), /requires/);
+  assert.throws(() => makeCheckout({ environment: 'invalid' }), /UNFOLD_ENVIRONMENT/);
 });
 
 test('checkout diagnostics record only a bounded public error code', async () => {
@@ -99,7 +99,7 @@ test('Lemon adapter uses server mappings, one-time quantity and no customer iden
   assert.equal(longKeyCalls[0][1].headers.Authorization, `Bearer ${longKey}`);
   assert.throws(() => createLemonClient({ apiKey: 'x'.repeat(16385), environment: 'test' }), /too long/);
   assert.throws(() => createLemonClient({ apiKey: 'test api key with spaces', environment: 'test' }), /contains whitespace/);
-  assert.throws(() => createLemonClient({ apiKey, environment: 'live' }));
+  assert.throws(() => createLemonClient({ apiKey, environment: 'invalid' }), /UNFOLD_ENVIRONMENT/);
 });
 
 test('Lemon money units preserve won and dollar prices', () => {
@@ -107,7 +107,7 @@ test('Lemon money units preserve won and dollar prices', () => {
   assert.equal(fromLemonAmount('KRW', 490000), 4900);
   assert.equal(toLemonAmount('USD', 399), 399);
   assert.equal(fromLemonAmount('USD', 399), 399);
-  assert.throws(() => fromLemonAmount('KRW', 490001));
+  assert.equal(fromLemonAmount('KRW', 490001), 4900.01);
   assert.throws(() => toLemonAmount('EUR', 399));
 });
 
@@ -141,7 +141,7 @@ test('webhook rejects malformed events, ignores unrelated events and hides store
   const failed = await handle(await webhookRequest(orderEvent(order)));
   assert.equal(failed.status, 503);
   assert.equal((await failed.text()).includes('secret-value'), false);
-  assert.throws(() => createLemonWebhookHandler({ environment: 'live', secret: webhookSecret }));
+  assert.throws(() => createLemonWebhookHandler({ environment: 'invalid', secret: webhookSecret }), /UNFOLD_ENVIRONMENT/);
   assert.throws(() => createLemonWebhookHandler({ environment: 'test', secret: 'bad' }));
 });
 
@@ -157,4 +157,54 @@ test('Supabase adapter keeps server key private and uses Lemon-specific RPCs', a
   const config = { SUPABASE_SECRET_KEYS: '{"default":"sb_secret_example"}', SUPABASE_PUBLISHABLE_KEYS: '{"default":"sb_publishable_example"}' };
   assert.equal(supabaseServerKey(name => config[name]), 'sb_secret_example');
   assert.equal(supabasePublicKey(name => config[name]), 'sb_publishable_example');
+});
+
+
+test('live checkout uses live provider objects and rejects every test-mode identity', async () => {
+  const liveOrder = { ...order, environment: 'live' };
+  const requests = [];
+  const client = createLemonClient({ environment: 'live', apiKey, now: () => now, fetcher: async (url, init) => {
+    requests.push(JSON.parse(init.body)); return Response.json(checkout(liveOrder));
+  } });
+  await client.create(liveOrder);
+  const data = requests[0].data.attributes;
+  assert.equal(data.test_mode, false);
+  assert.equal(data.checkout_data.custom.environment, 'live');
+  assert.throws(() => client.create(order));
+  validateVariant(variant(liveOrder), liveOrder);
+  validateCheckout(checkout(liveOrder), liveOrder, now);
+  assert.throws(() => validateVariant(variant(order), liveOrder));
+  assert.throws(() => validateCheckout(checkout(order), liveOrder, now));
+  const handle = makeCheckout({ environment: 'live', store: { reserve: async () => ({ order, acquired: true }) } });
+  assert.equal((await handle(checkoutRequest({ market: 'KR', request_id: crypto.randomUUID() }))).status, 503);
+  let applications = 0;
+  const webhook = createLemonWebhookHandler({ environment: 'live', secret: webhookSecret,
+    store: { find: async () => liveOrder, apply: async () => { applications++; return true; } } });
+  assert.equal((await webhook(await webhookRequest(orderEvent(order)))).status, 422);
+  const wrongMode = orderEvent(liveOrder); wrongMode.data.attributes.test_mode = true;
+  assert.equal((await webhook(await webhookRequest(wrongMode))).status, 422);
+  assert.equal(applications, 0);
+  assert.equal((await webhook(await webhookRequest(orderEvent(liveOrder)))).status, 200);
+  assert.equal(applications, 1);
+});
+
+test('live payment store reserves and reads only its server-selected environment', async () => {
+  const calls = [];
+  const store = createPaymentStore({ environment: 'live', url: 'https://db.example.test', secretKey: 'sb_secret_fixture',
+    fetcher: async (url, init) => { calls.push([url, init]); return Response.json([]); } });
+  await store.reserve(owner, 'unfold-kr', crypto.randomUUID());
+  assert.equal(JSON.parse(calls[0][1].body).p_environment, 'live');
+  await store.find(order.id);
+  assert.equal(calls[1][0].searchParams.get('environment'), 'eq.live');
+  assert.throws(() => store.apply(order, { providerOrderId: '123' }));
+});
+
+test('refund event with zero refunded amount never revokes access', async () => {
+  let applies = 0;
+  const event = orderEvent(order, 99);
+  event.meta.event_name = 'order_refunded';
+  const handle = createLemonWebhookHandler({ environment: 'test', secret: webhookSecret,
+    store: { find: async () => order, apply: async () => { applies++; return true; } } });
+  assert.equal((await handle(await webhookRequest(event))).status, 422);
+  assert.equal(applies, 0);
 });

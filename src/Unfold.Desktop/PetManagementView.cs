@@ -12,38 +12,40 @@ internal sealed class PetManagementView : UserControl, IDisposable
     private readonly Window owner;
     private readonly CharacterLibrary library;
     private readonly Func<CharacterPackage, Task> installed;
-    private readonly Func<Task<string?>>? choosePack;
     private readonly PetBuilderView builder;
-    private PetPackWindow? importWindow;
-    public bool IsBusy => builder.IsBusy || importWindow?.IsBusy == true;
+    private bool importing, disposed;
+    public bool IsBusy => builder.IsBusy || importing;
     internal bool HasUnsavedDraft => builder.HasUnsavedChanges;
     internal Task<bool> CanCloseDraft() => builder.CanCloseDraft();
 
     public PetManagementView(Window owner, CharacterLibrary library, Func<CharacterPackage, Task> installed,
-        Func<Task<string?>>? choosePack = null, Func<Task<string?>>? chooseMedia = null,
+        Func<Task<string?>>? chooseMedia = null,
         Func<Task<string?>>? chooseOutput = null, bool showPageHeaders = true, Func<string, Task>? removed = null)
     {
-        this.owner = owner; this.library = library; this.installed = installed; this.choosePack = choosePack;
+        this.owner = owner; this.library = library; this.installed = installed;
         builder = new(owner, library, installed, OpenPack, chooseMedia: chooseMedia, chooseOutput: chooseOutput, removed: removed);
         Content = builder;
     }
     private async Task OpenPack(string path)
     {
-        if (importWindow is not null) return;
-        PetPackWindow? window = null;
-        window = new PetPackWindow(library, async package =>
-        {
-            await installed(package);
-            Avalonia.Threading.Dispatcher.UIThread.Post(() => window?.Close());
-        }, choosePack);
-        importWindow = window;
+        if (importing || disposed) return;
+        importing = true;
         try
         {
-            var dialog = window.ShowDialog(owner);
-            await window.OpenPath(path);
-            await dialog;
+            await PetPackImport.Save(path, library, installed, async (pack, target) =>
+            {
+                var action = target.Action switch
+                {
+                    "Update" => "업데이트", "Reinstall" => "재설치", "Replace" => "교체", _ => "저장"
+                };
+                var message = $"{pack.Character.Manifest.Name} · 버전 {pack.ContentVersion}";
+                if (target.InstalledVersion is { } current) message += $"\n설치된 버전 {current}을 {action}할까요?";
+                else message += "\n이 펫을 저장할까요?";
+                var choice = await Ui.Confirm(owner, "펫 " + action, message, action, "취소");
+                return !disposed && choice == 0;
+            });
         }
-        finally { importWindow = null; builder.RefreshPets(); }
+        finally { importing = false; if (!disposed) builder.RefreshPets(); }
     }
 
     internal static StackPanel Field(string label, Control input)
@@ -72,5 +74,5 @@ internal sealed class PetManagementView : UserControl, IDisposable
         choice.ContainerPrepared += (_, args) => args.Container.Classes.Add(style + "-item");
     }
 
-    public void Dispose() { importWindow?.Close(); builder.Dispose(); }
+    public void Dispose() { disposed = true; builder.Dispose(); }
 }

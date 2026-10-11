@@ -21,7 +21,7 @@ internal static partial class SmokeDiagnostics
             runtime.ShowSettings(); runtime.Stop(); Press(settings, "SettingsNavTimer");
             await Task.Delay(100);
             var interval = settings.GetVisualDescendants().OfType<NumericUpDown>().Single(c => c.Name == "ReminderInterval");
-            interval.Value = 1; interval.Text = "1"; Press(settings, "ApplyHomeTimingSettings");
+            interval.Value = 1; interval.Text = "1";
             await Until(() => runtime.Settings.IntervalMinutes == 1);
             if (AppSettings.Load(Path.Combine(AppPaths.DataRoot, "settings.json")).IntervalMinutes != 1 ||
                 runtime.Clock.Remaining != TimeSpan.FromMinutes(1))

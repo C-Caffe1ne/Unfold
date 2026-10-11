@@ -14,28 +14,11 @@ public sealed partial class PetWindow : Window
 {
     private readonly AppRuntime runtime;
     private readonly Canvas canvas = new() { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
-    private readonly PetSpeechBubble bubble;
-    private readonly Avalonia.Controls.Shapes.Polygon tail = new()
-    {
-        Name = "PetSpeechTail",
-        Fill = DesignSystem.Shell,
-        StrokeThickness = 0,
-        IsHitTestVisible = false
-    };
-    private readonly Avalonia.Controls.Shapes.Polyline tailOutline = new()
-    {
-        Name = "PetSpeechTailOutline",
-        Stroke = DesignSystem.Outline,
-        StrokeThickness = 1,
-        IsHitTestVisible = false
-    };
-    private PetBubbleLayout layout = PetBubbleLayout.Create(BubbleDirection.Top, false);
-    private double layoutScale = 1;
-    public PixelPoint PetAnchor => new(Position.X + (int)Math.Round(layout.Pet.X * DesktopScaling), Position.Y + (int)Math.Round(layout.Pet.Y * DesktopScaling));
+    internal PetOverlayWindow Overlay { get; }
+    public PixelPoint PetAnchor => Position;
     private readonly AnimationView animation = new() { Width = DesignSystem.PetBaseSize, Height = DesignSystem.PetBaseSize };
-    // Content is the layout canvas that also carries the bubble and tail, and its shape
-    // changes with the bubble layout. Diagnostics and tests read playback state and render
-    // the pet through this contract instead of casting Content or walking the visual tree.
+    // This surface contains only the pet. Overlay changes must never arrange or
+    // resize its native backing surface, even for a single intermediate frame.
     internal AnimationView PetView => animation;
     private readonly DispatcherTimer hitTimer = new() { Interval = TimeSpan.FromMilliseconds(16) };
     private Avalonia.PixelPoint? down;
@@ -52,11 +35,12 @@ public sealed partial class PetWindow : Window
         Width = Height = 192; CanResize = false; WindowDecorations = WindowDecorations.None;
         Background = Brushes.Transparent; TransparencyLevelHint = [WindowTransparencyLevel.Transparent];
         ShowInTaskbar = false; Topmost = true; ShowActivated = false;
-        bubble = new(runtime.StartBreak, runtime.SnoozeBreak, runtime.CompleteBreak);
-        canvas.Children.Add(animation); canvas.Children.Add(bubble); canvas.Children.Add(tail); canvas.Children.Add(tailOutline); Content = canvas;
+        canvas.Children.Add(animation); Content = canvas;
+        Overlay = new(this, runtime);
+        PositionChanged += (_, _) => Overlay.Reposition();
+        PropertyChanged += (_, e) => { if (e.Property == IsVisibleProperty) Overlay.Refresh(); };
         animation.Completed += PointerClipCompleted;
         animation.PlaybackFailed += _ => { InvalidatePlayback(); ResetCompanion(); if (runtime.Selected is { } selected) ShowReminderFallback(selected); };
-        bubble.IsVisible = tail.IsVisible = tailOutline.IsVisible = false;
         var menu = new ContextMenu();
         var settings = new MenuItem { Header = "설정" }; settings.Click += (_, _) => runtime.ShowSettings();
         var hide = new MenuItem { Header = "펫 숨기기", Name = "HidePet" };
@@ -88,8 +72,7 @@ public sealed partial class PetWindow : Window
             if (dragging)
             {
                 StartPointerHold();
-                Position = new(dragAnchor.X + delta.X - (int)Math.Round(layout.Pet.X * DesktopScaling),
-                    dragAnchor.Y + delta.Y - (int)Math.Round(layout.Pet.Y * DesktopScaling));
+                Position = new(dragAnchor.X + delta.X, dragAnchor.Y + delta.Y);
             }
         };
         animation.PointerReleased += async (_, e) =>
@@ -113,7 +96,7 @@ public sealed partial class PetWindow : Window
             CancelCompanionPress();
             if (!HasOriginalBehavior && ActiveAnimation == "pointerDown") _ = RestoreBaseAnimation(InvalidatePlayback());
         };
-        hitTimer.Tick += (_, _) => { UpdateClickThrough(); TickCompanion(); };
+        hitTimer.Tick += (_, _) => { UpdateClickThrough(); TickCompanion(); Overlay.UpdateClickThrough(); };
         Opened += (_, _) =>
         {
             if (runtime.DiagnosticMode) { Position = new(-32000, -32000); return; }
@@ -121,7 +104,7 @@ public sealed partial class PetWindow : Window
             Position = runtime.Settings.PetX is int x && runtime.Settings.PetY is int y ? new(x, y) : new(work.Right - (int)(Width * DesktopScaling) - 24, work.Bottom - (int)(Height * DesktopScaling) - 24);
             ClampPosition(); hitTimer.Start();
         };
-        Closed += (_, _) => { InvalidatePlayback(); ResetCompanion(); hitTimer.Stop(); animation.Dispose(); };
+        Closed += (_, _) => { Overlay.Close(); InvalidatePlayback(); ResetCompanion(); hitTimer.Stop(); animation.Dispose(); };
     }
     public async Task SetCharacter()
     {
@@ -224,40 +207,17 @@ public sealed partial class PetWindow : Window
     }
     public void HidePet() { InvalidatePlayback(); ResetCompanion(); character = null; Hide(); hitTimer.Stop(); animation.SetRunning(false); RefreshSpeech(); }
     public void ClosePet() { InvalidatePlayback(); ResetCompanion(); hitTimer.Stop(); Close(); }
-    internal void FocusReminder() { Activate(); bubble.FocusAction(); }
+    internal void FocusReminder() => Overlay.FocusReminder();
     public void RefreshSpeech()
     {
-        var reminder = runtime.PresentedReminder;
         RefreshCompanionContext();
-        bubble.Refresh(reminder, runtime.Settings.SnoozeMinutes, runtime.Settings);
-        bubble.Opacity = tail.Opacity = tailOutline.Opacity = runtime.Settings.BubbleOpacityPercent / 100d;
         var petSize = DesignSystem.PetBaseSize * runtime.Settings.PetScalePercent / 100d;
-        animation.Width = animation.Height = petSize;
-        var expanded = reminder.HasNotice;
-        var anchor = PetAnchor;
-        var screen = Screens.ScreenFromPoint(anchor) ?? Screens.Primary;
-        var work = screen is null ? (PixelRect?)null : PlacementArea(screen.Bounds, screen.WorkingArea, OperatingSystem.IsMacOS());
-        // Reserve the reminder surface even while its contents are hidden. Resizing
-        // a native window and repainting its backing surface are not atomic on
-        // either desktop platform; equal final anchors can still flash a shifted frame.
-        var direction = work is { } region ? PetBubbleLayout.AutomaticDirection(anchor, DesktopScaling, region, petSize) : BubbleDirection.Right;
-        var next = PetBubbleLayout.CreateSurface(direction, anchor, DesktopScaling, runtime.DiagnosticMode ? null : work,
-            petSize, bubble.Height, bubble.Width);
-        bubble.IsVisible = tail.IsVisible = tailOutline.IsVisible = expanded;
-        if (layout.Size == next.Size && layout.Pet == next.Pet && layout.Bubble == next.Bubble && layoutScale == DesktopScaling) return;
-        layoutScale = DesktopScaling; layout = next; Width = layout.Size.Width; Height = layout.Size.Height;
-        // Diagnostic minimums follow the live canvas instead of preventing a collapse.
-        if (runtime.DiagnosticMode) { MinWidth = Width; MinHeight = Height; }
-        canvas.Width = Width; canvas.Height = Height;
-        Canvas.SetLeft(animation, layout.Pet.X); Canvas.SetTop(animation, layout.Pet.Y);
-        Canvas.SetLeft(bubble, layout.Bubble.X); Canvas.SetTop(bubble, layout.Bubble.Y);
-        tail.Points = new Avalonia.Collections.AvaloniaList<Point>(layout.Tail);
-        tailOutline.Points = new Avalonia.Collections.AvaloniaList<Point>([layout.Tail[0], layout.Tail[2], layout.Tail[1]]);
-        // Canvas offsets are deferred until arrange. Commit them before moving
-        // the native surface, otherwise it briefly carries the old pet position.
-        UpdateLayout();
-        Position = runtime.DiagnosticMode ? new(-32000, -32000) : work is { } placementArea
-            ? layout.Position(anchor, DesktopScaling, placementArea) : anchor;
+        if (Width != petSize || Height != petSize)
+        {
+            if (runtime.DiagnosticMode) MinWidth = MinHeight = petSize;
+            Width = Height = canvas.Width = canvas.Height = animation.Width = animation.Height = petSize;
+        }
+        Overlay.Refresh();
     }
 
     private PixelPoint PointerScreenPosition(PointerEventArgs e)
@@ -283,8 +243,7 @@ public sealed partial class PetWindow : Window
         var screen = (OperatingSystem.IsMacOS() ? Screens.ScreenFromPoint(PetAnchor) : null)
             ?? Screens.ScreenFromWindow(this) ?? Screens.Primary;
         if (screen is null) return;
-        // The transparent reserved reminder area must not push the pet away from
-        // screen edges when a drag ends. RefreshSpeech fits the bubble afterward.
+        // Clamp only the pet. The independent overlay fits itself to the work area.
         var area = PlacementArea(screen.Bounds, screen.WorkingArea, OperatingSystem.IsMacOS());
         var pet = PetBubbleLayout.Create(runtime.Settings.BubbleDirection, false, petSize: animation.Width);
         var anchor = PetAnchor;

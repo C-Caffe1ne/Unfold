@@ -6,6 +6,6 @@ const environment = get('UNFOLD_ENVIRONMENT');
 const url = get('SUPABASE_URL') ?? '';
 Deno.serve(createLemonWebhookHandler({
   environment,
-  secret: get('LEMONSQUEEZY_WEBHOOK_SECRET'),
-  store: createPaymentStore({ url, secretKey: supabaseServerKey(get), allowLocalGateway: environment === 'test' }),
+  secret: get(environment === 'live' ? 'LEMONSQUEEZY_LIVE_WEBHOOK_SECRET' : 'LEMONSQUEEZY_WEBHOOK_SECRET'),
+  store: createPaymentStore({ environment, url, secretKey: supabaseServerKey(get), allowLocalGateway: environment === 'test' }),
 }));

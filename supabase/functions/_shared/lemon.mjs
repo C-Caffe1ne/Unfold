@@ -1,4 +1,4 @@
-import { PaymentError, requirePayment, positiveId, uuidPattern, integerMinor, readJson, sandboxOnly } from './payment-http.mjs';
+import { PaymentError, requirePayment, positiveId, uuidPattern, integerMinor, readJson, paymentEnvironment } from './payment-http.mjs';
 import { toLemonAmount } from './lemon-money.mjs';
 
 function jsonApi(result, type) {
@@ -11,10 +11,10 @@ export function validateVariant(result, order) {
   const data = jsonApi(result, 'variants');
   const value = data.attributes;
   requirePayment(data.id === order.provider_price_id && String(value.product_id) === order.provider_product_id
-    && value.test_mode === true && value.is_subscription === false && value.has_free_trial === false
+    && value.test_mode === (paymentEnvironment(order.environment) === 'test') && value.is_subscription === false && value.has_free_trial === false
     && value.pay_what_you_want === false && ['pending', 'published'].includes(value.status));
   const product = result.included?.find(item => item?.type === 'products' && item.id === order.provider_product_id);
-  requirePayment(product?.attributes?.status === 'published' && product.attributes.test_mode === true
+  requirePayment(product?.attributes?.status === 'published' && product.attributes.test_mode === (order.environment === 'test')
     && String(product.attributes.store_id) === order.provider_store_id, 'checkout_not_ready', 503);
   return data;
 }
@@ -27,7 +27,7 @@ export function validateCheckout(result, order, now = Date.now(), requirePreview
   requirePayment(uuidPattern.test(data.id) && String(value.store_id) === order.provider_store_id
     && String(value.variant_id) === order.provider_price_id, 'checkout_identity_mismatch', 422);
   requirePayment(value.custom_price === providerAmount, 'checkout_amount_mismatch', 422);
-  requirePayment(value.test_mode === true, 'checkout_environment_mismatch', 422);
+  requirePayment(value.test_mode === (paymentEnvironment(order.environment) === 'test'), 'checkout_environment_mismatch', 422);
   // Lemon guarantees preview totals only on the create response. A later GET
   // can omit them or return a partial placeholder, so resume validation uses
   // the persisted checkout identity, amount, environment and expiry instead.
@@ -53,7 +53,7 @@ export function checkoutLink(result, order) {
 }
 
 export function createLemonClient({ environment, apiKey, fetcher = fetch, now = Date.now }) {
-  sandboxOnly(environment);
+  paymentEnvironment(environment);
   const token = typeof apiKey === 'string' ? apiKey.trim() : '';
   if (!token) throw new Error('Lemon Squeezy API key missing');
   if (/\s/.test(token)) throw new Error('Lemon Squeezy API key contains whitespace');
@@ -73,14 +73,15 @@ export function createLemonClient({ environment, apiKey, fetcher = fetch, now = 
     variant(id) { requirePayment(positiveId(id)); return call(`/v1/variants/${id}?include=product`); },
     checkout(id) { requirePayment(uuidPattern.test(id)); return call(`/v1/checkouts/${id}`); },
     create(order) {
+      requirePayment(order.environment === environment);
       requirePayment(positiveId(order.provider_store_id) && positiveId(order.provider_price_id));
       return call('/v1/checkouts', 'POST', { data: { type: 'checkouts', attributes: {
         custom_price: toLemonAmount(order.currency, order.amount_minor),
         product_options: { enabled_variants: [Number(order.provider_price_id)] },
         checkout_options: { embed: false, discount: false, skip_trial: true },
-        checkout_data: { custom: { source: 'unfold-server', order_id: order.id, environment: 'test' },
+        checkout_data: { custom: { source: 'unfold-server', order_id: order.id, environment },
           variant_quantities: [{ variant_id: Number(order.provider_price_id), quantity: 1 }] },
-        preview: true, test_mode: true, expires_at: new Date(now() + 30 * 60 * 1000).toISOString(),
+        preview: true, test_mode: environment === 'test', expires_at: new Date(now() + 30 * 60 * 1000).toISOString(),
       }, relationships: {
         store: { data: { type: 'stores', id: order.provider_store_id } },
         variant: { data: { type: 'variants', id: order.provider_price_id } },

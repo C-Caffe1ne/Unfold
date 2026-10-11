@@ -13,9 +13,6 @@ public sealed partial class PetWindow
     {
         if (!IsVisible) return false;
         if (down is not null || (interactionPointer?.Captured is Visual captured && TopLevel.GetTopLevel(captured) == this) || ContextMenu?.IsOpen == true) return true;
-        if (bubble.IsVisible && bubble.IsHitTestVisible &&
-            this.TranslatePoint(point, bubble) is { } bubblePoint &&
-            new Rect(bubble.Bounds.Size).Contains(bubblePoint)) return true;
         return this.TranslatePoint(point, animation) is { } petPoint &&
             animation.OpaqueAt(petPoint, includeEdgeTolerance: false);
     }

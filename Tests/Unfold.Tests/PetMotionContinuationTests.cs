@@ -28,7 +28,7 @@ public class PetMotionContinuationTests
         pet.MouseMove(scope.PaintedPoint()); Layout(pet);
         await Task.Delay(40, TestContext.Current.CancellationToken); Layout(pet);
         Assert.Equal("idle", pet.ActiveAnimation);
-        Assert.False(pet.GetVisualDescendants().OfType<PetSpeechBubble>().Single().IsVisible);
+        Assert.False(pet.Overlay.Bubble.IsVisible);
         await pet.React("hover");
         Assert.Equal("idle", pet.ActiveAnimation);
         Assert.Equal(size, pet.ClientSize); Assert.Equal(anchor, pet.PetAnchor);

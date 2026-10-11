@@ -49,7 +49,7 @@ public sealed class AnimatedCountdownTests
             window.UpdateLayout();
             Assert.Equal("240:00", countdown.Text);
             Assert.True(countdown.DesiredSize.Width > twoDigitWidth);
-            Assert.False(countdown.HasDigitMotion);
+            Assert.True(countdown.HasDigitMotion); Assert.Equal(1, countdown.MotionDirection);
             countdown.UpdateTime(TimeSpan.FromSeconds(59), true);
             countdown.UpdateTime(TimeSpan.FromSeconds(58), true);
             Assert.True(countdown.HasDigitMotion);

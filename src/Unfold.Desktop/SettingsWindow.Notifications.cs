@@ -42,7 +42,9 @@ public sealed partial class SettingsWindow
             PreferencesEdited();
         });
         resetDialogue.Name = "ResetPetDialogue";
-        var bubbleFields = Ui.Column(NotificationSettingRow("BubbleOpacityRow", opacityLabel, opacityControls),
+        showPetTimer.FontSize = DesignSystem.Body;
+        showPetTimer.IsCheckedChanged += (_, _) => PreferencesEdited();
+        var bubbleFields = Ui.Column(showPetTimer, NotificationSettingRow("BubbleOpacityRow", opacityLabel, opacityControls),
             DialogueRow("사전 알림", advanceDialogue), DialogueRow("휴식 초대", invitationDialogue),
             DialogueRow("휴식 중", restingDialogue), DialogueRow("휴식 시간 초과", overtimeDialogue),
             DialogueRow("휴식 완료", completedDialogue), resetDialogue);

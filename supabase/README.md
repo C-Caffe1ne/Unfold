@@ -1,5 +1,9 @@
 # Unfold 계정·구매 권한 기반
 
+보안 관리: [운영 절차](../docs/operations/backend-security.md), [2026-10-11 적용 결과](../docs/validation/2026-10-11-backend-security.md).
+
+2026-10-11: 최신 앱 `1.1.3-beta`에 Live 서버 구현과 기존 배포 웹훅의 환산 처리를 복구했다. 운영 DB 마이그레이션 및 결제 함수 v28/v12 배포를 완료했다. Live 상품·비밀키 연결은 로그인 후 확인이 남아 있으며 판매는 아직 활성화하지 않았다. [진행 상태](../docs/validation/2026-10-11-lemon-live-connection.md).
+
 2026년 10월 8일 · 앱 개발 기준은 **Beta v1.1.2**, 공개 배포는 **Beta v1.1.1**이다.
 현재 C# 앱은 Google 로그인·OS 보안 저장·세션 복원과 `get-app-access`·`redeem-access-code`를 연결한다.
 이 폴더에 추적된 서버 소스는 **2026-09-28 Lemon Squeezy 샌드박스 기반**이며
