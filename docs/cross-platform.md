@@ -3,22 +3,22 @@
 Unfold is a C#/.NET 10 and Avalonia stretch reminder with desktop pets. Published
 packages include .NET. Swift, Xcode, and the Piskel web runtime are not required.
 
-As of 2026-10-08, the latest public release is **Beta v1.1.2**
-(`1.1.2-beta`, tag `v1.1.2-beta`, source `ce86c7b`).
+As of 2026-10-12, the latest public release is **Beta v1.1.3**
+(`1.1.3-beta`, tag `v1.1.3-beta`, product source `b1242ea`).
 It includes Mochi (cat), 보리 (rabbit), 강아지 (dog), 고슴도치 (hedgehog)
 and 펭귄 (penguin). Choose them from Home without installing separate packs.
 When `docs/releases/v<version>.md` exists, packaging includes it as `RELEASE-NOTES.md` in the Windows portable/installed
 `current` folder and inside `Unfold.app/Contents/Resources/` on macOS.
 This beta requires Google sign-in and a verified Live purchase or valid free grant before
 starting the timer, desktop pet, or settings. After sign-in, testers can use the bottom-right
-code button to redeem `admin`; the server saves a free grant for that account.
+code button to redeem their supplied access code; the server saves a free grant for that account.
 After the first sign-in in this build, the refresh credential is kept in the OS credential
 store. Restart restores the session and verifies server access without another Google
 sign-in or code entry. Logout deletes the stored credential. Network failure preserves it
 for retry but does not grant offline access.
 Windows code signing is pending. Public Mac distribution uses Developer ID signing and
-Apple notarization. See the [current public release notes](releases/v1.1.2-beta.md)
-and [release/update verification](validation/2026-10-08-beta-v1.1.2-release.md).
+Apple notarization. See the [current public release notes](releases/v1.1.3-beta.md)
+and [release/update verification](validation/2026-10-12-beta-v1.1.3-release.md).
 Beta v1.0.3 and later managed installations can check for updates from the tray/menu bar;
 Beta v1.1.1 and later also provide **설정 → 앱 정보 → 업데이트 확인**.
 Beta v1.1.2 shows a modal with release notes once per launch when a newer version is

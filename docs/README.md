@@ -2,20 +2,20 @@
 
 백엔드 관리: [보안 운영 절차](operations/backend-security.md), [적용·검증 결과](validation/2026-10-11-backend-security.md).
 
-현재 제품은 **C#·Avalonia 기반 Unfold Beta**다. 2026-10-09 현재 개발 버전은 **Beta v1.1.3** (`1.1.3-beta`, [변경내용](releases/v1.1.3-beta.md))이며, 작업 경로는 `/Users/hwanghyeonseong/Documents/GitHub/Unfold/.worktrees/remove-unused-features`, 브랜치는 `codex/remove-unused-features`다.
-최신 공개 배포본은 `v1.1.2-beta` (소스 `ce86c7b`)다. 설치 파일·업데이트 채널·웹 반영과 실제 Mac/Windows 업데이트 결과는 [배포 검증](validation/2026-10-08-beta-v1.1.2-release.md)에 기록한다.
+현재 제품은 **C#·Avalonia 기반 Unfold Beta**다. 2026-10-12 현재 개발·공개 배포 버전은 **Beta v1.1.3** (`1.1.3-beta`, [변경내용](releases/v1.1.3-beta.md))이며, 작업 경로는 `/Users/hwanghyeonseong/Documents/GitHub/Unfold/.worktrees/remove-unused-features`, 브랜치는 `codex/remove-unused-features`다.
+최신 공개 배포본은 `v1.1.3-beta` (제품 소스 `b1242ea`)다. 설치 파일·업데이트 채널·웹 반영과 실제 Mac/Windows 1.1.2→1.1.3 업데이트 결과는 [배포 검증](validation/2026-10-12-beta-v1.1.3-release.md)에 기록한다.
 
 ## 현재 사용 안내
 
 | 문서 | 확인할 내용 |
 |---|---|
 | [MVP 범위](mvp.md) | 현재 기능·제외 범위와 이전 데이터 호환 |
-| [설정·타이머](settings-ui.md), [말풍선·효과음](stretch-notifications.md) | 설정 자동 저장·홈 시간 저장·대사·불투명도·자동 배치 |
+| [설정·타이머](settings-ui.md), [말풍선·효과음](stretch-notifications.md) | 설정·홈 시간 자동 저장·대사·불투명도·자동 배치 |
 | [펫 관리](pet-packs.md), [GLB 펫](glb-pets.md) | 통합 편집·설치·동작 설정·입력 제한 |
 | [계정](account-screen.md), [이용 코드](access-codes.md) | OS 보안 저장·로그인 복원·구매/무료 권한 |
-| [설치·업데이트](cross-platform.md), [공개 릴리스 노트](releases/v1.1.2-beta.md) | 실제 배포 파일·아키텍처·서명·업데이트 방법 |
+| [설치·업데이트](cross-platform.md), [공개 릴리스 노트](releases/v1.1.3-beta.md) | 실제 배포 파일·아키텍처·서명·업데이트 방법 |
 | [검증 안내](verification.md), [배포 체크리스트](release-checklist.md) | 기록된 검사·OS별 한계와 새 설치본 검사 절차 |
-| [개발 계획](development-plan.md) | 현재 1.1.2 작업 기준과 과거 계획의 구분 |
+| [개발 계획](development-plan.md) | 현재 1.1.3 배포 기준과 과거 계획의 구분 |
 | [문서 최신화 결과](validation/2026-10-08-docs-refresh.md) | 코드 대조·링크 복구·보존 범위 |
 
 ## 구현·검증 이력
@@ -25,6 +25,7 @@
 
 | 문서 | 역할 |
 |---|---|
+| [Beta v1.1.3 배포·업데이트 검증](validation/2026-10-12-beta-v1.1.3-release.md) | Mac 서명·공증, Windows CI, 공개 파일 10개, 세 채널과 실제 Mac/Windows 업데이트·재시작·데이터 보존, 웹·노션 반영 |
 | [타이머 숫자 전환·자동 저장 검증](validation/2026-10-12-live-timer-settings.md) | 확인 없는 중지 복귀, 간격 증가·감소 애니메이션, 홈 시간 자동 저장·실패 복구와 790개 검사·macOS 렌더링 진단 |
 | [Beta v1.1.3 커밋 검증](validation/2026-10-09-beta-v1.1.3-commit.md) | GLB XYZ 회전·저장, 탭 이름, 펫 호버·모션 수정의 커밋 범위와 버전 변경 후 56개 검사 |
 | [펫 호버 제거·모션 복귀 검증](validation/2026-10-09-pet-hover-removal.md) | 모든 펫의 호버 반응 제거, 투명 배경 입력 통과, 스트레칭·걷기 지속과 803개 검사·macOS 실제 입력 확인 |

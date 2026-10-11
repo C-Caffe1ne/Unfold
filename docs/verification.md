@@ -1,14 +1,14 @@
 # 검증 안내
 
-## 현재 개발본과 공개 배포 — 2026년 10월 9일
+## 현재 개발본과 공개 배포 — 2026년 10월 12일
 
-개발 기준은 `codex/remove-unused-features`의 **Beta v1.1.3** (`1.1.3-beta`)다. 아직 공개 배포하지 않았다.
-최신 공개 배포는 **Beta v1.1.2** (`v1.1.2-beta`, 소스 `ce86c7b`)다.
-모든 새 실행은 확인한 작업트리와 새 `UNFOLD_DATA_DIR`을 사용한다.
+최신 제품은 `codex/remove-unused-features`의 **Beta v1.1.3** (`1.1.3-beta`, 제품 커밋 `b1242ea`)이며 공개 태그 `v1.1.3-beta`와 일치한다. 후속 QA·문서 커밋은 제품 소스와 구분한다. 모든 새 실행은 확인한 작업트리와 새 `UNFOLD_DATA_DIR`을 사용한다.
 
-GLB XYZ 회전·저장·내비게이션 이름과 펫 호버 제거·모션 복귀를 포함한다. [호버 제거 검증](validation/2026-10-09-pet-hover-removal.md)의 전체 803개 검사와 macOS 입력 확인은 버전 전환 전 `1.1.2-beta` 개발본에서 수행했다. [1.1.3 커밋 검증](validation/2026-10-09-beta-v1.1.3-commit.md)에 버전 변경 후의 검사와 커밋 범위를 기록한다.
+[1.1.3 배포 검증](validation/2026-10-12-beta-v1.1.3-release.md)에 로컬/Mac CI 790개, Windows CI 787개 통과(3개 Mac 전용 건너뜀), 서버 38개·웹 76개, Mac 두 아키텍처의 서명·공증과 세 OS 패키지 진단 각 110장 성공을 기록한다. 세 공개 업데이트 채널 검사와 실제 Mac ARM64·Windows x64의 1.1.2→1.1.3 교체·진단 재시작·데이터 표식 보존도 통과했다.
 
-최신 개발본의 홈 시간 자동 저장·중지 복귀·간격 증가/감소 애니메이션은 [타이머 검증](validation/2026-10-12-live-timer-settings.md)에 기록했다. 전체 Release 790개와 macOS off-screen native 진단 110장이 통과했으며 실제 입력·Windows 실기·공개 배포와 구분한다.
+공개 웹 HTTP 검사 53개와 실제 변경 이력 화면을 확인했다. Intel 실행은 Apple Silicon의 Rosetta다. 물리 Intel·Windows 사용자 입력, 운영 Live 권한 활성화·앱 구매 복원은 별도다. 실결제 성공은 사용자 보고이며 이번 운영 DB에는 Live pending 주문만 확인됐다.
+
+[타이머 검증](validation/2026-10-12-live-timer-settings.md)은 홈 자동 저장·중지 복귀·간격 증가/감소를, [호버 제거 검증](validation/2026-10-09-pet-hover-removal.md)은 당시 전체 803개와 macOS 실제 입력을 기록한다. 과거 검사 수를 이번 제품 검사 수로 합산하지 않는다.
 
 ## Beta v1.1.2 공개 배포·업데이트
 

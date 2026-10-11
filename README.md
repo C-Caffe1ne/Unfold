@@ -2,7 +2,7 @@
 
 **Beta v1.1.3** · C#/.NET 10 · Avalonia · macOS / Windows
 
-Current development version: `1.1.3-beta` ([changes](docs/releases/v1.1.3-beta.md)). Latest public release: `v1.1.2-beta` (source `ce86c7b`).
+Current development version: `1.1.3-beta` ([changes](docs/releases/v1.1.3-beta.md)). Latest public release: `v1.1.3-beta` (source `b1242ea`).
 
 A small desktop companion that reminds you to stretch while you work.
 
@@ -33,8 +33,8 @@ Closing Settings keeps Unfold running. Use **Unfold 종료** in the tray menu to
 - Separate stretch interval, break duration, away threshold and snooze settings.
 - Today's confirmed breaks, seven-day reviews, and local CSV export.
 - Local pet packs: preview animations, install, update, and reinstall from a saved `.unfoldpet` file.
-- A 1–240 minute timer with one-minute adjustment while paused or stopped, followed by Save.
-- A clear running/paused/stopped state badge and icon controls for Play/Pause and Stop. Stop shows the saved full interval.
+- A 1–240 minute timer with live interval adjustment, automatic saving and animated number changes.
+- Running/paused/stopped controls on Home and beside the pet. Stop resets immediately to the saved interval with a number transition.
 - Four color themes with Lilac as the default, Korean UI and custom SVG icons.
 - Custom pets from GLB, GIF/MP4 or still images, with editing and confirmed deletion of installed custom pets.
 - WAV/MP3/OGG effects, percentage volume displays and previews that finish naturally.
@@ -52,13 +52,13 @@ The unused pixel editor and routine/profile authoring components have been remov
 Existing pet sources, routine/profile settings and history remain compatible.
 See [MVP scope](docs/mvp.md) for the full boundary.
 The beta requires Google sign-in and either a verified Live purchase or a valid account-bound free grant.
-Testers can redeem `admin` from the bottom-right code button after sign-in.
+Testers can redeem their supplied access code from the bottom-right code button after sign-in.
 Saved sign-in is restored before the account window opens. Production OAuth and
 payment checks are tracked separately in the [account guide](docs/account-screen.md).
-Public Beta v1.1.2 Mac installers are Developer ID signed and notarized; Windows
+Public Beta v1.1.3 Mac installers are Developer ID signed and notarized; Windows
 installers are unsigned. See the [compatibility and review guide](docs/personalization.md).
 The [pet pack guide](docs/pet-packs.md) explains local installation and recovery.
-[Latest public release notes](docs/releases/v1.1.2-beta.md) describe installation, included work and beta limitations.
+[Latest public release notes](docs/releases/v1.1.3-beta.md) describe installation, included work and beta limitations.
 
 ## Build and verify
 
