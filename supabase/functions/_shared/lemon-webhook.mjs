@@ -8,6 +8,24 @@ export async function verifyLemonSignature(bytes, signature, secret) {
   requirePayment(await crypto.subtle.verify('HMAC', key, digest, bytes), 'invalid_signature', 401);
 }
 
+function inclusiveGrossMatches(value, currency, expected, reported) {
+  if (reported === lemonAmountMicros(expected)) return true;
+  // Lemon settles a non-USD price in rounded USD cents, then converts it back.
+  // Prove that rounding using the signed USD totals and exchange rate instead
+  // of accepting an arbitrary tolerance around the contracted item price.
+  if (currency === 'USD' || typeof value.currency_rate !== 'string'
+    || !/^\d{1,8}(\.\d{1,12})?$/.test(value.currency_rate)) return false;
+  const rate = Number(value.currency_rate);
+  const usd = value.total_usd;
+  return Number.isFinite(rate) && rate > 0
+    && Number.isSafeInteger(usd) && usd > 0 && usd <= 2147483647
+    && value.subtotal_usd === usd
+    && Number.isSafeInteger(value.tax_usd) && value.tax_usd >= 0 && value.tax_usd <= usd
+    && (value.setup_fee_usd ?? 0) === 0 && (value.discount_total_usd ?? 0) === 0
+    && Math.round(expected * rate) === usd
+    && Math.abs(reported / 1_000_000 - usd / rate) <= 1;
+}
+
 function fact(event, order) {
   const name = event.meta?.event_name;
   const data = event.data;
@@ -26,12 +44,19 @@ function fact(event, order) {
     && String(item.variant_id) === order.provider_price_id, 'payment_product_mismatch');
   requirePayment(value.currency === order.currency, 'payment_currency_mismatch');
   requirePayment(typeof value.tax_inclusive === 'boolean', 'payment_tax_mode_mismatch');
-  requirePayment(!value.tax_inclusive || providerTotal === lemonAmountMicros(expectedSubtotal), 'payment_gross_mismatch');
+  requirePayment(!value.tax_inclusive || inclusiveGrossMatches(value, order.currency, expectedSubtotal, providerTotal),
+    'payment_gross_mismatch');
   requirePayment(providerItemPrice === lemonAmountMicros(expectedSubtotal), 'payment_item_price_mismatch');
   requirePayment(lemonAmountMicros(value.discount_total) === 0, 'payment_discount_mismatch');
-  requirePayment(providerSubtotal > 0 && providerTotal === providerSubtotal + providerTax, 'payment_totals_mismatch');
+  requirePayment(lemonAmountMicros(value.setup_fee ?? 0) === 0, 'payment_setup_fee_mismatch');
+  // Inclusive subtotal already contains VAT. Store a net subtotal so the
+  // persisted receipt's total = net subtotal + tax contract remains intact.
+  const netSubtotal = providerSubtotal - (value.tax_inclusive ? providerTax : 0);
+  requirePayment(netSubtotal > 0 && (value.tax_inclusive
+    ? providerTotal === providerSubtotal
+    : providerTotal === providerSubtotal + providerTax), 'payment_totals_mismatch');
   const itemPrice = fromLemonAmount(order.currency, item.price);
-  const subtotal = fromLemonAmount(order.currency, value.subtotal);
+  const subtotal = fromLemonAmount(order.currency, netSubtotal / 1_000_000);
   const tax = fromLemonAmount(order.currency, value.tax);
   const total = fromLemonAmount(order.currency, value.total);
   const refundedTotal = fromLemonAmount(order.currency, value.refunded_amount ?? 0);
@@ -40,7 +65,7 @@ function fact(event, order) {
     return { key: `order_created:${data.id}`, providerOrderId: data.id, kind: 'paid',
       itemPrice, subtotal, tax, total, refundedTotal: 0 };
   }
-  requirePayment(name === 'order_refunded' && ['paid', 'refunded'].includes(value.status));
+  requirePayment(name === 'order_refunded' && ['paid', 'partial_refund', 'refunded'].includes(value.status));
   requirePayment(providerRefunded > 0 && providerRefunded <= providerTotal
     && (value.refunded === true) === (providerRefunded === providerTotal));
   return { key: `order_refunded:${data.id}:${refundedTotal}`, providerOrderId: data.id, kind: 'refund',

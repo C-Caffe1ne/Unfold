@@ -173,7 +173,7 @@ test('reservation retries read-only failures and never repeats an uncertain remo
   const event = orderEvent(target, provider, 0, 0);
   event.data.attributes.tax_inclusive = true;
   event.data.attributes.tax = 44545;
-  event.data.attributes.subtotal = 445455;
+  event.data.attributes.subtotal = 490000;
   assert.equal((await deliver(event)).status, 200);
   assert.equal(await access(target), 'active');
   event.meta.event_name = 'order_refunded';

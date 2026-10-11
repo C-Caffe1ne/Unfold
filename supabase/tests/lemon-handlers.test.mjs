@@ -66,6 +66,36 @@ test('webhook diagnostics distinguish a rejected payment without logging custome
   assert.equal(JSON.stringify(reports).includes('service-secret'), false);
 });
 
+test('converted inclusive receipts reject false FX proof, underpayment and mismatched tax totals', async () => {
+  let applies = 0;
+  const handle = createLemonWebhookHandler({ environment: 'test', secret: webhookSecret,
+    store: { find: async () => order, apply: async () => { applies++; return true; } },
+  });
+  const event = orderEvent(order);
+  Object.assign(event.data.attributes, { tax_inclusive: true, subtotal: 490603, tax: 44235, total: 490603,
+    currency_rate: '0.00074602', subtotal_usd: 366, tax_usd: 33, total_usd: 366, setup_fee: 0 });
+  for (const mutate of [
+    value => { delete value.currency_rate; },
+    value => { value.currency_rate = 'Infinity'; },
+    value => { value.currency_rate = '0'; },
+    value => { value.total_usd = 1; value.subtotal_usd = 1; },
+    value => { value.subtotal_usd = 365; },
+    value => { value.tax_usd = 367; },
+    value => { value.total += 100; value.subtotal += 100; },
+    value => { value.first_order_item.price = 1; },
+    value => { value.tax = value.total; },
+    value => { value.subtotal -= value.tax; },
+    value => { value.setup_fee = 100; },
+    value => { value.discount_total = 1; },
+  ]) {
+    const changed = structuredClone(event); mutate(changed.data.attributes);
+    assert.equal((await handle(await webhookRequest(changed))).status, 422);
+  }
+  assert.equal(applies, 0);
+  assert.equal((await handle(await webhookRequest(event))).status, 200);
+  assert.equal(applies, 1);
+});
+
 test('variant, preview and hosted checkout validation reject subscriptions, discounts and redirects', () => {
   for (const change of [{ is_subscription: true }, { has_free_trial: true }, { pay_what_you_want: true }, { test_mode: false }, { status: 'draft' }, { product_id: 99 }]) {
     const value = variant(order); Object.assign(value.data.attributes, change);

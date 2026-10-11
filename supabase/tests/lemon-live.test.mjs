@@ -99,3 +99,41 @@ test('live reservation → hosted checkout → signed payment → partial/full r
   assert.equal(await access(owner, 'live'), 'revoked');
   assert.equal(await access(owner, 'test'), undefined);
 });
+
+test('Live tax-inclusive converted receipt grants app access and stays revoked after a full refund', async () => {
+  const owner = await user();
+  const reservation = await store.reserve(owner, 'unfold-kr', crypto.randomUUID());
+  await store.bind(reservation.order.id, crypto.randomUUID());
+  const target = await store.find(reservation.order.id);
+  const provider = ++sequence;
+  const event = orderEvent(target, provider);
+  // Anonymized provider amount shape: inclusive subtotal is gross and USD
+  // cent rounding changes the reported KRW total from the contracted price.
+  Object.assign(event.data.attributes, {
+    tax_inclusive: true, subtotal: 490603, tax: 44235, total: 490603,
+    currency_rate: '0.00074602', subtotal_usd: 366, tax_usd: 33, total_usd: 366, setup_fee: 0,
+  });
+  event.data.attributes.first_order_item.quantity = 1;
+  const webhook = createLemonWebhookHandler({ store, secret: webhookSecret, environment: 'live' });
+  const deliver = async payload => webhook(await webhookRequest(payload));
+  assert.equal((await deliver(event)).status, 200);
+  assert.equal(await access(owner, 'live'), 'active');
+  assert.equal(await access(owner, 'test'), undefined);
+  const saved = await store.find(target.id);
+  assert.equal(saved.status, 'paid');
+  assert.equal(Number(saved.total_minor), 4906.03);
+  assert.equal(Number(saved.tax_minor), 442.35);
+  const receipt = (await query('select subtotal_minor from public.lemon_events where order_id=$1', [target.id])).rows[0];
+  assert.equal(Number(receipt.subtotal_minor), 4463.68);
+  assert.equal((await (await deliver(event)).json()).duplicate, true);
+  const refund = structuredClone(event);
+  refund.meta.event_name = 'order_refunded';
+  Object.assign(refund.data.attributes, { status: 'partial_refund', refunded_amount: 200000 });
+  assert.equal((await deliver(refund)).status, 200);
+  assert.equal(await access(owner, 'live'), 'active');
+  Object.assign(refund.data.attributes, { status: 'refunded', refunded: true, refunded_amount: 490603 });
+  assert.equal((await deliver(refund)).status, 200);
+  assert.equal(await access(owner, 'live'), 'revoked');
+  assert.equal((await deliver(event)).status, 200);
+  assert.equal(await access(owner, 'live'), 'revoked');
+});
