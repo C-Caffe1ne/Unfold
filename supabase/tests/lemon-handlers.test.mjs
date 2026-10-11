@@ -43,6 +43,29 @@ test('checkout diagnostics record only a bounded public error code', async () =>
   assert.equal(JSON.stringify(reports).includes('server-secret'), false);
 });
 
+test('webhook diagnostics distinguish a rejected payment without logging customer data', async () => {
+  const reports = [];
+  let applies = 0;
+  const handle = createLemonWebhookHandler({ environment: 'test', secret: webhookSecret,
+    store: { find: async () => order, apply: async () => { applies++; return true; } },
+    report: code => reports.push(code),
+  });
+  const event = orderEvent(order);
+  event.data.attributes.user_email = 'private-customer@example.test';
+  event.data.attributes.first_order_item.price = 1;
+  const response = await handle(await webhookRequest(event));
+  assert.equal(response.status, 422);
+  assert.deepEqual(reports, ['payment:payment_item_price_mismatch']);
+  assert.equal(applies, 0);
+  assert.equal(JSON.stringify(reports).includes('private-customer'), false);
+  const brokenStore = createLemonWebhookHandler({ environment: 'test', secret: webhookSecret,
+    store: { find: async () => { throw new Error('service-secret'); } }, report: code => reports.push(code),
+  });
+  assert.equal((await brokenStore(await webhookRequest(orderEvent(order)))).status, 503);
+  assert.equal(reports.at(-1), 'order:service_unavailable');
+  assert.equal(JSON.stringify(reports).includes('service-secret'), false);
+});
+
 test('variant, preview and hosted checkout validation reject subscriptions, discounts and redirects', () => {
   for (const change of [{ is_subscription: true }, { has_free_trial: true }, { pay_what_you_want: true }, { test_mode: false }, { status: 'draft' }, { product_id: 99 }]) {
     const value = variant(order); Object.assign(value.data.attributes, change);

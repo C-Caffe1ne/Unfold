@@ -8,4 +8,6 @@ Deno.serve(createLemonWebhookHandler({
   environment,
   secret: get(environment === 'live' ? 'LEMONSQUEEZY_LIVE_WEBHOOK_SECRET' : 'LEMONSQUEEZY_WEBHOOK_SECRET'),
   store: createPaymentStore({ environment, url, secretKey: supabaseServerKey(get), allowLocalGateway: environment === 'test' }),
+  // The handler reports only static stage/error codes, never payloads or secrets.
+  report: code => console.warn(`lemon-webhook:${code}`),
 }));

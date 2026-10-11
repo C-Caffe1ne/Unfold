@@ -19,15 +19,17 @@ function fact(event, order) {
   const providerRefunded = lemonAmountMicros(value?.refunded_amount ?? 0);
   const providerItemPrice = lemonAmountMicros(item?.price);
   const expectedSubtotal = toLemonAmount(order.currency, order.amount_minor);
-  requirePayment(data?.type === 'orders' && positiveId(data.id) && value && typeof value === 'object'
-    && value.test_mode === (order.environment === 'test') && String(value.store_id) === order.provider_store_id
-    && item?.test_mode === (order.environment === 'test') && String(item.product_id) === order.provider_product_id
-    && String(item.variant_id) === order.provider_price_id
-    && value.currency === order.currency && typeof value.tax_inclusive === 'boolean'
-    && (!value.tax_inclusive || providerTotal === lemonAmountMicros(expectedSubtotal))
-    && providerItemPrice === lemonAmountMicros(expectedSubtotal) && lemonAmountMicros(value.discount_total) === 0
-    && providerSubtotal > 0
-    && providerTotal === providerSubtotal + providerTax);
+  requirePayment(data?.type === 'orders' && positiveId(data.id) && value && typeof value === 'object', 'payment_object_mismatch');
+  requirePayment(value.test_mode === (order.environment === 'test') && item?.test_mode === (order.environment === 'test'),
+    'payment_environment_mismatch');
+  requirePayment(String(value.store_id) === order.provider_store_id && String(item.product_id) === order.provider_product_id
+    && String(item.variant_id) === order.provider_price_id, 'payment_product_mismatch');
+  requirePayment(value.currency === order.currency, 'payment_currency_mismatch');
+  requirePayment(typeof value.tax_inclusive === 'boolean', 'payment_tax_mode_mismatch');
+  requirePayment(!value.tax_inclusive || providerTotal === lemonAmountMicros(expectedSubtotal), 'payment_gross_mismatch');
+  requirePayment(providerItemPrice === lemonAmountMicros(expectedSubtotal), 'payment_item_price_mismatch');
+  requirePayment(lemonAmountMicros(value.discount_total) === 0, 'payment_discount_mismatch');
+  requirePayment(providerSubtotal > 0 && providerTotal === providerSubtotal + providerTax, 'payment_totals_mismatch');
   const itemPrice = fromLemonAmount(order.currency, item.price);
   const subtotal = fromLemonAmount(order.currency, value.subtotal);
   const tax = fromLemonAmount(order.currency, value.tax);
