@@ -31,7 +31,8 @@ public sealed class AnimationView : Control, IDisposable
         if (disposed || !float.IsFinite(rotation.X) || !float.IsFinite(rotation.Y) || !float.IsFinite(rotation.Z)) return;
         rotation = rotation.Normalize();
         if (glbPreviewRotation == rotation) return;
-        glbPreviewRotation = rotation; liveGeneration++;
+        // Present the frame already in flight, then render the latest angle.
+        glbPreviewRotation = rotation;
         _ = AdvanceLive(refreshOnly: true);
     }
     public event Action<Exception>? PlaybackFailed;
@@ -188,11 +189,11 @@ public sealed class AnimationView : Control, IDisposable
         finally
         {
             renderingLive = false;
-            // A resize/clip swap during rendering must also refresh a paused or
-            // completed view, without advancing time or firing completion again.
+            // Keep playback advancing during continuous rotation. Paused and
+            // completed views only refresh their current pose.
             if (!failed && !disposed && live is not null && HasTopLevel() &&
                 (RenderedPixelSize != livePixelSize || renderedPreviewRotation != glbPreviewRotation))
-                _ = AdvanceLive(refreshOnly: true);
+                _ = AdvanceLive(refreshOnly: !running || completed);
         }
     }
     internal static int PixelSizeFor(double logicalSize, double renderScaling)

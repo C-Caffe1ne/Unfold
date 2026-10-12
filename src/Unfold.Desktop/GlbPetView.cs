@@ -373,9 +373,11 @@ internal sealed class GlbPetView : UserControl, IDisposable
         {
             var mapping = current.Mappings.GetValueOrDefault(action) ?? current.Mappings["idle"];
             var definition = new GlbDefinition("model.glb", current.Heading, current.RootNode, current.Rotation).ForAnimation(mapping);
+            // Use the rotation framing from the first preview frame onward.
+            definition = definition with { Rotation = definition.EffectiveRotation };
             SyncRotation(definition.EffectiveRotation);
             var idle = current.Mappings["idle"].ModelClip!;
-            var frames = await Task.Run(() => current.Model.CreateAnimation(mapping.ModelClip!, definition, idle, mapping.Speed));
+            var frames = await Task.Run(() => current.Model.CreateAnimation(mapping.ModelClip!, definition, idle, mapping.Speed, normalizePreviewHeight: true));
             if (closed || request != generation) return;
             preview.SetFrames(frames, mapping.Loop, false);
             if (thumbnailBitmap is null) fileThumbnail.Source = thumbnailBitmap = Ui.Bitmap(frames[0].Image);

@@ -120,8 +120,8 @@ public sealed partial class GlbModel
                  Vector3.Transform(pos, joints[(int)js.Z]) * ws.Z + Vector3.Transform(pos, joints[(int)js.W]) * ws.W) / total;
         }
     }
-    public GlbAnimationFrames CreateAnimation(string name, GlbDefinition definition, string referenceClip, double speed = 1)
-        => new(this, name, definition, referenceClip, speed);
+    public GlbAnimationFrames CreateAnimation(string name, GlbDefinition definition, string referenceClip, double speed = 1, bool normalizePreviewHeight = false)
+        => new(this, name, definition, referenceClip, speed, normalizePreviewHeight);
     private Clip FindClip(string name)
     { foreach (var clip in clips) if (clip.Name == name) return clip; throw new InvalidDataException($"GLB 동작을 찾지 못했어요: {name}"); }
     private int LockedRoot(GlbDefinition definition)
@@ -148,10 +148,13 @@ public sealed partial class GlbModel
             return definition.Rotation is null ? (min, max) : RotationBounds((min, max), definition.EffectiveRotation);
         }
     }
-    internal static (Vector3 Min, Vector3 Max) RotationBounds((Vector3 Min, Vector3 Max) bounds, GlbRotation rotation)
+    internal static (Vector3 Min, Vector3 Max) RotationBounds((Vector3 Min, Vector3 Max) bounds, GlbRotation rotation, bool normalizeHeight = false)
     {
         var center = Vector3.Transform((bounds.Min + bounds.Max) * .5f, rotation.Matrix);
-        var radius = (bounds.Max - bounds.Min).Length() * .5f;
+        var extent = bounds.Max - bounds.Min;
+        // Editor framing uses the neutral pose height; rotation changes only the center.
+        var diameter = normalizeHeight && extent.Y >= .00002f ? extent.Y : extent.Length();
+        var radius = diameter * .5f;
         if (!float.IsFinite(center.X) || !float.IsFinite(center.Y) || !float.IsFinite(center.Z) || !float.IsFinite(radius) || radius < .00001f)
             throw new InvalidDataException("GLB 모델의 회전 표시 크기가 올바르지 않아요.");
         return (center - new Vector3(radius, radius, 0), center + new Vector3(radius, radius, 0));
@@ -313,6 +316,7 @@ public sealed class GlbAnimationFrames : IReadOnlyList<AnimationFrame>
     private readonly string name, reference;
     private readonly GlbDefinition definition;
     private readonly double speed, clipDuration;
+    private readonly bool normalizePreviewHeight;
     private readonly (Vector3 Min, Vector3 Max) bounds;
     private (Vector3 Min, Vector3 Max)? previewBounds;
     private readonly AnimationFrame firstFrame;
@@ -321,13 +325,21 @@ public sealed class GlbAnimationFrames : IReadOnlyList<AnimationFrame>
     public int Count { get; }
     public double DurationSeconds { get; }
     public TimeSpan FrameDuration => TimeSpan.FromSeconds(DurationSeconds / Count);
-    public GlbAnimationFrames(GlbModel model, string name, GlbDefinition definition, string reference, double speed = 1)
+    public GlbAnimationFrames(GlbModel model, string name, GlbDefinition definition, string reference, double speed = 1, bool normalizePreviewHeight = false)
     {
         if (!double.IsFinite(speed) || speed is < .25 or > 3) throw new InvalidDataException("GLB 재생 속도는 0.25~3배로 지정해 주세요.");
         this.model = model; this.name = name; this.definition = definition; this.reference = reference; this.speed = speed;
+        this.normalizePreviewHeight = normalizePreviewHeight;
         clipDuration = model.Animations.FirstOrDefault(c => c.Name == name)?.Duration ?? throw new InvalidDataException("Unknown GLB clip.");
         DurationSeconds = clipDuration / speed;
-        Count = Math.Max(1, (int)Math.Ceiling(DurationSeconds * 20)); bounds = model.Bounds(definition, reference);
+        Count = Math.Max(1, (int)Math.Ceiling(DurationSeconds * 20));
+        if (normalizePreviewHeight)
+        {
+            var sourceBounds = model.Bounds(definition with { Heading = 0, Rotation = null }, reference);
+            previewBounds = sourceBounds;
+            bounds = GlbModel.RotationBounds(sourceBounds, definition.EffectiveRotation, normalizeHeight: true);
+        }
+        else bounds = model.Bounds(definition, reference);
         firstFrame = RenderFrame(0, 192);
     }
     public AnimationFrame this[int index] => GetFrame(index, 192);
@@ -356,14 +368,14 @@ public sealed class GlbAnimationFrames : IReadOnlyList<AnimationFrame>
     public void RenderTerminalFrameInto(int pixelSize, Span<uint> pixels)
         => model.RenderAntialiasedInto(name, clipDuration, definition, reference, bounds, pixelSize, pixels);
     /// <summary>Render an absolute XYZ rotation without changing the shared clip.
-    /// The same bounds are used when the orientation is saved for playback.</summary>
+    /// Editor height framing stays fixed to the unrotated reference pose.</summary>
     public void RenderPreviewFrameInto(int index, int pixelSize, Span<uint> pixels, GlbRotation rotation, bool terminal = false)
     {
         if (index < 0 || index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
         if (!rotation.IsValid) throw new ArgumentOutOfRangeException(nameof(rotation));
         (Vector3 Min, Vector3 Max) sourceBounds;
         lock (gate) sourceBounds = previewBounds ??= model.Bounds(definition with { Heading = 0, Rotation = null }, reference);
-        var cameraBounds = GlbModel.RotationBounds(sourceBounds, rotation);
+        var cameraBounds = GlbModel.RotationBounds(sourceBounds, rotation, normalizePreviewHeight);
         model.RenderAntialiasedInto(name, terminal ? clipDuration : index * FrameDuration.TotalSeconds * speed,
             definition with { Rotation = rotation }, reference, cameraBounds, pixelSize, pixels);
     }
