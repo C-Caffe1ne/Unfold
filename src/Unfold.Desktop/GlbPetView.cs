@@ -21,7 +21,7 @@ internal sealed class GlbPetView : UserControl, IDisposable
     private readonly Func<CharacterPackage, Task>? openPackage;
     private readonly Func<Task<string?>> chooseFile;
     private readonly AnimationView preview = new() { Name = "GlbPreview", Width = 240, Height = 240 };
-    private readonly TextBlock status = Ui.Caption("");
+    private readonly TextBlock status = Ui.Caption(""), saveHint = Ui.Caption(""), actionGuidance = Ui.Caption("");
     private readonly TextBox name = new() { Name = "GlbPetName", MaxLength = 80, PlaceholderText = "펫 이름", Height = DesignSystem.PetControlHeight };
     private readonly ComboBox existing = new() { Name = "GlbExistingPets", PlaceholderText = "편집할 펫 선택" };
     private readonly ComboBox previewAction = new() { Name = "GlbPreviewAction" };
@@ -59,7 +59,7 @@ internal sealed class GlbPetView : UserControl, IDisposable
         Func<CharacterPackage, Task>? openPackage = null)
     {
         this.owner = owner; this.library = library; this.installed = installed; this.chooseFile = chooseFile ?? PickFile;
-        status.Name = "GlbStatus"; this.created = created; this.chooseOutput = chooseOutput; this.removed = removed;
+        status.Name = "GlbStatus"; saveHint.Name = "GlbSaveGuidance"; actionGuidance.Name = "GlbSelectedActionGuidance"; this.created = created; this.chooseOutput = chooseOutput; this.removed = removed;
         this.existingPets = existingPets; this.openPackage = openPackage;
         status.IsVisible = false;
         status.PropertyChanged += (_, e) => { if (e.Property == TextBlock.TextProperty) status.IsVisible = !string.IsNullOrWhiteSpace(status.Text); };
@@ -110,9 +110,10 @@ internal sealed class GlbPetView : UserControl, IDisposable
         };
         name.PropertyChanged += (_, e) =>
         {
-            if (e.Property != TextBox.TextProperty || populating || draft is null || draft.Name == (name.Text ?? "")) return;
+            if (e.Property != TextBox.TextProperty || populating) return;
+            if (draft is null) { SetControls(); return; }
+            if (draft.Name == (name.Text ?? "")) return;
             draft.Name = name.Text ?? ""; MarkChanged();
-            if (string.IsNullOrWhiteSpace(draft.Name)) status.Text = "저장하려면 펫 이름을 입력해 주세요.";
         };
         previewAction.SelectionChanged += async (_, _) => { if (!populating) { ShowSelectedAction(); await Play(); } };
         preview.PlaybackFailed += error =>
@@ -153,7 +154,7 @@ internal sealed class GlbPetView : UserControl, IDisposable
             }
             e.Handled = true;
         };
-        var settingsPane = Ui.Column(Heading("행동 연결"), PetManagementView.Field("상황", previewAction), rows);
+        var settingsPane = Ui.Column(Heading("행동 연결"), PetManagementView.Field("상황", previewAction), rows, actionGuidance);
         settingsPane.Spacing = 10; settingsPane.Name = "GlbActionPane";
         var rotationHint = Ui.Caption("드래그: X·Y / Shift+드래그: Z"); rotationHint.TextWrapping = TextWrapping.Wrap;
         var rotationFields = new Grid { Name = "GlbRotationFields", ColumnDefinitions = new("*,8,*,8,*") };
@@ -167,7 +168,7 @@ internal sealed class GlbPetView : UserControl, IDisposable
             PetManagementView.Field("3D 파일", fileRow), Ui.Row(pause, replay), existingField, Ui.Actions(edit, remove)), settingsPane);
         var identity = workspace.Identity("GlbIdentity", name, open);
         editor = workspace; editor.Name = "GlbEditor";
-        var body = Ui.Column(identity, editor);
+        var body = Ui.Column(identity, PetImportGuidance.CreateGuide(glb: true), editor);
         var buttons = Ui.Row(save);
         if (created is not null)
         {
@@ -175,7 +176,7 @@ internal sealed class GlbPetView : UserControl, IDisposable
             save.Classes.Remove("primary"); buttons.Children.Add(export);
         }
         var footer = new Grid { ColumnDefinitions = new("*") , RowDefinitions = new("Auto,8,Auto") };
-        footer.Children.Add(status); Grid.SetRow(buttons, 2); buttons.HorizontalAlignment = HorizontalAlignment.Right; footer.Children.Add(buttons);
+        var feedback = Ui.Column(status, saveHint); feedback.Spacing = 4; footer.Children.Add(feedback); Grid.SetRow(buttons, 2); buttons.HorizontalAlignment = HorizontalAlignment.Right; footer.Children.Add(buttons);
         Content = PetManagementView.Page("펫 팩 만들기", "", body, footer, showHeader);
         owner.PropertyChanged += OwnerChanged; AttachedToVisualTree += (_, _) => { RefreshExisting(); UpdatePlayback(); }; DetachedFromVisualTree += (_, _) => UpdatePlayback();
         RefreshExisting(); SetControls();
@@ -293,7 +294,7 @@ internal sealed class GlbPetView : UserControl, IDisposable
             status.Text = "";
             await Play();
         }
-        catch (Exception e) { Error(e); }
+        catch (Exception e) { ImportError(e); }
         finally { SetBusy(false); UpdatePlayback(); }
     }
     private void Populate()
@@ -465,6 +466,11 @@ internal sealed class GlbPetView : UserControl, IDisposable
     {
         HasUnsavedChanges = true; status.Text = ""; status.Foreground = DesignSystem.Muted; SetControls();
     }
+    private void ImportError(Exception error)
+    {
+        AppPaths.Log(error);
+        if (!closed) { status.Text = PetImportGuidance.GlbError(error); status.Foreground = DesignSystem.Error; }
+    }
     private void Error(Exception error) { AppPaths.Log(error); if (!closed) { status.Text = "처리하지 못했어요. " + Ui.ErrorText(error); status.Foreground = DesignSystem.Error; } }
     private void SetBusy(bool value) { IsBusy = value; SetControls(); BusyChanged?.Invoke(); }
     internal void SetImportEnabled(bool value) => open.IsEnabled = fileAdd.IsEnabled = value;
@@ -479,6 +485,12 @@ internal sealed class GlbPetView : UserControl, IDisposable
         editor.IsVisible = true;
         if (export is not null) export.IsEnabled = ready && !string.IsNullOrWhiteSpace(draft?.Name);
         save.IsEnabled = ready && HasUnsavedChanges && !string.IsNullOrWhiteSpace(draft?.Name);
+        saveHint.Text = PetImportGuidance.GlbSaveHint(name.Text, draft is not null, IsBusy, draft?.Revision is not null, HasUnsavedChanges);
+        saveHint.IsVisible = !string.IsNullOrWhiteSpace(saveHint.Text);
+        var mapping = draft?.Mappings.GetValueOrDefault(SelectedAction);
+        // A clip named Static can still contain animation; keep static-model support in the general preparation guide.
+        actionGuidance.Text = draft is null ? "" : PetImportGuidance.GlbActionHint(SelectedAction, mapping is not null, isStatic: false);
+        actionGuidance.IsVisible = !string.IsNullOrWhiteSpace(actionGuidance.Text);
         name.IsEnabled = !IsBusy; rows.IsEnabled = previewAction.IsEnabled = ready;
         replay.IsEnabled = ready && !loading; pause.IsEnabled = ready && !loading && !previewFailed;
         pause.Content = previewCompleted ? "다시 재생" : paused ? "계속 재생" : "일시정지";

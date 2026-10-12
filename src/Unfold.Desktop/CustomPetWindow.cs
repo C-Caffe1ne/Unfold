@@ -41,7 +41,7 @@ internal sealed class CustomPetView : UserControl, IDisposable
         HorizontalAlignment = HorizontalAlignment.Stretch };
     private readonly ComboBox action = new() { Name = "CustomPetAction", ItemsSource = CustomPetDraft.Actions, SelectedIndex = 0,
         HorizontalAlignment = HorizontalAlignment.Stretch };
-    private readonly TextBlock pending = Ui.Caption(""), status = Ui.Caption("");
+    private readonly TextBlock pending = Ui.Caption(""), status = Ui.Caption(""), saveHint = Ui.Caption("");
     private readonly AnimationView preview = new() { Name = "CustomPetPreview", Width = 220, Height = 220 };
     private readonly ComboBox selectedAction = new() { Name = "CustomPetSelectedAction", ItemsSource = CustomPetDraft.Actions, SelectedIndex = 0,
         HorizontalAlignment = HorizontalAlignment.Stretch, HorizontalContentAlignment = HorizontalAlignment.Stretch };
@@ -78,13 +78,13 @@ internal sealed class CustomPetView : UserControl, IDisposable
         this.owner = owner; this.created = created; this.library = library; this.installed = installed; this.removed = removed;
         this.chooseMedia = chooseMedia ?? PickMedia; this.chooseOutput = chooseOutput ?? PickOutput;
         pendingPath = initialPath; pending.Text = initialPath is null ? "" : "가져온 파일: " + Path.GetFileName(initialPath);
-        action.ItemTemplate = new FuncDataTemplate<string>((key, _) => Ui.Text(CustomPetDraft.ActionName(key ?? "")));
+        action.ItemTemplate = new FuncDataTemplate<string>((key, _) => Ui.Text(ActionLabel(key)));
         AutomationProperties.SetName(action, "가져온 파일에 적용할 동작"); AutomationProperties.SetName(name, "커스텀 펫 이름");
-        status.Name = "CustomPetStatus"; pending.Name = "CustomPetPending";
+        status.Name = "CustomPetStatus"; pending.Name = "CustomPetPending"; saveHint.Name = "CustomPetSaveGuidance";
         status.IsVisible = false;
         status.PropertyChanged += (_, e) => { if (e.Property == TextBlock.TextProperty) status.IsVisible = !string.IsNullOrWhiteSpace(status.Text); };
         assign = AsyncButton("동작에 넣기", AssignPending); assign.Name = "AssignPetMedia";
-        selectedAction.ItemTemplate = new FuncDataTemplate<string>((key, _) => Ui.Text(CustomPetDraft.ActionName(key ?? "")));
+        selectedAction.ItemTemplate = new FuncDataTemplate<string>((key, _) => Ui.Text(ActionLabel(key)));
         PetManagementView.StyleChoice(selectedAction); AutomationProperties.SetName(selectedAction, "상황");
         selectedAction.SelectionChanged += async (_, _) =>
         {
@@ -127,11 +127,11 @@ internal sealed class CustomPetView : UserControl, IDisposable
         var workspace = new PetEditorWorkspace(owner, "CustomPet", previewSurface,
             petSelection is null ? previewButtons : Ui.Column(previewButtons, petSelection, Ui.Actions(editPet, removePet)), settingsPane);
         var identity = workspace.Identity("CustomPetIdentity", name, open);
-        var body = Ui.Column(pendingCard, identity, workspace);
-        body.Spacing = DesignSystem.Inset;
+        var body = Ui.Column(pendingCard, identity, PetImportGuidance.CreateGuide(glb: false), workspace);
+        body.Spacing = DesignSystem.Space;
         var footer = new Grid { ColumnDefinitions = new("*,20,Auto") };
-        status.VerticalAlignment = VerticalAlignment.Center;
-        footer.Children.Add(status);
+        var feedback = Ui.Column(status, saveHint); feedback.Spacing = 4; feedback.VerticalAlignment = VerticalAlignment.Center;
+        footer.Children.Add(feedback);
         var buttons = Ui.Row(save, create); Grid.SetColumn(buttons, 2); footer.Children.Add(buttons);
         Content = PetManagementView.Page("나만의 펫을 만들어 보세요.", "",
             body, footer, showHeader);
@@ -140,6 +140,7 @@ internal sealed class CustomPetView : UserControl, IDisposable
         DetachedFromVisualTree += (_, _) => UpdatePlayback();
         Refresh();
     }
+    private static string ActionLabel(string? key) => key == "idle" ? "기본 · 필수" : CustomPetDraft.ActionName(key ?? "");
     private void BuildActionSlots()
     {
         foreach (var bitmap in thumbnailBitmaps.Values) bitmap.Dispose();
@@ -363,7 +364,7 @@ internal sealed class CustomPetView : UserControl, IDisposable
             await Preview(key); return true;
         }
         catch (OperationCanceledException) when (closed) { return false; }
-        catch (Exception error) { ShowError(error); return false; }
+        catch (Exception error) { ShowImportError(error); return false; }
         finally { busy = false; if (!closed) Refresh(); }
     }
     private async Task Preview(string key)
@@ -451,6 +452,8 @@ internal sealed class CustomPetView : UserControl, IDisposable
         create.IsEnabled = !busy && !string.IsNullOrWhiteSpace(name.Text) && draft.Clips.ContainsKey("idle");
         save.IsVisible = editPet.IsVisible = removePet.IsVisible = draft.IsEditing && library is not null;
         save.IsEnabled = create.IsEnabled && HasUnsavedChanges; editPet.IsEnabled = removePet.IsEnabled = !busy;
+        saveHint.Text = PetImportGuidance.MediaSaveHint(name.Text, draft.Clips.ContainsKey("idle"), busy, draft.IsEditing, HasUnsavedChanges);
+        saveHint.IsVisible = !string.IsNullOrWhiteSpace(saveHint.Text);
         foreach (var (key, label) in labels)
         {
             var clip = draft.Clips.GetValueOrDefault(key);
@@ -467,6 +470,12 @@ internal sealed class CustomPetView : UserControl, IDisposable
     {
         foreach (var (key, card) in actionCards)
             card.BorderBrush = previewAction == key ? DesignSystem.Cream : DesignSystem.Outline;
+    }
+    private void ShowImportError(Exception error)
+    {
+        AppPaths.Log(error);
+        if (closed) return;
+        status.Foreground = DesignSystem.Error; status.Text = PetImportGuidance.MediaError(error);
     }
     private void ShowError(Exception error)
     {
@@ -490,11 +499,13 @@ internal sealed class CustomPetView : UserControl, IDisposable
 
     private Border BuildPendingCard()
     {
-        var fields = new Grid { ColumnDefinitions = new("*,12,Auto") };
-        fields.Children.Add(Ui.Field("적용할 동작", action));
-        assign.VerticalAlignment = VerticalAlignment.Bottom;
-        Grid.SetColumn(assign, 2); fields.Children.Add(assign);
-        return Ui.Card(Ui.Column(pending, fields), 12);
+        pending.MaxLines = 1; pending.TextTrimming = TextTrimming.CharacterEllipsis;
+        pending.VerticalAlignment = VerticalAlignment.Center; ToolTip.SetTip(pending, pending.Text);
+        action.Height = assign.Height = DesignSystem.PetControlHeight;
+        var fields = new Grid { ColumnDefinitions = new($"*,{DesignSystem.Space},{DesignSystem.PetChoiceWidth},{DesignSystem.Space},Auto") };
+        fields.Children.Add(pending); Grid.SetColumn(action, 2); fields.Children.Add(action);
+        Grid.SetColumn(assign, 4); fields.Children.Add(assign);
+        var card = Ui.Card(fields, DesignSystem.Space); card.Name = "CustomPetPendingCard"; return card;
     }
 
     internal static void ConfigureSlotButton(Button button, string path, string label)
