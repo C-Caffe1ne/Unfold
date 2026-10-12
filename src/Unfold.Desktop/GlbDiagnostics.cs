@@ -174,7 +174,6 @@ internal static class GlbDiagnostics
                 scroll.Offset = new Vector(0, scroll.Extent.Height); settings.UpdateLayout();
                 Capture(settings, Path.Combine(directory, $"settings-mappings-{size.Width}-{size.Height}.png"));
                 scroll.Offset = default;
-                if (size.Width is 1120 or 640) await CapturePreparationGuide(settings, directory, size);
                 foreach (var action in new[] { "click", "held" })
                 {
                     Find<ComboBox>("GlbPreviewAction").SelectedIndex = GlbPetDraft.Actions.ToList().IndexOf(action);
@@ -203,31 +202,6 @@ internal static class GlbDiagnostics
             finally { runtime.SetTheme(originalTheme); }
         }
         finally { settings.Hide(); }
-    }
-    private static async Task CapturePreparationGuide(Window window, string directory, Size size)
-    {
-        var guide = window.GetVisualDescendants().OfType<Expander>().Single(control => control.Name == "GlbPetPreparationGuide");
-        var scroll = window.GetVisualDescendants().OfType<ScrollViewer>().Single(control => control.Name == "PageBodyScroll");
-        var offset = scroll.Offset; var expanded = guide.IsExpanded;
-        try
-        {
-            guide.IsExpanded = false; scroll.Offset = default; window.UpdateLayout();
-            guide.BringIntoView(); await Task.Delay(100); window.UpdateLayout();
-            Capture(window, Path.Combine(directory, $"settings-glb-guide-{size.Width}-{size.Height}-closed.png"));
-            guide.IsExpanded = true; await Task.Delay(100); window.UpdateLayout();
-            var origin = guide.TranslatePoint(default, scroll)!.Value;
-            scroll.Offset = new Vector(0, scroll.Offset.Y + origin.Y);
-            await Task.Delay(100); window.UpdateLayout();
-            if (scroll.Extent.Width > scroll.Viewport.Width + 1)
-                throw new InvalidOperationException("The GLB preparation guide overflows horizontally.");
-            Capture(window, Path.Combine(directory, $"settings-glb-guide-{size.Width}-{size.Height}-expanded.png"));
-            scroll.ScrollToEnd(); await Task.Delay(100); window.UpdateLayout();
-            Capture(window, Path.Combine(directory, $"settings-glb-guide-{size.Width}-{size.Height}-expanded-scrolled.png"));
-        }
-        finally
-        {
-            guide.IsExpanded = expanded; await Task.Delay(100); window.UpdateLayout(); scroll.Offset = offset;
-        }
     }
     private static async Task Until(Func<bool> ready, int timeout = 15000)
     {

@@ -10,9 +10,9 @@
 
 [타이머 검증](validation/2026-10-12-live-timer-settings.md)은 홈 자동 저장·중지 복귀·간격 증가/감소를, [호버 제거 검증](validation/2026-10-09-pet-hover-removal.md)은 당시 전체 803개와 macOS 실제 입력을 기록한다. 과거 검사 수를 이번 제품 검사 수로 합산하지 않는다.
 
-## GIF·GLB 제작·가져오기 안내 개발 변경
+## GIF·GLB 추가 안내 제거
 
-[구현 검증](validation/2026-10-12-gif-glb-import-guidance.md)은 `codex/gif-glb-import-guidance`의 안내·필수 조건·오류 복구와 최종 전체 840개 통과, macOS smoke 116장·GLB 33장·생성 GIF 팩 4장을 기록한다. Windows x64 publish는 통과했으며 실제 Windows 실행·물리 입력은 미검증이다. 공개 배포에는 아직 포함하지 않았다.
+사용자 요청으로 파일 준비 안내와 새 설명 문구를 제거하고 편집 화면을 안내 추가 전 상태로 복원했다. [제거 검증](validation/2026-10-12-gif-glb-guidance-removal.md)에 현재 결과를 기록한다. [기존 안내 검증](validation/2026-10-12-gif-glb-import-guidance.md)의 840개 검사와 캡처는 `4c74880` 당시의 이력이다.
 
 ## Beta v1.1.2 공개 배포·업데이트
 

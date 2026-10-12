@@ -626,36 +626,6 @@ internal static partial class SmokeDiagnostics
         if (page.Extent.Width > page.Viewport.Width + 1)
             throw new InvalidOperationException("The wrapped pet action cards overflow the page horizontally.");
     }
-    private static async Task CapturePreparationGuide(Window window, string directory)
-    {
-        var guide = window.GetVisualDescendants().OfType<Expander>().Single(control => control.Name == "CustomPetPreparationGuide");
-        var scroll = window.GetVisualDescendants().OfType<ScrollViewer>().Single(control => control.Name == "PageBodyScroll");
-        var width = window.Width; var height = window.Height; var offset = scroll.Offset; var expanded = guide.IsExpanded;
-        try
-        {
-            foreach (var size in new[] { new Size(1120, 800), new Size(640, 560) })
-            {
-                window.Width = size.Width; window.Height = size.Height; guide.IsExpanded = false; scroll.Offset = default;
-                await Task.Delay(100); window.UpdateLayout();
-                guide.BringIntoView(); await Task.Delay(100); window.UpdateLayout();
-                Capture(window, Path.Combine(directory, $"settings-media-guide-{size.Width}-{size.Height}-closed.png"));
-                guide.IsExpanded = true; await Task.Delay(100); window.UpdateLayout();
-                var origin = guide.TranslatePoint(default, scroll)!.Value;
-                scroll.Offset = new Vector(0, scroll.Offset.Y + origin.Y);
-                await Task.Delay(100); window.UpdateLayout();
-                if (scroll.Extent.Width > scroll.Viewport.Width + 1)
-                    throw new InvalidOperationException("The media preparation guide overflows horizontally.");
-                Capture(window, Path.Combine(directory, $"settings-media-guide-{size.Width}-{size.Height}-expanded.png"));
-                scroll.ScrollToEnd(); await Task.Delay(100); window.UpdateLayout();
-                Capture(window, Path.Combine(directory, $"settings-media-guide-{size.Width}-{size.Height}-expanded-scrolled.png"));
-            }
-        }
-        finally
-        {
-            guide.IsExpanded = expanded; window.Width = width; window.Height = height;
-            await Task.Delay(100); window.UpdateLayout(); scroll.Offset = offset;
-        }
-    }
     private static async Task<object> VerifySettingsLayout(Window window, string directory)
     {
         var width = window.Width; var height = window.Height;
@@ -704,7 +674,6 @@ internal static partial class SmokeDiagnostics
             VerifyBodyScrollGutter(window, PetBuilderControls);
             window.Width = 1120; window.Height = 800; await Task.Delay(200); window.UpdateLayout();
             Capture(window, Path.Combine(directory, "settings-pet-create-tab.png"));
-            await CapturePreparationGuide(window, directory);
             Press(window, "SettingsNavTimer"); await Task.Delay(100);
             Press(window, "SettingsNavPacks"); await Task.Delay(100); window.UpdateLayout();
             if (petName.Text != "작성 중인 펫")

@@ -26,7 +26,8 @@
 
 | 문서 | 역할 |
 |---|---|
-| [GIF·GLB 제작·가져오기 안내 검증](validation/2026-10-12-gif-glb-import-guidance.md) | 로컬 개발 안내·저장 조건·오류 복구, 840개 검사와 macOS 캡처·Windows 빌드/실행 경계 |
+| [GIF·GLB 추가 설명 제거](validation/2026-10-12-gif-glb-guidance-removal.md) | 안내 제거·기존 편집 복원·790개 검사·수정 전 slop 점검 원칙 |
+| [GIF·GLB 안내 추가 당시 검증](validation/2026-10-12-gif-glb-import-guidance.md) | `4c74880`의 과거 구현·검증; 후속 요청으로 안내 제거 |
 | [Beta v1.1.3 배포·업데이트 검증](validation/2026-10-12-beta-v1.1.3-release.md) | Mac 서명·공증, Windows CI, 공개 파일 10개, 세 채널과 실제 Mac/Windows 업데이트·재시작·데이터 보존, 웹·노션 반영 |
 | [타이머 숫자 전환·자동 저장 검증](validation/2026-10-12-live-timer-settings.md) | 확인 없는 중지 복귀, 간격 증가·감소 애니메이션, 홈 시간 자동 저장·실패 복구와 790개 검사·macOS 렌더링 진단 |
 | [Beta v1.1.3 커밋 검증](validation/2026-10-09-beta-v1.1.3-commit.md) | GLB XYZ 회전·저장, 탭 이름, 펫 호버·모션 수정의 커밋 범위와 버전 변경 후 56개 검사 |
