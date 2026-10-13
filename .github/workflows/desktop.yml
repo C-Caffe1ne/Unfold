@@ -6,6 +6,20 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+    inputs:
+      test_scope:
+        description: Test scope for this build
+        type: choice
+        options: [full, focused]
+        default: full
+      test_filter:
+        description: Required dotnet test filter when scope is focused
+        type: string
+        default: ''
+      run_native_checks:
+        description: Run Windows installation and native app diagnostics
+        type: boolean
+        default: true
 jobs:
   build:
     strategy:
@@ -26,7 +40,17 @@ jobs:
       - run: dotnet tool restore
       - name: Prepare MP4 import tools
         run: dotnet run --project tools/Unfold.MediaSetup -- ${{ matrix.rid }} "${{ github.workspace }}"
-      - run: dotnet test Unfold.slnx -c Release --no-restore
+      - name: Run full tests
+        if: github.event_name != 'workflow_dispatch' || inputs.test_scope == 'full'
+        run: dotnet test Unfold.slnx -c Release --no-restore
+      - name: Run focused tests
+        if: github.event_name == 'workflow_dispatch' && inputs.test_scope == 'focused'
+        shell: pwsh
+        env:
+          UNFOLD_TEST_FILTER: ${{ inputs.test_filter }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:UNFOLD_TEST_FILTER)) { throw 'Focused test filter is required.' }
+          dotnet test Unfold.slnx -c Release --no-restore --filter "$env:UNFOLD_TEST_FILTER"
       - name: Publish Windows portable app
         if: runner.os == 'Windows'
         shell: pwsh
@@ -35,15 +59,15 @@ jobs:
         if: runner.os == 'Windows'
         run: python Scripts/package-updates.py --runtime win-x64
       - name: Verify Windows install and uninstall with preserved user data
-        if: runner.os == 'Windows'
+        if: runner.os == 'Windows' && (github.event_name != 'workflow_dispatch' || inputs.run_native_checks)
         shell: pwsh
         run: ./Scripts/verify-windows-installer.ps1
       - name: Prepare Windows CI display for native layout checks
-        if: runner.os == 'Windows'
+        if: runner.os == 'Windows' && (github.event_name != 'workflow_dispatch' || inputs.run_native_checks)
         shell: pwsh
         run: ./Scripts/prepare-windows-ci-display.ps1
       - name: Run packaged Windows smoke test
-        if: runner.os == 'Windows'
+        if: runner.os == 'Windows' && (github.event_name != 'workflow_dispatch' || inputs.run_native_checks)
         shell: pwsh
         run: |
           $env:UNFOLD_DATA_DIR = Join-Path $env:RUNNER_TEMP ('unfold-smoke-' + [guid]::NewGuid().ToString('N'))
@@ -78,7 +102,7 @@ jobs:
             artifacts/update-releases/${{ matrix.rid }}/*.nupkg
             artifacts/update-releases/${{ matrix.rid }}/releases.*.json
       - name: Upload Windows installer verification
-        if: always() && runner.os == 'Windows'
+        if: always() && runner.os == 'Windows' && (github.event_name != 'workflow_dispatch' || inputs.run_native_checks)
         uses: actions/upload-artifact@v4
         with:
           name: Unfold-win-x64-installer-verification

@@ -3,8 +3,7 @@
 Unfold is a C#/.NET 10 and Avalonia stretch reminder with desktop pets. Published
 packages include .NET. Swift, Xcode, and the Piskel web runtime are not required.
 
-As of 2026-10-12, the latest public release is **Beta v1.1.3**
-(`1.1.3-beta`, tag `v1.1.3-beta`, product source `b1242ea`).
+This document describes **Beta v1.1.4** (`1.1.4-beta`, tag `v1.1.4-beta`).
 It includes Mochi (cat), 보리 (rabbit), 강아지 (dog), 고슴도치 (hedgehog)
 and 펭귄 (penguin). Choose them from Home without installing separate packs.
 When `docs/releases/v<version>.md` exists, packaging includes it as `RELEASE-NOTES.md` in the Windows portable/installed
@@ -17,7 +16,7 @@ store. Restart restores the session and verifies server access without another G
 sign-in or code entry. Logout deletes the stored credential. Network failure preserves it
 for retry but does not grant offline access.
 Windows code signing is pending. Public Mac distribution uses Developer ID signing and
-Apple notarization. See the [current public release notes](releases/v1.1.3-beta.md)
+Apple notarization. See the [release notes](releases/v1.1.4-beta.md)
 and [release/update verification](validation/2026-10-12-beta-v1.1.3-release.md).
 Beta v1.0.3 and later managed installations can check for updates from the tray/menu bar;
 Beta v1.1.1 and later also provide **설정 → 앱 정보 → 업데이트 확인**.
@@ -97,18 +96,17 @@ or to start a full interval after Stop. Stop dismisses an open invitation withou
 completion. Reset and Stretch now are no longer exposed.
 
 The timer state badge and tray status explicitly show running, paused, stopped, idle-paused,
-or break-held state. The home card's **스트레칭 알림 간격 (분)** is disabled while running and accepts whole
-minutes from 1 to 240 in one-minute steps while paused or stopped. **휴식 시간 (분)** accepts 1–10
-minutes and may be changed while working because it applies to the next break. A typed or stepped value
-does not change behavior until the home card's **저장** is pressed. The Settings tab uses its own
+or break-held state. Both home time inputs are editable only while the timer is stopped with no active break.
+**스트레칭 알림 간격 (분)** accepts whole minutes from 1 to 240; **휴식 시간 (분)** accepts 1–10 minutes.
+Valid edits apply and save automatically. Starting before a queued save discards unapplied edits. The Settings tab uses its own
 automatic saving for idle/snooze time and notification preferences, including sound import/reset.
 There are no Settings-page Save/Cancel buttons or navigation-save dialog.
-Saving a new stretch interval keeps Pause or Stop intact.
+Saving a new stretch interval keeps the timer stopped.
 
 All five bundled pets provide the original reactions plus pointer hold/release behaviors. Eligible idle time triggers sleep, looking around
 or yawning; a short click plays its assigned reaction without moving or scaling the pet canvas.
-The third consecutive snooze triggers sulking. Starting a break plays one stretch before walking
-inside the current monitor's work area; completion, stop, hiding or selecting another pet ends movement.
+The third consecutive snooze triggers sulking. Reminder and stretch actions continue until their state ends,
+repeating or holding their end pose according to the saved playback choice. Completion finishes once before returning to idle.
 A hidden pet can appear temporarily for a new reminder without changing the saved visibility setting.
 
 An open reminder holds the work timer and retains the break duration captured when it opened. Completion schedules a full work interval;

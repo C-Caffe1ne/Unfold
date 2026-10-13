@@ -3,7 +3,7 @@
 백엔드 관리: [보안 운영 절차](operations/backend-security.md), [적용·검증 결과](validation/2026-10-11-backend-security.md).
 운영 Live 결제의 pending 원인·웹훅 v21 배포·실제 결제 재전송과 앱 권한 조회 결과는 [Live 결제 복구](validation/2026-10-12-live-payment-pending.md)에 기록한다.
 
-현재 제품은 **C#·Avalonia 기반 Unfold Beta**다. 2026-10-12 현재 개발·공개 배포 버전은 **Beta v1.1.3** (`1.1.3-beta`, [변경내용](releases/v1.1.3-beta.md))이며, 작업 경로는 `/Users/hwanghyeonseong/Documents/GitHub/Unfold/.worktrees/remove-unused-features`, 브랜치는 `codex/remove-unused-features`다.
+현재 제품은 **C#·Avalonia 기반 Unfold Beta**다. 2026-10-14 개발·배포 준비 버전은 **Beta v1.1.4** (`1.1.4-beta`, [변경내용](releases/v1.1.4-beta.md))이며, 작업 경로는 `/Users/hwanghyeonseong/Documents/GitHub/Unfold/.worktrees/pet-overlay-hover`, 브랜치는 `codex/pet-overlay-hover`다.
 최신 공개 배포본은 `v1.1.3-beta` (제품 소스 `b1242ea`)다. 설치 파일·업데이트 채널·웹 반영과 실제 Mac/Windows 1.1.2→1.1.3 업데이트 결과는 [배포 검증](validation/2026-10-12-beta-v1.1.3-release.md)에 기록한다.
 
 ## 현재 사용 안내

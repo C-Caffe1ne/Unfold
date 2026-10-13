@@ -1,8 +1,8 @@
 # Unfold
 
-**Beta v1.1.3** · C#/.NET 10 · Avalonia · macOS / Windows
+**Beta v1.1.4** · C#/.NET 10 · Avalonia · macOS / Windows
 
-Current development version: `1.1.3-beta` ([changes](docs/releases/v1.1.3-beta.md)). Latest public release: `v1.1.3-beta` (source `b1242ea`).
+Current development version: `1.1.4-beta` ([changes](docs/releases/v1.1.4-beta.md)). Last public release: `v1.1.3-beta` (source `b1242ea`).
 
 A small desktop companion that reminds you to stretch while you work.
 
@@ -33,7 +33,7 @@ Closing Settings keeps Unfold running. Use **Unfold 종료** in the tray menu to
 - Separate stretch interval, break duration, away threshold and snooze settings.
 - Today's confirmed breaks, seven-day reviews, and local CSV export.
 - Local pet packs: preview animations, install, update, and reinstall from a saved `.unfoldpet` file.
-- A 1–240 minute timer with live interval adjustment, automatic saving and animated number changes.
+- A 1–240 minute timer with time adjustment while stopped, automatic saving and animated number changes.
 - Running/paused/stopped controls on Home and beside the pet. Stop resets immediately to the saved interval with a number transition.
 - Four color themes with Lilac as the default, Korean UI and custom SVG icons.
 - Custom pets from GLB, GIF/MP4 or still images, with editing and confirmed deletion of installed custom pets.
