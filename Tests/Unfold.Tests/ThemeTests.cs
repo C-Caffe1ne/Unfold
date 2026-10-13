@@ -56,7 +56,7 @@ public class ThemeTests
         Assert.True(flyout.IsOpen);
         // Dismissing the picker without choosing must not persist a different theme.
         flyout.Hide(); Assert.Equal(AppTheme.Plum, scope.Runtime.Settings.Theme);
-        Press(Find<Button>(window, "TimerToggle"));
+        Press(Find<Button>(window, "TimerStop"));
         var interval = Find<NumericUpDown>(window, "ReminderInterval"); interval.Value = 37;
         Press(Find<Button>(window, "SettingsNavSettings"));
         var idle = Find<NumericUpDown>(window, "ReminderIdle"); idle.Value = 19;

@@ -118,7 +118,7 @@ public class SettingsDashboardTests
     [AvaloniaFact]
     public void LongPetNameAndSaveFailureKeepHomeActionsInsideTheirCards()
     {
-        using var scope = new Scope(); var window = scope.Window;
+        using var scope = new Scope(); var window = scope.Window; scope.Runtime.Stop();
         window.Width = 860; window.Height = 680;
         var name = Find<TextBlock>(window, "CompanionName");
         name.Text = "오래 함께할 아주 긴 이름을 가진 나만의 새로운 고양이 친구";
@@ -192,7 +192,7 @@ public class SettingsDashboardTests
     {
         using var scope = new Scope(); var window = scope.Window;
         await scope.Runtime.UpdateSettings(scope.Runtime.Settings with { IdleMinutes = 3 });
-        Dispatcher.UIThread.RunJobs();
+        scope.Runtime.Stop(); Dispatcher.UIThread.RunJobs();
         var breakDuration = Find<NumericUpDown>(window, "BreakDurationMinutes"); breakDuration.Value = 3;
         window.Width = window.MinWidth; window.Height = window.MinHeight; Dispatcher.UIThread.RunJobs();
         Assert.Equal(3, breakDuration.Value);

@@ -18,6 +18,7 @@ public class ResponsiveLayoutTests
     {
         using var scope = new Scope(); var window = scope.Window;
         Assert.Equal(640, window.MinWidth); Assert.Equal(560, window.MinHeight);
+        scope.Runtime.Stop();
         var rest = Find<NumericUpDown>(window, "BreakDurationMinutes"); rest.Value = 4;
         var timer = Find<Control>(window, "SettingsTimerCard");
         var companion = Find<Control>(window, "SettingsCompanionCard");
@@ -111,6 +112,7 @@ public class ResponsiveLayoutTests
         private readonly string? previous = Environment.GetEnvironmentVariable("UNFOLD_DATA_DIR");
         private readonly ClassicDesktopStyleApplicationLifetime lifetime = new();
         private readonly AppRuntime runtime;
+        public AppRuntime Runtime => runtime;
         public SettingsWindow Window { get; }
         public Scope()
         {

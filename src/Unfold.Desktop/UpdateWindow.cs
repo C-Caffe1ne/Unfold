@@ -83,9 +83,29 @@ internal sealed class UpdateWindow : Window
     private static string PlainNotes(string? markdown)
     {
         if (string.IsNullOrWhiteSpace(markdown)) return "자세한 변경내용은 Unfold 웹의 변경 이력에서 확인할 수 있어요.";
-        // Render feed content as bounded plain text, never executable HTML or links.
-        var text = markdown[..Math.Min(markdown.Length, 12000)].Replace("\r\n", "\n");
-        text = Regex.Replace(text, @"(?m)^#{1,6}\s+", "");
-        return text.Replace("**", "").Replace("`", "").Trim();
+        // Keep the modal focused on user changes rather than the full release document.
+        var text = Regex.Replace(markdown[..Math.Min(markdown.Length, 12000)], @"\r\n?", "\n");
+        var section = Regex.Match(text, @"(?m)^#{1,6}\s+(?:핵심\s*변경|주요\s*변경|변경\s*내용|개선\s*사항)\s*$");
+        if (section.Success)
+        {
+            text = text[(section.Index + section.Length)..];
+            var nextSection = Regex.Match(text, @"(?m)^#{1,6}\s+");
+            if (nextSection.Success) text = text[..nextSection.Index];
+        }
+        var items = Regex.Matches(text, @"(?m)^\s*(?:[-*+]|\d+[.)])\s+(.+)$")
+            .Select(match => ShortNote(match.Groups[1].Value)).Where(note => note.Length > 0).Take(6).ToArray();
+        if (items.Length > 0) return string.Join("\n", items.Select(note => "- " + note));
+        var plain = ShortNote(Regex.Replace(text, @"(?m)^#{1,6}.*$", ""));
+        return plain.Length > 0 ? plain : "자세한 변경내용은 Unfold 웹의 변경 이력에서 확인할 수 있어요.";
+    }
+    private static string ShortNote(string note)
+    {
+        var title = Regex.Match(note, @"^\*\*(.+?)\*\*\s*[:：]\s*");
+        note = Regex.Replace(note, @"!?\[([^\]]+)\]\([^)]+\)", "$1").Replace("**", "").Replace("`", "");
+        note = Regex.Replace(note, @"\s+", " ").Trim();
+        note = Regex.Split(note, @"(?<=[.!?。])\s+")[0];
+        if (note.Length <= 100) return note;
+        if (title.Success) note = title.Groups[1].Value.Trim();
+        return note.Length <= 100 ? note : note[..99].TrimEnd() + "…";
     }
 }

@@ -194,7 +194,7 @@ public class SettingsPreferencesTests
         var persisted = AppSettings.Load(Path.Combine(scope.Root, "settings.json"));
         Assert.Equal(70, persisted.BubbleOpacityPercent); Assert.False(persisted.ReminderSoundsEnabled);
         Assert.Equal(8, persisted.IdleMinutes); Assert.Equal(12, persisted.SnoozeMinutes);
-        Press(window, "SettingsNavTimer");
+        Press(window, "SettingsNavTimer"); scope.Runtime.Stop();
         Find<NumericUpDown>(window, "BreakDurationMinutes").Value = 3;
         Press(window, "SettingsNavSettings"); idle.Value = 20;
         Assert.Equal(20, scope.Runtime.Settings.IdleMinutes); Assert.Equal(3, scope.Runtime.Settings.BreakDurationMinutes);

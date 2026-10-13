@@ -21,12 +21,78 @@ public class AppUpdateUiTests
         using var updates = new AppUpdates(backend); await updates.Check();
         var window = new UpdateWindow(updates, () => Task.FromResult(false)); window.Show();
         var notes = window.GetVisualDescendants().OfType<TextBlock>().Single(t => t.Name == "UpdateReleaseNotes");
-        Assert.StartsWith("개선 사항\n- 업데이트 안내", notes.Text); Assert.True(notes.Text!.Length <= 12000);
+        Assert.StartsWith("- 업데이트 안내", notes.Text); Assert.True(notes.Text!.Length <= 6 * 103);
         Assert.Equal(Avalonia.Media.TextWrapping.Wrap, notes.TextWrapping);
         Assert.Equal(220, notes.FindAncestorOfType<ScrollViewer>()!.MaxHeight);
         backend.CheckResult = new("1.1.3-beta", new object()); await updates.Check();
         Assert.Contains("변경 이력", notes.Text); window.Close();
     }
+
+    [AvaloniaTheory]
+    [InlineData("핵심 변경")]
+    [InlineData("주요 변경")]
+    [InlineData("변경내용")]
+    [InlineData("개선 사항")]
+    public async Task UpdateNotesPreferCoreChangesAndExcludeDetailsAndInternalSections(string heading)
+    {
+        using var scope = new Scope();
+        var backend = new UpdateTestBackend { CheckResult = new("99.7.2-beta", new object(),
+            $"# 새로운 릴리스\n## 개요\n- 이전 안내\n## {heading}\n" +
+            "- **입력 개선**: [새로운 선택](https://example.test/notes)을 빠르게 저장해요. 추가 설명은 상세 페이지에 있어요.\n" +
+            "- `펫 표시`를 선택할 수 있어요.\n## 상세 변경\n- 상세 구현 설명\n## 내부 정리\n- 내부 코드 정리") };
+        using var updates = new AppUpdates(backend); await updates.Check();
+        var window = new UpdateWindow(updates, () => Task.FromResult(false)); window.Show();
+        try
+        {
+            var notes = Notes(window);
+            Assert.Equal("- 입력 개선: 새로운 선택을 빠르게 저장해요.\n- 펫 표시를 선택할 수 있어요.", notes.Text);
+            Assert.Contains("99.7.2-beta", window.GetVisualDescendants().OfType<TextBlock>().Single(t => t.Name == "UpdateStatus").Text);
+            foreach (var excluded in new[] { "이전 안내", "추가 설명", "상세 구현", "내부 코드", "https://", "**", "`" })
+                Assert.DoesNotContain(excluded, notes.Text);
+        }
+        finally { window.Close(); }
+    }
+
+    [AvaloniaFact]
+    public async Task UpdateNotesLimitBulletCountAndShortenLongDescriptions()
+    {
+        using var scope = new Scope();
+        var markdown = "## 주요 변경\n- **짧은 제목**: " + new string('가', 300) + ".\n- " + new string('나', 300) +
+            "\n" + string.Join("\n", Enumerable.Range(3, 6).Select(i => $"- 변경 {i}을 적용했어요. 다음 문장은 자세한 설명이에요."));
+        var backend = new UpdateTestBackend { CheckResult = new("99.8.0-beta", new object(), markdown) };
+        using var updates = new AppUpdates(backend); await updates.Check();
+        var window = new UpdateWindow(updates, () => Task.FromResult(false)); window.Show();
+        try
+        {
+            var lines = Notes(window).Text!.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+            Assert.Equal(6, lines.Length); Assert.Equal("- 짧은 제목", lines[0]);
+            Assert.StartsWith("- 나", lines[1]);
+            Assert.All(lines, line => { Assert.StartsWith("- ", line); Assert.True(line.Length <= 102); });
+            Assert.Equal("- 변경 3을 적용했어요.", lines[2]);
+            Assert.DoesNotContain("변경 7", Notes(window).Text); Assert.DoesNotContain("변경 8", Notes(window).Text);
+            Assert.DoesNotContain("다음 문장", Notes(window).Text);
+        }
+        finally { window.Close(); }
+    }
+
+    [AvaloniaFact]
+    public async Task UpdateNotesKeepPlainTextShortWhenAReleaseHasNoBullets()
+    {
+        using var scope = new Scope();
+        var backend = new UpdateTestBackend { CheckResult = new("99.9.0-beta", new object(),
+            "미래 버전의 새로운 동작을 안내해요. " + new string('가', 15000)) };
+        using var updates = new AppUpdates(backend); await updates.Check();
+        var window = new UpdateWindow(updates, () => Task.FromResult(false)); window.Show();
+        try
+        {
+            Assert.Contains("미래 버전의 새로운 동작을 안내해요.", Notes(window).Text);
+            Assert.True(Notes(window).Text!.Length <= 102);
+        }
+        finally { window.Close(); }
+    }
+
+    private static TextBlock Notes(Window window) =>
+        window.GetVisualDescendants().OfType<TextBlock>().Single(t => t.Name == "UpdateReleaseNotes");
 
     [AvaloniaFact]
     public async Task StartupWaitsForLoginRestorationThenShowsOneModalWithoutDownloading()

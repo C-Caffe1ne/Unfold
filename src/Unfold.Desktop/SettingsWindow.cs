@@ -37,6 +37,7 @@ public sealed partial class SettingsWindow : Window, IDisposable
     private bool disposed;
     private bool updating;
     private bool savingHomeTiming, homeTimingSaveQueued, homeTimingDirty;
+    private bool CanEditHomeTiming => runtime.AccessAllowed && runtime.Clock.Stopped && runtime.ActiveReminder is null;
     public SettingsWindow(AppRuntime runtime)
     {
         this.runtime = runtime; Title = $"Unfold · 휴식 알림 · {AppRelease.DisplayVersion}"; Width = 1120; Height = 800; MinWidth = 640; MinHeight = 560;
@@ -130,6 +131,7 @@ public sealed partial class SettingsWindow : Window, IDisposable
     private void TimingEdited()
     {
         if (updating || disposed) return;
+        if (!CanEditHomeTiming) { RestoreHomeTimingValues(); return; }
         homeTimingStatus.Text = ""; homeTimingStatus.IsVisible = false;
         homeTimingDirty = true;
         if (savingHomeTiming || homeTimingSaveQueued) return;
@@ -140,6 +142,19 @@ public sealed partial class SettingsWindow : Window, IDisposable
             homeTimingSaveQueued = false;
             await SaveHomeTimingSettings();
         });
+    }
+    private void RestoreHomeTimingValues()
+    {
+        var wasUpdating = updating; updating = true;
+        try
+        {
+            homeTimingDirty = false;
+            interval.Value = displayedInterval = runtime.Settings.IntervalMinutes;
+            breakDuration.Value = displayedBreakDuration = runtime.Settings.BreakDurationMinutes;
+            interval.Text = displayedInterval.ToString(CultureInfo.CurrentCulture);
+            breakDuration.Text = displayedBreakDuration.ToString(CultureInfo.CurrentCulture);
+        }
+        finally { updating = wasUpdating; }
     }
     private static bool TryReadHomeMinutes(NumericUpDown input, int minimum, int maximum, out int minutes)
     {
@@ -180,6 +195,7 @@ public sealed partial class SettingsWindow : Window, IDisposable
         {
             while (homeTimingDirty && !disposed)
             {
+                if (!CanEditHomeTiming) { RestoreHomeTimingValues(); break; }
                 homeTimingDirty = false;
                 if (!TryReadHomeMinutes(interval, 1, 240, out var minutes) ||
                     !TryReadHomeMinutes(breakDuration, 1, 10, out var rest)) continue;
@@ -232,8 +248,11 @@ public sealed partial class SettingsWindow : Window, IDisposable
             historyStatus.Text = runtime.BreakHistoryError ?? "";
             historyStatus.IsVisible = runtime.BreakHistoryError is not null;
             timerControls.Refresh(runtime.Clock, runtime.ActiveReminder is not null);
-            interval.IsEnabled = runtime.AccessAllowed;
-            ToolTip.SetTip(interval, "변경한 간격이 타이머에 바로 반영되고 자동 저장돼요.");
+            var canEditHomeTiming = CanEditHomeTiming;
+            interval.IsEnabled = breakDuration.IsEnabled = canEditHomeTiming;
+            var timingTip = canEditHomeTiming ? "변경한 시간은 자동으로 저장돼요." : "타이머를 중지하면 시간을 조절할 수 있어요.";
+            ToolTip.SetTip(interval, timingTip); ToolTip.SetTip(breakDuration, timingTip);
+            if (!canEditHomeTiming) RestoreHomeTimingValues();
             showPet.IsChecked = runtime.Settings.ShowPet;
             if ((int)petScale.Value != runtime.Settings.PetScalePercent) petScale.Value = runtime.Settings.PetScalePercent;
             SetPetScalePreview(runtime.Settings.PetScalePercent);

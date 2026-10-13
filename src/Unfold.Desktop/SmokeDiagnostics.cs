@@ -50,27 +50,31 @@ internal static partial class SmokeDiagnostics
             await VerifyActionConfirmations(runtime, settings, directory);
             var intervalInput = settings.GetVisualDescendants().OfType<NumericUpDown>().Single(input => input.Name == "ReminderInterval");
             var breakDurationInput = settings.GetVisualDescendants().OfType<NumericUpDown>().Single(input => input.Name == "BreakDurationMinutes");
-            if (!intervalInput.IsEnabled) throw new InvalidOperationException("The running timer blocked interval editing.");
+            if (intervalInput.IsEnabled || breakDurationInput.IsEnabled)
+                throw new InvalidOperationException("The running timer allowed home time editing.");
             if (settings.GetVisualDescendants().OfType<Button>().Any(button => button.Name == "ApplyHomeTimingSettings"))
                 throw new InvalidOperationException("The retired home timing save action is still present.");
-            if (!breakDurationInput.IsEnabled) throw new InvalidOperationException("The running timer blocked the next break duration.");
             Capture(settings, Path.Combine(directory, "timer-running.png"));
             await VerifyCountdownMotion(directory);
             var homeCountdown = settings.GetVisualDescendants().OfType<AnimatedCountdown>().Single();
+            Press(settings, "TimerStop");
+            if (!intervalInput.IsEnabled || !breakDurationInput.IsEnabled)
+                throw new InvalidOperationException("Stopping the timer did not enable home time editing.");
             foreach (var (minutes, direction, name) in new[] { (61, 1, "up"), (60, -1, "down") })
             {
                 intervalInput.Value = minutes;
                 await Until(() => runtime.Settings.IntervalMinutes == minutes && homeCountdown.HasDigitMotion);
-                if (runtime.Clock.Paused || runtime.Clock.Stopped || homeCountdown.MotionDirection != direction)
-                    throw new InvalidOperationException("Editing an active interval changed its state or animated in the wrong direction.");
+                if (!runtime.Clock.Paused || !runtime.Clock.Stopped || homeCountdown.MotionDirection != direction)
+                    throw new InvalidOperationException("Editing a stopped interval changed its state or animated in the wrong direction.");
                 await Task.Delay(60); Capture(settings, Path.Combine(directory, $"timer-home-interval-{name}-out.png"));
                 await Task.Delay(150); Capture(settings, Path.Combine(directory, $"timer-home-interval-{name}-in.png"));
                 await Task.Delay(210);
             }
-            Press(settings, "TimerToggle"); await Task.Delay(100);
-            if (!runtime.Clock.Paused || !intervalInput.IsEnabled ||
+            Press(settings, "TimerToggle"); Press(settings, "TimerToggle"); await Task.Delay(100);
+            if (!runtime.Clock.Paused || intervalInput.IsEnabled || breakDurationInput.IsEnabled ||
                 settings.GetVisualDescendants().OfType<AnimatedCountdown>().Single().Opacity != .55)
-                throw new InvalidOperationException("Pause did not enable interval editing or dim the countdown.");
+                throw new InvalidOperationException("Pause did not lock home time editing or dim the countdown.");
+            Press(settings, "TimerStop");
             intervalInput.Value = 25; breakDurationInput.Value = 3;
             await Until(() => runtime.Settings.IntervalMinutes == 25 && runtime.Settings.BreakDurationMinutes == 3);
             var appliedHomeTimes = AppSettings.Load(Path.Combine(AppPaths.DataRoot, "settings.json"));
@@ -78,9 +82,9 @@ internal static partial class SmokeDiagnostics
                 appliedHomeTimes.IntervalMinutes != 25 || appliedHomeTimes.BreakDurationMinutes != 3)
                 throw new InvalidOperationException("Home time changes did not apply/persist automatically.");
             await Task.Delay(1200);
-            if (!runtime.Clock.Paused || runtime.Clock.Remaining != TimeSpan.FromMinutes(25))
-                throw new InvalidOperationException("Applying the interval started the paused timer or ignored the new interval.");
-            Capture(settings, Path.Combine(directory, "timer-paused.png"));
+            if (!runtime.Clock.Stopped || !runtime.Clock.Paused || runtime.Clock.Remaining != TimeSpan.FromMinutes(25))
+                throw new InvalidOperationException("Applying the interval started the stopped timer or ignored the new interval.");
+            Capture(settings, Path.Combine(directory, "timer-stopped.png"));
             Press(settings, "TimerToggle"); if (runtime.Clock.Paused) throw new InvalidOperationException("Play did not resume the timer.");
             Press(settings, "TimerStop"); await Task.Delay(1200);
             var stoppedCountdown = settings.GetVisualDescendants().OfType<AnimatedCountdown>().Single(text => text.Name == "TimerCountdown");
@@ -741,7 +745,7 @@ internal static partial class SmokeDiagnostics
             var debugSettings = window.GetVisualDescendants().OfType<Border>().Single(control => control.Name == "SettingsDebugToolsCard");
             if (!preferences.IsVisible || !notificationSettings.IsVisible || !timerSettings.IsVisible || !appBehaviorSettings.IsVisible || !debugSettings.IsVisible)
                 throw new InvalidOperationException("The settings tab did not expose all settings sections.");
-            foreach (var name in new[] { "ShowPetOnDesktop", "LaunchAtLogin" })
+            foreach (var name in new[] { "LaunchAtLogin" })
             {
                 var option = window.GetVisualDescendants().OfType<CheckBox>().Single(control => control.Name == name);
                 if (!appBehaviorSettings.GetVisualDescendants().Contains(option))
