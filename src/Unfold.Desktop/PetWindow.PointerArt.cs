@@ -14,17 +14,20 @@ public sealed partial class PetWindow
     private async Task<IReadOnlyList<AnimationFrame>[]?> LoadPointerArt(CharacterPackage? selected)
     {
         if (selected?.HasPointerArt != true) return null;
-        try { return await Task.WhenAll(OriginalCompanion.PointerClips.Select(runtime.Clip)); }
+        var keys = selected.IsGlb ? GlbPetDraft.PointerClips : OriginalCompanion.PointerClips;
+        try { return await Task.WhenAll(keys.Select(runtime.Clip)); }
         catch (Exception error) { AppPaths.Log(error); return null; }
     }
 
     private void SetPointerClip(int index, PetPointerPhase phase)
     {
-        PointerPhase = phase; ActiveAnimation = OriginalCompanion.PointerClips[index];
+        PointerPhase = phase;
+        var keys = runtime.Selected!.IsGlb ? GlbPetDraft.PointerClips : OriginalCompanion.PointerClips;
+        ActiveAnimation = keys[index];
         var frames = pointerClips![index];
         animation.SetRunning(true);
         var definition = runtime.Selected!.Manifest.Animations[ActiveAnimation];
-        animation.SetFrames(frames, index == 1 && definition.Loop, false, true, definition.PingPong);
+        animation.SetFrames(frames, ActiveAnimation == "held" && definition.Loop, false, true, definition.PingPong);
     }
 
     private void BeginPointerArt()
@@ -54,7 +57,7 @@ public sealed partial class PetWindow
         pressed = false; poseSeconds = 0;
         // Play the assigned release clip immediately, without moving or scaling
         // the canvas and without inserting a held-frame bounce before it.
-        SetPointerClip(2, PetPointerPhase.Recovering);
+        SetPointerClip(pointerClips!.Length - 1, PetPointerPhase.Recovering);
     }
 
     private void AdvancePointerArt(double seconds)
@@ -67,7 +70,10 @@ public sealed partial class PetWindow
     private void PointerClipCompleted()
     {
         if (PointerPhase == PetPointerPhase.Pickup && pressed)
-            SetPointerClip(1, PetPointerPhase.Held);
+        {
+            if (runtime.Selected?.IsGlb == true) PointerPhase = PetPointerPhase.Held;
+            else SetPointerClip(1, PetPointerPhase.Held);
+        }
         else if (PointerPhase == PetPointerPhase.Recovering)
             FinishPointerArt(clicked: false);
         else if (PointerPhase == PetPointerPhase.None && ActiveAnimation == "walk")

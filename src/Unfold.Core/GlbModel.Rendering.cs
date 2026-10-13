@@ -130,34 +130,37 @@ public sealed partial class GlbModel
         for (var i = 0; i < nodes.Length; i++) if (nodes[i].Name == definition.RootNode) return i;
         throw new InvalidDataException("고정할 GLB 루트 뼈대를 찾지 못했어요.");
     }
-    internal (Vector3 Min, Vector3 Max) Bounds(GlbDefinition definition, string referenceName)
+    private (Vector3 Min, Vector3 Max) Bounds(GlbDefinition definition, string referenceName)
+        => RotationBounds(ReferenceBounds(definition, referenceName), definition.EffectiveRotation);
+    internal (Vector3 Min, Vector3 Max) ReferenceBounds(GlbDefinition definition, string referenceName)
     {
         lock (renderWorkspace)
         {
             var reference = FindClip(referenceName); var pose = Pose(reference, reference.Start, LockedRoot(definition), reference);
-            var rotation = definition.EffectiveRotation.Matrix; var min = new Vector3(float.MaxValue); var max = new Vector3(float.MinValue);
+            var min = new Vector3(float.MaxValue); var max = new Vector3(float.MinValue);
             foreach (var node in visible) foreach (var primitive in meshes[nodes[node].Mesh])
             {
                 var vertices = renderWorkspace.Vertices(primitive.Positions.Length);
                 var joints = renderWorkspace.Joints(nodes[node].Skin < 0 ? 0 : skins[nodes[node].Skin].Joints.Length);
                 TransformVertices(node, primitive, pose.World, pose.Weights[node].Span, vertices, joints);
                 foreach (var v in vertices)
-                { var point = definition.Rotation is null ? Vector3.Transform(v, rotation) : v; min = Vector3.Min(min, point); max = Vector3.Max(max, point); }
+                { min = Vector3.Min(min, v); max = Vector3.Max(max, v); }
             }
             if (!float.IsFinite(min.X) || !float.IsFinite(max.Y) || !float.IsFinite(max.X - min.X) || !float.IsFinite(max.Y - min.Y) || Math.Max(max.X - min.X, max.Y - min.Y) < .00001f) throw new InvalidDataException("GLB 모델의 표시 크기가 올바르지 않아요.");
-            return definition.Rotation is null ? (min, max) : RotationBounds((min, max), definition.EffectiveRotation);
+            return (min, max);
         }
     }
     internal static (Vector3 Min, Vector3 Max) RotationBounds((Vector3 Min, Vector3 Max) bounds, GlbRotation rotation, bool normalizeHeight = false)
     {
         var center = Vector3.Transform((bounds.Min + bounds.Max) * .5f, rotation.Matrix);
         var extent = bounds.Max - bounds.Min;
-        // Editor framing uses the neutral pose height; rotation changes only the center.
-        var diameter = normalizeHeight && extent.Y >= .00002f ? extent.Y : extent.Length();
-        var radius = diameter * .5f;
-        if (!float.IsFinite(center.X) || !float.IsFinite(center.Y) || !float.IsFinite(center.Z) || !float.IsFinite(radius) || radius < .00001f)
+        // Keep the neutral frame size even after a rotation is saved or reset.
+        var diameter = extent.Y >= .00002f ? extent.Y : extent.Length();
+        var half = normalizeHeight ? new Vector3(diameter * .5f, diameter * .5f, 0) : new Vector3(extent.X * .5f, extent.Y * .5f, 0);
+        var span = Math.Max(half.X, half.Y) * 2;
+        if (!float.IsFinite(center.X) || !float.IsFinite(center.Y) || !float.IsFinite(center.Z) || !float.IsFinite(span) || span < .00001f)
             throw new InvalidDataException("GLB 모델의 회전 표시 크기가 올바르지 않아요.");
-        return (center - new Vector3(radius, radius, 0), center + new Vector3(radius, radius, 0));
+        return (center - half, center + half);
     }
 
     public PixelImage Render(string name, double seconds, GlbDefinition definition, string referenceClip, int size = 192)
@@ -318,7 +321,7 @@ public sealed class GlbAnimationFrames : IReadOnlyList<AnimationFrame>
     private readonly double speed, clipDuration;
     private readonly bool normalizePreviewHeight;
     private readonly (Vector3 Min, Vector3 Max) bounds;
-    private (Vector3 Min, Vector3 Max)? previewBounds;
+    private readonly (Vector3 Min, Vector3 Max) referenceBounds;
     private readonly AnimationFrame firstFrame;
     private readonly Dictionary<(int Index, int Size), AnimationFrame> cache = [];
     private readonly object gate = new();
@@ -333,13 +336,8 @@ public sealed class GlbAnimationFrames : IReadOnlyList<AnimationFrame>
         clipDuration = model.Animations.FirstOrDefault(c => c.Name == name)?.Duration ?? throw new InvalidDataException("Unknown GLB clip.");
         DurationSeconds = clipDuration / speed;
         Count = Math.Max(1, (int)Math.Ceiling(DurationSeconds * 20));
-        if (normalizePreviewHeight)
-        {
-            var sourceBounds = model.Bounds(definition with { Heading = 0, Rotation = null }, reference);
-            previewBounds = sourceBounds;
-            bounds = GlbModel.RotationBounds(sourceBounds, definition.EffectiveRotation, normalizeHeight: true);
-        }
-        else bounds = model.Bounds(definition, reference);
+        referenceBounds = model.ReferenceBounds(definition, reference);
+        bounds = GlbModel.RotationBounds(referenceBounds, definition.EffectiveRotation, normalizePreviewHeight);
         firstFrame = RenderFrame(0, 192);
     }
     public AnimationFrame this[int index] => GetFrame(index, 192);
@@ -373,9 +371,7 @@ public sealed class GlbAnimationFrames : IReadOnlyList<AnimationFrame>
     {
         if (index < 0 || index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
         if (!rotation.IsValid) throw new ArgumentOutOfRangeException(nameof(rotation));
-        (Vector3 Min, Vector3 Max) sourceBounds;
-        lock (gate) sourceBounds = previewBounds ??= model.Bounds(definition with { Heading = 0, Rotation = null }, reference);
-        var cameraBounds = GlbModel.RotationBounds(sourceBounds, rotation, normalizePreviewHeight);
+        var cameraBounds = GlbModel.RotationBounds(referenceBounds, rotation, normalizePreviewHeight);
         model.RenderAntialiasedInto(name, terminal ? clipDuration : index * FrameDuration.TotalSeconds * speed,
             definition with { Rotation = rotation }, reference, cameraBounds, pixelSize, pixels);
     }

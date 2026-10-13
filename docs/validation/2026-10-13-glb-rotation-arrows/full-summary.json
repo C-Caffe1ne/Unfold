@@ -1,0 +1,26 @@
+{
+  "total": "876",
+  "passed": "872",
+  "failed": "4",
+  "skipped": "0",
+  "time": "121.969",
+  "errors": "0",
+  "failures": [
+    {
+      "name": "Unfold.Tests.PetMotionContinuationTests.LegacyHoverMappingsStayReadableButAreNotOfferedForAuthoring(kind: \\\"glb\\\")",
+      "message": "System.IO.InvalidDataException : Unknown GLB pet event."
+    },
+    {
+      "name": "Unfold.Tests.PetMotionContinuationTests.PointerEntryNeverShowsHoverOrReplacesTheCurrentMotion(kind: \\\"glb\\\")",
+      "message": "System.IO.InvalidDataException : Unknown GLB pet event."
+    },
+    {
+      "name": "Unfold.Tests.PetMotionContinuationTests.StretchAndWalkKeepPlayingUnderThePointerAndTransparentBackground(kind: \\\"glb\\\")",
+      "message": "System.IO.InvalidDataException : Unknown GLB pet event."
+    },
+    {
+      "name": "Unfold.Tests.PetMotionContinuationTests.ClickWithoutAClickClipStillRestoresAPendingIdleAfterACompletedMotion",
+      "message": "System.IO.InvalidDataException : Unknown GLB pet event."
+    }
+  ]
+}

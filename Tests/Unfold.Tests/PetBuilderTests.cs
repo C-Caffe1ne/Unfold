@@ -57,10 +57,10 @@ public class PetBuilderTests
         await editor.Open(editor.GlbPath);
         Assert.DoesNotContain(editor.Window.GetVisualDescendants().OfType<Control>(), c => c.Name == "PetBuilderFormat");
         editor.Find<TextBox>("GlbPetName").Text = "모델 펫";
-        editor.Find<NumericUpDown>("GlbRotationY").Value = 90;
+        for (var i = 0; i < 6; i++) editor.Press("GlbRotateRight");
         editor.Page.IsVisible = false; editor.Layout(); editor.Page.IsVisible = true; editor.Layout();
         Assert.Equal("모델 펫", editor.Find<TextBox>("GlbPetName").Text);
-        Assert.Equal(90, editor.Find<NumericUpDown>("GlbRotationY").Value);
+        Assert.Equal(90, editor.Find<AnimationView>("GlbPreview").GlbPreviewRotation!.Value.Y);
         // Opening another media action restores that format's existing name and idle mapping.
         mediaAction.SelectedItem = "click";
         await editor.Open(CustomPetDraftTests.Fixture());
@@ -98,7 +98,7 @@ public class PetBuilderTests
     {
         using var editor = new Editor(); await editor.Open(editor.GlbPath);
         editor.Find<TextBox>("GlbPetName").Text = "내 GLB 펫";
-        editor.Find<NumericUpDown>("GlbRotationY").Value = 180;
+        for (var i = 0; i < 12; i++) editor.Press("GlbRotateRight");
         editor.Find<ComboBox>("GlbPreviewAction").SelectedItem = "click";
         editor.Find<ComboBox>("GlbClip_click").SelectedItem = "Idle";
         editor.Find<ComboBox>("GlbRepeat_click").SelectedIndex = 1;
@@ -182,11 +182,21 @@ public class PetBuilderTests
             var previewPane = editor.Find<Grid>(format == 0 ? "CustomPetPreviewPane" : "GlbPreviewPane");
             Assert.InRange(Math.Abs(name.Bounds.Width - previewPane.Bounds.Width / 2), 0, 1);
             var settings = editor.Find<StackPanel>(format == 0 ? "CustomPetActionPane" : "GlbActionPane");
-            if (width >= 860)
+            if (format == 0 && width >= 860)
             {
-                var stage = editor.Find<Border>(format == 0 ? "CustomPetPreviewSurface" : "GlbPreviewStage");
+                var stage = editor.Find<Border>("CustomPetPreviewSurface");
                 var title = previewPane.Children.OfType<TextBlock>().Single();
                 Assert.InRange(Math.Abs(stage.Bounds.Height - Math.Max(140, settings.DesiredSize.Height - title.DesiredSize.Height - 8)), 0, 1);
+            }
+            if (format == 1)
+            {
+                var stage = editor.Find<Border>("GlbPreviewStage"); var controls = editor.Find<StackPanel>("GlbControls");
+                Assert.InRange(stage.Bounds.Height, 220, 360);
+                if (width == 1120 && height == 800) Assert.Equal(360, stage.Bounds.Height, precision: 1);
+                Assert.Equal(previewPane.Bounds.Width, stage.Bounds.Width, precision: 1);
+                Assert.Equal(3, Grid.GetColumnSpan(previewPane)); Assert.Equal(0, Grid.GetRow(previewPane));
+                Assert.Equal(0, Grid.GetColumn(controls)); Assert.Equal(2, Grid.GetRow(controls));
+                Assert.Equal(2, Grid.GetColumn(settings)); Assert.Equal(2, Grid.GetRow(settings));
             }
             var pets = editor.Find<ComboBox>(format == 0 ? "MediaExistingPets" : "GlbExistingPets");
             var pause = editor.Find<Button>(format == 0 ? "PauseCustomPet" : "PauseGlbPet");

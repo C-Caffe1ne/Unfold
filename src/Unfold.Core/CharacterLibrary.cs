@@ -34,7 +34,7 @@ public sealed class CharacterPackage
     }
     public bool HasOriginalBehavior => IsGlb || Manifest.BehaviorProfile == OriginalCompanion.Profile &&
         OriginalCompanion.RequiredClips.All(Manifest.Animations.ContainsKey);
-    public bool HasPointerArt => HasOriginalBehavior && OriginalCompanion.PointerClips.All(Manifest.Animations.ContainsKey);
+    public bool HasPointerArt => HasOriginalBehavior && (IsGlb ? GlbPetDraft.PointerClips : OriginalCompanion.PointerClips).All(Manifest.Animations.ContainsKey);
     private readonly object sheetGate = new();
     private WeakReference<PixelImage>? sheet;
     /// <summary>The validated first cell, retained for read-only fallback rendering without file IO.</summary>
@@ -155,8 +155,8 @@ public sealed partial class CharacterLibrary
                     definition.Heading is { } heading && (!float.IsFinite(heading) || heading is < -180 or > 180) ||
                     definition.Rotation is { IsValid: false })
                     throw new InvalidDataException("Invalid GLB animation mapping.");
-            // Read older packs without offering or playing their retired hover event.
-            if (manifest.Animations.Keys.Any(key => key != "hover" && !GlbPetDraft.Actions.Contains(key))) throw new InvalidDataException("Invalid GLB pet events.");
+            // Read older packs without offering their retired hover or held events.
+            if (manifest.Animations.Keys.Any(key => key is not ("hover" or "held") && !GlbPetDraft.Actions.Contains(key))) throw new InvalidDataException("Invalid GLB pet events.");
             if (loadModel) _ = package.Model;
             return package;
         }

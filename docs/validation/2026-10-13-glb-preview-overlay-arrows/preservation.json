@@ -1,0 +1,28 @@
+{
+  "unchangedFiles": [
+    "Tests/Unfold.Tests/GlbRetiredHeldTests.cs",
+    "docs/validation/2026-10-13-glb-rotation-arrows.md",
+    "docs/validation/2026-10-13-glb-rotation-arrows/before-render.png",
+    "docs/validation/2026-10-13-glb-rotation-arrows/buttons-before-summary.json",
+    "docs/validation/2026-10-13-glb-rotation-arrows/focused-final-summary.json",
+    "docs/validation/2026-10-13-glb-rotation-arrows/focused-summary.json",
+    "docs/validation/2026-10-13-glb-rotation-arrows/full-final-summary.json",
+    "docs/validation/2026-10-13-glb-rotation-arrows/full-summary.json",
+    "docs/validation/2026-10-13-glb-rotation-arrows/layout-before-summary.json",
+    "docs/validation/2026-10-13-glb-rotation-arrows/native-default.png",
+    "docs/validation/2026-10-13-glb-rotation-arrows/native-minimum.png",
+    "docs/validation/2026-10-13-glb-rotation-arrows/native-state-final.json",
+    "docs/validation/2026-10-13-glb-rotation-arrows/native-vertical-180.png",
+    "Tests/Unfold.Tests/GlbTests.cs",
+    "Tests/Unfold.Tests/PetMotionContinuationTests.cs",
+    "Tests/Unfold.Tests/PetPlaybackScopeTests.cs",
+    "Tests/Unfold.Tests/PetPlaybackSettingsTests.cs",
+    "src/Unfold.Core/CharacterLibrary.cs",
+    "src/Unfold.Core/GlbModel.Rendering.cs",
+    "src/Unfold.Core/GlbPetDraft.cs",
+    "src/Unfold.Desktop/PetWindow.PointerArt.cs",
+    "src/Unfold.Desktop/PetWindow.cs"
+  ],
+  "count": 22,
+  "outOfScopeChanges": []
+}

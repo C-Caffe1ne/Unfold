@@ -1,7 +1,10 @@
 using System.Numerics;
 using System.Reflection;
 using System.Text.Json;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Headless;
+using Avalonia.Input;
 using Avalonia.Headless.XUnit;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
@@ -131,20 +134,65 @@ public class GlbPreviewHeightTests
         var model = GlbModel.Parse(Box(.8f, height, .6f)); var rotation = new GlbRotation(90, 0, 0);
         var definition = new GlbDefinition("model.glb", Rotation: rotation);
         var normalized = HeightPreview(model, definition);
-        var regular = model.CreateAnimation("Static", definition, "Static");
-        var expected = regular.GetFrame(0, Size).Image;
         var actual = Render(normalized, rotation);
-        Assert.Equal(expected.Pixels, actual.Pixels);
         var bounds = OpaqueBounds(actual);
-        Assert.InRange(bounds.Width, 1, Size - 1); Assert.InRange(bounds.Height, 1, Size - 1);
+        Assert.InRange(bounds.Width, 158, 162); Assert.InRange(bounds.Height, 118, 122);
+    }
+
+    [Theory]
+    [InlineData(.4f, 1f, .25f)]
+    [InlineData(1.4f, .6f, .4f)]
+    [InlineData(.8f, 1f, 1.2f)]
+    public void RuntimeRotationKeepsTheOriginalScaleAndZeroResetPixels(float width, float height, float depth)
+    {
+        var model = GlbModel.Parse(Box(width, height, depth, offset: new(3, -2, 5)));
+        var definition = new GlbDefinition("model.glb");
+        var original = model.CreateAnimation("Static", definition, "Static").GetFrame(0, Size).Image;
+        var front = OpaqueBounds(original);
+        foreach (var yaw in new[] { 0, 15, 90, 180, -45, 0 })
+        {
+            var rotation = new GlbRotation(0, yaw, 0);
+            var frames = model.CreateAnimation("Static", definition with { Rotation = rotation }, "Static");
+            var image = frames.GetFrame(0, Size).Image;
+            Assert.InRange(Math.Abs(OpaqueBounds(image).Height - front.Height), 0, 1);
+            if (yaw == 0) Assert.Equal(original.Pixels, image.Pixels);
+            var live = new uint[Size * Size]; frames.RenderFrameInto(0, Size, live);
+            Assert.Equal(image.Pixels, live);
+            frames.RenderTerminalFrameInto(Size, live); Assert.Equal(image.Pixels, live);
+            frames.RenderPreviewFrameInto(0, Size, live, rotation); Assert.Equal(image.Pixels, live);
+        }
+    }
+
+    [Fact]
+    public void SmallValidModelUnitsKeepTheSameRuntimeSizeWhenRotationIsRecorded()
+    {
+        var model = GlbModel.Parse(Box(1, .8f, .5f, units: .000015f));
+        var definition = new GlbDefinition("model.glb");
+        var original = model.CreateAnimation("Static", definition, "Static").GetFrame(0, Size).Image;
+        var rotated = model.CreateAnimation("Static", definition with { Rotation = new() }, "Static").GetFrame(0, Size).Image;
+        Assert.Equal(original.Pixels, rotated.Pixels);
+        var bounds = OpaqueBounds(original);
+        Assert.InRange(bounds.Width, 198, 201); Assert.InRange(bounds.Height, 158, 162);
+    }
+
+    [Theory]
+    [InlineData(-90)] [InlineData(25)] [InlineData(135)]
+    public void LegacyHeadingAndEquivalentExplicitRotationUseIdenticalRuntimeFraming(float heading)
+    {
+        var model = GlbModel.Parse(Box(1.4f, .6f, .4f));
+        var legacy = new GlbDefinition("model.glb", Heading: heading);
+        var explicitRotation = legacy with { Rotation = new GlbRotation(0, heading, 0) };
+        var first = model.CreateAnimation("Static", legacy, "Static").GetFrame(0, Size).Image;
+        Assert.Equal(first.Pixels, model.CreateAnimation("Static", explicitRotation, "Static").GetFrame(0, Size).Image.Pixels);
     }
 
     [AvaloniaFact]
-    public async Task SavedAndReopenedEditorKeepsHeightFramingWhileRuntimeRetainsItsDefault()
+    public async Task SavedAndReopenedEditorAndRuntimeKeepTheirInitialScaleAfterRotationAndReset()
     {
         using var temp = new TempDirectory(); var path = Path.Combine(temp.Path, "pet.glb"); var bytes = Box(.8f, 1, .6f);
         File.WriteAllBytes(path, bytes); var library = new CharacterLibrary(Path.Combine(temp.Path, "library"));
         var package = new GlbPetDraft(path).Save(library);
+        var initialRuntime = package.LoadAnimation("idle")[0].Image;
         var window = new Window { Width = 1120, Height = 800 };
         using var page = new GlbPetView(window, library, _ => Task.CompletedTask, () => Task.FromResult<string?>(path));
         T Find<T>(string name) where T : Control => window.GetVisualDescendants().OfType<T>().Single(control => control.Name == name);
@@ -157,7 +205,10 @@ public class GlbPreviewHeightTests
             await Until(() => !page.IsPreviewLoading && Find<AnimationView>("GlbPreview").RenderedGlbPreviewRotation == new GlbRotation());
             var initialHeight = OpaqueBounds(Frames()[0].Image).Height;
             Assert.InRange(initialHeight, 148, 151);
-            Find<NumericUpDown>("GlbRotationY").Value = 35;
+            var stage = Find<Border>("GlbPreviewStage");
+            var start = stage.TranslatePoint(new(stage.Bounds.Width / 2, stage.Bounds.Height / 2), window)!.Value;
+            var end = start + new Avalonia.Vector(stage.Bounds.Width * 35 / 360, 0);
+            window.MouseDown(start, MouseButton.Left); window.MouseMove(end, RawInputModifiers.LeftMouseButton); window.MouseUp(end, MouseButton.Left);
             await Until(() => Find<AnimationView>("GlbPreview").RenderedGlbPreviewRotation == rotation);
             var beforeSave = Render(Frames(), rotation, 192);
             Find<Button>("SaveGlbPet").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
@@ -172,7 +223,16 @@ public class GlbPreviewHeightTests
             var runtime = Assert.IsType<GlbAnimationFrames>(package.LoadAnimation("idle"));
             var draft = new GlbPetDraft(package);
             Assert.Equal(runtime[0].Image.Pixels, draft.Preview("idle")[0].Image.Pixels);
-            Assert.True(OpaqueBounds(runtime[0].Image).Height < initialHeight - 20);
+            Assert.Equal(OpaqueBounds(initialRuntime).Height, OpaqueBounds(runtime[0].Image).Height);
+            Find<Button>("ResetGlbPreviewRotation").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await Until(() => Find<AnimationView>("GlbPreview").RenderedGlbPreviewRotation == new GlbRotation());
+            Find<Button>("SaveGlbPet").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await Until(() => !page.IsBusy);
+            package = library.List().Single();
+            Assert.Equal(new GlbRotation(), package.Manifest.Animations["idle"].Rotation);
+            Assert.Equal(initialRuntime.Pixels, package.LoadAnimation("idle")[0].Image.Pixels);
+            await page.OpenPackage(package);
+            Assert.Equal(initialRuntime.Pixels, new GlbPetDraft(package).Preview("idle")[0].Image.Pixels);
             Assert.Equal(bytes, File.ReadAllBytes(path));
         }
         finally { page.Dispose(); window.Close(); }

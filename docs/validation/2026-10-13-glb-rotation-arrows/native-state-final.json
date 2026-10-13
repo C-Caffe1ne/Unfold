@@ -1,0 +1,27 @@
+{
+  "savedIdleRotation": {
+    "x": -15,
+    "y": 30,
+    "z": 0
+  },
+  "reopenedUiRotation": {
+    "X": -15,
+    "Y": 30,
+    "Z": 0
+  },
+  "observedHorizontalDegrees": [
+    0,
+    180,
+    0
+  ],
+  "observedVerticalDegrees": [
+    0,
+    180,
+    0
+  ],
+  "clientSizes": [
+    "640x560",
+    "1120x800"
+  ],
+  "evidence": "CUA arrow clicks, saved manifest, reopen values, native-default.png and native-minimum.png"
+}

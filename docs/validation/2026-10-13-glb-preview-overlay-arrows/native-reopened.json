@@ -1,0 +1,64 @@
+{
+  "angles": {
+    "X": -15,
+    "Y": 30,
+    "Z": 0
+  },
+  "rendered": {
+    "X": -15,
+    "Y": 30,
+    "Z": 0
+  },
+  "IsBusy": false,
+  "IsPreviewLoading": false,
+  "HasUnsavedChanges": false,
+  "action": "idle",
+  "windowSize": "1120, 800",
+  "frame": 20,
+  "pad": {
+    "position": "176, 268",
+    "width": 352,
+    "height": 204,
+    "IsEffectivelyVisible": true,
+    "IsEnabled": true
+  },
+  "buttons": {
+    "GlbRotateUp": {
+      "position": "332, 268",
+      "width": 40,
+      "height": 40,
+      "IsEffectivelyVisible": true,
+      "IsEnabled": true
+    },
+    "GlbRotateLeft": {
+      "position": "176, 350",
+      "width": 40,
+      "height": 40,
+      "IsEffectivelyVisible": true,
+      "IsEnabled": true
+    },
+    "GlbRotateRight": {
+      "position": "488, 350",
+      "width": 40,
+      "height": 40,
+      "IsEffectivelyVisible": true,
+      "IsEnabled": true
+    },
+    "GlbRotateDown": {
+      "position": "332, 432",
+      "width": 40,
+      "height": 40,
+      "IsEffectivelyVisible": true,
+      "IsEnabled": true
+    },
+    "ResetGlbPreviewRotation": {
+      "position": "488, 268",
+      "width": 40,
+      "height": 40,
+      "IsEffectivelyVisible": true,
+      "IsEnabled": true
+    }
+  },
+  "profile": "/private/tmp/unfold-preview-arrows-20261013/profile-58cfa09d33d84482ba6579f3b35bfdf1",
+  "observedAt": "2026-10-13T08:10:07.590098+00:00"
+}

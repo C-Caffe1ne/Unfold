@@ -1,0 +1,38 @@
+{
+  "angles": {
+    "X": 0,
+    "Y": 0,
+    "Z": 0
+  },
+  "rendered": {
+    "X": 0,
+    "Y": 0,
+    "Z": 0
+  },
+  "HasUnsavedChanges": false,
+  "IsBusy": false,
+  "IsPreviewLoading": false,
+  "windowSize": "1120, 800",
+  "preview": {
+    "position": "224, 143",
+    "width": 760,
+    "height": 220,
+    "IsEffectivelyVisible": true
+  },
+  "controls": {
+    "position": "224, 379",
+    "width": 368,
+    "height": 242,
+    "IsEffectivelyVisible": true
+  },
+  "settings": {
+    "position": "616, 379",
+    "width": 368,
+    "height": 249,
+    "IsEffectivelyVisible": true
+  },
+  "viewport": "970, 663",
+  "extent": "970, 663",
+  "profile": "/private/tmp/unfold-glb-wide-preview-20261013/profile-47ec6ce342d74b9c9c5cf8e1d4e92352",
+  "observedAt": "2026-10-13T08:43:33.812951+00:00"
+}

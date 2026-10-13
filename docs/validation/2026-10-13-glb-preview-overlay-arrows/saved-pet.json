@@ -1,0 +1,93 @@
+{
+  "id": "glb-564d406199d740fbb7b65b7c7a53f36f",
+  "name": "Kazusa",
+  "version": 1,
+  "spriteSheet": {
+    "file": "preview.png",
+    "columns": 1,
+    "rows": 1,
+    "frameWidth": 192,
+    "frameHeight": 192
+  },
+  "animations": {
+    "idle": {
+      "frames": null,
+      "fps": null,
+      "gif": null,
+      "loop": true,
+      "pingPong": false,
+      "modelClip": "Cafe_Idle",
+      "speed": 1,
+      "heading": 30,
+      "rotation": {
+        "x": -15,
+        "y": 30,
+        "z": 0
+      }
+    },
+    "click": {
+      "frames": null,
+      "fps": null,
+      "gif": null,
+      "loop": false,
+      "pingPong": false,
+      "modelClip": "Cafe_Reaction",
+      "speed": 1,
+      "heading": null,
+      "rotation": null
+    },
+    "pickup": {
+      "frames": null,
+      "fps": null,
+      "gif": null,
+      "loop": false,
+      "pingPong": false,
+      "modelClip": "Formation_Pickup",
+      "speed": 1,
+      "heading": null,
+      "rotation": null
+    },
+    "land": {
+      "frames": null,
+      "fps": null,
+      "gif": null,
+      "loop": false,
+      "pingPong": false,
+      "modelClip": "Formation_Idle",
+      "speed": 1,
+      "heading": null,
+      "rotation": null
+    },
+    "walk": {
+      "frames": null,
+      "fps": null,
+      "gif": null,
+      "loop": true,
+      "pingPong": false,
+      "modelClip": "Cafe_Walk",
+      "speed": 1,
+      "heading": null,
+      "rotation": null
+    },
+    "celebrate": {
+      "frames": null,
+      "fps": null,
+      "gif": null,
+      "loop": false,
+      "pingPong": false,
+      "modelClip": "Victory_Start",
+      "speed": 1,
+      "heading": null,
+      "rotation": null
+    }
+  },
+  "thumbnailSymbol": null,
+  "renderStyle": "smooth",
+  "behaviorProfile": null,
+  "model": {
+    "file": "model.glb",
+    "heading": 0,
+    "rootNode": null,
+    "rotation": null
+  }
+}

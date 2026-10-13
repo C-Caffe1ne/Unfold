@@ -1,0 +1,14 @@
+{
+  "total": "19",
+  "passed": "18",
+  "failed": "1",
+  "skipped": "0",
+  "time": "6.544",
+  "errors": "0",
+  "failures": [
+    {
+      "name": "Unfold.Tests.GlbRotationButtonsTests.CrossPadFitsAndEveryArrowIsReachableAndOperableWithTheKeyboard(width: 640, height: 560)",
+      "message": "GlbPreviewStage ends at 506, viewport ends at 457."
+    }
+  ]
+}

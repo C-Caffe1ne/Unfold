@@ -80,8 +80,8 @@ public class PetPlaybackScopeTests
 
     [AvaloniaTheory]
     [InlineData("original", false)] [InlineData("original", true)]
-    [InlineData("glb", false)] [InlineData("glb", true)]
-    public async Task PickupAndLandFinishOnceWhileHeldUsesItsSelectedMode(string kind, bool heldLoop)
+    [InlineData("glb", true)]
+    public async Task PickupAndLandFinishOnceAndHoldingKeepsTheApplicablePose(string kind, bool heldLoop)
     {
         using var scope = new Scope(); await scope.Select(kind, heldLoop: heldLoop);
         var pet = scope.Pet;
@@ -92,12 +92,20 @@ public class PetPlaybackScopeTests
         Assert.Equal(PetPointerPhase.Pickup, pet.PointerPhase);
         AssertReaction(pet, "pickup", repeat: false, hasBubble: false);
         await Until(() => pet.PointerPhase == PetPointerPhase.Held);
-        AssertReaction(pet, "held", repeat: heldLoop, hasBubble: false);
-        if (!heldLoop)
+        var holdingAction = kind == "glb" ? "pickup" : "held";
+        AssertReaction(pet, holdingAction, repeat: kind != "glb" && heldLoop, hasBubble: false);
+        if (kind == "glb")
+        {
+            Assert.DoesNotContain("held", scope.Runtime.Selected.Manifest.Animations.Keys);
+            await pet.React("held");
+            Assert.Equal("pickup", pet.ActiveAnimation);
+        }
+        if (kind == "glb" || !heldLoop)
         {
             await Until(() => PlaybackCompleted(pet.PetView));
+            pet.AdvanceCompanion(.2);
             Assert.Equal(PetPointerPhase.Held, pet.PointerPhase);
-            Assert.Equal("held", pet.ActiveAnimation);
+            Assert.Equal(holdingAction, pet.ActiveAnimation);
         }
         pet.ReleaseCompanionPress(clicked: false);
         Assert.Equal(PetPointerPhase.Recovering, pet.PointerPhase);

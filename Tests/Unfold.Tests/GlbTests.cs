@@ -175,11 +175,11 @@ public class GlbTests
     {
         using var temp = new TempDirectory(); var input = Path.Combine(temp.Path, "test.glb");
         File.WriteAllBytes(input, Fixture(morph: true)); var draft = new GlbPetDraft(input);
-        foreach (var key in GlbPetDraft.Actions) draft.Set(key, "Idle", key != "held", heading: key == "idle" ? 0 : 45);
+        foreach (var key in GlbPetDraft.Actions) draft.Set(key, "Idle", true, heading: key == "idle" ? 0 : 45);
         var output = Path.Combine(temp.Path, "pet.unfoldpet"); draft.Export(output);
         using var pack = CharacterPack.Open(output); var pet = pack.Character;
         Assert.True(pet.Manifest.Animations["pickup"].Loop); Assert.True(pet.Manifest.Animations["land"].Loop);
-        Assert.False(pet.Manifest.Animations["held"].Loop);
+        Assert.DoesNotContain("held", pet.Manifest.Animations.Keys);
         foreach (var key in GlbPetDraft.Actions)
         {
             Assert.Equal(key == "idle" ? 0 : 45, pet.Manifest.Animations[key].Heading);
@@ -247,7 +247,7 @@ public class GlbTests
         try
         {
             var file = Path.Combine(temp.Path, "pet.glb"); File.WriteAllBytes(file, Fixture(morph: true)); var draft = new GlbPetDraft(file);
-            foreach (var key in new[] { "click", "pickup", "held", "land", "look", "attention", "celebrate" }) draft.Set(key, "Idle", key == "held");
+            foreach (var key in new[] { "click", "pickup", "land", "look", "attention", "celebrate" }) draft.Set(key, "Idle", false);
             draft.Set("walk", "Idle", true);
             var package = draft.Save(runtime.Library); await runtime.Start(true, true); runtime.Stop(); await runtime.SelectInstalledCharacter(package);
             var pet = runtime.ActivePet!; Dispatcher.UIThread.RunJobs(); pet.UpdateLayout();
@@ -294,10 +294,10 @@ public class GlbTests
         finally { runtime.Dispose(); Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", previous); }
     }
     [AvaloniaTheory]
-    [InlineData(true, true, true)]
-    [InlineData(false, false, true)]
-    [InlineData(false, true, false)]
-    public async Task PointerPlaybackChoicesRemainInterruptibleAndOneShotWalkingStops(bool pickupLoop, bool heldLoop, bool landLoop)
+    [InlineData(true, true)]
+    [InlineData(false, true)]
+    [InlineData(false, false)]
+    public async Task PointerPlaybackChoicesRemainInterruptibleAndOneShotWalkingStops(bool pickupLoop, bool landLoop)
     {
         using var temp = new TempDirectory(); var previous = Environment.GetEnvironmentVariable("UNFOLD_DATA_DIR");
         Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", temp.Path);
@@ -305,7 +305,7 @@ public class GlbTests
         try
         {
             var file = Path.Combine(temp.Path, "pet.glb"); File.WriteAllBytes(file, Fixture(morph: true)); var draft = new GlbPetDraft(file);
-            draft.Set("pickup", "Idle", pickupLoop); draft.Set("held", "Idle", heldLoop); draft.Set("land", "Idle", landLoop);
+            draft.Set("pickup", "Idle", pickupLoop); draft.Set("land", "Idle", landLoop);
             draft.Set("attention", "Idle"); draft.Set("walk", "Idle", false);
             var package = draft.Save(runtime.Library); await runtime.Start(true, true); runtime.Stop(); await runtime.SelectInstalledCharacter(package);
             var pet = runtime.ActivePet!;
@@ -317,7 +317,7 @@ public class GlbTests
             pet.BeginCompanionPress(); pet.AdvanceCompanion(PetPose.LiftDelay);
             Assert.Equal(PetPointerPhase.Pickup, pet.PointerPhase); Assert.False(pet.PetView.Repeats);
             await Until(() => pet.PointerPhase == PetPointerPhase.Held);
-            Assert.Equal(heldLoop, pet.PetView.Repeats);
+            Assert.Equal("pickup", pet.ActiveAnimation); Assert.False(pet.PetView.Repeats);
             await Task.Delay(500, TestContext.Current.CancellationToken); Dispatcher.UIThread.RunJobs();
             Assert.Equal(PetPointerPhase.Held, pet.PointerPhase);
             pet.ReleaseCompanionPress(false);

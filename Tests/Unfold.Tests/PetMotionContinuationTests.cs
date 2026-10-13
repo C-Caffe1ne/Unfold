@@ -144,8 +144,8 @@ public class PetMotionContinuationTests
             {
                 var input = Path.Combine(temp.Path, "motion.glb"); File.WriteAllBytes(input, GlbTests.Fixture());
                 var draft = new GlbPetDraft(input);
-                foreach (var key in new[] { "stretch", "walk", "sleep", "pickup", "held", "land" })
-                    draft.Set(key, "Idle", key is "walk" or "held", speed: 3);
+                foreach (var key in new[] { "stretch", "walk", "sleep" }.Concat(GlbPetDraft.PointerClips))
+                    draft.Set(key, "Idle", key == "walk", speed: 3);
                 draft.Mappings["hover"] = new(ModelClip: "Idle", Loop: true);
                 id = draft.Save(Runtime.Library).Manifest.Id;
             }

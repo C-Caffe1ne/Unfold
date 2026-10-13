@@ -15,7 +15,7 @@ public class PetPlaybackSettingsTests
         var input = Path.Combine(temp.Path, "source.glb"); var bytes = GlbTests.Fixture(morph: true);
         File.WriteAllBytes(input, bytes);
         var draft = new GlbPetDraft(input) { Name = "재생 설정" };
-        Assert.Equal(13, GlbPetDraft.Actions.Count);
+        Assert.Equal(12, GlbPetDraft.Actions.Count);
         foreach (var action in GlbPetDraft.Actions) draft.Set(action, "Idle", loop, .5);
         var library = new CharacterLibrary(Path.Combine(temp.Path, "library"));
         var saved = draft.Save(library);
@@ -34,7 +34,7 @@ public class PetPlaybackSettingsTests
 
     private static void AssertGlbPlayback(CharacterPackage package, bool loop)
     {
-        Assert.Equal(13, package.Manifest.Animations.Count);
+        Assert.Equal(12, package.Manifest.Animations.Count);
         Assert.All(GlbPetDraft.Actions, action =>
         {
             var mapping = package.Manifest.Animations[action];

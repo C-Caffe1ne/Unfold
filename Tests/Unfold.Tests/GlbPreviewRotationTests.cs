@@ -343,23 +343,23 @@ public class GlbPreviewRotationTests
     }
 
     [AvaloniaFact]
-    public async Task ShiftDragAndInputsSaveAllAxesAndRestoreEachActionIndependently()
+    public async Task ShiftDragAndArrowsRotateOnlyXYAndRestoreEachActionIndependently()
     {
         using var editor = new Editor(); await editor.Open(); editor.Press("PauseGlbPet");
         var start = editor.Point(); var end = editor.Point(.5);
         editor.Window.MouseDown(start, MouseButton.Left, RawInputModifiers.Shift);
         editor.Window.MouseMove(end, RawInputModifiers.Shift | RawInputModifiers.LeftMouseButton);
         editor.Window.MouseUp(end, MouseButton.Left, RawInputModifiers.Shift);
-        Assert.Equal(new GlbRotation(0, 0, 90), editor.Preview.GlbPreviewRotation);
-        editor.Find<NumericUpDown>("GlbRotationX").Value = 25;
-        editor.Find<NumericUpDown>("GlbRotationY").Value = -40;
-        var idle = new GlbRotation(25, -40, 90);
+        Assert.Equal(new GlbRotation(0, 90, 0), editor.Preview.GlbPreviewRotation);
+        for (var i = 0; i < 2; i++) editor.Press("GlbRotateDown");
+        for (var i = 0; i < 3; i++) editor.Press("GlbRotateLeft");
+        var idle = new GlbRotation(30, 45, 0);
         await Until(() => editor.Preview.RenderedGlbPreviewRotation == idle);
         editor.Find<ComboBox>("GlbPreviewAction").SelectedItem = "click";
         await Until(() => !editor.Page.IsPreviewLoading && editor.Preview.RenderedGlbPreviewRotation == new GlbRotation());
         editor.Stage.Focus(); editor.Key(Key.Down, PhysicalKey.ArrowDown);
         editor.Key(Key.Left, PhysicalKey.ArrowLeft, RawInputModifiers.Shift);
-        var click = new GlbRotation(15, 0, -15);
+        var click = new GlbRotation(15, -15, 0);
         await Until(() => editor.Preview.RenderedGlbPreviewRotation == click);
         editor.Press("SaveGlbPet"); await Until(() => !editor.Page.IsBusy);
         var package = editor.Library.List().Single();
@@ -368,12 +368,12 @@ public class GlbPreviewRotationTests
         await editor.Page.OpenPackage(package);
         await Until(() => !editor.Page.IsPreviewLoading && editor.Preview.RenderedGlbPreviewRotation == idle);
         Assert.False(editor.Page.HasUnsavedChanges);
-        Assert.Equal(25, editor.Find<NumericUpDown>("GlbRotationX").Value);
+        Assert.Equal(idle, editor.Preview.GlbPreviewRotation);
         editor.Find<ComboBox>("GlbPreviewAction").SelectedItem = "click";
         await Until(() => !editor.Page.IsPreviewLoading && editor.Preview.RenderedGlbPreviewRotation == click);
         editor.Find<ComboBox>("GlbPreviewAction").SelectedItem = "look";
         await Until(() => !editor.Page.IsPreviewLoading);
-        Assert.False(editor.Find<NumericUpDown>("GlbRotationX").IsEnabled);
+        Assert.False(editor.Find<Button>("GlbRotateUp").IsEnabled);
     }
 
     [AvaloniaTheory]

@@ -59,14 +59,14 @@ public class GlbEditorUxTests
         Assert.True(speed.SelectedIndex >= 0);
         editor.Find<ComboBox>("GlbPreviewAction").SelectedItem = "click";
         await Editor.Until(() => !editor.Page.IsPreviewLoading);
-        editor.Find<NumericUpDown>("GlbRotationY").Value = 180;
+        for (var i = 0; i < 12; i++) editor.Press("GlbRotateRight");
         editor.Find<ComboBox>("GlbRepeat_click").SelectedIndex = 1;
         await Editor.Until(() => !editor.Page.IsPreviewLoading);
         editor.Find<ComboBox>("GlbClip_click").SelectedIndex = 0;
         Assert.False(editor.Find<ComboBox>("GlbRepeat_click").IsEnabled);
         editor.Find<ComboBox>("GlbClip_click").SelectedItem = "Idle";
         await Editor.Until(() => !editor.Page.IsPreviewLoading);
-        editor.Find<NumericUpDown>("GlbRotationY").Value = 180;
+        for (var i = 0; i < 12; i++) editor.Press("GlbRotateRight");
         editor.Find<ComboBox>("GlbRepeat_click").SelectedIndex = 1;
         Assert.True(editor.Page.HasUnsavedChanges);
         await Editor.Until(() => !editor.Page.IsPreviewLoading);
@@ -80,7 +80,7 @@ public class GlbEditorUxTests
         Assert.True(editor.Find<ComboBox>("GlbSpeed_click").SelectedIndex >= 0);
         editor.Find<ComboBox>("GlbPreviewAction").SelectedItem = "click";
         await Editor.Until(() => !editor.Page.IsPreviewLoading);
-        Assert.Equal(180, editor.Find<NumericUpDown>("GlbRotationY").Value);
+        Assert.Equal(180, editor.Find<AnimationView>("GlbPreview").GlbPreviewRotation!.Value.Y);
         Assert.Equal(1, editor.Find<ComboBox>("GlbRepeat_click").SelectedIndex);
     }
 
@@ -134,7 +134,6 @@ public class GlbEditorUxTests
     }
     [AvaloniaTheory]
     [InlineData("idle")]
-    [InlineData("held")]
     [InlineData("walk")]
     [InlineData("pickup")]
     [InlineData("land")]
@@ -176,9 +175,9 @@ public class GlbEditorUxTests
     }
 
     [AvaloniaTheory]
-    [InlineData(480, 560, false)]
-    [InlineData(860, 680, true)]
-    public async Task OnlyTheChosenActionIsShownWithoutHorizontalOverflow(double width, double height, bool wide)
+    [InlineData(480, 560)]
+    [InlineData(860, 680)]
+    public async Task OnlyTheChosenActionIsShownWithoutHorizontalOverflow(double width, double height)
     {
         using var editor = new Editor(); await editor.Open();
         editor.Window.Width = width; editor.Window.Height = height;
@@ -189,7 +188,10 @@ public class GlbEditorUxTests
         var scroll = editor.Find<ScrollViewer>("PageBodyScroll");
         Assert.True(scroll.Extent.Width <= scroll.Viewport.Width + 1, $"{scroll.Extent.Width} > {scroll.Viewport.Width}");
         var preview = editor.Find<Grid>("GlbPreviewPane"); var settings = editor.Find<StackPanel>("GlbActionPane");
-        Assert.Equal(wide, Grid.GetColumn(settings) == 2);
+        var controls = editor.Find<StackPanel>("GlbControls");
+        Assert.Equal(3, Grid.GetColumnSpan(preview)); Assert.Equal(0, Grid.GetRow(preview));
+        Assert.Equal(0, Grid.GetColumn(controls)); Assert.Equal(2, Grid.GetRow(controls));
+        Assert.Equal(2, Grid.GetColumn(settings)); Assert.Equal(2, Grid.GetRow(settings));
         Assert.True(preview.Bounds.Width > 0 && settings.Bounds.Width > 0);
     }
 
@@ -213,32 +215,32 @@ public class GlbEditorUxTests
         using var editor = new Editor(); await editor.Open();
         var action = editor.Find<ComboBox>("GlbPreviewAction");
         await Editor.Until(() => !editor.Page.IsPreviewLoading);
-        editor.Find<NumericUpDown>("GlbRotationY").Value = 180;
+        for (var i = 0; i < 12; i++) editor.Press("GlbRotateRight");
         action.SelectedItem = "click";
         editor.Find<ComboBox>("GlbClip_click").SelectedItem = "Idle";
         await Editor.Until(() => !editor.Page.IsPreviewLoading);
-        Assert.Equal(0, editor.Find<NumericUpDown>("GlbRotationY").Value);
-        editor.Find<NumericUpDown>("GlbRotationX").Value = 30;
+        Assert.Equal(0, editor.Find<AnimationView>("GlbPreview").GlbPreviewRotation!.Value.Y);
+        for (var i = 0; i < 2; i++) editor.Press("GlbRotateDown");
         action.SelectedItem = "idle";
         await Editor.Until(() => !editor.Page.IsPreviewLoading);
-        Assert.Equal(180, editor.Find<NumericUpDown>("GlbRotationY").Value);
+        Assert.Equal(180, editor.Find<AnimationView>("GlbPreview").GlbPreviewRotation!.Value.Y);
         action.SelectedItem = "click";
         await Editor.Until(() => !editor.Page.IsPreviewLoading);
-        Assert.Equal(30, editor.Find<NumericUpDown>("GlbRotationX").Value);
+        Assert.Equal(30, editor.Find<AnimationView>("GlbPreview").GlbPreviewRotation!.Value.X);
         editor.Press("SaveGlbPet"); await Editor.Until(() => !editor.Page.IsBusy);
         var package = editor.Library.List().Single();
         Assert.Equal(new GlbRotation(0, 180, 0), package.Manifest.Animations["idle"].Rotation);
         Assert.Equal(new GlbRotation(30, 0, 0), package.Manifest.Animations["click"].Rotation);
         Assert.Null(package.Manifest.Model!.RootNode);
         await editor.Page.OpenPackage(package);
-        Assert.Equal(180, editor.Find<NumericUpDown>("GlbRotationY").Value);
+        Assert.Equal(180, editor.Find<AnimationView>("GlbPreview").GlbPreviewRotation!.Value.Y);
         action.SelectedItem = "click";
         await Editor.Until(() => !editor.Page.IsPreviewLoading);
-        Assert.Equal(30, editor.Find<NumericUpDown>("GlbRotationX").Value);
+        Assert.Equal(30, editor.Find<AnimationView>("GlbPreview").GlbPreviewRotation!.Value.X);
     }
 
     [AvaloniaFact]
-    public async Task RotationIsBelowPreviewAndHeadingControlsAreRemovedInEveryTheme()
+    public async Task RotationIsInsidePreviewAndAxisFieldsAreRemovedInEveryTheme()
     {
         using var editor = new Editor(); await editor.Open();
         var original = DesignSystem.CurrentTheme;
@@ -248,17 +250,17 @@ public class GlbEditorUxTests
             {
                 DesignSystem.ApplyTheme(theme.Id);
                 Dispatcher.UIThread.RunJobs(); editor.Window.UpdateLayout();
-                var rotation = editor.Find<NumericUpDown>("GlbRotationY");
+                var rotation = editor.Find<Button>("GlbRotateRight");
                 var stage = editor.Find<Border>("GlbPreviewStage");
                 Assert.True(rotation.IsEffectivelyVisible);
-                Assert.True(rotation.TranslatePoint(default, editor.Window)!.Value.Y >= stage.TranslatePoint(default, editor.Window)!.Value.Y);
+                Assert.Contains(stage, rotation.GetVisualAncestors());
                 Assert.DoesNotContain(editor.Window.GetVisualDescendants().OfType<Control>(), c =>
-                    c.Name is "GlbRoot" or "GlbAdvanced" or "GlbHeading" || c.Name?.StartsWith("GlbHeading_") == true);
+                    c.Name is "GlbRoot" or "GlbAdvanced" or "GlbHeading" or "GlbRotationX" or "GlbRotationY" or "GlbRotationZ" or "GlbRotationFields" || c.Name?.StartsWith("GlbHeading_") == true);
             }
         }
         finally { DesignSystem.ApplyTheme(original); }
         editor.Find<ComboBox>("GlbPreviewAction").SelectedItem = "look";
         await Editor.Until(() => !editor.Page.IsPreviewLoading);
-        Assert.False(editor.Find<NumericUpDown>("GlbRotationY").IsEnabled);
+        Assert.False(editor.Find<Button>("GlbRotateRight").IsEnabled);
     }
 }

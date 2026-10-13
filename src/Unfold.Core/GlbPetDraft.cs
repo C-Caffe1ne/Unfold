@@ -6,7 +6,8 @@ namespace Unfold.Core;
 public sealed class GlbPetDraft
 {
     public static IReadOnlyList<string> Actions { get; } = System.Array.AsReadOnly(new[]
-        { "idle", "click", "pickup", "held", "land", "attention", "stretch", "celebrate", "walk", "sleep", "look", "yawn", "sulk" });
+        { "idle", "click", "pickup", "land", "attention", "stretch", "celebrate", "walk", "sleep", "look", "yawn", "sulk" });
+    public static IReadOnlyList<string> PointerClips { get; } = System.Array.AsReadOnly(new[] { "pickup", "land" });
     public static string ActionName(string key) => key switch
     {
         "idle" => "기본 대기", "click" => "클릭", "pickup" => "들어 올리기", "held" => "드래그 중",
@@ -34,11 +35,11 @@ public sealed class GlbPetDraft
         var defaults = new Dictionary<string, string?>
         {
             ["click"] = Match("Cafe_Reaction", "Click"),
-            ["pickup"] = Match("Formation_Pickup", "Pickup"), ["held"] = Match("Formation_Idle", "Held"),
+            ["pickup"] = Match("Formation_Pickup", "Pickup"),
             ["land"] = Match("Formation_Idle", "Land"), ["walk"] = Match("Cafe_Walk", "Walk", "walk"),
             ["celebrate"] = Match("Victory_Start", "Celebrate")
         };
-        foreach (var (key, clip) in defaults) if (clip is not null) Set(key, clip, key is "held" or "walk");
+        foreach (var (key, clip) in defaults) if (clip is not null) Set(key, clip, key == "walk");
     }
     public GlbPetDraft(CharacterPackage package) : this(ReadInstalled(package)) { }
     private GlbPetDraft((CharacterPackage Package, string Revision) snapshot) : this(snapshot.Package, snapshot.Revision) { }
@@ -53,7 +54,7 @@ public sealed class GlbPetDraft
         Id = package.Manifest.Id; Name = package.Manifest.Name; Heading = package.Manifest.Model!.Heading; RootNode = package.Manifest.Model.RootNode; Rotation = package.Manifest.Model.Rotation;
         var metadata = CharacterPack.ReadMetadata(ImageCodec.ReadBounded(CharacterLibrary.AssetPath(package.DirectoryPath, "pack.json"), 64 * 1024));
         var oldVersion = CharacterPack.ParseVersion(metadata.ContentVersion); contentVersion = new(oldVersion.Major, oldVersion.Minor, checked(oldVersion.Build + 1));
-        Mappings.Clear(); foreach (var (key, mapping) in package.Manifest.Animations) Mappings[key] = mapping;
+        Mappings.Clear(); foreach (var (key, mapping) in package.Manifest.Animations) if (key != "held") Mappings[key] = mapping;
         if (revision != CharacterLibrary.PetRevision(package.DirectoryPath)) throw new IOException("펫이 변경됐어요. 다시 선택해 주세요.");
         expectedRevision = revision;
     }
@@ -100,11 +101,11 @@ public sealed class GlbPetDraft
         try
         {
             Directory.CreateDirectory(directory); AtomicFile.Write(Path.Combine(directory, "model.glb"), bytes);
-            var mappings = new Dictionary<string, AnimationDefinition>(Mappings, StringComparer.Ordinal);
-            // Keep the existing pointer lifecycle complete even when one phase is unassigned.
-            if (OriginalCompanion.PointerClips.Any(mappings.ContainsKey))
-                foreach (var key in OriginalCompanion.PointerClips)
-                    if (!mappings.ContainsKey(key)) mappings[key] = mappings["idle"] with { Loop = key == "held" };
+            var mappings = Mappings.Where(pair => pair.Key != "held").ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+            // Keep pickup and release complete without restoring the retired held event.
+            if (PointerClips.Any(mappings.ContainsKey))
+                foreach (var key in PointerClips)
+                    if (!mappings.ContainsKey(key)) mappings[key] = mappings["idle"] with { Loop = false };
             var frame = Preview("idle")[0].Image;
             AtomicFile.Write(Path.Combine(directory, "preview.png"), ImageCodec.EncodePng(frame));
             var manifest = new CharacterManifest(Id, Name.Trim(), 1, new("preview.png", 1, 1, frame.Width, frame.Height), mappings,

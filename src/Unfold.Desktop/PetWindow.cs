@@ -140,7 +140,7 @@ public sealed partial class PetWindow : Window
         try
         {
             var selected = runtime.Selected;
-            if (!IsVisible || preferred == "hover") return; // Older packs may still contain this retired event.
+            if (!IsVisible || preferred == "hover" || selected?.IsGlb == true && preferred == "held") return; // Older packs may contain retired events.
             if (DeferPointerReaction(preferred)) return;
             // Stretch belongs to reminders. A plain click reacts only when the character
             // ships a click clip, and otherwise leaves the idle loop alone — so the early

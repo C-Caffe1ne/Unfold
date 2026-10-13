@@ -1,0 +1,19 @@
+{
+  "environment": "64-bit (ARM) .NET 10.0.12 [collection-per-class, parallel (8 threads)]",
+  "id": "1139b84f-8565-4b7a-9881-b12502e2c43d",
+  "name": "/Users/hwanghyeonseong/.codex/worktrees/gif-glb-guidance/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll",
+  "run-date": "2026-10-13",
+  "run-time": "17:08:18",
+  "start-rtf": "2026-10-13T17:08:18.3558990+09:00",
+  "test-framework": "xUnit.net v3 3.2.2+728c1dce01",
+  "target-framework": ".NETCoreApp,Version=v10.0",
+  "errors": "0",
+  "failed": "0",
+  "finish-rtf": "2026-10-13T17:10:25.5718890+09:00",
+  "not-run": "0",
+  "passed": "887",
+  "skipped": "0",
+  "time": "127.216",
+  "time-rtf": "00:02:07.2157008",
+  "total": "887"
+}

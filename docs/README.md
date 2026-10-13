@@ -26,6 +26,10 @@
 
 | 문서 | 역할 |
 |---|---|
+| [GLB 미리보기 높이·펫 표시 크기 검증](validation/2026-10-13-glb-preview-size.md) | 기본 360px·펫 약 2.1배 확대, 작은 창 적응·스크롤 크기 유지와 902개 검사·macOS 확인 |
+| [GLB 미리보기 확장·설정 배치 검증](validation/2026-10-13-glb-wide-preview.md) | 전체 폭 미리보기, 하단 파일·펫 선택 오른쪽 행동 연결, 899개 검사·macOS 기본/최소 창 |
+| [GLB 미리보기 내부 화살표 검증](validation/2026-10-13-glb-preview-overlay-arrows.md) | XYZ 입력·Z축 조절 제거, 내부 화살표 배치와 887개 검사·macOS 저장 복원 |
+| [GLB 회전 화살표 검증](validation/2026-10-13-glb-rotation-arrows.md) | 좌우·위아래 360° 버튼, 최소 창 가시성, 저장 복원과 876개 검사·macOS 입력 확인 |
 | [GIF·GLB 추가 설명 제거](validation/2026-10-12-gif-glb-guidance-removal.md) | 안내 제거·기존 편집 복원·790개 검사·수정 전 slop 점검 원칙 |
 | [GIF·GLB 안내 추가 당시 검증](validation/2026-10-12-gif-glb-import-guidance.md) | `4c74880`의 과거 구현·검증; 후속 요청으로 안내 제거 |
 | [Beta v1.1.3 배포·업데이트 검증](validation/2026-10-12-beta-v1.1.3-release.md) | Mac 서명·공증, Windows CI, 공개 파일 10개, 세 채널과 실제 Mac/Windows 업데이트·재시작·데이터 보존, 웹·노션 반영 |

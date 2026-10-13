@@ -1,0 +1,86 @@
+{
+  "total": "19",
+  "passed": "0",
+  "failed": "19",
+  "skipped": "0",
+  "time": "5.243",
+  "errors": "0",
+  "failures": [
+    {
+      "name": "Unfold.Tests.GlbRotationButtonsTests.ArrowsCompleteMultipleFullOrbitsWithoutClamping(button: \\\"GlbRotateUp\\\", halfX: -150, halfY: -45)",
+      "message": "System.InvalidOperationException : Sequence contains no matching element"
+    },
+    {
+      "name": "Unfold.Tests.GlbRotationButtonsTests.ArrowsCompleteMultipleFullOrbitsWithoutClamping(button: \\\"GlbRotateDown\\\", halfX: -150, halfY: -45)",
+      "message": "System.InvalidOperationException : Sequence contains no matching element"
+    },
+    {
+      "name": "Unfold.Tests.GlbRotationButtonsTests.ArrowsCompleteMultipleFullOrbitsWithoutClamping(button: \\\"GlbRotateLeft\\\", halfX: 30, halfY: 135)",
+      "message": "System.InvalidOperationException : Sequence contains no matching element"
+    },
+    {
+      "name": "Unfold.Tests.GlbRotationButtonsTests.ArrowsCompleteMultipleFullOrbitsWithoutClamping(button: \\\"GlbRotateRight\\\", halfX: 30, halfY: 135)",
+      "message": "System.InvalidOperationException : Sequence contains no matching element"
+    },
+    {
+      "name": "Unfold.Tests.GlbRotationButtonsTests.CrossPadFitsAndEveryArrowIsReachableAndOperableWithTheKeyboard(width: 640, height: 560)",
+      "message": "System.InvalidOperationException : Sequence contains no matching element"
+    },
+    {
+      "name": "Unfold.Tests.GlbRotationButtonsTests.CrossPadFitsAndEveryArrowIsReachableAndOperableWithTheKeyboard(width: 1120, height: 800)",
+      "message": "System.InvalidOperationException : Sequence contains no matching element"
+    },
+    {
+      "name": "Unfold.Tests.GlbRotationButtonsTests.RotatingACompletedActionRetainsItsExactTerminalPoseWithoutReplaying",
+      "message": "System.InvalidOperationException : Sequence contains no matching element"
+    },
+    {
+      "name": "Unfold.Tests.GlbRotationButtonsTests.RotatingAPausedMidAnimationPreservesItsFrameAndElapsedTime",
+      "message": "System.InvalidOperationException : Sequence contains no matching element"
+    },
+    {
+      "name": "Unfold.Tests.GlbRotationButtonsTests.ArrowsContinueAcrossThePositiveAndNegativeHalfTurn(button: \\\"GlbRotateUp\\\", x: -165, y: 45, expectedX: 165, expectedY: 45)",
+      "message": "System.InvalidOperationException : Sequence contains no matching element"
+    },
+    {
+      "name": "Unfold.Tests.GlbRotationButtonsTests.ArrowsContinueAcrossThePositiveAndNegativeHalfTurn(button: \\\"GlbRotateDown\\\", x: 165, y: 45, expectedX: -165, expectedY: 45)",
+      "message": "System.InvalidOperationException : Sequence contains no matching element"
+    },
+    {
+      "name": "Unfold.Tests.GlbRotationButtonsTests.ArrowsContinueAcrossThePositiveAndNegativeHalfTurn(button: \\\"GlbRotateLeft\\\", x: 30, y: -165, expectedX: 30, expectedY: 165)",
+      "message": "System.InvalidOperationException : Sequence contains no matching element"
+    },
+    {
+      "name": "Unfold.Tests.GlbRotationButtonsTests.ArrowsContinueAcrossThePositiveAndNegativeHalfTurn(button: \\\"GlbRotateRight\\\", x: 30, y: 165, expectedX: 30, expectedY: -165)",
+      "message": "System.InvalidOperationException : Sequence contains no matching element"
+    },
+    {
+      "name": "Unfold.Tests.GlbRotationButtonsTests.ArrowDirectionsAreSavedAndReopenedIndependentlyForEachAction",
+      "message": "System.InvalidOperationException : Sequence contains no matching element"
+    },
+    {
+      "name": "Unfold.Tests.GlbRotationButtonsTests.ArrowKeysAndHomeWorkWhileAnArrowButtonHasKeyboardFocus",
+      "message": "System.InvalidOperationException : Sequence contains no matching element"
+    },
+    {
+      "name": "Unfold.Tests.GlbRotationButtonsTests.EachArrowChangesOnlyItsAxisByFifteenDegrees(button: \\\"GlbRotateUp\\\", x: 15, y: -45, z: 25)",
+      "message": "System.InvalidOperationException : Sequence contains no matching element"
+    },
+    {
+      "name": "Unfold.Tests.GlbRotationButtonsTests.EachArrowChangesOnlyItsAxisByFifteenDegrees(button: \\\"GlbRotateDown\\\", x: 45, y: -45, z: 25)",
+      "message": "System.InvalidOperationException : Sequence contains no matching element"
+    },
+    {
+      "name": "Unfold.Tests.GlbRotationButtonsTests.EachArrowChangesOnlyItsAxisByFifteenDegrees(button: \\\"GlbRotateLeft\\\", x: 30, y: -60, z: 25)",
+      "message": "System.InvalidOperationException : Sequence contains no matching element"
+    },
+    {
+      "name": "Unfold.Tests.GlbRotationButtonsTests.EachArrowChangesOnlyItsAxisByFifteenDegrees(button: \\\"GlbRotateRight\\\", x: 30, y: -30, z: 25)",
+      "message": "System.InvalidOperationException : Sequence contains no matching element"
+    },
+    {
+      "name": "Unfold.Tests.GlbRotationButtonsTests.BlankUnmappedAndClearedPreviewsCannotRotateOrBecomeDirty",
+      "message": "System.InvalidOperationException : Sequence contains no matching element"
+    }
+  ]
+}

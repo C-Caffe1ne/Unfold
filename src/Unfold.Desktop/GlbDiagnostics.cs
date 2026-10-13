@@ -38,7 +38,7 @@ internal static class GlbDiagnostics
             }
             Find<ComboBox>("GlbPreviewAction").SelectedItem = "click";
             await Until(() => !window.GetVisualDescendants().OfType<GlbPetView>().Single().IsPreviewLoading);
-            Find<NumericUpDown>("GlbRotationY").Value = 90;
+            for (var i = 0; i < 6; i++) Find<Button>("GlbRotateRight").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
             Find<ComboBox>("GlbRepeat_click").SelectedIndex = 1;
             await Until(() => !window.GetVisualDescendants().OfType<GlbPetView>().Single().IsPreviewLoading);
             Capture(window, Path.Combine(directory, "glb-click-heading.png"));
@@ -192,9 +192,9 @@ internal static class GlbDiagnostics
                 foreach (var theme in DesignSystem.Themes)
                 {
                     runtime.SetTheme(theme.Id); await Task.Delay(100); settings.UpdateLayout();
-                    var rotation = Find<NumericUpDown>("GlbRotationY");
+                    var rotation = Find<Button>("GlbRotateRight");
                     if (!rotation.IsEffectivelyVisible) throw new InvalidOperationException("Preview rotation is hidden.");
-                    if (settings.GetVisualDescendants().OfType<Control>().Any(c => c.Name is "GlbAdvanced" or "GlbRoot" or "PetBuilderFormat" || c.Name?.StartsWith("GlbHeading_") == true))
+                    if (settings.GetVisualDescendants().OfType<Control>().Any(c => c.Name is "GlbAdvanced" or "GlbRoot" or "PetBuilderFormat" or "GlbRotationX" or "GlbRotationY" or "GlbRotationZ" || c.Name?.StartsWith("GlbHeading_") == true))
                         throw new InvalidOperationException("Removed builder controls are still present.");
                     Capture(settings, Path.Combine(directory, $"action-editor-{theme.Id}.png"));
                 }

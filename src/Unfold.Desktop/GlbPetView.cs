@@ -7,6 +7,7 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
+using Avalonia.VisualTree;
 using Unfold.Core;
 
 namespace Unfold.Desktop;
@@ -28,12 +29,11 @@ internal sealed class GlbPetView : UserControl, IDisposable
     private readonly StackPanel rows = new() { Name = "GlbMappings", Spacing = 8 };
     private readonly Dictionary<string, Control> actionRows = [];
     private readonly Button open, save, replay, pause, edit, remove, fileAdd, fileRemove, resetRotation;
+    private readonly Button rotateUp, rotateLeft, rotateRight, rotateDown;
     private readonly Border previewStage;
     private IPointer? rotationPointer;
     private Point rotationStart;
     private GlbRotation rotationStartAngles;
-    private bool rotationRoll, syncingRotation;
-    private readonly NumericUpDown rotationX = RotationInput("X"), rotationY = RotationInput("Y"), rotationZ = RotationInput("Z");
     private readonly Image fileThumbnail = new() { Name = "GlbFileThumbnail", Width = 32, Height = 40, Stretch = Stretch.Uniform };
     private readonly TextBlock fileLabel = Ui.Caption("파일 없음");
     private Bitmap? thumbnailBitmap;
@@ -89,14 +89,16 @@ internal sealed class GlbPetView : UserControl, IDisposable
             paused = !paused; UpdatePlayback();
         }); pause.Name = "PauseGlbPet";
         resetRotation = Ui.Button("회전 초기화", () => RotatePreview(new())); resetRotation.Name = "ResetGlbPreviewRotation";
-        ToolTip.SetTip(resetRotation, "선택한 행동의 X·Y·Z 회전을 0°로 되돌려요.");
+        resetRotation.Content = new PathIcon { Width = 20, Height = 20,
+            Data = Geometry.Parse("M12,4 A8,8 0 1 1 4,12 H6 A6,6 0 1 0 12,6 V9 L7,5 L12,1 Z") };
+        resetRotation.Width = resetRotation.Height = DesignSystem.PetControlHeight; resetRotation.Padding = new(0);
+        AutomationProperties.SetName(resetRotation, "회전 초기화");
+        ToolTip.SetTip(resetRotation, "회전 초기화 (Home)");
+        rotateUp = RotationButton(IconDirection.Up, "위로 회전");
+        rotateLeft = RotationButton(IconDirection.Left, "왼쪽으로 회전");
+        rotateRight = RotationButton(IconDirection.Right, "오른쪽으로 회전");
+        rotateDown = RotationButton(IconDirection.Down, "아래로 회전");
         SyncRotation(new());
-        foreach (var input in new[] { rotationX, rotationY, rotationZ })
-            input.ValueChanged += (_, _) =>
-            {
-                if (!syncingRotation && CanRotate && rotationX.Value is { } x && rotationY.Value is { } y && rotationZ.Value is { } z)
-                    RotatePreview(new((float)x, (float)y, (float)z));
-            };
         foreach (var choice in new[] { existing, previewAction }) StyleChoice(choice);
         previewAction.ItemTemplate = new FuncDataTemplate<string>((key, _) => ChoiceText(key is null ? "" :
             GlbPetDraft.ActionName(key)));
@@ -128,43 +130,40 @@ internal sealed class GlbPetView : UserControl, IDisposable
         existing.PlaceholderText = "펫 선택"; AutomationProperties.SetName(existing, "펫 선택");
         open.VerticalAlignment = VerticalAlignment.Bottom; open.Height = DesignSystem.PetControlHeight;
         previewStage = new Border { Name = "GlbPreviewStage", Background = DesignSystem.Surface, CornerRadius = DesignSystem.CardRadius,
-            Focusable = true,
-            Padding = new Thickness(8), Child = new Viewbox { Child = preview, Stretch = Stretch.Uniform } };
+            Focusable = true, VerticalAlignment = VerticalAlignment.Top,
+            Padding = new Thickness(8) };
         AutomationProperties.SetName(previewStage, "3D 펫 미리보기 회전");
-        ToolTip.SetTip(previewStage, "드래그로 X·Y축, Shift+드래그로 Z축을 회전해요. 방향 키로 X·Y축, Shift+← →로 Z축, Home으로 초기화해요.");
+        ToolTip.SetTip(previewStage, "드래그 또는 화살표로 회전해요. Home으로 초기화해요.");
         previewStage.PointerPressed += RotationPressed;
         previewStage.PointerMoved += RotationMoved;
         previewStage.PointerReleased += (_, e) => { if (e.Pointer == rotationPointer) { EndRotation(); e.Handled = true; } };
         previewStage.PointerCaptureLost += (_, _) => EndRotation();
         previewStage.DetachedFromVisualTree += (_, _) => EndRotation();
-        previewStage.KeyDown += (_, e) =>
-        {
-            if (!CanRotate) return;
-            var angles = preview.GlbPreviewRotation ?? new();
-            var roll = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
-            switch (e.Key)
-            {
-                case Key.Left: RotatePreview(roll ? angles with { Z = angles.Z - 15 } : angles with { Y = angles.Y - 15 }); break;
-                case Key.Right: RotatePreview(roll ? angles with { Z = angles.Z + 15 } : angles with { Y = angles.Y + 15 }); break;
-                case Key.Up: RotatePreview(angles with { X = angles.X - 15 }); break;
-                case Key.Down: RotatePreview(angles with { X = angles.X + 15 }); break;
-                case Key.Home: RotatePreview(new()); break;
-                default: return;
-            }
-            e.Handled = true;
-        };
+        previewStage.KeyDown += (_, e) => RotationKey(e);
         var settingsPane = Ui.Column(Heading("행동 연결"), PetManagementView.Field("상황", previewAction), rows);
         settingsPane.Spacing = 10; settingsPane.Name = "GlbActionPane";
-        var rotationHint = Ui.Caption("드래그: X·Y / Shift+드래그: Z"); rotationHint.TextWrapping = TextWrapping.Wrap;
-        var rotationFields = new Grid { Name = "GlbRotationFields", ColumnDefinitions = new("*,8,*,8,*") };
-        var inputs = new[] { rotationX, rotationY, rotationZ };
-        for (var i = 0; i < inputs.Length; i++)
+        var rotationPad = new Grid { Name = "GlbRotationPad" };
+        rotationPad.Children.Add(new Viewbox { Name = "GlbPreviewModel", Child = preview, Stretch = Stretch.Uniform,
+            Margin = new Thickness(0, 40) });
+        AutomationProperties.SetName(rotationPad, "펫 회전");
+        foreach (var (button, horizontal, vertical) in new[]
         {
-            var field = PetManagementView.Field(new[] { "X (°)", "Y (°)", "Z (°)" }[i], inputs[i]);
-            Grid.SetColumn(field, i * 2); rotationFields.Children.Add(field);
+            (rotateUp, HorizontalAlignment.Center, VerticalAlignment.Top),
+            (rotateLeft, HorizontalAlignment.Left, VerticalAlignment.Center),
+            (rotateRight, HorizontalAlignment.Right, VerticalAlignment.Center),
+            (rotateDown, HorizontalAlignment.Center, VerticalAlignment.Bottom),
+            (resetRotation, HorizontalAlignment.Right, VerticalAlignment.Top)
+        })
+        {
+            button.HorizontalAlignment = horizontal; button.VerticalAlignment = vertical;
+            rotationPad.Children.Add(button);
         }
-        var workspace = new PetEditorWorkspace(owner, "Glb", previewStage, Ui.Column(rotationHint, rotationFields, resetRotation,
-            PetManagementView.Field("3D 파일", fileRow), Ui.Row(pause, replay), existingField, Ui.Actions(edit, remove)), settingsPane);
+        previewStage.Child = rotationPad;
+        var playback = Ui.Actions(pause, replay); playback.HorizontalAlignment = HorizontalAlignment.Left;
+        var controls = Ui.Column(PetManagementView.Field("3D 파일", fileRow), playback, existingField, Ui.Actions(edit, remove));
+        controls.Name = "GlbControls";
+        var workspace = new PetEditorWorkspace(owner, "Glb", previewStage, controls,
+            settingsPane, previewMinHeight: 220, fullWidthPreview: true, previewMaxHeight: 360);
         var identity = workspace.Identity("GlbIdentity", name, open);
         editor = workspace; editor.Name = "GlbEditor";
         var body = Ui.Column(identity, editor);
@@ -180,21 +179,47 @@ internal sealed class GlbPetView : UserControl, IDisposable
         owner.PropertyChanged += OwnerChanged; AttachedToVisualTree += (_, _) => { RefreshExisting(); UpdatePlayback(); }; DetachedFromVisualTree += (_, _) => UpdatePlayback();
         RefreshExisting(); SetControls();
     }
-    private static NumericUpDown RotationInput(string axis)
+    private Button RotationButton(IconDirection direction, string label)
     {
-        var input = new NumericUpDown { Name = "GlbRotation" + axis, Minimum = -180, Maximum = 180,
-            Value = 0, Increment = 5, FormatString = "0.##", ShowButtonSpinner = false, Height = DesignSystem.PetControlHeight,
-            HorizontalAlignment = HorizontalAlignment.Stretch };
-        AutomationProperties.SetName(input, axis + "축 회전 각도");
-        return input;
+        var button = Ui.Button("", () => StepRotation(direction));
+        button.Name = "GlbRotate" + direction; button.Content = new DirectionIcon(direction);
+        button.Width = button.Height = DesignSystem.PetControlHeight; button.Padding = new(0);
+        AutomationProperties.SetName(button, label); ToolTip.SetTip(button, label + " (15°)");
+        return button;
+    }
+    private void StepRotation(IconDirection direction)
+    {
+        var angles = preview.GlbPreviewRotation ?? new();
+        RotatePreview(direction switch
+        {
+            IconDirection.Up => angles with { X = angles.X - 15 },
+            IconDirection.Down => angles with { X = angles.X + 15 },
+            IconDirection.Left => angles with { Y = angles.Y - 15 },
+            IconDirection.Right => angles with { Y = angles.Y + 15 },
+            _ => angles
+        });
+    }
+    private void RotationKey(KeyEventArgs e)
+    {
+        if (!CanRotate) return;
+        switch (e.Key)
+        {
+            case Key.Left: StepRotation(IconDirection.Left); break;
+            case Key.Right: StepRotation(IconDirection.Right); break;
+            case Key.Up: StepRotation(IconDirection.Up); break;
+            case Key.Down: StepRotation(IconDirection.Down); break;
+            case Key.Home: RotatePreview(new()); break;
+            default: return;
+        }
+        e.Handled = true;
     }
     private bool CanRotate => !closed && !IsBusy && !loading && !previewFailed && draft?.Mappings.ContainsKey(SelectedAction) == true;
     private void RotationPressed(object? sender, PointerPressedEventArgs e)
     {
         if (!CanRotate || !e.GetCurrentPoint(previewStage).Properties.IsLeftButtonPressed) return;
+        if (e.Source is Control source && (source is Button || source.GetVisualAncestors().OfType<Button>().Any())) return;
         EndRotation(); rotationPointer = e.Pointer;
         rotationStart = e.GetPosition(previewStage); rotationStartAngles = preview.GlbPreviewRotation ?? new();
-        rotationRoll = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
         previewStage.Focus(); e.Pointer.Capture(previewStage); e.Handled = true;
     }
     private void RotationMoved(object? sender, PointerEventArgs e)
@@ -203,8 +228,7 @@ internal sealed class GlbPetView : UserControl, IDisposable
         var delta = e.GetPosition(previewStage) - rotationStart;
         var horizontal = (float)(delta.X * 360 / Math.Max(1, previewStage.Bounds.Width));
         var vertical = (float)(delta.Y * 360 / Math.Max(1, previewStage.Bounds.Height));
-        RotatePreview(rotationRoll ? rotationStartAngles with { Z = rotationStartAngles.Z + horizontal } :
-            rotationStartAngles with { X = rotationStartAngles.X + vertical, Y = rotationStartAngles.Y + horizontal });
+        RotatePreview(rotationStartAngles with { X = rotationStartAngles.X + vertical, Y = rotationStartAngles.Y + horizontal });
         e.Handled = true;
     }
     private void RotatePreview(GlbRotation rotation)
@@ -216,9 +240,6 @@ internal sealed class GlbPetView : UserControl, IDisposable
     }
     private void SyncRotation(GlbRotation rotation)
     {
-        syncingRotation = true;
-        try { rotationX.Value = (decimal)rotation.X; rotationY.Value = (decimal)rotation.Y; rotationZ.Value = (decimal)rotation.Z; }
-        finally { syncingRotation = false; }
         preview.SetGlbPreviewRotation(rotation);
     }
     private void EndRotation()
@@ -485,7 +506,7 @@ internal sealed class GlbPetView : UserControl, IDisposable
         replay.IsEnabled = ready && !loading; pause.IsEnabled = ready && !loading && !previewFailed;
         pause.Content = previewCompleted ? "다시 재생" : paused ? "계속 재생" : "일시정지";
         resetRotation.IsEnabled = CanRotate && preview.GlbPreviewRotation != new GlbRotation();
-        rotationX.IsEnabled = rotationY.IsEnabled = rotationZ.IsEnabled = CanRotate;
+        rotateUp.IsEnabled = rotateLeft.IsEnabled = rotateRight.IsEnabled = rotateDown.IsEnabled = CanRotate;
         previewStage.Cursor = CanRotate ? new Cursor(StandardCursorType.SizeAll) : null;
         if (!CanRotate) EndRotation();
     }
