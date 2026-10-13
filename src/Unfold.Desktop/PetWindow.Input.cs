@@ -8,13 +8,31 @@ public sealed partial class PetWindow
 {
     private Avalonia.Input.IPointer? interactionPointer;
     internal bool IsClickThrough => clickThrough;
+    internal bool PointerOverBody(Point point) => this.TranslatePoint(point, animation) is { } local &&
+        animation.OpaqueAt(local, includeEdgeTolerance: false);
+    internal PixelRect InteractiveScreenBounds
+    {
+        get
+        {
+            var rect = animation.InteractiveBounds;
+            var corners = new[] { rect.TopLeft, rect.TopRight, rect.BottomLeft, rect.BottomRight }
+                .Select(p => animation.TranslatePoint(p, this) ?? p).ToArray();
+            var left = Math.Clamp(corners.Min(p => p.X), 0, animation.Width);
+            var top = Math.Clamp(corners.Min(p => p.Y), 0, animation.Height);
+            var right = Math.Clamp(corners.Max(p => p.X), left, animation.Width);
+            var bottom = Math.Clamp(corners.Max(p => p.Y), top, animation.Height);
+            if (right <= left || bottom <= top) { left = top = 0; right = animation.Width; bottom = animation.Height; }
+            var scale = DesktopScaling;
+            return new PixelRect(Position.X + (int)Math.Floor(left * scale), Position.Y + (int)Math.Floor(top * scale),
+                (int)Math.Ceiling((right - left) * scale), (int)Math.Ceiling((bottom - top) * scale));
+        }
+    }
 
     internal bool AcceptsPointerAt(Point point)
     {
         if (!IsVisible) return false;
         if (down is not null || (interactionPointer?.Captured is Visual captured && TopLevel.GetTopLevel(captured) == this) || ContextMenu?.IsOpen == true) return true;
-        return this.TranslatePoint(point, animation) is { } petPoint &&
-            animation.OpaqueAt(petPoint, includeEdgeTolerance: false);
+        return PointerOverBody(point);
     }
 
     private bool TryGetNativePointer(out Point point)

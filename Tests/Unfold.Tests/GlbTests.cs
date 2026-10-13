@@ -287,8 +287,9 @@ public class GlbTests
                 var reaction = pet.React(key); FixedCanvas(); pet.AdvanceCompanion(.1); FixedCanvas();
                 await reaction; FixedCanvas();
             }
-            await runtime.ShowReminder(); runtime.StartBreak(); await Until(() => pet.ActiveAnimation == "walk");
-            Assert.True(pet.IsRoaming); runtime.Stop(); await Until(() => pet.ActiveAnimation == "idle");
+            await runtime.ShowReminder(); runtime.StartBreak(); await Until(() => pet.ActiveAnimation == "idle");
+            Assert.False(pet.IsRoaming); Assert.Equal(PetNotice.Resting, runtime.Reminder.Notice);
+            runtime.Stop(); await Until(() => pet.ActiveAnimation == "idle");
             await runtime.UpdateSettings(runtime.Settings with { ShowPet = false }); await pet.React("click"); Assert.False(pet.IsVisible);
         }
         finally { runtime.Dispose(); Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", previous); }
@@ -315,18 +316,18 @@ public class GlbTests
                 Assert.True(ready(), pet.ActiveAnimation);
             }
             pet.BeginCompanionPress(); pet.AdvanceCompanion(PetPose.LiftDelay);
-            Assert.Equal(PetPointerPhase.Pickup, pet.PointerPhase); Assert.False(pet.PetView.Repeats);
+            Assert.Equal(pickupLoop ? PetPointerPhase.Held : PetPointerPhase.Pickup, pet.PointerPhase);
+            Assert.Equal(pickupLoop, pet.PetView.Repeats);
             await Until(() => pet.PointerPhase == PetPointerPhase.Held);
-            Assert.Equal("pickup", pet.ActiveAnimation); Assert.False(pet.PetView.Repeats);
+            Assert.Equal("pickup", pet.ActiveAnimation); Assert.Equal(pickupLoop, pet.PetView.Repeats);
             await Task.Delay(500, TestContext.Current.CancellationToken); Dispatcher.UIThread.RunJobs();
             Assert.Equal(PetPointerPhase.Held, pet.PointerPhase);
             pet.ReleaseCompanionPress(false);
             Assert.Equal("land", pet.ActiveAnimation); Assert.False(pet.PetView.Repeats);
             await Until(() => pet.ActiveAnimation == "idle");
             Assert.Equal(PetPointerPhase.None, pet.PointerPhase);
-            await runtime.ShowReminder(); runtime.StartBreak(); await Until(() => pet.ActiveAnimation == "walk");
-            Assert.False(pet.PetView.Repeats);
-            await Until(() => pet.ActiveAnimation == "idle" && !pet.IsRoaming);
+            await runtime.ShowReminder(); runtime.StartBreak(); await Until(() => pet.ActiveAnimation == "idle");
+            Assert.False(pet.IsRoaming); Assert.Equal(PetNotice.Resting, runtime.Reminder.Notice);
             Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
         }
         finally { runtime.Dispose(); Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", previous); }

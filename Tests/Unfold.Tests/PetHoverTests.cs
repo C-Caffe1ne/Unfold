@@ -81,7 +81,7 @@ public class PetHoverTests
             scope.Hover(); Assert.False(scope.Bubble.IsVisible);
             pet.MouseMove(pet.PetView.TranslatePoint(new(1, 1), pet)!.Value); Layout(pet);
             Assert.False(pet.AcceptsPointerAt(pet.PetView.TranslatePoint(new(1, 1), pet)!.Value));
-            Assert.False(pet.Overlay.AcceptsPointerAt(scope.Bubble.TranslatePoint(new(5, 5), pet.Overlay)!.Value));
+            Assert.False(pet.Overlay.AcceptsPointerAt(new(5, 5)));
             pet.MouseMove(new(-10, -10)); Layout(pet);
             Assert.Equal(size, pet.ClientSize); Assert.Equal(position, pet.Position);
             Assert.Equal(origin, pet.PetView.TranslatePoint(default, pet)); Assert.Equal(anchor, pet.PetAnchor);

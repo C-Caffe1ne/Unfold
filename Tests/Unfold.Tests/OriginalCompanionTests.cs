@@ -343,8 +343,8 @@ public class OriginalCompanionTests
         pet.ReleaseCompanionPress(false);
         pet.AdvanceCompanion(.22); pet.AdvanceCompanion(.22); pet.AdvanceCompanion(.22);
         await Until(() => pet.ActiveAnimation == "stretch");
-        await Until(() => pet.ActiveAnimation == "walk");
-        Assert.True(pet.IsRoaming);
+        await Task.Delay(700, TestContext.Current.CancellationToken); Dispatcher.UIThread.RunJobs();
+        Assert.Equal("stretch", pet.ActiveAnimation); Assert.False(pet.IsRoaming);
     }
 
     [AvaloniaFact]
@@ -407,7 +407,7 @@ public class OriginalCompanionTests
     }
 
     [AvaloniaFact]
-    public async Task ThirdSnoozeSulkAndStretchThenWalkStopSafelyOnCompletionAndCancel()
+    public async Task ThirdSnoozeSulkAndHeldStretchStopSafelyOnCompletionAndCancel()
     {
         using var scope = new Scope(); await scope.Select(original: true); var runtime = scope.Runtime; var pet = scope.Pet;
         for (var index = 1; index <= 4; index++)
@@ -419,7 +419,8 @@ public class OriginalCompanionTests
         await runtime.ShowReminder(); runtime.StartBreak();
         Assert.Equal("stretch", pet.ActiveAnimation); Assert.False(pet.IsRoaming);
         Assert.Equal(0, runtime.Reminder.ConsecutiveSnoozes);
-        await Until(() => pet.IsRoaming && pet.ActiveAnimation == "walk");
+        await Task.Delay(700, TestContext.Current.CancellationToken); Dispatcher.UIThread.RunJobs();
+        Assert.Equal("stretch", pet.ActiveAnimation); Assert.False(pet.IsRoaming);
         var saved = (runtime.Settings.PetX, runtime.Settings.PetY);
         pet.AdvanceCompanion(.1); Assert.Equal(saved, (runtime.Settings.PetX, runtime.Settings.PetY));
         runtime.CompleteBreak(); Assert.False(pet.IsRoaming);
@@ -431,7 +432,7 @@ public class OriginalCompanionTests
     }
 
     [AvaloniaFact]
-    public async Task DragDuringStretchResumesStretchBeforeWalking()
+    public async Task DragDuringStretchResumesStretchAndKeepsItUntilCompletion()
     {
         using var scope = new Scope(); await scope.Select(original: true); var pet = scope.Pet;
         await scope.Runtime.ShowReminder(); scope.Runtime.StartBreak();
@@ -441,7 +442,8 @@ public class OriginalCompanionTests
         Assert.False(pet.IsRoaming);
         pet.ReleaseCompanionPress(false);
         Assert.Equal("stretch", pet.ActiveAnimation); Assert.False(pet.IsRoaming);
-        await Until(() => pet.IsRoaming && pet.ActiveAnimation == "walk");
+        await Task.Delay(700, TestContext.Current.CancellationToken); Dispatcher.UIThread.RunJobs();
+        Assert.Equal("stretch", pet.ActiveAnimation); Assert.False(pet.IsRoaming);
     }
 
     [AvaloniaFact]
@@ -458,10 +460,10 @@ public class OriginalCompanionTests
         Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
         Assert.Equal(new[] { "idle", "attention", "stretch", "celebrate", "click", "pointerDown", "pointerUp" }, CustomPetDraft.Actions);
         scope.Runtime.Stop(); await scope.Runtime.ShowReminder(); scope.Runtime.StartBreak();
-        await Until(() => pet.ActiveAnimation == "idle"); Assert.False(pet.IsRoaming);
-        Assert.Equal("idle", pet.ActiveAnimation);
+        await Until(() => pet.ActiveAnimation == "stretch"); Assert.False(pet.IsRoaming);
+        Assert.Equal("stretch", pet.ActiveAnimation);
         for (var i = 0; i < 1000; i++) pet.AdvanceCompanion(.1);
-        Assert.Equal("idle", pet.ActiveAnimation);
+        Assert.Equal("stretch", pet.ActiveAnimation);
     }
 
     [AvaloniaTheory]

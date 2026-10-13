@@ -11,7 +11,7 @@ namespace Unfold.Desktop;
 public sealed partial class SettingsWindow
 {
     private readonly Slider bubbleOpacity = SoundVolumeSlider("BubbleOpacityPercent");
-    private readonly CheckBox showPetTimer = new() { Name = "ShowPetTimer", Content = "펫 옆에 타이머 조작 바 표시" };
+    private readonly CheckBox showPetTimer = new() { Name = "ShowPetTimer", Content = "펫 아래에 타이머 조작 바 표시" };
     private readonly TextBox advanceDialogue = DialogueInput("AdvanceDialogue"), invitationDialogue = DialogueInput("InvitationDialogue"),
         restingDialogue = DialogueInput("RestingDialogue"), overtimeDialogue = DialogueInput("OvertimeDialogue"), completedDialogue = DialogueInput("CompletedDialogue");
     private static TextBox DialogueInput(string name) => new() { Name = name, MaxLength = 120, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch };

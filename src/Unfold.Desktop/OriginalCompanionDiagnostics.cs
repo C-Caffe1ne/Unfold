@@ -89,17 +89,20 @@ internal static class OriginalCompanionDiagnostics
                     }
                     await runtime.ShowReminder(); runtime.StartBreak();
                     if (pet.ActiveAnimation != "stretch" || pet.IsRoaming) throw new InvalidOperationException("Walking started before stretching.");
-                    await Until(() => pet.IsRoaming && pet.ActiveAnimation == "walk");
-                    Capture(pet, Path.Combine(directory, id + "-resting-walk.png"));
+                    var stretchFrames = await runtime.Clip("stretch");
+                    await Task.Delay(TimeSpan.FromMilliseconds(stretchFrames.Sum(frame => frame.Duration.TotalMilliseconds) + 100));
+                    if (pet.ActiveAnimation != "stretch" || pet.IsRoaming)
+                        throw new InvalidOperationException("Stretching did not remain active until completion.");
+                    Capture(pet, Path.Combine(directory, id + "-resting-stretch.png"));
                     runtime.CompleteBreak();
-                    if (pet.IsRoaming) throw new InvalidOperationException("Completion did not stop walking.");
+                    if (pet.IsRoaming) throw new InvalidOperationException("Completion unexpectedly started walking.");
                     await Until(() => pet.ActiveAnimation == "idle");
                     await runtime.ShowReminder(); runtime.StartBreak(); await runtime.HidePet();
                     if (pet.IsVisible || pet.IsRoaming) throw new InvalidOperationException("Hidden pet continued walking.");
                     if (canvasChanged) throw new InvalidOperationException("A reaction changed the pet canvas transform.");
                     results.Add(new { id, clips, canvasStayedFixed = true, pointerPoseCaptured = true, heldAndLandingVerified = true,
                         pointerArt = OriginalCompanion.PointerClips, immediateLandWithoutCanvasMotion = true, thirdSnoozeVerified = true,
-                        stretchBeforeWalkVerified = true, completionAndHideStopWalking = true });
+                        stretchHeldUntilCompletionVerified = true, completionAndHideStopMotion = true });
                 }
                 finally { canvasTimer.Stop(); canvasTimer.Tick -= ObserveCanvas; }
                 review.Close(); review = null;

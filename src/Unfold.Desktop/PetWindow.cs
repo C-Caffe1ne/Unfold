@@ -29,6 +29,10 @@ public sealed partial class PetWindow : Window
     private int generation;
     private CancellationTokenSource? reactionCancellation;
     private (PetReminder Source, PetNotice Notice, BreakSession? Session)? reactionNotice;
+    private int reactionReminderRevision;
+    internal bool IsCompletingReminder => IsVisible && reacting && ActiveAnimation == "celebrate" &&
+        reactionNotice is { Notice: PetNotice.Completed } owner && runtime.PresentedReminder == owner.Source &&
+        runtime.ReminderRevision == reactionReminderRevision;
     private CharacterPackage? character;
     public PetWindow(AppRuntime runtime)
     {
@@ -38,6 +42,8 @@ public sealed partial class PetWindow : Window
         ShowInTaskbar = false; Topmost = true; ShowActivated = false;
         canvas.Children.Add(animation); Content = canvas;
         Overlay = new(this, runtime);
+        animation.InteractiveBoundsChanged += () => Overlay.Reposition();
+        animation.SizeChanged += (_, _) => Overlay.Reposition();
         PositionChanged += (_, _) => Overlay.Reposition();
         PropertyChanged += (_, e) => { if (e.Property == IsVisibleProperty) Overlay.Refresh(); };
         animation.Completed += PointerClipCompleted;
@@ -86,7 +92,7 @@ public sealed partial class PetWindow : Window
             if (!HasOriginalBehavior && runtime.Selected?.Manifest.Animations.ContainsKey("pointerUp") == true) await React("pointerUp");
             else
             {
-                if (!HasOriginalBehavior && ActiveAnimation == "pointerDown") await RestoreBaseAnimation(InvalidatePlayback());
+                if (!HasOriginalBehavior && ActiveAnimation == "pointerDown") await ResumeMediaPointerReaction(InvalidatePlayback());
                 if (clicked && !handled) await React();
             }
         };
@@ -146,12 +152,6 @@ public sealed partial class PetWindow : Window
             // ships a click clip, and otherwise leaves the idle loop alone — so the early
             // return has to happen before generation moves, or it would cancel a stretch.
             key = preferred ?? (selected?.Manifest.Animations.ContainsKey("click") == true ? "click" : null);
-            if (key == "stretch" && selected?.IsGlb == true && !selected.Manifest.Animations.ContainsKey("stretch") &&
-                selected.Manifest.Animations.ContainsKey("walk") && runtime.Reminder.Notice == PetNotice.Resting)
-            {
-                walkingSession = runtime.Reminder.Session;
-                await RestoreBaseAnimation(InvalidatePlayback()); return;
-            }
             if (key is null || selected?.Manifest.Animations.ContainsKey(key) != true) return;
             current = InvalidatePlayback();
             var cancellation = reactionCancellation = new CancellationTokenSource();
@@ -160,7 +160,10 @@ public sealed partial class PetWindow : Window
             if (key == "attention" && reminder.Notice is PetNotice.Advance or PetNotice.Invitation ||
                 key == "stretch" && reminder.Notice == PetNotice.Resting ||
                 key == "celebrate" && reminder.Notice == PetNotice.Completed)
+            {
                 reactionNotice = (reminder, reminder.Notice, reminder.Session);
+                reactionReminderRevision = runtime.ReminderRevision;
+            }
             if (selected.HasOriginalBehavior && key == "stretch" && runtime.Reminder.Notice == PetNotice.Resting)
                 originalStretchSession = session;
             ActiveAnimation = key; reacting = true; idleSchedule.Reset();
@@ -175,15 +178,18 @@ public sealed partial class PetWindow : Window
                 // can finish while the new clip is still decoding.
                 animation.Completed += Finished;
                 // Only a continuing state can repeat. Momentary reactions finish once.
-                var repeat = definition.Loop && (reactionNotice is not null || key == "pointerDown" && down is not null);
+                var repeat = definition.Loop && (reactionNotice is { Notice: not PetNotice.Completed } || key == "pointerDown" && down is not null);
                 animation.SetFrames(frames, repeat, selected.Manifest.RenderStyle == "pixel", selected.HasOriginalBehavior, definition.PingPong);
                 await completed.Task.WaitAsync(cancellation.Token);
                 if (current != generation) return;
+                // A one-shot pointer-down holds its terminal pose until release.
+                if (key == "pointerDown" && down is not null) return;
+                // A one-shot notice holds its end pose for the entire active state.
+                if (reactionNotice is { Notice: not PetNotice.Completed }) return;
                 reactionNotice = null;
-                if (selected.HasOriginalBehavior && key == "stretch" && session is not null &&
-                    runtime.Reminder.Session == session && runtime.Reminder.Notice == PetNotice.Resting)
-                { originalStretchSession = null; walkingSession = session; }
-                await RestoreBaseAnimation(current);
+                if (key == "pointerUp" && !HasOriginalBehavior) await ResumeMediaPointerReaction(current);
+                else await RestoreBaseAnimation(current);
+                if (key == "celebrate") runtime.RefreshPetAfterReaction();
             }
             finally
             {
@@ -200,7 +206,7 @@ public sealed partial class PetWindow : Window
             reacting = false; reactionNotice = null;
             // Do not recursively replay a stretch that just failed to load.
             if (key == "stretch") originalStretchSession = null;
-            await RestoreBaseAnimation(current);
+            await RestoreBaseAnimation(current, idleOnly: key == ContinuingReminderAnimation());
         }
     }
     private int InvalidatePlayback()
@@ -212,7 +218,8 @@ public sealed partial class PetWindow : Window
     {
         MacPetWindow.Apply(this);
         Show(); RefreshSpeech(); UpdateClickThrough(); lastCompanionTick = Stopwatch.GetTimestamp(); hitTimer.Start(); animation.SetRunning(true);
-        if (originalStretchSession is not null && !reacting && !pressed) _ = React("stretch");
+        if (!reacting && !HasPointerInteraction && PointerPhase == PetPointerPhase.None && ContinuingReminderAnimation() is { } continuing)
+            _ = React(continuing);
     }
     public void HidePet() { InvalidatePlayback(); ResetCompanion(); character = null; Hide(); hitTimer.Stop(); animation.SetRunning(false); RefreshSpeech(); }
     public void ClosePet() { InvalidatePlayback(); ResetCompanion(); hitTimer.Stop(); Close(); }

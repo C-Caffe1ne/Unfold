@@ -62,7 +62,7 @@ public class PetClickThroughTests
         pet.MouseMove(scope.WindowPoint(new(60, 96))); Layout(pet);
         var bubble = pet.Overlay.Bubble;
         Assert.False(bubble.IsVisible);
-        Assert.False(pet.Overlay.AcceptsPointerAt(bubble.TranslatePoint(new(30, 30), pet.Overlay)!.Value));
+        Assert.False(pet.Overlay.AcceptsPointerAt(new(30, 30)));
         Assert.False(pet.AcceptsPointerAt(scope.WindowPoint(new(1, 1))));
         await scope.Runtime.ShowReminder(); Layout(pet);
         var start = pet.Overlay.GetVisualDescendants().OfType<Button>().Single(b => b.Name == "PetBreakStart");

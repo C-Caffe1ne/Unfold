@@ -72,22 +72,22 @@ public class PetOverlayWindowTests
         using var scope = new Scope(); await scope.Load(); var pet = scope.Pet;
         var remaining = scope.Runtime.Clock.Remaining;
         scope.Runtime.Clock.Start(TimeSpan.Zero); pet.RefreshSpeech();
-        Press(pet.Overlay, "PetTimerToggle");
+        Press(pet.Overlay.Timer, "PetTimerToggle");
         Assert.True(scope.Runtime.Clock.Paused); Assert.Equal(remaining, scope.Runtime.Clock.Remaining);
-        Assert.Equal("타이머 계속", AutomationProperties.GetName(Find<Button>(pet.Overlay, "PetTimerToggle")));
-        Assert.Contains("일시정지", AutomationProperties.GetName(Find<Border>(pet.Overlay, "PetTimerBar")));
-        Press(pet.Overlay, "PetTimerToggle"); Assert.False(scope.Runtime.Clock.Paused);
-        Assert.Contains("진행 중", AutomationProperties.GetName(Find<Border>(pet.Overlay, "PetTimerBar")));
+        Assert.Equal("타이머 계속", AutomationProperties.GetName(Find<Button>(pet.Overlay.Timer, "PetTimerToggle")));
+        Assert.Contains("일시정지", AutomationProperties.GetName(Find<Border>(pet.Overlay.Timer, "PetTimerBar")));
+        Press(pet.Overlay.Timer, "PetTimerToggle"); Assert.False(scope.Runtime.Clock.Paused);
+        Assert.Contains("진행 중", AutomationProperties.GetName(Find<Border>(pet.Overlay.Timer, "PetTimerBar")));
         var confirmations = 0;
         scope.Runtime.ConfirmActionOverride = (_, _, _) => { confirmations++; return Task.FromResult(1); };
-        Press(pet.Overlay, "PetTimerStop");
+        Press(pet.Overlay.Timer, "PetTimerStop");
         Assert.True(scope.Runtime.Clock.Stopped); Assert.Equal(0, confirmations);
         Assert.Equal(scope.Runtime.Clock.Interval, scope.Runtime.Clock.Remaining);
-        Assert.Contains("중지", AutomationProperties.GetName(Find<Border>(pet.Overlay, "PetTimerBar")));
-        Assert.False(Find<Button>(pet.Overlay, "PetTimerStop").IsEnabled);
-        Assert.Equal("타이머 시작", AutomationProperties.GetName(Find<Button>(pet.Overlay, "PetTimerToggle")));
-        Press(pet.Overlay, "PetTimerToggle"); Assert.False(scope.Runtime.Clock.Stopped);
-        Assert.Equal("60:00", Find<AnimatedCountdown>(pet.Overlay, "PetTimerCountdown").Text);
+        Assert.Contains("중지", AutomationProperties.GetName(Find<Border>(pet.Overlay.Timer, "PetTimerBar")));
+        Assert.False(Find<Button>(pet.Overlay.Timer, "PetTimerStop").IsEnabled);
+        Assert.Equal("타이머 시작", AutomationProperties.GetName(Find<Button>(pet.Overlay.Timer, "PetTimerToggle")));
+        Press(pet.Overlay.Timer, "PetTimerToggle"); Assert.False(scope.Runtime.Clock.Stopped);
+        Assert.Equal("60:00", Find<AnimatedCountdown>(pet.Overlay.Timer, "PetTimerCountdown").Text);
     }
 
     [AvaloniaFact]
@@ -118,15 +118,18 @@ public class PetOverlayWindowTests
     {
         using var scope = new Scope(); await scope.Load(); var overlay = scope.Pet.Overlay;
         Assert.False(overlay.AcceptsPointerAt(new(1, 1)));
-        var clock = Find<AnimatedCountdown>(overlay, "PetTimerCountdown");
-        Assert.False(overlay.AcceptsPointerAt(clock.TranslatePoint(new(10, 10), overlay)!.Value));
-        var toggle = Find<Button>(overlay, "PetTimerToggle");
-        var point = toggle.TranslatePoint(new(10, 10), overlay)!.Value;
-        Assert.True(overlay.AcceptsPointerAt(point));
-        overlay.MouseDown(point, Avalonia.Input.MouseButton.Left); Layout(overlay);
-        Assert.True(overlay.AcceptsPointerAt(new(-100, -100)));
-        overlay.MouseUp(new(-100, -100), Avalonia.Input.MouseButton.Left); Layout(overlay);
-        Assert.False(overlay.AcceptsPointerAt(new(-100, -100)));
+        var timer = scope.Pet.Overlay.Timer;
+        timer.UpdateHover(true, false, TimeSpan.Zero); timer.UpdateHover(true, false, TimeSpan.FromMilliseconds(180));
+        Layout(timer);
+        var clock = Find<AnimatedCountdown>(timer, "PetTimerCountdown");
+        Assert.False(timer.AcceptsPointerAt(clock.TranslatePoint(new(10, 10), timer)!.Value));
+        var toggle = Find<Button>(timer, "PetTimerToggle");
+        var point = toggle.TranslatePoint(new(10, 10), timer)!.Value;
+        Assert.True(timer.AcceptsPointerAt(point));
+        timer.MouseDown(point, Avalonia.Input.MouseButton.Left); Layout(timer);
+        Assert.True(timer.AcceptsPointerAt(new(-100, -100)));
+        timer.MouseUp(new(-100, -100), Avalonia.Input.MouseButton.Left); Layout(timer);
+        Assert.False(timer.AcceptsPointerAt(new(-100, -100)));
         scope.Runtime.Reminder.Invite(new(BreakRoutines.All[0], "default-cat")); scope.Pet.RefreshSpeech(); Layout(overlay);
         var title = Find<TextBlock>(overlay, "PetBreakTitle");
         Assert.False(overlay.AcceptsPointerAt(title.TranslatePoint(new(20, 10), overlay)!.Value));
@@ -137,15 +140,15 @@ public class PetOverlayWindowTests
     public async Task TurningOffTimerBarKeepsReminderControlsAndPetVisibilitySeparate()
     {
         using var scope = new Scope(); await scope.Load(); var pet = scope.Pet;
-        Assert.True(pet.Overlay.IsVisible);
+        Assert.True(pet.Overlay.Timer.IsVisible); Assert.False(pet.Overlay.IsVisible);
         await scope.Runtime.UpdateSettings(scope.Runtime.Settings with { ShowPetTimer = false });
-        Assert.True(pet.IsVisible); Assert.False(pet.Overlay.IsVisible);
+        Assert.True(pet.IsVisible); Assert.False(pet.Overlay.IsVisible); Assert.False(pet.Overlay.Timer.IsVisible);
         Assert.False(AppSettings.Load(Path.Combine(scope.Root, "settings.json")).ShowPetTimer);
         await scope.Runtime.ShowReminder(); Layout(pet.Overlay);
         Assert.True(pet.Overlay.IsVisible); Assert.True(pet.Overlay.Bubble.IsVisible);
-        Assert.False(Find<Border>(pet.Overlay, "PetTimerBar").IsVisible);
+        Assert.False(pet.Overlay.Timer.IsVisible);
         await scope.Runtime.HidePet(); Assert.False(pet.IsVisible); Assert.False(pet.Overlay.IsVisible);
-        pet.ClosePet(); Assert.False(pet.Overlay.IsVisible);
+        pet.ClosePet(); Assert.False(pet.Overlay.IsVisible); Assert.False(pet.Overlay.Timer.IsVisible);
     }
 
     [AvaloniaTheory]
@@ -156,7 +159,7 @@ public class PetOverlayWindowTests
         pet.Position = new(x, 400); pet.RefreshSpeech(); Layout(pet.Overlay);
         scope.Runtime.Clock.Start(TimeSpan.Zero); pet.RefreshSpeech();
         var position = pet.Position;
-        Press(pet.Overlay, "PetTimerStop");
+        Press(pet.Overlay.Timer, "PetTimerStop");
         Assert.Empty(pet.Overlay.OwnedWindows);
         Assert.True(scope.Runtime.Clock.Stopped); Assert.False(pet.Overlay.HoldsPlacement);
         Assert.Equal(position, pet.Position);

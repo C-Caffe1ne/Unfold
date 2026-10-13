@@ -14,6 +14,7 @@ public sealed partial class PetWindow
     private double poseSeconds;
     private long lastCompanionTick = Stopwatch.GetTimestamp();
     internal bool HasOriginalBehavior => runtime.Selected?.HasOriginalBehavior == true;
+    internal bool HasPointerInteraction => down is not null || pressed;
     internal string ActiveAnimation { get; private set; } = "idle";
     internal bool IsRoaming => HasOriginalBehavior && runtime.Selected?.Manifest.Animations.ContainsKey("walk") == true && walkingSession is not null &&
         runtime.Reminder.Session == walkingSession && runtime.Reminder.Notice == PetNotice.Resting;
@@ -26,6 +27,7 @@ public sealed partial class PetWindow
     }
     internal void BeginCompanionPress()
     {
+        Overlay.Timer.SuppressForPetInteraction();
         if (!HasOriginalBehavior) return;
         // Wake the pet without adding a transform to its assigned animation.
         animation.SetPose(PetPose.Neutral);
@@ -36,7 +38,12 @@ public sealed partial class PetWindow
     }
     internal bool ReleaseCompanionPress(bool clicked)
     {
-        if (!HasOriginalBehavior) { CancelCompanionPose(); return false; }
+        if (!HasOriginalBehavior)
+        {
+            var deferred = deferredPointerReaction;
+            CancelCompanionPose(); deferredPointerReaction = deferred;
+            return false;
+        }
         if (!pressed) return false;
         if (HasPointerArt) { ReleasePointerArt(clicked); return true; }
         var held = !clicked || poseSeconds >= PetPose.LiftDelay;
@@ -60,9 +67,8 @@ public sealed partial class PetWindow
         {
             if (current != generation || !IsVisible) return;
             var selected = runtime.Selected;
-            if (!idleOnly && originalStretchSession is not null && originalStretchSession == runtime.Reminder.Session &&
-                runtime.Reminder.Notice == PetNotice.Resting && !pressed)
-            { await React("stretch"); return; }
+            if (!idleOnly && !HasPointerInteraction && PointerPhase == PetPointerPhase.None && ContinuingReminderAnimation() is { } continuing)
+            { _ = React(continuing); return; }
             var key = !idleOnly && IsRoaming ? "walk" : "idle";
             var frames = await runtime.Clip(key);
             if (current != generation || !IsVisible) return;
@@ -85,6 +91,18 @@ public sealed partial class PetWindow
             else animation.SetFrames([], true);
         }
     }
+    private string? ContinuingReminderAnimation()
+    {
+        var reminder = runtime.PresentedReminder;
+        if (reminder.Session is { } session && session.CharacterId != runtime.Selected?.Manifest.Id) return null;
+        var key = reminder.Notice switch
+        {
+            PetNotice.Advance or PetNotice.Invitation => "attention",
+            PetNotice.Resting => "stretch",
+            _ => null
+        };
+        return key is not null && runtime.Selected?.Manifest.Animations.ContainsKey(key) == true ? key : null;
+    }
     private void RefreshCompanionContext()
     {
         if (walkingSession is not null && !IsRoaming)
@@ -101,7 +119,9 @@ public sealed partial class PetWindow
         }
         // The timer overlay may stay visible after its reminder bubble disappears.
         if (reactionNotice is { } owner &&
-            (runtime.PresentedReminder != owner.Source || owner.Source.Notice != owner.Notice || owner.Source.Session != owner.Session))
+            (runtime.PresentedReminder != owner.Source || owner.Source.Session != owner.Session ||
+             runtime.ReminderRevision != reactionReminderRevision ||
+             owner.Source.Notice != owner.Notice && !(owner.Notice == PetNotice.Completed && owner.Source.Notice == PetNotice.None)))
             _ = RestoreBaseAnimation(InvalidatePlayback());
     }
     private void TickCompanion()

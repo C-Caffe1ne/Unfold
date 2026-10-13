@@ -76,6 +76,7 @@ public sealed partial class AppRuntime : IDisposable
     internal Func<string, string, string[], Task<int>>? ConfirmActionOverride { get; set; }
     private bool openingReminder, historyWritable = true;
     private int reminderGeneration;
+    internal int ReminderRevision => reminderGeneration;
     private PetReminder? reminderPreview;
     private SingleInstance? instanceActivation;
     public AppRuntime(IClassicDesktopStyleApplicationLifetime desktop)
@@ -405,7 +406,9 @@ public sealed partial class AppRuntime : IDisposable
         // both before resurrecting a pet nobody asked for anymore.
         if (pet == current && ShouldShowPet) current.ShowPet();
     }
-    private bool ShouldShowPet => AccessAllowed && (Settings.ShowPet || (!petNoticeSuppressed && PresentedReminder.HasNotice));
+    private bool ShouldShowPet => AccessAllowed && (Settings.ShowPet || (!petNoticeSuppressed &&
+        (PresentedReminder.HasNotice || pet?.IsCompletingReminder == true)));
+    internal void RefreshPetAfterReaction() { RefreshPetNotice(); Changed?.Invoke(); }
     public async Task ShowReminder()
     {
         if (!AccessAllowed || disposed || quitting) return;

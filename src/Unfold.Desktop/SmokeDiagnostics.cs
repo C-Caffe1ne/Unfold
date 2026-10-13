@@ -124,11 +124,14 @@ internal static partial class SmokeDiagnostics
             using (var pack = CharacterPack.Open(archive)) runtime.Library.Install(pack, null);
             await runtime.Reload();
             await runtime.UpdateSettings(runtime.Settings with { SelectedCharacterId = "default-cat" });
-            var windowsBeforeReminder = desktop.Windows.Count;
+            var windowsBeforeReminder = desktop.Windows.ToHashSet();
             await runtime.ShowReminder();
-            if (desktop.Windows.Count != windowsBeforeReminder) throw new InvalidOperationException("Reminder created a floating window.");
             var session = runtime.Reminder.Session ?? throw new InvalidOperationException("Reminder did not open.");
             var reminder = runtime.ActivePet ?? throw new InvalidOperationException("Pet did not open.");
+            windowsBeforeReminder.Add(reminder.Overlay);
+            windowsBeforeReminder.Add(reminder.Overlay.Timer);
+            if (desktop.Windows.Any(window => !windowsBeforeReminder.Contains(window)))
+                throw new InvalidOperationException("Reminder created an unexpected floating window.");
             if (session.Routine.Id != BreakRoutines.DefaultId || session.DurationSeconds != 180)
                 throw new InvalidOperationException("Configured break duration was not applied to the session.");
             var dueSounds = runtime.DueSoundRequests;

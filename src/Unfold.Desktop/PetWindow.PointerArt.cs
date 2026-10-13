@@ -7,7 +7,7 @@ internal enum PetPointerPhase { None, Pending, Pickup, Held, Recovering }
 public sealed partial class PetWindow
 {
     private IReadOnlyList<AnimationFrame>[]? pointerClips;
-    private (string Key, BreakSession? Session, PetNotice Notice)? deferredPointerReaction;
+    private (string Key, PetReminder Source, BreakSession? Session, PetNotice Notice)? deferredPointerReaction;
     internal PetPointerPhase PointerPhase { get; private set; }
     internal bool HasPointerArt => pointerClips is not null && character == runtime.Selected;
 
@@ -27,7 +27,12 @@ public sealed partial class PetWindow
         var frames = pointerClips![index];
         animation.SetRunning(true);
         var definition = runtime.Selected!.Manifest.Animations[ActiveAnimation];
-        animation.SetFrames(frames, ActiveAnimation == "held" && definition.Loop, false, true, definition.PingPong);
+        var repeat = definition.Loop && pressed && (ActiveAnimation == "held" ||
+            runtime.Selected.IsGlb && ActiveAnimation == "pickup");
+        // GLB has one lift clip rather than a separate held clip. Repeating it
+        // will not emit Completed, so enter its held state immediately.
+        if (repeat && runtime.Selected.IsGlb) PointerPhase = PetPointerPhase.Held;
+        animation.SetFrames(frames, repeat, false, true, definition.PingPong);
     }
 
     private void BeginPointerArt()
@@ -86,7 +91,7 @@ public sealed partial class PetWindow
     {
         var deferred = deferredPointerReaction;
         InvalidatePlayback(); CancelCompanionPose();
-        if (deferred is { } next && runtime.PresentedReminder.Session == next.Session && runtime.PresentedReminder.Notice == next.Notice)
+        if (deferred is { } next && runtime.PresentedReminder == next.Source && runtime.PresentedReminder.Session == next.Session && runtime.PresentedReminder.Notice == next.Notice)
             _ = React(next.Key);
         else if (clicked && runtime.Selected?.Manifest.Animations.ContainsKey("click") == true) _ = React();
         else _ = RestoreBaseAnimation(generation);
@@ -94,12 +99,23 @@ public sealed partial class PetWindow
 
     private bool DeferPointerReaction(string? key)
     {
-        if (PointerPhase == PetPointerPhase.None) return false;
+        var mediaPointer = down is not null || reacting && ActiveAnimation == "pointerUp";
+        if (PointerPhase == PetPointerPhase.None && !mediaPointer || key == "pointerDown") return false;
         if (key == "stretch" && runtime.Reminder.Notice == PetNotice.Resting)
             originalStretchSession = runtime.Reminder.Session;
         if (key is not (null or "click"))
-            deferredPointerReaction = (key, runtime.PresentedReminder.Session, runtime.PresentedReminder.Notice);
+            deferredPointerReaction = (key, runtime.PresentedReminder, runtime.PresentedReminder.Session, runtime.PresentedReminder.Notice);
         return true;
+    }
+
+    private async Task ResumeMediaPointerReaction(int current)
+    {
+        var deferred = deferredPointerReaction; deferredPointerReaction = null;
+        if (current != generation || !IsVisible) return;
+        reacting = false;
+        if (deferred is { } next && runtime.PresentedReminder == next.Source && runtime.PresentedReminder.Session == next.Session && runtime.PresentedReminder.Notice == next.Notice)
+            _ = React(next.Key);
+        else await RestoreBaseAnimation(current);
     }
 
     private void ResetPointerArt()

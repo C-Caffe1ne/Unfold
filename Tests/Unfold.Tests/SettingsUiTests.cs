@@ -132,10 +132,10 @@ public class SettingsUiTests
         await AddCharacter(runtime, "Rex", opaque: false);
         await runtime.UpdateSettings(runtime.Settings);
         var window = new SettingsWindow(runtime); window.Show(); Dispatcher.UIThread.RunJobs();
-        Control<Button>(window, button => button.Name == "SettingsNavSettings")
-            .RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-        Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
-        var showPet = Control<CheckBox>(window, c => Equals(c.Content, "바탕화면에 펫 표시"));
+        window.UpdateLayout();
+        var showPet = Control<CheckBox>(window, c => c.Name == "ShowPetOnDesktop");
+        Assert.Equal("화면에 펫 표시", showPet.Content);
+        Assert.Contains(showPet, Control<Grid>(window, grid => grid.Name == "HomePetSelectionRow").GetVisualDescendants());
         Assert.True(showPet.IsChecked);
 
         var settingsFile = Path.Combine(AppPaths.DataRoot, "settings.json");

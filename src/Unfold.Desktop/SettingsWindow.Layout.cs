@@ -107,14 +107,21 @@ public sealed partial class SettingsWindow
         companionName.MaxLines = 2; companionName.TextTrimming = TextTrimming.CharacterEllipsis;
         var petLabel = Label("함께하는 펫", Body, Muted);
         var intro = Ui.Column(petLabel, companionName); intro.Spacing = 4; intro.IsHitTestVisible = false;
+        intro.Margin = new(0, 0, HomeControlHeight + Space, 0);
+        var managePets = Ui.Quiet(Ui.AsyncButton("펫 관리", OpenPetPacks));
+        managePets.Name = "HomeOpenPetManagement"; managePets.Content = new NavigationIcon("pet-add");
+        managePets.Width = managePets.Height = HomeControlHeight; managePets.Padding = new(0);
+        managePets.HorizontalAlignment = HorizontalAlignment.Right; managePets.VerticalAlignment = VerticalAlignment.Top;
+        AutomationProperties.SetName(managePets, "펫 관리"); ToolTip.SetTip(managePets, "펫 관리");
+        ToolTip.SetShowDelay(managePets, 500);
         companionPreviewStage = new Grid { Name = "CompanionPreviewStage", Width = PetBaseSize, Height = PetBaseSize };
         companionPreviewStage.Children.Add(preview);
         var previewScroll = new ScrollViewer { Name = "CompanionPreviewScroll", Content = companionPreviewStage,
             HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
             HorizontalContentAlignment = HorizontalAlignment.Center, VerticalContentAlignment = VerticalAlignment.Center };
         var previewArea = new Grid { MinHeight = 100, ClipToBounds = true, Margin = new(0, 0, 0, Space) };
-        previewArea.Children.Add(previewScroll); previewArea.Children.Add(intro); content.Children.Add(previewArea);
-        characters.Height = HomeControlHeight; characters.Width = HomeChoiceWidth; characters.HorizontalAlignment = HorizontalAlignment.Left;
+        previewArea.Children.Add(previewScroll); previewArea.Children.Add(intro); previewArea.Children.Add(managePets); content.Children.Add(previewArea);
+        characters.Height = HomeControlHeight; characters.MaxWidth = HomeChoiceWidth; characters.HorizontalAlignment = HorizontalAlignment.Stretch;
         characters.Classes.Add("home-choice");
         characters.ContainerPrepared += (_, e) => e.Container.Classes.Add("home-choice-item");
         var scaleLabel = Label("펫 크기", Body, Cream); scaleLabel.Name = "PetScaleLabel";
@@ -128,9 +135,13 @@ public sealed partial class SettingsWindow
         var scaleField = Ui.Column(scaleLabel, petScale, scaleValueRow); scaleField.Spacing = 4;
         var characterLabel = Label("펫 선택", Body, Cream); Ui.KeyboardFocusLabel(characters, characterLabel);
         AutomationProperties.SetLabeledBy(characters, characterLabel);
-        var characterField = new Grid { ColumnDefinitions = new("Auto,12,*"), MinHeight = HomeControlHeight };
+        showPet.FontSize = Body; showPet.Foreground = Cream; showPet.MinHeight = HomeControlHeight;
+        showPet.VerticalAlignment = VerticalAlignment.Center;
+        ToolTip.SetTip(showPet, "화면에 펫을 표시하거나 숨겨요.");
+        var characterField = new Grid { Name = "HomePetSelectionRow", ColumnDefinitions = new("Auto,12,*,12,Auto"), MinHeight = HomeControlHeight };
         characterLabel.VerticalAlignment = VerticalAlignment.Center; characterField.Children.Add(characterLabel);
         Grid.SetColumn(characters, 2); characterField.Children.Add(characters);
+        Grid.SetColumn(showPet, 4); characterField.Children.Add(showPet);
         var footer = Ui.Column(scaleField, characterField);
         footer.Spacing = Space; Grid.SetRow(footer, 1); content.Children.Add(footer);
         return Card("SettingsCompanionCard", content, Raised, CardRadius);
@@ -255,12 +266,9 @@ public sealed partial class SettingsWindow
 
     private Border BuildAppBehaviorCard()
     {
-        showPet.FontSize = launchAtLogin.FontSize = Body;
-        showPet.Foreground = launchAtLogin.Foreground = Cream;
-        showPet.MinHeight = launchAtLogin.MinHeight = 24;
-        ToolTip.SetTip(showPet, "바탕화면에 펫을 표시하거나 숨겨요.");
+        launchAtLogin.FontSize = Body; launchAtLogin.Foreground = Cream; launchAtLogin.MinHeight = 24;
         ToolTip.SetTip(launchAtLogin, "컴퓨터에 로그인하면 Unfold를 자동으로 실행해요.");
-        var options = Ui.Column(showPet, launchAtLogin); options.Spacing = Space;
+        var options = Ui.Column(launchAtLogin); options.Spacing = Space;
         var body = Ui.Column(SettingsHeading("앱 동작"), options);
         body.Spacing = Inset; body.Margin = new(Inset);
         return Card("SettingsAppBehaviorCard", body, Surface, new(28));

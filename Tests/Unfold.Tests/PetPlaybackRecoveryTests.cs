@@ -54,12 +54,14 @@ public class PetPlaybackRecoveryTests
     {
         using var scope = new Scope(); await scope.Select(); scope.Damage(key);
         await scope.Runtime.ShowReminder(); scope.Runtime.StartBreak();
-        await Until(() => scope.Pet.ActiveAnimation == "idle");
+        if (key == "walk") await scope.Pet.React("walk");
+        await Until(() => scope.Pet.ActiveAnimation == (key == "stretch" ? "idle" : "stretch"));
         Assert.Equal(PetNotice.Resting, scope.Runtime.Reminder.Notice);
-        Assert.False(scope.Pet.IsRoaming); Assert.True(scope.Pet.PetView.Repeats);
+        Assert.False(scope.Pet.IsRoaming);
         scope.Repair(key); scope.Runtime.Stop();
         await scope.Runtime.ShowReminder(); scope.Runtime.StartBreak();
-        await Until(() => scope.Pet.ActiveAnimation == "walk" && scope.Pet.IsRoaming);
+        await Until(() => scope.Pet.ActiveAnimation == "stretch");
+        Assert.False(scope.Pet.IsRoaming);
     }
 
     [AvaloniaFact]

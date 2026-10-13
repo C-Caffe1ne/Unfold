@@ -26,6 +26,9 @@
 
 | 문서 | 역할 |
 |---|---|
+| [알림·스트레칭·완료 행동 수명 검증](validation/2026-10-13-reminder-action-lifetime.md) | 버튼·자동 미루기까지 상태 유지, 완료 전체 재생과 자연 만료·명시적 취소 분리 |
+| [펫 행동 반복·타이머 호버 후속 검증](validation/2026-10-13-pet-playback-hover.md) | 누름 상태 유지·전체 재생 복귀, 호버 유지·즉시 이탈 숨김과 944개 검사 |
+| [펫 하단 타이머·호버 표시 1차 검증](validation/2026-10-13-pet-timer-hover.md) | 최초 2초 표시 구현·928개 검사. 후속 요청으로 호버 유지·즉시 이탈 숨김으로 변경 |
 | [GLB 미리보기 높이·펫 표시 크기 검증](validation/2026-10-13-glb-preview-size.md) | 기본 360px·펫 약 2.1배 확대, 작은 창 적응·스크롤 크기 유지와 902개 검사·macOS 확인 |
 | [GLB 미리보기 확장·설정 배치 검증](validation/2026-10-13-glb-wide-preview.md) | 전체 폭 미리보기, 하단 파일·펫 선택 오른쪽 행동 연결, 899개 검사·macOS 기본/최소 창 |
 | [GLB 미리보기 내부 화살표 검증](validation/2026-10-13-glb-preview-overlay-arrows.md) | XYZ 입력·Z축 조절 제거, 내부 화살표 배치와 887개 검사·macOS 저장 복원 |

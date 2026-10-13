@@ -14,27 +14,23 @@ namespace Unfold.Desktop;
 /// <summary>A separate native surface for reminders and timer controls; it never moves or arranges the pet.</summary>
 internal sealed class PetOverlayWindow : Window
 {
-    internal const double TimerWidth = 208, TimerHeight = 56, RowGap = 8;
     internal static double SurfaceHeight => new[] { DesignSystem.SpeechAdvanceHeight, DesignSystem.SpeechInvitationHeight,
-        DesignSystem.SpeechRestingHeight, DesignSystem.SpeechCompletedHeight }.Max() + RowGap + TimerHeight;
+        DesignSystem.SpeechRestingHeight, DesignSystem.SpeechCompletedHeight }.Max();
     private readonly PetWindow pet;
     private readonly AppRuntime runtime;
     private readonly Canvas canvas = new() { ClipToBounds = true };
     internal PetSpeechBubble Bubble { get; }
+    internal PetTimerWindow Timer { get; }
     private readonly Avalonia.Controls.Shapes.Polygon tail = new()
         { Name = "PetSpeechTail", Fill = DesignSystem.Shell, IsHitTestVisible = false };
     private readonly Avalonia.Controls.Shapes.Polyline tailOutline = new()
         { Name = "PetSpeechTailOutline", Stroke = DesignSystem.Outline, StrokeThickness = 1, IsHitTestVisible = false };
-    private readonly AnimatedCountdown countdown = new()
-        { Name = "PetTimerCountdown", FontSize = 20, LineHeight = 26, VerticalAlignment = VerticalAlignment.Center };
-    private readonly TimerControls timerControls;
-    private readonly Border timerBar;
     private readonly Button[] buttons;
     private IPointer? interactionPointer;
     private PixelRect? lastArea;
     internal BubbleDirection? Direction { get; private set; }
     internal bool IsClickThrough { get; private set; }
-    internal bool HoldsPlacement => (interactionPointer?.Captured is Visual captured && TopLevel.GetTopLevel(captured) == this)
+    internal bool HoldsPlacement => Timer.HoldsPlacement || (interactionPointer?.Captured is Visual captured && TopLevel.GetTopLevel(captured) == this)
         || OwnedWindows.Any(window => window.IsVisible);
     private bool closed;
 
@@ -47,16 +43,11 @@ internal sealed class PetOverlayWindow : Window
         Background = Brushes.Transparent; TransparencyLevelHint = [WindowTransparencyLevel.Transparent];
         ShowInTaskbar = false; Topmost = true; ShowActivated = false;
         Bubble = new(runtime.StartBreak, runtime.SnoozeBreak, runtime.CompleteBreak);
-        timerControls = new(runtime.TogglePause, () => _ = runtime.RequestStop(), compact: true);
-        var row = new Grid { ColumnDefinitions = new("*,8,Auto") };
-        row.Children.Add(countdown); Grid.SetColumn(timerControls, 2); row.Children.Add(timerControls);
-        timerBar = new Border { Name = "PetTimerBar", Width = TimerWidth, Height = TimerHeight, Padding = new Thickness(6, 5),
-            Background = DesignSystem.Shell, BorderBrush = DesignSystem.Outline, BorderThickness = new Thickness(1),
-            CornerRadius = DesignSystem.CardRadius, Child = row, ClipToBounds = true };
-        canvas.Children.Add(Bubble); canvas.Children.Add(tail); canvas.Children.Add(tailOutline); canvas.Children.Add(timerBar);
+        Timer = new(pet, runtime);
+        canvas.Children.Add(Bubble); canvas.Children.Add(tail); canvas.Children.Add(tailOutline);
         Content = canvas;
         // Cache only the application controls, excluding generated template descendants.
-        buttons = Bubble.GetLogicalDescendants().OfType<Button>().Concat(timerControls.Children.OfType<Button>()).ToArray();
+        buttons = Bubble.GetLogicalDescendants().OfType<Button>().ToArray();
         AddHandler(PointerPressedEvent, (_, e) => interactionPointer = e.Pointer, Avalonia.Interactivity.RoutingStrategies.Tunnel);
         AddHandler(PointerReleasedEvent, (_, _) => interactionPointer = null,
             Avalonia.Interactivity.RoutingStrategies.Bubble, handledEventsToo: true);
@@ -64,7 +55,7 @@ internal sealed class PetOverlayWindow : Window
         runtime.Changed += Refresh;
         Closed += (_, _) =>
         {
-            closed = true; runtime.Changed -= Refresh; countdown.Dispose();
+            closed = true; runtime.Changed -= Refresh; Timer.Close();
         };
     }
 
@@ -75,16 +66,10 @@ internal sealed class PetOverlayWindow : Window
         Bubble.Refresh(reminder, runtime.Settings.SnoozeMinutes, runtime.Settings);
         Bubble.IsVisible = tail.IsVisible = tailOutline.IsVisible = reminder.HasNotice;
         Bubble.Opacity = tail.Opacity = tailOutline.Opacity = runtime.Settings.BubbleOpacityPercent / 100d;
-        timerBar.IsVisible = runtime.Settings.ShowPetTimer;
-        var active = !runtime.Clock.Paused && !runtime.Clock.Stopped && !runtime.Clock.IdlePaused &&
-            reminder.Notice is not (PetNotice.Invitation or PetNotice.Resting);
-        countdown.UpdateTime(runtime.Clock.Remaining, active);
-        timerControls.Refresh(runtime.Clock, runtime.Reminder.HasNotice);
-        var clockState = runtime.Clock.Stopped ? "중지" : runtime.Clock.Paused ? "일시정지" : runtime.Clock.IdlePaused ? "자리 비움" : "진행 중";
-        AutomationProperties.SetName(timerBar, TrayReminderStatus.Create(reminder.Notice, countdown.Text, clockState).Status);
-        if (!pet.IsVisible || (!timerBar.IsVisible && !Bubble.IsVisible))
+        Timer.Refresh();
+        if (!pet.IsVisible || !Bubble.IsVisible)
         {
-            countdown.StopAnimation(); Hide(); return;
+            Hide(); return;
         }
         Reposition();
         if (!IsVisible)
@@ -101,24 +86,24 @@ internal sealed class PetOverlayWindow : Window
         var anchor = pet.PetAnchor;
         var screen = pet.Screens.ScreenFromPoint(anchor) ?? pet.Screens.Primary;
         var area = screen?.WorkingArea ?? new PixelRect(anchor.X - 1000, anchor.Y - 600, 2400, 1600);
-        var placement = PetOverlayPlacement.Calculate(anchor, pet.PetView.Width, scale, area,
+        var body = pet.InteractiveScreenBounds;
+        var placement = PetOverlayPlacement.Calculate(body, scale, area,
             area == lastArea ? Direction : null);
         Direction = placement.Direction; lastArea = area;
+        Timer.Reposition();
+        var timerRect = new PixelRect(Timer.Position, new PixelSize((int)Math.Ceiling(Timer.Width * scale), (int)Math.Ceiling(Timer.Height * scale)));
+        placement = PetOverlayPlacement.Calculate(body, scale, area, Direction,
+            !runtime.DiagnosticMode && Timer.IsVisible ? timerRect : null);
         if (runtime.DiagnosticMode)
         {
             MinWidth = placement.Width; MinHeight = SurfaceHeight;
         }
         Width = canvas.Width = placement.Width; Height = canvas.Height = SurfaceHeight;
-        var localCenter = (anchor.Y + pet.PetView.Height * scale / 2 - placement.Position.Y) / scale;
+        var localCenter = (body.Y + body.Height / 2d - placement.Position.Y) / scale;
         var gap = DesignSystem.PetBubbleGap;
         Bubble.Width = Math.Max(1, Width - gap);
-        timerBar.Width = Math.Min(TimerWidth, Width);
-        var groupHeight = Bubble.Height + (timerBar.IsVisible ? RowGap + TimerHeight : 0);
-        var top = Math.Clamp(localCenter - groupHeight / 2, 0, Math.Max(0, Height - groupHeight));
+        var top = Math.Clamp(localCenter - Bubble.Height / 2, 0, Math.Max(0, Height - Bubble.Height));
         Canvas.SetLeft(Bubble, Direction == BubbleDirection.Right ? gap : 0); Canvas.SetTop(Bubble, top);
-        Canvas.SetLeft(timerBar, Direction == BubbleDirection.Right ? 0 : Width - timerBar.Width);
-        Canvas.SetTop(timerBar, Bubble.IsVisible ? top + Bubble.Height + RowGap :
-            Math.Clamp(localCenter - TimerHeight / 2, 0, Height - TimerHeight));
         var center = Math.Clamp(localCenter, top + 12, top + Bubble.Height - 12);
         var edge = Direction == BubbleDirection.Right ? gap : Width - gap;
         var tip = Direction == BubbleDirection.Right ? 0 : Width;
@@ -138,6 +123,7 @@ internal sealed class PetOverlayWindow : Window
 
     internal void UpdateClickThrough()
     {
+        Timer.UpdateClickThrough();
         if (closed || !IsVisible || runtime.DiagnosticMode) return;
         Point point;
         if (!(OperatingSystem.IsMacOS() ? MacPetWindow.TryGetPointer(this, out point) : WindowsPetWindow.TryGetPointer(this, out point))) return;
@@ -187,26 +173,51 @@ internal sealed class PetOverlayWindow : Window
 internal readonly record struct PetOverlayPlacement(PixelPoint Position, double Width, BubbleDirection Direction)
 {
     internal static PetOverlayPlacement Calculate(PixelPoint anchor, double petSize, double scale, PixelRect area,
-        BubbleDirection? previous = null)
+        BubbleDirection? previous = null) => Calculate(new PixelRect(anchor,
+            new PixelSize((int)Math.Ceiling(petSize * scale), (int)Math.Ceiling(petSize * scale))), scale, area, previous);
+
+    internal static PetOverlayPlacement Calculate(PixelRect body, double scale, PixelRect area,
+        BubbleDirection? previous = null, PixelRect? timer = null)
     {
-        var gap = DesignSystem.PetBubbleGap;
-        var center = anchor.X + petSize * scale / 2;
+        const double gap = 4;
+        var center = body.X + body.Width / 2d;
         var middle = area.X + area.Width / 2d;
         var direction = center < middle ? BubbleDirection.Right : BubbleDirection.Left;
         if (previous is BubbleDirection.Left or BubbleDirection.Right && Math.Abs(center - middle) <= 24 * scale)
             direction = previous.Value;
-        var left = Math.Max(0, (anchor.X - area.X) / scale - gap);
-        var right = Math.Max(0, (area.Right - anchor.X) / scale - petSize - gap);
-        var maxWidth = DesignSystem.SpeechBubbleWidth + gap;
+        var left = Math.Max(0, (body.X - area.X) / scale - gap);
+        var right = Math.Max(0, (area.Right - body.Right) / scale - gap);
+        var maxWidth = DesignSystem.SpeechBubbleWidth + DesignSystem.PetBubbleGap;
         if ((direction == BubbleDirection.Left ? left : right) < maxWidth &&
             (direction == BubbleDirection.Left ? right : left) > (direction == BubbleDirection.Left ? left : right))
             direction = direction == BubbleDirection.Left ? BubbleDirection.Right : BubbleDirection.Left;
         var width = Math.Max(1, Math.Min(maxWidth, direction == BubbleDirection.Left ? left : right));
-        var x = direction == BubbleDirection.Right ? anchor.X + (int)Math.Ceiling((petSize + gap) * scale)
-            : anchor.X - (int)Math.Ceiling((width + gap) * scale);
+        var x = direction == BubbleDirection.Right ? body.Right + (int)Math.Ceiling(gap * scale)
+            : body.X - (int)Math.Ceiling((width + gap) * scale);
         var height = (int)Math.Ceiling(PetOverlayWindow.SurfaceHeight * scale);
-        var y = (int)Math.Round(anchor.Y + petSize * scale / 2 - height / 2d);
+        var y = (int)Math.Round(body.Y + body.Height / 2d - height / 2d);
         y = Math.Clamp(y, area.Y, Math.Max(area.Y, area.Bottom - height));
+        if (timer is { } timerRect && new PixelRect(x, y, (int)Math.Ceiling(width * scale), height).Intersects(timerRect))
+        {
+            var above = timerRect.Y - height - (int)Math.Ceiling(8 * scale);
+            if (above >= area.Y) y = Math.Min(y, above);
+            else
+            {
+                // Small pets at the top edge can have a wider timer than their
+                // body. Preserve both controls without covering either one.
+                if (direction == BubbleDirection.Right)
+                {
+                    x = Math.Max(x, timerRect.Right + (int)Math.Ceiling(gap * scale));
+                    width = Math.Max(1, Math.Min(width, (area.Right - x) / scale));
+                }
+                else
+                {
+                    var edge = Math.Min(body.X, timerRect.X) - (int)Math.Ceiling(gap * scale);
+                    width = Math.Max(1, Math.Min(width, (edge - area.X) / scale));
+                    x = edge - (int)Math.Ceiling(width * scale);
+                }
+            }
+        }
         return new(new(x, y), width, direction);
     }
 }

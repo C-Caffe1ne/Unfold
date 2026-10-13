@@ -153,7 +153,7 @@ public class BreakReminderTests
             Assert.Equal(new object?[] { "설정", "펫 숨기기" }, menu.Select(item => item.Header));
             runtime.Reminder.Start(TimeSpan.Zero); runtime.Reminder.Tick(TimeSpan.FromSeconds(7));
             pet.RefreshSpeech(); Assert.Same(session, runtime.Reminder.Session);
-            Assert.Equal(TimeSpan.FromSeconds(7), session.Elapsed); Assert.Same(pet.Overlay, Assert.Single(pet.OwnedWindows));
+            Assert.Equal(TimeSpan.FromSeconds(7), session.Elapsed); Assert.Contains(pet.Overlay, pet.OwnedWindows); Assert.Contains(pet.Overlay.Timer, pet.OwnedWindows);
             Assert.Equal(150, AppSettings.Load(Path.Combine(temp.Path, "settings.json")).PetScalePercent);
         }
         finally { pet.ClosePet(); Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", previous); }
@@ -219,7 +219,8 @@ public class BreakReminderTests
             Assert.True(runtime.Reminder.Invite(live));
             await Assert.ThrowsAsync<InvalidOperationException>(() => runtime.ShowReminderPreview(PetNotice.Advance));
             Assert.Same(live, runtime.Reminder.Session); Assert.Equal(PetNotice.Invitation, runtime.PresentedReminder.Notice);
-            Assert.Same(pet.Overlay, Assert.Single(pet.OwnedWindows));
+            pet.RefreshSpeech(); Dispatcher.UIThread.RunJobs(); pet.Overlay.UpdateLayout();
+            Assert.Contains(pet.Overlay, pet.OwnedWindows); Assert.Contains(pet.Overlay.Timer, pet.OwnedWindows);
         }
         finally { pet.ClosePet(); Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", previous); }
     }

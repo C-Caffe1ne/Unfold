@@ -1,0 +1,188 @@
+{
+  "method": "Final native host uses the production DLL with matching SHA256 and an isolated profile. Keyboard shortcuts invoke production lift/release services and move windows under the physical cursor; native polling and real pointer-down events are sampled. Explicit drags/moves are excluded from geometry invariance. This is not video proof of every presented terminal frame.",
+  "baseline": "09853c7 + preserved preceding overlay changes",
+  "production_dll_sha256": "491d0eacff6293f9b7fb2a9f8d246048e893e6a229ac1b3e8eb744d06a18fb8f",
+  "full_tests": {
+    "total": "944",
+    "executed": "944",
+    "passed": "944",
+    "failed": "0",
+    "error": "0",
+    "timeout": "0",
+    "aborted": "0",
+    "inconclusive": "0",
+    "passedButRunAborted": "0",
+    "notRunnable": "0",
+    "notExecuted": "0",
+    "disconnected": "0",
+    "warning": "0",
+    "completed": "0",
+    "inProgress": "0",
+    "pending": "0"
+  },
+  "native_lift": {
+    "samples": 3532,
+    "duration_ms": 57617.98329999999,
+    "actions": [
+      "pickup"
+    ],
+    "phases": [
+      "Held"
+    ],
+    "all_pointer_down": true,
+    "frame_wraps": 4,
+    "timer_opacity": [
+      0
+    ],
+    "pet_geometry": {
+      "width": [
+        288
+      ],
+      "height": [
+        288
+      ],
+      "originX": [
+        0
+      ],
+      "originY": [
+        0
+      ],
+      "handle": [
+        52021364608
+      ]
+    },
+    "arrangements": [
+      1
+    ]
+  },
+  "native_release": {
+    "transitions": [
+      {
+        "ms": 142726.7491,
+        "animation": "land",
+        "phase": "Recovering"
+      },
+      {
+        "ms": 144324.905,
+        "animation": "idle",
+        "phase": "None"
+      }
+    ],
+    "configured_duration_ms": 1533.333420753479,
+    "observed_before_idle_ms": 1598.1559000000125
+  },
+  "native_hover_and_real_press": [
+    {
+      "ms": 11652.4477,
+      "pointer_down": false,
+      "over_current_body": true,
+      "opacity_state": "hidden",
+      "opacity": 0
+    },
+    {
+      "ms": 11676.8025,
+      "pointer_down": false,
+      "over_current_body": true,
+      "opacity_state": "fading",
+      "opacity": 0.04952793551993875
+    },
+    {
+      "ms": 11844.9881,
+      "pointer_down": false,
+      "over_current_body": true,
+      "opacity_state": "full",
+      "opacity": 1
+    },
+    {
+      "ms": 12620.215,
+      "pointer_down": false,
+      "over_current_body": false,
+      "opacity_state": "full",
+      "opacity": 1
+    },
+    {
+      "ms": 12636.5004,
+      "pointer_down": false,
+      "over_current_body": false,
+      "opacity_state": "fading",
+      "opacity": 0.9770193938778593
+    },
+    {
+      "ms": 12786.1242,
+      "pointer_down": false,
+      "over_current_body": true,
+      "opacity_state": "fading",
+      "opacity": 0.017449415911419464
+    },
+    {
+      "ms": 12966.3156,
+      "pointer_down": false,
+      "over_current_body": true,
+      "opacity_state": "full",
+      "opacity": 1
+    },
+    {
+      "ms": 13365.137,
+      "pointer_down": true,
+      "over_current_body": true,
+      "opacity_state": "hidden",
+      "opacity": 0
+    },
+    {
+      "ms": 13415.1917,
+      "pointer_down": true,
+      "over_current_body": false,
+      "opacity_state": "hidden",
+      "opacity": 0
+    },
+    {
+      "ms": 13415.6962,
+      "pointer_down": true,
+      "over_current_body": true,
+      "opacity_state": "hidden",
+      "opacity": 0
+    },
+    {
+      "ms": 13439.1269,
+      "pointer_down": true,
+      "over_current_body": false,
+      "opacity_state": "hidden",
+      "opacity": 0
+    },
+    {
+      "ms": 13445.1778,
+      "pointer_down": true,
+      "over_current_body": true,
+      "opacity_state": "hidden",
+      "opacity": 0
+    },
+    {
+      "ms": 13455.2799,
+      "pointer_down": true,
+      "over_current_body": false,
+      "opacity_state": "hidden",
+      "opacity": 0
+    },
+    {
+      "ms": 13455.9447,
+      "pointer_down": true,
+      "over_current_body": true,
+      "opacity_state": "hidden",
+      "opacity": 0
+    },
+    {
+      "ms": 13599.2409,
+      "pointer_down": false,
+      "over_current_body": true,
+      "opacity_state": "hidden",
+      "opacity": 0
+    },
+    {
+      "ms": 13680.2726,
+      "pointer_down": false,
+      "over_current_body": false,
+      "opacity_state": "hidden",
+      "opacity": 0
+    }
+  ]
+}

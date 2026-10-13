@@ -58,7 +58,7 @@ public sealed partial class SettingsWindow : Window, IDisposable
         countdown.Name = "TimerCountdown";
         state.Name = "TimerStateText";
         state.TextWrapping = TextWrapping.Wrap;
-        showPet = new CheckBox { Name = "ShowPetOnDesktop", Content = "바탕화면에 펫 표시", IsChecked = runtime.Settings.ShowPet };
+        showPet = new CheckBox { Name = "ShowPetOnDesktop", Content = "화면에 펫 표시", IsChecked = runtime.Settings.ShowPet };
         showPet.IsCheckedChanged += async (_, _) =>
         {
             if (updating) return;

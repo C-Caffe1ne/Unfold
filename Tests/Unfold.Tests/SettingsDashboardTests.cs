@@ -285,8 +285,8 @@ public class SettingsDashboardTests
         foreach (var removed in new[] { "SettingsNavRoutines", "SettingsEditRoutine", "ApplyRoutineSettings", "SettingsOpenLibrary" })
             Assert.DoesNotContain(window.GetVisualDescendants().OfType<Control>(), control => control.Name == removed);
         Assert.DoesNotContain(window.GetVisualDescendants().OfType<TabControl>(), control => control.Name == "PersonalizationTabs");
-        Assert.DoesNotContain(window.GetVisualDescendants().OfType<Control>(), control =>
-            control.Name is "ShowPetOnDesktop" or "LaunchAtLogin");
+        Assert.Equal("화면에 펫 표시", Find<CheckBox>(window, "ShowPetOnDesktop").Content);
+        Assert.DoesNotContain(window.GetVisualDescendants().OfType<Control>(), control => control.Name == "LaunchAtLogin");
 
         Click(window, "SettingsNavReview"); Dispatcher.UIThread.RunJobs();
         Assert.Empty(window.OwnedWindows);
@@ -307,7 +307,7 @@ public class SettingsDashboardTests
             Assert.Contains(timerSettings.GetVisualDescendants().OfType<TextBlock>(), text => text.Text == label);
         Assert.DoesNotContain(timerSettings.GetVisualDescendants().OfType<TextBlock>(), text => text.Text == "스트레칭 알림 간격 (분)");
         var appBehavior = Find<Border>(window, "SettingsAppBehaviorCard");
-        Assert.Contains(appBehavior.GetVisualDescendants().OfType<CheckBox>(), checkbox => checkbox.Name == "ShowPetOnDesktop");
+        Assert.DoesNotContain(appBehavior.GetVisualDescendants().OfType<CheckBox>(), checkbox => checkbox.Name == "ShowPetOnDesktop");
         Assert.Contains(appBehavior.GetVisualDescendants().OfType<CheckBox>(), checkbox => checkbox.Name == "LaunchAtLogin");
         Assert.NotNull(Find<Border>(window, "SettingsDebugToolsCard"));
 
@@ -338,6 +338,72 @@ public class SettingsDashboardTests
             Click(window, "SettingsNavSettings"); AssertCentered("SettingsPreferencesScroll", "SettingsPreferencesBody", DesignSystem.SettingsContentWidth);
             Click(window, "SettingsNavReview"); AssertCentered("PageBodyScroll", "ReviewBody", DesignSystem.ReviewContentWidth);
             Click(window, "SettingsNavPacks"); AssertCentered("PageBodyScroll", "PetPageBody", DesignSystem.PetContentWidth);
+        }
+    }
+
+    [AvaloniaFact]
+    public void HomePetControlsKeepTheCheckboxBesideThePickerAndManagementAtTopRight()
+    {
+        using var scope = new Scope(); var window = scope.Window;
+        foreach (var size in new[] { new Size(1120, 800), new Size(860, 680), new Size(640, 560) })
+        {
+            window.Width = size.Width; window.Height = size.Height;
+            Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+            var card = Find<Border>(window, "SettingsCompanionCard");
+            var row = Find<Grid>(window, "HomePetSelectionRow");
+            var picker = Find<ComboBox>(window, "CharacterPicker");
+            var showPet = Find<CheckBox>(window, "ShowPetOnDesktop");
+            var manage = Find<Button>(window, "HomeOpenPetManagement");
+            var pickerOrigin = picker.TranslatePoint(default, row)!.Value;
+            var showPetOrigin = showPet.TranslatePoint(default, row)!.Value;
+            Assert.Contains(picker, row.GetVisualDescendants());
+            Assert.Contains(showPet, row.GetVisualDescendants());
+            Assert.Equal("화면에 펫 표시", showPet.Content);
+            Assert.True(showPetOrigin.X >= pickerOrigin.X + picker.Bounds.Width, $"Controls overlap at {size}.");
+            Assert.InRange(Math.Abs(pickerOrigin.Y + picker.Bounds.Height / 2 - showPetOrigin.Y - showPet.Bounds.Height / 2), 0, 1);
+            foreach (var control in new Control[] { row, picker, showPet, manage })
+            {
+                var origin = control.TranslatePoint(default, card)!.Value;
+                Assert.True(control.Bounds.Width > 0 && control.Bounds.Height > 0, control.Name);
+                Assert.True(origin.X >= 0 && origin.X + control.Bounds.Width <= card.Bounds.Width + .5, $"{control.Name}: {size}");
+                Assert.True(origin.Y >= 0 && origin.Y + control.Bounds.Height <= card.Bounds.Height + .5, $"{control.Name}: {size}");
+            }
+            var manageOrigin = manage.TranslatePoint(default, card)!.Value;
+            Assert.True(manageOrigin.X > card.Bounds.Width / 2);
+            Assert.True(manageOrigin.Y + manage.Bounds.Height < picker.TranslatePoint(default, card)!.Value.Y);
+            Assert.Equal("펫 관리", ToolTip.GetTip(manage));
+            Assert.Equal("펫 관리", AutomationProperties.GetName(manage));
+            Assert.Single(manage.GetVisualDescendants().OfType<NavigationIcon>());
+            Assert.DoesNotContain(manage.GetVisualDescendants().OfType<TextBlock>(), text => !string.IsNullOrEmpty(text.Text));
+        }
+    }
+
+    [AvaloniaFact]
+    public void HomePetManagementShortcutKeepsTheShowPetControlAndSavedValueAcrossNavigation()
+    {
+        using var scope = new Scope(); var window = scope.Window;
+        var showPet = Find<CheckBox>(window, "ShowPetOnDesktop");
+        var settingsFile = Path.Combine(scope.Root, "settings.json");
+        foreach (var displayed in new[] { false, true })
+        {
+            showPet.IsChecked = displayed;
+            Dispatcher.UIThread.RunJobs();
+            Assert.Equal(displayed, scope.Runtime.Settings.ShowPet);
+            Assert.Equal(displayed, AppSettings.Load(settingsFile).ShowPet);
+            Click(window, "HomeOpenPetManagement");
+            Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+            Assert.NotNull(Find<Button>(window, "OpenPetBuilderFile"));
+            Assert.Contains("primary", Find<Button>(window, "SettingsNavPacks").Classes);
+            Assert.DoesNotContain("primary", Find<Button>(window, "SettingsNavTimer").Classes);
+            Assert.Empty(window.OwnedWindows);
+            Click(window, "SettingsNavSettings"); Dispatcher.UIThread.RunJobs();
+            Assert.DoesNotContain(Find<Border>(window, "SettingsAppBehaviorCard").GetVisualDescendants().OfType<CheckBox>(),
+                checkbox => checkbox.Name == "ShowPetOnDesktop");
+            Click(window, "SettingsNavTimer"); Dispatcher.UIThread.RunJobs();
+            Assert.Same(showPet, Find<CheckBox>(window, "ShowPetOnDesktop"));
+            Assert.Equal(displayed, showPet.IsChecked);
+            Assert.Equal(displayed, scope.Runtime.Settings.ShowPet);
+            Assert.Contains("primary", Find<Button>(window, "SettingsNavTimer").Classes);
         }
     }
 

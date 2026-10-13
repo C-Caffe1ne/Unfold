@@ -36,33 +36,32 @@ public class PetMotionContinuationTests
 
     [AvaloniaTheory]
     [InlineData("original")] [InlineData("glb")]
-    public async Task StretchAndWalkKeepPlayingUnderThePointerAndTransparentBackground(string kind)
+    public async Task StretchKeepsItsEndPoseUnderThePointerAndTransparentBackgroundUntilCompletion(string kind)
     {
         using var scope = new Scope(); await scope.Select(kind); var pet = scope.Pet;
         await scope.Runtime.ShowReminder(); scope.Runtime.StartBreak();
         pet.MouseMove(scope.PaintedPoint()); Layout(pet);
-        await Until(() => pet.IsRoaming && pet.ActiveAnimation == "walk");
+        await Until(() => (bool)typeof(AnimationView).GetField("completed", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(pet.PetView)!);
         foreach (var point in new[] { scope.PaintedPoint(), pet.PetView.TranslatePoint(new(1, 1), pet)!.Value })
         {
             pet.MouseMove(point); Layout(pet); Assert.True(pet.IsPointerOver);
             pet.AdvanceCompanion(.1);
-            Assert.Equal("walk", pet.ActiveAnimation);
+            Assert.Equal("stretch", pet.ActiveAnimation); Assert.False(pet.IsRoaming);
             Assert.True(Running(pet.PetView));
-            Assert.True(((Stopwatch)typeof(AnimationView).GetField("elapsed", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(pet.PetView)!).IsRunning);
+            Assert.False(((Stopwatch)typeof(AnimationView).GetField("elapsed", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(pet.PetView)!).IsRunning);
         }
         Assert.False(pet.AcceptsPointerAt(pet.PetView.TranslatePoint(new(1, 1), pet)!.Value));
         Assert.Equal(PetNotice.Resting, scope.Runtime.Reminder.Notice);
     }
 
     [AvaloniaFact]
-    public async Task AOneShotSpriteWalkReturnsToIdleAfterItsLastFrame()
+    public async Task AOneShotSpriteWalkReturnsToIdleAfterItsLastFrameOutsideABreak()
     {
         using var scope = new Scope(); await scope.Select("original", walkLoop: false); var pet = scope.Pet;
-        await scope.Runtime.ShowReminder(); scope.Runtime.StartBreak();
-        await Until(() => pet.ActiveAnimation == "walk" && pet.IsRoaming);
-        await Until(() => pet.ActiveAnimation == "idle" && !pet.IsRoaming);
+        await pet.React("walk");
+        Assert.Equal("idle", pet.ActiveAnimation); Assert.False(pet.IsRoaming);
         Assert.True(Running(pet.PetView)); Assert.True(pet.PetView.Repeats);
-        Assert.Equal(PetNotice.Resting, scope.Runtime.Reminder.Notice);
+        Assert.Equal(PetNotice.None, scope.Runtime.Reminder.Notice);
     }
 
     [AvaloniaFact]

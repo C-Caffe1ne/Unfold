@@ -42,6 +42,19 @@ public sealed class AnimationView : Control, IDisposable
     private bool loop;
     private int index;
     private Point[] frameOffsets = [];
+    private Rect interactiveEnvelope;
+    internal event Action? InteractiveBoundsChanged;
+    internal Rect InteractiveBounds
+    {
+        get
+        {
+            var size = Math.Min(Bounds.Width, Bounds.Height);
+            if (interactiveEnvelope.Width <= 0 || size <= 0) return new Rect(default, Bounds.Size);
+            return new Rect((Bounds.Width - size) / 2 + interactiveEnvelope.X * size,
+                (Bounds.Height - size) / 2 + interactiveEnvelope.Y * size,
+                interactiveEnvelope.Width * size, interactiveEnvelope.Height * size);
+        }
+    }
     private PetPose pose = PetPose.Neutral;
     private bool facingLeft;
     internal PetPose Pose => pose;
@@ -89,22 +102,27 @@ public sealed class AnimationView : Control, IDisposable
             // Playback owns both buffers; never recycle pixels returned by the
             // public immutable frame API or shared with another view.
             liveImage = new(first.Width, first.Height, first.Pixels.ToArray());
+            interactiveEnvelope = NormalizedInteractiveBounds(first, default);
             bitmaps = [Ui.Bitmap(liveImage)]; loop = repeat;
             frameOffsets = []; totalMs = live.DurationSeconds * 1000; index = 0; completed = false; facingLeft = false;
             RenderOptions.SetBitmapInterpolationMode(this, BitmapInterpolationMode.HighQuality);
             timer.Interval = live.FrameDuration;
             if (running) { elapsed.Restart(); if (HasTopLevel() && NeedsTimer) timer.Start(); } else elapsed.Reset();
-            UpdatePoseTransform(); RefreshLiveResolution(); InvalidateVisual(); return;
+            UpdatePoseTransform(); RefreshLiveResolution(); InvalidateVisual(); InteractiveBoundsChanged?.Invoke(); return;
         }
         frames = pingPong && clip.Count > 2 ? clip.Concat(clip.Skip(1).Take(clip.Count - 2).Reverse()).ToArray() : clip;
         if (frames.Count > 0) UploadFrame(frames[0].Image);
         loop = repeat;
         frameOffsets = alignCompanion ? frames.Select(frame => CompanionOffset(frame.Image)).ToArray() : [];
+        interactiveEnvelope = default;
+        for (var i = 0; i < frames.Count; i++)
+            IncludeInteractiveBounds(NormalizedInteractiveBounds(frames[i].Image, frameOffsets.Length > i ? frameOffsets[i] : default));
         totalMs = frames.Sum(f => f.Duration.TotalMilliseconds); index = 0; completed = false;
         RenderOptions.SetBitmapInterpolationMode(this, pixel ? BitmapInterpolationMode.None : BitmapInterpolationMode.HighQuality);
         timer.Interval = frames.Count > 0 ? frames[0].Duration : TimeSpan.FromMilliseconds(100);
         if (running) { elapsed.Restart(); if (HasTopLevel() && NeedsTimer) timer.Start(); } else elapsed.Reset();
         InvalidateVisual();
+        InteractiveBoundsChanged?.Invoke();
     }
     private bool HasTopLevel() => TopLevel.GetTopLevel(this) is not null;
     public void SetRunning(bool value)
@@ -161,11 +179,13 @@ public sealed class AnimationView : Control, IDisposable
             // A completed one-shot keeps the exact end pose when resized or
             // refreshed; indexed frames continue to exclude the loop boundary.
             var terminal = ended || (!loop && completed);
+            Rect nextBounds = default;
             await Task.Run(() =>
             {
                 if (rotation is { } orientation) source.RenderPreviewFrameInto(next, pixels, image.Pixels, orientation, terminal);
                 else if (terminal) source.RenderTerminalFrameInto(pixels, image.Pixels);
                 else source.RenderFrameInto(next, pixels, image.Pixels);
+                nextBounds = NormalizedInteractiveBounds(image, default);
             });
             if (disposed || request != liveGeneration) return;
             if (bitmaps.Length == 1 && bitmaps[0] is WriteableBitmap bitmap && bitmap.PixelSize.Width == pixels && bitmap.PixelSize.Height == pixels)
@@ -178,6 +198,9 @@ public sealed class AnimationView : Control, IDisposable
             }
             liveBackImage = liveImage?.Width == pixels ? liveImage : null;
             liveImage = image; index = next; renderedPreviewRotation = rotation; InvalidateVisual();
+            // Expand the action envelope, never shrink it between GLB frames.
+            // This keeps moving limbs clear without making overlays follow every pose.
+            if (IncludeInteractiveBounds(nextBounds)) InteractiveBoundsChanged?.Invoke();
             if (ended) { timer.Stop(); elapsed.Stop(); completed = true; Completed?.Invoke(); }
         }
         catch (Exception error)
@@ -230,6 +253,7 @@ public sealed class AnimationView : Control, IDisposable
         var anchorY = Bounds.Height * .90;
         RenderTransform = new MatrixTransform(new Matrix(sx, 0, 0, pose.ScaleY,
             anchorX * (1 - sx), anchorY * (1 - pose.ScaleY) - pose.Lift * Bounds.Height));
+        InteractiveBoundsChanged?.Invoke();
     }
     private Rect ImageRect()
     {
@@ -251,6 +275,26 @@ public sealed class AnimationView : Control, IDisposable
         return bottom < 0 ? default : new Point((image.Width - left - right - 1) / 2d, image.Height * .90 - bottom - 1);
     }
     public bool OpaqueAt(Point point) => OpaqueAt(point, includeEdgeTolerance: true);
+    private bool IncludeInteractiveBounds(Rect bounds)
+    {
+        if (bounds.Width <= 0 || bounds.Height <= 0) return false;
+        var next = interactiveEnvelope.Width <= 0 ? bounds : interactiveEnvelope.Union(bounds);
+        if (next == interactiveEnvelope) return false;
+        interactiveEnvelope = next; return true;
+    }
+    private static Rect NormalizedInteractiveBounds(PixelImage image, Point offset)
+    {
+        var left = image.Width; var top = image.Height; var right = -1; var bottom = -1;
+        for (var y = 0; y < image.Height; y++)
+            for (var x = 0; x < image.Width; x++)
+                if (image.Pixels[y * image.Width + x] >> 24 >= 26)
+                { left = Math.Min(left, x); right = Math.Max(right, x); top = Math.Min(top, y); bottom = Math.Max(bottom, y); }
+        if (right < 0) return default;
+        var size = Math.Max(image.Width, image.Height);
+        return new Rect(((size - image.Width) / 2d + left + offset.X) / size,
+            ((size - image.Height) / 2d + top + offset.Y) / size,
+            (right - left + 1d) / size, (bottom - top + 1d) / size);
+    }
     public bool OpaqueAt(Point point, bool includeEdgeTolerance)
     {
         if (frames.Count == 0) return false;
