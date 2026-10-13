@@ -13,7 +13,6 @@ public sealed class GlbPetDraft
         "land" => "놓기", "attention" => "휴식 알림", "stretch" => "휴식 시작", "celebrate" => "휴식 완료",
         "walk" => "화면 위 걷기", "sleep" => "잠자기", "look" => "두리번거리기", "yawn" => "하품", "sulk" => "휴식 미루기", _ => key
     };
-    public static bool? RequiredLoop(string action) => action == "idle" ? true : null;
     private readonly byte[] bytes;
     private Version contentVersion = new(1, 0, 0);
     private string? expectedRevision;
@@ -68,7 +67,6 @@ public sealed class GlbPetDraft
         heading ??= previous?.Heading;
         if (heading is { } angle && (!float.IsFinite(angle) || angle is < -180 or > 180)) throw new InvalidDataException("Invalid action heading.");
         if (rotation is { IsValid: false }) throw new InvalidDataException("Invalid action rotation.");
-        loop = RequiredLoop(action) ?? loop;
         Mappings[action] = new(ModelClip: clip, Speed: speed, Loop: loop, Heading: rotation?.Y ?? heading, Rotation: rotation);
     }
     private GlbDefinition Definition => new("model.glb", Heading, RootNode, Rotation);

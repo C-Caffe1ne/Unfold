@@ -413,7 +413,7 @@ public class OriginalCompanionTests
         for (var index = 1; index <= 4; index++)
         {
             await runtime.ShowReminder(); runtime.SnoozeBreak();
-            Assert.Equal(index == 3 ? "sulk" : "attention", pet.ActiveAnimation);
+            await Until(() => pet.ActiveAnimation == (index == 3 ? "sulk" : "idle"));
             await Until(() => pet.ActiveAnimation == "idle");
         }
         await runtime.ShowReminder(); runtime.StartBreak();

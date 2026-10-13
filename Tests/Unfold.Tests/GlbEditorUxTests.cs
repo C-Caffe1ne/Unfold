@@ -138,26 +138,40 @@ public class GlbEditorUxTests
     [InlineData("walk")]
     [InlineData("pickup")]
     [InlineData("land")]
-    public async Task AllAssignedActionsExceptIdleCanChooseTheirPlayback(string action)
+    [InlineData("click")]
+    [InlineData("attention")]
+    [InlineData("stretch")]
+    [InlineData("celebrate")]
+    [InlineData("sleep")]
+    [InlineData("look")]
+    [InlineData("yawn")]
+    [InlineData("sulk")]
+    public async Task AllAssignedActionsCanChooseAndReopenTheirPlayback(string action)
     {
         using var editor = new Editor(); await editor.Open();
         editor.Find<ComboBox>("GlbPreviewAction").SelectedItem = action;
         editor.Find<ComboBox>("GlbClip_" + action).SelectedItem = "Idle";
         var repeat = editor.Find<ComboBox>("GlbRepeat_" + action);
-        Assert.Equal(action != "idle", repeat.IsEnabled);
+        Assert.True(repeat.IsEnabled);
         repeat.SelectedIndex = 1;
         await Editor.Until(() => !editor.Page.IsPreviewLoading);
         Assert.True(editor.Find<AnimationView>("GlbPreview").Repeats);
         editor.Press("SaveGlbPet"); await Editor.Until(() => !editor.Page.IsBusy);
-        Assert.True(editor.Library.List().Single().Manifest.Animations[action].Loop);
-        if (action != "idle")
-        {
-            repeat.SelectedIndex = 0;
-            await Editor.Until(() => !editor.Page.IsPreviewLoading);
-            Assert.False(editor.Find<AnimationView>("GlbPreview").Repeats);
-            editor.Press("SaveGlbPet"); await Editor.Until(() => !editor.Page.IsBusy);
-            Assert.False(editor.Library.List().Single().Manifest.Animations[action].Loop);
-        }
+        var saved = Assert.Single(editor.Library.List());
+        Assert.True(saved.Manifest.Animations[action].Loop);
+        await editor.Page.OpenPackage(saved);
+        editor.Find<ComboBox>("GlbPreviewAction").SelectedItem = action;
+        repeat = editor.Find<ComboBox>("GlbRepeat_" + action);
+        Assert.True(repeat.IsEnabled); Assert.Equal(1, repeat.SelectedIndex);
+        repeat.SelectedIndex = 0;
+        await Editor.Until(() => !editor.Page.IsPreviewLoading);
+        Assert.False(editor.Find<AnimationView>("GlbPreview").Repeats);
+        editor.Press("SaveGlbPet"); await Editor.Until(() => !editor.Page.IsBusy);
+        saved = Assert.Single(editor.Library.List());
+        Assert.False(saved.Manifest.Animations[action].Loop);
+        await editor.Page.OpenPackage(saved);
+        Assert.Equal(0, editor.Find<ComboBox>("GlbRepeat_" + action).SelectedIndex);
+        Assert.True(editor.Find<ComboBox>("GlbRepeat_" + action).IsEnabled);
         Assert.DoesNotContain(editor.Window.GetVisualDescendants().OfType<TextBlock>(), t => t.Name == "GlbRepeatHint_" + action);
     }
 

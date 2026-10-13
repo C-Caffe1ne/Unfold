@@ -315,26 +315,13 @@ public class GlbTests
                 Assert.True(ready(), pet.ActiveAnimation);
             }
             pet.BeginCompanionPress(); pet.AdvanceCompanion(PetPose.LiftDelay);
-            if (pickupLoop)
-            {
-                await Task.Delay(500, TestContext.Current.CancellationToken); Dispatcher.UIThread.RunJobs();
-                Assert.Equal(PetPointerPhase.Pickup, pet.PointerPhase); Assert.True(pet.PetView.Repeats);
-            }
-            else
-            {
-                await Until(() => pet.PointerPhase == PetPointerPhase.Held);
-                Assert.Equal(heldLoop, pet.PetView.Repeats);
-                await Task.Delay(500, TestContext.Current.CancellationToken); Dispatcher.UIThread.RunJobs();
-                Assert.Equal(PetPointerPhase.Held, pet.PointerPhase);
-            }
+            Assert.Equal(PetPointerPhase.Pickup, pet.PointerPhase); Assert.False(pet.PetView.Repeats);
+            await Until(() => pet.PointerPhase == PetPointerPhase.Held);
+            Assert.Equal(heldLoop, pet.PetView.Repeats);
+            await Task.Delay(500, TestContext.Current.CancellationToken); Dispatcher.UIThread.RunJobs();
+            Assert.Equal(PetPointerPhase.Held, pet.PointerPhase);
             pet.ReleaseCompanionPress(false);
-            if (landLoop)
-            {
-                await Until(() => pet.ActiveAnimation == "land" && pet.PetView.Repeats);
-                await Task.Delay(500, TestContext.Current.CancellationToken); Dispatcher.UIThread.RunJobs();
-                Assert.Equal("land", pet.ActiveAnimation); Assert.Equal(PetPointerPhase.None, pet.PointerPhase);
-                await pet.React("attention"); // A repeated release must not swallow the next reminder.
-            }
+            Assert.Equal("land", pet.ActiveAnimation); Assert.False(pet.PetView.Repeats);
             await Until(() => pet.ActiveAnimation == "idle");
             Assert.Equal(PetPointerPhase.None, pet.PointerPhase);
             await runtime.ShowReminder(); runtime.StartBreak(); await Until(() => pet.ActiveAnimation == "walk");

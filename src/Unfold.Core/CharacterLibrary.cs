@@ -156,7 +156,7 @@ public sealed partial class CharacterLibrary
                     definition.Rotation is { IsValid: false })
                     throw new InvalidDataException("Invalid GLB animation mapping.");
             // Read older packs without offering or playing their retired hover event.
-            if (!manifest.Animations["idle"].Loop || manifest.Animations.Keys.Any(key => key != "hover" && !GlbPetDraft.Actions.Contains(key))) throw new InvalidDataException("Invalid GLB pet events.");
+            if (manifest.Animations.Keys.Any(key => key != "hover" && !GlbPetDraft.Actions.Contains(key))) throw new InvalidDataException("Invalid GLB pet events.");
             if (loadModel) _ = package.Model;
             return package;
         }

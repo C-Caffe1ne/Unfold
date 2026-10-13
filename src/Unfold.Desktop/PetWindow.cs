@@ -28,6 +28,7 @@ public sealed partial class PetWindow : Window
     private long pressedAt;
     private int generation;
     private CancellationTokenSource? reactionCancellation;
+    private (PetReminder Source, PetNotice Notice, BreakSession? Session)? reactionNotice;
     private CharacterPackage? character;
     public PetWindow(AppRuntime runtime)
     {
@@ -155,6 +156,11 @@ public sealed partial class PetWindow : Window
             current = InvalidatePlayback();
             var cancellation = reactionCancellation = new CancellationTokenSource();
             var session = runtime.Reminder.Session;
+            var reminder = runtime.PresentedReminder;
+            if (key == "attention" && reminder.Notice is PetNotice.Advance or PetNotice.Invitation ||
+                key == "stretch" && reminder.Notice == PetNotice.Resting ||
+                key == "celebrate" && reminder.Notice == PetNotice.Completed)
+                reactionNotice = (reminder, reminder.Notice, reminder.Session);
             if (selected.HasOriginalBehavior && key == "stretch" && runtime.Reminder.Notice == PetNotice.Resting)
                 originalStretchSession = session;
             ActiveAnimation = key; reacting = true; idleSchedule.Reset();
@@ -168,9 +174,12 @@ public sealed partial class PetWindow : Window
                 // Only this reaction's frames may complete its wait; the old clip
                 // can finish while the new clip is still decoding.
                 animation.Completed += Finished;
-                animation.SetFrames(frames, (selected.IsGlb || !selected.HasOriginalBehavior) && definition.Loop, selected.Manifest.RenderStyle == "pixel", selected.HasOriginalBehavior, definition.PingPong);
+                // Only a continuing state can repeat. Momentary reactions finish once.
+                var repeat = definition.Loop && (reactionNotice is not null || key == "pointerDown" && down is not null);
+                animation.SetFrames(frames, repeat, selected.Manifest.RenderStyle == "pixel", selected.HasOriginalBehavior, definition.PingPong);
                 await completed.Task.WaitAsync(cancellation.Token);
                 if (current != generation) return;
+                reactionNotice = null;
                 if (selected.HasOriginalBehavior && key == "stretch" && session is not null &&
                     runtime.Reminder.Session == session && runtime.Reminder.Notice == PetNotice.Resting)
                 { originalStretchSession = null; walkingSession = session; }
@@ -188,7 +197,7 @@ public sealed partial class PetWindow : Window
         {
             AppPaths.Log(error);
             if (current != generation || !IsVisible) return;
-            reacting = false;
+            reacting = false; reactionNotice = null;
             // Do not recursively replay a stretch that just failed to load.
             if (key == "stretch") originalStretchSession = null;
             await RestoreBaseAnimation(current);
@@ -196,7 +205,7 @@ public sealed partial class PetWindow : Window
     }
     private int InvalidatePlayback()
     {
-        generation++; reactionCancellation?.Cancel(); reactionCancellation = null; reacting = false;
+        generation++; reactionCancellation?.Cancel(); reactionCancellation = null; reactionNotice = null; reacting = false;
         return generation;
     }
     public void ShowPet()

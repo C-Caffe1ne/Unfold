@@ -23,8 +23,8 @@ public sealed partial class PetWindow
         PointerPhase = phase; ActiveAnimation = OriginalCompanion.PointerClips[index];
         var frames = pointerClips![index];
         animation.SetRunning(true);
-        var loop = runtime.Selected?.IsGlb == true ? runtime.Selected.Manifest.Animations[ActiveAnimation].Loop : index == 1;
-        animation.SetFrames(frames, loop, false, true);
+        var definition = runtime.Selected!.Manifest.Animations[ActiveAnimation];
+        animation.SetFrames(frames, index == 1 && definition.Loop, false, true, definition.PingPong);
     }
 
     private void BeginPointerArt()
@@ -54,12 +54,7 @@ public sealed partial class PetWindow
         pressed = false; poseSeconds = 0;
         // Play the assigned release clip immediately, without moving or scaling
         // the canvas and without inserting a held-frame bounce before it.
-        if (runtime.Selected?.IsGlb == true && runtime.Selected.Manifest.Animations["land"].Loop)
-        {
-            if (deferredPointerReaction is not null) { FinishPointerArt(clicked: false); return; }
-            ResetPointerArt(); _ = React("land");
-        }
-        else SetPointerClip(2, PetPointerPhase.Recovering);
+        SetPointerClip(2, PetPointerPhase.Recovering);
     }
 
     private void AdvancePointerArt(double seconds)

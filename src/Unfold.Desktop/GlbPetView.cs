@@ -326,11 +326,11 @@ internal sealed class GlbPetView : UserControl, IDisposable
         var syncing = false;
         void Sync()
         {
-            var assigned = current.Mappings.TryGetValue(key, out var value); var fixedLoop = GlbPetDraft.RequiredLoop(key);
+            var assigned = current.Mappings.TryGetValue(key, out var value);
             syncing = true;
-            try { repeat.SelectedIndex = (value?.Loop ?? fixedLoop ?? false) ? 1 : 0; }
+            try { repeat.SelectedIndex = value?.Loop == true ? 1 : 0; }
             finally { syncing = false; }
-            repeat.IsEnabled = assigned && fixedLoop is null; speed.IsEnabled = assigned;
+            repeat.IsEnabled = assigned; speed.IsEnabled = assigned;
 
         }
         async void Changed(object? sender, SelectionChangedEventArgs e)

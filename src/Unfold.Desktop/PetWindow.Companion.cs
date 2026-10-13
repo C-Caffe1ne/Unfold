@@ -99,6 +99,10 @@ public sealed partial class PetWindow
             originalStretchSession = null;
             if (ActiveAnimation == "stretch") _ = RestoreBaseAnimation(InvalidatePlayback());
         }
+        // The timer overlay may stay visible after its reminder bubble disappears.
+        if (reactionNotice is { } owner &&
+            (runtime.PresentedReminder != owner.Source || owner.Source.Notice != owner.Notice || owner.Source.Session != owner.Session))
+            _ = RestoreBaseAnimation(InvalidatePlayback());
     }
     private void TickCompanion()
     {
