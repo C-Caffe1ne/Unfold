@@ -219,6 +219,35 @@ public class LocalizationTests
     }
 
     [AvaloniaFact]
+    public async Task TheFirstScreenChangesLanguageBeforeSignIn()
+    {
+        using var temp = new TempDirectory();
+        var previous = Environment.GetEnvironmentVariable("UNFOLD_DATA_DIR");
+        try
+        {
+            Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", temp.Path);
+            using var lifetime = new ClassicDesktopStyleApplicationLifetime();
+            using var runtime = new AppRuntime(lifetime) { AccountServiceFactory = () => new FakeAccountService { CanSignIn = false } };
+            await runtime.Start(false);
+            await Until(() => runtime.ActiveAccount is { IsVisible: true });
+            var account = runtime.ActiveAccount!; var hiddenSettings = lifetime.MainWindow;
+            Assert.False(runtime.AccessAllowed);
+            Assert.Equal("로그인 연결을 확인해 주세요.", account.FindControl<TextBlock>("AccountStatus")!.Text);
+            var picker = account.FindControl<ComboBox>("AccountLanguage")!;
+            Assert.True(picker.IsVisible); Assert.Equal("한국어", picker.SelectedItem);
+            picker.SelectedIndex = 2;
+            await Until(() => account.FindControl<TextBlock>("AccountHeading")!.Text == "Unfoldへ\nようこそ。");
+            Assert.Equal(AppLanguage.Japanese, L.Current); Assert.False(runtime.AccessAllowed);
+            Assert.Equal("ログインの接続を確認してください。", account.FindControl<TextBlock>("AccountStatus")!.Text);
+            Assert.Equal("日本語", picker.SelectedItem);
+            Assert.Equal(AppLanguage.Japanese, AppSettings.Load(Path.Combine(temp.Path, "settings.json")).Language);
+            Assert.NotSame(hiddenSettings, lifetime.MainWindow); Assert.False(lifetime.MainWindow!.IsVisible);
+            Assert.Equal("Unfold・休憩のお知らせ・" + AppRelease.DisplayVersion, lifetime.MainWindow.Title);
+        }
+        finally { Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", previous); UseKorean(); }
+    }
+
+    [AvaloniaFact]
     public async Task TranslatedDialogButtonsKeepTheirCancelAndDangerRoles()
     {
         L.Use(AppLanguage.Japanese);

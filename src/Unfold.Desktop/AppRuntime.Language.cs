@@ -20,16 +20,18 @@ public sealed partial class AppRuntime
         return true;
     }
 
-    /// <summary>Saves the language and redraws every open surface in it. Edited pet dialogue is kept.</summary>
+    /// <summary>Saves the language and redraws every open surface in it. Edited pet dialogue is kept.
+    /// Presentation only, so it is allowed before sign-in and purchase.</summary>
     internal void SetLanguage(AppLanguage language)
     {
-        if (!AccessAllowed || disposed || quitting) return;
+        if (disposed || quitting) return;
         if (language == L.Current) return;
         var value = Settings.WithLanguage(language);
         value.Save(settingsFile);
         Settings = value;
         L.Use(language); DesignSystem.ApplyLanguage(language);
         RefreshTrayLabels(); RefreshUpdateMenuText();
+        accountWindow?.Model.UseContent(AccountContent);
         ReplaceSettingsWindow();
         RefreshPetNotice(); Changed?.Invoke();
     }

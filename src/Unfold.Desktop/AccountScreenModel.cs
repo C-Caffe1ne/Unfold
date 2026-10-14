@@ -24,14 +24,14 @@ public sealed class AccountScreenModel : INotifyPropertyChanged, IDisposable
     private AccountSession? session;
     private CancellationTokenSource? operation;
     private AccountMarket market;
-    private readonly AccountMarket[] markets;
+    private AccountMarket[] markets;
     private Guid checkoutRequestId = Guid.NewGuid();
     private AccountOperation operationKind;
     private bool checkoutStarted;
     private bool disposed;
     private bool restorePending;
     internal bool RestoredAutomatically { get; private set; }
-    public AccountScreenContent Content { get; }
+    public AccountScreenContent Content { get; private set; }
     public AccountScreenCopy Copy => Content.Copy;
     public AccountMarket[] Markets => markets;
     public AccountMarket SelectedMarket
@@ -253,6 +253,20 @@ public sealed class AccountScreenModel : INotifyPropertyChanged, IDisposable
         catch (AccountException) { return false; }
     }
     private void Notify() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
+    /// <summary>Shows the same screen state with other copy, such as after a language change.</summary>
+    internal void UseContent(AccountScreenContent content)
+    {
+        if (disposed) return;
+        var previous = Copy;
+        Content = content;
+        markets = markets.Select(item => content.Markets.Single(next => next.Id == item.Id)).ToArray();
+        market = markets.Single(item => item.Id == market.Id);
+        // Every status line comes from the copy, so it moves to the same message in the new copy.
+        var status = typeof(AccountScreenCopy).GetProperties()
+            .FirstOrDefault(property => Status.Length > 0 && Equals(property.GetValue(previous), Status));
+        if (status is not null) Status = (string)status.GetValue(content.Copy)!;
+        Notify();
+    }
     private void SetSession(AccountSession? value) { session = value; SessionChanged?.Invoke(value); }
     internal void ReportSignOutFailure(bool storageFailed = false)
     { Status = storageFailed ? Copy.SessionStorageUnavailable : Copy.SignOutUnavailable; Notify(); }

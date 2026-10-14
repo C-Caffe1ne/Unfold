@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
@@ -6,6 +7,8 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Styling;
 using Avalonia.Svg;
+using Avalonia.Threading;
+using Unfold.Core;
 
 namespace Unfold.Desktop;
 
@@ -23,7 +26,7 @@ public sealed partial class AccountWindow : Window
         return new(content, new DesktopAccountService(content));
     }
     internal AccountWindow(AccountScreenModel model, Func<Task>? quit = null,
-        bool requiresPurchase = false, Func<bool>? allowClose = null)
+        bool requiresPurchase = false, Func<bool>? allowClose = null, Action<AppLanguage>? changeLanguage = null)
     {
         AvaloniaXamlLoader.Load(this);
         Model = model; DataContext = model;
@@ -69,6 +72,7 @@ public sealed partial class AccountWindow : Window
             if (quit is null) Close();
             else await quit();
         };
+        if (changeLanguage is not null) ConfigureLanguage(changeLanguage);
         var dragRegion = this.FindControl<Border>("AccountDragRegion")!;
         dragRegion.PointerPressed += (_, args) =>
         {
@@ -103,6 +107,29 @@ public sealed partial class AccountWindow : Window
         Deactivated += (_, _) => EndMove();
         SizeChanged += (_, _) => Classes.Set("compact", ClientSize.Width < 780);
         Closed += (_, _) => { EndMove(); Model.Dispose(); companion?.Dispose(); brandLogo.Dispose(); brandLogoLight.Dispose(); };
+    }
+
+    // The first screen a new user sees, so the language can be chosen before signing in.
+    private void ConfigureLanguage(Action<AppLanguage> changeLanguage)
+    {
+        var languages = L.Languages.ToList();
+        var picker = this.FindControl<ComboBox>("AccountLanguage")!;
+        picker.ItemsSource = languages.Select(L.NativeName).ToArray();
+        picker.SelectedIndex = languages.IndexOf(L.Current);
+        picker.ContainerPrepared += (_, e) => e.Container.Classes.Add("home-choice-item");
+        picker.IsVisible = true;
+        AutomationProperties.SetName(picker, L.T("언어"));
+        picker.SelectionChanged += async (_, _) =>
+        {
+            if (picker.SelectedIndex < 0 || languages[picker.SelectedIndex] == L.Current) return;
+            var language = languages[picker.SelectedIndex];
+            // Let the drop-down finish closing before the screen text changes under it.
+            await Dispatcher.UIThread.InvokeAsync(static () => { }, DispatcherPriority.Background);
+            try { changeLanguage(language); }
+            catch (Exception error) { await Ui.Error(this, error); }
+            picker.SelectedIndex = languages.IndexOf(L.Current);
+            AutomationProperties.SetName(picker, L.T("언어"));
+        };
     }
 
     private static Bitmap LoadBrandLogo(string fileName)

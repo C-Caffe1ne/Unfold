@@ -293,7 +293,7 @@ public sealed partial class AppRuntime : IDisposable
     }
     private void ShowAccount(AccountScreenModel model)
     {
-        var window = new AccountWindow(model, Quit, purchaseGateEnabled, () => disposed || quitting || AccountSignOutPending);
+        var window = new AccountWindow(model, Quit, purchaseGateEnabled, () => disposed || quitting || AccountSignOutPending, SetLanguage);
         accountWindow = window;
         window.Activated += (_, _) => TryShowStartupUpdate();
         window.Closed += async (_, _) =>

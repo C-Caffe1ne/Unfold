@@ -68,7 +68,10 @@
           <Button Name="AccountQuit" Content="{Binding Copy.QuitButton}" Classes="unfold-action quiet danger" />
           <TextBlock Text="{Binding Copy.Copyright}" Classes="account-caption" VerticalAlignment="Center" />
         </StackPanel>
-        <Button Name="AccountCode" Grid.Column="2" IsVisible="{Binding ShowCode}" IsEnabled="{Binding CanRedeemCode}" Content="{Binding Copy.CodeButton}" Classes="unfold-action quiet" />
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="12">
+          <ComboBox Name="AccountLanguage" Classes="home-choice" Width="160" VerticalAlignment="Center" IsVisible="False" />
+          <Button Name="AccountCode" IsVisible="{Binding ShowCode}" IsEnabled="{Binding CanRedeemCode}" Content="{Binding Copy.CodeButton}" Classes="unfold-action quiet" />
+        </StackPanel>
       </Grid>
     </Grid>
   </Border>
