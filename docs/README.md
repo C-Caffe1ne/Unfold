@@ -3,8 +3,8 @@
 백엔드 관리: [보안 운영 절차](operations/backend-security.md), [적용·검증 결과](validation/2026-10-11-backend-security.md).
 운영 Live 결제의 pending 원인·웹훅 v21 배포·실제 결제 재전송과 앱 권한 조회 결과는 [Live 결제 복구](validation/2026-10-12-live-payment-pending.md)에 기록한다.
 
-현재 제품은 **C#·Avalonia 기반 Unfold Beta**다. 2026-10-14 개발·배포 준비 버전은 **Beta v1.1.4** (`1.1.4-beta`, [변경내용](releases/v1.1.4-beta.md))이며, 작업 경로는 `/Users/hwanghyeonseong/Documents/GitHub/Unfold/.worktrees/pet-overlay-hover`, 브랜치는 `codex/pet-overlay-hover`다.
-최신 공개 배포본은 `v1.1.3-beta` (제품 소스 `b1242ea`)다. 설치 파일·업데이트 채널·웹 반영과 실제 Mac/Windows 1.1.2→1.1.3 업데이트 결과는 [배포 검증](validation/2026-10-12-beta-v1.1.3-release.md)에 기록한다.
+현재 제품은 **C#·Avalonia 기반 Unfold Beta**다. 2026-10-14 최신 개발·공개 배포 버전은 **Beta v1.1.4** (`1.1.4-beta`, [변경내용](releases/v1.1.4-beta.md))이며, 작업 경로는 `/Users/hwanghyeonseong/Documents/GitHub/Unfold/.worktrees/pet-overlay-hover`, 브랜치는 `codex/pet-overlay-hover`다.
+최신 공개 배포본은 `v1.1.4-beta` (제품 소스 `4c64bfc`)다. 집중 검사·Mac 공증·공개 파일 10개와 사용자 요청으로 제외한 앱 OS 진단·설치/업데이트 검사는 [배포 검증](validation/2026-10-14-beta-v1.1.4-release.md)에 기록한다.
 
 ## 현재 사용 안내
 
@@ -14,9 +14,9 @@
 | [설정·타이머](settings-ui.md), [말풍선·효과음](stretch-notifications.md) | 설정·홈 시간 자동 저장·대사·불투명도·자동 배치 |
 | [펫 관리](pet-packs.md), [GLB 펫](glb-pets.md) | 통합 편집·설치·동작 설정·입력 제한 |
 | [계정](account-screen.md), [이용 코드](access-codes.md) | OS 보안 저장·로그인 복원·구매/무료 권한 |
-| [설치·업데이트](cross-platform.md), [공개 릴리스 노트](releases/v1.1.3-beta.md) | 실제 배포 파일·아키텍처·서명·업데이트 방법 |
+| [설치·업데이트](cross-platform.md), [공개 릴리스 노트](releases/v1.1.4-beta.md) | 실제 배포 파일·아키텍처·서명·업데이트 방법 |
 | [검증 안내](verification.md), [배포 체크리스트](release-checklist.md) | 기록된 검사·OS별 한계와 새 설치본 검사 절차 |
-| [개발 계획](development-plan.md) | 현재 1.1.3 배포 기준과 과거 계획의 구분 |
+| [개발 계획](development-plan.md) | 이전 배포 기준과 과거 계획의 구분 |
 | [문서 최신화 결과](validation/2026-10-08-docs-refresh.md) | 코드 대조·링크 복구·보존 범위 |
 
 ## 구현·검증 이력
@@ -35,6 +35,7 @@
 | [GLB 회전 화살표 검증](validation/2026-10-13-glb-rotation-arrows.md) | 좌우·위아래 360° 버튼, 최소 창 가시성, 저장 복원과 876개 검사·macOS 입력 확인 |
 | [GIF·GLB 추가 설명 제거](validation/2026-10-12-gif-glb-guidance-removal.md) | 안내 제거·기존 편집 복원·790개 검사·수정 전 slop 점검 원칙 |
 | [GIF·GLB 안내 추가 당시 검증](validation/2026-10-12-gif-glb-import-guidance.md) | `4c74880`의 과거 구현·검증; 후속 요청으로 안내 제거 |
+| [Beta v1.1.4 배포 검증](validation/2026-10-14-beta-v1.1.4-release.md) | 집중 검사·Mac 공증·공개 자산과 앱 OS 진단·설치/업데이트 미실행 경계 |
 | [Beta v1.1.3 배포·업데이트 검증](validation/2026-10-12-beta-v1.1.3-release.md) | Mac 서명·공증, Windows CI, 공개 파일 10개, 세 채널과 실제 Mac/Windows 업데이트·재시작·데이터 보존, 웹·노션 반영 |
 | [타이머 숫자 전환·자동 저장 검증](validation/2026-10-12-live-timer-settings.md) | 확인 없는 중지 복귀, 간격 증가·감소 애니메이션, 홈 시간 자동 저장·실패 복구와 790개 검사·macOS 렌더링 진단 |
 | [Beta v1.1.3 커밋 검증](validation/2026-10-09-beta-v1.1.3-commit.md) | GLB XYZ 회전·저장, 탭 이름, 펫 호버·모션 수정의 커밋 범위와 버전 변경 후 56개 검사 |

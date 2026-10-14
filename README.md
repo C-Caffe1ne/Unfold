@@ -2,7 +2,7 @@
 
 **Beta v1.1.4** · C#/.NET 10 · Avalonia · macOS / Windows
 
-Current development version: `1.1.4-beta` ([changes](docs/releases/v1.1.4-beta.md)). Last public release: `v1.1.3-beta` (source `b1242ea`).
+Latest public release: `v1.1.4-beta` (source `4c64bfc`, internal version `1.1.4-beta`; [changes](docs/releases/v1.1.4-beta.md)).
 
 A small desktop companion that reminds you to stretch while you work.
 
@@ -55,10 +55,10 @@ The beta requires Google sign-in and either a verified Live purchase or a valid 
 Testers can redeem their supplied access code from the bottom-right code button after sign-in.
 Saved sign-in is restored before the account window opens. Production OAuth and
 payment checks are tracked separately in the [account guide](docs/account-screen.md).
-Public Beta v1.1.3 Mac installers are Developer ID signed and notarized; Windows
+Public Beta v1.1.4 Mac installers are Developer ID signed and notarized; Windows
 installers are unsigned. See the [compatibility and review guide](docs/personalization.md).
 The [pet pack guide](docs/pet-packs.md) explains local installation and recovery.
-[Latest public release notes](docs/releases/v1.1.3-beta.md) describe installation, included work and beta limitations.
+[Latest public release notes](docs/releases/v1.1.4-beta.md) describe installation, included work and beta limitations.
 
 ## Build and verify
 

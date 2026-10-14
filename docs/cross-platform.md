@@ -17,7 +17,8 @@ sign-in or code entry. Logout deletes the stored credential. Network failure pre
 for retry but does not grant offline access.
 Windows code signing is pending. Public Mac distribution uses Developer ID signing and
 Apple notarization. See the [release notes](releases/v1.1.4-beta.md)
-and [release/update verification](validation/2026-10-12-beta-v1.1.3-release.md).
+and [release verification](validation/2026-10-14-beta-v1.1.4-release.md).
+This release ran focused tests and package checks. New app OS diagnostics and actual installation/update-restart checks were not run at the user's request.
 Beta v1.0.3 and later managed installations can check for updates from the tray/menu bar;
 Beta v1.1.1 and later also provide **설정 → 앱 정보 → 업데이트 확인**.
 Beta v1.1.2 shows a modal with release notes once per launch when a newer version is
