@@ -123,12 +123,12 @@ public sealed partial class GlbModel
     public GlbAnimationFrames CreateAnimation(string name, GlbDefinition definition, string referenceClip, double speed = 1, bool normalizePreviewHeight = false)
         => new(this, name, definition, referenceClip, speed, normalizePreviewHeight);
     private Clip FindClip(string name)
-    { foreach (var clip in clips) if (clip.Name == name) return clip; throw new InvalidDataException($"GLB 동작을 찾지 못했어요: {name}"); }
+    { foreach (var clip in clips) if (clip.Name == name) return clip; throw new InvalidDataException(L.F("GLB 동작을 찾지 못했어요: {0}", name)); }
     private int LockedRoot(GlbDefinition definition)
     {
         if (definition.RootNode is null) return defaultRoot;
         for (var i = 0; i < nodes.Length; i++) if (nodes[i].Name == definition.RootNode) return i;
-        throw new InvalidDataException("고정할 GLB 루트 뼈대를 찾지 못했어요.");
+        throw new InvalidDataException(L.T("고정할 GLB 루트 뼈대를 찾지 못했어요."));
     }
     private (Vector3 Min, Vector3 Max) Bounds(GlbDefinition definition, string referenceName)
         => RotationBounds(ReferenceBounds(definition, referenceName), definition.EffectiveRotation);
@@ -146,7 +146,7 @@ public sealed partial class GlbModel
                 foreach (var v in vertices)
                 { min = Vector3.Min(min, v); max = Vector3.Max(max, v); }
             }
-            if (!float.IsFinite(min.X) || !float.IsFinite(max.Y) || !float.IsFinite(max.X - min.X) || !float.IsFinite(max.Y - min.Y) || Math.Max(max.X - min.X, max.Y - min.Y) < .00001f) throw new InvalidDataException("GLB 모델의 표시 크기가 올바르지 않아요.");
+            if (!float.IsFinite(min.X) || !float.IsFinite(max.Y) || !float.IsFinite(max.X - min.X) || !float.IsFinite(max.Y - min.Y) || Math.Max(max.X - min.X, max.Y - min.Y) < .00001f) throw new InvalidDataException(L.T("GLB 모델의 표시 크기가 올바르지 않아요."));
             return (min, max);
         }
     }
@@ -159,7 +159,7 @@ public sealed partial class GlbModel
         var half = normalizeHeight ? new Vector3(diameter * .5f, diameter * .5f, 0) : new Vector3(extent.X * .5f, extent.Y * .5f, 0);
         var span = Math.Max(half.X, half.Y) * 2;
         if (!float.IsFinite(center.X) || !float.IsFinite(center.Y) || !float.IsFinite(center.Z) || !float.IsFinite(span) || span < .00001f)
-            throw new InvalidDataException("GLB 모델의 회전 표시 크기가 올바르지 않아요.");
+            throw new InvalidDataException(L.T("GLB 모델의 회전 표시 크기가 올바르지 않아요."));
         return (center - half, center + half);
     }
 
@@ -330,7 +330,7 @@ public sealed class GlbAnimationFrames : IReadOnlyList<AnimationFrame>
     public TimeSpan FrameDuration => TimeSpan.FromSeconds(DurationSeconds / Count);
     public GlbAnimationFrames(GlbModel model, string name, GlbDefinition definition, string reference, double speed = 1, bool normalizePreviewHeight = false)
     {
-        if (!double.IsFinite(speed) || speed is < .25 or > 3) throw new InvalidDataException("GLB 재생 속도는 0.25~3배로 지정해 주세요.");
+        if (!double.IsFinite(speed) || speed is < .25 or > 3) throw new InvalidDataException(L.T("GLB 재생 속도는 0.25~3배로 지정해 주세요."));
         this.model = model; this.name = name; this.definition = definition; this.reference = reference; this.speed = speed;
         this.normalizePreviewHeight = normalizePreviewHeight;
         clipDuration = model.Animations.FirstOrDefault(c => c.Name == name)?.Duration ?? throw new InvalidDataException("Unknown GLB clip.");

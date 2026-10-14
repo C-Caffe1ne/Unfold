@@ -151,7 +151,7 @@ internal sealed class AnimatedCountdown : TemplatedControl, IDisposable
     private sealed class CountdownAutomationPeer(AnimatedCountdown owner) : ControlAutomationPeer(owner)
     {
         protected override AutomationControlType GetAutomationControlTypeCore() => AutomationControlType.Text;
-        protected override string GetNameCore() => "남은 시간 " + owner.Text;
+        protected override string GetNameCore() => L.F("남은 시간 {0}", owner.Text);
     }
 
     public void Dispose()

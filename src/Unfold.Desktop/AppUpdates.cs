@@ -141,10 +141,10 @@ internal sealed class AppUpdates : IDisposable
         AppPaths.Log(error); State = AppUpdateState.Error;
         Error = error switch
         {
-            ChecksumFailedException => "업데이트 파일을 확인하지 못했어요. 다시 다운로드해 주세요.",
-            AcquireLockFailedException => "다른 업데이트 작업이 진행 중이에요. 잠시 후 다시 시도해 주세요.",
-            _ when Downloaded => "업데이트를 적용하지 못했어요. 다시 시도해 주세요.",
-            _ => "업데이트 정보를 가져오거나 파일을 다운로드하지 못했어요. 연결을 확인하고 다시 시도해 주세요."
+            ChecksumFailedException => L.T("업데이트 파일을 확인하지 못했어요. 다시 다운로드해 주세요."),
+            AcquireLockFailedException => L.T("다른 업데이트 작업이 진행 중이에요. 잠시 후 다시 시도해 주세요."),
+            _ when Downloaded => L.T("업데이트를 적용하지 못했어요. 다시 시도해 주세요."),
+            _ => L.T("업데이트 정보를 가져오거나 파일을 다운로드하지 못했어요. 연결을 확인하고 다시 시도해 주세요.")
         };
     }
     internal void ReportApplyError(Exception error) { if (!disposed) { Fail(error); Notify(); } }

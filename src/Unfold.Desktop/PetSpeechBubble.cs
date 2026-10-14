@@ -26,9 +26,9 @@ public sealed class PetSpeechBubble : Border
         title.TextWrapping = TextWrapping.Wrap; title.TextTrimming = TextTrimming.CharacterEllipsis; title.TextAlignment = TextAlignment.Center;
         title.HorizontalAlignment = HorizontalAlignment.Stretch;
         timer.Name = "PetBreakTimer"; timer.HorizontalAlignment = HorizontalAlignment.Stretch;
-        start = Ui.Primary(Ui.Button("휴식 시작", startBreak)); start.Name = "PetBreakStart";
-        snooze = Ui.Button("5분 뒤에", snoozeBreak); snooze.Name = "PetBreakSnooze";
-        complete = Ui.Primary(Ui.Button("완료", completeBreak)); complete.Name = "PetBreakComplete";
+        start = Ui.Primary(Ui.Button(L.T("휴식 시작"), startBreak)); start.Name = "PetBreakStart";
+        snooze = Ui.Button(L.F("{0}분 뒤에", 5), snoozeBreak); snooze.Name = "PetBreakSnooze";
+        complete = Ui.Primary(Ui.Button(L.T("완료"), completeBreak)); complete.Name = "PetBreakComplete";
         foreach (var button in new[] { start, snooze, complete })
         {
             button.Height = DesignSystem.SpeechControlHeight;
@@ -43,7 +43,7 @@ public sealed class PetSpeechBubble : Border
         reminderBody.Children.Add(title); Grid.SetRow(footer, 1); reminderBody.Children.Add(footer);
         timer.FontFamily = DesignSystem.AppFont;
         timer.FontWeight = FontWeight.SemiBold;
-        Child = reminderBody; AutomationProperties.SetName(this, "펫의 스트레칭 알림");
+        Child = reminderBody; AutomationProperties.SetName(this, L.T("펫의 스트레칭 알림"));
         PropertyChanged += (_, e) =>
         {
             if (e.Property == IsVisibleProperty && !IsVisible)
@@ -53,7 +53,7 @@ public sealed class PetSpeechBubble : Border
     public void Refresh(PetReminder reminder, int snoozeMinutes, AppSettings? settings = null)
     {
         Width = DesignSystem.SpeechBubbleWidth;
-        IsHitTestVisible = true; AutomationProperties.SetName(this, "펫의 스트레칭 알림");
+        IsHitTestVisible = true; AutomationProperties.SetName(this, L.T("펫의 스트레칭 알림"));
         Height = reminder.Notice switch
         {
             PetNotice.Advance => DesignSystem.SpeechAdvanceHeight,
@@ -75,7 +75,8 @@ public sealed class PetSpeechBubble : Border
         invitation.IsVisible = reminder.Notice == PetNotice.Invitation;
         complete.IsVisible = timer.IsVisible = reminder.Notice == PetNotice.Resting;
         complete.IsEnabled = session?.State is BreakSessionState.InProgress or BreakSessionState.AwaitingConfirmation;
-        snooze.Content = $"{snoozeMinutes}분 뒤에";
+        start.Content = L.T("휴식 시작"); complete.Content = L.T("완료");
+        snooze.Content = L.F("{0}분 뒤에", snoozeMinutes);
         timer.AnimationsEnabled = reminder.Notice == PetNotice.Resting;
         if (session is null)
         {
@@ -89,7 +90,7 @@ public sealed class PetSpeechBubble : Border
             timer.UpdateTime(TimeSpan.FromSeconds(seconds), timer.IsVisible, overtime ? "+" : "");
         }
         timer.Foreground = session?.Remaining < TimeSpan.Zero ? DesignSystem.Warning : DesignSystem.Cream;
-        AutomationProperties.SetName(timer, "휴식 타이머 " + timer.Text);
+        AutomationProperties.SetName(timer, L.F("휴식 타이머 {0}", timer.Text));
     }
     internal void FocusAction() => (complete.IsVisible ? complete : start).Focus(Avalonia.Input.NavigationMethod.Tab);
 }

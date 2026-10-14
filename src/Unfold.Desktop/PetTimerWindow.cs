@@ -36,7 +36,7 @@ internal sealed class PetTimerWindow : Window
     internal PetTimerWindow(PetWindow pet, AppRuntime runtime)
     {
         this.pet = pet; this.runtime = runtime;
-        Name = "PetTimerWindow"; Title = "Unfold · 타이머";
+        Name = "PetTimerWindow"; Title = L.T("Unfold · 타이머");
         Width = MinWidth = MaxWidth = TimerWidth;
         Height = MinHeight = MaxHeight = TimerHeight; CanResize = false;
         WindowDecorations = WindowDecorations.None; Background = Brushes.Transparent;
@@ -60,11 +60,12 @@ internal sealed class PetTimerWindow : Window
     }
 
     internal static string FormatLocalTime(DateTimeOffset value) =>
-        $"{(value.Hour < 12 ? "오전" : "오후")} {(value.Hour % 12 == 0 ? 12 : value.Hour % 12):00}:{value.Minute:00}";
+        L.F("{0} {1:00}:{2:00}", value.Hour < 12 ? L.T("오전") : L.T("오후"), value.Hour % 12 == 0 ? 12 : value.Hour % 12, value.Minute);
 
     internal void Refresh()
     {
         if (closed) return;
+        Title = L.T("Unfold · 타이머");
         RefreshTime(); controls.Refresh(runtime.Clock, runtime.Reminder.HasNotice);
         if (!pet.IsVisible || !runtime.Settings.ShowPetTimer)
         {
@@ -82,7 +83,7 @@ internal sealed class PetTimerWindow : Window
             runtime.PresentedReminder.Notice is not (PetNotice.Invitation or PetNotice.Resting);
         countdown.AnimationsEnabled = HoverOpacity > 0;
         countdown.UpdateTime(runtime.Clock.Remaining, active && HoverOpacity > 0);
-        var state = runtime.Clock.Stopped ? "중지" : runtime.Clock.Paused ? "일시정지" : runtime.Clock.IdlePaused ? "자리 비움" : "진행 중";
+        var state = runtime.Clock.Stopped ? L.T("중지") : runtime.Clock.Paused ? L.T("일시정지") : runtime.Clock.IdlePaused ? L.T("자리 비움") : L.T("진행 중");
         AutomationProperties.SetName(timerBar, TrayReminderStatus.Create(runtime.PresentedReminder.Notice, countdown.Text, state).Status);
     }
     internal void Reposition()

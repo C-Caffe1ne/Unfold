@@ -5,18 +5,18 @@ namespace Unfold.Desktop;
 public static class ReminderSoundImporter
 {
     public const int MaxFileBytes = 5 * 1024 * 1024;
-    public const string SupportedFileTypes = "WAV · MP3 · OGG 효과음";
+    public static string SupportedFileTypes => L.T("WAV · MP3 · OGG 효과음");
     public static string[] FilePatterns => ["*.wav", "*.mp3", "*.ogg"];
     public static async Task<string> Import(string path, ReminderSounds sounds, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         var extension = Path.GetExtension(path).ToLowerInvariant();
         if (extension == ".wav") return await Task.Run(() => sounds.Import(path), cancellationToken);
-        if (extension is not (".mp3" or ".ogg")) throw new InvalidDataException("WAV, MP3 또는 OGG 효과음 파일을 선택해 주세요.");
+        if (extension is not (".mp3" or ".ogg")) throw new InvalidDataException(L.T("WAV, MP3 또는 OGG 효과음 파일을 선택해 주세요."));
         var format = extension == ".ogg" ? "ogg" : "mp3";
         var label = format.ToUpperInvariant();
-        if (new FileInfo(path).Length > MaxFileBytes) throw new InvalidDataException("효과음 파일은 5 MiB 이하로 선택해 주세요.");
-        var executable = PetMediaImporter.FindFFmpeg() ?? throw new InvalidDataException("소리 변환 도구가 없는 앱이에요. MP3·OGG 지원 배포본을 사용하거나 WAV 파일을 가져와 주세요.");
+        if (new FileInfo(path).Length > MaxFileBytes) throw new InvalidDataException(L.T("효과음 파일은 5 MiB 이하로 선택해 주세요."));
+        var executable = PetMediaImporter.FindFFmpeg() ?? throw new InvalidDataException(L.T("소리 변환 도구가 없는 앱이에요. MP3·OGG 지원 배포본을 사용하거나 WAV 파일을 가져와 주세요."));
         var root = Path.Combine(Path.GetTempPath(), "Unfold-sound-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(root);
         try
@@ -27,8 +27,8 @@ public static class ReminderSoundImporter
             await MediaConversion.Run(executable, ["-hide_banner", "-loglevel", "error", "-nostdin", "-y", "-max_alloc", "67108864", "-threads", "2",
                 "-protocol_whitelist", "file,pipe", "-f", format, "-i", source, "-map", "0:a:0", "-vn", "-sn", "-dn",
                 "-t", "31", "-map_metadata", "-1", "-ac", "1", "-ar", "44100", "-c:a", "pcm_s16le", "-f", "wav", output],
-                $"{label}를 읽지 못했어요. 재생 가능한 소리 파일인지 확인해 주세요.",
-                $"소리 변환 시간이 초과됐어요. 더 짧거나 작은 {label}를 선택해 주세요.", cancellationToken);
+                L.F("{0}를 읽지 못했어요. 재생 가능한 소리 파일인지 확인해 주세요.", label),
+                L.F("소리 변환 시간이 초과됐어요. 더 짧거나 작은 {0}를 선택해 주세요.", label), cancellationToken);
             var data = await Task.Run(() => ImageCodec.ReadBounded(output, MaxFileBytes), cancellationToken);
             ReminderSounds.Validate(data);
             cancellationToken.ThrowIfCancellationRequested();

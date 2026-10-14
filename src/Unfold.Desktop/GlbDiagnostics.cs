@@ -89,7 +89,7 @@ internal static class GlbDiagnostics
     {
         var source = (GlbAnimationFrames)pet.LoadAnimation("idle");
         using var view = new AnimationView { Width = 192, Height = 192 };
-        var host = new Window { Width = 192, Height = 192, Content = view, Title = "Unfold · GLB 화질 확인" };
+        var host = new Window { Width = 192, Height = 192, Content = view, Title = L.T("Unfold · GLB 화질 확인") };
         AppRuntime.PrepareDiagnosticWindow(host);
         // Off-screen macOS windows report 1x even on Retina. Briefly place this
         // non-activating quality window on the real display to verify its DPI.

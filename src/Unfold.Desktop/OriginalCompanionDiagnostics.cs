@@ -65,7 +65,7 @@ internal static class OriginalCompanionDiagnostics
                     preview.SetFrames([heldFrames[0]], true, false, true);
                     var held = pet.PetView.Pose;
                     if (held != PetPose.Neutral) throw new InvalidOperationException("Holding transformed the pet canvas.");
-                    preview.SetPose(held); label.Text = character.Manifest.Name + " · 들어 올림";
+                    preview.SetPose(held); label.Text = L.F("{0} · 들어 올림", character.Manifest.Name);
                     Capture(review, Path.Combine(directory, id + "-held.png"));
                     for (var tick = 0; tick < 50; tick++) pet.AdvanceCompanion(.2);
                     if (pet.PetView.Pose != held) throw new InvalidOperationException("Held pose was not maintained.");
@@ -74,11 +74,11 @@ internal static class OriginalCompanionDiagnostics
                         throw new InvalidOperationException("Release did not start the assigned land clip immediately on a fixed canvas.");
                     var landFrames = await runtime.Clip("land");
                     preview.SetFrames([landFrames[1]], true, false, true);
-                    preview.SetPose(PetPose.Neutral); label.Text = character.Manifest.Name + " · 자세 복귀";
+                    preview.SetPose(PetPose.Neutral); label.Text = L.F("{0} · 자세 복귀", character.Manifest.Name);
                     Capture(review, Path.Combine(directory, id + "-recovering.png"));
                     await Until(() => pet.PointerPhase == PetPointerPhase.None && pet.ActiveAnimation == "idle");
                     preview.SetFrames(await runtime.Clip("idle"), true, false, true);
-                    preview.SetPose(pet.PetView.Pose); label.Text = character.Manifest.Name + " · 복귀";
+                    preview.SetPose(pet.PetView.Pose); label.Text = L.F("{0} · 복귀", character.Manifest.Name);
                     Capture(review, Path.Combine(directory, id + "-landed.png"));
                     if (pet.PetView.Pose != PetPose.Neutral || new Size(pet.Width, pet.Height) != windowSize || pet.Position != windowPosition)
                         throw new InvalidOperationException("Landing did not restore pose within the unchanged window.");

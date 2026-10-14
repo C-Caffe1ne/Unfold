@@ -10,7 +10,7 @@ internal static class MediaConversion
         cancellationToken.ThrowIfCancellationRequested();
         var start = new ProcessStartInfo(executable) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardError = true };
         foreach (var argument in arguments) start.ArgumentList.Add(argument);
-        using var process = Process.Start(start) ?? throw new IOException("미디어 변환을 시작하지 못했어요.");
+        using var process = Process.Start(start) ?? throw new IOException(L.T("미디어 변환을 시작하지 못했어요."));
         var errors = ReadErrors(process.StandardError);
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         timeout.CancelAfter(TimeSpan.FromSeconds(60));

@@ -17,7 +17,7 @@ public sealed partial class CustomPetDraft
     public CustomPetDraft() { }
     public CustomPetDraft(CharacterPackage package)
     {
-        if (package.IsBuiltIn || package.IsGlb) throw new InvalidDataException("설치한 이미지·영상 펫을 선택해 주세요.");
+        if (package.IsBuiltIn || package.IsGlb) throw new InvalidDataException(L.T("설치한 이미지·영상 펫을 선택해 주세요."));
         sourceDirectory = package.DirectoryPath; expectedRevision = CharacterLibrary.PetRevision(sourceDirectory);
         package = CharacterLibrary.LoadPackage(sourceDirectory);
         sourceManifest = package.Manifest with { Animations = package.Manifest.Animations.ToDictionary(pair => pair.Key,
@@ -27,7 +27,7 @@ public sealed partial class CustomPetDraft
         foreach (var file in sourceManifest.Animations.Values.Select(value => value.Gif).OfType<string>().Prepend(sheetName).Distinct(StringComparer.Ordinal))
             sourceFiles[file] = ImageCodec.ReadBounded(CharacterLibrary.AssetPath(sourceDirectory, file));
         if (sourceFiles.Sum(pair => (long)pair.Value.Length) > CharacterPack.MaxArchiveBytes - 64 * 1024)
-            throw new InvalidDataException("펫 팩의 파일 용량이 너무 커요.");
+            throw new InvalidDataException(L.T("펫 팩의 파일 용량이 너무 커요."));
         var sheet = ImageCodec.DecodePng(sourceFiles[sheetName]);
         foreach (var (key, definition) in sourceManifest.Animations)
         {
@@ -42,7 +42,7 @@ public sealed partial class CustomPetDraft
             var previous = CharacterPack.ParseVersion(metadata.ContentVersion);
             contentVersion = new(previous.Major, previous.Minor, checked(previous.Build + 1));
         }
-        if (expectedRevision != CharacterLibrary.PetRevision(sourceDirectory)) throw new IOException("펫이 변경됐어요. 다시 선택해 주세요.");
+        if (expectedRevision != CharacterLibrary.PetRevision(sourceDirectory)) throw new IOException(L.T("펫이 변경됐어요. 다시 선택해 주세요."));
     }
     public CustomPetDraft Snapshot()
     {
@@ -60,7 +60,7 @@ public sealed partial class CustomPetDraft
     }
     public CharacterPackage Save(CharacterLibrary library, string name)
     {
-        if (!IsEditing || sourceDirectory != library.PackagePath(Id)) throw new InvalidDataException("편집할 펫을 다시 선택해 주세요.");
+        if (!IsEditing || sourceDirectory != library.PackagePath(Id)) throw new InvalidDataException(L.T("편집할 펫을 다시 선택해 주세요."));
         var path = Path.Combine(Path.GetTempPath(), $"Unfold-edited-{Guid.NewGuid():N}.unfoldpet");
         try
         {
@@ -103,7 +103,7 @@ public sealed partial class CustomPetDraft
                 var height = Math.Max(sprite.FrameHeight, Math.Max(idle.Height, staticClips.Select(pair => pair.Clip.Height).DefaultIfEmpty(0).Max()));
                 var count = 1 + sprite.Columns * sprite.Rows + staticClips.Count;
                 var columns = Math.Min(count, Math.Min(256, 4096 / width)); var rows = (count + columns - 1) / columns;
-                if (rows > 256 || rows * height > 4096) throw new InvalidDataException("새 이미지가 펫 시트에 들어가지 않아요. 더 작은 이미지를 선택해 주세요.");
+                if (rows > 256 || rows * height > 4096) throw new InvalidDataException(L.T("새 이미지가 펫 시트에 들어가지 않아요. 더 작은 이미지를 선택해 주세요."));
                 var sheet = new PixelImage(columns * width, rows * height, new uint[columns * width * rows * height]);
                 void CopyCell(PixelImage image, int index, int x, int y, int cellWidth, int cellHeight)
                 {

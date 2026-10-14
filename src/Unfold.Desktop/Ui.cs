@@ -49,7 +49,7 @@ public static partial class Ui
         input.GotFocus += (_, args) =>
         {
             var keyboard = args.NavigationMethod is NavigationMethod.Tab or NavigationMethod.Directional;
-            caption.Text = keyboard ? text + " · 선택" : text;
+            caption.Text = keyboard ? L.F("{0} · 선택", text) : text;
             caption.Foreground = keyboard ? DesignSystem.FocusRing : brush;
         };
         input.LostFocus += (_, _) => { caption.Text = text; caption.Foreground = brush; };
@@ -102,8 +102,9 @@ public static partial class Ui
         }
     }
     public static Control PageContent(string title, string description, Control body, Control footer,
-        string section = "나의 휴식", bool showHeader = true)
+        string? section = null, bool showHeader = true)
     {
+        section ??= L.T("나의 휴식");
         var scroll = PageBodyScroll(body);
         var layout = new Grid { RowDefinitions = showHeader ? new("Auto,16,*,16,Auto") : new("*,16,Auto") };
         if (showHeader)
@@ -128,7 +129,7 @@ public static partial class Ui
             CornerRadius = DesignSystem.FrameRadius, Child = content };
     }
     public static Control Page(Window window, string title, string description, Control body, Control footer,
-        string section = "나의 휴식", double inset = DesignSystem.Inset) =>
+        string? section = null, double inset = DesignSystem.Inset) =>
         PageFrame(window, PageContent(title, description, body, footer, section), inset);
     private static Window ModalWindow(string title, double width)
     {
@@ -216,6 +217,8 @@ public static partial class Ui
             image.Pixels.AsSpan(y * image.Width, image.Width).CopyTo(new Span<uint>((byte*)locked.Address + y * locked.RowBytes, image.Width));
     }
 
+    private static readonly string[] DangerChoices =
+        [L.Key("버리기"), L.Key("종료"), L.Key("중지"), L.Key("저장 안 함"), L.Key("초기화"), "Delete", "Discard", "Crop"];
     public static Task<int> Confirm(Window owner, string title, string message, params string[] choices) =>
         Confirm(owner, title, message, false, choices);
     private static async Task<int> Confirm(Window owner, string title, string message, bool centered, string[] choices)
@@ -225,8 +228,10 @@ public static partial class Ui
         var buttons = choices.Select((choice, index) =>
         {
             var button = ModalButton(Button(choice, () => { result = index; dialog.Close(); }));
-            if (choice is "취소" or "Cancel") { button.IsCancel = true; Quiet(button); }
-            if (choice.Contains("삭제") || choice.EndsWith("제거", StringComparison.Ordinal) || choice is "버리기" or "종료" or "중지" or "저장 안 함" or "초기화" or "Delete" or "Discard" or "Crop") Danger(button);
+            // Roles follow the Korean source text, so a translated label keeps its cancel or danger style.
+            var source = L.Source(choice);
+            if (source == L.Key("취소") || source == "Cancel") { button.IsCancel = true; Quiet(button); }
+            if (source.Contains(L.Key("삭제")) || source.EndsWith(L.Key("제거"), StringComparison.Ordinal) || DangerChoices.Contains(source)) Danger(button);
             else if (index == 0) Primary(button);
             if (choices.Length == 1) button.IsDefault = true;
             return button;
@@ -234,7 +239,7 @@ public static partial class Ui
         var messageText = Text(message); messageText.TextWrapping = TextWrapping.Wrap;
         var actions = Actions(buttons);
         if (centered) actions.HorizontalAlignment = HorizontalAlignment.Center;
-        dialog.Content = ModalPage(dialog, title, "확인", ModalBody(messageText), actions);
+        dialog.Content = ModalPage(dialog, title, L.Tx("section", "확인"), ModalBody(messageText), actions);
         dialog.Opened += (_, _) => (buttons.FirstOrDefault(button => button.IsCancel) ?? buttons.FirstOrDefault())?.Focus();
         LockModalSize(dialog);
         if (owner is PetOverlayWindow overlay) overlay.PositionDialog(dialog);
@@ -246,40 +251,40 @@ public static partial class Ui
     }
     public static Task Error(Window owner, Exception error)
     {
-        AppPaths.Log(error); return Confirm(owner, "Unfold", ErrorText(error), "확인");
+        AppPaths.Log(error); return Confirm(owner, "Unfold", ErrorText(error), L.T("확인"));
     }
     // Package errors also serve the command-line tools. Localize their known recovery
     // cases here; unexpected platform/decoder details stay in the diagnostic log.
     public static string ErrorText(Exception error) => error.Message switch
     {
-        "A newer version is installed. Choose the same or a newer pack." => "더 최신 버전이 설치되어 있어요. 같은 버전이나 더 최신 팩을 선택해 주세요.",
-        "This version contains different files. A changed pack needs a new content version." => "설치된 팩과 버전은 같지만 내용이 달라요. 제작자가 버전을 올린 팩을 선택해 주세요.",
-        "This ID belongs to a built-in companion." => "기본 펫을 이 팩으로 교체할 수 없어요.",
-        "This ID belongs to existing artwork. It cannot be replaced by a pet pack." => "이미 저장된 캐릭터와 충돌해요. 다른 펫 팩을 선택해 주세요.",
-        "A companion already uses this ID with different casing." => "같은 식별자를 쓰는 펫이 이미 있어요. 다른 펫 팩을 선택해 주세요.",
+        "A newer version is installed. Choose the same or a newer pack." => L.T("더 최신 버전이 설치되어 있어요. 같은 버전이나 더 최신 팩을 선택해 주세요."),
+        "This version contains different files. A changed pack needs a new content version." => L.T("설치된 팩과 버전은 같지만 내용이 달라요. 제작자가 버전을 올린 팩을 선택해 주세요."),
+        "This ID belongs to a built-in companion." => L.T("기본 펫을 이 팩으로 교체할 수 없어요."),
+        "This ID belongs to existing artwork. It cannot be replaced by a pet pack." => L.T("이미 저장된 캐릭터와 충돌해요. 다른 펫 팩을 선택해 주세요."),
+        "A companion already uses this ID with different casing." => L.T("같은 식별자를 쓰는 펫이 이미 있어요. 다른 펫 팩을 선택해 주세요."),
         "The preview files changed. Reopen the original pack." or
         "The installed companion changed. Reopen the pack preview." or
-        "The installed companion changed during validation." => "확인하는 동안 펫 파일이 바뀌었어요. 원본 팩을 다시 열어 주세요.",
+        "The installed companion changed during validation." => L.T("확인하는 동안 펫 파일이 바뀌었어요. 원본 팩을 다시 열어 주세요."),
         "Pet pack exceeds its file or total size limit." or
         "Pet pack exceeds 16 clips or its decoded sprite budget." or
-        "Total decoded pet clips exceed 128 MiB." => "펫 팩이 허용된 크기를 초과했어요. 크기를 줄인 팩이 필요해요.",
+        "Total decoded pet clips exceed 128 MiB." => L.T("펫 팩이 허용된 크기를 초과했어요. 크기를 줄인 팩이 필요해요."),
         _ => error switch
         {
-            UnauthorizedAccessException => "파일에 접근할 권한이 없어요. 파일과 저장 위치의 권한을 확인해 주세요.",
-            FileNotFoundException or DirectoryNotFoundException => "파일을 찾지 못했어요. 파일의 위치를 확인해 주세요.",
-            InvalidDataException or System.Text.Json.JsonException => "파일 형식이나 내용이 올바르지 않아요. 원본 파일을 확인해 주세요.",
-            IOException => "파일을 읽거나 저장하지 못했어요. 저장 위치와 여유 공간을 확인해 주세요.",
-            PlatformNotSupportedException => "이 환경에서는 해당 기능을 사용할 수 없어요.",
-            _ => "작업을 완료하지 못했어요. 다시 시도해 주세요. 문제가 계속되면 앱을 다시 실행해 주세요."
+            UnauthorizedAccessException => L.T("파일에 접근할 권한이 없어요. 파일과 저장 위치의 권한을 확인해 주세요."),
+            FileNotFoundException or DirectoryNotFoundException => L.T("파일을 찾지 못했어요. 파일의 위치를 확인해 주세요."),
+            InvalidDataException or System.Text.Json.JsonException => L.T("파일 형식이나 내용이 올바르지 않아요. 원본 파일을 확인해 주세요."),
+            IOException => L.T("파일을 읽거나 저장하지 못했어요. 저장 위치와 여유 공간을 확인해 주세요."),
+            PlatformNotSupportedException => L.T("이 환경에서는 해당 기능을 사용할 수 없어요."),
+            _ => L.T("작업을 완료하지 못했어요. 다시 시도해 주세요. 문제가 계속되면 앱을 다시 실행해 주세요.")
         }
     };
     public static async Task<string?> Prompt(Window owner, string title, string value)
     {
         var input = new TextBox { Text = value, MinWidth = 280 };
         var dialog = ModalWindow(title, 420);
-        var cancel = Quiet(ModalButton(Button("취소", () => dialog.Close()))); cancel.IsCancel = true;
-        var save = Primary(ModalButton(Button("저장", () => { if (!string.IsNullOrWhiteSpace(input.Text)) dialog.Close(input.Text.Trim()); }))); save.IsDefault = true;
-        dialog.Content = ModalPage(dialog, title, "이름 편집", Field("이름", input), Actions(cancel, save));
+        var cancel = Quiet(ModalButton(Button(L.T("취소"), () => dialog.Close()))); cancel.IsCancel = true;
+        var save = Primary(ModalButton(Button(L.T("저장"), () => { if (!string.IsNullOrWhiteSpace(input.Text)) dialog.Close(input.Text.Trim()); }))); save.IsDefault = true;
+        dialog.Content = ModalPage(dialog, title, L.T("이름 편집"), Field(L.T("이름"), input), Actions(cancel, save));
         dialog.Opened += (_, _) => { input.Focus(); input.SelectAll(); };
         LockModalSize(dialog);
         await Dispatcher.UIThread.InvokeAsync(static () => { }, DispatcherPriority.Background);
@@ -328,7 +333,7 @@ public static partial class Ui
             confirm.IsEnabled = !busy && !string.IsNullOrWhiteSpace(input.Text);
         };
         var body = Column(Field(label, input), new Border { MinHeight = 32, Child = error }); body.Spacing = 8;
-        dialog.Content = ModalPage(dialog, title, "코드", ModalBody(body), Actions(cancel, confirm));
+        dialog.Content = ModalPage(dialog, title, L.T("코드"), ModalBody(body), Actions(cancel, confirm));
         dialog.Opened += (_, _) => input.Focus();
         LockModalSize(dialog);
         await Dispatcher.UIThread.InvokeAsync(static () => { }, DispatcherPriority.Background);

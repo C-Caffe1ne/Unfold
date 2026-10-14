@@ -38,7 +38,7 @@ public sealed partial class SettingsWindow
         main.Children.Add(BuildTimerCard());
         var companion = BuildCompanionCard(); Grid.SetRow(companion, 2); main.Children.Add(companion);
 
-        var details = Ui.Column(BuildHomeTimingCard(), BuildReviewCard()); details.Spacing = Inset;
+        var details = Ui.Column(BuildHomeTimingCard(), BuildReviewCard(), BuildHomeLanguageCard()); details.Spacing = Inset;
         var detailsScroll = new ScrollViewer { Name = "SettingsDetailsScroll", Content = details,
             HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
         var dashboard = new Grid { Name = "SettingsDashboard", ColumnDefinitions = new("*,20,300") };
@@ -79,17 +79,17 @@ public sealed partial class SettingsWindow
     private Border BuildNavigation()
     {
         var rail = new Grid { Name = "SettingsNavigationRail", RowDefinitions = new("*,Auto"), Margin = new(7, 12) };
-        var timer = Nav("SettingsNavTimer", "홈", "home", OpenDashboard);
-        var settings = Nav("SettingsNavSettings", "설정", "settings", OpenPreferences);
-        var review = Nav("SettingsNavReview", "기록", "history", OpenReview);
-        var pets = Nav("SettingsNavPacks", "펫 관리", "pet-add", OpenPetPacks);
+        var timer = Nav("SettingsNavTimer", L.T("홈"), "home", OpenDashboard);
+        var settings = Nav("SettingsNavSettings", L.T("설정"), "settings", OpenPreferences);
+        var review = Nav("SettingsNavReview", L.T("기록"), "history", OpenReview);
+        var pets = Nav("SettingsNavPacks", L.T("펫 관리"), "pet-add", OpenPetPacks);
         navigationItems["pets"] = pets;
         navigationItems["dashboard"] = timer; navigationItems["settings"] = settings;
         navigationItems["review"] = review;
         SelectNavigation("dashboard");
         var links = Ui.Column(timer, pets, review, BuildThemeButton()); links.Name = "SettingsNavigationLinks";
         links.Spacing = 8; rail.Children.Add(links);
-        var quit = Ui.Danger(Nav("SettingsQuit", "종료", "exit", runtime.Quit));
+        var quit = Ui.Danger(Nav("SettingsQuit", L.T("종료"), "exit", runtime.Quit));
         var version = new TextBlock { Name = "SidebarVersion", Text = AppRelease.DisplayVersion.Replace(" ", "\n"),
             FontSize = 10, Foreground = Muted, TextAlignment = TextAlignment.Center,
             HorizontalAlignment = HorizontalAlignment.Stretch, TextTrimming = TextTrimming.CharacterEllipsis };
@@ -105,14 +105,14 @@ public sealed partial class SettingsWindow
         var content = new Grid { RowDefinitions = new("*,Auto"), Margin = new(Inset) };
         companionName.Name = "CompanionName"; companionName.FontWeight = FontWeight.SemiBold;
         companionName.MaxLines = 2; companionName.TextTrimming = TextTrimming.CharacterEllipsis;
-        var petLabel = Label("함께하는 펫", Body, Muted);
+        var petLabel = Label(L.T("함께하는 펫"), Body, Muted);
         var intro = Ui.Column(petLabel, companionName); intro.Spacing = 4; intro.IsHitTestVisible = false;
         intro.Margin = new(0, 0, HomeControlHeight + Space, 0);
-        var managePets = Ui.Quiet(Ui.AsyncButton("펫 관리", OpenPetPacks));
+        var managePets = Ui.Quiet(Ui.AsyncButton(L.T("펫 관리"), OpenPetPacks));
         managePets.Name = "HomeOpenPetManagement"; managePets.Content = new NavigationIcon("pet-add");
         managePets.Width = managePets.Height = HomeControlHeight; managePets.Padding = new(0);
         managePets.HorizontalAlignment = HorizontalAlignment.Right; managePets.VerticalAlignment = VerticalAlignment.Top;
-        AutomationProperties.SetName(managePets, "펫 관리"); ToolTip.SetTip(managePets, "펫 관리");
+        AutomationProperties.SetName(managePets, L.T("펫 관리")); ToolTip.SetTip(managePets, L.T("펫 관리"));
         ToolTip.SetShowDelay(managePets, 500);
         companionPreviewStage = new Grid { Name = "CompanionPreviewStage", Width = PetBaseSize, Height = PetBaseSize };
         companionPreviewStage.Children.Add(preview);
@@ -124,7 +124,7 @@ public sealed partial class SettingsWindow
         characters.Height = HomeControlHeight; characters.MaxWidth = HomeChoiceWidth; characters.HorizontalAlignment = HorizontalAlignment.Stretch;
         characters.Classes.Add("home-choice");
         characters.ContainerPrepared += (_, e) => e.Container.Classes.Add("home-choice-item");
-        var scaleLabel = Label("펫 크기", Body, Cream); scaleLabel.Name = "PetScaleLabel";
+        var scaleLabel = Label(L.T("펫 크기"), Body, Cream); scaleLabel.Name = "PetScaleLabel";
         Ui.KeyboardFocusLabel(petScale, scaleLabel);
         AutomationProperties.SetLabeledBy(petScale, scaleLabel);
         petScale.Width = HomePetScaleWidth; petScale.MinWidth = 0;
@@ -133,11 +133,11 @@ public sealed partial class SettingsWindow
         petScaleValue.HorizontalAlignment = HorizontalAlignment.Right;
         scaleValueRow.Children.Add(petScaleValue);
         var scaleField = Ui.Column(scaleLabel, petScale, scaleValueRow); scaleField.Spacing = 4;
-        var characterLabel = Label("펫 선택", Body, Cream); Ui.KeyboardFocusLabel(characters, characterLabel);
+        var characterLabel = Label(L.T("펫 선택"), Body, Cream); Ui.KeyboardFocusLabel(characters, characterLabel);
         AutomationProperties.SetLabeledBy(characters, characterLabel);
         showPet.FontSize = Body; showPet.Foreground = Cream; showPet.MinHeight = HomeControlHeight;
         showPet.VerticalAlignment = VerticalAlignment.Center;
-        ToolTip.SetTip(showPet, "화면에 펫을 표시하거나 숨겨요.");
+        ToolTip.SetTip(showPet, L.T("화면에 펫을 표시하거나 숨겨요."));
         var characterField = new Grid { Name = "HomePetSelectionRow", ColumnDefinitions = new("Auto,12,*,12,Auto"), MinHeight = HomeControlHeight };
         characterLabel.VerticalAlignment = VerticalAlignment.Center; characterField.Children.Add(characterLabel);
         Grid.SetColumn(characters, 2); characterField.Children.Add(characters);
@@ -154,7 +154,7 @@ public sealed partial class SettingsWindow
         countdown.HorizontalAlignment = HorizontalAlignment.Center; countdown.VerticalAlignment = VerticalAlignment.Center;
         state.Foreground = Muted; state.FontSize = Caption;
         var header = new Grid { ColumnDefinitions = new("*,Auto") };
-        header.Children.Add(Label("다음 휴식까지", Body, Cream)); Grid.SetColumn(intervalHint, 1); header.Children.Add(intervalHint);
+        header.Children.Add(Label(L.T("다음 휴식까지"), Body, Cream)); Grid.SetColumn(intervalHint, 1); header.Children.Add(intervalHint);
         var statusContent = new Grid { ColumnDefinitions = new("Auto,7,*") };
         statusContent.Children.Add(timerStateDot); Grid.SetColumn(state, 2); statusContent.Children.Add(state);
         timerStateBadge.Child = statusContent; timerStateBadge.HorizontalAlignment = HorizontalAlignment.Center;
@@ -178,12 +178,12 @@ public sealed partial class SettingsWindow
             row.Children.Add(caption); Grid.SetColumn(input, 2); row.Children.Add(input);
             return row;
         }
-        var fields = Ui.Column(TimingRow("IdleSettingsRow", "자리 비움 시간 (분)", idle),
-            TimingRow("SnoozeSettingsRow", "다시 알림 시간 (분)", snooze));
+        var fields = Ui.Column(TimingRow("IdleSettingsRow", L.T("자리 비움 시간 (분)"), idle),
+            TimingRow("SnoozeSettingsRow", L.T("다시 알림 시간 (분)"), snooze));
         fields.Spacing = SettingsRowGap;
-        ToolTip.SetTip(idle, "이 시간 동안 입력이 없으면 작업 타이머를 일시정지해요.");
-        ToolTip.SetTip(snooze, "알림을 미룬 뒤 다시 알릴 때까지의 작업 시간이에요.");
-        var body = Ui.Column(SettingsHeading("타이머 설정"), fields);
+        ToolTip.SetTip(idle, L.T("이 시간 동안 입력이 없으면 작업 타이머를 일시정지해요."));
+        ToolTip.SetTip(snooze, L.T("알림을 미룬 뒤 다시 알릴 때까지의 작업 시간이에요."));
+        var body = Ui.Column(SettingsHeading(L.T("타이머 설정")), fields);
         body.Spacing = Inset; body.Margin = new(Inset);
         return Card("SettingsTimerSettingsCard", body, Surface, new(28));
     }
@@ -198,11 +198,11 @@ public sealed partial class SettingsWindow
             input.HorizontalAlignment = HorizontalAlignment.Left;
             var field = Ui.Column(caption, input); field.Spacing = Space; return field;
         }
-        var stretch = Field("스트레칭 알림 간격 (분)", interval);
-        var rest = Field("휴식 시간 (분)", breakDuration);
-        ToolTip.SetTip(breakDuration, "다음 휴식의 목표 시간을 1~10분으로 설정해요.");
+        var stretch = Field(L.T("스트레칭 알림 간격 (분)"), interval);
+        var rest = Field(L.T("휴식 시간 (분)"), breakDuration);
+        ToolTip.SetTip(breakDuration, L.T("다음 휴식의 목표 시간을 1~10분으로 설정해요."));
         homeTimingStatus.FontSize = DesignSystem.Caption;
-        var body = Ui.Column(HomeHeading("시간 설정"), stretch, rest, homeTimingStatus);
+        var body = Ui.Column(HomeHeading(L.T("시간 설정")), stretch, rest, homeTimingStatus);
         body.Spacing = 16; body.Margin = new(Inset);
         return Card("SettingsHomeTimingCard", body, Surface, CardRadius);
     }
@@ -210,10 +210,10 @@ public sealed partial class SettingsWindow
     private Border BuildReviewCard()
     {
         today.FontSize = Body; today.Foreground = Cream; historyStatus.FontSize = Caption; historyStatus.Foreground = Muted;
-        var metric = Ui.Row(todayCount, Label("회", 12, Muted));
-        var review = Ui.Quiet(Ui.AsyncButton("기록 · 내보내기", OpenReview)); review.Name = "SettingsOpenReview";
+        var metric = Ui.Row(todayCount, Label(L.T("회"), 12, Muted));
+        var review = Ui.Quiet(Ui.AsyncButton(L.T("기록 · 내보내기"), OpenReview)); review.Name = "SettingsOpenReview";
         review.HorizontalAlignment = HorizontalAlignment.Left; review.Height = HomeControlHeight;
-        var body = Ui.Column(HomeHeading("오늘의 작은 쉼"), metric, today, historyStatus, review);
+        var body = Ui.Column(HomeHeading(L.T("오늘의 작은 쉼")), metric, today, historyStatus, review);
         body.Spacing = Space; body.Margin = new(Inset);
         return Card("SettingsReviewCard", body, Raised, CardRadius);
     }
@@ -267,9 +267,9 @@ public sealed partial class SettingsWindow
     private Border BuildAppBehaviorCard()
     {
         launchAtLogin.FontSize = Body; launchAtLogin.Foreground = Cream; launchAtLogin.MinHeight = 24;
-        ToolTip.SetTip(launchAtLogin, "컴퓨터에 로그인하면 Unfold를 자동으로 실행해요.");
-        var options = Ui.Column(launchAtLogin); options.Spacing = Space;
-        var body = Ui.Column(SettingsHeading("앱 동작"), options);
+        ToolTip.SetTip(launchAtLogin, L.T("컴퓨터에 로그인하면 Unfold를 자동으로 실행해요."));
+        var options = Ui.Column(BuildSettingsLanguageRow(), launchAtLogin); options.Spacing = SettingsRowGap;
+        var body = Ui.Column(SettingsHeading(L.T("앱 동작")), options);
         body.Spacing = Inset; body.Margin = new(Inset);
         return Card("SettingsAppBehaviorCard", body, Surface, new(28));
     }
@@ -277,11 +277,11 @@ public sealed partial class SettingsWindow
     private Border BuildAppInfoCard()
     {
         var version = SettingsLabel(AppRelease.DisplayVersion); version.Name = "SettingsAppVersion";
-        var update = Ui.Button("업데이트 확인", runtime.ShowUpdates); update.Name = "SettingsCheckUpdates";
+        var update = Ui.Button(L.T("업데이트 확인"), runtime.ShowUpdates); update.Name = "SettingsCheckUpdates";
         update.Height = SettingsControlHeight;
         var row = new Grid { ColumnDefinitions = new("*,16,Auto") };
         row.Children.Add(version); Grid.SetColumn(update, 2); row.Children.Add(update);
-        var body = Ui.Column(SettingsHeading("앱 정보"), row); body.Spacing = Inset; body.Margin = new(Inset);
+        var body = Ui.Column(SettingsHeading(L.T("앱 정보")), row); body.Spacing = Inset; body.Margin = new(Inset);
         return Card("SettingsAppInfoCard", body, Surface, new(28));
     }
 
@@ -325,7 +325,7 @@ public sealed partial class SettingsWindow
         {
             if (!IsVisible || settingsPageHost.Content != page) return;
             var controls = page.GetVisualDescendants().OfType<Control>();
-            Control? target = key switch
+            Control? target = TakePendingFocus(controls, ref keyboard) ?? key switch
             {
                 "dashboard" => timerControls.Children.OfType<Button>().First(),
                 "settings" => controls.FirstOrDefault(control => control.Name == "BubbleOpacityPercent"),
@@ -343,8 +343,8 @@ public sealed partial class SettingsWindow
         foreach (var item in navigationItems)
         {
             item.Value.Classes.Remove("primary");
-            AutomationProperties.SetName(item.Value, item.Value.Tag + (item.Key == key ? " · 선택됨" : ""));
-            AutomationProperties.SetHelpText(item.Value, item.Key == key ? "현재 보고 있는 페이지예요." : "이 페이지로 이동해요.");
+            AutomationProperties.SetName(item.Value, item.Key == key ? L.F("{0} · 선택됨", item.Value.Tag) : item.Value.Tag?.ToString());
+            AutomationProperties.SetHelpText(item.Value, item.Key == key ? L.T("현재 보고 있는 페이지예요.") : L.T("이 페이지로 이동해요."));
         }
         if (!navigationItems.TryGetValue(key, out var selected)) return;
         selected.Classes.Add("primary");

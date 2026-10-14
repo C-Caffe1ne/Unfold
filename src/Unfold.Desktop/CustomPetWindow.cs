@@ -14,7 +14,7 @@ public sealed class CustomPetWindow : Window
     public string? CreatedPackPath { get; private set; }
     public CustomPetWindow(string initialPath, Func<Task<string?>>? chooseMedia = null, Func<Task<string?>>? chooseOutput = null)
     {
-        Title = "Unfold · 커스텀 펫 만들기"; Width = 660; Height = 880; MinWidth = 520; MinHeight = 620;
+        Title = L.T("Unfold · 커스텀 펫 만들기"); Width = 660; Height = 880; MinWidth = 520; MinHeight = 620;
         Background = Ui.Background; WindowStartupLocation = WindowStartupLocation.CenterOwner;
         var page = new CustomPetView(this, path => { CreatedPackPath = path; Close(); return Task.CompletedTask; },
             initialPath, chooseMedia, chooseOutput);
@@ -36,7 +36,7 @@ internal sealed class CustomPetView : UserControl, IDisposable
     private readonly Func<Task<string?>> chooseMedia;
     private readonly Func<Task<string?>> chooseOutput;
     private readonly CancellationTokenSource cancellation = new();
-    private readonly TextBox name = new() { Name = "CustomPetName", PlaceholderText = "펫 이름", MaxLength = 80,
+    private readonly TextBox name = new() { Name = "CustomPetName", PlaceholderText = L.T("펫 이름"), MaxLength = 80,
         Height = DesignSystem.PetControlHeight, VerticalContentAlignment = VerticalAlignment.Center,
         HorizontalAlignment = HorizontalAlignment.Stretch };
     private readonly ComboBox action = new() { Name = "CustomPetAction", ItemsSource = CustomPetDraft.Actions, SelectedIndex = 0,
@@ -77,15 +77,15 @@ internal sealed class CustomPetView : UserControl, IDisposable
     {
         this.owner = owner; this.created = created; this.library = library; this.installed = installed; this.removed = removed;
         this.chooseMedia = chooseMedia ?? PickMedia; this.chooseOutput = chooseOutput ?? PickOutput;
-        pendingPath = initialPath; pending.Text = initialPath is null ? "" : "가져온 파일: " + Path.GetFileName(initialPath);
+        pendingPath = initialPath; pending.Text = initialPath is null ? "" : L.F("가져온 파일: {0}", Path.GetFileName(initialPath));
         action.ItemTemplate = new FuncDataTemplate<string>((key, _) => Ui.Text(CustomPetDraft.ActionName(key ?? "")));
-        AutomationProperties.SetName(action, "가져온 파일에 적용할 동작"); AutomationProperties.SetName(name, "커스텀 펫 이름");
+        AutomationProperties.SetName(action, L.T("가져온 파일에 적용할 동작")); AutomationProperties.SetName(name, L.T("커스텀 펫 이름"));
         status.Name = "CustomPetStatus"; pending.Name = "CustomPetPending";
         status.IsVisible = false;
         status.PropertyChanged += (_, e) => { if (e.Property == TextBlock.TextProperty) status.IsVisible = !string.IsNullOrWhiteSpace(status.Text); };
-        assign = AsyncButton("동작에 넣기", AssignPending); assign.Name = "AssignPetMedia";
+        assign = AsyncButton(L.T("동작에 넣기"), AssignPending); assign.Name = "AssignPetMedia";
         selectedAction.ItemTemplate = new FuncDataTemplate<string>((key, _) => Ui.Text(CustomPetDraft.ActionName(key ?? "")));
-        PetManagementView.StyleChoice(selectedAction); AutomationProperties.SetName(selectedAction, "상황");
+        PetManagementView.StyleChoice(selectedAction); AutomationProperties.SetName(selectedAction, L.T("상황"));
         selectedAction.SelectionChanged += async (_, _) =>
         {
             if (selecting || populating || selectedAction.SelectedItem is not string key) return;
@@ -93,7 +93,7 @@ internal sealed class CustomPetView : UserControl, IDisposable
             if (draft.Clips.ContainsKey(key)) await Preview(key);
             else ClearPreview();
         };
-        pause = Ui.Button("일시정지", () =>
+        pause = Ui.Button(L.T("일시정지"), () =>
         {
             if (completed && selectedAction.SelectedItem is string key) { _ = Replay(key); return; }
             paused = !paused; Refresh();
@@ -101,11 +101,11 @@ internal sealed class CustomPetView : UserControl, IDisposable
         preview.Completed += () => { if (!closed) { completed = true; Refresh(); } };
         previewButtons.Children.Add(pause);
         BuildActionSlots();
-        create = AsyncButton("펫 팩 만들기…", () => Export()); create.Name = "CreateCustomPetPack"; Ui.Primary(create);
+        create = AsyncButton(L.T("펫 팩 만들기…"), () => Export()); create.Name = "CreateCustomPetPack"; Ui.Primary(create);
         create.Height = DesignSystem.PetControlHeight;
         name.TextChanged += (_, _) => Refresh();
         pendingCard = BuildPendingCard();
-        open = AsyncButton("파일 열기…", openFile ?? (() => SelectFile(selectedAction.SelectedItem as string ?? "idle")));
+        open = AsyncButton(L.T("파일 열기…"), openFile ?? (() => SelectFile(selectedAction.SelectedItem as string ?? "idle")));
         open.Name = openFile is null ? "OpenCustomPetFile" : "OpenPetBuilderFile";
         open.Height = DesignSystem.PetControlHeight; open.VerticalAlignment = VerticalAlignment.Bottom;
 
@@ -114,16 +114,16 @@ internal sealed class CustomPetView : UserControl, IDisposable
             Name = "CustomPetPreviewSurface", Background = DesignSystem.Surface, CornerRadius = DesignSystem.CardRadius,
             Padding = new Thickness(8), Child = new Viewbox { Child = preview, Stretch = Stretch.Uniform }
         };
-        var settingsPane = Ui.Column(PetEditorWorkspace.Heading("행동 연결"), PetManagementView.Field("상황", selectedAction), slots);
+        var settingsPane = Ui.Column(PetEditorWorkspace.Heading(L.T("행동 연결")), PetManagementView.Field(L.T("상황"), selectedAction), slots);
         settingsPane.Name = "CustomPetActionPane"; settingsPane.Spacing = 10;
-        save = AsyncButton("저장하고 적용", Save); save.Name = "SaveCustomPet"; Ui.Primary(save);
-        editPet = AsyncButton("편집", async () =>
+        save = AsyncButton(L.T("저장하고 적용"), Save); save.Name = "SaveCustomPet"; Ui.Primary(save);
+        editPet = AsyncButton(L.T("편집"), async () =>
         {
             if (library is null || EditingId is not { } id) return;
             var package = library.List(loadModels: false).FirstOrDefault(item => item.Manifest.Id == id);
             if (package is not null) await OpenPackage(package);
         }); editPet.Name = "EditCustomPet";
-        removePet = AsyncButton("펫 삭제", RemovePet); removePet.Name = "RemoveCustomPet"; Ui.Danger(removePet);
+        removePet = AsyncButton(L.T("펫 삭제"), RemovePet); removePet.Name = "RemoveCustomPet"; Ui.Danger(removePet);
         var workspace = new PetEditorWorkspace(owner, "CustomPet", previewSurface,
             petSelection is null ? previewButtons : Ui.Column(previewButtons, petSelection, Ui.Actions(editPet, removePet)), settingsPane);
         var identity = workspace.Identity("CustomPetIdentity", name, open);
@@ -133,7 +133,7 @@ internal sealed class CustomPetView : UserControl, IDisposable
         status.VerticalAlignment = VerticalAlignment.Center;
         footer.Children.Add(status);
         var buttons = Ui.Row(save, create); Grid.SetColumn(buttons, 2); footer.Children.Add(buttons);
-        Content = PetManagementView.Page("나만의 펫을 만들어 보세요.", "",
+        Content = PetManagementView.Page(L.T("나만의 펫을 만들어 보세요."), "",
             body, footer, showHeader);
         owner.PropertyChanged += OwnerPropertyChanged;
         AttachedToVisualTree += (_, _) => UpdatePlayback();
@@ -150,12 +150,12 @@ internal sealed class CustomPetView : UserControl, IDisposable
         {
             var thumbnail = new Image { Name = "CustomPetThumbnail_" + key, Width = 32, Height = 40, Stretch = Stretch.Uniform };
             thumbnails[key] = thumbnail;
-            var label = Ui.Caption("파일 없음"); label.Name = "CustomPetLabel_" + key;
+            var label = Ui.Caption(L.T("파일 없음")); label.Name = "CustomPetLabel_" + key;
             label.MaxLines = 1; label.TextTrimming = TextTrimming.CharacterEllipsis;
             label.VerticalAlignment = VerticalAlignment.Center; labels[key] = label;
-            var menu = new ComboBox { Name = "CustomPetPlayback_" + key, ItemsSource = new[] { "한 번", "반복", "핑퐁" },
+            var menu = new ComboBox { Name = "CustomPetPlayback_" + key, ItemsSource = new[] { L.T("한 번"), L.T("반복"), L.T("핑퐁") },
                 SelectedIndex = draft.Playback(key), HorizontalAlignment = HorizontalAlignment.Stretch, HorizontalContentAlignment = HorizontalAlignment.Stretch };
-            AutomationProperties.SetName(menu, CustomPetDraft.ActionName(key) + " 반복 설정");
+            AutomationProperties.SetName(menu, L.F("{0} 반복 설정", CustomPetDraft.ActionName(key)));
             PetManagementView.StyleChoice(menu); playbackMenus[key] = menu;
             menu.SelectionChanged += async (_, _) =>
             {
@@ -164,7 +164,7 @@ internal sealed class CustomPetView : UserControl, IDisposable
                 changed = true;
                 if (previewAction == key) await Preview(key);
             };
-            var play = AsyncButton("처음부터 재생", () => Replay(key)); play.Name = "CustomPetPreview_" + key;
+            var play = AsyncButton(L.T("처음부터 재생"), () => Replay(key)); play.Name = "CustomPetPreview_" + key;
             replayButtons[key] = play; previewButtons.Children.Add(play);
             var select = AsyncButton("", () => SelectFile(key)); select.Name = "CustomPetFile_" + key;
             var remove = Ui.Button("", () =>
@@ -179,15 +179,15 @@ internal sealed class CustomPetView : UserControl, IDisposable
                 }
                 Refresh();
             }); remove.Name = "CustomPetRemove_" + key;
-            AutomationProperties.SetName(play, CustomPetDraft.ActionName(key) + " 처음부터 재생");
-            ConfigureSlotButton(select, "M11,4 H13 V11 H20 V13 H13 V20 H11 V13 H4 V11 H11 Z", CustomPetDraft.ActionName(key) + " 파일추가");
-            ConfigureSlotButton(remove, "M8,5 V3 H16 V5 H21 V7 H19 L18,21 H6 L5,7 H3 V5 Z M8,9 H10 V18 H8 Z M14,9 H16 V18 H14 Z", CustomPetDraft.ActionName(key) + " 삭제");
+            AutomationProperties.SetName(play, L.F("{0} 처음부터 재생", CustomPetDraft.ActionName(key)));
+            ConfigureSlotButton(select, "M11,4 H13 V11 H20 V13 H13 V20 H11 V13 H4 V11 H11 Z", L.F("{0} 파일추가", CustomPetDraft.ActionName(key)));
+            ConfigureSlotButton(remove, "M8,5 V3 H16 V5 H21 V7 H19 L18,21 H6 L5,7 H3 V5 Z M8,9 H10 V18 H8 Z M14,9 H16 V18 H14 Z", L.F("{0} 삭제", CustomPetDraft.ActionName(key)));
             Ui.Danger(remove); actions.AddRange([play, select, remove]);
             var controls = Ui.Row(select, remove); controls.Spacing = 2; controls.Name = "CustomPetActions_" + key;
             var fileRow = new Grid { ColumnDefinitions = new("32,8,*,8,Auto") };
             fileRow.Children.Add(thumbnail); Grid.SetColumn(label, 2); fileRow.Children.Add(label);
             Grid.SetColumn(controls, 4); fileRow.Children.Add(controls);
-            var row = Ui.Column(PetManagementView.Field("파일", fileRow), PetManagementView.Field("재생 방식", menu));
+            var row = Ui.Column(PetManagementView.Field(L.T("파일"), fileRow), PetManagementView.Field(L.T("재생 방식"), menu));
             var slot = new Border { Name = "CustomPetSlot_" + key, BorderBrush = DesignSystem.Outline,
                 BorderThickness = new Thickness(1), Padding = new Thickness(12), CornerRadius = new CornerRadius(12), Child = row };
             actionCards[key] = slot; slots.Children.Add(slot);
@@ -195,7 +195,7 @@ internal sealed class CustomPetView : UserControl, IDisposable
     }
     public static async Task<string?> PickMediaFile(Window owner)
     {
-        var files = await owner.StorageProvider.OpenFilePickerAsync(new() { Title = "파일 가져오기", AllowMultiple = false,
+        var files = await owner.StorageProvider.OpenFilePickerAsync(new() { Title = L.T("파일 가져오기"), AllowMultiple = false,
             FileTypeFilter = [new FilePickerFileType(PetMediaImporter.SupportedFileTypes) { Patterns = PetMediaImporter.FilePatterns }] });
         return files.FirstOrDefault()?.TryGetLocalPath();
     }
@@ -203,9 +203,9 @@ internal sealed class CustomPetView : UserControl, IDisposable
     private Task<string?> PickOutput() => PickOutputFile(owner);
     internal static async Task<string?> PickOutputFile(Window owner)
     {
-        var file = await owner.StorageProvider.SaveFilePickerAsync(new() { Title = "커스텀 펫 팩 저장", DefaultExtension = "unfoldpet",
+        var file = await owner.StorageProvider.SaveFilePickerAsync(new() { Title = L.T("커스텀 펫 팩 저장"), DefaultExtension = "unfoldpet",
             SuggestedFileName = "custom-pet.unfoldpet", ShowOverwritePrompt = true,
-            FileTypeChoices = [new FilePickerFileType("Unfold 펫 팩") { Patterns = ["*.unfoldpet"] }] });
+            FileTypeChoices = [new FilePickerFileType(L.T("Unfold 펫 팩")) { Patterns = ["*.unfoldpet"] }] });
         return file?.TryGetLocalPath();
     }
     private void OwnerPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
@@ -228,8 +228,8 @@ internal sealed class CustomPetView : UserControl, IDisposable
     internal async Task<bool> OpenPackage(CharacterPackage package)
     {
         if (busy || closed || package.IsBuiltIn || package.IsGlb) return false;
-        if (HasUnsavedChanges && await Ui.Confirm(owner, "저장하지 않은 변경을 버릴까요?",
-            "저장하지 않은 이름과 행동 설정은 사라져요.", "변경 버리기", "계속 편집") != 0) return false;
+        if (HasUnsavedChanges && await Ui.Confirm(owner, L.T("저장하지 않은 변경을 버릴까요?"),
+            L.T("저장하지 않은 이름과 행동 설정은 사라져요."), L.T("변경 버리기"), L.T("계속 편집")) != 0) return false;
         busy = true; Refresh(); preview.SetRunning(false);
         try
         {
@@ -259,12 +259,12 @@ internal sealed class CustomPetView : UserControl, IDisposable
         busy = true; preview.SetRunning(false); Refresh();
         try
         {
-            var petName = name.Text ?? ""; status.Text = "저장하고 적용하는 중…";
+            var petName = name.Text ?? ""; status.Text = L.T("저장하고 적용하는 중…");
             var package = await Task.Run(() => draft.Save(library, petName));
             if (closed) return;
             changed = false; savedName = petName; LibraryChanged?.Invoke();
             await installed(package);
-            status.Foreground = DesignSystem.Muted; status.Text = "저장 완료";
+            status.Foreground = DesignSystem.Muted; status.Text = L.T("저장 완료");
         }
         catch (Exception error) { ShowError(error); }
         finally { busy = false; if (!closed) Refresh(); }
@@ -275,8 +275,8 @@ internal sealed class CustomPetView : UserControl, IDisposable
         busy = true; preview.SetRunning(false); Refresh();
         try
         {
-            if (await Ui.Confirm(owner, "저장한 펫을 삭제할까요?",
-                $"‘{savedName}’을 앱에서 삭제해요. 가져온 원본 파일은 유지돼요.", "펫 삭제", "취소") != 0 || closed) return;
+            if (await Ui.Confirm(owner, L.T("저장한 펫을 삭제할까요?"),
+                L.F("‘{0}’을 앱에서 삭제해요. 가져온 원본 파일은 유지돼요.", savedName), L.T("펫 삭제"), L.T("취소")) != 0 || closed) return;
             var id = draft.Id; var revision = draft.Revision;
             await Task.Run(() => library.Delete(id, revision));
             if (closed) return;
@@ -284,7 +284,7 @@ internal sealed class CustomPetView : UserControl, IDisposable
             if (removed is not null)
             {
                 try { await removed(id); }
-                catch (Exception error) { status.Text = "펫은 삭제됐지만 화면을 갱신하지 못했어요. " + Ui.ErrorText(error); AppPaths.Log(error); }
+                catch (Exception error) { status.Text = L.F("펫은 삭제됐지만 화면을 갱신하지 못했어요. {0}", Ui.ErrorText(error)); AppPaths.Log(error); }
             }
         }
         catch (Exception error) { ShowError(error); }
@@ -307,7 +307,7 @@ internal sealed class CustomPetView : UserControl, IDisposable
         if (!await ConfirmReplace(key, path)) return;
         if (await Assign(key, path))
         {
-            pendingPath = null; pending.Text = "동작에 추가했어요.";
+            pendingPath = null; pending.Text = L.T("동작에 추가했어요.");
             SelectNextEmptyAction(); Refresh();
         }
     }
@@ -327,12 +327,12 @@ internal sealed class CustomPetView : UserControl, IDisposable
     {
         if (busy || closed || !draft.Clips.TryGetValue(key, out var clip)) return true;
         var name = CustomPetDraft.ActionName(key);
-        var choice = await Ui.Confirm(owner, name + " 파일을 바꿀까요?",
-            $"지금은 ‘{clip.FileName}’ 파일이 들어 있어요. 새로 가져온 ‘{Path.GetFileName(path)}’ 파일로 바꾸면 기존 파일은 펫 팩에 담기지 않아요. 다른 동작은 그대로예요.",
-            "바꾸기", "취소");
+        var choice = await Ui.Confirm(owner, L.F("{0} 파일을 바꿀까요?", name),
+            L.F("지금은 ‘{0}’ 파일이 들어 있어요. 새로 가져온 ‘{1}’ 파일로 바꾸면 기존 파일은 펫 팩에 담기지 않아요. 다른 동작은 그대로예요.", clip.FileName, Path.GetFileName(path)),
+            L.T("바꾸기"), L.T("취소"));
         if (closed) return false;
         if (choice == 0) return true;
-        status.Foreground = DesignSystem.Muted; status.Text = name + "의 기존 파일을 그대로 두었어요.";
+        status.Foreground = DesignSystem.Muted; status.Text = L.F("{0}의 기존 파일을 그대로 두었어요.", name);
         return false;
     }
     // Point the picker at an action that still needs a file so the next import
@@ -349,7 +349,7 @@ internal sealed class CustomPetView : UserControl, IDisposable
     private async Task<bool> Assign(string key, string path)
     {
         if (busy || closed) return false;
-        busy = true; preview.SetRunning(false); Refresh(); status.Text = "파일을 확인하고 있어요…";
+        busy = true; preview.SetRunning(false); Refresh(); status.Text = L.T("파일을 확인하고 있어요…");
         try
         {
             var clip = await PetMediaImporter.Import(path, cancellation.Token);
@@ -359,7 +359,7 @@ internal sealed class CustomPetView : UserControl, IDisposable
             var bitmap = Ui.Bitmap(clip.Thumbnail);
             if (thumbnailBitmaps.Remove(key, out var previous)) previous.Dispose();
             thumbnailBitmaps[key] = bitmap; thumbnails[key].Source = bitmap;
-            status.Foreground = DesignSystem.Muted; status.Text = CustomPetDraft.ActionName(key) + "에 파일을 넣었어요.";
+            status.Foreground = DesignSystem.Muted; status.Text = L.F("{0}에 파일을 넣었어요.", CustomPetDraft.ActionName(key));
             await Preview(key); return true;
         }
         catch (OperationCanceledException) when (closed) { return false; }
@@ -393,14 +393,14 @@ internal sealed class CustomPetView : UserControl, IDisposable
         {
             var path = await chooseOutput(); if (path is null || closed) return false;
             var petName = name.Text ?? "";
-            status.Text = "펫 팩을 만들고 검증하고 있어요…";
+            status.Text = L.T("펫 팩을 만들고 검증하고 있어요…");
             // Keep the draft intact until the archive has been written and validated.
             var snapshot = draft.Snapshot();
             await Task.Run(() => snapshot.Export(petName, path));
             if (closed) return false;
             ResetDraft();
             exporting = false;
-            status.Foreground = DesignSystem.Muted; status.Text = "펫 팩을 저장했어요.";
+            status.Foreground = DesignSystem.Muted; status.Text = L.T("펫 팩을 저장했어요.");
             if (showCreated) await created(path);
             return true;
         }
@@ -425,15 +425,15 @@ internal sealed class CustomPetView : UserControl, IDisposable
     {
         if (busy)
         {
-            status.Text = "파일 작업이 끝난 뒤 종료해 주세요.";
+            status.Text = L.T("파일 작업이 끝난 뒤 종료해 주세요.");
             return false;
         }
         if (!HasUnsavedChanges) return true;
         var canSave = !string.IsNullOrWhiteSpace(name.Text) && draft.Clips.ContainsKey("idle") && pendingPath is null;
-        var choice = await Ui.Confirm(owner, "작성 중인 펫을 저장할까요?",
-            canSave ? "저장하지 않고 종료하면 작성 중인 이름과 행동 배정이 사라져요." :
-                "펫 이름과 필수 ‘기본’을 넣고 가져온 파일을 배정하면 저장할 수 있어요. 계속 작성하거나 초안을 버릴 수 있어요.",
-            canSave ? "저장하고 종료" : "계속 작성", "버리기", "취소");
+        var choice = await Ui.Confirm(owner, L.T("작성 중인 펫을 저장할까요?"),
+            canSave ? L.T("저장하지 않고 종료하면 작성 중인 이름과 행동 배정이 사라져요.") :
+                L.T("펫 이름과 필수 ‘기본’을 넣고 가져온 파일을 배정하면 저장할 수 있어요. 계속 작성하거나 초안을 버릴 수 있어요."),
+            canSave ? L.T("저장하고 종료") : L.T("계속 작성"), L.T("버리기"), L.T("취소"));
         if (choice == 1) return true;
         if (choice != 0 || !canSave) return false;
         if (!draft.IsEditing) return await Export(showCreated: false);
@@ -444,7 +444,7 @@ internal sealed class CustomPetView : UserControl, IDisposable
     {
         open.IsEnabled = name.IsEnabled = action.IsEnabled = selectedAction.IsEnabled = !busy;
         pause.IsEnabled = !busy && previewAction is not null;
-        pause.Content = completed ? "다시 재생" : paused ? "계속 재생" : "일시정지";
+        pause.Content = completed ? L.T("다시 재생") : paused ? L.T("계속 재생") : L.T("일시정지");
         UpdatePlayback();
         pendingCard.IsVisible = pendingPath is not null;
         assign.IsEnabled = !busy && pendingPath is not null;
@@ -454,7 +454,7 @@ internal sealed class CustomPetView : UserControl, IDisposable
         foreach (var (key, label) in labels)
         {
             var clip = draft.Clips.GetValueOrDefault(key);
-            label.Text = clip?.FileName ?? "파일 없음";
+            label.Text = clip?.FileName ?? L.T("파일 없음");
             ToolTip.SetTip(label, clip?.FileName);
             playbackMenus[key].IsEnabled = !busy && clip is not null;
             if (clip is null && thumbnailBitmaps.Remove(key, out var old)) { thumbnails[key].Source = null; old.Dispose(); }
@@ -491,7 +491,7 @@ internal sealed class CustomPetView : UserControl, IDisposable
     private Border BuildPendingCard()
     {
         var fields = new Grid { ColumnDefinitions = new("*,12,Auto") };
-        fields.Children.Add(Ui.Field("적용할 동작", action));
+        fields.Children.Add(Ui.Field(L.T("적용할 동작"), action));
         assign.VerticalAlignment = VerticalAlignment.Bottom;
         Grid.SetColumn(assign, 2); fields.Children.Add(assign);
         return Ui.Card(Ui.Column(pending, fields), 12);

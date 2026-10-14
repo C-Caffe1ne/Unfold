@@ -13,26 +13,26 @@ public static partial class ImageCodec
     /// <summary>Normalizes a still image, including EXIF orientation, without enlarging it.</summary>
     public static unsafe PixelImage DecodePetImage(byte[] bytes)
     {
-        if (bytes.Length is 0 or > MaxFileBytes) throw new InvalidDataException("이미지는 32 MiB 이하로 선택해 주세요.");
+        if (bytes.Length is 0 or > MaxFileBytes) throw new InvalidDataException(L.T("이미지는 32 MiB 이하로 선택해 주세요."));
         using var data = SKData.CreateCopy(bytes);
-        using var codec = SKCodec.Create(data) ?? throw new InvalidDataException("이미지 파일을 읽지 못했어요.");
+        using var codec = SKCodec.Create(data) ?? throw new InvalidDataException(L.T("이미지 파일을 읽지 못했어요."));
         if (codec.EncodedFormat is not (SKEncodedImageFormat.Png or SKEncodedImageFormat.Jpeg or SKEncodedImageFormat.Webp or SKEncodedImageFormat.Bmp))
-            throw new InvalidDataException("PNG, JPG, WEBP 또는 BMP 이미지를 선택해 주세요.");
+            throw new InvalidDataException(L.T("PNG, JPG, WEBP 또는 BMP 이미지를 선택해 주세요."));
         if (codec.EncodedFormat == SKEncodedImageFormat.Png && bytes.AsSpan().LastIndexOf(new byte[] { 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }) < 0)
-            throw new InvalidDataException("손상되거나 완전하지 않은 이미지예요.");
-        if (codec.FrameCount > 1) throw new InvalidDataException("움직이는 이미지는 GIF 또는 MP4로 가져와 주세요.");
+            throw new InvalidDataException(L.T("손상되거나 완전하지 않은 이미지예요."));
+        if (codec.FrameCount > 1) throw new InvalidDataException(L.T("움직이는 이미지는 GIF 또는 MP4로 가져와 주세요."));
         var info = codec.Info;
         if (info.Width is < 1 or > 8192 || info.Height is < 1 or > 8192 || (long)info.Width * info.Height > 16 * 1024 * 1024)
-            throw new InvalidDataException("이미지가 너무 커요. 1,600만 픽셀 이하로 줄여 주세요.");
+            throw new InvalidDataException(L.T("이미지가 너무 커요. 1,600만 픽셀 이하로 줄여 주세요."));
         using var bitmap = new SKBitmap(new SKImageInfo(info.Width, info.Height, SKColorType.Bgra8888, SKAlphaType.Unpremul));
         if (codec.GetPixels(bitmap.Info, bitmap.GetPixels()) != SKCodecResult.Success)
-            throw new InvalidDataException("손상되거나 완전하지 않은 이미지예요.");
+            throw new InvalidDataException(L.T("손상되거나 완전하지 않은 이미지예요."));
         var scale = Math.Min(1, MaxPetImageDimension / (double)Math.Max(info.Width, info.Height));
         var width = Math.Max(1, (int)Math.Round(info.Width * scale));
         var height = Math.Max(1, (int)Math.Round(info.Height * scale));
         using var resized = scale < 1 ? bitmap.Resize(new SKImageInfo(width, height, SKColorType.Bgra8888, SKAlphaType.Unpremul),
             new SKSamplingOptions(SKFilterMode.Linear)) : null;
-        var source = scale < 1 ? resized ?? throw new InvalidDataException("이미지 크기를 조절하지 못했어요.") : bitmap;
+        var source = scale < 1 ? resized ?? throw new InvalidDataException(L.T("이미지 크기를 조절하지 못했어요.")) : bitmap;
         var origin = codec.EncodedOrigin;
         var swap = origin is SKEncodedOrigin.LeftTop or SKEncodedOrigin.RightTop or SKEncodedOrigin.RightBottom or SKEncodedOrigin.LeftBottom;
         var outputWidth = swap ? height : width; var outputHeight = swap ? width : height;

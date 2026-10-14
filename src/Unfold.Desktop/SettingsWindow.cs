@@ -14,7 +14,7 @@ public sealed partial class SettingsWindow : Window, IDisposable
 {
     private readonly AppRuntime runtime;
     private readonly AnimatedCountdown countdown = new();
-    private readonly TextBlock state = Ui.Text("진행 준비", 13);
+    private readonly TextBlock state = Ui.Text(L.T("진행 준비"), 13);
     private readonly Avalonia.Controls.Shapes.Ellipse timerStateDot = new() { Name = "TimerStateIndicator", Width = 8, Height = 8, Fill = DesignSystem.Muted };
     private readonly Border timerStateBadge = new() { Name = "TimerStateBadge", Background = DesignSystem.Raised, CornerRadius = new(12), Padding = new(10, 6) };
     private readonly ComboBox characters = new() { Name = "CharacterPicker", MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch };
@@ -40,7 +40,7 @@ public sealed partial class SettingsWindow : Window, IDisposable
     private bool CanEditHomeTiming => runtime.AccessAllowed && runtime.Clock.Stopped && runtime.ActiveReminder is null;
     public SettingsWindow(AppRuntime runtime)
     {
-        this.runtime = runtime; Title = $"Unfold · 휴식 알림 · {AppRelease.DisplayVersion}"; Width = 1120; Height = 800; MinWidth = 640; MinHeight = 560;
+        this.runtime = runtime; Title = L.F("Unfold · 휴식 알림 · {0}", AppRelease.DisplayVersion); Width = 1120; Height = 800; MinWidth = 640; MinHeight = 560;
         ConfigureNativeWindowControls();
         Background = DesignSystem.Canvas;
         interval = new NumericUpDown { Name = "ReminderInterval", Minimum = 1, Maximum = 240, Value = runtime.Settings.IntervalMinutes, Increment = 1, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch, FormatString = "0" };
@@ -50,23 +50,23 @@ public sealed partial class SettingsWindow : Window, IDisposable
         displayedInterval = runtime.Settings.IntervalMinutes;
         displayedBreakDuration = runtime.Settings.BreakDurationMinutes;
         timerControls = new(runtime.TogglePause, () => _ = runtime.RequestStop());
-        AutomationProperties.SetName(interval, "스트레칭 알림 간격, 분 단위");
-        AutomationProperties.SetName(breakDuration, "휴식 시간, 분 단위");
-        AutomationProperties.SetName(idle, "자리 비움 시간, 분 단위");
-        AutomationProperties.SetName(snooze, "다시 알림 시간, 분 단위");
-        AutomationProperties.SetName(characters, "함께할 펫");
-        AutomationProperties.SetName(petScale, "펫 크기, 퍼센트");
+        AutomationProperties.SetName(interval, L.T("스트레칭 알림 간격, 분 단위"));
+        AutomationProperties.SetName(breakDuration, L.T("휴식 시간, 분 단위"));
+        AutomationProperties.SetName(idle, L.T("자리 비움 시간, 분 단위"));
+        AutomationProperties.SetName(snooze, L.T("다시 알림 시간, 분 단위"));
+        AutomationProperties.SetName(characters, L.T("함께할 펫"));
+        AutomationProperties.SetName(petScale, L.T("펫 크기, 퍼센트"));
         countdown.Name = "TimerCountdown";
         state.Name = "TimerStateText";
         state.TextWrapping = TextWrapping.Wrap;
-        showPet = new CheckBox { Name = "ShowPetOnDesktop", Content = "화면에 펫 표시", IsChecked = runtime.Settings.ShowPet };
+        showPet = new CheckBox { Name = "ShowPetOnDesktop", Content = L.T("화면에 펫 표시"), IsChecked = runtime.Settings.ShowPet };
         showPet.IsCheckedChanged += async (_, _) =>
         {
             if (updating) return;
             try { await runtime.UpdateSettings(runtime.Settings with { ShowPet = showPet.IsChecked == true }); }
             catch (Exception error) { updating = true; showPet.IsChecked = runtime.Settings.ShowPet; updating = false; await Ui.Error(this, error); }
         };
-        launchAtLogin = new CheckBox { Name = "LaunchAtLogin", Content = "로그인 시 자동 실행" };
+        launchAtLogin = new CheckBox { Name = "LaunchAtLogin", Content = L.T("로그인 시 자동 실행") };
         try { launchAtLogin.IsChecked = PlatformServices.StartsAtLogin(); } catch (Exception error) { AppPaths.Log(error); }
         launchAtLogin.IsCheckedChanged += async (_, _) =>
         {
@@ -119,7 +119,7 @@ public sealed partial class SettingsWindow : Window, IDisposable
             {
                 if (e.Property == NumericUpDown.ValueProperty || e.Property == NumericUpDown.TextProperty) PreferencesEdited();
             };
-        Closing += (_, e) => { e.Cancel = true; HideToTray(); };
+        Closing += (_, e) => { if (handedOff) return; e.Cancel = true; HideToTray(); };
         previewRetry.Tick += (_, _) => { previewRetry.Stop(); _ = RefreshPreview(); };
         Opened += (_, _) => ResumePreview();
         runtime.Changed += Refresh; Closed += (_, _) => Dispose();
@@ -177,12 +177,12 @@ public sealed partial class SettingsWindow : Window, IDisposable
         if (petPage.IsBusy)
         {
             if (lockedOwner is null) { Show(); Activate(); }
-            await Ui.Confirm(lockedOwner ?? this, "파일 작업 중이에요", "파일을 확인하거나 저장하고 있어요. 작업이 끝난 뒤 종료해 주세요.", "확인");
+            await Ui.Confirm(lockedOwner ?? this, L.T("파일 작업 중이에요"), L.T("파일을 확인하거나 저장하고 있어요. 작업이 끝난 뒤 종료해 주세요."), L.T("확인"));
             return false;
         }
         if (!petPage.HasUnsavedDraft) return true;
         if (lockedOwner is not null)
-            return await Ui.Confirm(lockedOwner, "저장하지 않은 펫이 있어요", "변경사항을 저장하지 않고 종료할까요?", "저장 안 함", "취소") == 0;
+            return await Ui.Confirm(lockedOwner, L.T("저장하지 않은 펫이 있어요"), L.T("변경사항을 저장하지 않고 종료할까요?"), L.T("저장 안 함"), L.T("취소")) == 0;
         Show(); Activate(); await OpenPetPacks();
         if (selectedPage != "pets") return false;
         return await petPage.CanCloseDraft();
@@ -211,7 +211,7 @@ public sealed partial class SettingsWindow : Window, IDisposable
                     AppPaths.Log(error);
                     if (disposed) return;
                     homeTimingStatus.Foreground = DesignSystem.Error;
-                    homeTimingStatus.Text = "시간 설정을 저장하지 못했어요.";
+                    homeTimingStatus.Text = L.T("시간 설정을 저장하지 못했어요.");
                     homeTimingStatus.IsVisible = true;
                     Refresh();
                 }
@@ -228,29 +228,29 @@ public sealed partial class SettingsWindow : Window, IDisposable
                 !runtime.Clock.IdlePaused && runtime.ActiveReminder is null;
             countdown.UpdateTime(runtime.Clock.Remaining, timerActive);
             var stateBrush = DesignSystem.Success;
-            state.Text = runtime.ActivityError is not null ? "상태 확인 필요" :
-                runtime.Reminder.Notice == PetNotice.Invitation ? "휴식 대기 중" :
-                runtime.Reminder.Notice == PetNotice.Resting ? "휴식 중" :
-                runtime.Clock.Stopped ? "중지됨" : runtime.Clock.Paused ? "일시정지" :
-                runtime.Clock.IdlePaused ? "자리 비움" : "진행 중";
+            state.Text = runtime.ActivityError is not null ? L.T("상태 확인 필요") :
+                runtime.Reminder.Notice == PetNotice.Invitation ? L.T("휴식 대기 중") :
+                runtime.Reminder.Notice == PetNotice.Resting ? L.T("휴식 중") :
+                runtime.Clock.Stopped ? L.T("중지됨") : runtime.Clock.Paused ? L.T("일시정지") :
+                runtime.Clock.IdlePaused ? L.T("자리 비움") : L.T("진행 중");
             ToolTip.SetTip(timerStateBadge, runtime.ActivityError);
             if (runtime.ActivityError is not null) stateBrush = DesignSystem.Error;
             else if (runtime.Clock.Stopped) stateBrush = DesignSystem.Stopped;
             else if (runtime.ActiveReminder is not null || runtime.Clock.Paused || runtime.Clock.IdlePaused) stateBrush = DesignSystem.Warning;
             state.Foreground = stateBrush; timerStateDot.Fill = stateBrush;
             var summary = runtime.BreakHistory.ForDay(DateTimeOffset.Now);
-            today.Text = summary.Count == 0 ? "" : $"{summary.Seconds / 60}분 {summary.Seconds % 60}초";
+            today.Text = summary.Count == 0 ? "" : L.F("{0}분 {1}초", summary.Seconds / 60, summary.Seconds % 60);
             today.IsVisible = summary.Count > 0;
             today.TextWrapping = TextWrapping.Wrap;
-            companionName.Text = runtime.Selected?.Manifest.Name ?? "함께할 펫을 선택해 주세요";
+            companionName.Text = runtime.Selected?.DisplayName ?? L.T("함께할 펫을 선택해 주세요");
             todayCount.Text = summary.Count.ToString();
-            intervalHint.Text = $"{runtime.Settings.IntervalMinutes}분 간격";
+            intervalHint.Text = L.F("{0}분 간격", runtime.Settings.IntervalMinutes);
             historyStatus.Text = runtime.BreakHistoryError ?? "";
             historyStatus.IsVisible = runtime.BreakHistoryError is not null;
             timerControls.Refresh(runtime.Clock, runtime.ActiveReminder is not null);
             var canEditHomeTiming = CanEditHomeTiming;
             interval.IsEnabled = breakDuration.IsEnabled = canEditHomeTiming;
-            var timingTip = canEditHomeTiming ? "변경한 시간은 자동으로 저장돼요." : "타이머를 중지하면 시간을 조절할 수 있어요.";
+            var timingTip = canEditHomeTiming ? L.T("변경한 시간은 자동으로 저장돼요.") : L.T("타이머를 중지하면 시간을 조절할 수 있어요.");
             ToolTip.SetTip(interval, timingTip); ToolTip.SetTip(breakDuration, timingTip);
             if (!canEditHomeTiming) RestoreHomeTimingValues();
             showPet.IsChecked = runtime.Settings.ShowPet;
@@ -264,7 +264,7 @@ public sealed partial class SettingsWindow : Window, IDisposable
         }
         catch (Exception error)
         {
-            AppPaths.Log(error); state.Text = "상태 확인 필요";
+            AppPaths.Log(error); state.Text = L.T("상태 확인 필요");
             state.Foreground = timerStateDot.Fill = DesignSystem.Error;
             ToolTip.SetTip(timerStateBadge, Ui.ErrorText(error));
         }

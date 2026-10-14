@@ -8,12 +8,12 @@ public sealed partial class CharacterLibrary
     public CharacterPackage InstallEdited(CharacterPack pack, string expectedRevision)
     {
         using var lease = Lock(); Recover();
-        if (!CanManage(pack.Id)) throw new InvalidDataException("기본 제공 펫은 편집할 수 없어요.");
+        if (!CanManage(pack.Id)) throw new InvalidDataException(L.T("기본 제공 펫은 편집할 수 없어요."));
         var target = PackagePath(pack.Id);
         void CheckRevision()
         {
             if (!Directory.Exists(target) || PetRevision(target) != expectedRevision)
-                throw new IOException("펫이 변경되거나 삭제됐어요. 다시 선택한 뒤 편집해 주세요.");
+                throw new IOException(L.T("펫이 변경되거나 삭제됐어요. 다시 선택한 뒤 편집해 주세요."));
         }
         CheckRevision();
         var stage = Path.Combine(Root, $".stage-{Guid.NewGuid():N}");

@@ -14,10 +14,10 @@ public readonly record struct TrayReminderStatus(string Status, string ToolTip)
     {
         // Invitation and Resting both hold the work timer, so the countdown alone would read as
         // a stuck clock. Tooltip and status therefore lead with the same label.
-        var label = notice switch { PetNotice.Invitation => "휴식 대기 중", PetNotice.Resting => "휴식 중", _ => null };
+        var label = notice switch { PetNotice.Invitation => L.T("휴식 대기 중"), PetNotice.Resting => L.T("휴식 중"), _ => null };
         return label is null
-            ? new($"다음 휴식: {remaining} · {clockState}", $"Unfold · {remaining} · {clockState}")
-            : new($"{label} · 작업 타이머 {remaining} 멈춤", $"Unfold · {label} · 타이머 {remaining} 멈춤");
+            ? new(L.F("다음 휴식: {0} · {1}", remaining, clockState), $"Unfold · {remaining} · {clockState}")
+            : new(L.F("{0} · 작업 타이머 {1} 멈춤", label, remaining), L.F("Unfold · {0} · 타이머 {1} 멈춤", label, remaining));
     }
 }
 
@@ -33,7 +33,8 @@ public sealed partial class AppRuntime : IDisposable
     public string? ActivityError { get; private set; }
     public bool DiagnosticMode { get; private set; }
     public BreakHistory BreakHistory { get; private set; }
-    public string? BreakHistoryError { get; private set; }
+    public string? BreakHistoryError => breakHistoryError is null ? null : L.T(breakHistoryError);
+    private string? breakHistoryError;
     internal AccountWindow? ActiveAccount => accountWindow;
     internal AccountSession? AccountSession => accountSession;
     internal bool AccountSignOutPending { get; private set; }
@@ -62,7 +63,17 @@ public sealed partial class AppRuntime : IDisposable
     private AccountWindow? accountWindow;
     private AccountSession? accountSession;
     private readonly CancellationTokenSource accountLifetime = new();
-    internal AccountScreenContent AccountContent { get; } = AccountScreenContent.Load();
+    private readonly AccountScreenContent accountSource = AccountScreenContent.Load();
+    private (AppLanguage Language, AccountScreenContent Content)? accountContent;
+    internal AccountScreenContent AccountContent
+    {
+        get
+        {
+            if (accountContent is not { } cached || cached.Language != L.Current)
+                accountContent = cached = (L.Current, accountSource.Localized());
+            return cached.Content;
+        }
+    }
     private readonly string accountWelcomeFile = Path.Combine(AppPaths.DataRoot, "account-welcome-seen");
     private PetWindow? pet;
     private readonly ReminderSoundPlayer soundPlayer = new();
@@ -79,9 +90,11 @@ public sealed partial class AppRuntime : IDisposable
     internal int ReminderRevision => reminderGeneration;
     private PetReminder? reminderPreview;
     private SingleInstance? instanceActivation;
-    public AppRuntime(IClassicDesktopStyleApplicationLifetime desktop)
+    /// <param name="firstRunLanguage">Language for a new profile. Profiles from before language support stay Korean.</param>
+    public AppRuntime(IClassicDesktopStyleApplicationLifetime desktop, AppLanguage? firstRunLanguage = null)
     {
         this.desktop = desktop;
+        var newProfile = !File.Exists(settingsFile);
         Library = new(Path.Combine(AppPaths.DataRoot, "Characters"), Directory.Exists(AppPaths.BuiltInRoot)
             ? Directory.EnumerateDirectories(AppPaths.BuiltInRoot).Select(path => Path.GetFileName(path)) : ["default-cat"]);
         Library.Warning += message => AppPaths.Log(new IOException(message));
@@ -103,6 +116,7 @@ public sealed partial class AppRuntime : IDisposable
             }
         }
         DesignSystem.ApplyTheme(Settings.Theme);
+        migrateSettings |= ApplyStartupLanguage(newProfile ? firstRunLanguage : null);
         if (migrateSettings)
         {
             try { Settings.Save(settingsFile); }
@@ -113,7 +127,7 @@ public sealed partial class AppRuntime : IDisposable
         catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException or System.Text.Json.JsonException)
         {
             AppPaths.Log(error); BreakHistory = new(); historyWritable = false;
-            BreakHistoryError = "기록을 열지 못했어요. 새 휴식은 앱을 종료할 때까지만 보관돼요.";
+            breakHistoryError = L.Key("기록을 열지 못했어요. 새 휴식은 앱을 종료할 때까지만 보관돼요.");
         }
         Reminder.Started += session => ReactToBreak(session, "stretch");
         Reminder.Finished += session => { if (!quitting) FinishBreak(session); };
@@ -150,9 +164,9 @@ public sealed partial class AppRuntime : IDisposable
         {
             await Task.Run(() =>
             {
-                if (!Directory.Exists(AppPaths.BuiltInRoot)) throw new DirectoryNotFoundException("기본 펫 파일이 없어요. Unfold를 다시 설치해 주세요.");
+                if (!Directory.Exists(AppPaths.BuiltInRoot)) throw new DirectoryNotFoundException(L.T("기본 펫 파일이 없어요. Unfold를 다시 설치해 주세요."));
                 foreach (var directory in Directory.EnumerateDirectories(AppPaths.BuiltInRoot)) builtIns.Add(CharacterLibrary.LoadPackage(directory, true));
-                if (builtIns.Count == 0) throw new InvalidDataException("기본 펫을 찾지 못했어요. Unfold를 다시 설치해 주세요.");
+                if (builtIns.Count == 0) throw new InvalidDataException(L.T("기본 펫을 찾지 못했어요. Unfold를 다시 설치해 주세요."));
             });
             await Reload();
             if (disposed || quitting) return;
@@ -231,7 +245,7 @@ public sealed partial class AppRuntime : IDisposable
     private void RefreshTray()
     {
         var remaining = $"{(int)Clock.Remaining.TotalMinutes:00}:{Clock.Remaining.Seconds:00}";
-        var clockState = Clock.Stopped ? "중지" : Clock.Paused ? "일시정지" : Clock.IdlePaused ? "자리 비움" : "진행 중";
+        var clockState = Clock.Stopped ? L.T("중지") : Clock.Paused ? L.T("일시정지") : Clock.IdlePaused ? L.T("자리 비움") : L.T("진행 중");
         TrayStatus = TrayReminderStatus.Create(Reminder.Notice, remaining, clockState);
         if (tray is not null) tray.ToolTipText = TrayStatus.ToolTip;
         if (trayStatus is not null) trayStatus.Header = TrayStatus.Status;
@@ -240,12 +254,12 @@ public sealed partial class AppRuntime : IDisposable
         if (trayPet is not null) trayPet.IsEnabled = AccessAllowed;
         if (!AccessAllowed)
         {
-            TrayStatus = new("로그인·구매 확인 필요", "Unfold · 로그인·구매 확인 필요");
+            TrayStatus = new(L.T("로그인·구매 확인 필요"), L.T("Unfold · 로그인·구매 확인 필요"));
             if (tray is not null) tray.ToolTipText = TrayStatus.ToolTip;
             if (trayStatus is not null) trayStatus.Header = TrayStatus.Status;
         }
-        if (trayPause is not null) trayPause.Header = Clock.Stopped ? "시작" : Clock.Paused ? "계속" : "일시정지";
-        if (trayPet is not null) trayPet.Header = Settings.ShowPet ? "펫 숨기기" : "펫 표시";
+        if (trayPause is not null) trayPause.Header = Clock.Stopped ? L.T("시작") : Clock.Paused ? L.T("계속") : L.T("일시정지");
+        if (trayPet is not null) trayPet.Header = Settings.ShowPet ? L.T("펫 숨기기") : L.T("펫 표시");
     }
     public void TogglePause() { if (!AccessAllowed) return; Clock.TogglePause(monotonic.Elapsed); Changed?.Invoke(); }
     public void Stop() { CancelReminder(); Clock.Stop(monotonic.Elapsed); Changed?.Invoke(); }
@@ -443,7 +457,7 @@ public sealed partial class AppRuntime : IDisposable
     {
         if (!AccessAllowed) return;
         if (notice == PetNotice.None) { CloseReminderPreview(); return; }
-        if (Reminder.HasNotice) throw new InvalidOperationException("진행 중인 알림을 먼저 완료하거나 미뤄 주세요.");
+        if (Reminder.HasNotice) throw new InvalidOperationException(L.T("진행 중인 알림을 먼저 완료하거나 미뤄 주세요."));
         var routine = BreakRoutines.All[0];
         var characterId = Selected?.Manifest.Id ?? Settings.SelectedCharacterId;
         var preview = new PetReminder();
@@ -527,10 +541,10 @@ public sealed partial class AppRuntime : IDisposable
             Clock.ScheduleAfterBreak(monotonic.Elapsed);
             if (BreakHistory.Add(session, DateTimeOffset.Now) && historyWritable)
             {
-                try { BreakHistory.Save(historyFile); BreakHistoryError = null; }
+                try { BreakHistory.Save(historyFile); breakHistoryError = null; }
                 catch (Exception error) when (error is IOException or UnauthorizedAccessException)
                 {
-                    AppPaths.Log(error); BreakHistoryError = "이번 휴식을 집계했지만 기록 파일에 저장하지 못했어요.";
+                    AppPaths.Log(error); breakHistoryError = L.Key("이번 휴식을 집계했지만 기록 파일에 저장하지 못했어요.");
                 }
             }
             ReactToBreak(session, "celebrate"); PlayReminderSound(ReminderSound.Completed);
@@ -548,16 +562,21 @@ public sealed partial class AppRuntime : IDisposable
     {
         tray = BrandTrayIcon.Create();
         var menu = new NativeMenu();
-        trayStatus = new NativeMenuItem("다음 휴식") { IsEnabled = false }; menu.Items.Add(trayStatus);
-        trayFocusReminder = new NativeMenuItem("휴식 알림으로 이동") { IsEnabled = false }; menu.Items.Add(trayFocusReminder);
+        trayStatus = new NativeMenuItem(L.T("다음 휴식")) { IsEnabled = false }; menu.Items.Add(trayStatus);
+        trayFocusReminder = new NativeMenuItem { IsEnabled = false }; menu.Items.Add(trayFocusReminder);
+        trayLabels.Add((trayFocusReminder, L.Key("휴식 알림으로 이동")));
         trayFocusReminder.Click += async (_, _) => await FocusReminder();
-        void Item(string text, Action action) { var item = new NativeMenuItem(text); item.Click += (_, _) => action(); menu.Items.Add(item); }
-        Item("설정", ShowSettings);
-        trayPet = new NativeMenuItem("펫 숨기기"); menu.Items.Add(trayPet);
+        void Item(string korean, Action action)
+        {
+            var item = new NativeMenuItem(); item.Click += (_, _) => action(); menu.Items.Add(item); trayLabels.Add((item, korean));
+        }
+        Item(L.Key("설정"), ShowSettings);
+        trayPet = new NativeMenuItem(L.T("펫 숨기기")); menu.Items.Add(trayPet);
         trayPet.Click += async (_, _) => { try { if (Settings.ShowPet) await HidePet(); else await UpdateSettings(Settings with { ShowPet = true }); } catch (Exception error) { AppPaths.Log(error); } };
-        trayPause = new NativeMenuItem("일시정지"); trayPause.Click += (_, _) => TogglePause(); menu.Items.Add(trayPause);
-        Item("타이머 중지", () => _ = RequestStop());
-        menu.Items.Add(new NativeMenuItemSeparator()); InitializeUpdates(menu); Item("Unfold 종료", () => _ = Quit());
+        trayPause = new NativeMenuItem(L.T("일시정지")); trayPause.Click += (_, _) => TogglePause(); menu.Items.Add(trayPause);
+        Item(L.Key("타이머 중지"), () => _ = RequestStop());
+        menu.Items.Add(new NativeMenuItemSeparator()); InitializeUpdates(menu); Item(L.Key("Unfold 종료"), () => _ = Quit());
+        RefreshTrayLabels();
         tray.Menu = menu; tray.Clicked += (_, _) => ShowSettings();
         TrayIcon.SetIcons(Application.Current!, new TrayIcons { tray });
         RefreshTray();
@@ -569,7 +588,7 @@ public sealed partial class AppRuntime : IDisposable
         try
         {
             // Startup has no visible owner or running paid features to confirm.
-            if (!accountStartupPending && await ConfirmAction("Unfold를 종료할까요?", "Unfold를 종료하면 타이머와 휴식 알림도 종료돼요.", "종료", "취소") != 0) return;
+            if (!accountStartupPending && await ConfirmAction(L.T("Unfold를 종료할까요?"), L.T("Unfold를 종료하면 타이머와 휴식 알림도 종료돼요."), L.T("종료"), L.T("취소")) != 0) return;
             if (disposed) return;
             var lockedOwner = AccessAllowed ? null : accountWindow;
             if (settingsWindow is not null && !await settingsWindow.CanCloseDraft(lockedOwner)) return;

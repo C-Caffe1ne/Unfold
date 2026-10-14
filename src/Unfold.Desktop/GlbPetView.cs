@@ -23,8 +23,8 @@ internal sealed class GlbPetView : UserControl, IDisposable
     private readonly Func<Task<string?>> chooseFile;
     private readonly AnimationView preview = new() { Name = "GlbPreview", Width = 240, Height = 240 };
     private readonly TextBlock status = Ui.Caption("");
-    private readonly TextBox name = new() { Name = "GlbPetName", MaxLength = 80, PlaceholderText = "펫 이름", Height = DesignSystem.PetControlHeight };
-    private readonly ComboBox existing = new() { Name = "GlbExistingPets", PlaceholderText = "편집할 펫 선택" };
+    private readonly TextBox name = new() { Name = "GlbPetName", MaxLength = 80, PlaceholderText = L.T("펫 이름"), Height = DesignSystem.PetControlHeight };
+    private readonly ComboBox existing = new() { Name = "GlbExistingPets", PlaceholderText = L.T("편집할 펫 선택") };
     private readonly ComboBox previewAction = new() { Name = "GlbPreviewAction" };
     private readonly StackPanel rows = new() { Name = "GlbMappings", Spacing = 8 };
     private readonly Dictionary<string, Control> actionRows = [];
@@ -35,7 +35,7 @@ internal sealed class GlbPetView : UserControl, IDisposable
     private Point rotationStart;
     private GlbRotation rotationStartAngles;
     private readonly Image fileThumbnail = new() { Name = "GlbFileThumbnail", Width = 32, Height = 40, Stretch = Stretch.Uniform };
-    private readonly TextBlock fileLabel = Ui.Caption("파일 없음");
+    private readonly TextBlock fileLabel = Ui.Caption(L.T("파일 없음"));
     private Bitmap? thumbnailBitmap;
     private readonly Control editor, existingField;
     private readonly Button? export;
@@ -63,17 +63,17 @@ internal sealed class GlbPetView : UserControl, IDisposable
         this.existingPets = existingPets; this.openPackage = openPackage;
         status.IsVisible = false;
         status.PropertyChanged += (_, e) => { if (e.Property == TextBlock.TextProperty) status.IsVisible = !string.IsNullOrWhiteSpace(status.Text); };
-        open = ActionButton("파일 열기…", openFile ?? Open); open.Name = embedded ? "OpenPetBuilderFile" : "OpenGlbPet";
-        edit = ActionButton("편집", async () => { if (StoredDraft is { } package) await OpenPackage(package); }); edit.Name = "EditGlbPet";
-        remove = ActionButton("펫 삭제", Remove); remove.Name = "RemoveGlbPet"; Ui.Danger(remove);
+        open = ActionButton(L.T("파일 열기…"), openFile ?? Open); open.Name = embedded ? "OpenPetBuilderFile" : "OpenGlbPet";
+        edit = ActionButton(L.T("편집"), async () => { if (StoredDraft is { } package) await OpenPackage(package); }); edit.Name = "EditGlbPet";
+        remove = ActionButton(L.T("펫 삭제"), Remove); remove.Name = "RemoveGlbPet"; Ui.Danger(remove);
         fileAdd = ActionButton("", openFile ?? Open); fileAdd.Name = "GlbFileAdd";
         fileRemove = Ui.Button("", () =>
         {
             if (closed || IsBusy || draft is null) return;
             ClearDraft(preserveName: true); RestoreExistingSelection(); UpdatePlayback();
         }); fileRemove.Name = "GlbFileRemove";
-        CustomPetView.ConfigureSlotButton(fileAdd, "M11,4 H13 V11 H20 V13 H13 V20 H11 V13 H4 V11 H11 Z", "3D 파일 추가");
-        CustomPetView.ConfigureSlotButton(fileRemove, "M8,5 V3 H16 V5 H21 V7 H19 L18,21 H6 L5,7 H3 V5 Z M8,9 H10 V18 H8 Z M14,9 H16 V18 H14 Z", "3D 파일 제거");
+        CustomPetView.ConfigureSlotButton(fileAdd, "M11,4 H13 V11 H20 V13 H13 V20 H11 V13 H4 V11 H11 Z", L.T("3D 파일 추가"));
+        CustomPetView.ConfigureSlotButton(fileRemove, "M8,5 V3 H16 V5 H21 V7 H19 L18,21 H6 L5,7 H3 V5 Z M8,9 H10 V18 H8 Z M14,9 H16 V18 H14 Z", L.T("3D 파일 제거"));
         Ui.Danger(fileRemove);
         fileLabel.Name = "GlbFileLabel"; fileLabel.MaxLines = 1; fileLabel.TextTrimming = TextTrimming.CharacterEllipsis;
         fileLabel.VerticalAlignment = VerticalAlignment.Center;
@@ -81,23 +81,23 @@ internal sealed class GlbPetView : UserControl, IDisposable
         var fileRow = new Grid { Name = "GlbFileRow", ColumnDefinitions = new("32,8,*,8,Auto") };
         fileRow.Children.Add(fileThumbnail); Grid.SetColumn(fileLabel, 2); fileRow.Children.Add(fileLabel);
         Grid.SetColumn(fileActions, 4); fileRow.Children.Add(fileActions);
-        save = ActionButton("저장하고 적용", Save); save.Name = "SaveGlbPet"; Ui.Primary(save);
-        replay = ActionButton("처음부터 재생", RestartPreview); replay.Name = "ReplayGlbPet";
-        pause = ActionButton("일시정지", async () =>
+        save = ActionButton(L.T("저장하고 적용"), Save); save.Name = "SaveGlbPet"; Ui.Primary(save);
+        replay = ActionButton(L.T("처음부터 재생"), RestartPreview); replay.Name = "ReplayGlbPet";
+        pause = ActionButton(L.T("일시정지"), async () =>
         {
             if (previewCompleted) { await RestartPreview(); return; }
             paused = !paused; UpdatePlayback();
         }); pause.Name = "PauseGlbPet";
-        resetRotation = Ui.Button("회전 초기화", () => RotatePreview(new())); resetRotation.Name = "ResetGlbPreviewRotation";
+        resetRotation = Ui.Button(L.T("회전 초기화"), () => RotatePreview(new())); resetRotation.Name = "ResetGlbPreviewRotation";
         resetRotation.Content = new PathIcon { Width = 20, Height = 20,
             Data = Geometry.Parse("M12,4 A8,8 0 1 1 4,12 H6 A6,6 0 1 0 12,6 V9 L7,5 L12,1 Z") };
         resetRotation.Width = resetRotation.Height = DesignSystem.PetControlHeight; resetRotation.Padding = new(0);
-        AutomationProperties.SetName(resetRotation, "회전 초기화");
-        ToolTip.SetTip(resetRotation, "회전 초기화 (Home)");
-        rotateUp = RotationButton(IconDirection.Up, "위로 회전");
-        rotateLeft = RotationButton(IconDirection.Left, "왼쪽으로 회전");
-        rotateRight = RotationButton(IconDirection.Right, "오른쪽으로 회전");
-        rotateDown = RotationButton(IconDirection.Down, "아래로 회전");
+        AutomationProperties.SetName(resetRotation, L.T("회전 초기화"));
+        ToolTip.SetTip(resetRotation, L.T("회전 초기화 (Home)"));
+        rotateUp = RotationButton(IconDirection.Up, L.T("위로 회전"));
+        rotateLeft = RotationButton(IconDirection.Left, L.T("왼쪽으로 회전"));
+        rotateRight = RotationButton(IconDirection.Right, L.T("오른쪽으로 회전"));
+        rotateDown = RotationButton(IconDirection.Down, L.T("아래로 회전"));
         SyncRotation(new());
         foreach (var choice in new[] { existing, previewAction }) StyleChoice(choice);
         previewAction.ItemTemplate = new FuncDataTemplate<string>((key, _) => ChoiceText(key is null ? "" :
@@ -114,7 +114,7 @@ internal sealed class GlbPetView : UserControl, IDisposable
         {
             if (e.Property != TextBox.TextProperty || populating || draft is null || draft.Name == (name.Text ?? "")) return;
             draft.Name = name.Text ?? ""; MarkChanged();
-            if (string.IsNullOrWhiteSpace(draft.Name)) status.Text = "저장하려면 펫 이름을 입력해 주세요.";
+            if (string.IsNullOrWhiteSpace(draft.Name)) status.Text = L.T("저장하려면 펫 이름을 입력해 주세요.");
         };
         previewAction.SelectionChanged += async (_, _) => { if (!populating) { ShowSelectedAction(); await Play(); } };
         preview.PlaybackFailed += error =>
@@ -126,26 +126,26 @@ internal sealed class GlbPetView : UserControl, IDisposable
         // would make a one-shot setting look like it is still repeating.
         preview.Completed += () => { if (!closed && !loading) { previewCompleted = true; UpdatePlayback(); } };
 
-        existingField = PetManagementView.Field("펫 선택", existing);
-        existing.PlaceholderText = "펫 선택"; AutomationProperties.SetName(existing, "펫 선택");
+        existingField = PetManagementView.Field(L.T("펫 선택"), existing);
+        existing.PlaceholderText = L.T("펫 선택"); AutomationProperties.SetName(existing, L.T("펫 선택"));
         open.VerticalAlignment = VerticalAlignment.Bottom; open.Height = DesignSystem.PetControlHeight;
         previewStage = new Border { Name = "GlbPreviewStage", Background = DesignSystem.Surface, CornerRadius = DesignSystem.CardRadius,
             Focusable = true, VerticalAlignment = VerticalAlignment.Top,
             Padding = new Thickness(8) };
-        AutomationProperties.SetName(previewStage, "3D 펫 미리보기 회전");
-        ToolTip.SetTip(previewStage, "드래그 또는 화살표로 회전해요. Home으로 초기화해요.");
+        AutomationProperties.SetName(previewStage, L.T("3D 펫 미리보기 회전"));
+        ToolTip.SetTip(previewStage, L.T("드래그 또는 화살표로 회전해요. Home으로 초기화해요."));
         previewStage.PointerPressed += RotationPressed;
         previewStage.PointerMoved += RotationMoved;
         previewStage.PointerReleased += (_, e) => { if (e.Pointer == rotationPointer) { EndRotation(); e.Handled = true; } };
         previewStage.PointerCaptureLost += (_, _) => EndRotation();
         previewStage.DetachedFromVisualTree += (_, _) => EndRotation();
         previewStage.KeyDown += (_, e) => RotationKey(e);
-        var settingsPane = Ui.Column(Heading("행동 연결"), PetManagementView.Field("상황", previewAction), rows);
+        var settingsPane = Ui.Column(Heading(L.T("행동 연결")), PetManagementView.Field(L.T("상황"), previewAction), rows);
         settingsPane.Spacing = 10; settingsPane.Name = "GlbActionPane";
         var rotationPad = new Grid { Name = "GlbRotationPad" };
         rotationPad.Children.Add(new Viewbox { Name = "GlbPreviewModel", Child = preview, Stretch = Stretch.Uniform,
             Margin = new Thickness(0, 40) });
-        AutomationProperties.SetName(rotationPad, "펫 회전");
+        AutomationProperties.SetName(rotationPad, L.T("펫 회전"));
         foreach (var (button, horizontal, vertical) in new[]
         {
             (rotateUp, HorizontalAlignment.Center, VerticalAlignment.Top),
@@ -160,7 +160,7 @@ internal sealed class GlbPetView : UserControl, IDisposable
         }
         previewStage.Child = rotationPad;
         var playback = Ui.Actions(pause, replay); playback.HorizontalAlignment = HorizontalAlignment.Left;
-        var controls = Ui.Column(PetManagementView.Field("3D 파일", fileRow), playback, existingField, Ui.Actions(edit, remove));
+        var controls = Ui.Column(PetManagementView.Field(L.T("3D 파일"), fileRow), playback, existingField, Ui.Actions(edit, remove));
         controls.Name = "GlbControls";
         var workspace = new PetEditorWorkspace(owner, "Glb", previewStage, controls,
             settingsPane, previewMinHeight: 220, fullWidthPreview: true, previewMaxHeight: 360);
@@ -170,12 +170,12 @@ internal sealed class GlbPetView : UserControl, IDisposable
         var buttons = Ui.Row(save);
         if (created is not null)
         {
-            export = ActionButton("펫 팩 만들기…", Export); export.Name = "CreateGlbPetPack"; Ui.Primary(export);
+            export = ActionButton(L.T("펫 팩 만들기…"), Export); export.Name = "CreateGlbPetPack"; Ui.Primary(export);
             save.Classes.Remove("primary"); buttons.Children.Add(export);
         }
         var footer = new Grid { ColumnDefinitions = new("*") , RowDefinitions = new("Auto,8,Auto") };
         footer.Children.Add(status); Grid.SetRow(buttons, 2); buttons.HorizontalAlignment = HorizontalAlignment.Right; footer.Children.Add(buttons);
-        Content = PetManagementView.Page("펫 팩 만들기", "", body, footer, showHeader);
+        Content = PetManagementView.Page(L.T("펫 팩 만들기"), "", body, footer, showHeader);
         owner.PropertyChanged += OwnerChanged; AttachedToVisualTree += (_, _) => { RefreshExisting(); UpdatePlayback(); }; DetachedFromVisualTree += (_, _) => UpdatePlayback();
         RefreshExisting(); SetControls();
     }
@@ -287,8 +287,8 @@ internal sealed class GlbPetView : UserControl, IDisposable
     }
     private async Task<string?> PickFile()
     {
-        var files = await owner.StorageProvider.OpenFilePickerAsync(new() { Title = "GLB 펫 열기", AllowMultiple = false,
-            FileTypeFilter = [new FilePickerFileType("GLB 3D 모델") { Patterns = ["*.glb"] }] });
+        var files = await owner.StorageProvider.OpenFilePickerAsync(new() { Title = L.T("GLB 펫 열기"), AllowMultiple = false,
+            FileTypeFilter = [new FilePickerFileType(L.T("GLB 3D 모델")) { Patterns = ["*.glb"] }] });
         return files.FirstOrDefault()?.TryGetLocalPath();
     }
     private async Task Open()
@@ -303,7 +303,7 @@ internal sealed class GlbPetView : UserControl, IDisposable
     { if (!IsBusy && !closed && await CanDiscard()) await Read(() => new GlbPetDraft(package), isNew: false); }
     private async Task Read(Func<GlbPetDraft> read, bool isNew)
     {
-        SetBusy(true); loading = false; preview.SetRunning(false); generation++; status.Text = "GLB 파일을 읽는 중…";
+        SetBusy(true); loading = false; preview.SetRunning(false); generation++; status.Text = L.T("GLB 파일을 읽는 중…");
         try
         {
             var candidate = await Task.Run(read); if (closed) return;
@@ -332,18 +332,18 @@ internal sealed class GlbPetView : UserControl, IDisposable
     private void BuildActionRow(GlbPetDraft current, string key)
     {
         var mapping = current.Mappings.GetValueOrDefault(key);
-        var options = (key == "idle" ? current.Model.Animations.Select(a => a.Name) : new[] { "연결 안 함" }.Concat(current.Model.Animations.Select(a => a.Name))).ToArray();
+        var options = (key == "idle" ? current.Model.Animations.Select(a => a.Name) : new[] { L.T("연결 안 함") }.Concat(current.Model.Animations.Select(a => a.Name))).ToArray();
         var clip = new ComboBox { Name = "GlbClip_" + key, ItemsSource = options, SelectedItem = mapping?.ModelClip ?? options[0] };
-        var repeat = new ComboBox { Name = "GlbRepeat_" + key, ItemsSource = new[] { "한 번", "반복" }, SelectedIndex = mapping?.Loop == true ? 1 : 0 };
+        var repeat = new ComboBox { Name = "GlbRepeat_" + key, ItemsSource = new[] { L.T("한 번"), L.T("반복") }, SelectedIndex = mapping?.Loop == true ? 1 : 0 };
         var speeds = new[] { .25, .5, 1, 1.5, 2, 3 }.ToList();
         var playbackSpeed = mapping?.Speed ?? 1;
         if (!speeds.Contains(playbackSpeed)) speeds.Add(playbackSpeed);
         var speed = new ComboBox { Name = "GlbSpeed_" + key,
-            ItemsSource = speeds.Select(value => $"{value}배").ToArray(), SelectedIndex = speeds.IndexOf(playbackSpeed) };
+            ItemsSource = speeds.Select(value => L.F("{0}배", value)).ToArray(), SelectedIndex = speeds.IndexOf(playbackSpeed) };
         foreach (var choice in new[] { clip, repeat, speed }) StyleChoice(choice);
-        AutomationProperties.SetName(clip, GlbPetDraft.ActionName(key) + " 애니메이션");
-        AutomationProperties.SetName(repeat, GlbPetDraft.ActionName(key) + " 재생 방식");
-        AutomationProperties.SetName(speed, GlbPetDraft.ActionName(key) + " 재생 속도");
+        AutomationProperties.SetName(clip, L.F("{0} 애니메이션", GlbPetDraft.ActionName(key)));
+        AutomationProperties.SetName(repeat, L.F("{0} 재생 방식", GlbPetDraft.ActionName(key)));
+        AutomationProperties.SetName(speed, L.F("{0} 재생 속도", GlbPetDraft.ActionName(key)));
         var syncing = false;
         void Sync()
         {
@@ -367,9 +367,9 @@ internal sealed class GlbPetView : UserControl, IDisposable
         }
         clip.SelectionChanged += Changed; repeat.SelectionChanged += Changed; speed.SelectionChanged += Changed;
         var playback = new Grid { ColumnDefinitions = new("*,12,*") };
-        playback.Children.Add(PetManagementView.Field("재생 방식", repeat));
-        var speedField = PetManagementView.Field("속도", speed); Grid.SetColumn(speedField, 2); playback.Children.Add(speedField);
-        var row = Ui.Column(PetManagementView.Field("애니메이션", clip), playback);
+        playback.Children.Add(PetManagementView.Field(L.T("재생 방식"), repeat));
+        var speedField = PetManagementView.Field(L.T("속도"), speed); Grid.SetColumn(speedField, 2); playback.Children.Add(speedField);
+        var row = Ui.Column(PetManagementView.Field(L.T("애니메이션"), clip), playback);
         row.Name = "GlbActionRow_" + key; actionRows[key] = row; rows.Children.Add(row); Sync();
     }
     private void RefreshActionChoices()
@@ -410,12 +410,12 @@ internal sealed class GlbPetView : UserControl, IDisposable
     {
         if (IsBusy || closed || !HasUnsavedChanges || draft is not { } current || string.IsNullOrWhiteSpace(current.Name)) return;
         var refreshPreview = loading;
-        SetBusy(true); loading = false; generation++; preview.SetRunning(false); status.Text = "저장하고 적용하는 중…";
+        SetBusy(true); loading = false; generation++; preview.SetRunning(false); status.Text = L.T("저장하고 적용하는 중…");
         try
         {
             var package = await Task.Run(() => current.Save(library)); if (closed) return;
             await installed(package); HasUnsavedChanges = false; RefreshExisting(); LibraryChanged?.Invoke();
-            status.Text = "저장 완료"; status.Foreground = DesignSystem.Muted;
+            status.Text = L.T("저장 완료"); status.Foreground = DesignSystem.Muted;
         }
         catch (Exception e) { Error(e); }
         finally
@@ -434,10 +434,10 @@ internal sealed class GlbPetView : UserControl, IDisposable
         {
             var path = chooseOutput is not null ? await chooseOutput() : await CustomPetView.PickOutputFile(owner);
             if (path is null || closed) return;
-            status.Text = "펫 팩 저장 중…";
+            status.Text = L.T("펫 팩 저장 중…");
             await Task.Run(() => current.Export(path));
             if (closed) return;
-            HasUnsavedChanges = false; status.Text = "저장 완료"; status.Foreground = DesignSystem.Muted;
+            HasUnsavedChanges = false; status.Text = L.T("저장 완료"); status.Foreground = DesignSystem.Muted;
             if (created is not null) await created(path);
         }
         catch (Exception error) { Error(error); }
@@ -450,8 +450,8 @@ internal sealed class GlbPetView : UserControl, IDisposable
         SetBusy(true); preview.SetRunning(false);
         try
         {
-            if (await Ui.Confirm(owner, "저장한 펫을 삭제할까요?",
-                $"'{stored.Manifest.Name}'을 앱에서 삭제해요. 원본 GLB 파일은 유지돼요.", "펫 삭제", "취소") != 0 || closed) return;
+            if (await Ui.Confirm(owner, L.T("저장한 펫을 삭제할까요?"),
+                L.F("'{0}'을 앱에서 삭제해요. 원본 GLB 파일은 유지돼요.", stored.Manifest.Name), L.T("펫 삭제"), L.T("취소")) != 0 || closed) return;
             await Task.Run(() => library.Delete(stored.Manifest.Id, draft!.Revision));
             if (closed) return;
             ClearDraft(); RefreshExisting(); LibraryChanged?.Invoke();
@@ -461,7 +461,7 @@ internal sealed class GlbPetView : UserControl, IDisposable
                 catch (Exception error)
                 {
                     AppPaths.Log(error);
-                    if (!closed) { status.Text = "펫은 삭제됐지만 화면을 갱신하지 못했어요. " + Ui.ErrorText(error); status.Foreground = DesignSystem.Error; }
+                    if (!closed) { status.Text = L.F("펫은 삭제됐지만 화면을 갱신하지 못했어요. {0}", Ui.ErrorText(error)); status.Foreground = DesignSystem.Error; }
                 }
             }
         }
@@ -488,14 +488,14 @@ internal sealed class GlbPetView : UserControl, IDisposable
     {
         HasUnsavedChanges = true; status.Text = ""; status.Foreground = DesignSystem.Muted; SetControls();
     }
-    private void Error(Exception error) { AppPaths.Log(error); if (!closed) { status.Text = "처리하지 못했어요. " + Ui.ErrorText(error); status.Foreground = DesignSystem.Error; } }
+    private void Error(Exception error) { AppPaths.Log(error); if (!closed) { status.Text = L.F("처리하지 못했어요. {0}", Ui.ErrorText(error)); status.Foreground = DesignSystem.Error; } }
     private void SetBusy(bool value) { IsBusy = value; SetControls(); BusyChanged?.Invoke(); }
     internal void SetImportEnabled(bool value) => open.IsEnabled = fileAdd.IsEnabled = value;
     private void SetControls()
     {
         var ready = !IsBusy && draft is not null;
         open.IsEnabled = fileAdd.IsEnabled = !IsBusy; existing.IsEnabled = !IsBusy;
-        fileRemove.IsEnabled = ready; fileLabel.Text = draft?.FileName ?? "파일 없음"; ToolTip.SetTip(fileLabel, draft?.FileName);
+        fileRemove.IsEnabled = ready; fileLabel.Text = draft?.FileName ?? L.T("파일 없음"); ToolTip.SetTip(fileLabel, draft?.FileName);
         remove.IsVisible = StoredDraft is not null; remove.IsEnabled = ready && remove.IsVisible;
         edit.IsVisible = remove.IsVisible; edit.IsEnabled = ready && edit.IsVisible;
         existingField.IsVisible = true;
@@ -504,7 +504,7 @@ internal sealed class GlbPetView : UserControl, IDisposable
         save.IsEnabled = ready && HasUnsavedChanges && !string.IsNullOrWhiteSpace(draft?.Name);
         name.IsEnabled = !IsBusy; rows.IsEnabled = previewAction.IsEnabled = ready;
         replay.IsEnabled = ready && !loading; pause.IsEnabled = ready && !loading && !previewFailed;
-        pause.Content = previewCompleted ? "다시 재생" : paused ? "계속 재생" : "일시정지";
+        pause.Content = previewCompleted ? L.T("다시 재생") : paused ? L.T("계속 재생") : L.T("일시정지");
         resetRotation.IsEnabled = CanRotate && preview.GlbPreviewRotation != new GlbRotation();
         rotateUp.IsEnabled = rotateLeft.IsEnabled = rotateRight.IsEnabled = rotateDown.IsEnabled = CanRotate;
         previewStage.Cursor = CanRotate ? new Cursor(StandardCursorType.SizeAll) : null;
@@ -522,7 +522,7 @@ internal sealed class GlbPetView : UserControl, IDisposable
     private async Task<bool> CanDiscard()
     {
         if (!HasUnsavedChanges) return true;
-        return await Ui.Confirm(owner, "저장하지 않은 변경을 버릴까요?", "저장하지 않은 설정은 사라져요. 계속 편집하려면 돌아가 주세요.", "변경 버리기", "계속 편집") == 0;
+        return await Ui.Confirm(owner, L.T("저장하지 않은 변경을 버릴까요?"), L.T("저장하지 않은 설정은 사라져요. 계속 편집하려면 돌아가 주세요."), L.T("변경 버리기"), L.T("계속 편집")) == 0;
     }
     public Task<bool> CanCloseDraft() => CanDiscard();
     public void Dispose() { if (closed) return; closed = true; generation++; EndRotation(); owner.PropertyChanged -= OwnerChanged; ClearThumbnail(); preview.Dispose(); }

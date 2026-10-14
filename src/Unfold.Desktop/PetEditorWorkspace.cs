@@ -22,7 +22,7 @@ internal sealed class PetEditorWorkspace : Grid
         this.previewMinHeight = previewMinHeight; this.fullWidthPreview = fullWidthPreview;
         this.previewMaxHeight = Math.Max(previewMinHeight, previewMaxHeight ?? previewMinHeight);
         Name = prefix + "Workspace";
-        title = Heading("미리보기");
+        title = Heading(L.T("미리보기"));
         previewPane = new Grid { Name = prefix + "PreviewPane" };
         previewPane.Children.Add(title); Grid.SetRow(stage, 2); previewPane.Children.Add(stage);
         if (!fullWidthPreview) previewPane.Children.Add(controls);
@@ -74,7 +74,7 @@ internal sealed class PetEditorWorkspace : Grid
     internal Grid Identity(string name, TextBox input, Button open)
     {
         var row = new Grid { Name = name, ColumnDefinitions = new("Auto,12,Auto,*") };
-        row.Children.Add(PetManagementView.Field("펫 이름", input)); Grid.SetColumn(open, 2); row.Children.Add(open);
+        row.Children.Add(PetManagementView.Field(L.T("펫 이름"), input)); Grid.SetColumn(open, 2); row.Children.Add(open);
         previewPane.SizeChanged += (_, _) => input.Width = previewPane.Bounds.Width / 2;
         return row;
     }

@@ -29,6 +29,7 @@ public sealed partial record AppSettings
         var value = defaults with
         {
             Theme = Read(nameof(Theme), defaults.Theme),
+            Language = Read(nameof(Language), defaults.Language),
             IntervalMinutes = Read(nameof(IntervalMinutes), defaults.IntervalMinutes),
             BreakDurationMinutes = Read(nameof(BreakDurationMinutes), defaults.BreakDurationMinutes),
             IdleMinutes = Read(nameof(IdleMinutes), defaults.IdleMinutes),

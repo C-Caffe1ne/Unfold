@@ -13,9 +13,9 @@ public sealed partial class SettingsWindow
     {
         var button = Ui.Action("");
         button.Name = "SettingsTheme";
-        ConfigureNavigationButton(button, "테마", "theme");
+        ConfigureNavigationButton(button, L.T("테마"), "theme");
         var error = Ui.Caption(""); error.Name = "ThemeSaveError"; error.Foreground = DesignSystem.Error; error.IsVisible = false;
-        var content = Ui.Column(Ui.Text("테마", DesignSystem.Section), error);
+        var content = Ui.Column(Ui.Text(L.T("테마"), DesignSystem.Section), error);
         content.Name = "ThemeChoices"; content.Width = 232; content.Spacing = 8;
         var flyout = new Flyout { Content = content, Placement = PlacementMode.Right };
         flyout.FlyoutPresenterClasses.Add("theme-picker");
@@ -27,7 +27,7 @@ public sealed partial class SettingsWindow
                 var selected = runtime.Settings.Theme == palette.Id;
                 choice.Classes.Set("primary", selected);
                 check.IsVisible = selected;
-                AutomationProperties.SetName(choice, palette.Name + (selected ? ", 선택됨" : ""));
+                AutomationProperties.SetName(choice, selected ? L.F("{0}, 선택됨", L.T(palette.Name)) : L.T(palette.Name));
             }
         }
         foreach (var palette in DesignSystem.Themes)
@@ -39,7 +39,7 @@ public sealed partial class SettingsWindow
             row.Children.Add(new Border { Width = 22, Height = 22, CornerRadius = new(11),
                 Background = Brush.Parse(palette.Secondary), BorderBrush = Brush.Parse(palette.Line), BorderThickness = new(1),
                 Child = new Border { Margin = new(5), CornerRadius = new(6), Background = Brush.Parse(palette.Accent) } });
-            var label = new TextBlock { Text = palette.Name, VerticalAlignment = VerticalAlignment.Center };
+            var label = new TextBlock { Text = L.T(palette.Name), VerticalAlignment = VerticalAlignment.Center };
             Grid.SetColumn(label, 2); row.Children.Add(label);
             var check = new TextBlock { Text = "✓", VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Right };
             Grid.SetColumn(check, 3); row.Children.Add(check);
@@ -53,7 +53,7 @@ public sealed partial class SettingsWindow
                 }
                 catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException)
                 {
-                    AppPaths.Log(ex); error.Text = "테마를 저장하지 못했어요. 다시 선택해 주세요."; error.IsVisible = true;
+                    AppPaths.Log(ex); error.Text = L.T("테마를 저장하지 못했어요. 다시 선택해 주세요."); error.IsVisible = true;
                 }
             };
         }

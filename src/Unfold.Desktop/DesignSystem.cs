@@ -7,6 +7,7 @@ using Avalonia.Markup.Xaml.MarkupExtensions;
 using Avalonia.Media;
 using Avalonia.Styling;
 using Avalonia.Themes.Fluent;
+using Unfold.Core;
 
 namespace Unfold.Desktop;
 
@@ -22,6 +23,19 @@ public static partial class DesignSystem
         SettingsPreviewWidth = 80, SettingsImportWidth = 104, SettingsResetWidth = 64;
     public const double FocusRingWidth = 2, FocusRingOffset = 2;
     public static readonly FontFamily AppFont = new("avares://Unfold/Assets/Fonts#눈누 기초고딕 Regular");
+    // The bundled font has kana but no CJK ideographs, so Japanese and Chinese text uses one system
+    // face instead of mixing glyphs from two fonts. Countdown digits keep the bundled font.
+    private const string TextFontKey = "UnfoldTextFont";
+    public static FontFamily TextFont(AppLanguage language) => language switch
+    {
+        AppLanguage.Japanese => new("Hiragino Sans, Hiragino Kaku Gothic ProN, Yu Gothic UI, Meiryo UI, Noto Sans CJK JP"),
+        AppLanguage.ChineseSimplified => new("PingFang SC, Microsoft YaHei UI, Microsoft YaHei, Noto Sans CJK SC"),
+        _ => AppFont
+    };
+    public static void ApplyLanguage(AppLanguage language)
+    {
+        if (Application.Current is { } app) app.Resources[TextFontKey] = TextFont(language);
+    }
     public const double HomeTimerHeight = 216, HomeControlHeight = 40, HomeChoiceWidth = 200,
         HomeNumberWidth = 160, HomeActionWidth = 80, HomePetScaleWidth = 280;
     public const double ReviewContentWidth = 760, ReviewControlHeight = 40, ReviewDateHeight = 44;
@@ -42,18 +56,19 @@ public static partial class DesignSystem
 
     public static void Install(Application app)
     {
+        app.Resources[TextFontKey] = TextFont(L.Current);
         var fluent = new FluentTheme();
         ApplyFluentPalette(app, fluent, Themes.Single(item => item.Id == CurrentTheme));
         app.Styles.Add(fluent);
         InstallControlForegroundResources(app);
         var styles = new Styles();
         styles.Add(new Style(s => s.OfType<TemplatedControl>()) { Setters =
-        { new Setter(TemplatedControl.FontFamilyProperty, AppFont) }});
+        { new Setter(TemplatedControl.FontFamilyProperty, new DynamicResourceExtension(TextFontKey)) }});
         styles.Add(new Style(s => s.OfType<TextBlock>()) { Setters =
-        { new Setter(TextBlock.FontFamilyProperty, AppFont) }});
+        { new Setter(TextBlock.FontFamilyProperty, new DynamicResourceExtension(TextFontKey)) }});
         styles.Add(new Style(s => s.OfType<ToolTip>()) { Setters =
         {
-            new Setter(TemplatedControl.FontFamilyProperty, AppFont),
+            new Setter(TemplatedControl.FontFamilyProperty, new DynamicResourceExtension(TextFontKey)),
             new Setter(TemplatedControl.BackgroundProperty, Surface),
             new Setter(TemplatedControl.ForegroundProperty, Cream),
             new Setter(TemplatedControl.BorderBrushProperty, OutlineStrong)
@@ -264,7 +279,7 @@ public static partial class DesignSystem
                      typeof(TextBox), typeof(NumericUpDown), typeof(ComboBox), typeof(ComboBoxItem),
                      typeof(ListBoxItem), typeof(TabItem), typeof(MenuItem) })
             styles.Add(new Style(s => s.Is(type)) { Setters =
-            { new Setter(TemplatedControl.FontFamilyProperty, AppFont) }});
+            { new Setter(TemplatedControl.FontFamilyProperty, new DynamicResourceExtension(TextFontKey)) }});
         app.Styles.Add(styles);
     }
 

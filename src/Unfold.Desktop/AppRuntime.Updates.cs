@@ -19,7 +19,7 @@ public sealed partial class AppRuntime
     }
     private void InitializeUpdates(NativeMenu menu)
     {
-        trayUpdate = new NativeMenuItem("업데이트 확인");
+        trayUpdate = new NativeMenuItem();
         trayUpdate.Click += (_, _) => ShowUpdates(); menu.Items.Add(trayUpdate);
         Updates.Changed += RefreshUpdateMenu;
         RefreshUpdateMenu();
@@ -29,8 +29,13 @@ public sealed partial class AppRuntime
     {
         if (!Dispatcher.UIThread.CheckAccess()) { Dispatcher.UIThread.Post(RefreshUpdateMenu); return; }
         if (disposed || trayUpdate is null) return;
-        trayUpdate.Header = Updates.Release is not null ? "업데이트 확인 · 새 버전 있음" : "업데이트 확인";
+        RefreshUpdateMenuText();
         TryShowStartupUpdate();
+    }
+    private void RefreshUpdateMenuText()
+    {
+        if (trayUpdate is not null)
+            trayUpdate.Header = Updates.Release is not null ? L.T("업데이트 확인 · 새 버전 있음") : L.T("업데이트 확인");
     }
     private void TryShowStartupUpdate()
     {

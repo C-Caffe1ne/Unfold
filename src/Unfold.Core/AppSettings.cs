@@ -6,6 +6,8 @@ public sealed partial record AppSettings
 {
     public const AppTheme DefaultTheme = AppTheme.Plum;
     public AppTheme Theme { get; init; } = DefaultTheme;
+    /// <summary>Null until the app resolves a first-run or pre-language profile.</summary>
+    public AppLanguage? Language { get; init; }
     public int IntervalMinutes { get; init; } = 60;
     public int BreakDurationMinutes { get; init; } = 1;
     public int IdleMinutes { get; init; } = 5;
@@ -15,11 +17,16 @@ public sealed partial record AppSettings
     public int PetScalePercent { get; init; } = 100;
     public BubbleDirection BubbleDirection { get; init; } = BubbleDirection.Top;
     public int BubbleOpacityPercent { get; init; } = 100;
-    public string AdvanceDialogue { get; init; } = "5분 뒤에 스트레칭해요";
-    public string InvitationDialogue { get; init; } = "스트레칭할 시간이에요";
-    public string RestingDialogue { get; init; } = "함께 쉬어 가요";
-    public string OvertimeDialogue { get; init; } = "조금 더 쉬어도 좋아요";
-    public string CompletedDialogue { get; init; } = "스트레칭을 마쳤어요!";
+    public const string DefaultAdvanceDialogue = "5분 뒤에 스트레칭해요";
+    public const string DefaultInvitationDialogue = "스트레칭할 시간이에요";
+    public const string DefaultRestingDialogue = "함께 쉬어 가요";
+    public const string DefaultOvertimeDialogue = "조금 더 쉬어도 좋아요";
+    public const string DefaultCompletedDialogue = "스트레칭을 마쳤어요!";
+    public string AdvanceDialogue { get; init; } = DefaultAdvanceDialogue;
+    public string InvitationDialogue { get; init; } = DefaultInvitationDialogue;
+    public string RestingDialogue { get; init; } = DefaultRestingDialogue;
+    public string OvertimeDialogue { get; init; } = DefaultOvertimeDialogue;
+    public string CompletedDialogue { get; init; } = DefaultCompletedDialogue;
     public int SnoozeMinutes { get; init; } = 5;
     public bool DebugToolsEnabled { get; init; }
     public bool ReminderSoundsEnabled { get; init; } = true;
@@ -44,6 +51,21 @@ public sealed partial record AppSettings
         value = Recover(value);
         return value;
     }
+    /// <summary>Switches the language and moves untouched default dialogue to it. Edited dialogue stays as written.</summary>
+    public AppSettings WithLanguage(AppLanguage language)
+    {
+        static string Swap(string current, string korean, AppLanguage language) =>
+            L.Languages.Any(item => L.T(korean, item) == current) ? L.T(korean, language) : current;
+        return this with
+        {
+            Language = language,
+            AdvanceDialogue = Swap(AdvanceDialogue, DefaultAdvanceDialogue, language),
+            InvitationDialogue = Swap(InvitationDialogue, DefaultInvitationDialogue, language),
+            RestingDialogue = Swap(RestingDialogue, DefaultRestingDialogue, language),
+            OvertimeDialogue = Swap(OvertimeDialogue, DefaultOvertimeDialogue, language),
+            CompletedDialogue = Swap(CompletedDialogue, DefaultCompletedDialogue, language)
+        };
+    }
     public void Save(string path)
     {
         Validate(this);
@@ -61,6 +83,7 @@ public sealed partial record AppSettings
         if (!CharacterLibrary.SafeId(value.SelectedCharacterId))
             value = value with { SelectedCharacterId = fallback.SelectedCharacterId };
         if (!Enum.IsDefined(value.BubbleDirection)) value = value with { BubbleDirection = fallback.BubbleDirection };
+        if (value.Language is { } language && !Enum.IsDefined(language)) value = value with { Language = null };
         if (value.BubbleOpacityPercent is < 0 or > 100) value = value with { BubbleOpacityPercent = fallback.BubbleOpacityPercent };
         value = value with {
             AdvanceDialogue = RecoverDialogue(value.AdvanceDialogue, fallback.AdvanceDialogue),
@@ -83,6 +106,7 @@ public sealed partial record AppSettings
     private static void Validate(AppSettings value)
     {
         if (!Enum.IsDefined(value.Theme)) throw new InvalidDataException("Invalid theme.");
+        if (value.Language is { } language && !Enum.IsDefined(language)) throw new InvalidDataException("Invalid language.");
         if (value.IntervalMinutes is < 1 or > 240 || value.BreakDurationMinutes is < 1 or > 10 ||
             value.IdleMinutes is < 1 or > 60 || value.PetScalePercent is < 50 or > 150 || value.PetScalePercent % 10 != 0 ||
             !CharacterLibrary.SafeId(value.SelectedCharacterId))

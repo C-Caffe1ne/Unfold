@@ -15,6 +15,7 @@
     <Content Include="../../Assets/Fonts/LICENSE.txt" Link="Licenses/NoonnuBasicGothic.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="../../Assets/Licenses/*.txt" Link="Licenses/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <InternalsVisibleTo Include="Unfold.Tests" />
+    <Using Include="Unfold.Core.L" Alias="L" />
     <PackageReference Include="Velopack" Version="1.2.0" />
     <ProjectReference Include="../Unfold.Core/Unfold.Core.csproj" />
     <PackageReference Include="Avalonia.Desktop" Version="12.1.2" />

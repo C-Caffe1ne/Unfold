@@ -4,6 +4,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Styling;
 using Avalonia.Themes.Fluent;
 using Avalonia.Threading;
+using Unfold.Core;
 
 namespace Unfold.Desktop;
 
@@ -16,7 +17,10 @@ public sealed class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
-            Runtime = new AppRuntime(desktop);
+            // Diagnostics compare against the original Korean copy, whatever the host language is.
+            var diagnostic = desktop.Args is ["--review-glb", ..] or ["--review-original-pets", ..] or ["--review-pet-pack", ..] ||
+                desktop.Args?.Contains("--smoke-test") == true;
+            Runtime = new AppRuntime(desktop, diagnostic ? null : L.Preferred(PlatformServices.PreferredLanguages()));
             desktop.Exit += (_, _) => Runtime.Dispose();
             var ready = Runtime;
             Dispatcher.UIThread.Post(async () =>

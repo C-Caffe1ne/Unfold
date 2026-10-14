@@ -63,7 +63,9 @@ public sealed class CharacterPackage
             }
         }
     }
-    public override string ToString() => Manifest.Name;
+    /// <summary>Bundled pets carry Korean names that follow the app language. Installed names stay as written.</summary>
+    public string DisplayName => IsBuiltIn ? L.T(Manifest.Name) : Manifest.Name;
+    public override string ToString() => DisplayName;
     internal CharacterPackage(string directory, CharacterManifest manifest, bool builtIn, PixelImage? validatedStill = null)
     {
         DirectoryPath = directory; Manifest = manifest; IsBuiltIn = builtIn;
@@ -187,9 +189,9 @@ public sealed partial class CharacterLibrary
     public void Delete(string id, string? expectedRevision = null)
     {
         using var lease = Lock(); Recover(); var directory = PackagePath(id); RejectLink(directory);
-        if (!CanManage(id)) throw new InvalidDataException("기본 제공 펫은 삭제할 수 없어요.");
+        if (!CanManage(id)) throw new InvalidDataException(L.T("기본 제공 펫은 삭제할 수 없어요."));
         if (expectedRevision is not null && (!Directory.Exists(directory) || PetRevision(directory) != expectedRevision))
-            throw new IOException("펫이 변경되거나 삭제됐어요. 다시 선택해 주세요.");
+            throw new IOException(L.T("펫이 변경되거나 삭제됐어요. 다시 선택해 주세요."));
         if (Directory.Exists(directory)) Directory.Delete(directory, true);
     }
     private FileStream Lock()

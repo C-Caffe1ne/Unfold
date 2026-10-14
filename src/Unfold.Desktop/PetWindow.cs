@@ -49,14 +49,15 @@ public sealed partial class PetWindow : Window
         animation.Completed += PointerClipCompleted;
         animation.PlaybackFailed += _ => { InvalidatePlayback(); ResetCompanion(); if (runtime.Selected is { } selected) ShowReminderFallback(selected); };
         var menu = new ContextMenu();
-        var settings = new MenuItem { Header = "설정" }; settings.Click += (_, _) => runtime.ShowSettings();
-        var hide = new MenuItem { Header = "펫 숨기기", Name = "HidePet" };
+        var settings = new MenuItem { Header = L.T("설정") }; settings.Click += (_, _) => runtime.ShowSettings();
+        var hide = new MenuItem { Header = L.T("펫 숨기기"), Name = "HidePet" };
         hide.Click += async (_, _) =>
         {
             try { await runtime.HidePet(); }
             catch (Exception error) { await Ui.Error(this, error); }
         };
         menu.Items.Add(settings); menu.Items.Add(hide); ContextMenu = menu;
+        menu.Opening += (_, _) => { settings.Header = L.T("설정"); hide.Header = L.T("펫 숨기기"); };
         menu.Opened += (_, _) => { RefreshSpeech(); UpdateClickThrough(); };
         menu.Closed += (_, _) => { RefreshSpeech(); UpdateClickThrough(); };
         PointerMoved += (_, _) => UpdateClickThrough();

@@ -37,7 +37,7 @@ internal sealed class PetOverlayWindow : Window
     internal PetOverlayWindow(PetWindow pet, AppRuntime runtime)
     {
         this.pet = pet; this.runtime = runtime;
-        Name = "PetOverlayWindow"; Title = "Unfold · 펫 타이머";
+        Name = "PetOverlayWindow"; Title = L.T("Unfold · 펫 타이머");
         Width = DesignSystem.SpeechBubbleWidth + DesignSystem.PetBubbleGap; Height = SurfaceHeight;
         CanResize = false; WindowDecorations = WindowDecorations.None;
         Background = Brushes.Transparent; TransparencyLevelHint = [WindowTransparencyLevel.Transparent];
@@ -62,6 +62,7 @@ internal sealed class PetOverlayWindow : Window
     internal void Refresh()
     {
         if (closed) return;
+        Title = L.T("Unfold · 펫 타이머");
         var reminder = runtime.PresentedReminder;
         Bubble.Refresh(reminder, runtime.Settings.SnoozeMinutes, runtime.Settings);
         Bubble.IsVisible = tail.IsVisible = tailOutline.IsVisible = reminder.HasNotice;

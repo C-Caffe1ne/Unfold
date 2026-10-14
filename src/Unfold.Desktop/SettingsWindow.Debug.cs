@@ -7,7 +7,7 @@ namespace Unfold.Desktop;
 
 public sealed partial class SettingsWindow
 {
-    private readonly CheckBox debugToolsEnabled = new() { Name = "DebugToolsEnabled", Content = "디버그 도구 사용" };
+    private readonly CheckBox debugToolsEnabled = new() { Name = "DebugToolsEnabled", Content = L.T("디버그 도구 사용") };
     private readonly TextBlock debugPreviewStatus = new() { Name = "DebugPreviewStatus", FontSize = DesignSystem.Caption,
         Foreground = DesignSystem.Muted, TextWrapping = Avalonia.Media.TextWrapping.Wrap };
     private StackPanel? debugToolsBody;
@@ -21,7 +21,7 @@ public sealed partial class SettingsWindow
             if (debugToolsEnabled.IsChecked != true) runtime.CloseReminderPreview();
             PreferencesEdited();
         };
-        AutomationProperties.SetName(debugToolsEnabled, "디버그 도구 사용");
+        AutomationProperties.SetName(debugToolsEnabled, L.T("디버그 도구 사용"));
 
         Button PreviewButton(string name, string text, PetNotice notice)
         {
@@ -38,18 +38,18 @@ public sealed partial class SettingsWindow
             return button;
         }
 
-        var advance = PreviewButton("DebugPreviewAdvance", "5분 전 알림", PetNotice.Advance);
-        var invitation = PreviewButton("DebugPreviewInvitation", "스트레칭 알림", PetNotice.Invitation);
-        var resting = PreviewButton("DebugPreviewResting", "휴식 진행", PetNotice.Resting);
-        var completed = PreviewButton("DebugPreviewCompleted", "완료 알림", PetNotice.Completed);
-        var close = Ui.Button("미리보기 종료", () => { runtime.CloseReminderPreview(); RefreshDebugPreviewStatus(); });
+        var advance = PreviewButton("DebugPreviewAdvance", L.T("5분 전 알림"), PetNotice.Advance);
+        var invitation = PreviewButton("DebugPreviewInvitation", L.T("스트레칭 알림"), PetNotice.Invitation);
+        var resting = PreviewButton("DebugPreviewResting", L.T("휴식 진행"), PetNotice.Resting);
+        var completed = PreviewButton("DebugPreviewCompleted", L.T("완료 알림"), PetNotice.Completed);
+        var close = Ui.Button(L.T("미리보기 종료"), () => { runtime.CloseReminderPreview(); RefreshDebugPreviewStatus(); });
         close.Name = "DebugPreviewClose"; close.Classes.Add("compact"); close.Height = DesignSystem.SettingsControlHeight;
         var actions = Ui.Actions(advance, invitation, resting, completed, close);
         actions.HorizontalAlignment = HorizontalAlignment.Left;
 
-        debugPreviewStatus.Text = "미리보기 대기 중";
+        debugPreviewStatus.Text = L.T("미리보기 대기 중");
         debugToolsBody = Ui.Column(actions, debugPreviewStatus); debugToolsBody.Spacing = DesignSystem.Space;
-        var body = Ui.Column(SettingsHeading("디버그 도구"), debugToolsEnabled, debugToolsBody);
+        var body = Ui.Column(SettingsHeading(L.T("디버그 도구")), debugToolsEnabled, debugToolsBody);
         body.Spacing = DesignSystem.Inset; body.Margin = new(DesignSystem.Inset);
         RefreshDebugToolsVisibility();
         return Card("SettingsDebugToolsCard", body, DesignSystem.Surface, new(28));
@@ -66,11 +66,11 @@ public sealed partial class SettingsWindow
         debugPreviewStatus.Foreground = DesignSystem.Muted;
         debugPreviewStatus.Text = runtime.PreviewNotice switch
         {
-            PetNotice.Advance => "5분 전 알림 미리보기 중",
-            PetNotice.Invitation => "스트레칭 알림 미리보기 중",
-            PetNotice.Resting => "휴식 진행 미리보기 중",
-            PetNotice.Completed => "완료 알림 미리보기 중",
-            _ => "미리보기 대기 중"
+            PetNotice.Advance => L.T("5분 전 알림 미리보기 중"),
+            PetNotice.Invitation => L.T("스트레칭 알림 미리보기 중"),
+            PetNotice.Resting => L.T("휴식 진행 미리보기 중"),
+            PetNotice.Completed => L.T("완료 알림 미리보기 중"),
+            _ => L.T("미리보기 대기 중")
         };
     }
 }

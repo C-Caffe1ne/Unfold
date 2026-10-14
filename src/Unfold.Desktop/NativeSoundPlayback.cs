@@ -22,7 +22,7 @@ internal static class NativeSoundPlayback
         try
         {
             sound = FileMessage(Message(Class("NSSound"), Selector("alloc")), Selector("initWithContentsOfFile:byReference:"), file, false);
-            if (sound == 0 || !BoolMessage(sound, Selector("play"))) throw new IOException("오디오 장치에서 효과음을 재생하지 못했어요.");
+            if (sound == 0 || !BoolMessage(sound, Selector("play"))) throw new IOException(L.T("오디오 장치에서 효과음을 재생하지 못했어요."));
             // NSSound stays in the app, so a short-lived command-line player's shutdown cannot cut its tail.
             while (BoolMessage(sound, Selector("isPlaying"))) await Task.Delay(10, token).ConfigureAwait(false);
             token.ThrowIfCancellationRequested();
@@ -106,7 +106,7 @@ internal static class NativeSoundPlayback
             if (header != 0) { Marshal.FreeHGlobal(header); header = 0; }
             if (buffer != 0) { Marshal.FreeHGlobal(buffer); buffer = 0; }
         }
-        private static void Check(uint result) { if (result != 0) throw new IOException($"오디오 장치에서 효과음을 재생하지 못했어요. (오류 {result})"); }
+        private static void Check(uint result) { if (result != 0) throw new IOException(L.F("오디오 장치에서 효과음을 재생하지 못했어요. (오류 {0})", result)); }
     }
     [StructLayout(LayoutKind.Sequential)]
     private struct WaveHeader

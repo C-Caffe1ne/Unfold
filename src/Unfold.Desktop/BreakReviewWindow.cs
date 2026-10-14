@@ -23,7 +23,7 @@ public sealed class BreakReviewWindow : Window
     public BreakReviewWindow(Func<DateOnly, BreakReview> readHistory, Func<string?>? warning = null,
         Func<BreakReview, Task<string?>>? exportReview = null, DateOnly? currentDay = null, Func<DateOnly>? getToday = null)
     {
-        Title = "나의 일주일 · Unfold"; Width = 620; Height = 650; MinWidth = 560; MinHeight = 600;
+        Title = L.T("나의 일주일 · Unfold"); Width = 620; Height = 650; MinWidth = 560; MinHeight = 600;
         Background = Ui.Background; WindowStartupLocation = WindowStartupLocation.CenterOwner;
         view = new BreakReviewView(this, readHistory, warning, exportReview, currentDay, Close, getToday: getToday);
         Content = Ui.PageFrame(this, view);
@@ -63,27 +63,27 @@ internal sealed class BreakReviewView : UserControl
         this.getToday = getToday ?? (() => currentDay ?? DateOnly.FromDateTime(DateTime.Now));
         today = this.getToday(); endDay = today; Review = read(endDay);
         Name = "ReviewView";
-        previous = PeriodButton("ReviewPrevious", "이전 7일", new DirectionIcon(IconDirection.Left), () => Navigate(-7));
-        next = PeriodButton("ReviewNext", "다음 7일", new DirectionIcon(IconDirection.Right), () => Navigate(7));
-        var refresh = Ui.Quiet(PeriodButton("ReviewRefresh", "새로고침", Icon("M20,3 V10 H13 L15.6,7.4 A7,7 0 1 0 18.9,13 H21 A9,9 0 1 1 17,6 Z"), Refresh));
-        var save = Ui.AsyncButton("CSV 내보내기", async () =>
+        previous = PeriodButton("ReviewPrevious", L.T("이전 7일"), new DirectionIcon(IconDirection.Left), () => Navigate(-7));
+        next = PeriodButton("ReviewNext", L.T("다음 7일"), new DirectionIcon(IconDirection.Right), () => Navigate(7));
+        var refresh = Ui.Quiet(PeriodButton("ReviewRefresh", L.T("새로고침"), Icon("M20,3 V10 H13 L15.6,7.4 A7,7 0 1 0 18.9,13 H21 A9,9 0 1 1 17,6 Z"), Refresh));
+        var save = Ui.AsyncButton(L.T("CSV 내보내기"), async () =>
         {
             try
             {
                 var snapshot = Review; var path = await export(snapshot);
-                if (path is not null) { status.Foreground = DesignSystem.Muted; status.Text = $"완료한 휴식 {snapshot.Entries.Count}회를 {Path.GetFileName(path)} 파일로 내보냈어요."; status.IsVisible = true; }
+                if (path is not null) { status.Foreground = DesignSystem.Muted; status.Text = L.F("완료한 휴식 {0}회를 {1} 파일로 내보냈어요.", snapshot.Entries.Count, Path.GetFileName(path)); status.IsVisible = true; }
             }
             catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidOperationException)
-            { status.Foreground = DesignSystem.Error; status.Text = "회고를 내보내지 못했어요."; status.IsVisible = true; }
+            { status.Foreground = DesignSystem.Error; status.Text = L.T("회고를 내보내지 못했어요."); status.IsVisible = true; }
         });
         save.Name = "ReviewExport"; save.Height = DesignSystem.ReviewControlHeight;
-        AutomationProperties.SetName(save, "CSV 내보내기");
+        AutomationProperties.SetName(save, L.T("CSV 내보내기"));
         save.Content = Ui.Row(Icon("M11,2 H13 V13 L17,9 L18.5,10.5 L12,17 L5.5,10.5 L7,9 L11,13 Z M3,16 H5 V20 H19 V16 H21 V22 H3 Z"),
-            new TextBlock { Text = "CSV 내보내기", FontSize = DesignSystem.Body, VerticalAlignment = VerticalAlignment.Center });
+            new TextBlock { Text = L.T("CSV 내보내기"), FontSize = DesignSystem.Body, VerticalAlignment = VerticalAlignment.Center });
         var footerActions = new List<Control>();
         if (close is not null)
         {
-            var done = Ui.Button("닫기", close); done.IsCancel = true;
+            var done = Ui.Button(L.T("닫기"), close); done.IsCancel = true;
             done.Height = DesignSystem.ReviewControlHeight; footerActions.Add(Ui.Quiet(done));
         }
         footerActions.Add(Ui.Primary(save));
@@ -93,15 +93,15 @@ internal sealed class BreakReviewView : UserControl
         count.Name = "ReviewCount"; duration.Name = "ReviewDuration"; activeDays.Name = "ReviewActiveDays";
         duration.TextWrapping = TextWrapping.Wrap;
         var metrics = new Grid { ColumnDefinitions = new("*,1.5*,*"), ColumnSpacing = 16 };
-        metrics.Children.Add(Metric("완료한 휴식", count, "회"));
-        var timeMetric = Metric("기록된 시간", duration); Grid.SetColumn(timeMetric, 1); metrics.Children.Add(timeMetric);
-        var dayMetric = Metric("휴식한 날", activeDays, "일"); Grid.SetColumn(dayMetric, 2); metrics.Children.Add(dayMetric);
+        metrics.Children.Add(Metric(L.T("완료한 휴식"), count, L.T("회")));
+        var timeMetric = Metric(L.T("기록된 시간"), duration); Grid.SetColumn(timeMetric, 1); metrics.Children.Add(timeMetric);
+        var dayMetric = Metric(L.T("휴식한 날"), activeDays, L.T("일")); Grid.SetColumn(dayMetric, 2); metrics.Children.Add(dayMetric);
         var summary = Ui.Column(heading, metrics); summary.Spacing = DesignSystem.Inset;
         var summaryCard = Ui.Card(summary, DesignSystem.Inset); summaryCard.Name = "ReviewSummaryCard";
         var dailyHeading = new Grid { ColumnDefinitions = new("*,Auto"), ColumnSpacing = DesignSystem.Space };
-        dailyHeading.Children.Add(new TextBlock { Text = "날짜별 기록", FontSize = DesignSystem.Section,
+        dailyHeading.Children.Add(new TextBlock { Text = L.T("날짜별 기록"), FontSize = DesignSystem.Section,
             FontWeight = FontWeight.SemiBold, Foreground = DesignSystem.Cream });
-        var legend = Ui.Caption("완료 횟수 · 기록된 시간"); legend.VerticalAlignment = VerticalAlignment.Center;
+        var legend = Ui.Caption(L.T("완료 횟수 · 기록된 시간")); legend.VerticalAlignment = VerticalAlignment.Center;
         Grid.SetColumn(legend, 1); dailyHeading.Children.Add(legend);
         var daily = Ui.Column(dailyHeading, days); daily.Spacing = DesignSystem.Space;
         var dailyCard = Ui.Card(daily, DesignSystem.Inset); dailyCard.Name = "ReviewDailyCard";
@@ -110,8 +110,8 @@ internal sealed class BreakReviewView : UserControl
         var footer = new Grid { Name = "ReviewFooter", ColumnDefinitions = new("*,Auto"), ColumnSpacing = DesignSystem.Inset };
         footer.Children.Add(status); var actions = Ui.Actions(footerActions.ToArray());
         actions.VerticalAlignment = VerticalAlignment.Center; Grid.SetColumn(actions, 1); footer.Children.Add(actions);
-        Content = Ui.PageContent("나를 위해 만든 여유.", "",
-            body, footer, "기록 · 내보내기", showHeader);
+        Content = Ui.PageContent(L.T("나를 위해 만든 여유."), "",
+            body, footer, L.T("기록 · 내보내기"), showHeader);
         Refresh();
     }
 
@@ -122,18 +122,18 @@ internal sealed class BreakReviewView : UserControl
         var end = Review.EndDay.ToString(Review.StartDay.Year == Review.EndDay.Year ? "MM.dd" : "yyyy.MM.dd", CultureInfo.InvariantCulture);
         period.Text = $"{Review.StartDay:yyyy.MM.dd} — {end}";
         period.TextWrapping = TextWrapping.Wrap;
-        count.Text = Review.Entries.Count.ToString(); duration.Text = $"{Review.TotalSeconds / 60}분 {Review.TotalSeconds % 60}초";
+        count.Text = Review.Entries.Count.ToString(); duration.Text = L.F("{0}분 {1}초", Review.TotalSeconds / 60, Review.TotalSeconds % 60);
         activeDays.Text = Review.DaysWithBreaks.ToString();
         days.Children.Clear(); days.RowDefinitions.Clear(); dateHeaders.Clear();
         expandedDates.IntersectWith(Review.Days.Where(day => day.Count > 0).Select(day => day.Date));
         if (Review.Entries.Count == 0)
         {
             days.RowDefinitions.Add(new(GridLength.Auto));
-            var empty = Ui.Column(Ui.Text(endDay == today ? "이 7일 동안 완료한 휴식이 없어요." : "이 기간에는 완료한 휴식이 없어요."));
+            var empty = Ui.Column(Ui.Text(endDay == today ? L.T("이 7일 동안 완료한 휴식이 없어요.") : L.T("이 기간에는 완료한 휴식이 없어요.")));
             empty.Name = "ReviewEmptyState"; empty.Margin = new(0, 20);
             if (endDay == today)
             {
-                var back = Ui.Quiet(Ui.Button("타이머로 돌아가기", () => returnToTimer?.Invoke())); back.Name = "ReviewReturnToTimer";
+                var back = Ui.Quiet(Ui.Button(L.T("타이머로 돌아가기"), () => returnToTimer?.Invoke())); back.Name = "ReviewReturnToTimer";
                 back.Height = DesignSystem.ReviewControlHeight; back.HorizontalAlignment = HorizontalAlignment.Left;
                 empty.Children.Add(back);
             }
@@ -228,9 +228,9 @@ internal sealed class BreakReviewView : UserControl
     private static Grid DateHeader(BreakDay day, bool expandable, out DirectionIcon chevron)
     {
         var grid = new Grid { ColumnDefinitions = new("*,48,116,24"), ColumnSpacing = DesignSystem.Gap };
-        var date = Ui.Text(day.Date.ToString("M월 d일 (ddd)", CultureInfo.GetCultureInfo("ko-KR")));
-        var count = Ui.Text($"{day.Count}회");
-        var duration = Ui.Text($"{day.Seconds / 60}분 {day.Seconds % 60}초");
+        var date = Ui.Text(day.Date.ToString(L.T("M월 d일 (ddd)"), L.Culture));
+        var count = Ui.Text(L.F("{0}회", day.Count));
+        var duration = Ui.Text(L.F("{0}분 {1}초", day.Seconds / 60, day.Seconds % 60));
         count.TextAlignment = duration.TextAlignment = TextAlignment.Right;
         chevron = new DirectionIcon(IconDirection.Down) { IsVisible = expandable,
             Foreground = DesignSystem.TextTertiary, VerticalAlignment = VerticalAlignment.Center };
@@ -241,10 +241,10 @@ internal sealed class BreakReviewView : UserControl
 
     private static Border DetailRow(CompletedBreak entry)
     {
-        var completed = Ui.Text($"{entry.CompletedAt.ToString("HH:mm", CultureInfo.InvariantCulture)} 완료", DesignSystem.Caption, DesignSystem.TextTertiary);
+        var completed = Ui.Text(L.F("{0} 완료", entry.CompletedAt.ToString("HH:mm", CultureInfo.InvariantCulture)), DesignSystem.Caption, DesignSystem.TextTertiary);
         var duration = Ui.Text(entry.ActualSeconds is int actual
-            ? $"실제 휴식 {Duration(actual)}"
-            : "실제 휴식 시간 미기록", DesignSystem.Caption, DesignSystem.TextTertiary);
+            ? L.F("실제 휴식 {0}", Duration(actual))
+            : L.T("실제 휴식 시간 미기록"), DesignSystem.Caption, DesignSystem.TextTertiary);
         var values = new WrapPanel { Orientation = Orientation.Horizontal, ItemSpacing = DesignSystem.Gap, LineSpacing = 4 };
         values.Children.Add(completed); values.Children.Add(duration);
         return new Border { Name = $"ReviewEntry_{entry.SessionId:N}", BorderBrush = DesignSystem.Outline,
@@ -270,10 +270,11 @@ internal sealed class BreakReviewView : UserControl
         return button;
     }
 
-    private static string Duration(int seconds) => seconds < 60 ? $"{seconds}초" : $"{seconds / 60}분 {seconds % 60:00}초";
+    private static string Duration(int seconds) => seconds < 60 ? L.F("{0}초", seconds) : L.F("{0}분 {1:00}초", seconds / 60, seconds % 60);
 
     private static string DateAutomationName(BreakDay day, bool expanded) =>
-        $"{day.Date.ToString("M월 d일 dddd", CultureInfo.GetCultureInfo("ko-KR"))}, 휴식 {day.Count}회, 기록된 시간 {Duration(day.Seconds)}, {(expanded ? "펼침" : "접힘")}";
+        L.F("{0}, 휴식 {1}회, 기록된 시간 {2}, {3}", day.Date.ToString(L.T("M월 d일 dddd"), L.Culture), day.Count, Duration(day.Seconds),
+            expanded ? L.T("펼침") : L.T("접힘"));
 
     private void HandleDateHeaderKey(ToggleButton header, KeyEventArgs e)
     {
@@ -318,10 +319,10 @@ internal sealed class BreakReviewView : UserControl
 
     private async Task<string?> SaveCsv(BreakReview snapshot)
     {
-        var file = await owner.StorageProvider.SaveFilePickerAsync(new() { Title = "완료한 휴식 내보내기", DefaultExtension = "csv",
+        var file = await owner.StorageProvider.SaveFilePickerAsync(new() { Title = L.T("완료한 휴식 내보내기"), DefaultExtension = "csv",
             SuggestedFileName = $"unfold-breaks-{snapshot.StartDay:yyyy-MM-dd}-{snapshot.EndDay:yyyy-MM-dd}.csv", ShowOverwritePrompt = true });
         if (file is null) return null;
-        var path = file.TryGetLocalPath() ?? throw new InvalidOperationException("이 기기에 저장할 파일을 선택해 주세요.");
+        var path = file.TryGetLocalPath() ?? throw new InvalidOperationException(L.T("이 기기에 저장할 파일을 선택해 주세요."));
         var bytes = snapshot.Csv(); await Task.Run(() => AtomicFile.Write(path, bytes)); return path;
     }
 }

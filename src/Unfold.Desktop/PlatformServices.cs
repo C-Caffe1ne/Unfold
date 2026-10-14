@@ -13,21 +13,57 @@ public static class PlatformServices
     [DllImport("/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics")]
     private static extern double CGEventSourceSecondsSinceLastEventType(int state, uint type);
 
+    private const string CoreFoundation = "/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation";
+    [DllImport(CoreFoundation)] private static extern IntPtr CFLocaleCopyPreferredLanguages();
+    [DllImport(CoreFoundation)] private static extern nint CFArrayGetCount(IntPtr array);
+    [DllImport(CoreFoundation)] private static extern IntPtr CFArrayGetValueAtIndex(IntPtr array, nint index);
+    [DllImport(CoreFoundation)] [return: MarshalAs(UnmanagedType.U1)]
+    private static extern bool CFStringGetCString(IntPtr text, byte[] buffer, nint size, uint encoding);
+    [DllImport(CoreFoundation)] private static extern void CFRelease(IntPtr value);
+
+    /// <summary>The user's preferred UI languages, most preferred first.</summary>
+    public static IReadOnlyList<string> PreferredLanguages()
+    {
+        // A non-localized macOS bundle reports its development region as the current
+        // culture, so read the user's own language order instead.
+        if (OperatingSystem.IsMacOS())
+        {
+            try
+            {
+                var array = CFLocaleCopyPreferredLanguages();
+                if (array != IntPtr.Zero)
+                {
+                    try
+                    {
+                        var languages = new List<string>(); var buffer = new byte[64];
+                        for (nint index = 0; index < CFArrayGetCount(array); index++)
+                            if (CFStringGetCString(CFArrayGetValueAtIndex(array, index), buffer, buffer.Length, 0x08000100))
+                                languages.Add(System.Text.Encoding.UTF8.GetString(buffer, 0, Array.IndexOf(buffer, (byte)0)));
+                        if (languages.Count > 0) return languages;
+                    }
+                    finally { CFRelease(array); }
+                }
+            }
+            catch (Exception error) when (error is DllNotFoundException or EntryPointNotFoundException) { AppPaths.Log(error); }
+        }
+        return [System.Globalization.CultureInfo.CurrentUICulture.Name];
+    }
+
     public static TimeSpan IdleTime()
     {
         if (OperatingSystem.IsWindows())
         {
             var input = new LastInput { Size = (uint)Marshal.SizeOf<LastInput>() };
-            if (!GetLastInputInfo(ref input)) throw new IOException("자리 비움 상태를 확인하지 못해 타이머를 일시정지했어요.");
+            if (!GetLastInputInfo(ref input)) throw new IOException(L.T("자리 비움 상태를 확인하지 못해 타이머를 일시정지했어요."));
             return TimeSpan.FromMilliseconds(unchecked((uint)Environment.TickCount - input.Time));
         }
         if (OperatingSystem.IsMacOS())
         {
             var seconds = CGEventSourceSecondsSinceLastEventType(0, uint.MaxValue);
-            if (!double.IsFinite(seconds) || seconds < 0) throw new IOException("자리 비움 상태를 확인하지 못해 타이머를 일시정지했어요.");
+            if (!double.IsFinite(seconds) || seconds < 0) throw new IOException(L.T("자리 비움 상태를 확인하지 못해 타이머를 일시정지했어요."));
             return TimeSpan.FromSeconds(Math.Min(seconds, TimeSpan.MaxValue.TotalSeconds / 2));
         }
-        throw new PlatformNotSupportedException("자리 비움 자동 일시정지는 Windows와 macOS에서 사용할 수 있어요.");
+        throw new PlatformNotSupportedException(L.T("자리 비움 자동 일시정지는 Windows와 macOS에서 사용할 수 있어요."));
     }
 
     private static string LaunchAgent => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Library", "LaunchAgents", "app.unfold.desktop.plist");
@@ -42,9 +78,9 @@ public static class PlatformServices
     }
     public static void SetStartAtLogin(bool enabled)
     {
-        var exe = Environment.ProcessPath ?? throw new IOException("Unfold 실행 파일을 찾지 못했어요. 앱 설치 위치를 확인해 주세요.");
+        var exe = Environment.ProcessPath ?? throw new IOException(L.T("Unfold 실행 파일을 찾지 못했어요. 앱 설치 위치를 확인해 주세요."));
         if (Path.GetFileNameWithoutExtension(exe).Equals("dotnet", StringComparison.OrdinalIgnoreCase))
-            throw new IOException("설치된 Unfold 앱에서 로그인 시 자동 실행을 설정해 주세요.");
+            throw new IOException(L.T("설치된 Unfold 앱에서 로그인 시 자동 실행을 설정해 주세요."));
         if (OperatingSystem.IsWindows())
         {
             var locator = VelopackLocator.IsCurrentSet ? VelopackLocator.Current : VelopackLocator.CreateDefaultForPlatform();
@@ -67,7 +103,7 @@ public static class PlatformServices
             }
             else if (File.Exists(LaunchAgent)) File.Delete(LaunchAgent);
         }
-        else throw new PlatformNotSupportedException("로그인 시 자동 실행은 Windows와 macOS에서 사용할 수 있어요.");
+        else throw new PlatformNotSupportedException(L.T("로그인 시 자동 실행은 Windows와 macOS에서 사용할 수 있어요."));
     }
     internal static string LoginExecutable(string processPath, string? managedRoot)
     {

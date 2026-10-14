@@ -15,7 +15,7 @@ internal sealed class PetBuilderView : UserControl, IDisposable
     private readonly Func<Task<string?>> chooseFile;
     private readonly Func<string, Task> openPack;
     private readonly CharacterLibrary library;
-    private readonly ComboBox pets = new() { Name = "MediaExistingPets", PlaceholderText = "펫 선택",
+    private readonly ComboBox pets = new() { Name = "MediaExistingPets", PlaceholderText = L.T("펫 선택"),
         HorizontalAlignment = HorizontalAlignment.Stretch, HorizontalContentAlignment = HorizontalAlignment.Stretch };
     private bool refreshingPets;
     private bool opening, closed;
@@ -32,14 +32,14 @@ internal sealed class PetBuilderView : UserControl, IDisposable
             var label = Ui.Text(package?.Manifest.Name ?? ""); label.TextTrimming = Avalonia.Media.TextTrimming.CharacterEllipsis;
             ToolTip.SetTip(label, package?.Manifest.Name); return label;
         });
-        Avalonia.Automation.AutomationProperties.SetName(pets, "펫 선택");
+        Avalonia.Automation.AutomationProperties.SetName(pets, L.T("펫 선택"));
         pets.SelectionChanged += async (_, _) =>
         {
             if (refreshingPets || IsBusy || pets.SelectedItem is not CharacterPackage package) return;
             await OpenPackage(package); RefreshPets();
         };
         media = new(owner, created, chooseMedia: chooseMedia, chooseOutput: chooseOutput, showHeader: false,
-            openFile: OpenFile, petSelection: PetManagementView.Field("펫 선택", pets), library: library, installed: installed, removed: removed);
+            openFile: OpenFile, petSelection: PetManagementView.Field(L.T("펫 선택"), pets), library: library, installed: installed, removed: removed);
         glb = new(owner, library, installed, showHeader: false, embedded: true, created: created, chooseOutput: chooseOutput, openFile: OpenFile, removed: removed,
             existingPets: ManagedPets, openPackage: OpenPackage);
         AttachedToVisualTree += (_, _) => RefreshPets();
@@ -56,7 +56,7 @@ internal sealed class PetBuilderView : UserControl, IDisposable
             var path = await chooseFile();
             if (path is not null && !closed) await OpenPath(path);
         }
-        catch (Exception error) { AppPaths.Log(error); await Ui.Confirm(owner, "파일 열기 실패", Ui.ErrorText(error), "확인"); }
+        catch (Exception error) { AppPaths.Log(error); await Ui.Confirm(owner, L.T("파일 열기 실패"), Ui.ErrorText(error), L.T("확인")); }
         finally { opening = false; if (!closed) UpdateBusy(); }
     }
     internal async Task OpenPath(string path)
@@ -91,8 +91,8 @@ internal sealed class PetBuilderView : UserControl, IDisposable
     }
     private async Task<string?> PickFile()
     {
-        var files = await owner.StorageProvider.OpenFilePickerAsync(new() { Title = "펫 파일 열기", AllowMultiple = false,
-            FileTypeFilter = [new FilePickerFileType("펫 팩 · GLB · " + PetMediaImporter.SupportedFileTypes) { Patterns = ["*.unfoldpet", "*.glb", ..PetMediaImporter.FilePatterns] }] });
+        var files = await owner.StorageProvider.OpenFilePickerAsync(new() { Title = L.T("펫 파일 열기"), AllowMultiple = false,
+            FileTypeFilter = [new FilePickerFileType(L.F("펫 팩 · GLB · {0}", PetMediaImporter.SupportedFileTypes)) { Patterns = ["*.unfoldpet", "*.glb", ..PetMediaImporter.FilePatterns] }] });
         return files.FirstOrDefault()?.TryGetLocalPath();
     }
     private void UpdateBusy() { pets.IsEnabled = !IsBusy; media.SetImportEnabled(!IsBusy); glb.SetImportEnabled(!IsBusy); BusyChanged?.Invoke(); }

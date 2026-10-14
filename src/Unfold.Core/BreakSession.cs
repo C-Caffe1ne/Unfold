@@ -4,13 +4,13 @@ public sealed record BreakStep(string Instruction, int Seconds);
 public sealed record BreakRoutine(string Id, string Name, IReadOnlyList<BreakStep> Steps)
 {
     public int DurationSeconds => Steps.Sum(step => step.Seconds);
-    public override string ToString() => $"{Name} · {DurationSeconds}초";
+    public override string ToString() => L.F("{0} · {1}초", Name, DurationSeconds);
     public void Validate()
     {
         if (!CharacterLibrary.SafeId(Id) || string.IsNullOrWhiteSpace(Name) || Name.Length > 60 || Steps is null ||
             Steps.Count is < 1 or > 12 || Steps.Any(step => step is null || step.Seconds is < 1 or > 300 ||
                 string.IsNullOrWhiteSpace(step.Instruction) || step.Instruction.Length > 180) || DurationSeconds > 600)
-            throw new ArgumentException("이름과 단계별 안내를 입력해 주세요. 각 단계는 1~300초, 전체 시간은 10분 이내여야 해요.");
+            throw new ArgumentException(L.T("이름과 단계별 안내를 입력해 주세요. 각 단계는 1~300초, 전체 시간은 10분 이내여야 해요."));
     }
 }
 

@@ -69,10 +69,10 @@ public static class CharacterAssetAudit
                     var duration = frames.Sum(frame => frame.Duration.TotalMilliseconds);
                     clips.Add(new(key, frames.Count, duration, first.Width, first.Height, bytes, transparent, empty));
                     if (empty > 0) errors.Add($"{key}: {empty} completely invisible frames.");
-                    if (transparent != frames.Count) warnings.Add($"{key}: 일부 프레임에 투명한 영역이 없어요. 배경을 확인해 주세요.");
+                    if (transparent != frames.Count) warnings.Add(L.F("{0}: 일부 프레임에 투명한 영역이 없어요. 배경을 확인해 주세요.", key));
                     if (first.Width != package.Manifest.SpriteSheet.FrameWidth || first.Height != package.Manifest.SpriteSheet.FrameHeight)
-                        warnings.Add($"{key}: 동작별 이미지 크기가 달라요. 위치와 크기가 자연스러운지 확인해 주세요.");
-                    if (OneShots.Contains(key) && duration > 10000) warnings.Add($"{key}: 반응이 10초보다 길어요.");
+                        warnings.Add(L.F("{0}: 동작별 이미지 크기가 달라요. 위치와 크기가 자연스러운지 확인해 주세요.", key));
+                    if (OneShots.Contains(key) && duration > 10000) warnings.Add(L.F("{0}: 반응이 10초보다 길어요.", key));
                 }
                 catch (Exception error) when (IsAssetError(error)) { errors.Add($"{key}: {error.Message}"); }
             }
@@ -83,9 +83,9 @@ public static class CharacterAssetAudit
                 files.Add(new(path, file.Length, Convert.ToHexString(SHA256.HashData(file)).ToLowerInvariant()));
             }
             foreach (var key in OneShots.Order(StringComparer.Ordinal))
-                if (!package.Manifest.Animations.ContainsKey(key)) warnings.Add($"{key} 반응이 없는 팩이에요. 해당 상황에서는 현재 동작을 유지해요.");
+                if (!package.Manifest.Animations.ContainsKey(key)) warnings.Add(L.F("{0} 반응이 없는 팩이에요. 해당 상황에서는 현재 동작을 유지해요.", key));
             if (clips.Sum(clip => clip.DecodedBytes) > ImageCodec.MaxDecodedAnimationBytes)
-                warnings.Add("펫의 메모리 사용량이 커요. 이미지 크기를 줄인 팩을 권장해요.");
+                warnings.Add(L.T("펫의 메모리 사용량이 커요. 이미지 크기를 줄인 팩을 권장해요."));
         }
         catch (Exception error) when (IsAssetError(error)) { errors.Add(error.Message); }
         return new(id, clips, files, errors, warnings);

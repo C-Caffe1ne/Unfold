@@ -44,13 +44,13 @@ public sealed partial class GlbModel
     {
         try { return new GlbModel(bytes); }
         catch (Exception e) when (e is JsonException or ArgumentException or IndexOutOfRangeException or OverflowException or KeyNotFoundException or InvalidOperationException or FormatException)
-        { throw new InvalidDataException("GLB 데이터가 손상됐거나 지원하지 않는 형식이에요.", e); }
+        { throw new InvalidDataException(L.T("GLB 데이터가 손상됐거나 지원하지 않는 형식이에요."), e); }
     }
     private GlbModel(byte[] bytes)
     {
         if (bytes.Length is < 28 or > ImageCodec.MaxFileBytes || BinaryPrimitives.ReadUInt32LittleEndian(bytes) != 0x46546C67 ||
             BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(4)) != 2 || BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(8)) != bytes.Length)
-            throw new InvalidDataException("32 MiB 이하의 GLB 2.0 파일을 선택해 주세요.");
+            throw new InvalidDataException(L.T("32 MiB 이하의 GLB 2.0 파일을 선택해 주세요."));
         var offset = 12; ReadOnlyMemory<byte> json = default, binary = default;
         while (offset < bytes.Length)
         {
@@ -66,10 +66,10 @@ public sealed partial class GlbModel
         if (json.IsEmpty || binary.IsEmpty || json.Length > 8 * 1024 * 1024) throw new InvalidDataException("GLB needs embedded JSON and binary data.");
         using var document = JsonDocument.Parse(json, new() { MaxDepth = 64 }); var root = document.RootElement;
         if (root.GetProperty("asset").GetProperty("version").GetString() != "2.0" || Array(root, "extensionsRequired").Length != 0)
-            throw new InvalidDataException("필수 확장이 없는 glTF 2.0 모델을 사용해 주세요.");
+            throw new InvalidDataException(L.T("필수 확장이 없는 glTF 2.0 모델을 사용해 주세요."));
         var buffers = Array(root, "buffers");
         if (buffers.Length != 1 || buffers[0].TryGetProperty("uri", out _) || Int(buffers[0], "byteLength") <= 0 || Int(buffers[0], "byteLength") > binary.Length || binary.Length - Int(buffers[0], "byteLength") > 3)
-            throw new InvalidDataException("GLB에 포함된 하나의 버퍼만 지원해요.");
+            throw new InvalidDataException(L.T("GLB에 포함된 하나의 버퍼만 지원해요."));
         var views = Array(root, "bufferViews"); var accessors = Array(root, "accessors");
         if (accessors.Length > 20000 || views.Length > 20000) throw new InvalidDataException("Too many GLB data blocks.");
         foreach (var view in views)
@@ -82,7 +82,7 @@ public sealed partial class GlbModel
         var pixels = images.Select(im =>
         {
             if (im.TryGetProperty("uri", out _) || im.GetProperty("mimeType").GetString() != "image/png")
-                throw new InvalidDataException("현재 GLB 텍스처는 파일 내부의 PNG만 지원해요.");
+                throw new InvalidDataException(L.T("현재 GLB 텍스처는 파일 내부의 PNG만 지원해요."));
             var v = views[im.GetProperty("bufferView").GetInt32()];
             var image = ImageCodec.DecodePng(binary.Span.Slice(Int(v, "byteOffset"), Int(v, "byteLength")).ToArray(), 2048, 2048, 4 * 1024 * 1024);
             decoded += (long)image.Width * image.Height * 4;
@@ -103,7 +103,7 @@ public sealed partial class GlbModel
                 if (t.TryGetProperty("sampler", out var si)) { var s = samplers[si.GetInt32()]; ws = Int(s, "wrapS", 10497); wt = Int(s, "wrapT", 10497); }
             }
             var alpha = String(m, "alphaMode", "OPAQUE");
-            if (alpha is not ("OPAQUE" or "MASK" or "BLEND")) throw new InvalidDataException("지원하지 않는 GLB 알파 재질 형식이에요.");
+            if (alpha is not ("OPAQUE" or "MASK" or "BLEND")) throw new InvalidDataException(L.T("지원하지 않는 GLB 알파 재질 형식이에요."));
             return new Material(texture, Vec4(p, "baseColorFactor", Vector4.One), alpha, Float(m, "alphaCutoff", .5f), ws, wt);
         }).Append(new(null, Vector4.One, "OPAQUE", .5f, 10497, 10497)).ToArray();
         var meshJson = Array(root, "meshes");
@@ -111,7 +111,7 @@ public sealed partial class GlbModel
         var vertexTotal = 0; var triangleTotal = 0;
         meshes = meshJson.Select(m => Array(m, "primitives").Select(p =>
         {
-            if (Int(p, "mode", 4) != 4 || p.TryGetProperty("extensions", out _)) throw new InvalidDataException("압축되지 않은 삼각형 GLB 모델만 지원해요.");
+            if (Int(p, "mode", 4) != 4 || p.TryGetProperty("extensions", out _)) throw new InvalidDataException(L.T("압축되지 않은 삼각형 GLB 모델만 지원해요."));
             var a = p.GetProperty("attributes"); var pos = reader.Read(a.GetProperty("POSITION").GetInt32(), 3).Convert(V3);
             vertexTotal += pos.Length;
             var uv = a.TryGetProperty("TEXCOORD_0", out var ui) ? reader.Read(ui.GetInt32(), 2).Convert(v => new Vector2(v[0], v[1])) : new Vector2[pos.Length];
@@ -124,7 +124,7 @@ public sealed partial class GlbModel
             var indices = p.TryGetProperty("indices", out var ii) ? reader.Read(ii.GetInt32(), 1).Convert(v => checked((int)v[0])) : Enumerable.Range(0, pos.Length).ToArray();
             if (indices.Length % 3 != 0 || indices.Any(i => i < 0 || i >= pos.Length)) throw new InvalidDataException("Invalid GLB triangle indices.");
             triangleTotal += indices.Length / 3;
-            if (vertexTotal > 300000 || triangleTotal > 100000) throw new InvalidDataException("펫 모델은 삼각형 10만 개 이하로 줄여 주세요.");
+            if (vertexTotal > 300000 || triangleTotal > 100000) throw new InvalidDataException(L.T("펫 모델은 삼각형 10만 개 이하로 줄여 주세요."));
             var material = Int(p, "material", materials.Length - 1);
             if (material < 0 || material >= materials.Length) throw new InvalidDataException("Invalid material reference.");
             return new Primitive(pos, uv, joints, weights, morphs, indices, material);
@@ -170,7 +170,7 @@ public sealed partial class GlbModel
         // Mesh instances also count toward the draw budget, bounding the reusable
         // transparent triangle list as well as the amount of raster work per frame.
         if (visible.Sum(i => meshes[nodes[i].Mesh].Sum(p => (long)p.Indices.Length / 3)) > 100000)
-            throw new InvalidDataException("화면에 표시되는 펫 모델의 삼각형을 10만 개 이하로 줄여 주세요.");
+            throw new InvalidDataException(L.T("화면에 표시되는 펫 모델의 삼각형을 10만 개 이하로 줄여 주세요."));
         var animations = Array(root, "animations");
         if (animations.Length > 128) throw new InvalidDataException("GLB animations exceed 128.");
         clips = animations.Select((a, index) =>
@@ -184,7 +184,7 @@ public sealed partial class GlbModel
                 var s = sam[c.GetProperty("sampler").GetInt32()]; var interpolation = String(s, "interpolation", "LINEAR");
                 if (interpolation is not ("LINEAR" or "STEP" or "CUBICSPLINE")) throw new InvalidDataException("Unsupported GLB interpolation.");
                 var times = reader.Read(s.GetProperty("input").GetInt32(), 1).Data;
-                if (times.Length == 0 || times[0] < 0 || times[^1] > 120 || times.Zip(times.Skip(1)).Any(p => p.First >= p.Second)) throw new InvalidDataException($"GLB 애니메이션 '{String(a, "name", $"Animation_{index + 1}")}'의 시간 키가 중복·역순이거나 0~120초 범위를 벗어났어요. 원본에서 시간 키를 정리해 다시 내보내 주세요.");
+                if (times.Length == 0 || times[0] < 0 || times[^1] > 120 || times.Zip(times.Skip(1)).Any(p => p.First >= p.Second)) throw new InvalidDataException(L.F("GLB 애니메이션 '{0}'의 시간 키가 중복·역순이거나 0~120초 범위를 벗어났어요. 원본에서 시간 키를 정리해 다시 내보내 주세요.", String(a, "name", $"Animation_{index + 1}")));
                 var width = path == "rotation" ? 4 : path == "weights" ? meshes[nodes[node].Mesh][0].Morphs.Length : 3;
                 if (width < 1 || nodes[node].Matrix is not null) throw new InvalidDataException("Invalid animated GLB node.");
                 var values = reader.Read(s.GetProperty("output").GetInt32(), path == "weights" ? 1 : width);

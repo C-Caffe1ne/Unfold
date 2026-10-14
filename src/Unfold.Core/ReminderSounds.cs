@@ -12,7 +12,7 @@ public sealed partial class ReminderSounds(string directory)
     {
         byte[] data;
         try { data = ImageCodec.ReadBounded(path, 5 * 1024 * 1024); }
-        catch (InvalidDataException error) { throw new InvalidDataException("효과음 파일은 5 MiB 이하로 선택해 주세요.", error); }
+        catch (InvalidDataException error) { throw new InvalidDataException(L.T("효과음 파일은 5 MiB 이하로 선택해 주세요."), error); }
         return ImportPcmWav(data);
     }
     public string ImportPcmWav(byte[] bytes)
@@ -34,7 +34,7 @@ public sealed partial class ReminderSounds(string directory)
                 catch (Exception error) when (!strict && error is (IOException or InvalidDataException or UnauthorizedAccessException)) { }
             }
         }
-        if (strict && id is not null) throw new FileNotFoundException("가져온 효과음을 찾지 못했어요. 파일을 다시 선택해 주세요.");
+        if (strict && id is not null) throw new FileNotFoundException(L.T("가져온 효과음을 찾지 못했어요. 파일을 다시 선택해 주세요."));
         var path = Path.Combine(directory, sound == ReminderSound.Due ? "default-due.wav" : "default-completed.wav");
         if (!File.Exists(path)) AtomicFile.Write(path, Default(sound));
         return path;
@@ -97,7 +97,7 @@ public sealed partial class ReminderSounds(string directory)
     }
     public static void Validate(ReadOnlySpan<byte> data)
     {
-        static InvalidDataException Invalid() => new("효과음은 30초 이하 · 5 MiB 이하의 PCM WAV(8/16비트, 모노/스테레오) 파일을 선택해 주세요.");
+        static InvalidDataException Invalid() => new(L.T("효과음은 30초 이하 · 5 MiB 이하의 PCM WAV(8/16비트, 모노/스테레오) 파일을 선택해 주세요."));
         if (data.Length < 44 || data.Length > 5 * 1024 * 1024 || !data[..4].SequenceEqual("RIFF"u8) || !data[8..12].SequenceEqual("WAVE"u8) ||
             BinaryPrimitives.ReadUInt32LittleEndian(data[4..8]) != data.Length - 8) throw Invalid();
         uint rate = 0, bytesPerSecond = 0; ushort block = 0; var bytes = 0; var format = false;

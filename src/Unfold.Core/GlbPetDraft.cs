@@ -10,9 +10,9 @@ public sealed class GlbPetDraft
     public static IReadOnlyList<string> PointerClips { get; } = System.Array.AsReadOnly(new[] { "pickup", "land" });
     public static string ActionName(string key) => key switch
     {
-        "idle" => "기본 대기", "click" => "클릭", "pickup" => "들어 올리기", "held" => "드래그 중",
-        "land" => "놓기", "attention" => "휴식 알림", "stretch" => "휴식 시작", "celebrate" => "휴식 완료",
-        "walk" => "화면 위 걷기", "sleep" => "잠자기", "look" => "두리번거리기", "yawn" => "하품", "sulk" => "휴식 미루기", _ => key
+        "idle" => L.T("기본 대기"), "click" => L.T("클릭"), "pickup" => L.T("들어 올리기"), "held" => L.T("드래그 중"),
+        "land" => L.T("놓기"), "attention" => L.T("휴식 알림"), "stretch" => L.T("휴식 시작"), "celebrate" => L.T("휴식 완료"),
+        "walk" => L.T("화면 위 걷기"), "sleep" => L.T("잠자기"), "look" => L.T("두리번거리기"), "yawn" => L.T("하품"), "sulk" => L.T("휴식 미루기"), _ => key
     };
     private readonly byte[] bytes;
     private Version contentVersion = new(1, 0, 0);
@@ -45,7 +45,7 @@ public sealed class GlbPetDraft
     private GlbPetDraft((CharacterPackage Package, string Revision) snapshot) : this(snapshot.Package, snapshot.Revision) { }
     private static (CharacterPackage, string) ReadInstalled(CharacterPackage package)
     {
-        if (package.IsBuiltIn) throw new InvalidDataException("설치한 3D 펫을 선택해 주세요.");
+        if (package.IsBuiltIn) throw new InvalidDataException(L.T("설치한 3D 펫을 선택해 주세요."));
         var revision = CharacterLibrary.PetRevision(package.DirectoryPath);
         return (CharacterLibrary.LoadPackage(package.DirectoryPath), revision);
     }
@@ -55,13 +55,13 @@ public sealed class GlbPetDraft
         var metadata = CharacterPack.ReadMetadata(ImageCodec.ReadBounded(CharacterLibrary.AssetPath(package.DirectoryPath, "pack.json"), 64 * 1024));
         var oldVersion = CharacterPack.ParseVersion(metadata.ContentVersion); contentVersion = new(oldVersion.Major, oldVersion.Minor, checked(oldVersion.Build + 1));
         Mappings.Clear(); foreach (var (key, mapping) in package.Manifest.Animations) if (key != "held") Mappings[key] = mapping;
-        if (revision != CharacterLibrary.PetRevision(package.DirectoryPath)) throw new IOException("펫이 변경됐어요. 다시 선택해 주세요.");
+        if (revision != CharacterLibrary.PetRevision(package.DirectoryPath)) throw new IOException(L.T("펫이 변경됐어요. 다시 선택해 주세요."));
         expectedRevision = revision;
     }
     public void Set(string action, string? clip, bool loop = false, double speed = 1, float? heading = null, GlbRotation? rotation = null)
     {
         if (!Actions.Contains(action)) throw new InvalidDataException("Unknown GLB pet event.");
-        if (clip is null) { if (action == "idle") throw new InvalidDataException("기본 대기 동작을 선택해 주세요."); Mappings.Remove(action); return; }
+        if (clip is null) { if (action == "idle") throw new InvalidDataException(L.T("기본 대기 동작을 선택해 주세요.")); Mappings.Remove(action); return; }
         if (!Model.Animations.Any(a => a.Name == clip) || !double.IsFinite(speed) || speed is < .25 or > 3) throw new InvalidDataException("Invalid GLB event mapping.");
         var previous = Mappings.GetValueOrDefault(action);
         rotation ??= heading is null ? previous?.Rotation : null;
@@ -96,7 +96,7 @@ public sealed class GlbPetDraft
     public void Export(string path) => WritePack(archive => AtomicFile.Write(path, ImageCodec.ReadBounded(archive, CharacterPack.MaxArchiveBytes)));
     private void WritePack(Action<string> complete)
     {
-        if (string.IsNullOrWhiteSpace(Name) || Name.Length > 80) throw new InvalidDataException("펫 이름을 1~80자로 입력해 주세요.");
+        if (string.IsNullOrWhiteSpace(Name) || Name.Length > 80) throw new InvalidDataException(L.T("펫 이름을 1~80자로 입력해 주세요."));
         var root = Path.Combine(Path.GetTempPath(), "Unfold-glb-" + Guid.NewGuid().ToString("N")); var directory = Path.Combine(root, Id);
         try
         {

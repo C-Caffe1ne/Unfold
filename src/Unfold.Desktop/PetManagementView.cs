@@ -36,12 +36,11 @@ internal sealed class PetManagementView : UserControl, IDisposable
             {
                 var action = target.Action switch
                 {
-                    "Update" => "업데이트", "Reinstall" => "재설치", "Replace" => "교체", _ => "저장"
+                    "Update" => L.T("업데이트"), "Reinstall" => L.T("재설치"), "Replace" => L.T("교체"), _ => L.T("저장")
                 };
-                var message = $"{pack.Character.Manifest.Name} · 버전 {pack.ContentVersion}";
-                if (target.InstalledVersion is { } current) message += $"\n설치된 버전 {current}을 {action}할까요?";
-                else message += "\n이 펫을 저장할까요?";
-                var choice = await Ui.Confirm(owner, "펫 " + action, message, action, "취소");
+                var message = L.F("{0} · 버전 {1}", pack.Character.Manifest.Name, pack.ContentVersion) + "\n" +
+                    (target.InstalledVersion is { } current ? L.F("설치된 버전 {0}을 {1}할까요?", current, action) : L.T("이 펫을 저장할까요?"));
+                var choice = await Ui.Confirm(owner, L.F("펫 {0}", action), message, action, L.T("취소"));
                 return !disposed && choice == 0;
             });
         }
@@ -59,7 +58,7 @@ internal sealed class PetManagementView : UserControl, IDisposable
     internal static Control Page(string title, string description, Control body, Control footer, bool showHeader)
     {
         var capped = Ui.CenteredBody(body, DesignSystem.PetContentWidth, "PetPageBody");
-        var page = (Grid)Ui.PageContent(title, description, capped, footer, "펫 관리", showHeader);
+        var page = (Grid)Ui.PageContent(title, description, capped, footer, L.T("펫 관리"), showHeader);
         page.RowDefinitions[^2].Height = new GridLength(24);
         var actionBar = page.Children.OfType<Border>().Single(control => control.Name == "PageActions");
         actionBar.BorderThickness = new Thickness(0); actionBar.Padding = new Thickness(0);

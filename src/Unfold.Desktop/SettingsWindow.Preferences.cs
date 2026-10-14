@@ -11,11 +11,11 @@ namespace Unfold.Desktop;
 public sealed partial class SettingsWindow
 {
     private readonly Slider bubbleOpacity = SoundVolumeSlider("BubbleOpacityPercent");
-    private readonly CheckBox showPetTimer = new() { Name = "ShowPetTimer", Content = "펫 아래에 타이머 조작 바 표시" };
+    private readonly CheckBox showPetTimer = new() { Name = "ShowPetTimer", Content = L.T("펫 아래에 타이머 조작 바 표시") };
     private readonly TextBox advanceDialogue = DialogueInput("AdvanceDialogue"), invitationDialogue = DialogueInput("InvitationDialogue"),
         restingDialogue = DialogueInput("RestingDialogue"), overtimeDialogue = DialogueInput("OvertimeDialogue"), completedDialogue = DialogueInput("CompletedDialogue");
     private static TextBox DialogueInput(string name) => new() { Name = name, MaxLength = 120, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch };
-    private readonly CheckBox soundsEnabled = new() { Name = "ReminderSoundsEnabled", Content = "알림 효과음 사용" };
+    private readonly CheckBox soundsEnabled = new() { Name = "ReminderSoundsEnabled", Content = L.T("알림 효과음 사용") };
     private readonly Slider soundVolume = new() { Name = "ReminderVolumePercent", Minimum = 0, Maximum = 100,
         TickFrequency = 1, IsSnapToTickEnabled = true, SmallChange = 1, LargeChange = 10, Value = 100, Classes = { "thumb-hover-slider" } };
     private readonly SoundVolumeIcon soundVolumeIcon = new() { Name = "ReminderVolumeIcon" };
@@ -68,7 +68,7 @@ public sealed partial class SettingsWindow
         if (updating || restoringPreferences || observedPreferences is null || disposed || soundImports > 0) return;
         preferencesStatus.IsVisible = false;
         if (!TryReadPreferences(out var pending))
-            ShowPreferencesError("시간은 1~60분, 대사는 1~120자로 입력해 주세요.");
+            ShowPreferencesError(L.T("시간은 1~60분, 대사는 1~120자로 입력해 주세요."));
         if (new[] { pending!.Advance, pending.Invitation, pending.Resting, pending.Overtime, pending.Completed }.Any(string.IsNullOrWhiteSpace)) return;
         _ = ApplyPreferences(pending!, ++preferencesEditVersion);
     }
@@ -141,7 +141,7 @@ public sealed partial class SettingsWindow
         {
             AppPaths.Log(error);
             if (!disposed && version == preferencesEditVersion)
-                ShowPreferencesError("설정을 저장하지 못했어요. " + Ui.ErrorText(error));
+                ShowPreferencesError(L.F("설정을 저장하지 못했어요. {0}", Ui.ErrorText(error)));
         }
         finally { CleanupImportedSounds(); }
     }
