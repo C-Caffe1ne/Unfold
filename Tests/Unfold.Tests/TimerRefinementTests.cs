@@ -179,17 +179,56 @@ public class TimerRefinementTests
     [AvaloniaFact]
     public void RestTimerAnimatesButHidingAndDetachStopItsFrameTimer()
     {
-        var reminder = new PetReminder(); reminder.Invite(new(BreakRoutines.All[0], "default-cat")); reminder.Start(TimeSpan.Zero);
+        var reminder = new PetReminder(); reminder.Invite(new(BreakRoutines.All[0], "default-cat"));
+        var bubble = new PetSpeechBubble(() => reminder.Start(TimeSpan.Zero), () => { }, () => { }); bubble.Refresh(reminder, 5);
+        var window = new Window { Content = bubble, SizeToContent = SizeToContent.WidthAndHeight };
+        try
+        {
+            window.Show(); Layout(window); var text = Find<AnimatedCountdown>(window, "PetBreakTimer");
+            Assert.False(text.IsEffectivelyVisible);
+            Press(window, "PetBreakStart"); bubble.Refresh(reminder, 5); Layout(window);
+            Assert.Equal("01:00", text.Text); Assert.True(text.IsEffectivelyVisible);
+            Assert.Equal(40, text.FontSize); Assert.Equal(48, text.LineHeight);
+            reminder.Tick(TimeSpan.FromSeconds(1)); bubble.Refresh(reminder, 5);
+            Assert.Equal("00:59", text.Text); Assert.True(text.HasDigitMotion);
+            Assert.Equal(new[] { 1, 3, 4 }, text.AnimatedDigitIndices.Order().ToArray());
+            Assert.Equal(-1, text.MotionDirection); Assert.Equal(1, text.Opacity);
+            bubble.Refresh(reminder, 5);
+            Assert.True(text.HasDigitMotion); Assert.Equal(new[] { 1, 3, 4 }, text.AnimatedDigitIndices.Order().ToArray());
+            bubble.IsVisible = false; Assert.False(text.HasDigitMotion); Assert.Empty(text.AnimatedDigitIndices);
+            bubble.IsVisible = true; bubble.Refresh(reminder, 5);
+            reminder.Tick(TimeSpan.FromSeconds(2)); bubble.Refresh(reminder, 5);
+            Assert.Equal("00:58", text.Text); Assert.True(text.HasDigitMotion);
+            Assert.Equal(new[] { 4 }, text.AnimatedDigitIndices.ToArray());
+            window.Content = null; Assert.False(text.HasDigitMotion); Assert.Empty(text.AnimatedDigitIndices);
+        }
+        finally { window.Close(); }
+    }
+
+    [AvaloniaFact]
+    public void RestTimerUsesChangedDigitsForRemainingAndOvertimeAtSecondBoundaries()
+    {
+        var reminder = new PetReminder(); reminder.Invite(new(BreakRoutines.All[0], "default-cat", durationSeconds: 60));
+        reminder.Start(TimeSpan.Zero);
         var bubble = new PetSpeechBubble(() => { }, () => { }, () => { }); bubble.Refresh(reminder, 5);
         var window = new Window { Content = bubble, SizeToContent = SizeToContent.WidthAndHeight };
         try
         {
-            window.Show(); Layout(window); var text = Find<AnimatedTimeText>(window, "PetBreakTimer");
-            reminder.Tick(TimeSpan.FromSeconds(1)); bubble.Refresh(reminder, 5);
-            Assert.Equal("00:59", text.Text); Assert.True(text.HasMotion);
-            bubble.IsVisible = false; Assert.False(text.HasMotion); bubble.IsVisible = true;
-            bubble.Refresh(reminder, 5); reminder.Tick(TimeSpan.FromSeconds(2)); bubble.Refresh(reminder, 5);
-            Assert.True(text.HasMotion); window.Content = null; Assert.False(text.HasMotion);
+            window.Show(); Layout(window); var text = Find<AnimatedCountdown>(window, "PetBreakTimer");
+            void RefreshAt(double seconds) { reminder.Tick(TimeSpan.FromSeconds(seconds)); bubble.Refresh(reminder, 5); }
+            // BreakSession rejects a stalled/suspended gap over ten seconds.
+            for (var second = 1; second <= 59; second++) reminder.Tick(TimeSpan.FromSeconds(second));
+            bubble.Refresh(reminder, 5); Assert.Equal("00:01", text.Text);
+            RefreshAt(59.75); Assert.Equal("00:01", text.Text);
+            RefreshAt(60); Assert.Equal("00:00", text.Text); Assert.True(text.HasDigitMotion);
+            Assert.Equal(new[] { 4 }, text.AnimatedDigitIndices.ToArray()); Assert.Equal(-1, text.MotionDirection);
+            RefreshAt(60.9); Assert.Equal("+00:00", text.Text);
+            RefreshAt(61); Assert.Equal("+00:01", text.Text); Assert.True(text.HasDigitMotion);
+            Assert.Equal(new[] { 5 }, text.AnimatedDigitIndices.ToArray()); Assert.Equal(1, text.MotionDirection);
+            RefreshAt(61.9); Assert.Equal("+00:01", text.Text); Assert.True(text.HasDigitMotion);
+            Assert.Equal(new[] { 5 }, text.AnimatedDigitIndices.ToArray());
+            RefreshAt(62); Assert.Equal("+00:02", text.Text); Assert.True(text.HasDigitMotion);
+            Assert.Equal(new[] { 5 }, text.AnimatedDigitIndices.ToArray()); Assert.Equal(1, text.MotionDirection);
         }
         finally { window.Close(); }
     }

@@ -46,7 +46,7 @@ public class BreakReminderTests
                 Assert.InRange(Math.Abs(origin.Y + title.Bounds.Height / 2 - bubble.Bounds.Height / 2), 0, 1);
             if (notice == PetNotice.Resting)
             {
-                var timer = bubble.GetVisualDescendants().OfType<TextBlock>().Single(text => text.Name == "PetBreakTimer");
+                var timer = bubble.GetVisualDescendants().OfType<AnimatedCountdown>().Single(text => text.Name == "PetBreakTimer");
                 var timerOrigin = timer.TranslatePoint(default, bubble)!.Value;
                 Assert.InRange(Math.Abs(timerOrigin.X + timer.Bounds.Width / 2 - bubble.Bounds.Width / 2), 0, 1);
                 Assert.True(Button(window, "PetBreakComplete").IsVisible);
@@ -100,8 +100,12 @@ public class BreakReminderTests
             Click(Button(window, "PetBreakStart")); bubble.Refresh(model, 7);
             Assert.Equal(1, started); Assert.True(Button(window, "PetBreakComplete").IsVisible);
             Assert.Equal(DesignSystem.SpeechRestingHeight, bubble.Height); Assert.Equal("함께 쉬어 가요", title.Text);
+            var timer = window.GetVisualDescendants().OfType<AnimatedCountdown>().Single(text => text.Name == "PetBreakTimer");
+            Assert.Equal("03:00", timer.Text);
             now = TimeSpan.FromSeconds(3); model.Tick(now); bubble.Refresh(model, 7);
+            Assert.Equal("02:57", timer.Text); Assert.True(timer.HasDigitMotion);
             Click(Button(window, "PetBreakComplete")); bubble.Refresh(model, 7);
+            Assert.False(timer.HasDigitMotion); Assert.Empty(timer.AnimatedDigitIndices);
             Assert.Equal(1, finished); Assert.Equal(BreakSessionState.Completed, session.State);
             Assert.Equal(PetNotice.Completed, model.Notice); Assert.Equal(3, model.CompletedSeconds);
             Assert.Equal(DesignSystem.SpeechCompletedHeight, bubble.Height); Assert.Equal("스트레칭을 마쳤어요!", title.Text);
@@ -237,13 +241,14 @@ public class BreakReminderTests
         {
             window.Show(); Dispatcher.UIThread.RunJobs(); window.UpdateLayout(); AvaloniaHeadlessPlatform.ForceRenderTimerTick();
             using var image = window.CaptureRenderedFrame(); Assert.NotNull(image);
-            var timer = window.GetVisualDescendants().OfType<TextBlock>().Single(text => text.Name == "PetBreakTimer");
+            var timer = window.GetVisualDescendants().OfType<AnimatedCountdown>().Single(text => text.Name == "PetBreakTimer");
             var complete = Button(window, "PetBreakComplete"); Assert.Equal("+00:01", timer.Text);
             Assert.Equal(DesignSystem.SpeechRestingHeight, bubble.Height);
             Assert.DoesNotContain(window.GetVisualDescendants().OfType<TextBlock>(), text => text.Text == session.CurrentStep.Instruction);
             Assert.DoesNotContain(window.GetVisualDescendants().OfType<TextBlock>(), text =>
                 text.Text is "준비되면 언제든 완료할 수 있어요." or "+60분에 도달했어요. 완료를 눌러 주세요.");
-            Assert.Equal(DesignSystem.SpeechTimerSize, timer.FontSize); Assert.Equal(DesignSystem.SpeechControlHeight, complete.Bounds.Height);
+            Assert.Equal(DesignSystem.SpeechTimerSize, timer.FontSize); Assert.Equal(48, timer.LineHeight);
+            Assert.Equal(DesignSystem.SpeechControlHeight, complete.Bounds.Height);
             var timerOrigin = timer.TranslatePoint(default, window)!.Value; var buttonOrigin = complete.TranslatePoint(default, window)!.Value;
             Assert.True(buttonOrigin.Y >= timerOrigin.Y + timer.Bounds.Height);
             Assert.True(buttonOrigin.Y + complete.Bounds.Height <= window.ClientSize.Height);

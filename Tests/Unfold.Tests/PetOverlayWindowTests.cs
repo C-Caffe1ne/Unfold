@@ -114,6 +114,36 @@ public class PetOverlayWindowTests
     }
 
     [AvaloniaFact]
+    public async Task SeparatedRestTimerAnimatesWithoutRevealingTheTimerBarOrArrangingThePet()
+    {
+        using var scope = new Scope(); await scope.Load(); var pet = scope.Pet;
+        var size = pet.ClientSize; var bounds = pet.PetView.Bounds; var position = pet.Position;
+        var origin = pet.PetView.TranslatePoint(default, pet);
+        var positions = 0; var sizes = 0; var arrangements = 0;
+        pet.PositionChanged += (_, _) => positions++;
+        pet.SizeChanged += (_, _) => sizes++;
+        pet.PetView.PropertyChanged += (_, e) => { if (e.Property == Visual.BoundsProperty) arrangements++; };
+        scope.Runtime.Reminder.Invite(new(BreakRoutines.All[0], scope.Runtime.Settings.SelectedCharacterId));
+        pet.RefreshSpeech(); Layout(pet.Overlay);
+        scope.Runtime.Reminder.Start(TimeSpan.Zero); pet.RefreshSpeech(); Layout(pet.Overlay);
+        var rest = Find<AnimatedCountdown>(pet.Overlay, "PetBreakTimer");
+        var work = Find<AnimatedCountdown>(pet.Overlay.Timer, "PetTimerCountdown");
+        Assert.NotSame(rest, work); Assert.True(rest.IsEffectivelyVisible);
+        Assert.Equal("01:00", rest.Text); Assert.Equal(0, pet.Overlay.Timer.HoverOpacity);
+        scope.Runtime.Reminder.Tick(TimeSpan.FromSeconds(1)); pet.RefreshSpeech(); Layout(pet.Overlay);
+        Assert.Equal("00:59", rest.Text); Assert.True(rest.HasDigitMotion);
+        Assert.Equal(new[] { 1, 3, 4 }, rest.AnimatedDigitIndices.Order().ToArray()); Assert.Equal(-1, rest.MotionDirection);
+        pet.RefreshSpeech(); Assert.True(rest.HasDigitMotion);
+        Assert.False(work.HasDigitMotion); Assert.Equal(0, pet.Overlay.Timer.HoverOpacity);
+        Assert.Equal(position, pet.Position); Assert.Equal(size, pet.ClientSize); Assert.Equal(bounds, pet.PetView.Bounds);
+        Assert.Equal(origin, pet.PetView.TranslatePoint(default, pet));
+        Assert.Equal(0, positions); Assert.Equal(0, sizes); Assert.Equal(0, arrangements);
+        scope.Runtime.Stop(); Layout(pet.Overlay);
+        Assert.False(rest.IsEffectivelyVisible); Assert.False(rest.HasDigitMotion); Assert.Empty(rest.AnimatedDigitIndices);
+        Assert.Equal(position, pet.Position); Assert.Equal(size, pet.ClientSize); Assert.Equal(bounds, pet.PetView.Bounds);
+    }
+
+    [AvaloniaFact]
     public async Task OnlyVisibleButtonsCaptureInputAndCapturedPressSurvivesPointerExit()
     {
         using var scope = new Scope(); await scope.Load(); var overlay = scope.Pet.Overlay;

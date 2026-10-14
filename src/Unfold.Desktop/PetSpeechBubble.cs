@@ -11,7 +11,8 @@ namespace Unfold.Desktop;
 public sealed class PetSpeechBubble : Border
 {
     private readonly TextBlock title = Ui.Text("", DesignSystem.Section);
-    private readonly AnimatedTimeText timer = new() { FontSize = DesignSystem.SpeechTimerSize };
+    private readonly AnimatedCountdown timer = new()
+        { FontSize = DesignSystem.SpeechTimerSize, LineHeight = DesignSystem.SpeechTimerSize + 8, Text = "" };
     private readonly Button start, snooze, complete;
     private readonly Grid invitation = new() { ColumnDefinitions = new("*,8,*") };
     private readonly Grid reminderBody;
@@ -25,7 +26,6 @@ public sealed class PetSpeechBubble : Border
         title.TextWrapping = TextWrapping.Wrap; title.TextTrimming = TextTrimming.CharacterEllipsis; title.TextAlignment = TextAlignment.Center;
         title.HorizontalAlignment = HorizontalAlignment.Stretch;
         timer.Name = "PetBreakTimer"; timer.HorizontalAlignment = HorizontalAlignment.Stretch;
-        timer.TextAlignment = TextAlignment.Center;
         start = Ui.Primary(Ui.Button("휴식 시작", startBreak)); start.Name = "PetBreakStart";
         snooze = Ui.Button("5분 뒤에", snoozeBreak); snooze.Name = "PetBreakSnooze";
         complete = Ui.Primary(Ui.Button("완료", completeBreak)); complete.Name = "PetBreakComplete";
@@ -47,7 +47,7 @@ public sealed class PetSpeechBubble : Border
         PropertyChanged += (_, e) =>
         {
             if (e.Property == IsVisibleProperty && !IsVisible)
-            { timer.StopMotion(); }
+            { timer.StopAnimation(); }
         };
     }
     public void Refresh(PetReminder reminder, int snoozeMinutes, AppSettings? settings = null)
@@ -76,7 +76,18 @@ public sealed class PetSpeechBubble : Border
         complete.IsVisible = timer.IsVisible = reminder.Notice == PetNotice.Resting;
         complete.IsEnabled = session?.State is BreakSessionState.InProgress or BreakSessionState.AwaitingConfirmation;
         snooze.Content = $"{snoozeMinutes}분 뒤에";
-        timer.UpdateValue(session is null ? "" : PetReminder.TimerText(session), reminder.Notice == PetNotice.Resting);
+        timer.AnimationsEnabled = reminder.Notice == PetNotice.Resting;
+        if (session is null)
+        {
+            timer.StopAnimation(); timer.Text = "";
+        }
+        else
+        {
+            var overtime = session.Remaining < TimeSpan.Zero;
+            // Match the break clock's ceiling while counting down and floor in overtime.
+            var seconds = overtime ? (int)session.Overtime.TotalSeconds : (int)Math.Ceiling(session.Remaining.TotalSeconds);
+            timer.UpdateTime(TimeSpan.FromSeconds(seconds), timer.IsVisible, overtime ? "+" : "");
+        }
         timer.Foreground = session?.Remaining < TimeSpan.Zero ? DesignSystem.Warning : DesignSystem.Cream;
         AutomationProperties.SetName(timer, "휴식 타이머 " + timer.Text);
     }

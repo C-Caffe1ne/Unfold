@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Headless.XUnit;
+using Avalonia.LogicalTree;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Unfold.Core;
@@ -250,7 +251,9 @@ public class PetTimerHoverTests
         using var scope = new Scope(); await scope.Load(); var pet = scope.Pet; var timer = pet.Overlay.Timer;
         Assert.NotSame(pet, timer); Assert.NotSame(pet.Overlay, timer);
         Assert.Empty(pet.GetVisualDescendants().OfType<AnimatedCountdown>());
-        Assert.Empty(pet.Overlay.GetVisualDescendants().OfType<AnimatedCountdown>());
+        // No notice has opened the hidden overlay's visual tree yet.
+        Assert.Equal("PetBreakTimer", Assert.Single(pet.Overlay.Bubble.GetLogicalDescendants().OfType<AnimatedCountdown>()).Name);
+        Assert.DoesNotContain(pet.Overlay.GetLogicalDescendants().OfType<AnimatedCountdown>(), control => control.Name == "PetTimerCountdown");
         var caption = Find<TextBlock>(timer, "PetCurrentTime");
         var countdown = Find<AnimatedCountdown>(timer, "PetTimerCountdown");
         Assert.Matches("^(오전|오후) [0-9]{2}:[0-9]{2}$", caption.Text!);

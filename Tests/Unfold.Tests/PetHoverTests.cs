@@ -44,8 +44,10 @@ public class PetHoverTests
         Assert.True(pet.Overlay.AcceptsPointerAt(start.TranslatePoint(new(10, 10), pet.Overlay)!.Value));
         pet.MouseMove(new(-10, -10)); Layout(pet); Assert.True(scope.Bubble.IsVisible);
         scope.Hover(); scope.Runtime.StartBreak(); Layout(pet);
-        Assert.True(Text(pet, "PetBreakTimer").IsEffectivelyVisible);
+        var restTimer = pet.Overlay.GetVisualDescendants().OfType<AnimatedCountdown>().Single(text => text.Name == "PetBreakTimer");
+        Assert.True(restTimer.IsEffectivelyVisible);
         scope.Runtime.CompleteBreak(); Layout(pet);
+        Assert.False(restTimer.IsEffectivelyVisible); Assert.False(restTimer.HasDigitMotion);
         Assert.Equal("스트레칭을 마쳤어요!", Text(pet, "PetBreakTitle").Text);
         scope.Runtime.Reminder.Cancel(); pet.RefreshSpeech(); Layout(pet);
         scope.Hover(); Assert.False(scope.Bubble.IsVisible);

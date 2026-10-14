@@ -137,17 +137,17 @@ internal static partial class SmokeDiagnostics
         try
         {
             await Task.Delay(100); window.UpdateLayout();
-            var resting = bubble.GetVisualDescendants().OfType<AnimatedTimeText>().Single(c => c.Name == "PetBreakTimer");
+            var resting = bubble.GetVisualDescendants().OfType<AnimatedCountdown>().Single(c => c.Name == "PetBreakTimer");
             var bounds = bubble.Bounds; var position = window.Position; var clientSize = window.ClientSize;
             await Task.Delay(220);
             reminder.Tick(TimeSpan.FromSeconds(1)); bubble.Refresh(reminder, 3);
-            if (!resting.HasMotion || resting.Text != "00:59") throw new InvalidOperationException("Rest countdown did not animate.");
+            if (!resting.HasDigitMotion || resting.Text != "00:59") throw new InvalidOperationException("Rest countdown did not animate.");
             await Task.Delay(65); Capture(window, Path.Combine(directory, "timer-refinement-rest-mid.png"));
-            await Task.Delay(180);
-            if (resting.HasMotion || resting.Opacity != 1 || bubble.Bounds != bounds || window.Position != position || window.ClientSize != clientSize)
+            await Task.Delay(380);
+            if (resting.HasDigitMotion || resting.Opacity != 1 || bubble.Bounds != bounds || window.Position != position || window.ClientSize != clientSize)
                 throw new InvalidOperationException("Rest countdown did not settle or moved the bubble/window.");
             Capture(window, Path.Combine(directory, "timer-refinement-rest-settled.png"));
-            return new { hoverRemoved = true, restAnimated = true, textMotionDurationMs = 180, windowGeometryStable = true };
+            return new { hoverRemoved = true, restAnimated = true, textMotionDurationMs = 380, windowGeometryStable = true };
         }
         finally { window.Close(); }
     }
