@@ -22,9 +22,10 @@ Google 로그인 또는 저장된 세션 복원 후 Live 구매 권한이나 계
 | 로그인 유지·OS 보안 저장 | `AccountSessionVault.cs`, `NativeAccountCredentialStore.cs` | 갱신 자격 증명 저장·교체·삭제, 프로젝트·데이터 프로필 격리 |
 
 예: `welcomeTitle`의 `\n`은 줄바꿈이다. `markets`의 `amountMinor`는 최소 통화 단위다.
-KRW `4900` / `minorUnitDigits: 0` → `4,900원`, USD `399` / `minorUnitDigits: 2` → `US$3.99`.
-`entry-screen.json`에는 후속 Global 표시값도 남아 있지만, 현재 `connection.json`의
-`checkoutMarkets`는 `KR`만 허용하므로 실제 화면과 주문 생성에는 한국 가격만 나타난다.
+KRW `4900` / `minorUnitDigits: 0` → `4,900원`, USD `299` / `minorUnitDigits: 2` → `US$2.99`.
+`entry-screen.json`에는 KR 표시값도 남아 있지만, 2026-10-14부터 `connection.json`의
+`checkoutMarkets`는 `GLOBAL`만 허용하므로 실제 화면과 주문 생성에는 US$2.99만 나타난다.
+표시 가격을 바꿀 때는 Supabase `prices`의 Live 가격도 함께 바꾼다. 실제 청구액은 서버 가격이 정한다.
 결제 화면에는 가격 텍스트만 표시하고 시장·통화 선택 드롭다운은 표시하지 않는다. 기본 가격과 주문 시장은 설정 파일의 `defaultMarket` 및 허용된 `checkoutMarkets`에서 정한다.
 왼쪽 패널에는 Mochi 이미지만 중앙에 표시한다. 기존 `companionText` 필드는 호환성을 위해 유지하되 화면에 표시하지 않으며, `brand`는 로고의 접근성 이름으로 사용한다.
 

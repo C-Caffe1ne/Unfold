@@ -77,10 +77,10 @@ test('server checkout → signed order → entitlement → full refund, with dup
   assert.equal(await access(target), 'revoked');
 });
 
-test('USD purchase keeps the independent 399-cent principal', async () => {
+test('USD purchase keeps the independent 299-cent principal', async () => {
   const target = await reserved('unfold-global');
   assert.equal((await deliver(orderEvent(target, ++sequence, 0, 0))).status, 200);
-  assert.equal(Number((await store.find(target.id)).total_minor), 399);
+  assert.equal(Number((await store.find(target.id)).total_minor), 299);
   assert.equal(await access(target), 'active');
 });
 

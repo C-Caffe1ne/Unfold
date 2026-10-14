@@ -67,8 +67,8 @@ scheduled profile switching, meeting/full-screen detection, clinical exercise
 library, cloud sync, AI chat, achievements, XP, in-app shop, multiplayer, or
 coding-agent integration. Weekly review/export remains available; historical routine/profile labels remain available in stored records and CSV. [Compatibility and review guide](personalization.md)
 
-The commercial plan is free download, Google sign-in, then one-time payment: KRW 4,900 in Korea
-or US$3.99 overseas, with **no free trial**. Supabase manages accounts and purchase entitlements.
+The commercial plan is free download, Google sign-in, then one-time payment of US$2.99,
+with **no free trial**. Supabase manages accounts and purchase entitlements.
 The desktop source connects account UI, Google browser sign-in, secure session storage,
 checkout requests and entitlement checks. Normal startup enables the purchase gate;
 internal diagnostic mode bypasses it explicitly. Saved OS credentials restore the session

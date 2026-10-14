@@ -42,7 +42,7 @@ public class AccountPresentationTests
         var edited = AccountScreenContent.Load(path);
         Assert.Equal("Changed title", edited.Copy.WelcomeTitle);
         Assert.Equal("5,900원", edited.Markets[0].DisplayPrice);
-        Assert.Equal("US$3.99", edited.Markets[1].DisplayPrice);
+        Assert.Equal("US$2.99", edited.Markets[1].DisplayPrice);
         File.WriteAllText(path, "{invalid json");
         Assert.Equal("unfold", AccountScreenContent.Load(path).Brand);
         Assert.Equal("4,900원", AccountScreenContent.Load(path).Markets[0].DisplayPrice);
@@ -247,12 +247,12 @@ public class AccountWindowTests
                 Assert.False(googleIcon.IsVisible);
                 Assert.Equal(model.Copy.PurchaseTitle, window.FindControl<TextBlock>("AccountHeading")!.Text);
                 Assert.True(window.FindControl<Button>("AccountPrimary")!.IsEnabled);
-                Assert.Equal("4,900원", window.FindControl<TextBlock>("AccountPrice")!.Text);
+                Assert.Equal("US$2.99", window.FindControl<TextBlock>("AccountPrice")!.Text);
                 Assert.Null(window.FindControl<ComboBox>("AccountMarket"));
                 Capture(window, "purchase-" + theme.Id);
-                model.SelectedMarket = model.Markets[1]; Layout();
-                Assert.Equal("US$3.99", model.Price);
-                Assert.Equal("US$3.99", window.FindControl<TextBlock>("AccountPrice")!.Text);
+                model.SelectedMarket = model.Markets[0]; Layout();
+                Assert.Equal("4,900원", model.Price);
+                Assert.Equal("4,900원", window.FindControl<TextBlock>("AccountPrice")!.Text);
                 window.Width = 640; window.Height = 560; Layout();
                 AssertInside(window, window.FindControl<Button>("AccountQuit")!);
                 var codeButton = window.FindControl<Button>("AccountCode")!;

@@ -3,10 +3,10 @@
   "brand": "unfold",
   "companionText": "",
   "companionImage": "companion.png",
-  "defaultMarket": "KR",
+  "defaultMarket": "GLOBAL",
   "markets": [
     { "id": "KR", "label": "대한민국 · KRW", "currency": "KRW", "amountMinor": 4900, "minorUnitDigits": 0, "prefix": "", "suffix": "원" },
-    { "id": "GLOBAL", "label": "해외 · USD", "currency": "USD", "amountMinor": 399, "minorUnitDigits": 2, "prefix": "US$", "suffix": "" }
+    { "id": "GLOBAL", "label": "해외 · USD", "currency": "USD", "amountMinor": 299, "minorUnitDigits": 2, "prefix": "US$", "suffix": "" }
   ],
   "copy": {
     "windowTitle": "Unfold",

@@ -11,7 +11,8 @@
 앱 계약과 기존 서버 반영 증거는 [계정 안내](../docs/account-screen.md),
 [무료 이용 코드 안내](../docs/access-codes.md)를 따른다. 아래 원격 상태는 확인 당시의 기록이다.
 
-무료 다운로드, 무료 체험 없음, KRW 4,900 / USD 3.99 일회성 구매를 위한 서버 기반이다.
+무료 다운로드, 무료 체험 없음, 일회성 구매를 위한 서버 기반이다. 2026-10-14부터 Live 판매 가격은
+`unfold-global` USD 2.99 하나이고 `unfold-kr`(KRW 4,900)는 Live에서 끈다.
 2026-09-28에 결제 공급자를 Lemon Squeezy로 전환했다. 가격은 **세금 별도**이며,
 Supabase 테스트 프로젝트에는 한국 상품 매핑과 인증 필수 `create-checkout`, 서명 필수
 `lemon-webhook`을 배포했다. 한국 Test mode Checkout만 활성화돼 있고 Global은 아직 사용할 수 없다.
@@ -31,7 +32,7 @@ Supabase 테스트 프로젝트에는 한국 상품 매핑과 인증 필수 `cre
 - `lemon-webhook`: 원문 HMAC SHA-256 서명, 주문·상품·통화·원금·세금 모드를 확인하고
   결제와 누적 환불을 원자적으로 권한에 반영한다.
 - Lemon API의 KRW 정수 금액과 내부 원 단위를 서버 경계에서 변환한다. DB 가격은 4,900,
-  Lemon API `custom_price`와 웹훅 금액은 490,000으로 검증한다.
+  Lemon API `custom_price`와 웹훅 금액은 490,000으로 검증한다. USD는 DB 센트 값(299)을 그대로 쓴다.
 - Node 테스트: PGlite의 실제 PostgreSQL SQL/RLS/함수 실행과 HTTP 핸들러 검사.
 
 `apply_verified_payment`는 공개 웹훅이 아니라 검증 완료 후 서버 어댑터만 호출하는 내부 RPC다.

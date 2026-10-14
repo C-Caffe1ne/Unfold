@@ -36,7 +36,7 @@ const apply = (id, key, kind, { provider = 'toss', mode = 'test', currency = 'KR
 test('catalog has exact prices and live checkout is disabled', async () => {
   const rows = await asRole('anon', null, async () => (await db.query('select id,currency,amount_minor,live_enabled from public.prices order by id')).rows);
   assert.deepEqual(rows, [
-    { id: 'unfold-global', currency: 'USD', amount_minor: 399, live_enabled: false },
+    { id: 'unfold-global', currency: 'USD', amount_minor: 299, live_enabled: false },
     { id: 'unfold-kr', currency: 'KRW', amount_minor: 4900, live_enabled: false },
   ]);
   await assert.rejects(create(a, 'unfold-kr', 'toss', 'live'), /Live checkout is not configured/);
@@ -100,7 +100,7 @@ test('full refund before delayed paid event is terminal', async () => {
 test('refunding one purchase preserves another valid purchase, then revokes after final refund', async () => {
   const order1 = await create(a, 'unfold-global', 'lemon');
   const order2 = await create(a, 'unfold-global', 'lemon');
-  const options = { provider: 'lemon', currency: 'USD', amount: 399 };
+  const options = { provider: 'lemon', currency: 'USD', amount: 299 };
   await apply(order1, 'usd-1-paid', 'paid', options);
   await apply(order2, 'usd-2-paid', 'paid', options);
   await apply(order1, 'usd-1-refund', 'refunded', options);

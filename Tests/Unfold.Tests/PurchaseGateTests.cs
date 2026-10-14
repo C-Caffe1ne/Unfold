@@ -74,6 +74,18 @@ public class PurchaseGateTests
     }
 
     [AvaloniaFact]
+    public void ProductionCheckoutShowsTheLiveServerPrice()
+    {
+        // The server sells only unfold-global (USD 299) Live; the KR price is disabled there.
+        Assert.Equal(["GLOBAL"], AccountConnection.Load()!.CheckoutMarkets);
+        var content = AccountScreenContent.Load();
+        Assert.Equal("GLOBAL", content.DefaultMarket);
+        var market = content.Markets.Single(item => item.Id == "GLOBAL");
+        Assert.Equal(("USD", 299L), (market.Currency, market.AmountMinor));
+        Assert.Equal("US$2.99", market.DisplayPrice);
+    }
+
+    [AvaloniaFact]
     public async Task LateActiveResponseCannotRestoreAccessAfterLogout()
     {
         using var scope = new Scope(); await scope.Runtime.Start(false); await scope.Unlock();
