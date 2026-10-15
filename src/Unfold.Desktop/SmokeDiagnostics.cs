@@ -831,7 +831,15 @@ internal static partial class SmokeDiagnostics
                 if (Find<NumericUpDown>(name).Bounds.Size != new Size(160, 40))
                     throw new InvalidOperationException("Home timing input dimensions differ from the approved design.");
             var picker = Find<ComboBox>("CharacterPicker");
-            if (picker.Bounds.Size != new Size(200, 40)) throw new InvalidOperationException("Home pet selector dimensions differ.");
+            if (picker.Bounds.Height != 40 || picker.Bounds.Width < 80 || picker.Bounds.Width > DesignSystem.HomeChoiceWidth + .5)
+                throw new InvalidOperationException($"Home pet selector dimensions differ: {picker.Bounds.Size} at {size}.");
+            var selection = Find<Grid>("HomePetSelectionRow");
+            foreach (var control in new Control[] { picker, Find<CheckBox>("ShowPetOnDesktop") })
+            {
+                var origin = control.TranslatePoint(default, selection)!.Value;
+                if (origin.X < 0 || origin.X + control.Bounds.Width > selection.Bounds.Width + .5)
+                    throw new InvalidOperationException($"Home pet control clips: {control.Name} at {size}.");
+            }
             var scaleLabel = Find<TextBlock>("PetScaleLabel"); var scale = Find<Slider>("PetScale");
             var scaleValue = Find<TextBlock>("PetScaleValue");
             var scaleLabelTop = scaleLabel.TranslatePoint(default, pet)!.Value.Y;

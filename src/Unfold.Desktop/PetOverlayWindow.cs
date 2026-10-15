@@ -1,6 +1,5 @@
 using Avalonia;
 using Avalonia.Automation;
-using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Layout;
@@ -21,10 +20,9 @@ internal sealed class PetOverlayWindow : Window
     private readonly Canvas canvas = new() { ClipToBounds = true };
     internal PetSpeechBubble Bubble { get; }
     internal PetTimerWindow Timer { get; }
-    private readonly Avalonia.Controls.Shapes.Polygon tail = new()
-        { Name = "PetSpeechTail", Fill = DesignSystem.Shell, IsHitTestVisible = false };
-    private readonly Avalonia.Controls.Shapes.Polyline tailOutline = new()
-        { Name = "PetSpeechTailOutline", Stroke = DesignSystem.Outline, StrokeThickness = 1, IsHitTestVisible = false };
+    private readonly Avalonia.Controls.Shapes.Path speechSurface = new()
+        { Name = "PetSpeechSurface", Fill = DesignSystem.Shell, Stroke = DesignSystem.Outline,
+            StrokeThickness = 1, IsHitTestVisible = false };
     private readonly Button[] buttons;
     private IPointer? interactionPointer;
     private PixelRect? lastArea;
@@ -43,8 +41,11 @@ internal sealed class PetOverlayWindow : Window
         Background = Brushes.Transparent; TransparencyLevelHint = [WindowTransparencyLevel.Transparent];
         ShowInTaskbar = false; Topmost = true; ShowActivated = false;
         Bubble = new(runtime.StartBreak, runtime.SnoozeBreak, runtime.CompleteBreak);
+        // Keep the content's existing border inset, but draw body and tail once
+        // as a joined surface behind it so their shared edge has no stroke.
+        Bubble.Background = null; Bubble.BorderBrush = null;
         Timer = new(pet, runtime);
-        canvas.Children.Add(Bubble); canvas.Children.Add(tail); canvas.Children.Add(tailOutline);
+        canvas.Children.Add(speechSurface); canvas.Children.Add(Bubble);
         Content = canvas;
         // Cache only the application controls, excluding generated template descendants.
         buttons = Bubble.GetLogicalDescendants().OfType<Button>().ToArray();
@@ -65,8 +66,8 @@ internal sealed class PetOverlayWindow : Window
         Title = L.T("Unfold · 펫 타이머");
         var reminder = runtime.PresentedReminder;
         Bubble.Refresh(reminder, runtime.Settings.SnoozeMinutes, runtime.Settings);
-        Bubble.IsVisible = tail.IsVisible = tailOutline.IsVisible = reminder.HasNotice;
-        Bubble.Opacity = tail.Opacity = tailOutline.Opacity = runtime.Settings.BubbleOpacityPercent / 100d;
+        Bubble.IsVisible = speechSurface.IsVisible = reminder.HasNotice;
+        canvas.Opacity = runtime.Settings.BubbleOpacityPercent / 100d;
         Timer.Refresh();
         if (!pet.IsVisible || !Bubble.IsVisible)
         {
@@ -99,19 +100,36 @@ internal sealed class PetOverlayWindow : Window
         {
             MinWidth = placement.Width; MinHeight = SurfaceHeight;
         }
-        Width = canvas.Width = placement.Width; Height = canvas.Height = SurfaceHeight;
+        Width = canvas.Width = speechSurface.Width = placement.Width;
+        Height = canvas.Height = speechSurface.Height = SurfaceHeight;
         var localCenter = (body.Y + body.Height / 2d - placement.Position.Y) / scale;
         var gap = DesignSystem.PetBubbleGap;
         Bubble.Width = Math.Max(1, Width - gap);
         var top = Math.Clamp(localCenter - Bubble.Height / 2, 0, Math.Max(0, Height - Bubble.Height));
         Canvas.SetLeft(Bubble, Direction == BubbleDirection.Right ? gap : 0); Canvas.SetTop(Bubble, top);
         var center = Math.Clamp(localCenter, top + 12, top + Bubble.Height - 12);
-        var edge = Direction == BubbleDirection.Right ? gap : Width - gap;
-        var tip = Direction == BubbleDirection.Right ? 0 : Width;
-        tail.Points = new AvaloniaList<Point>([new(edge, center - 10), new(edge, center + 10), new(tip, center)]);
-        tailOutline.Points = new AvaloniaList<Point>([tail.Points[0], tail.Points[2], tail.Points[1]]);
+        speechSurface.Data = CreateSpeechGeometry(new(Canvas.GetLeft(Bubble), top, Bubble.Width, Bubble.Height),
+            center, placement.Direction);
         // All layout and position updates are confined to this native surface.
         Position = runtime.DiagnosticMode ? new(-32000, -32000) : placement.Position;
+    }
+
+    private static Geometry CreateSpeechGeometry(Rect body, double center, BubbleDirection direction)
+    {
+        var right = direction == BubbleDirection.Right;
+        var edge = right ? body.Left : body.Right;
+        var join = edge + (right ? 1 : -1);
+        var tip = edge + (right ? -DesignSystem.PetBubbleGap : DesignSystem.PetBubbleGap);
+        var tail = new StreamGeometry();
+        using (var drawing = tail.Open())
+        {
+            drawing.BeginFigure(new(join, center - 10), isFilled: true);
+            drawing.LineTo(new(tip, center)); drawing.LineTo(new(join, center + 10));
+            drawing.EndFigure(isClosed: true);
+        }
+        var radius = Math.Max(0, Math.Min(DesignSystem.CardRadius.TopLeft - .5, Math.Min(body.Width, body.Height) / 2 - .5));
+        return new CombinedGeometry(GeometryCombineMode.Union,
+            new RectangleGeometry(body.Deflate(.5), radius, radius), tail);
     }
 
     internal bool AcceptsPointerAt(Point point)

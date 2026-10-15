@@ -18,8 +18,8 @@ def main():
     args = parser.parse_args()
     root = Path(__file__).resolve().parent.parent
     version = ET.parse(root / "src/Unfold.Desktop/Unfold.Desktop.csproj").findtext("PropertyGroup/Version")
-    if not version or not re.fullmatch(r"\d+\.\d+\.\d+-beta(?:\.\d+)?", version):
-        raise SystemExit("Expected a beta version in the project.")
+    if not version or not re.fullmatch(r"\d+\.\d+\.\d+(?:-beta(?:\.\d+)?)?", version):
+        raise SystemExit("Expected a stable or beta semantic version in the project.")
     artifacts = root / "artifacts"
     notes = root / f"docs/releases/v{version}.md"
     if not notes.is_file():
@@ -45,7 +45,8 @@ def main():
             subprocess.run(["xcrun", "stapler", "validate", str(installer)], check=True, stdout=sys.stderr)
             subprocess.run(["spctl", "--assess", "--type", "open", "--context",
                             "context:primary-signature", str(installer)], check=True)
-        guide = f"Unfold Beta v{version.split('-')[0]} 설치\n\n"
+        label = f"Unfold Beta v{version.split('-')[0]}" if "-beta" in version else f"Unfold v{version}"
+        guide = label + " 설치\n\n"
         if rid == "win-x64":
             guide += f"1. ZIP 압축을 푼 뒤 {installer.name}을 실행하세요.\n2. 설치 마법사의 안내에 따라 설치하세요.\n"
         else:
@@ -54,7 +55,7 @@ def main():
         if args.notarized_macos:
             guide += "Developer ID 서명과 Apple 공증을 완료한 Mac 배포 파일입니다.\n앱과 DMG에 공증 티켓이 포함됩니다. 최초 실행 시 macOS의 일반적인 열기 확인창이 표시될 수 있습니다.\n"
         else:
-            guide += "서명·공증을 완료하지 않은 테스터용 베타이므로 OS 보안 경고가 나타날 수 있습니다.\n"
+            guide += "OS에서 게시자를 확인하는 보안 경고가 나타날 수 있습니다.\n"
         variant = "-notarized" if args.notarized_macos else ""
         name = f"Unfold-v{version}-{rid}{variant}-installer.zip"
         archive = artifacts / name

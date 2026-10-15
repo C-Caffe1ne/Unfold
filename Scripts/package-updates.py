@@ -58,6 +58,26 @@ def seal_local_mac_release(root, output, feed, data, portable, version):
                 SHA256=hashlib.sha256(payload).hexdigest().upper())
     feed.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
 
+def publish_beta_transition(output, data, runtime, version):
+    """Let installed beta clients discover the identical stable application.
+
+    Older clients validate their beta channel in asset filenames. Only the
+    compatibility filename/feed use beta; the package metadata and app remain
+    stable, so subsequent launches use the stable feed.
+    """
+    if "-" in version:
+        return
+    stable_suffix = f"-{runtime}-stable-full.nupkg"
+    full = [a for a in data["Assets"] if a["Type"] == "Full" and a["Version"] == version]
+    if len(full) != 1 or not full[0]["FileName"].endswith(stable_suffix):
+        raise SystemExit("Missing stable package for the beta transition")
+    asset = dict(full[0])
+    original = output / asset["FileName"]
+    asset["FileName"] = asset["FileName"][:-len(stable_suffix)] + f"-{runtime}-beta-full.nupkg"
+    shutil.copyfile(original, output / asset["FileName"])
+    (output / f"releases.{runtime}-beta.json").write_text(
+        json.dumps({"Assets": [asset]}, indent=2) + "\n", encoding="utf-8")
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--runtime", required=True, choices=("win-x64", "win-arm64", "osx-arm64", "osx-x64"))
@@ -162,6 +182,7 @@ def main():
             # Preserve the native helper's relative symlink and macOS signature metadata.
             subprocess.run(["ditto", str(bundles[0]), str(app)], check=True)
             subprocess.run(["codesign", "--verify", "--deep", "--strict", str(app)], check=True)
+    publish_beta_transition(output, data, args.runtime, version)
     inventory = {"version": version, "packageId": PACKAGE_ID, "channel": channel, "runtime": args.runtime,
                  "feed": feed.name, "published": False,
                  "assets": {p.name: {"bytes": p.stat().st_size, "sha256": hashlib.sha256(p.read_bytes()).hexdigest()}

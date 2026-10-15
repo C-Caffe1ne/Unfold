@@ -1,0 +1,96 @@
+{
+  "checked_at_kst": "2026-10-14T18:28:15.956045+09:00",
+  "product_commit": "f9953a060deb76ea089e9442b9cf94ea12a78c73",
+  "tested_base_commit": "4a668fdd0e54155037b88d5c34167c7f8019d76f",
+  "tested_source_had_changes": true,
+  "current_files_match_tested_files": true,
+  "files": [
+    {
+      "path": "Tests/Unfold.Tests/BreakReminderTests.cs",
+      "current_sha256": "2c6f776dbb3cbcddb22d51fc4e9227735f16ea7afd32d63f882328e088f9e40b",
+      "tested_sha256": "2c6f776dbb3cbcddb22d51fc4e9227735f16ea7afd32d63f882328e088f9e40b",
+      "match": true
+    },
+    {
+      "path": "Tests/Unfold.Tests/PetHoverTests.cs",
+      "current_sha256": "1597c786477ddec6fc73467bcdf3f665eae4d8d1424b4be7cb891f35d89377fb",
+      "tested_sha256": "1597c786477ddec6fc73467bcdf3f665eae4d8d1424b4be7cb891f35d89377fb",
+      "match": true
+    },
+    {
+      "path": "Tests/Unfold.Tests/PetOverlayWindowTests.cs",
+      "current_sha256": "79414d2d6edab00f35810d3a86802115bd7d86077a94ad4a7e0da390e1d56bd5",
+      "tested_sha256": "79414d2d6edab00f35810d3a86802115bd7d86077a94ad4a7e0da390e1d56bd5",
+      "match": true
+    },
+    {
+      "path": "Tests/Unfold.Tests/PetTimerHoverTests.cs",
+      "current_sha256": "a7178da24aaf417dc77a8a0b1561f0f768e843cf8c03eb861a20e1639c707e72",
+      "tested_sha256": "a7178da24aaf417dc77a8a0b1561f0f768e843cf8c03eb861a20e1639c707e72",
+      "match": true
+    },
+    {
+      "path": "Tests/Unfold.Tests/TimerRefinementTests.cs",
+      "current_sha256": "d0f06d654088eb62f75a6b387ee35aece811f15944a74a6d561cbd3899922518",
+      "tested_sha256": "d0f06d654088eb62f75a6b387ee35aece811f15944a74a6d561cbd3899922518",
+      "match": true
+    },
+    {
+      "path": "src/Unfold.Desktop/PetSpeechBubble.cs",
+      "current_sha256": "581b72b3f1330a5473f68171b3a0ea3c75956766f04838af9b32264e0a9c2004",
+      "tested_sha256": "581b72b3f1330a5473f68171b3a0ea3c75956766f04838af9b32264e0a9c2004",
+      "match": true
+    },
+    {
+      "path": "src/Unfold.Desktop/SmokeDiagnostics.TimerRefinements.cs",
+      "current_sha256": "a4805277853e70dadb80811c115faf38e6281a3149d0428bcfee641d38165e56",
+      "tested_sha256": "a4805277853e70dadb80811c115faf38e6281a3149d0428bcfee641d38165e56",
+      "match": true
+    }
+  ],
+  "trx_counters": {
+    "after-focused.trx": {
+      "total": "16",
+      "executed": "16",
+      "passed": "15",
+      "failed": "1",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "after-fixed.trx": {
+      "total": "1",
+      "executed": "1",
+      "passed": "1",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    }
+  },
+  "preserved_artifact_sha256": {
+    "focused-results.json": "61ae8c535aa50684e2470d85b41a24ba8cdfe56bde2e1c311dd7fa52c121dc82",
+    "implementation-report.md": "f100a1437aaed55d6a675e5baab34a76cffe718cc37b2c67af1c495c142356ea",
+    "after-focused.trx": "4a064cce8d475ec90dbebfd3162b1d89a18e307ba4ab9045bea8c4d610e9a753",
+    "after-fixed.trx": "dc50c9a425658571611e013a8435def29f68b0b41cbbe9f4fe5301276701e197"
+  },
+  "new_test_execution": false
+}

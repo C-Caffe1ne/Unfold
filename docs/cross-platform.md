@@ -3,12 +3,14 @@
 Unfold is a C#/.NET 10 and Avalonia stretch reminder with desktop pets. Published
 packages include .NET. Swift, Xcode, and the Piskel web runtime are not required.
 
-This document describes **Beta v1.1.4** (`1.1.4-beta`, tag `v1.1.4-beta`).
+This document describes **v1.2.0** (`1.2.0`, tag `v1.2.0`), the stable release.
+It adds four UI languages, initial language selection, automatic 1% GLB element outlines,
+a seamless speech-bubble contour and rest countdown digit motion.
 It includes Mochi (cat), 보리 (rabbit), 강아지 (dog), 고슴도치 (hedgehog)
 and 펭귄 (penguin). Choose them from Home without installing separate packs.
 When `docs/releases/v<version>.md` exists, packaging includes it as `RELEASE-NOTES.md` in the Windows portable/installed
 `current` folder and inside `Unfold.app/Contents/Resources/` on macOS.
-This beta requires Google sign-in and a verified Live purchase or valid free grant before
+Unfold requires Google sign-in and a verified Live purchase or valid free grant before
 starting the timer, desktop pet, or settings. After sign-in, testers can use the bottom-right
 code button to redeem their supplied access code; the server saves a free grant for that account.
 After the first sign-in in this build, the refresh credential is kept in the OS credential
@@ -16,9 +18,9 @@ store. Restart restores the session and verifies server access without another G
 sign-in or code entry. Logout deletes the stored credential. Network failure preserves it
 for retry but does not grant offline access.
 Windows code signing is pending. Public Mac distribution uses Developer ID signing and
-Apple notarization. See the [release notes](releases/v1.1.4-beta.md)
-and [release verification](validation/2026-10-14-beta-v1.1.4-release.md).
-This release ran focused tests and package checks. New app OS diagnostics and actual installation/update-restart checks were not run at the user's request.
+Apple notarization. See the [release notes](releases/v1.2.0.md)
+and [release verification](validation/2026-10-15-v1.2.0-release.md).
+The release verification records the checks completed for this source and their target-OS limits.
 Beta v1.0.3 and later managed installations can check for updates from the tray/menu bar;
 Beta v1.1.1 and later also provide **설정 → 앱 정보 → 업데이트 확인**.
 Beta v1.1.2 shows a modal with release notes once per launch when a newer version is
@@ -72,7 +74,7 @@ and `UNFOLD_NOTARY_PROFILE` to select a local notarytool keychain profile. The b
 script signs all nested native files, submits the app and staples its ticket, then
 creates, notarizes and staples the DMG. Rejection stops packaging. Credentials are
 never stored in the repository. `UNFOLD_NOTARY_LOG_DIR` selects the diagnostic log folder.
-Use the `-notarized-installer.zip` Mac assets for the signed Beta v1.1.2 distribution;
+Use the `-notarized-installer.zip` Mac assets for the signed v1.2.0 distribution;
 the earlier Mac installer ZIPs remain available as historical ad-hoc builds.
 
 ## Visible controls
@@ -87,7 +89,7 @@ the earlier Mac installer ZIPs remain available as historical ad-hoc builds.
   Bubble position follows the pet and screen work area automatically. Settings offers
   0–100% bubble opacity, five dialogue strings of 1–120 characters, 1–60 minute snooze,
   and due/completion WAV, MP3 or OGG effects.
-  There is no separate reminder window or OS toast.
+  The speech bubble uses a separate transparent overlay window; it does not use an OS toast.
   **완료** is available from the start of a break. Overtime caps at +60:00 without auto-completion.
   Snooze counts active time, not time away.
 
@@ -122,7 +124,7 @@ legacy data compatibility are described in the [compatibility guide](personaliza
   displayed frame determines the clickable pet pixels; held drags and reminder
   controls retain input. Native macOS hit-test evidence and the physical-input /
   Windows verification boundary are recorded in the [input review](validation/2026-10-05-pet-click-through.md).
-- Reminders use the pet speech bubble, not an OS notification or a separate reminder window.
+- Reminders use the pet speech bubble in its own overlay, alongside separate pet and timer windows.
   Interruption during focused work still needs actual user testing.
 - Windows/macOS login launch, multi-monitor dragging, display changes, suspend,
   full-screen behavior, and installation trust need tests on the target OS.
@@ -306,6 +308,8 @@ After publishing Windows, `python Scripts/package-updates.py --runtime win-x64` 
 these assets without uploading them. On Mac, `bash Scripts/make-macos-bundle.sh <rid>`
 creates a fresh bundle, update feed, ZIP and DMG; do not repack an already managed `.app`.
 The Velopack SDK and local `vpk` tool are pinned to 1.2.0.
+
+The v1.2.0 release includes compatibility beta feeds with identical stable package bytes; installed beta clients can migrate, and the new app uses the stable feed.
 
 Existing Beta v1.0.2 and older apps have no updater. They must install this updater-enabled
 build once after fully quitting the previous process. On Windows the new install and uninstall

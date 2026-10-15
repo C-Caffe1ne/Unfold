@@ -6,13 +6,13 @@ A small desktop companion that reminds you to stretch while you work.
 
 Mochi와 잠깐 쉬고, 내 리듬으로 돌아오는 작은 데스크톱 동료.
 
-This document describes **Unfold Beta v1.1.2** (`1.1.2-beta`),
-based on release source `ce86c7b` on `codex/remove-unused-features`.
-The latest public release is **Beta v1.1.2** (`v1.1.2-beta`, source `ce86c7b`).
-It includes installed custom-pet editing/deletion, OGG effects and complete previews,
-theme color fixes, startup notices for available updates and legacy authoring cleanup.
-See the [release notes](releases/v1.1.2-beta.md) and
-[release verification](validation/2026-10-08-beta-v1.1.2-release.md).
+This document describes the `1.1.4-beta` development source `f9953a0` on
+`codex/pet-overlay-hover`, checked on 2026-10-14.
+The latest public release is **Beta v1.1.4** (`v1.1.4-beta`, source `4c64bfc`).
+The later local commit adds rest countdown digit motion and is not included in that release.
+See the [handoff](HANDOFF.md), [release notes](releases/v1.1.4-beta.md),
+[release verification](validation/2026-10-14-beta-v1.1.4-release.md) and
+[rest countdown checks](validation/2026-10-14-rest-timer-motion.md).
 Recheck all worktrees and the latest deployment before implementation;
 `release/mvp` is an older source.
 The application uses C#/.NET 10 and Avalonia. [Product direction](product-direction.md)
@@ -24,7 +24,7 @@ verification is separate from the local break and pet diagnostics.
 
 ```text
 Active computer use → break invitation → start the configured break
-→ visible original pet stretches once, then walks → timed break → user confirms completion
+→ visible pet maintains the configured rest action → timed break → user confirms completion
 → local record + next work interval
 ```
 
@@ -34,12 +34,12 @@ observed. Those outcomes are not established by a passing build or animation tes
 | Area | Current behavior |
 |---|---|
 | Language | Korean throughout the normal settings, break, review, pet-pack and tray flows. User names and saved history retain their original text. [Language scope](localization.md) |
-| Settings layout | Sidebar order is timer, pet management, review, settings. The home shows the timer and companion; notification sounds, idle time and snooze are in Settings. Pet management is one editor page; opening a file selects the media or GLB editor by extension, without open/create or format tabs. Default 1120×800, minimum 640×560; narrow layouts scroll and preserve editor drafts. [Dashboard guide](settings-ui.md) |
-| Timer | The home time card groups the 1–240 minute work interval and 1–10 minute next break duration. Work interval edits require Pause or Stop; break duration changes apply to the next session. The home **저장** action persists these values. Settings notification/idle/snooze preferences save automatically and report validation/save errors. Intervals of five minutes or less do not emit an advance warning. |
-| Timer controls | The state badge explicitly distinguishes running, paused, stopped, idle-paused, and break-held states. The two labelled, keyboard-accessible icon buttons are Play/Pause and Stop. Pause keeps the remaining time; Stop asks for confirmation, then displays the configured full interval; Play resumes or starts that interval after Stop. Approved Stop dismisses an open or pending invitation without adding a completion. |
+| Settings layout | Sidebar order is Home, pet management, review, theme, then Settings and Exit. The home shows the timer and companion; notification sounds, idle time and snooze are in Settings. Pet management is one editor page; opening a file selects the media or GLB editor by extension, without open/create or format tabs. Default 1120×800, minimum 640×560; narrow layouts scroll and preserve editor drafts. [Dashboard guide](settings-ui.md) |
+| Timer | The home time card groups the 1–240 minute work interval and 1–10 minute next break duration. Both are editable only while stopped with no active break; valid edits apply and save automatically. Starting before a queued save restores the saved values. Settings notification/idle/snooze preferences save separately and report validation/save errors. Intervals of five minutes or less do not emit an advance warning. |
+| Timer controls | The state badge distinguishes running, paused, stopped, idle-paused, and break-held states. The labelled icon buttons are Play/Pause and Stop. Pause keeps the remaining time. Stop immediately cancels an open or pending invitation without adding a completion and displays the configured full interval with digit motion. Play starts that interval after Stop. |
 | Exit | Sidebar and tray exit ask for confirmation, then retain the unsaved pet-draft guard. Cancel or closing the confirmation leaves the app running. |
 | Activity | Idle threshold of 1–60 minutes. Idle time and large dispatcher/sleep gaps do not accrue work time. |
-| Reminder | The pet delivers a five-active-minutes warning, due invitation, and explicit completion notice in an attached speech bubble with centered text. Due offers **n분 뒤에** and **휴식 시작**; a running bubble counts the configured break duration and has **완료** below it. Complete at any time after starting; overtime shows +mm:ss and caps at +60:00 without auto-completing. A duration change affects the next invitation, not an open session. The Settings tab automatically saves sounds, opacity, five contextual dialogue strings, and opt-in state previews; bubble placement follows the pet and screen work area; the pet context menu contains Settings and Hide Pet. No separate reminder window or OS toast. [Speech guide](stretch-notifications.md) |
+| Reminder | The pet delivers a five-active-minutes warning, due invitation, and explicit completion notice in an attached speech bubble with centered text. Due offers **n분 뒤에** and **휴식 시작**; a running bubble counts the configured break duration and has **완료** below it. Complete at any time after starting; overtime shows +mm:ss and caps at +60:00 without auto-completing. A duration change affects the next invitation, not an open session. The Settings tab automatically saves sounds, opacity, five contextual dialogue strings, and opt-in state previews; bubble placement follows the pet and screen work area; the pet context menu contains Settings and Hide Pet. The speech bubble is rendered in a separate overlay window; no OS toast. [Speech guide](stretch-notifications.md) |
 | Routines | 잠깐의 여유, 눈 쉬어 주기, and 몸 풀어 주기 provide the prompt sequence. The configured 1–10 minute break duration scales that sequence for new sessions. The routine, duration and companion are captured when the invitation opens. They are gentle prompts, not measured exercise or medical advice. |
 | Retired data migration | On startup, retired routine/profile settings are removed without backup while current timer and pet preferences are kept. Historical routine/profile labels remain in records and CSV. Valid installed pets retain playable assets; their obsolete `source.piskel` files are removed without backup. |
 | Manual reminder | Stretch now has been removed from Settings, the tray menu, and the pet menu. Normal invitations come from the automatic timer. The shared reminder method remains available to internal diagnostics. |
@@ -48,7 +48,8 @@ observed. Those outcomes are not established by a passing build or animation tes
 | Completion history | Only pressing **완료** after starting adds a local record, including early completion and overtime. New records retain planned seconds and measured active session seconds; summaries use actual seconds when available. Sleep/stalled UI gaps do not accrue time. History is bounded to 2,000 entries; adding a record removes entries older than 90 days. |
 | Review/export | Seven-day counts and recorded rest time, previous-period navigation, and CSV export. The CSV retains planned_seconds and appends actual_seconds (blank for older records). Routine/profile snapshots and local dates are preserved. |
 | Desktop pet | Frameless, topmost, draggable, position-persistent, optionally hidden, and adjustable from 50–150% in 10% steps. Platform-specific transparent-region hit testing is implemented for macOS and Windows. Headless/fake native API checks do not establish actual Windows input behavior. |
-| Original pet animation | Bundled Mochi, 보리, 강아지, 고슴도치 and 펭귄 retain their original behavior profile and clips. Idle reactions and pointer press/release clips remain; the removed canvas squish, lift and bounce effects are not current requirements. The third consecutive snooze can trigger sulking. A break stretch precedes movement within the current work area; Dragging and menus hold movement. In the 2026-10-09 local development source, pointer hover does not interrupt motion or open a clock bubble. Automatic movement does not overwrite saved manual position. |
+| Original pet animation | Bundled Mochi, 보리, 강아지, 고슴도치 and 펭귄 retain their original behavior profile and clips. Idle and pointer press/release reactions remain. The third consecutive snooze can trigger sulking. The rest action repeats or holds its terminal pose until completion or Stop. Completion plays once in full, then returns to idle; dragging and menus hold automatic movement. Pointer hover does not interrupt the action. Automatic movement does not overwrite saved manual position. |
+| Pet windows | Pet rendering/input, reminder bubble/tail, and the timer bar use separate transparent windows. The bar below the pet shows Korean current time and timer controls while hovering over the pet or bar, then fades out when leaving both. Click or pickup hides it immediately. The development-only rest countdown animates changed digits; public 1.1.4 retains its earlier text transition. |
 | Optional reactions | Packages may provide invitation, completion, click, pointer and movement reactions. Legacy hover mappings remain readable but are not played. Missing optional clips leave the pet unchanged. Original behavior requires its profile and clip contract; media and GLB authoring use their own supported action lists. |
 | Hidden pet | A hidden pet appears temporarily for a new speech reminder without changing ShowPet. Explicit Hide Pet saves ShowPet=false and suppresses the current reminder without ending its session. Advance/completion notices expire after five seconds. An invitation automatically snoozes once after 30 seconds from its first visible presentation; an active break remains until completion or cancellation. |
 | Character picker | A compact 200px selector lists the five bundled pets and valid characters in the local library. When an old installed pack has a bundled ID, the bundled version appears once and the user's original files remain on disk. |

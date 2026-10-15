@@ -141,11 +141,11 @@ public class BreakReminderTests
                 Assert.Equal(new Size(petSize, petSize), pet.ClientSize);
                 pet.Overlay.UpdateLayout();
                 Assert.Equal(new Size(petSize, petSize), pet.PetView.Bounds.Size);
-                var tail = pet.Overlay.GetVisualDescendants().OfType<Avalonia.Controls.Shapes.Polygon>().Single(shape => shape.Name == "PetSpeechTail");
-                Assert.Null(tail.Stroke); Assert.Equal(0, tail.StrokeThickness); Assert.Equal(DesignSystem.Shell, tail.Fill);
-                var outline = pet.Overlay.GetVisualDescendants().OfType<Avalonia.Controls.Shapes.Polyline>().Single(shape => shape.Name == "PetSpeechTailOutline");
-                Assert.Null(outline.Fill); Assert.Equal(DesignSystem.Outline, outline.Stroke); Assert.Equal(1, outline.StrokeThickness);
-                Assert.Equal([tail.Points[0], tail.Points[2], tail.Points[1]], outline.Points);
+                var surface = pet.Overlay.GetVisualDescendants().OfType<Avalonia.Controls.Shapes.Path>().Single(shape => shape.Name == "PetSpeechSurface");
+                Assert.Equal(DesignSystem.Shell, surface.Fill); Assert.Equal(DesignSystem.Outline, surface.Stroke);
+                Assert.Equal(1, surface.StrokeThickness); Assert.False(surface.IsHitTestVisible);
+                Assert.IsType<Avalonia.Media.CombinedGeometry>(surface.Data);
+                Assert.Null(pet.Overlay.Bubble.Background); Assert.Null(pet.Overlay.Bubble.BorderBrush);
                 foreach (var button in pet.Overlay.GetVisualDescendants().OfType<Button>().Where(button => button.IsEffectivelyVisible))
                 {
                     var point = button.TranslatePoint(default, pet.Overlay)!.Value;

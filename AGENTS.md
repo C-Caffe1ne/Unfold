@@ -3,7 +3,8 @@
 - 현재 체크아웃의 코드와 빌드 입력으로 구현 상태를 확인한다. 현재 앱은 C#·Avalonia 기반이다.
 - 모든 기능 구현은 사용자의 마지막 수정 버전을 기준으로 한다. 작업 시작 전에 `git worktree list`, 각 후보의 브랜치·HEAD·미커밋 변경, 프로젝트 버전과 실행 대상 경로를 확인한다. 현재 대화의 작업 디렉터리를 최신 버전으로 가정하지 않는다.
 - 모든 작업은 가장 마지막 제품 코드 커밋 또는 최신 배포 버전을 기준으로 한다. 최신 배포 태그/소스와 후보 작업트리를 대조하고, 문서만 바뀐 커밋 날짜나 이름을 최신 제품의 근거로 삼지 않는다. 확인한 경로에서 검증·실행한다.
-- 2026-10-14 확인 기준 최신 개발·공개 배포는 **Beta v1.1.4** (`1.1.4-beta`, 태그 `v1.1.4-beta`, 제품 소스 `4c64bfc`)다. 확인한 작업 경로는 `/Users/hwanghyeonseong/Documents/GitHub/Unfold/.worktrees/pet-overlay-hover`, 브랜치는 `codex/pet-overlay-hover`다. 후속 QA·문서 커밋은 제품 배포 소스와 구분한다. 이번 배포는 집중 검사와 빌드·패키징·서명·공증만 수행했고 전체 검사·앱 OS 진단·설치 및 업데이트 재시작 진단은 사용자 요청으로 제외했다. 다음 작업에서도 경로·HEAD·변경·배포 상태를 다시 확인한다.
+- 2026-10-15 현재 개발 작업트리는 `/Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover`, `codex/pet-overlay-hover`다. 사용자가 v1.2.0 정식 배포를 요청했다. 프로젝트·배포 상태는 `docs/HANDOFF.md`와 `docs/validation/2026-10-15-v1.2.0-release.md`를 읽고 원격에서 다시 확인한다.
+- 새 세션·다른 IDE에서는 [작업 인계](docs/HANDOFF.md)를 먼저 읽고 이어서 `docs/README.md`에서 필요한 기능 문서를 찾는다. 인계의 남은 검증은 새 구현·배포 승인으로 해석하지 않는다.
 - 문서 위치는 `docs/README.md`에서 찾는다. `archive/`와 `reference/`는 현재 실행 지침이 아니다.
 - 제품 범위가 필요한 작업은 `docs/mvp.md`, 설치·게시 작업은 `docs/cross-platform.md`를 참고한다.
 - 검증 방법과 한계는 `docs/verification.md`를 참고한다.

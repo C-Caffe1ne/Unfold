@@ -25,6 +25,9 @@ public class AppUpdateTests : IDisposable
     [InlineData("1.0.3", "win-arm64", "win-arm64-stable")]
     [InlineData("1.0.3", "osx-arm64", "osx-arm64-stable")]
     [InlineData("1.0.3", "osx-x64", "osx-x64-stable")]
+    [InlineData("1.2.0", "win-x64", "win-x64-stable")]
+    [InlineData("1.2.0", "osx-arm64", "osx-arm64-stable")]
+    [InlineData("1.2.0", "osx-x64", "osx-x64-stable")]
     public void OperatingSystemsArchitecturesAndReleaseTracksHaveDistinctFeeds(string version, string runtime, string expected) =>
         Assert.Equal(expected, AppUpdateConfiguration.Channel(version, runtime));
 
@@ -105,6 +108,25 @@ public class AppUpdateTests : IDisposable
     }
 
     [Fact]
+    public async Task InstalledBetaCanDownloadStableMetadataThroughTheTransitionFeed()
+    {
+        var fixture = CreateFeed("1.2.0", packageChannel: "osx-arm64-stable");
+        var manager = Manager(fixture.Feed, "1.1.4-beta");
+        using var updates = new AppUpdates(new VelopackUpdateBackend(manager, "osx-arm64-beta"));
+        await updates.Check();
+        Assert.Equal(AppUpdateState.Available, updates.State);
+        Assert.Equal("1.2.0", updates.Release!.Version);
+        await updates.Download();
+        Assert.True(updates.Downloaded);
+        var downloaded = Path.Combine(temp.Path, "packages", Path.GetFileName(fixture.Package));
+        Assert.Equal(fixture.PackageHash, Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(downloaded))));
+        using var restored = new AppUpdates(new VelopackUpdateBackend(manager, "osx-arm64-beta"));
+        Assert.Equal(AppUpdateState.Ready, restored.State);
+        Assert.Equal("1.2.0", restored.Release!.Version);
+        Assert.Equal("osx-arm64-stable", AppUpdateConfiguration.Channel(restored.Release.Version, "osx-arm64"));
+    }
+
+    [Fact]
     public async Task ActualSdkRejectsCorruptDownloadsBeforeTheyCanBeApplied()
     {
         var fixture = CreateFeed("1.0.4-beta");
@@ -174,11 +196,11 @@ public class AppUpdateTests : IDisposable
         Assert.Null(updates.Release); Assert.False(updates.PrepareApply());
     }
 
-    private UpdateManager Manager(string feed) => new(new SimpleFileSource(new DirectoryInfo(feed)),
+    private UpdateManager Manager(string feed, string installedVersion = "1.0.3-beta") => new(new SimpleFileSource(new DirectoryInfo(feed)),
         new UpdateOptions { ExplicitChannel = "osx-arm64-beta", AllowVersionDowngrade = false },
-        new TestVelopackLocator(AppUpdateConfiguration.PackageId, "1.0.3-beta", Path.Combine(temp.Path, "packages")));
+        new TestVelopackLocator(AppUpdateConfiguration.PackageId, installedVersion, Path.Combine(temp.Path, "packages")));
 
-    private (string Feed, string Package, string PackageHash) CreateFeed(string version, string channel = "osx-arm64-beta")
+    private (string Feed, string Package, string PackageHash) CreateFeed(string version, string channel = "osx-arm64-beta", string? packageChannel = null)
     {
         var feed = Path.Combine(temp.Path, "feed"); Directory.CreateDirectory(feed);
         var name = $"{AppUpdateConfiguration.PackageId}-{version}-{channel}-full.nupkg";
@@ -186,7 +208,7 @@ public class AppUpdateTests : IDisposable
         using (var zip = ZipFile.Open(package, ZipArchiveMode.Create))
         {
             using var writer = new StreamWriter(zip.CreateEntry("package.nuspec").Open());
-            writer.Write($"<package><metadata><id>{AppUpdateConfiguration.PackageId}</id><version>{version}</version><authors>Unfold</authors><description>Isolated update test</description><channel>{channel}</channel><releaseNotes>- 업데이트 안내 개선</releaseNotes></metadata></package>");
+            writer.Write($"<package><metadata><id>{AppUpdateConfiguration.PackageId}</id><version>{version}</version><authors>Unfold</authors><description>Isolated update test</description><channel>{packageChannel ?? channel}</channel><releaseNotes>- 업데이트 안내 개선</releaseNotes></metadata></package>");
         }
         var bytes = File.ReadAllBytes(package); var hash = Convert.ToHexString(SHA256.HashData(bytes));
         File.WriteAllText(Path.Combine(feed, $"releases.{channel}.json"), JsonSerializer.Serialize(new { Assets = new[] {

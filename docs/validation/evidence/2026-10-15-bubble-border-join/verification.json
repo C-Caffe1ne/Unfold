@@ -1,0 +1,64 @@
+{
+  "sourceHead": "58d629949860ecac68e1ed1a48154710ec1693ca",
+  "version": "1.1.4-beta",
+  "date": "2026-10-15",
+  "os": "macOS arm64",
+  "sdk": "10.0.401",
+  "tests": {
+    "bubble-baseline": {
+      "total": 37,
+      "passed": 37,
+      "failed": 0,
+      "notExecuted": 0
+    },
+    "bubble-reproduction": {
+      "total": 8,
+      "passed": 0,
+      "failed": 8,
+      "notExecuted": 0
+    },
+    "bubble-joined": {
+      "total": 45,
+      "passed": 45,
+      "failed": 0,
+      "notExecuted": 0
+    }
+  },
+  "pixelMatrix": {
+    "themes": 4,
+    "directions": [
+      "Left",
+      "Right"
+    ],
+    "notices": [
+      "Invitation",
+      "Advance",
+      "Resting",
+      "Completed"
+    ],
+    "opacityPercent": [
+      100,
+      37
+    ],
+    "renderScaling": [
+      2,
+      1,
+      1.25
+    ],
+    "renderedCases": 192
+  },
+  "physicalInput": false,
+  "nativeOsWindowScreenshot": false,
+  "installedAppReplaced": false,
+  "glbOutlineWidthPercent": 1,
+  "sourceHashes": {
+    "src/Unfold.Desktop/PetOverlayWindow.cs": "fb3179a360fc88cb6f2181bb48be8dd114ac72a2cb384ff042440e30961c0b09",
+    "Tests/Unfold.Tests/BreakReminderTests.cs": "b25d8e9a41f9218398ccd23e9b9f7627f7266836a4c66ce5dd3f9c1721877d44",
+    "Tests/Unfold.Tests/PetSpeechSurfaceTests.cs": "9be8992fff4cbcdd51478c9abb18e39446e71f5abc7013b6d15fa32bc444f0ca"
+  },
+  "releaseBuild": {
+    "exitCode": 0,
+    "warnings": 0,
+    "errors": 0
+  }
+}

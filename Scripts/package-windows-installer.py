@@ -16,8 +16,8 @@ def main():
     args = parser.parse_args()
     root = Path(__file__).resolve().parent.parent
     version = ET.parse(root / "src/Unfold.Desktop/Unfold.Desktop.csproj").findtext("PropertyGroup/Version")
-    if not version or not re.fullmatch(r"\d+\.\d+\.\d+-beta", version):
-        raise SystemExit("Expected a beta version in the project.")
+    if not version or not re.fullmatch(r"\d+\.\d+\.\d+(?:-beta(?:\.\d+)?)?", version):
+        raise SystemExit("Expected a stable or beta semantic version in the project.")
     payload = root / "artifacts/win-x64/app"
     for file in ["Unfold.exe", "Unfold.dll", "Unfold.runtimeconfig.json", "coreclr.dll", "Tools/ffmpeg.exe", "Licenses/NoonnuBasicGothic.txt"]:
         if not (payload / file).is_file():

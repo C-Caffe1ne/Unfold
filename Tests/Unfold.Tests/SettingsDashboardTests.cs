@@ -496,6 +496,30 @@ public class SettingsDashboardTests
         Assert.Equal("미리보기 대기 중", Find<TextBlock>(window, "DebugPreviewStatus").Text);
     }
 
+    [AvaloniaTheory]
+    [InlineData(AppLanguage.Korean)]
+    [InlineData(AppLanguage.English)]
+    [InlineData(AppLanguage.Japanese)]
+    [InlineData(AppLanguage.ChineseSimplified)]
+    public void TranslatedPetControlsFitTheCompanionCardAtSupportedWidths(AppLanguage language)
+    {
+        using var scope = new Scope(language); var window = scope.Window;
+        foreach (var width in new[] { 640d, 860d, 1120d })
+        {
+            window.Width = width; window.Height = 800;
+            Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+            var row = Find<Grid>(window, "HomePetSelectionRow");
+            var picker = Find<ComboBox>(window, "CharacterPicker");
+            Assert.InRange(picker.Bounds.Width, 80, DesignSystem.HomeChoiceWidth);
+            foreach (var control in new Control[] { picker, Find<CheckBox>(window, "ShowPetOnDesktop") })
+            {
+                var origin = control.TranslatePoint(default, row)!.Value;
+                Assert.True(origin.X >= 0 && origin.X + control.Bounds.Width <= row.Bounds.Width + .5,
+                    $"{language}, {width}: {control.Name} clips its row.");
+            }
+        }
+    }
+
     private sealed class Scope : IDisposable
     {
         private readonly TempDirectory temp = new();
@@ -504,9 +528,11 @@ public class SettingsDashboardTests
         public string Root => temp.Path;
         public AppRuntime Runtime { get; }
         public SettingsWindow Window { get; }
-        public Scope()
+        private readonly AppLanguage previousLanguage = L.Current;
+        public Scope(AppLanguage? language = null)
         {
             Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", Root);
+            if (language is { } selected) new AppSettings { Language = selected, ShowPet = false }.Save(Path.Combine(Root, "settings.json"));
             Runtime = new(lifetime) { ConfirmActionOverride = (_, _, _) => Task.FromResult(0) };
             Window = new(Runtime); Window.Show(); Dispatcher.UIThread.RunJobs();
         }
@@ -515,6 +541,7 @@ public class SettingsDashboardTests
             foreach (var dialog in Window.OwnedWindows.ToArray()) dialog.Close();
             Window.HideToTray(); Window.Dispose(); Runtime.Dispose(); lifetime.Dispose();
             Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", previous); temp.Dispose();
+            L.Use(previousLanguage); DesignSystem.ApplyLanguage(previousLanguage);
         }
     }
 }

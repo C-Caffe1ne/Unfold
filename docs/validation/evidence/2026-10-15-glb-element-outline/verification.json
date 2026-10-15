@@ -1,0 +1,55 @@
+{
+  "sourceHead": "58d629949860ecac68e1ed1a48154710ec1693ca",
+  "version": "1.1.4-beta",
+  "date": "2026-10-15",
+  "os": "macOS arm64",
+  "sdk": "10.0.401",
+  "outlineWidthPercent": 5,
+  "referenceStrokePixelsAt192": 0.5,
+  "elements": "visible mesh node and material",
+  "userControlsAdded": false,
+  "sourceGlbModified": false,
+  "tests": {
+    "elements": {
+      "total": 17,
+      "passed": 17,
+      "failed": 0,
+      "notExecuted": 0
+    },
+    "final": {
+      "total": 230,
+      "passed": 230,
+      "failed": 0,
+      "notExecuted": 0
+    }
+  },
+  "previousVerifiedOutline10Tests": 222,
+  "releaseBuild": {
+    "exitCode": 0,
+    "warnings": 0,
+    "errors": 0
+  },
+  "model": {
+    "name": "Kei",
+    "triangles": 19057,
+    "animations": 32,
+    "renderedSizes": [
+      192,
+      384,
+      576
+    ],
+    "shortTimingSample": {
+      "exit_code": 0,
+      "output": "192px: 11.00ms/frame\n384px: 22.19ms/frame\n576px: 42.27ms/frame\n19057 triangles; 32 animations; clip=Cafe_Reaction\n",
+      "error": ""
+    },
+    "physicalInput": false,
+    "installedAppReplaced": false
+  },
+  "sourceHashes": {
+    "src/Unfold.Core/GlbModel.Rendering.cs": "7426e5d050db3bc559fbdf0ead273442238f9fac523ea95e1d21e5af79c7d03f",
+    "src/Unfold.Core/GlbModel.Outline.cs": "60c6bce2a7673c3962e6e5208c1ccabb5d3f7c6904fe27663981fa4adbd95820",
+    "Tests/Unfold.Tests/GlbOutlineTests.cs": "a82fffb1c72a47fa2c7fed1e045b18eeaca0bdd49d05e39dc2ff1addf431c1a7",
+    "Tests/Unfold.Tests/GlbElementOutlineTests.cs": "dca7b92876ac0c18c496ebe35310ecacff8f6feb34d15766e129f1ee58e476e1"
+  }
+}

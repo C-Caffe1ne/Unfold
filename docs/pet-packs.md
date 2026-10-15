@@ -1,7 +1,7 @@
 # 펫 관리 · 커스텀 펫 팩 만들기
 
-2026년 10월 12일 · Beta v1.1.3의 로컬 펫 관리·파일 배포 계약.
-최신 공개 배포는 Beta v1.1.3다. 펫 팩 상점·계정별 팩 다운로드는 제공하지 않는다.
+2026년 10월 14일 · 개발 `f9953a0`, 공개 Beta v1.1.4 (`4c64bfc`)의 로컬 펫 관리·파일 배포 계약.
+개발·배포 차이는 [작업 인계](HANDOFF.md)를 따른다. 펫 팩 상점·계정별 팩 다운로드는 제공하지 않는다.
 현재 Mochi·보리는 [확장 행동이 있는 기본 팩](../Art/Characters/original-companions-v2/README.md)으로 제공한다.
 같은 행동 프로필의 [강아지·고슴도치·펭귄](../Art/Characters/original-companions-v3/README.md)도 기본 목록에 포함한다.
 기존 [보리 0.1.0 아트 후보](../Art/Characters/bori-rabbit/README.md)는 역사 자료로 보존한다.

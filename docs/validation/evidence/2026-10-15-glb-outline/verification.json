@@ -1,0 +1,74 @@
+{
+  "sourceHead": "58d629949860ecac68e1ed1a48154710ec1693ca",
+  "version": "1.1.4-beta",
+  "date": "2026-10-15",
+  "os": "macOS arm64",
+  "sdk": "10.0.401",
+  "outlineWidthPercent": 10,
+  "referencePixels": 192,
+  "referenceStrokePixels": 1,
+  "userControlsAdded": false,
+  "sourceGlbModified": false,
+  "tests": {
+    "baseline": {
+      "total": 193,
+      "passed": 193,
+      "failed": 0,
+      "notExecuted": 0
+    },
+    "outline": {
+      "total": 202,
+      "passed": 195,
+      "failed": 7,
+      "notExecuted": 0
+    },
+    "outline-height": {
+      "total": 16,
+      "passed": 16,
+      "failed": 0,
+      "notExecuted": 0
+    },
+    "final": {
+      "total": 222,
+      "passed": 222,
+      "failed": 0,
+      "notExecuted": 0
+    }
+  },
+  "realModel": {
+    "name": "Kei",
+    "triangles": 19057,
+    "animations": 32,
+    "renderedSizes": [
+      192,
+      384,
+      576
+    ],
+    "shortTimingSamples": {
+      "before": {
+        "exit_code": 0,
+        "output": "192px: 12.64ms/frame\n384px: 20.27ms/frame\n576px: 28.46ms/frame\n19057 triangles; 32 animations; clip=Cafe_Reaction\n",
+        "error": ""
+      },
+      "after": {
+        "exit_code": 0,
+        "output": "192px: 10.68ms/frame\n384px: 23.36ms/frame\n576px: 35.91ms/frame\n19057 triangles; 32 animations; clip=Cafe_Reaction\n",
+        "error": ""
+      }
+    },
+    "physicalInput": false,
+    "installedAppReplaced": false
+  },
+  "sourceHashes": {
+    "src/Unfold.Core/GlbModel.Rendering.cs": "1a37cf1e663324bcd027383ec8182570828f4ce6f4ed6c038b0bdc42682ff9f4",
+    "src/Unfold.Core/GlbModel.Outline.cs": "57cce043259dbdceccf067f64a3dec456a9a51b3280dc3a40e7e1c0b17cda91b",
+    "Tests/Unfold.Tests/GlbCompatibilityTests.cs": "22e6008acbf9a0a3a69516c0d0c6671c87d417284a10273f36196422670a3a45",
+    "Tests/Unfold.Tests/GlbPreviewHeightTests.cs": "c5ccdba34aeee351503fd251a4ec22c6cc9b82042724f9cde211c7732ccd3071",
+    "Tests/Unfold.Tests/GlbOutlineTests.cs": "111fd1acdd3743126f907726f0a6d1ffd04f7d702d3687fda0fa37fabaf47f70"
+  },
+  "releaseBuild": {
+    "exitCode": 0,
+    "warnings": 0,
+    "errors": 0
+  }
+}

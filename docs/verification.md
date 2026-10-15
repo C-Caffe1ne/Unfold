@@ -2,7 +2,9 @@
 
 ## 현재 개발본과 공개 배포 — 2026년 10월 14일
 
-최신 제품은 `codex/pet-overlay-hover`의 **Beta v1.1.4** (`1.1.4-beta`, 제품 소스 `4c64bfc`), 공개 태그 `v1.1.4-beta`다. 후속 배포 문서 커밋은 제품 소스와 구분한다.
+개발 제품은 `codex/pet-overlay-hover`의 **Beta v1.1.4** (`1.1.4-beta`, HEAD `f9953a0`)다. 공개 태그 `v1.1.4-beta`의 제품 소스는 `4c64bfc`, 원격 브랜치는 `4a668fd`다. [작업 인계](HANDOFF.md)에 기준과 실행 경로를 기록한다.
+
+[휴식 숫자 전환 수정](validation/2026-10-14-rest-timer-motion.md)은 공개 배포 이후 로컬 커밋이다. 당시 집중 실행 15개 통과·1개 실패 후 fixture를 수정하고 실패한 1개를 재실행해 최종 고유 16개가 통과했다. Release 빌드도 통과했다. 전체 테스트·앱 OS 진단·실기·재실행·재배포는 수행하지 않았다. 이번 문서 갱신에서 해당 앱 검사를 다시 실행하지 않았다.
 [1.1.4 배포 검증](validation/2026-10-14-beta-v1.1.4-release.md)에 로컬·Windows/macOS CI 집중 검사 각 63개, Mac 두 아키텍처의 서명·공증, 공개 파일 10개와 채널·체크섬 확인을 기록했다. 전체 테스트·새 앱 OS 진단·설치/업데이트 재시작은 사용자 요청에 따라 실행하지 않았다.
 
 ## 이전 Beta v1.1.3 공개 배포 — 2026년 10월 12일
@@ -11,7 +13,7 @@
 
 [1.1.3 배포 검증](validation/2026-10-12-beta-v1.1.3-release.md)에 로컬/Mac CI 790개, Windows CI 787개 통과(3개 Mac 전용 건너뜀), 서버 38개·웹 76개, Mac 두 아키텍처의 서명·공증과 세 OS 패키지 진단 각 110장 성공을 기록한다. 세 공개 업데이트 채널 검사와 실제 Mac ARM64·Windows x64의 1.1.2→1.1.3 교체·진단 재시작·데이터 표식 보존도 통과했다.
 
-공개 웹 HTTP 검사 53개와 실제 변경 이력 화면을 확인했다. Intel 실행은 Apple Silicon의 Rosetta다. 물리 Intel·Windows 사용자 입력, 운영 Live 권한 활성화·앱 구매 복원은 별도다. 실결제 성공은 사용자 보고이며 이번 운영 DB에는 Live pending 주문만 확인됐다.
+당시 공개 웹 HTTP 검사 53개와 실제 변경 이력 화면을 확인했다. Intel 실행은 Apple Silicon의 Rosetta다. 물리 Intel·Windows 사용자 입력과 앱 구매 복원은 별도다. 배포 당시의 Live pending 주문은 이후 [운영 웹훅 v21 복구](validation/2026-10-12-live-payment-pending.md)에서 paid·권한 active로 확인했다. 서버 복구와 실제 고객 앱의 잠금 해제는 구별한다.
 
 [타이머 검증](validation/2026-10-12-live-timer-settings.md)은 홈 자동 저장·중지 복귀·간격 증가/감소를, [호버 제거 검증](validation/2026-10-09-pet-hover-removal.md)은 당시 전체 803개와 macOS 실제 입력을 기록한다. 과거 검사 수를 이번 제품 검사 수로 합산하지 않는다.
 

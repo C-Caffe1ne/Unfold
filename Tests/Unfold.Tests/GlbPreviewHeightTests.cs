@@ -61,7 +61,9 @@ public class GlbPreviewHeightTests
     {
         var left = image.Width; var top = image.Height; var right = -1; var bottom = -1;
         for (var y = 0; y < image.Height; y++) for (var x = 0; x < image.Width; x++)
-            if (image.Pixels[y * image.Width + x] >> 24 >= 128)
+            // White fixture coverage measures the model itself, excluding the
+            // black stroke and preserving the original scale/rotation checks.
+            if ((image.Pixels[y * image.Width + x] >> 24) * (image.Pixels[y * image.Width + x] & 255) >= 128 * 255)
             { left = Math.Min(left, x); top = Math.Min(top, y); right = Math.Max(right, x); bottom = Math.Max(bottom, y); }
         Assert.True(right >= left && bottom >= top, "The model must have visible pixels.");
         return (left, top, right - left + 1, bottom - top + 1);

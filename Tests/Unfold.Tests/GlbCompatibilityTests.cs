@@ -83,8 +83,8 @@ public class GlbCompatibilityTests
     public void SharedTriangleEdgeDoesNotBlendTwiceAndTransparentTexelsDoNotOcclude()
     {
         var image = Render(Layers(true, new Layer(0, "BLEND", 1, 0, 0, .5f)));
-        Assert.Contains(image.Pixels, p => p >> 24 == 127);
-        Assert.All(image.Pixels, p => Assert.True(p == 0 || p == 0x7FFF0000u));
+        Assert.Contains(image.Pixels, p => p == 0x7FFF0000u);
+        Assert.All(image.Pixels.Where(p => (p & 0xFFFFFF) != 0), p => Assert.Equal(0x7FFF0000u, p));
         var result = Render(Layers(false, new Layer(1, "BLEND", 1, 0, 0, 0), new(0, "OPAQUE", 0, 0, 1, 1)));
         Assert.Equal(0xFF0000FFu, Center(result));
     }

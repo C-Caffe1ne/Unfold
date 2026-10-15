@@ -12,6 +12,7 @@ public sealed class AppReleaseTests
     [InlineData("1.1.1-beta", "Beta v1.1.1")]
     [InlineData("1.1.4-beta", "Beta v1.1.4")]
     [InlineData("1.0.3", "v1.0.3")]
+    [InlineData("1.2.0", "v1.2.0")]
     [InlineData("1.0.3-rc.1", "v1.0.3-rc.1")]
     public void DisplayVersionPreservesThePublicBetaLabel(string version, string display)
     {

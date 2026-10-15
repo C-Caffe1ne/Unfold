@@ -1,0 +1,22 @@
+{
+  "passed": 16,
+  "failed": 0,
+  "test_results": {
+    "Unfold.Tests.BreakReminderTests.SpeechTextIsCenteredAndPassiveNoticesUseTheBubbleCenter(notice: Advance)": "Passed",
+    "Unfold.Tests.TimerRefinementTests.RestTimerUsesChangedDigitsForRemainingAndOvertimeAtSecondBoundaries": "Passed",
+    "Unfold.Tests.PetOverlayWindowTests.SeparatedRestTimerAnimatesWithoutRevealingTheTimerBarOrArrangingThePet": "Passed",
+    "Unfold.Tests.TimerRefinementTests.RestTimerAnimatesButHidingAndDetachStopItsFrameTimer": "Passed",
+    "Unfold.Tests.BreakReminderTests.BubbleButtonsAllowEarlyCompletionWithoutOpeningAnotherWindow": "Passed",
+    "Unfold.Tests.PetTimerHoverTests.TimeCaptionAndControlsUseTheirOwnWindowWithoutArrangingThePet": "Passed",
+    "Unfold.Tests.PetHoverTests.ReminderActionsRemainAvailableAndPointerEntryCannotReopenADismissedBubble": "Passed",
+    "Unfold.Tests.BreakReminderTests.SpeechTextIsCenteredAndPassiveNoticesUseTheBubbleCenter(notice: Invitation)": "Passed",
+    "Unfold.Tests.AnimatedCountdownTests.MinuteBorrowAnimatesChangedDigitsAndPauseCancelsTheTransition": "Passed",
+    "Unfold.Tests.PetTimerHoverTests.HiddenCountdownSuppressesTickAndResetMotionAndDoesNotReplayItWhenRevealed": "Passed",
+    "Unfold.Tests.AnimatedCountdownTests.DisabledMotionAndDisposalStopTheFrameTimer": "Passed",
+    "Unfold.Tests.BreakReminderTests.SpeechTextIsCenteredAndPassiveNoticesUseTheBubbleCenter(notice: Completed)": "Passed",
+    "Unfold.Tests.AnimatedCountdownTests.ResetLongIntervalsAndHiddenControlsDoNotRollThroughIntermediateTimes": "Passed",
+    "Unfold.Tests.BreakReminderTests.SpeechTextIsCenteredAndPassiveNoticesUseTheBubbleCenter(notice: Resting)": "Passed",
+    "Unfold.Tests.TimerControlTests.RapidIntervalChangesPersistTheLatestValueAndStopAnimatesBackToTheInterval": "Passed",
+    "Unfold.Tests.BreakReminderTests.OvertimeTimerAndCompletionButtonFitAfterInstructionBodyIsRemoved": "Passed"
+  }
+}

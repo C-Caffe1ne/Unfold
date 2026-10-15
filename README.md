@@ -1,8 +1,9 @@
 # Unfold
 
-**Beta v1.1.4** · C#/.NET 10 · Avalonia · macOS / Windows
+**v1.2.0** · C#/.NET 10 · Avalonia · macOS / Windows
 
-Latest public release: `v1.1.4-beta` (source `4c64bfc`, internal version `1.1.4-beta`; [changes](docs/releases/v1.1.4-beta.md)).
+Stable release: [v1.2.0](https://github.com/C-Caffe1ne/Unfold/releases/tag/v1.2.0) · [changes](docs/releases/v1.2.0.md).
+Read [the handoff](docs/HANDOFF.md) before continuing in another session or IDE.
 
 A small desktop companion that reminds you to stretch while you work.
 
@@ -17,8 +18,10 @@ For development, install .NET SDK 10 and run:
 
 ```sh
 dotnet restore Unfold.slnx --locked-mode
-dotnet run --project src/Unfold.Desktop
+UNFOLD_DATA_DIR="$(mktemp -d /tmp/unfold-dev.XXXXXX)" dotnet run --project src/Unfold.Desktop -c Release
 ```
+
+The command uses a fresh development profile on macOS. The handoff also provides PowerShell commands. Rebuild the selected checkout before using `--no-build`; an existing binary can belong to earlier source.
 
 For a Windows portable build, extract the entire `Unfold-v<version>-win-x64.zip`
 archive and run the root `Unfold.exe` launcher. Keep the extracted folder intact;
@@ -35,8 +38,8 @@ Closing Settings keeps Unfold running. Use **Unfold 종료** in the tray menu to
 - Local pet packs: preview animations, install, update, and reinstall from a saved `.unfoldpet` file.
 - A 1–240 minute timer with time adjustment while stopped, automatic saving and animated number changes.
 - Running/paused/stopped controls on Home and beside the pet. Stop resets immediately to the saved interval with a number transition.
-- Four color themes with Lilac as the default, Korean UI and custom SVG icons.
-- Custom pets from GLB, GIF/MP4 or still images, with editing and confirmed deletion of installed custom pets.
+- Four color themes with Lilac as the default, Korean, English, Japanese and Chinese UI with custom SVG icons.
+- Custom pets from GLB, GIF/MP4 or still images, with automatic thin element outlines for GLB, editing and confirmed deletion of installed custom pets.
 - WAV/MP3/OGG effects, percentage volume displays and previews that finish naturally.
 - Startup update notices with release notes when a newer version is available.
 - Google sign-in, checkout/purchase-confirmation screens, email display and sign-out.

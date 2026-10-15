@@ -1,15 +1,20 @@
 # 문서 안내
 
+v1.2.0 정식 배포: [릴리스 노트](releases/v1.2.0.md) · [배포 검증](validation/2026-10-15-v1.2.0-release.md).
+
 백엔드 관리: [보안 운영 절차](operations/backend-security.md), [적용·검증 결과](validation/2026-10-11-backend-security.md).
 운영 Live 결제의 pending 원인·웹훅 v21 배포·실제 결제 재전송과 앱 권한 조회 결과는 [Live 결제 복구](validation/2026-10-12-live-payment-pending.md)에 기록한다.
 
-현재 제품은 **C#·Avalonia 기반 Unfold Beta**다. 2026-10-14 최신 개발·공개 배포 버전은 **Beta v1.1.4** (`1.1.4-beta`, [변경내용](releases/v1.1.4-beta.md))이며, 작업 경로는 `/Users/hwanghyeonseong/Documents/GitHub/Unfold/.worktrees/pet-overlay-hover`, 브랜치는 `codex/pet-overlay-hover`다.
+새 세션·다른 IDE에서는 **[작업 인계](HANDOFF.md)**부터 읽는다. 기준 경로, 로컬에만 있는 커밋, 실행·저장 계약, 검증 근거와 다음 확인 순서를 모았다.
+
+현재 제품은 **C#·Avalonia 기반 Unfold Beta**다. 2026-10-14 개발본은 **Beta v1.1.4** (`1.1.4-beta`, HEAD `f9953a0`)이며, 작업 경로는 `/Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover`, 브랜치는 `codex/pet-overlay-hover`다. 원격 HEAD `4a668fd` 이후의 휴식 숫자 전환 수정은 아직 로컬 커밋이다.
 최신 공개 배포본은 `v1.1.4-beta` (제품 소스 `4c64bfc`)다. 집중 검사·Mac 공증·공개 파일 10개와 사용자 요청으로 제외한 앱 OS 진단·설치/업데이트 검사는 [배포 검증](validation/2026-10-14-beta-v1.1.4-release.md)에 기록한다.
 
 ## 현재 사용 안내
 
 | 문서 | 확인할 내용 |
 |---|---|
+| [작업 인계](HANDOFF.md), [이번 최신화 기록](validation/2026-10-14-handoff-refresh.md) | 최신 소스·배포·실행 앱의 구분, IDE 재개, 보존할 변경과 문서 검증 |
 | [MVP 범위](mvp.md) | 현재 기능·제외 범위와 이전 데이터 호환 |
 | [설정·타이머](settings-ui.md), [말풍선·효과음](stretch-notifications.md) | 설정·홈 시간 자동 저장·대사·불투명도·자동 배치 |
 | [펫 관리](pet-packs.md), [GLB 펫](glb-pets.md) | 통합 편집·설치·동작 설정·입력 제한 |
@@ -27,9 +32,14 @@
 | 문서 | 역할 |
 |---|---|
 | [Lemon US$2.99 가격 전환 준비](validation/2026-10-14-lemon-usd-price.md) | 운영 KRW 가격과 USD 스토어의 불일치, 마이그레이션·앱·웹 수정, 44·94·77개 검사와 미적용 운영 순서 |
+| [휴식 타이머 숫자 전환 검증](validation/2026-10-14-rest-timer-motion.md) | 배포 후 로컬 `f9953a0`의 고유 집중 검사 16개, 초기 실패·수정과 전체/OS 미실행 경계 |
 | [알림·스트레칭·완료 행동 수명 검증](validation/2026-10-13-reminder-action-lifetime.md) | 버튼·자동 미루기까지 상태 유지, 완료 전체 재생과 자연 만료·명시적 취소 분리 |
 | [펫 행동 반복·타이머 호버 후속 검증](validation/2026-10-13-pet-playback-hover.md) | 누름 상태 유지·전체 재생 복귀, 호버 유지·즉시 이탈 숨김과 944개 검사 |
 | [펫 하단 타이머·호버 표시 1차 검증](validation/2026-10-13-pet-timer-hover.md) | 최초 2초 표시 구현·928개 검사. 후속 요청으로 호버 유지·즉시 이탈 숨김으로 변경 |
+| [말풍선 접합부 보더 검증](validation/2026-10-15-bubble-border-join.md) | 본체·꼬리 합집합 외곽선, 4개 테마·좌우·상태·불투명도·배율 픽셀 검사와 전후 이미지 |
+| [GLB 1% 외곽선 검증](validation/2026-10-15-glb-one-percent-outline.md) | 현재 고정 두께 1%, 요소별 경계 유지·서브픽셀 표시와 검사 |
+| [GLB 요소별 외곽선 검증](validation/2026-10-15-glb-element-outline.md) | 내부 고정 5%, 보이는 메시·재질 경계, 가림·투명도·저장·회전 검사와 실제 Kei 비교 |
+| [GLB 외곽선 검증](validation/2026-10-15-glb-outline.md) | 최초 10% 전체 테두리 구현 이력. 현재 동작은 위 5% 요소별 외곽선 검증 참고 |
 | [GLB 미리보기 높이·펫 표시 크기 검증](validation/2026-10-13-glb-preview-size.md) | 기본 360px·펫 약 2.1배 확대, 작은 창 적응·스크롤 크기 유지와 902개 검사·macOS 확인 |
 | [GLB 미리보기 확장·설정 배치 검증](validation/2026-10-13-glb-wide-preview.md) | 전체 폭 미리보기, 하단 파일·펫 선택 오른쪽 행동 연결, 899개 검사·macOS 기본/최소 창 |
 | [GLB 미리보기 내부 화살표 검증](validation/2026-10-13-glb-preview-overlay-arrows.md) | XYZ 입력·Z축 조절 제거, 내부 화살표 배치와 887개 검사·macOS 저장 복원 |

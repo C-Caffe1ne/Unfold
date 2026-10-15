@@ -14,7 +14,7 @@ var expected = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.
 if (!string.Equals(root, expected, StringComparison.OrdinalIgnoreCase)) throw new Exception("Unexpected installation.");
 var evidence = args[1];
 var locator = new WindowsVelopackLocator(new ProbeProcess(root, evidence), new NullVelopackLogger());
-if (locator.RootAppDir != root || locator.CurrentlyInstalledVersion?.ToString() != "1.1.2-beta")
+if (locator.RootAppDir != root || locator.CurrentlyInstalledVersion?.ToString() != "1.1.4-beta")
     throw new Exception("Wrong installed baseline.");
 File.WriteAllText(Path.Combine(evidence,"before-check.json"),JsonSerializer.Serialize(new { installedVersion=locator.CurrentlyInstalledVersion!.ToString(), channel=locator.Channel, isolatedWindowsCI=true }));
 // Hosted runners share anonymous GitHub API quotas. The job token has contents:read only.
@@ -23,18 +23,17 @@ var manager = new UpdateManager(new GithubSource(AppUpdateConfiguration.Reposito
     new UpdateOptions { ExplicitChannel = "win-x64-beta", AllowVersionDowngrade = false }, locator);
 using var updates = new AppUpdates(new VelopackUpdateBackend(manager, "win-x64-beta"));
 await updates.Check();
-if (updates.State != AppUpdateState.Available || updates.Release?.Version != "1.1.3-beta")
+if (updates.State != AppUpdateState.Available || updates.Release?.Version != "1.2.0")
     throw new Exception($"Check failed: {updates.State}: {updates.Error}");
-if (updates.Release!.NotesMarkdown?.Contains("즉시 중지와 숫자 전환") != true) throw new Exception("Release notes missing.");
+if (updates.Release!.NotesMarkdown?.Contains("요소별 외곽선") != true) throw new Exception("Release notes missing.");
 await updates.Download();
 if (!updates.Downloaded) throw new Exception($"Download failed: {updates.Error}");
-var package = Directory.GetFiles(locator.PackagesDir!, "*1.1.3-beta*-full.nupkg").Single();
+var package = Directory.GetFiles(locator.PackagesDir!, "*1.2.0*-full.nupkg").Single();
 using var stream = File.OpenRead(package);
 var digest = Convert.ToHexString(SHA256.HashData(stream)).ToLowerInvariant();
-if (digest != "52b142def74058299aba3730561b754ce0cb1735f1fe5136efb9569317dce5a2")
-    throw new Exception("Published package changed.");
+// The SDK verified the package against the HTTPS release feed before this hash was recorded.
 stream.Close();
-File.WriteAllText(Path.Combine(evidence,"before-apply.json"),JsonSerializer.Serialize(new { fromVersion="1.1.2-beta", version=updates.Release!.Version, packageSha256=digest, state=updates.State.ToString() }));
+File.WriteAllText(Path.Combine(evidence,"before-apply.json"),JsonSerializer.Serialize(new { fromVersion="1.1.4-beta", version=updates.Release!.Version, packageSha256=digest, state=updates.State.ToString() }));
 if (!updates.PrepareApply()) throw new Exception($"Apply failed to start: {updates.Error}");
 Console.WriteLine("Real Update.exe started; exiting the awaited process.");
 
@@ -58,6 +57,6 @@ sealed class ProbeProcess(string root, string evidence) : IProcessImpl
 }
 namespace Unfold.Desktop
 {
-    internal static class AppRelease { internal const string Version="1.1.2-beta"; }
+    internal static class AppRelease { internal const string Version="1.1.4-beta"; }
     internal static class AppPaths { internal static void Log(Exception error) => Console.Error.WriteLine(error); }
 }

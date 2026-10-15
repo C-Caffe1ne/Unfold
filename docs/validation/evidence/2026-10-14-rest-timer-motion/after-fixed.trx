@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="5182d31b-184b-4ab8-a5ec-cfbb66a56edd" name="@hwanghyeonseong-ui-MacBookAir 2026-10-14 15:53:52" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-14T15:53:52.0647670+09:00" queuing="2026-10-14T15:53:52.0647670+09:00" start="2026-10-14T15:53:45.2045160+09:00" finish="2026-10-14T15:53:52.0715530+09:00" />
+  <TestSettings name="default" id="77bb5619-0212-4433-8226-ebf9ec666805">
+    <Deployment runDeploymentRoot="_hwanghyeonseong-ui-MacBookAir_2026-10-14_15_53_52" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="eaae31be-8e39-493e-86b3-079135992d47" testId="f652d96a-d76f-9d5d-1056-37dda26934ed" testName="Unfold.Tests.PetTimerHoverTests.TimeCaptionAndControlsUseTheirOwnWindowWithoutArrangingThePet" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:01.4979003" startTime="2026-10-14T15:53:50.0552880+09:00" endTime="2026-10-14T15:53:51.5675390+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="eaae31be-8e39-493e-86b3-079135992d47" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Unfold.Tests.PetTimerHoverTests.TimeCaptionAndControlsUseTheirOwnWindowWithoutArrangingThePet" storage="/private/tmp/unfold-rest-timer-motion-20261014-1791960222651/source/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="f652d96a-d76f-9d5d-1056-37dda26934ed">
+      <Execution id="eaae31be-8e39-493e-86b3-079135992d47" />
+      <TestMethod codeBase="/private/tmp/unfold-rest-timer-motion-20261014-1791960222651/source/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.PetTimerHoverTests" name="TimeCaptionAndControlsUseTheirOwnWindowWithoutArrangingThePet" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="f652d96a-d76f-9d5d-1056-37dda26934ed" executionId="eaae31be-8e39-493e-86b3-079135992d47" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="목록에 없는 결과" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="로드된 모든 결과" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="1" executed="1" passed="1" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.12)
+[xUnit.net 00:00:00.97]   Discovering: Unfold.Tests
+[xUnit.net 00:00:01.86]   Discovered:  Unfold.Tests
+[xUnit.net 00:00:03.15]   Starting:    Unfold.Tests
+[xUnit.net 00:00:05.07]   Finished:    Unfold.Tests
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

@@ -8,10 +8,11 @@ public sealed partial class GlbModel
     // One workspace per model, shared by all action clips and preview sizes.
     // Only scratch storage is reused: returned PixelImages always own their pixels.
     // Grow to the largest requested size rather than retaining a pool for every
-    // size/clip. Color + depth are bounded by the 2048px raster limit (32 MiB).
+    // size/clip. Color + depth + element IDs + outline seeds are bounded by
+    // the 2048px raster limit (64 MiB).
     private readonly RenderWorkspace renderWorkspace = new();
     private readonly record struct BlendTriangle(Vector3 A, Vector3 B, Vector3 C,
-        Vector2 UvA, Vector2 UvB, Vector2 UvC, Material Material, int Order)
+        Vector2 UvA, Vector2 UvB, Vector2 UvC, Material Material, int Element, int Order)
     {
         public float Depth => A.Z / 3 + B.Z / 3 + C.Z / 3;
     }
@@ -23,11 +24,15 @@ public sealed partial class GlbModel
         private float[] depth = [];
         private Vector3[] vertices = [];
         private Matrix4x4[] joints = [];
+        private int[] outlineSeeds = [];
+        private int[] elements = [];
         public PoseWorkspace? Pose;
         public Span<uint> Colors(int length) => Buffer(ref colors, length);
         public Span<float> Depth(int length) => Buffer(ref depth, length);
         public Span<Vector3> Vertices(int length) => Buffer(ref vertices, length);
         public Span<Matrix4x4> Joints(int length) => Buffer(ref joints, length);
+        public Span<int> OutlineSeeds(int length) => Buffer(ref outlineSeeds, length);
+        public Span<int> Elements(int length) => Buffer(ref elements, length);
         private static Span<T> Buffer<T>(ref T[] buffer, int length)
         {
             if (buffer.Length < length) buffer = new T[length];
@@ -224,6 +229,7 @@ public sealed partial class GlbModel
         var scale = size * .78f / Math.Max(width, height); var center = (bounds.Min.X + bounds.Max.X) * .5f;
         pixels.Clear(); renderWorkspace.Blended.Clear();
         var depth = renderWorkspace.Depth(size * size); depth.Fill(float.NegativeInfinity);
+        var elements = renderWorkspace.Elements(size * size); elements.Clear();
         foreach (var node in visible) foreach (var primitive in meshes[nodes[node].Mesh])
         {
             var vertices = renderWorkspace.Vertices(primitive.Positions.Length);
@@ -232,14 +238,16 @@ public sealed partial class GlbModel
             for (var i = 0; i < vertices.Length; i++)
             { var v = Vector3.Transform(vertices[i], rotation); vertices[i] = new((v.X - center) * scale + size / 2f, size * .90f - (v.Y - bounds.Min.Y) * scale, v.Z); }
             var material = materials[primitive.Material];
+            // Group triangles and same-material primitives within one node.
+            var element = node * materials.Length + primitive.Material + 1;
             for (var i = 0; i < primitive.Indices.Length; i += 3)
             {
                 var ai = primitive.Indices[i]; var bi = primitive.Indices[i + 1]; var ci = primitive.Indices[i + 2];
                 var a = vertices[ai]; var b = vertices[bi]; var c = vertices[ci];
                 var uvA = primitive.Uvs[ai]; var uvB = primitive.Uvs[bi]; var uvC = primitive.Uvs[ci];
                 if (material.Alpha == "BLEND")
-                    renderWorkspace.Blended.Add(new(a, b, c, uvA, uvB, uvC, material, renderWorkspace.Blended.Count));
-                else RasterTriangle(a, b, c, uvA, uvB, uvC, material, size, pixels, depth);
+                    renderWorkspace.Blended.Add(new(a, b, c, uvA, uvB, uvC, material, element, renderWorkspace.Blended.Count));
+                else RasterTriangle(a, b, c, uvA, uvB, uvC, material, element, size, pixels, depth, elements);
             }
         }
         // Larger Z is closer to the camera. Opaque depth is complete before the
@@ -249,10 +257,11 @@ public sealed partial class GlbModel
             var order = a.Depth.CompareTo(b.Depth); return order != 0 ? order : a.Order.CompareTo(b.Order);
         });
         foreach (var t in renderWorkspace.Blended)
-            RasterTriangle(t.A, t.B, t.C, t.UvA, t.UvB, t.UvC, t.Material, size, pixels, depth);
+            RasterTriangle(t.A, t.B, t.C, t.UvA, t.UvB, t.UvC, t.Material, t.Element, size, pixels, depth, elements);
+        ApplyOutline(size, pixels, elements);
     }
     private static void RasterTriangle(Vector3 a, Vector3 b, Vector3 c, Vector2 uvA, Vector2 uvB, Vector2 uvC,
-        Material material, int size, Span<uint> pixels, Span<float> depth)
+        Material material, int element, int size, Span<uint> pixels, Span<float> depth, Span<int> elements)
     {
         var area = Edge(a, b, c.X, c.Y); if (!float.IsFinite(area) || Math.Abs(area) < .00001f) return;
         var blend = material.Alpha == "BLEND";
@@ -270,11 +279,16 @@ public sealed partial class GlbModel
                 (wc == 0 && !OwnsEdge(a, b, area)))) continue;
             var z = wa * a.Z + wb * b.Z + wc * c.Z; var index = y * size + x; if (z <= depth[index]) continue;
             var color = Texture(material, uvA * wa + uvB * wb + uvC * wc);
-            if (blend) pixels[index] = Over(color, pixels[index]);
+            if (blend)
+            {
+                pixels[index] = Over(color, pixels[index]);
+                if (color >> 24 != 0) elements[index] = element;
+            }
             else
             {
                 if (material.Alpha == "MASK" && (color >> 24) / 255f < material.Cutoff) continue;
                 pixels[index] = color | 0xFF000000; depth[index] = z;
+                elements[index] = element;
             }
         }
     }

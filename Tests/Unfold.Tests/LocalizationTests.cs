@@ -17,6 +17,7 @@ using Unfold.Desktop;
 
 namespace Unfold.Tests;
 
+[Collection("Timer settings")]
 public class LocalizationTests
 {
     [AvaloniaFact]

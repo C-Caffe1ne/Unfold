@@ -38,6 +38,11 @@ jobs:
           dotnet-version: '10.0.x'
       - run: dotnet restore Unfold.slnx --locked-mode
       - run: dotnet tool restore
+      - name: Verify release packaging contracts
+        run: python -m unittest discover -s Tests/Packaging -p test_stable_release.py -v
+      - name: Verify macOS notarization gates
+        if: runner.os == 'macOS'
+        run: python3 -m unittest discover -s Tests/Packaging -p test_macos_notarization.py -v
       - name: Prepare MP4 import tools
         run: dotnet run --project tools/Unfold.MediaSetup -- ${{ matrix.rid }} "${{ github.workspace }}"
       - name: Run full tests
