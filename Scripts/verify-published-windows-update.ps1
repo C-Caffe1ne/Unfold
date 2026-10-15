@@ -22,11 +22,14 @@ $process = Start-Process $installer -ArgumentList '--silent' -PassThru
 if (-not $process.WaitForExit(120000) -or $process.ExitCode -ne 0) { throw 'Previous installer failed.' }
 $probe = Join-Path $scratch 'probe'
 New-Item -ItemType Directory -Path $probe | Out-Null
-$appUpdates = [Security.SecurityElement]::Escape((Join-Path $root 'src/Unfold.Desktop/AppUpdates.cs'))
+# Run the actual updater source shipped with the baseline, not the new client's code.
+$baselineUpdates = Join-Path $probe 'AppUpdates.cs'
+Invoke-WebRequest 'https://raw.githubusercontent.com/C-Caffe1ne/Unfold/4c64bfc5eacd9835454e4d26179aca0f46c55cf9/src/Unfold.Desktop/AppUpdates.cs' -OutFile $baselineUpdates
+if ((Get-FileHash $baselineUpdates -Algorithm SHA256).Hash.ToLowerInvariant() -ne '1270cad7e330dee1603b0923ce366f1932f7cbc86cb61345eb76805014a29bc9') { throw 'Baseline updater source changed.' }
 @"
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup><TargetFramework>net10.0</TargetFramework><OutputType>Exe</OutputType><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><NoWarn>CA1416</NoWarn></PropertyGroup>
-  <ItemGroup><PackageReference Include="Velopack" Version="1.2.0"/><Compile Include="$appUpdates" Link="AppUpdates.cs"/></ItemGroup>
+  <ItemGroup><PackageReference Include="Velopack" Version="1.2.0"/></ItemGroup>
 </Project>
 "@ | Set-Content (Join-Path $probe 'Probe.csproj')
 Copy-Item (Join-Path $PSScriptRoot 'verification/PublishedWindowsUpdateProbe.cs') (Join-Path $probe 'Program.cs')
@@ -43,8 +46,10 @@ $metadata = [xml](Get-Content -Raw (Join-Path $installed 'current/sq.version'))
 $ns = [Xml.XmlNamespaceManager]::new($metadata.NameTable)
 $ns.AddNamespace('n', 'http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd')
 $version = $metadata.SelectSingleNode('/n:package/n:metadata/n:version', $ns).InnerText
+$channel = $metadata.SelectSingleNode('/n:package/n:metadata/n:channel', $ns).InnerText
+if ($channel -ne 'win-x64-stable') { throw 'The installed package did not switch to stable metadata.' }
 if ($version -ne '1.2.0' -or -not $smoke.success -or $smoke.timerRefinements.version -ne 'v1.2.0') { throw 'Updated version or native restart diagnostic failed.' }
 if ((Get-FileHash $sentinel -Algorithm SHA256).Hash -ne $sentinelHash) { throw 'Update changed existing user data.' }
 Copy-Item (Join-Path $env:UNFOLD_DATA_DIR 'verification') (Join-Path $evidence 'verification') -Recurse
-@{ success = $true; runtime = 'win-x64'; fromVersion = '1.1.4-beta'; version = $version; realAppUpdatesPrepareApply = $true; applicationReplaced = $true; restartedWithDiagnosticArgument = $true; userDataPreserved = $true; smokeSuccess = $smoke.success; smokeImages = $smoke.imageFiles } | ConvertTo-Json | Set-Content (Join-Path $evidence 'result.json')
+@{ success = $true; runtime = 'win-x64'; fromVersion = '1.1.4-beta'; version = $version; channel = $channel; realAppUpdatesPrepareApply = $true; applicationReplaced = $true; restartedWithDiagnosticArgument = $true; userDataPreserved = $true; smokeSuccess = $smoke.success; smokeImages = $smoke.imageFiles } | ConvertTo-Json | Set-Content (Join-Path $evidence 'result.json')
 Write-Output 'PASS: public 1.1.4-beta -> 1.2.0, real Update.exe apply/restart, native diagnostic captures, preserved user data.'
