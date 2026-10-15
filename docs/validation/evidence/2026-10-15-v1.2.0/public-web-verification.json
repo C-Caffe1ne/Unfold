@@ -1,0 +1,40 @@
+{
+  "webCommit": "b66bdef78e5f07709f3317eed2e42c66fa601199",
+  "checks": [
+    {
+      "route": "/install",
+      "status": 200,
+      "exactDeployedBytes": true
+    },
+    {
+      "route": "/changelog",
+      "status": 200,
+      "exactDeployedBytes": true
+    },
+    {
+      "route": "/dashboard",
+      "status": 200,
+      "exactDeployedBytes": true
+    },
+    {
+      "route": "/downloads/Unfold-v1.2.0-osx-arm64-notarized-installer.zip",
+      "status": 302,
+      "targetMatches": true
+    },
+    {
+      "route": "/downloads/Unfold-v1.2.0-osx-x64-notarized-installer.zip",
+      "status": 302,
+      "targetMatches": true
+    },
+    {
+      "route": "/downloads/Unfold-v1.2.0-win-x64-installer.zip",
+      "status": 302,
+      "targetMatches": true
+    },
+    {
+      "route": "/downloads/Unfold-v1.2.0-notarized-ZIP-SHA256SUMS.txt",
+      "status": 302,
+      "targetMatches": true
+    }
+  ]
+}

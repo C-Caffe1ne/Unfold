@@ -6,7 +6,7 @@ import { createCheckoutHandler } from '../functions/_shared/checkout.mjs';
 import { createLemonWebhookHandler } from '../functions/_shared/lemon-webhook.mjs';
 import { now, webhookSecret, checkoutHost, variant, checkout, orderEvent, webhookRequest, checkoutRequest } from './fixtures/lemon.mjs';
 
-const usdMigration = '20261014113000_lemon_usd_price.sql';
+const usdMigration = '20261015134723_lemon_usd_price.sql';
 const migration = file => readFile(new URL(`../migrations/${file}`, import.meta.url), 'utf8');
 let db, sequence = 700, krwOrder, krwProvider;
 before(async () => {

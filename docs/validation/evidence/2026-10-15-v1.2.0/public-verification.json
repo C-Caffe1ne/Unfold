@@ -1,0 +1,61 @@
+{
+  "release": "https://github.com/C-Caffe1ne/Unfold/releases/tag/v1.2.0",
+  "publishedAt": "2026-10-15T13:59:14Z",
+  "latestStable": true,
+  "anonymousAccess": true,
+  "repositoryPublic": true,
+  "productCommit": "99db3773ff78b3d8c9721f6b07fb0b64a39a1178",
+  "assets": 16,
+  "publicChecks": [
+    {
+      "name": "releases.osx-arm64-stable.json",
+      "status": 200,
+      "sha256Match": true
+    },
+    {
+      "name": "releases.osx-arm64-beta.json",
+      "status": 200,
+      "sha256Match": true
+    },
+    {
+      "name": "releases.osx-x64-stable.json",
+      "status": 200,
+      "sha256Match": true
+    },
+    {
+      "name": "releases.osx-x64-beta.json",
+      "status": 200,
+      "sha256Match": true
+    },
+    {
+      "name": "releases.win-x64-stable.json",
+      "status": 200,
+      "sha256Match": true
+    },
+    {
+      "name": "releases.win-x64-beta.json",
+      "status": 200,
+      "sha256Match": true
+    },
+    {
+      "name": "Unfold-v1.2.0-osx-arm64-notarized-installer.zip",
+      "status": 206,
+      "zipHeader": true
+    },
+    {
+      "name": "Unfold-v1.2.0-osx-x64-notarized-installer.zip",
+      "status": 206,
+      "zipHeader": true
+    },
+    {
+      "name": "Unfold-v1.2.0-win-x64-installer.zip",
+      "status": 206,
+      "zipHeader": true
+    },
+    {
+      "name": "Unfold-v1.2.0-notarized-ZIP-SHA256SUMS.txt",
+      "status": 200,
+      "sha256Match": true
+    }
+  ]
+}

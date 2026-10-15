@@ -1,0 +1,18 @@
+{
+  "approvedByUser": true,
+  "project": "xrelgkdawkogrwxmwkcx",
+  "migration": "lemon_usd_price",
+  "livePrice": {
+    "id": "unfold-global",
+    "market": "GLOBAL",
+    "currency": "USD",
+    "amountMinor": 299,
+    "enabled": true
+  },
+  "previousKrwLiveDisabled": true,
+  "sameLiveVariantTransferred": true,
+  "testMappingPreserved": true,
+  "existingKrwReceiptsStillPresent": true,
+  "edgeFunctionsRedeployed": false,
+  "realPurchasePerformed": false
+}

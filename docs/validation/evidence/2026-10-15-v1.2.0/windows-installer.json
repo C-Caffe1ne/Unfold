@@ -1,0 +1,13 @@
+{
+  "userData": "C:\\Users\\runneradmin\\AppData\\Local\\Temp\\Unfold-installer-qa-5405c83cd0304e82adef420e3cd0c939",
+  "checks": [
+    "silent-install",
+    "installed-payload-and-updater-metadata",
+    "installed-executable-version",
+    "installation-preserves-login-opt-out",
+    "reinstall",
+    "uninstall-with-preserved-user-data-and-startup-removal"
+  ],
+  "version": "1.2.0",
+  "success": true
+}

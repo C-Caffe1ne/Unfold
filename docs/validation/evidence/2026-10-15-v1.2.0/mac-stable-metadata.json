@@ -1,0 +1,16 @@
+{
+  "osx-arm64": {
+    "bundleDisplayName": "Unfold",
+    "version": "1.2.0",
+    "build": "100200000",
+    "stablePackageSha256": "27D7389A9BE6187D83873EC363675F4EFB143A0E738C9D53BB3AD3683B40F669",
+    "betaAliasIdentical": true
+  },
+  "osx-x64": {
+    "bundleDisplayName": "Unfold",
+    "version": "1.2.0",
+    "build": "100200000",
+    "stablePackageSha256": "B22D0F3DDB634FC0D7C10FFE1185FD2DED260869CFD06410127B33FA24FFEA20",
+    "betaAliasIdentical": true
+  }
+}
