@@ -68,6 +68,46 @@ public class SettingsDashboardTests
         }
     }
 
+    [AvaloniaTheory]
+    [InlineData(AppLanguage.Korean, 0)]
+    [InlineData(AppLanguage.Korean, 32)]
+    [InlineData(AppLanguage.English, 0)]
+    [InlineData(AppLanguage.English, 32)]
+    [InlineData(AppLanguage.Japanese, 0)]
+    [InlineData(AppLanguage.Japanese, 32)]
+    [InlineData(AppLanguage.ChineseSimplified, 0)]
+    [InlineData(AppLanguage.ChineseSimplified, 32)]
+    public void MinimumWindowKeepsEveryPetScaleVisibleWithoutPreviewScroll(AppLanguage language, int titleBarInset)
+    {
+        using var scope = new Scope(language); var window = scope.Window;
+        var scroll = Find<ScrollViewer>(window, "CompanionPreviewScroll");
+        var stage = Find<Grid>(window, "CompanionPreviewStage");
+        var slider = Find<Slider>(window, "PetScale");
+        // Headless has no native title bar. Reserve its space explicitly as well.
+        Find<Border>(window, "SettingsFrame").Margin = new Thickness(0, titleBarInset, 0, 0);
+        foreach (var theme in Enum.GetValues<AppTheme>())
+        {
+            scope.Runtime.SetTheme(theme);
+            foreach (var size in new[] { new Size(window.MinWidth, window.MinHeight),
+                new Size(window.MinWidth - 100, window.MinHeight - 100), new Size(1120, window.MinHeight), new Size(1440, 960) })
+            {
+                window.Width = size.Width; window.Height = size.Height;
+                foreach (var scale in new[] { 50, 100, 150 })
+                {
+                    slider.Value = scale; Dispatcher.UIThread.RunJobs(); window.UpdateLayout(); Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+                    var context = $"{language}/{theme}, title={titleBarInset}, requested={size}, actual={window.ClientSize}, scale={scale}, extent={scroll.Extent}, viewport={scroll.Viewport}";
+                    Assert.True(window.ClientSize.Width >= window.MinWidth && window.ClientSize.Height >= window.MinHeight, context);
+                    Assert.True(scroll.Extent.Width <= scroll.Viewport.Width + 1 && scroll.Extent.Height <= scroll.Viewport.Height + 1, context);
+                    var at = stage.TranslatePoint(default, scroll)!.Value;
+                    Assert.True(at.X >= 0 && at.Y >= 0 && at.X + stage.Bounds.Width <= scroll.Bounds.Width + 1 &&
+                        at.Y + stage.Bounds.Height <= scroll.Bounds.Height + 1, context);
+                    var dashboard = Find<ScrollViewer>(window, "SettingsDashboardScroll");
+                    Assert.True(dashboard.Extent.Height <= dashboard.Viewport.Height + 1, context);
+                }
+            }
+        }
+    }
+
     [AvaloniaFact]
     public void PetScaleSitsAboveThePickerAndPersistsWithoutLegendLabels()
     {
@@ -94,7 +134,7 @@ public class SettingsDashboardTests
         var previewScroll = Find<ScrollViewer>(window, "CompanionPreviewScroll");
         Assert.Single(stage.Children); Assert.Same(host, stage.Children[0]);
         Assert.DoesNotContain(stage.Children, child => child is Avalonia.Controls.Shapes.Ellipse);
-        foreach (var size in new[] { new Size(1120, 800), new Size(860, 680) })
+        foreach (var size in new[] { new Size(1120, 800), new Size(window.MinWidth, window.MinHeight) })
         {
             window.Width = size.Width; window.Height = size.Height;
             foreach (var scale in new[] { 50, 100, 150 })
@@ -105,8 +145,7 @@ public class SettingsDashboardTests
                 Assert.Equal(actualSize, stage.Width); Assert.Equal(actualSize, stage.Height);
                 Assert.Equal($"{scale}%", value.Text);
                 Assert.True(previewScroll.Extent.Width <= previewScroll.Viewport.Width + 1);
-                var expectsScroll = size == new Size(860, 680) && scale == 150;
-                Assert.True(expectsScroll == (previewScroll.Extent.Height > previewScroll.Viewport.Height + 1),
+                Assert.True(previewScroll.Extent.Height <= previewScroll.Viewport.Height + 1,
                     $"Window={size}, scale={scale}, extent={previewScroll.Extent}, viewport={previewScroll.Viewport}");
             }
         }
@@ -529,6 +568,7 @@ public class SettingsDashboardTests
         public AppRuntime Runtime { get; }
         public SettingsWindow Window { get; }
         private readonly AppLanguage previousLanguage = L.Current;
+        private readonly AppTheme previousTheme = DesignSystem.CurrentTheme;
         public Scope(AppLanguage? language = null)
         {
             Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", Root);
@@ -542,6 +582,7 @@ public class SettingsDashboardTests
             Window.HideToTray(); Window.Dispose(); Runtime.Dispose(); lifetime.Dispose();
             Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", previous); temp.Dispose();
             L.Use(previousLanguage); DesignSystem.ApplyLanguage(previousLanguage);
+            DesignSystem.ApplyTheme(previousTheme);
         }
     }
 }

@@ -40,7 +40,7 @@ public sealed partial class SettingsWindow : Window, IDisposable
     private bool CanEditHomeTiming => runtime.AccessAllowed && runtime.Clock.Stopped && runtime.ActiveReminder is null;
     public SettingsWindow(AppRuntime runtime)
     {
-        this.runtime = runtime; Title = L.F("Unfold · 휴식 알림 · {0}", AppRelease.DisplayVersion); Width = 1120; Height = 800; MinWidth = 640; MinHeight = 560;
+        this.runtime = runtime; Title = L.F("Unfold · 휴식 알림 · {0}", AppRelease.DisplayVersion); Width = 1120; Height = 800; MinWidth = 860; MinHeight = 800;
         ConfigureNativeWindowControls();
         Background = DesignSystem.Canvas;
         interval = new NumericUpDown { Name = "ReminderInterval", Minimum = 1, Maximum = 240, Value = runtime.Settings.IntervalMinutes, Increment = 1, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch, FormatString = "0" };
@@ -119,7 +119,7 @@ public sealed partial class SettingsWindow : Window, IDisposable
             {
                 if (e.Property == NumericUpDown.ValueProperty || e.Property == NumericUpDown.TextProperty) PreferencesEdited();
             };
-        Closing += (_, e) => { if (handedOff) return; e.Cancel = true; HideToTray(); };
+        Closing += (_, e) => { if (handedOff || e.CloseReason == WindowCloseReason.OSShutdown) return; e.Cancel = true; HideToTray(); };
         previewRetry.Tick += (_, _) => { previewRetry.Stop(); _ = RefreshPreview(); };
         Opened += (_, _) => ResumePreview();
         runtime.Changed += Refresh; Closed += (_, _) => Dispose();

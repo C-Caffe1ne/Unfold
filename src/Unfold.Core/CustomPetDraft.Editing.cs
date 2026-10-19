@@ -60,12 +60,12 @@ public sealed partial class CustomPetDraft
     }
     public CharacterPackage Save(CharacterLibrary library, string name)
     {
-        if (!IsEditing || sourceDirectory != library.PackagePath(Id)) throw new InvalidDataException(L.T("편집할 펫을 다시 선택해 주세요."));
+        if (IsEditing && sourceDirectory != library.PackagePath(Id)) throw new InvalidDataException(L.T("편집할 펫을 다시 선택해 주세요."));
         var path = Path.Combine(Path.GetTempPath(), $"Unfold-edited-{Guid.NewGuid():N}.unfoldpet");
         try
         {
             Export(name, path); using var pack = CharacterPack.Open(path);
-            var installed = library.InstallEdited(pack, expectedRevision!);
+            var installed = expectedRevision is null ? library.Install(pack, null) : library.InstallEdited(pack, expectedRevision);
             expectedRevision = CharacterLibrary.PetRevision(installed.DirectoryPath);
             contentVersion = new(contentVersion.Major, contentVersion.Minor, checked(contentVersion.Build + 1));
             return installed;

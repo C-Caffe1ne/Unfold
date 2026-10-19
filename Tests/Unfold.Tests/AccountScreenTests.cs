@@ -347,9 +347,16 @@ public class AccountLoopbackTests
         using var http = new HttpClient();
         var wrong = await http.GetAsync(new Uri(callback.RedirectUri, "/favicon.ico"), deadline.Token);
         Assert.Equal(HttpStatusCode.BadRequest, wrong.StatusCode);
+        Assert.Equal("text/plain", wrong.Content.Headers.ContentType!.MediaType);
         Assert.False(receiving.IsCompleted);
         var response = await http.GetAsync(callback.RedirectUri + "?code=private-code", deadline.Token);
-        Assert.Equal("Return to app", await response.Content.ReadAsStringAsync(deadline.Token));
+        var page = await response.Content.ReadAsStringAsync(deadline.Token);
+        Assert.Equal("text/html", response.Content.Headers.ContentType!.MediaType);
+        Assert.Equal("utf-8", response.Content.Headers.ContentType.CharSet);
+        Assert.Contains("<h1 id=\"return-message\">Return to app</h1>", page);
+        Assert.DoesNotContain("private-code", page);
+        Assert.Equal(Encoding.UTF8.GetByteCount(page), response.Content.Headers.ContentLength);
+        Assert.Equal(AccountBrowserReturnPage.ContentSecurityPolicy, response.Headers.GetValues("Content-Security-Policy").Single());
         Assert.True(response.Headers.CacheControl!.NoStore);
         Assert.Equal("?code=private-code", (await receiving).Query);
     }
@@ -365,6 +372,8 @@ public class AccountLoopbackTests
             var receiving = callback.ReceiveAsync(deadline.Token);
             using var http = new HttpClient();
             using var response = await http.GetAsync(callback.RedirectUri, deadline.Token);
+            Assert.Equal("text/html", response.Content.Headers.ContentType!.MediaType);
+            Assert.Contains("Return to app", await response.Content.ReadAsStringAsync(deadline.Token));
             await Assert.ThrowsAnyAsync<OperationCanceledException>(() => receiving);
         }
         finally { callback.Dispose(); }

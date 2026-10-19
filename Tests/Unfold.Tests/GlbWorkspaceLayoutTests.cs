@@ -233,15 +233,16 @@ public class GlbWorkspaceLayoutTests
             var package = new GlbPetDraft(source) { Name = "설정 창에서 편집할 모델 펫" }.Save(runtime.Library);
             // Diagnostic startup raises MinWidth/MinHeight to its initial 1120×800.
             // Construct the production shell directly to exercise its real minimum size.
-            window = new SettingsWindow(runtime) { Width = 640, Height = 560 };
+            window = new SettingsWindow(runtime);
+            window.Width = window.MinWidth; window.Height = window.MinHeight;
             lifetime.MainWindow = window;
-            Assert.Equal(640, window.MinWidth); Assert.Equal(560, window.MinHeight);
+            Assert.Equal(860, window.MinWidth); Assert.Equal(800, window.MinHeight);
             window.Show(); Layout(window);
             Find<Button>(window, "SettingsNavPacks").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
             await Until(() => window.GetVisualDescendants().OfType<PetBuilderView>().Any());
             await Find<PetBuilderView>(window).OpenPackage(package);
             await Until(() => !Find<GlbPetView>(window).IsBusy && !Find<GlbPetView>(window).IsPreviewLoading); Layout(window);
-            Assert.Equal(640, window.Bounds.Width); Assert.Equal(560, window.Bounds.Height);
+            Assert.Equal(window.MinWidth, window.Bounds.Width); Assert.Equal(window.MinHeight, window.Bounds.Height);
             Assert.Equal(package.Manifest.Id, Find<GlbPetView>(window).EditingId); AssertGeometry(window); AssertPreviewVisible(window);
             Assert.True(DisplayCanvas(window).Height >= 123.9);
             Assert.False(Find<GlbPetView>(window).HasUnsavedChanges);

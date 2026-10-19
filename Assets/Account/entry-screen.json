@@ -32,7 +32,7 @@
     "checkPurchaseButton": "구매 확인",
     "signingInButton": "로그인 중",
     "browserWaiting": "브라우저에서 로그인해 주세요.",
-    "browserReturn": "Unfold로 돌아가 주세요. 이 창은 닫아도 됩니다.",
+    "browserReturn": "Unfold로 돌아가 주세요.\n이 창은 닫아도 됩니다.",
     "signInFailed": "로그인을 완료하지 못했어요. 다시 시도해 주세요.",
     "signInCancelled": "로그인을 취소했어요.",
     "signInUnavailable": "로그인 연결을 확인해 주세요.",

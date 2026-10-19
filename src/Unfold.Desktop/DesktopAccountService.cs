@@ -168,11 +168,11 @@ internal sealed class DesktopAccountService : IAccountScreenService
 internal sealed class AccountLoopbackCallback : IDisposable
 {
     private readonly TcpListener listener;
-    private readonly string browserReturn;
+    private readonly byte[] browserPage;
     public Uri RedirectUri { get; }
     public AccountLoopbackCallback(int port, string browserReturn)
     {
-        this.browserReturn = browserReturn;
+        browserPage = Encoding.UTF8.GetBytes(AccountBrowserReturnPage.Render(L.T(browserReturn), L.Current));
         listener = new(IPAddress.Loopback, port) { ExclusiveAddressUse = true };
         listener.Start(4);
         RedirectUri = new($"http://127.0.0.1:{((IPEndPoint)listener.LocalEndpoint).Port}/auth/callback");
@@ -210,8 +210,11 @@ internal sealed class AccountLoopbackCallback : IDisposable
                 // OAuth cancellation may be returned as a fragment, which HTTP never sends.
                 var cancelled = request.Length == 3 && request[0] == "GET" && request[1] == RedirectUri.AbsolutePath
                     && host.Length == 1 && host[0][5..].Trim() == RedirectUri.Authority;
-                var body = Encoding.UTF8.GetBytes(valid || cancelled ? browserReturn : "Invalid callback request.");
-                var response = Encoding.ASCII.GetBytes($"HTTP/1.1 {(valid || cancelled ? "200 OK" : "400 Bad Request")}\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: {body.Length}\r\nCache-Control: no-store\r\nReferrer-Policy: no-referrer\r\nContent-Security-Policy: default-src 'none'\r\nConnection: close\r\n\r\n");
+                var isReturn = valid || cancelled;
+                var body = isReturn ? browserPage : Encoding.UTF8.GetBytes("Invalid callback request.");
+                var contentType = isReturn ? "text/html" : "text/plain";
+                var policy = isReturn ? AccountBrowserReturnPage.ContentSecurityPolicy : "default-src 'none'";
+                var response = Encoding.ASCII.GetBytes($"HTTP/1.1 {(isReturn ? "200 OK" : "400 Bad Request")}\r\nContent-Type: {contentType}; charset=utf-8\r\nContent-Length: {body.Length}\r\nCache-Control: no-store\r\nReferrer-Policy: no-referrer\r\nContent-Security-Policy: {policy}\r\nX-Content-Type-Options: nosniff\r\nConnection: close\r\n\r\n");
                 await stream.WriteAsync(response, requestTimeout.Token);
                 await stream.WriteAsync(body, requestTimeout.Token);
                 if (valid) return callback!;

@@ -432,7 +432,7 @@ internal sealed class GlbPetView : UserControl, IDisposable
         SetBusy(true); preview.SetRunning(false);
         try
         {
-            var path = chooseOutput is not null ? await chooseOutput() : await CustomPetView.PickOutputFile(owner);
+            var path = chooseOutput is not null ? await chooseOutput() : await CustomPetView.PickOutputFile(owner, current.Name);
             if (path is null || closed) return;
             status.Text = L.T("펫 팩 저장 중…");
             await Task.Run(() => current.Export(path));

@@ -483,6 +483,7 @@ public static partial class L
         ["로그인 중"] = new("Signing in", "ログイン中", "正在登录"),
         ["브라우저에서 로그인해 주세요."] = new("Please sign in in your browser.", "ブラウザでログインしてください。", "请在浏览器中登录。"),
         ["Unfold로 돌아가 주세요. 이 창은 닫아도 됩니다."] = new("Please return to Unfold. You can close this window.", "Unfoldに戻ってください。このウィンドウは閉じてもかまいません。", "请返回 Unfold。可以关闭此窗口。"),
+        ["Unfold로 돌아가 주세요.\n이 창은 닫아도 됩니다."] = new("Please return to Unfold.\nYou can close this window.", "Unfoldに戻ってください。\nこのウィンドウは閉じてもかまいません。", "请返回 Unfold。\n可以关闭此窗口。"),
         ["로그인을 완료하지 못했어요. 다시 시도해 주세요."] = new("Couldn't complete sign-in. Please try again.", "ログインを完了できませんでした。もう一度お試しください。", "无法完成登录。请重试。"),
         ["로그인을 취소했어요."] = new("Sign-in was canceled.", "ログインをキャンセルしました。", "已取消登录。"),
         ["로그인 연결을 확인해 주세요."] = new("Please check the sign-in connection.", "ログインの接続を確認してください。", "请检查登录连接。"),

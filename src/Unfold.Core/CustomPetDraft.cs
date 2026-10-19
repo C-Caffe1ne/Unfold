@@ -149,7 +149,7 @@ public sealed partial class CustomPetDraft
                 RenderStyle: "smooth");
             AtomicFile.Write(Path.Combine(directory, "character.json"), JsonSerializer.SerializeToUtf8Bytes(manifest, CharacterLibrary.JsonOptions));
             var archive = Path.Combine(root, "custom.unfoldpet");
-            CharacterPack.Create(directory, "1.0.0", archive);
+            CharacterPack.Create(directory, contentVersion.ToString(3), archive);
             // Finish validation before replacing a destination selected in the save dialog.
             AtomicFile.Write(outputPath, ImageCodec.ReadBounded(archive, CharacterPack.MaxArchiveBytes));
         }

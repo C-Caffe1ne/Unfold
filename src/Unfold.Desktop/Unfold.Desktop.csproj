@@ -34,6 +34,8 @@
     <AvaloniaResource Include="../../Art/Brand/unfold-lilac-v1/png/logo/logo-lilac-640.png" Link="Assets/Icons/Brand/logo-lilac-640.png" />
     <AvaloniaResource Include="../../Art/Brand/unfold-lilac-v1/png/logo/logo-light-640.png" Link="Assets/Icons/Brand/logo-light-640.png" />
     <EmbeddedResource Include="../../Assets/Account/entry-screen.json" LogicalName="Unfold.Account.entry-screen.json" />
+    <EmbeddedResource Include="../../Art/Brand/unfold-lilac-v1/png/logo/logo-lilac-640.png" LogicalName="Unfold.Account.BrowserReturn.logo.png" />
+    <EmbeddedResource Include="../../web/assets/pet-rest.png" LogicalName="Unfold.Account.BrowserReturn.companion.png" />
     <Content Include="../../Assets/Account/*">
       <Link>Assets/Account/%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

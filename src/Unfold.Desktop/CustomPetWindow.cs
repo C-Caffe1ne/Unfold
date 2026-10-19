@@ -200,11 +200,22 @@ internal sealed class CustomPetView : UserControl, IDisposable
         return files.FirstOrDefault()?.TryGetLocalPath();
     }
     private Task<string?> PickMedia() => PickMediaFile(owner);
-    private Task<string?> PickOutput() => PickOutputFile(owner);
-    internal static async Task<string?> PickOutputFile(Window owner)
+    private Task<string?> PickOutput() => PickOutputFile(owner, name.Text);
+    internal static string PackFileName(string? petName)
+    {
+        var fileName = string.Concat((petName ?? "").Trim().Select(character =>
+            char.IsControl(character) || "<>:\"/\\|?*".Contains(character) ? '_' : character)).TrimEnd(' ', '.');
+        if (fileName.Length == 0) fileName = "custom-pet";
+        var stem = fileName.Split('.')[0].TrimEnd(' ');
+        if (new[] { "CON", "PRN", "AUX", "NUL" }.Contains(stem, StringComparer.OrdinalIgnoreCase) ||
+            stem.Length == 4 && (stem.StartsWith("COM", StringComparison.OrdinalIgnoreCase) || stem.StartsWith("LPT", StringComparison.OrdinalIgnoreCase)) && stem[3] is >= '1' and <= '9')
+            fileName = "_" + fileName;
+        return fileName.EndsWith(".unfoldpet", StringComparison.OrdinalIgnoreCase) ? fileName : fileName + ".unfoldpet";
+    }
+    internal static async Task<string?> PickOutputFile(Window owner, string? petName)
     {
         var file = await owner.StorageProvider.SaveFilePickerAsync(new() { Title = L.T("커스텀 펫 팩 저장"), DefaultExtension = "unfoldpet",
-            SuggestedFileName = "custom-pet.unfoldpet", ShowOverwritePrompt = true,
+            SuggestedFileName = PackFileName(petName), ShowOverwritePrompt = true,
             FileTypeChoices = [new FilePickerFileType(L.T("Unfold 펫 팩")) { Patterns = ["*.unfoldpet"] }] });
         return file?.TryGetLocalPath();
     }
@@ -255,15 +266,19 @@ internal sealed class CustomPetView : UserControl, IDisposable
     }
     private async Task Save()
     {
-        if (busy || closed || library is null || installed is null || !draft.IsEditing || !HasUnsavedChanges) return;
+        if (busy || closed || library is null || installed is null || !HasUnsavedChanges ||
+            string.IsNullOrWhiteSpace(name.Text) || !draft.Clips.ContainsKey("idle") || pendingPath is not null) return;
         busy = true; preview.SetRunning(false); Refresh();
         try
         {
             var petName = name.Text ?? ""; status.Text = L.T("저장하고 적용하는 중…");
             var package = await Task.Run(() => draft.Save(library, petName));
             if (closed) return;
-            changed = false; savedName = petName; LibraryChanged?.Invoke();
+            if (!draft.IsEditing) draft = await Task.Run(() => new CustomPetDraft(package));
+            if (closed) return;
+            LibraryChanged?.Invoke();
             await installed(package);
+            changed = false; savedName = petName;
             status.Foreground = DesignSystem.Muted; status.Text = L.T("저장 완료");
         }
         catch (Exception error) { ShowError(error); }
@@ -449,8 +464,9 @@ internal sealed class CustomPetView : UserControl, IDisposable
         pendingCard.IsVisible = pendingPath is not null;
         assign.IsEnabled = !busy && pendingPath is not null;
         create.IsEnabled = !busy && !string.IsNullOrWhiteSpace(name.Text) && draft.Clips.ContainsKey("idle");
-        save.IsVisible = editPet.IsVisible = removePet.IsVisible = draft.IsEditing && library is not null;
-        save.IsEnabled = create.IsEnabled && HasUnsavedChanges; editPet.IsEnabled = removePet.IsEnabled = !busy;
+        save.IsVisible = library is not null && installed is not null;
+        editPet.IsVisible = removePet.IsVisible = draft.IsEditing && library is not null;
+        save.IsEnabled = create.IsEnabled && HasUnsavedChanges && pendingPath is null; editPet.IsEnabled = removePet.IsEnabled = !busy;
         foreach (var (key, label) in labels)
         {
             var clip = draft.Clips.GetValueOrDefault(key);

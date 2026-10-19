@@ -140,11 +140,7 @@ public sealed partial class AppRuntime : IDisposable
             Reminder.Tick(monotonic.Elapsed);
             RefreshPetNotice(); Changed?.Invoke();
         };
-        desktop.ShutdownRequested += async (_, e) =>
-        {
-            if (quitting) return;
-            e.Cancel = true; await Quit();
-        };
+        desktop.ShutdownRequested += async (_, e) => await HandleShutdownRequest(e, OperatingSystem.IsWindows());
     }
     public async Task Start(bool background, bool diagnostic = false)
     {
@@ -580,6 +576,16 @@ public sealed partial class AppRuntime : IDisposable
         tray.Menu = menu; tray.Clicked += (_, _) => ShowSettings();
         TrayIcon.SetIcons(Application.Current!, new TrayIcons { tray });
         RefreshTray();
+    }
+    internal async Task HandleShutdownRequest(ShutdownRequestedEventArgs request, bool isWindows)
+    {
+        if (quitting) return;
+        if (isWindows)
+        {
+            // Win32 raises this event for session ending. Menu/button exits call Quit directly.
+            quitting = true; Dispose(); return;
+        }
+        request.Cancel = true; await Quit();
     }
     public async Task Quit()
     {

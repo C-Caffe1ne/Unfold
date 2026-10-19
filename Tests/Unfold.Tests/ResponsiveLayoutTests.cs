@@ -14,39 +14,33 @@ namespace Unfold.Tests;
 public class ResponsiveLayoutTests
 {
     [AvaloniaFact]
-    public void CompactDashboardScrollsToEveryCardAndPreservesEditedControls()
+    public void MinimumDashboardKeepsThePetVisibleAndPreservesEditedControls()
     {
         using var scope = new Scope(); var window = scope.Window;
-        Assert.Equal(640, window.MinWidth); Assert.Equal(560, window.MinHeight);
+        Assert.Equal(860, window.MinWidth); Assert.Equal(800, window.MinHeight);
         scope.Runtime.Stop();
         var rest = Find<NumericUpDown>(window, "BreakDurationMinutes"); rest.Value = 4;
         var timer = Find<Control>(window, "SettingsTimerCard");
         var companion = Find<Control>(window, "SettingsCompanionCard");
         var timing = Find<Control>(window, "SettingsHomeTimingCard");
-        foreach (var width in new[] { 640, 760, 859, 860, 1120, 640 })
+        foreach (var width in new[] { window.MinWidth, 960, 1120, 1440, window.MinWidth })
         {
-            window.Width = width; window.Height = width < 860 ? 560 : 800; Layout(window);
+            window.Width = width; window.Height = window.MinHeight; Layout(window);
             var scroll = Find<ScrollViewer>(window, "SettingsDashboardScroll"); scroll.ScrollToHome(); Layout(window);
             Assert.Same(rest, Find<NumericUpDown>(window, "BreakDurationMinutes")); Assert.Equal(4, rest.Value);
             AssertNoHorizontalOverflow(window);
             var timerPoint = timer.TranslatePoint(default, window)!.Value;
             var companionPoint = companion.TranslatePoint(default, window)!.Value;
             var timingPoint = timing.TranslatePoint(default, window)!.Value;
-            if (width < 860)
-            {
-                Assert.Equal(timerPoint.X, timingPoint.X);
-                Assert.True(timingPoint.Y >= companionPoint.Y + companion.Bounds.Height);
-                Assert.True(scroll.Extent.Height > scroll.Viewport.Height);
-                var preview = Find<ScrollViewer>(window, "CompanionPreviewScroll");
-                Assert.True(preview.Extent.Height <= preview.Viewport.Height + 1);
-                rest.BringIntoView(); Layout(window); AssertInWindow(rest, window);
-                scroll.ScrollToEnd(); Layout(window); AssertInWindow(Find<Button>(window, "SettingsOpenReview"), window);
-            }
-            else
-            {
-                Assert.Equal(timerPoint.Y, timingPoint.Y);
-                Assert.True(timingPoint.X > timerPoint.X + timer.Bounds.Width);
-            }
+            Assert.Equal(timerPoint.Y, timingPoint.Y);
+            Assert.True(timingPoint.X > timerPoint.X + timer.Bounds.Width);
+            Assert.True(companionPoint.Y >= timerPoint.Y + timer.Bounds.Height);
+            Assert.True(scroll.Extent.Height <= scroll.Viewport.Height + 1);
+            var preview = Find<ScrollViewer>(window, "CompanionPreviewScroll");
+            Assert.True(preview.Extent.Height <= preview.Viewport.Height + 1);
+            AssertInWindow(rest, window);
+            Find<ScrollViewer>(window, "SettingsDetailsScroll").ScrollToEnd(); Layout(window);
+            AssertInWindow(Find<Button>(window, "SettingsOpenReview"), window);
             AssertInWindow(Find<Button>(window, "SettingsTheme"), window);
             AssertInWindow(Find<Button>(window, "SettingsNavSettings"), window);
             AssertInWindow(Find<Button>(window, "SettingsQuit"), window);
@@ -54,7 +48,7 @@ public class ResponsiveLayoutTests
         window.Width = 1120; window.Height = 800; Layout(window);
         var editor = rest.GetVisualDescendants().OfType<TextBox>().First(); editor.Focus(); Layout(window);
         Assert.True(editor.IsFocused);
-        window.Width = 640; window.Height = 560; Layout(window);
+        window.Width = window.MinWidth; window.Height = window.MinHeight; Layout(window);
         Assert.True(editor.IsFocused); AssertInWindow(rest, window);
     }
 
@@ -68,9 +62,9 @@ public class ResponsiveLayoutTests
         Assert.Equal(2, Find<Grid>(window, "SettingsNavigationRail").Children.Count);
         Press(window, "SettingsNavSettings");
         var volume = Find<Slider>(window, "ReminderVolumePercent"); volume.Value = 37;
-        foreach (var width in new[] { 640, 760, 860, 1120, 640 })
+        foreach (var width in new[] { window.MinWidth, 960, 1120, window.MinWidth })
         {
-            window.Width = width; window.Height = 560; Layout(window);
+            window.Width = width; window.Height = window.MinHeight; Layout(window);
             Assert.Same(volume, Find<Slider>(window, "ReminderVolumePercent")); Assert.Equal(37, volume.Value);
             Assert.Equal(37, AppSettings.Load(Path.Combine(AppPaths.DataRoot, "settings.json")).ReminderVolumePercent);
             AssertNoHorizontalOverflow(window);
@@ -83,7 +77,7 @@ public class ResponsiveLayoutTests
         AssertInWindow(Find<Button>(window, "CreateCustomPetPack"), window);
         Layout(window);
         var name = Find<TextBox>(window, "CustomPetName"); name.Text = "작성 중인 펫";
-        foreach (var width in new[] { 640, 860, 1120, 640 })
+        foreach (var width in new[] { window.MinWidth, 960, 1120, window.MinWidth })
         {
             window.Width = width; Layout(window); AssertNoHorizontalOverflow(window);
             Assert.Same(name, Find<TextBox>(window, "CustomPetName")); Assert.Equal("작성 중인 펫", name.Text);
