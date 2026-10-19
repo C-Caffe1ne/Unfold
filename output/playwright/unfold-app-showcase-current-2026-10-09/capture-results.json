@@ -1,0 +1,111 @@
+{
+  "metrics": [
+    {
+      "width": 320,
+      "overflow": 0,
+      "headingLines": 2,
+      "headingWithinViewport": true,
+      "brokenImages": [],
+      "sections": [
+        "home",
+        "features",
+        "themes",
+        "pricing-overview",
+        "purchase-details",
+        "install"
+      ]
+    },
+    {
+      "width": 390,
+      "overflow": 0,
+      "headingLines": 2,
+      "headingWithinViewport": true,
+      "brokenImages": [],
+      "sections": [
+        "home",
+        "features",
+        "themes",
+        "pricing-overview",
+        "purchase-details",
+        "install"
+      ]
+    },
+    {
+      "width": 600,
+      "overflow": 0,
+      "headingLines": 2,
+      "headingWithinViewport": true,
+      "brokenImages": [],
+      "sections": [
+        "home",
+        "features",
+        "themes",
+        "pricing-overview",
+        "purchase-details",
+        "install"
+      ]
+    },
+    {
+      "width": 768,
+      "overflow": 0,
+      "headingLines": 2,
+      "headingWithinViewport": true,
+      "brokenImages": [],
+      "sections": [
+        "home",
+        "features",
+        "themes",
+        "pricing-overview",
+        "purchase-details",
+        "install"
+      ]
+    },
+    {
+      "width": 1100,
+      "overflow": 0,
+      "headingLines": 2,
+      "headingWithinViewport": true,
+      "brokenImages": [],
+      "sections": [
+        "home",
+        "features",
+        "themes",
+        "pricing-overview",
+        "purchase-details",
+        "install"
+      ]
+    },
+    {
+      "width": 1440,
+      "overflow": 0,
+      "headingLines": 2,
+      "headingWithinViewport": true,
+      "brokenImages": [],
+      "sections": [
+        "home",
+        "features",
+        "themes",
+        "pricing-overview",
+        "purchase-details",
+        "install"
+      ]
+    },
+    {
+      "width": 1920,
+      "overflow": 0,
+      "headingLines": 2,
+      "headingWithinViewport": true,
+      "brokenImages": [],
+      "sections": [
+        "home",
+        "features",
+        "themes",
+        "pricing-overview",
+        "purchase-details",
+        "install"
+      ]
+    }
+  ],
+  "errors": [],
+  "failed": []
+}

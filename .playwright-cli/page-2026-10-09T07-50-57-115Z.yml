@@ -1,0 +1,108 @@
+- generic [ref=f2e1]:
+  - link "본문으로 건너뛰기" [ref=f2e2] [cursor=pointer]:
+    - /url: "#main"
+  - banner [ref=f2e3]:
+    - generic [ref=f2e4]:
+      - link [ref=f2e5] [cursor=pointer]:
+        - /url: "#home"
+        - img "Unfold" [ref=f2e6]
+      - navigation "주요 메뉴" [ref=f2e7]:
+        - link "기능" [ref=f2e8] [cursor=pointer]:
+          - /url: "#features"
+        - link "테마" [ref=f2e9] [cursor=pointer]:
+          - /url: "#themes"
+        - link "가격" [ref=f2e10] [cursor=pointer]:
+          - /url: "#pricing-overview"
+        - link "다운로드" [ref=f2e11] [cursor=pointer]:
+          - /url: "#install"
+      - generic [ref=f2e12]:
+        - link "로그인/회원가입" [ref=f2e13] [cursor=pointer]:
+          - /url: "#login"
+        - generic [ref=f2e14]:
+          - link "X에서 Unfold 보기 (새 탭)" [ref=f2e15] [cursor=pointer]:
+            - /url: https://x.com/unfold_pet
+          - link "Instagram에서 Unfold 보기 (새 탭)" [ref=f2e16] [cursor=pointer]:
+            - /url: https://www.instagram.com/unfold_pet
+  - main [ref=f2e17]:
+    - text: ✓ ✓ ✓
+    - region [ref=f2e153]:
+      - generic [ref=f2e155]:
+        - heading "다운로드는 무료, 사용은 한 번의 구매" [active] [level=1] [ref=f2e156]
+        - paragraph [ref=f2e157]: 무료 체험 없이 구매 후 전체 기능을 사용합니다. 국내 4,900원(세금 별도)으로 준비하고 있습니다. 현재는 실제 청구 없는 Test 모드입니다.
+      - generic [ref=f2e161]:
+        - generic [ref=f2e162]: 일회성 구매
+        - generic [ref=f2e163]: 4,900원
+        - link "테스트 구매하기" [ref=f2e165] [cursor=pointer]:
+          - /url: "#login"
+        - link "Beta 다운로드" [ref=f2e166] [cursor=pointer]:
+          - /url: "#install"
+      - generic [ref=f2e168]:
+        - heading "궁금한 점을 모았어요" [level=2] [ref=f2e170]
+        - generic [ref=f2e171]:
+          - generic [ref=f2e172]:
+            - heading "지금 구매할 수 있나요?" [level=3] [ref=f2e173]
+            - paragraph [ref=f2e174]: 현재는 Lemon Squeezy 테스트 결제만 이용할 수 있으며 실제 금액은 청구되지 않습니다. 사용 기기 수와 업데이트 제공 범위는 정식 판매 전에 안내합니다.
+          - generic [ref=f2e175]:
+            - heading "다시 설치하면 또 구매해야 하나요?" [level=3] [ref=f2e176]
+            - paragraph [ref=f2e177]: 앱과 웹에서 같은 Google 계정으로 로그인하면 서버에 저장된 이용 권한을 확인합니다. 휴식 기록과 펫 파일의 클라우드 동기화는 제공하지 않습니다.
+          - generic [ref=f2e178]:
+            - heading "회사 컴퓨터에서도 쓸 수 있나요?" [level=3] [ref=f2e179]
+            - paragraph [ref=f2e180]: 별도의 게임 클라이언트 없이 설치할 수 있습니다. 회사 컴퓨터에서는 사내 소프트웨어 설치 정책을 먼저 확인해 주세요.
+          - generic [ref=f2e181]:
+            - heading "결제와 환불은 어떻게 하나요?" [level=3] [ref=f2e182]
+            - paragraph [ref=f2e183]: Lemon Squeezy 결제창으로 연결합니다. 현재는 Test 모드이며, 정식 판매의 환불 조건과 판매자 정보는 실제 판매를 시작하기 전에 안내하겠습니다.
+      - generic [ref=f2e186]:
+        - heading "시작은 Google 계정으로 간편하게" [level=2] [ref=f2e187]
+        - paragraph [ref=f2e188]: 테스터용 Beta를 다운로드하고, 앱에서 Google 로그인 후 이용 코드를 입력하세요.
+        - link "Beta 다운로드" [ref=f2e189] [cursor=pointer]:
+          - /url: "#install"
+    - text: ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓
+  - contentinfo [ref=f2e110]:
+    - generic [ref=f2e111]:
+      - generic [ref=f2e112]:
+        - generic [ref=f2e113]:
+          - link [ref=f2e114] [cursor=pointer]:
+            - /url: "#home"
+            - img "Unfold" [ref=f2e115]
+          - paragraph [ref=f2e116]: 책상에서 오래 일하는 사람을 위한 데스크톱 휴식 동료입니다.
+          - generic [ref=f2e117]:
+            - link "X에서 Unfold 보기 (새 탭)" [ref=f2e118] [cursor=pointer]:
+              - /url: https://x.com/unfold_pet
+            - link "Instagram에서 Unfold 보기 (새 탭)" [ref=f2e119] [cursor=pointer]:
+              - /url: https://www.instagram.com/unfold_pet
+        - generic [ref=f2e120]:
+          - heading "제품" [level=3] [ref=f2e121]
+          - list [ref=f2e122]:
+            - listitem [ref=f2e123]:
+              - link "기능" [ref=f2e124] [cursor=pointer]:
+                - /url: "#features"
+            - listitem [ref=f2e125]:
+              - link "가격" [ref=f2e126] [cursor=pointer]:
+                - /url: "#pricing"
+            - listitem [ref=f2e127]:
+              - link "변경 이력" [ref=f2e128] [cursor=pointer]:
+                - /url: "#changelog"
+        - generic [ref=f2e129]:
+          - heading "도움말" [level=3] [ref=f2e130]
+          - list [ref=f2e131]:
+            - listitem [ref=f2e132]:
+              - link "다운로드" [ref=f2e133] [cursor=pointer]:
+                - /url: "#install"
+            - listitem [ref=f2e134]:
+              - link "macOS 다운로드" [ref=f2e135] [cursor=pointer]:
+                - /url: "#mac"
+            - listitem [ref=f2e136]:
+              - link "Windows 다운로드" [ref=f2e137] [cursor=pointer]:
+                - /url: "#windows"
+        - generic [ref=f2e138]:
+          - heading "계정" [level=3] [ref=f2e139]
+          - list [ref=f2e140]:
+            - listitem [ref=f2e141]:
+              - link "로그인/회원가입" [ref=f2e142] [cursor=pointer]:
+                - /url: "#login"
+            - listitem [ref=f2e143]:
+              - link "프라이버시" [ref=f2e144] [cursor=pointer]:
+                - /url: "#privacy"
+      - generic [ref=f2e145]:
+        - paragraph [ref=f2e146]: © 2026 Unfold
+        - paragraph [ref=f2e147]: Windows 10 이상 · macOS 13 이상

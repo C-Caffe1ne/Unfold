@@ -1,0 +1,128 @@
+- generic [ref=f1e1]:
+  - link "본문으로 건너뛰기" [ref=f1e2] [cursor=pointer]:
+    - /url: "#main"
+  - banner [ref=f1e3]:
+    - generic [ref=f1e4]:
+      - link [ref=f1e5] [cursor=pointer]:
+        - /url: "#home"
+        - img "Unfold" [ref=f1e189]
+      - navigation "주요 메뉴" [ref=f1e70]:
+        - link "기능" [ref=f1e71] [cursor=pointer]:
+          - /url: "#features"
+        - link "테마" [ref=f1e72] [cursor=pointer]:
+          - /url: "#themes"
+        - link "가격" [ref=f1e73] [cursor=pointer]:
+          - /url: "#pricing-overview"
+        - link "다운로드" [ref=f1e74] [cursor=pointer]:
+          - /url: "#install"
+      - generic [ref=f1e7]:
+        - link "로그아웃" [ref=f1e204] [cursor=pointer]:
+          - /url: "#login"
+        - generic [ref=f1e8]:
+          - link "X에서 Unfold 보기 (새 탭)" [ref=f1e9] [cursor=pointer]:
+            - /url: https://x.com/unfold_pet
+          - link "Instagram에서 Unfold 보기 (새 탭)" [ref=f1e10] [cursor=pointer]:
+            - /url: https://www.instagram.com/unfold_pet
+  - main [ref=f1e12]:
+    - text: ✓ ✓ ✓
+    - region [ref=f1e222]:
+      - generic [ref=f1e224]:
+        - heading "다운로드는 무료, 사용은 한 번의 구매" [active] [level=1] [ref=f1e225]
+        - paragraph [ref=f1e226]: Unfold는 내 컴퓨터에 설치해 사용하는 데스크톱 애플리케이션입니다. 구독이 아니라 국내 4,900원(세금 별도)의 일회성 구매이며, 구매하면 Windows·macOS 설치 파일을 내려받아 사용합니다. 무료 체험은 없습니다.
+      - generic [ref=f1e230]:
+        - generic [ref=f1e231]: 일회성 구매
+        - generic [ref=f1e232]: 4,900원
+        - link "구매하기" [ref=f1e234] [cursor=pointer]:
+          - /url: "#login"
+        - link "Beta 다운로드" [ref=f1e235] [cursor=pointer]:
+          - /url: "#install"
+      - generic [ref=f1e237]:
+        - heading "궁금한 점을 모았어요" [level=2] [ref=f1e239]
+        - generic [ref=f1e240]:
+          - generic [ref=f1e241]:
+            - heading "구매하면 무엇을 받나요?" [level=3] [ref=f1e242]
+            - paragraph [ref=f1e243]: Windows·macOS 설치 파일을 내려받아 내 컴퓨터에 설치합니다. 설치형 데스크톱 앱이며 별도로 제공하는 서비스나 작업은 없습니다. 한 번 구매하면 계속 사용합니다. 타이머·펫·휴식 기록은 모두 내 컴퓨터에서 동작합니다.
+          - generic [ref=f1e244]:
+            - heading "다시 설치하면 또 구매해야 하나요?" [level=3] [ref=f1e245]
+            - paragraph [ref=f1e246]: 앱과 웹에서 같은 Google 계정으로 로그인하면 서버에 저장된 이용 권한을 확인합니다. 휴식 기록과 펫 파일의 클라우드 동기화는 제공하지 않습니다.
+          - generic [ref=f1e247]:
+            - heading "인터넷 없이도 쓸 수 있나요?" [level=3] [ref=f1e248]
+            - paragraph [ref=f1e249]: 현재는 앱을 켤 때마다 Google 계정으로 로그인해 구매 권한을 확인합니다. 오프라인 사용은 아직 제공하지 않습니다. 확인이 끝나면 타이머·펫·휴식 기록은 모두 내 컴퓨터에서 동작하며, 기록과 펫 파일은 서버로 올라가지 않습니다.
+          - generic [ref=f1e250]:
+            - heading "회사 컴퓨터에서도 쓸 수 있나요?" [level=3] [ref=f1e251]
+            - paragraph [ref=f1e252]: 별도의 게임 클라이언트 없이 설치할 수 있습니다. 회사 컴퓨터에서는 사내 소프트웨어 설치 정책을 먼저 확인해 주세요.
+          - generic [ref=f1e253]:
+            - heading "결제와 환불은 어떻게 하나요?" [level=3] [ref=f1e254]
+            - paragraph [ref=f1e255]:
+              - text: 결제는 Lemon Squeezy에서 처리합니다. 구입 후 3개월 이내에 신청하시면 환불해 드립니다. 자세한 기준은
+              - link "환불 정책" [ref=f1e256] [cursor=pointer]:
+                - /url: "#refund"
+              - text: ", 판매자 정보는"
+              - link "이용약관" [ref=f1e257] [cursor=pointer]:
+                - /url: "#terms"
+              - text: 에 있습니다.
+      - generic [ref=f1e260]:
+        - heading "시작은 Google 계정으로 간편하게" [level=2] [ref=f1e261]
+        - paragraph [ref=f1e262]: 설치 파일을 내려받아 설치하고, 앱에서 Google 계정으로 로그인하면 바로 사용합니다.
+        - link "Beta 다운로드" [ref=f1e263] [cursor=pointer]:
+          - /url: "#install"
+    - text: ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓
+  - contentinfo [ref=f1e26]:
+    - generic [ref=f1e27]:
+      - generic [ref=f1e28]:
+        - generic [ref=f1e29]:
+          - link [ref=f1e30] [cursor=pointer]:
+            - /url: "#home"
+            - img "Unfold" [ref=f1e191]
+          - paragraph [ref=f1e32]: 책상에서 오래 일하는 사람을 위한 데스크톱 휴식 동료입니다.
+          - generic [ref=f1e33]:
+            - link "X에서 Unfold 보기 (새 탭)" [ref=f1e34] [cursor=pointer]:
+              - /url: https://x.com/unfold_pet
+            - link "Instagram에서 Unfold 보기 (새 탭)" [ref=f1e35] [cursor=pointer]:
+              - /url: https://www.instagram.com/unfold_pet
+        - generic [ref=f1e36]:
+          - heading "제품" [level=3] [ref=f1e37]
+          - list [ref=f1e38]:
+            - listitem [ref=f1e39]:
+              - link "기능" [ref=f1e40] [cursor=pointer]:
+                - /url: "#features"
+            - listitem [ref=f1e41]:
+              - link "가격" [ref=f1e42] [cursor=pointer]:
+                - /url: "#pricing"
+            - listitem [ref=f1e43]:
+              - link "변경 이력" [ref=f1e44] [cursor=pointer]:
+                - /url: "#changelog"
+        - generic [ref=f1e45]:
+          - heading "도움말" [level=3] [ref=f1e46]
+          - list [ref=f1e47]:
+            - listitem [ref=f1e48]:
+              - link "다운로드" [ref=f1e49] [cursor=pointer]:
+                - /url: "#install"
+            - listitem [ref=f1e50]:
+              - link "macOS 다운로드" [ref=f1e51] [cursor=pointer]:
+                - /url: "#mac"
+            - listitem [ref=f1e52]:
+              - link "Windows 다운로드" [ref=f1e53] [cursor=pointer]:
+                - /url: "#windows"
+        - generic [ref=f1e54]:
+          - heading "계정·약관" [level=3] [ref=f1e55]
+          - list [ref=f1e56]:
+            - listitem [ref=f1e57]:
+              - link "로그아웃" [ref=f1e218] [cursor=pointer]:
+                - /url: "#login"
+            - listitem [ref=f1e59]:
+              - link "프라이버시" [ref=f1e60] [cursor=pointer]:
+                - /url: "#privacy"
+            - listitem [ref=f1e61]:
+              - link "이용약관" [ref=f1e62] [cursor=pointer]:
+                - /url: "#terms"
+            - listitem [ref=f1e63]:
+              - link "환불 정책" [ref=f1e64] [cursor=pointer]:
+                - /url: "#refund"
+      - generic [ref=f1e65]:
+        - paragraph [ref=f1e66]: © 2026 Unfold
+        - paragraph [ref=f1e67]: Windows 10 이상 · macOS 13 이상
+      - paragraph [ref=f1e68]:
+        - text: DOKHU(도쿠) · 대표 이현준 · 사업자등록번호 317-29-01908 · (46593) 부산광역시 북구 덕천로 72 ·
+        - link "dokhubooks@gmail.com" [ref=f1e69] [cursor=pointer]:
+          - /url: mailto:dokhubooks@gmail.com

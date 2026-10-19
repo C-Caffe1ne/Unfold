@@ -1,0 +1,67 @@
+[
+  {
+    "flow": "desktop-motion",
+    "pins": 1
+  },
+  {
+    "flow": "theme-oat",
+    "assets": true,
+    "lightbox": true,
+    "pins": 1
+  },
+  {
+    "flow": "theme-sage",
+    "assets": true,
+    "lightbox": true,
+    "pins": 1
+  },
+  {
+    "flow": "theme-midnight",
+    "assets": true,
+    "lightbox": true,
+    "pins": 1
+  },
+  {
+    "flow": "theme-plum",
+    "assets": true,
+    "lightbox": true,
+    "pins": 1
+  },
+  {
+    "flow": "pin-layout",
+    "copyTop": 205.890625,
+    "copyBottom": 447.890625,
+    "parentBottom": 499.625,
+    "copyWithinParent": true,
+    "overflow": false
+  },
+  {
+    "flow": "leave-home",
+    "pins": 0
+  },
+  {
+    "flow": "return-home",
+    "pins": 1
+  },
+  {
+    "flow": "reduced-motion",
+    "pins": 0,
+    "still": true,
+    "scroll": "auto"
+  },
+  {
+    "flow": "lightbox-close",
+    "focus": "hero-shot"
+  },
+  {
+    "flow": "os-keyboard-reload",
+    "selected": "windows",
+    "scrollY": 0
+  },
+  {
+    "flow": "javascript-disabled",
+    "heroVisible": true,
+    "featuresVisible": true,
+    "overflow": false
+  }
+]

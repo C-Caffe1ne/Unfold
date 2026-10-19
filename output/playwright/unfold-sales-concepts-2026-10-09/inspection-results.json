@@ -1,0 +1,484 @@
+{
+  "checks": [
+    {
+      "slug": "studio",
+      "name": "reduced motion",
+      "pass": true
+    },
+    {
+      "slug": "studio",
+      "name": "GLB support present",
+      "pass": true
+    },
+    {
+      "slug": "studio",
+      "name": "removed preview absent",
+      "pass": true
+    },
+    {
+      "slug": "studio",
+      "name": "hero to app screens",
+      "pass": true
+    },
+    {
+      "slug": "studio",
+      "name": "carousel review",
+      "pass": true
+    },
+    {
+      "slug": "studio",
+      "name": "carousel reminder",
+      "pass": true
+    },
+    {
+      "slug": "studio",
+      "name": "reminder aspect ratio",
+      "pass": true,
+      "detail": {
+        "rendered": 2.6735005452562706,
+        "natural": 2.673469387755102
+      }
+    },
+    {
+      "slug": "studio",
+      "name": "carousel wraps",
+      "pass": true
+    },
+    {
+      "slug": "studio",
+      "name": "keyboard carousel",
+      "pass": true
+    },
+    {
+      "slug": "studio",
+      "name": "purchase dialog opens",
+      "pass": true
+    },
+    {
+      "slug": "studio",
+      "name": "no live purchase",
+      "pass": true
+    },
+    {
+      "slug": "studio",
+      "name": "dialog Escape and focus restore",
+      "pass": true
+    },
+    {
+      "slug": "studio",
+      "name": "dialog close button",
+      "pass": true
+    },
+    {
+      "slug": "studio",
+      "name": "mobile menu opens",
+      "pass": true
+    },
+    {
+      "slug": "studio",
+      "name": "mobile menu Escape",
+      "pass": true
+    },
+    {
+      "slug": "studio",
+      "name": "mobile navigation closes menu",
+      "pass": true
+    },
+    {
+      "slug": "studio",
+      "name": "mobile dialog fits",
+      "pass": true
+    },
+    {
+      "slug": "studio",
+      "name": "GSAP motion initialized",
+      "pass": true,
+      "detail": {
+        "version": "3.15.0",
+        "triggers": 3,
+        "pins": 1
+      }
+    },
+    {
+      "slug": "studio",
+      "name": "scroll pins initialized",
+      "pass": true,
+      "detail": {
+        "version": "3.15.0",
+        "triggers": 3,
+        "pins": 1
+      }
+    },
+    {
+      "slug": "night",
+      "name": "reduced motion",
+      "pass": true
+    },
+    {
+      "slug": "night",
+      "name": "GLB support present",
+      "pass": true
+    },
+    {
+      "slug": "night",
+      "name": "removed preview absent",
+      "pass": true
+    },
+    {
+      "slug": "night",
+      "name": "hero to app screens",
+      "pass": true
+    },
+    {
+      "slug": "night",
+      "name": "carousel review",
+      "pass": true
+    },
+    {
+      "slug": "night",
+      "name": "carousel reminder",
+      "pass": true
+    },
+    {
+      "slug": "night",
+      "name": "reminder aspect ratio",
+      "pass": true,
+      "detail": {
+        "rendered": 2.673496423209397,
+        "natural": 2.673469387755102
+      }
+    },
+    {
+      "slug": "night",
+      "name": "carousel wraps",
+      "pass": true
+    },
+    {
+      "slug": "night",
+      "name": "keyboard carousel",
+      "pass": true
+    },
+    {
+      "slug": "night",
+      "name": "desktop accordion",
+      "pass": true
+    },
+    {
+      "slug": "night",
+      "name": "purchase dialog opens",
+      "pass": true
+    },
+    {
+      "slug": "night",
+      "name": "no live purchase",
+      "pass": true
+    },
+    {
+      "slug": "night",
+      "name": "dialog Escape and focus restore",
+      "pass": true
+    },
+    {
+      "slug": "night",
+      "name": "dialog close button",
+      "pass": true
+    },
+    {
+      "slug": "night",
+      "name": "mobile menu opens",
+      "pass": true
+    },
+    {
+      "slug": "night",
+      "name": "mobile menu Escape",
+      "pass": true
+    },
+    {
+      "slug": "night",
+      "name": "mobile navigation closes menu",
+      "pass": true
+    },
+    {
+      "slug": "night",
+      "name": "mobile keyboard accordion",
+      "pass": true
+    },
+    {
+      "slug": "night",
+      "name": "mobile dialog fits",
+      "pass": true
+    },
+    {
+      "slug": "night",
+      "name": "GSAP motion initialized",
+      "pass": true,
+      "detail": {
+        "version": "3.15.0",
+        "triggers": 6,
+        "pins": 2
+      }
+    },
+    {
+      "slug": "night",
+      "name": "scroll pins initialized",
+      "pass": true,
+      "detail": {
+        "version": "3.15.0",
+        "triggers": 6,
+        "pins": 2
+      }
+    },
+    {
+      "slug": "club",
+      "name": "reduced motion",
+      "pass": true
+    },
+    {
+      "slug": "club",
+      "name": "GLB support present",
+      "pass": true
+    },
+    {
+      "slug": "club",
+      "name": "removed preview absent",
+      "pass": true
+    },
+    {
+      "slug": "club",
+      "name": "hero to app screens",
+      "pass": true
+    },
+    {
+      "slug": "club",
+      "name": "carousel review",
+      "pass": true
+    },
+    {
+      "slug": "club",
+      "name": "carousel reminder",
+      "pass": true
+    },
+    {
+      "slug": "club",
+      "name": "reminder aspect ratio",
+      "pass": true,
+      "detail": {
+        "rendered": 2.6735838779956427,
+        "natural": 2.673469387755102
+      }
+    },
+    {
+      "slug": "club",
+      "name": "carousel wraps",
+      "pass": true
+    },
+    {
+      "slug": "club",
+      "name": "keyboard carousel",
+      "pass": true
+    },
+    {
+      "slug": "club",
+      "name": "desktop accordion",
+      "pass": true
+    },
+    {
+      "slug": "club",
+      "name": "purchase dialog opens",
+      "pass": true
+    },
+    {
+      "slug": "club",
+      "name": "no live purchase",
+      "pass": true
+    },
+    {
+      "slug": "club",
+      "name": "dialog Escape and focus restore",
+      "pass": true
+    },
+    {
+      "slug": "club",
+      "name": "dialog close button",
+      "pass": true
+    },
+    {
+      "slug": "club",
+      "name": "mobile menu opens",
+      "pass": true
+    },
+    {
+      "slug": "club",
+      "name": "mobile menu Escape",
+      "pass": true
+    },
+    {
+      "slug": "club",
+      "name": "mobile navigation closes menu",
+      "pass": true
+    },
+    {
+      "slug": "club",
+      "name": "mobile keyboard accordion",
+      "pass": true
+    },
+    {
+      "slug": "club",
+      "name": "mobile dialog fits",
+      "pass": true
+    },
+    {
+      "slug": "club",
+      "name": "GSAP motion initialized",
+      "pass": true,
+      "detail": {
+        "version": "3.15.0",
+        "triggers": 5,
+        "pins": 3
+      }
+    },
+    {
+      "slug": "club",
+      "name": "scroll pins initialized",
+      "pass": true,
+      "detail": {
+        "version": "3.15.0",
+        "triggers": 5,
+        "pins": 3
+      }
+    },
+    {
+      "slug": "daylight",
+      "name": "reduced motion",
+      "pass": true
+    },
+    {
+      "slug": "daylight",
+      "name": "GLB support present",
+      "pass": true
+    },
+    {
+      "slug": "daylight",
+      "name": "removed preview absent",
+      "pass": true
+    },
+    {
+      "slug": "daylight",
+      "name": "hero to app screens",
+      "pass": true
+    },
+    {
+      "slug": "daylight",
+      "name": "carousel review",
+      "pass": true
+    },
+    {
+      "slug": "daylight",
+      "name": "carousel reminder",
+      "pass": true
+    },
+    {
+      "slug": "daylight",
+      "name": "reminder aspect ratio",
+      "pass": true,
+      "detail": {
+        "rendered": 2.673489324091734,
+        "natural": 2.673469387755102
+      }
+    },
+    {
+      "slug": "daylight",
+      "name": "carousel wraps",
+      "pass": true
+    },
+    {
+      "slug": "daylight",
+      "name": "keyboard carousel",
+      "pass": true
+    },
+    {
+      "slug": "daylight",
+      "name": "desktop accordion",
+      "pass": true
+    },
+    {
+      "slug": "daylight",
+      "name": "purchase dialog opens",
+      "pass": true
+    },
+    {
+      "slug": "daylight",
+      "name": "no live purchase",
+      "pass": true
+    },
+    {
+      "slug": "daylight",
+      "name": "dialog Escape and focus restore",
+      "pass": true
+    },
+    {
+      "slug": "daylight",
+      "name": "dialog close button",
+      "pass": true
+    },
+    {
+      "slug": "daylight",
+      "name": "mobile menu opens",
+      "pass": true
+    },
+    {
+      "slug": "daylight",
+      "name": "mobile menu Escape",
+      "pass": true
+    },
+    {
+      "slug": "daylight",
+      "name": "mobile navigation closes menu",
+      "pass": true
+    },
+    {
+      "slug": "daylight",
+      "name": "mobile keyboard accordion",
+      "pass": true
+    },
+    {
+      "slug": "daylight",
+      "name": "mobile dialog fits",
+      "pass": true
+    },
+    {
+      "slug": "daylight",
+      "name": "GSAP motion initialized",
+      "pass": true,
+      "detail": {
+        "version": "3.15.0",
+        "triggers": 3,
+        "pins": 0
+      }
+    },
+    {
+      "slug": "board",
+      "name": "four separate pages",
+      "pass": true
+    },
+    {
+      "slug": "board",
+      "name": "mobile comparison",
+      "pass": true
+    },
+    {
+      "slug": "board",
+      "name": "desktop comparison",
+      "pass": true
+    },
+    {
+      "slug": "all",
+      "name": "no JavaScript errors",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "errors": [],
+  "passed": 85,
+  "total": 85
+}

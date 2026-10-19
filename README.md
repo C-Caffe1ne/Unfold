@@ -1,5 +1,7 @@
 # Unfold
 
+> **작업 재개 — 2026-10-14:** 이 루트는 `release/mvp` / `ce0ccda` / `0.2.2`의 이전 소스입니다. 최신 개발본은 `.worktrees/pet-overlay-hover` / `codex/pet-overlay-hover` / `f9953a0` / `1.1.4-beta`입니다. [작업 인계](docs/HANDOFF.md)에서 최신 문서와 실행 방법을 확인하세요. 아래 소개·명령·기능은 이 이전 체크아웃의 기록입니다.
+
 A small desktop companion that reminds you to stretch while you work.
 
 Unfold runs in the Windows tray or macOS menu bar. A timer counts active computer

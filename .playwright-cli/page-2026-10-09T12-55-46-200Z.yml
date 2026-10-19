@@ -1,0 +1,236 @@
+- generic [active] [ref=e1]:
+  - link "본문으로 건너뛰기" [ref=e2] [cursor=pointer]:
+    - /url: "#main"
+  - banner [ref=e3]:
+    - link "Unfold 처음으로" [ref=e4] [cursor=pointer]:
+      - /url: "#home"
+      - img "Unfold" [ref=e5]
+    - paragraph [ref=e6]: 데스크톱 휴식 알림 펫
+    - generic [ref=e7]:
+      - link "로그인/회원가입, 공식 사이트 새 탭" [ref=e8] [cursor=pointer]:
+        - /url: https://unfoldpet.dokhustudio.com/#login
+        - text: 로그인/회원가입 ↗
+      - link "Beta 다운로드" [ref=e9] [cursor=pointer]:
+        - /url: "#install"
+  - navigation "주요 메뉴" [ref=e10]:
+    - link "앱 화면" [ref=e11] [cursor=pointer]:
+      - /url: "#home"
+    - link "기능" [ref=e16] [cursor=pointer]:
+      - /url: "#features"
+    - link "테마" [ref=e24] [cursor=pointer]:
+      - /url: "#themes"
+    - link "가격" [ref=e29] [cursor=pointer]:
+      - /url: "#pricing-overview"
+    - link "다운로드" [ref=e34] [cursor=pointer]:
+      - /url: "#install"
+    - generic [ref=e38]:
+      - link "내 계정 ↗" [ref=e39] [cursor=pointer]:
+        - /url: https://unfoldpet.dokhustudio.com/#dashboard
+      - link "문의" [ref=e40] [cursor=pointer]:
+        - /url: mailto:dokhubooks@gmail.com
+  - main [ref=e41]:
+    - region [ref=e42]:
+      - generic [ref=e43]:
+        - paragraph [ref=e44]: Unfold, on your desktop
+        - generic [ref=e45]: Windows · macOS
+      - generic [ref=e46]:
+        - generic [ref=e47]:
+          - paragraph [ref=e52]: Unfold / desktop
+          - group "앱 화면 선택" [ref=e53]:
+            - button "타이머" [pressed] [ref=e54] [cursor=pointer]
+            - button "펫 관리" [ref=e55] [cursor=pointer]
+            - button "휴식 알림" [ref=e56] [cursor=pointer]
+            - button "휴식 기록" [ref=e57] [cursor=pointer]
+          - link "타이머 앱 화면 확대" [ref=e58]:
+            - /url: ./assets/themes/plum/home.png
+            - img "현재 Unfold의 타이머와 함께하는 펫 화면" [ref=e59]
+          - generic [ref=e60]:
+            - generic [ref=e61]: 타이머
+            - generic [ref=e62]: 실제 앱 화면 · Beta v1.1.3 개발본
+            - generic [ref=e63]:
+              - button "이전 앱 화면" [ref=e64] [cursor=pointer]: ←
+              - button "다음 앱 화면" [ref=e65] [cursor=pointer]: →
+        - complementary [ref=e66]:
+          - paragraph [ref=e67]: 데스크톱 휴식 알림 펫
+          - heading "내가 고른 펫과, 잠깐 쉬어가세요." [level=1] [ref=e68]: 내가 고른 펫과,잠깐 쉬어가세요.
+          - figure [ref=e69]:
+            - img "Unfold 기본 펫 Mochi" [ref=e70]
+          - paragraph [ref=e71]:
+            - text: 이미지·영상부터
+            - strong [ref=e72]: 3D(GLB) 모델
+            - text: 까지,원하는 펫을 데스크톱에.
+          - generic [ref=e73]:
+            - link "Beta 다운로드" [ref=e74] [cursor=pointer]:
+              - /url: "#install"
+              - text: Beta 다운로드
+              - generic [aria-hidden] [ref=e75]: ↗
+            - link "기능 살펴보기" [ref=e76] [cursor=pointer]:
+              - /url: "#features"
+              - text: 기능 살펴보기
+              - generic [aria-hidden] [ref=e77]: ↓
+          - paragraph [ref=e78]: Windows 10 이상 · macOS 13 이상
+          - generic [ref=e79]:
+            - paragraph [ref=e80]: 정식 판매 전 · 테스트 기준가
+            - paragraph [ref=e81]: 4,900원
+            - paragraph [ref=e82]: 세금 별도. 테스트 결제는 실제 청구되지 않으며 앱 이용 권한을 제공하지 않습니다.
+    - region [ref=e83]:
+      - generic [ref=e85]:
+        - paragraph [ref=e86]: Unfold와 함께
+        - heading "내가 고른 펫 , 내 일상에 작은 쉼." [level=2] [ref=e87]: 내가 고른 펫 ,내 일상에 작은 쉼.
+        - link "네 가지 테마도 살펴보세요" [ref=e88] [cursor=pointer]:
+          - /url: "#themes"
+          - text: 네 가지 테마도 살펴보세요
+          - generic [aria-hidden] [ref=e89]: ↓
+      - generic [ref=e90]:
+        - article [ref=e91]:
+          - generic [ref=e92]:
+            - paragraph [ref=e93]: 나만의 펫
+            - heading "이미지·영상부터 3D(GLB)까지 원하는 펫을 데려와요" [level=3] [ref=e94]: 이미지·영상부터 3D(GLB)까지원하는 펫을 데려와요
+          - link "펫 관리 앱 화면 확대" [ref=e95]:
+            - /url: ./assets/themes/plum/custom-pet.png
+            - img "현재 펫 관리 화면의 이름 입력과 행동별 파일 선택" [ref=e96]
+          - paragraph [ref=e97]: 펫 관리 · Beta v1.1.3 개발본
+        - article [ref=e98]:
+          - generic [ref=e99]:
+            - paragraph [ref=e100]: 휴식 알림
+            - heading "작업 중에도 펫이 쉬는 시간을 알려줘요" [level=3] [ref=e101]: 작업 중에도펫이 쉬는 시간을 알려줘요
+          - link "휴식 알림 앱 화면 확대" [ref=e102]:
+            - /url: ./assets/themes/plum/speech.png
+            - img "잠깐 쉬어 갈 시간을 알려주는 펫 말풍선" [ref=e103]
+          - paragraph [ref=e104]: 휴식 알림 · Beta v1.1.3 개발본
+        - article [ref=e105]:
+          - generic [ref=e106]:
+            - paragraph [ref=e107]: 휴식 기록
+            - heading "쉬어 간 시간을 다시 살펴봐요" [level=3] [ref=e108]: 쉬어 간 시간을다시 살펴봐요
+          - link "휴식 기록 앱 화면 확대" [ref=e109]:
+            - /url: ./assets/themes/plum/review.png
+            - img "최근 7일의 휴식 기록과 CSV 내보내기 화면" [ref=e110]
+          - paragraph [ref=e111]: 휴식 기록 · Beta v1.1.3 개발본
+    - generic "원하는 이미지·영상·3D(GLB)를 펫으로 사용하세요" [ref=e112]:
+      - generic [ref=e113]:
+        - generic [ref=e114]: 내가 고른 펫을, 내 데스크톱에. 이미지 · GIF · MP4 · 3D(GLB)
+        - generic [aria-hidden] [ref=e115]: 내가 고른 펫을, 내 데스크톱에. 이미지 · GIF · MP4 · 3D(GLB)
+    - region [ref=e116]:
+      - paragraph [ref=e117]: 네 가지 테마
+      - heading "책상에 어울리는 색으로." [level=2] [ref=e118]
+      - generic "앱 테마 선택" [ref=e119]:
+        - generic [ref=e120]:
+          - button "유연한 라일락" [pressed] [ref=e121] [cursor=pointer]
+          - link "유연한 라일락 앱 화면 확대" [ref=e124]:
+            - /url: ./assets/themes/plum/home.png
+            - img "유연한 라일락 테마의 현재 앱 화면" [ref=e125]
+        - button "다정한 오트" [ref=e127] [cursor=pointer]
+        - button "숨 고르는 숲" [ref=e131] [cursor=pointer]
+        - button "밤의 버터" [ref=e135] [cursor=pointer]
+      - paragraph [ref=e138]: 실제 앱 화면 · Beta v1.1.3 개발본
+    - region [ref=e139]:
+      - generic [ref=e140]:
+        - paragraph [ref=e141]: 가격 안내
+        - heading "Beta를 내려받고, 함께 쉬어 가세요." [level=2] [ref=e142]: Beta를 내려받고,함께 쉬어 가세요.
+        - paragraph [ref=e143]: Beta는 발급된 이용 코드를 받은 테스터가 사용할 수 있습니다. 앱에서 Google 계정으로 로그인한 뒤 코드를 등록해 주세요.
+      - generic [ref=e144]:
+        - paragraph [ref=e145]: 테스트 기준가 · 정식 판매 전
+        - paragraph [ref=e146]: 4,900원
+        - paragraph [ref=e147]: 세금 별도 · 현재 실제 청구 없음
+        - paragraph [ref=e148]: 웹 테스트 결제는 앱 이용 권한을 제공하지 않습니다.
+        - link "공식 사이트에서 테스트 결제 확인, 새 탭" [ref=e149] [cursor=pointer]:
+          - /url: https://unfoldpet.dokhustudio.com/#login
+          - text: 테스트 결제 확인
+          - generic [aria-hidden] [ref=e150]: ↗
+        - link "구매·이용 조건 자세히 보기" [ref=e151] [cursor=pointer]:
+          - /url: "#purchase-details"
+          - text: 구매·이용 조건 자세히 보기
+          - generic [aria-hidden] [ref=e152]: ↓
+    - region [ref=e153]:
+      - generic [ref=e154]:
+        - paragraph [ref=e155]: 구매·이용 조건
+        - heading "궁금한 점을 모았어요." [level=2] [ref=e156]: 궁금한 점을모았어요.
+      - generic [ref=e157]:
+        - group [ref=e158]:
+          - generic "Beta는 어떻게 사용하나요? +" [ref=e159] [cursor=pointer]
+        - group [ref=e160]:
+          - generic "앱을 다시 실행하면 로그인해야 하나요? +" [ref=e161] [cursor=pointer]
+        - group [ref=e162]:
+          - generic "인터넷 연결이 필요한가요? +" [ref=e163] [cursor=pointer]
+        - group [ref=e164]:
+          - generic "회사 컴퓨터에서도 쓸 수 있나요? +" [ref=e165] [cursor=pointer]
+        - group [ref=e166]:
+          - generic "결제와 환불은 어떻게 하나요? +" [ref=e167] [cursor=pointer]
+    - region [ref=e168]:
+      - generic [ref=e169]:
+        - paragraph [ref=e170]: 다음 휴식은, Unfold와 함께
+        - heading "Unfold 다운로드" [level=2] [ref=e172]
+        - paragraph [ref=e173]: Beta v1.1.2
+        - paragraph [ref=e174]: 발급된 이용 코드가 있는 테스터를 위한 버전입니다. 다운로드에는 로그인이 필요하지 않습니다.
+      - generic [ref=e175]:
+        - tablist "운영체제 선택" [ref=e176]:
+          - tab "macOS" [selected] [ref=e177] [cursor=pointer]
+          - tab "Windows" [ref=e178] [cursor=pointer]
+        - tabpanel "macOS" [ref=e179]:
+          - link "Apple Silicon용 다운로드" [ref=e180] [cursor=pointer]:
+            - /url: https://github.com/C-Caffe1ne/Unfold/releases/download/v1.1.2-beta/Unfold-v1.1.2-beta-osx-arm64-notarized-installer.zip
+            - text: Apple Silicon용 다운로드
+            - generic [aria-hidden] [ref=e181]: ↓
+          - link "Intel Mac용 다운로드" [ref=e182] [cursor=pointer]:
+            - /url: https://github.com/C-Caffe1ne/Unfold/releases/download/v1.1.2-beta/Unfold-v1.1.2-beta-osx-x64-notarized-installer.zip
+            - text: Intel Mac용 다운로드
+            - generic [aria-hidden] [ref=e183]: ↓
+          - paragraph [ref=e184]: Apple Developer ID 서명과 공증을 완료했습니다. Mac의 칩 종류에 맞는 파일을 선택해 주세요.
+          - paragraph [ref=e185]: macOS 13 이상 · ZIP / DMG
+        - generic [ref=e186]:
+          - link "다운로드 파일 검증값 ↗" [ref=e187] [cursor=pointer]:
+            - /url: https://github.com/C-Caffe1ne/Unfold/releases/download/v1.1.2-beta/Unfold-v1.1.2-beta-notarized-ZIP-SHA256SUMS.txt
+          - link "변경 이력 ↗" [ref=e188] [cursor=pointer]:
+            - /url: https://unfoldpet.dokhustudio.com/#changelog
+  - contentinfo [ref=e189]:
+    - generic [ref=e190]:
+      - generic [ref=e191]:
+        - link [ref=e192] [cursor=pointer]:
+          - /url: "#home"
+          - img "Unfold" [ref=e193]
+        - paragraph [ref=e194]: 책상 위에서 휴식을 알려 주는 데스크톱 펫입니다.
+        - generic [ref=e195]:
+          - link "X ↗" [ref=e196] [cursor=pointer]:
+            - /url: https://x.com/unfold_pet
+          - link "Instagram ↗" [ref=e197] [cursor=pointer]:
+            - /url: https://www.instagram.com/unfold_pet/
+      - generic [ref=e198]:
+        - heading "Unfold" [level=3] [ref=e199]
+        - list [ref=e200]:
+          - listitem [ref=e201]:
+            - link "기능" [ref=e202] [cursor=pointer]:
+              - /url: "#features"
+          - listitem [ref=e203]:
+            - link "테마" [ref=e204] [cursor=pointer]:
+              - /url: "#themes"
+          - listitem [ref=e205]:
+            - link "가격" [ref=e206] [cursor=pointer]:
+              - /url: "#pricing-overview"
+          - listitem [ref=e207]:
+            - link "다운로드" [ref=e208] [cursor=pointer]:
+              - /url: "#install"
+          - listitem [ref=e209]:
+            - link "변경 이력 ↗" [ref=e210] [cursor=pointer]:
+              - /url: https://unfoldpet.dokhustudio.com/#changelog
+      - generic [ref=e211]:
+        - heading "계정·약관" [level=3] [ref=e212]
+        - list [ref=e213]:
+          - listitem [ref=e214]:
+            - link "로그인/회원가입 ↗" [ref=e215] [cursor=pointer]:
+              - /url: https://unfoldpet.dokhustudio.com/#login
+          - listitem [ref=e216]:
+            - link "프라이버시 ↗" [ref=e217] [cursor=pointer]:
+              - /url: https://unfoldpet.dokhustudio.com/#privacy
+          - listitem [ref=e218]:
+            - link "이용약관 ↗" [ref=e219] [cursor=pointer]:
+              - /url: https://unfoldpet.dokhustudio.com/#terms
+          - listitem [ref=e220]:
+            - link "환불 정책 ↗" [ref=e221] [cursor=pointer]:
+              - /url: https://unfoldpet.dokhustudio.com/#refund
+    - generic [ref=e222]:
+      - paragraph [ref=e223]: © 2026 Unfold
+      - paragraph [ref=e224]: Windows 10 이상 · macOS 13 이상
+    - paragraph [ref=e225]:
+      - text: DOKHU(도쿠) · 대표 이현준 · 사업자등록번호 317-29-01908(46593) 부산광역시 북구 덕천로 72 ·
+      - link "dokhubooks@gmail.com" [ref=e226] [cursor=pointer]:
+        - /url: mailto:dokhubooks@gmail.com

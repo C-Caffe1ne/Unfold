@@ -1,0 +1,65 @@
+[
+  {
+    "flow": "escape",
+    "focus": "nav-toggle",
+    "unlocked": true
+  },
+  {
+    "flow": "button",
+    "focus": "nav-toggle",
+    "unlocked": true
+  },
+  {
+    "flow": "backdrop",
+    "focus": "nav-toggle",
+    "unlocked": true
+  },
+  {
+    "flow": "signed-in",
+    "focus": "nav-toggle",
+    "unlocked": true
+  },
+  {
+    "flow": "normal",
+    "disabled": false,
+    "followUp": "Test 구매 흐름을 확인할 수 있습니다. Test 결제는 앱 이용 권한을 제공하지 않습니다.",
+    "next": true,
+    "overflow": false
+  },
+  {
+    "flow": "active",
+    "text": "Test 환경에서 이용 권한이 확인되었습니다. 다시 구매할 필요가 없습니다. 앱 이용 권한은 별도로 확인해야 합니다.",
+    "followUp": "확인된 권한은 Test에 한정됩니다. 앱 이용 권한은 아니며, Beta 다운로드와 사용 조건을 확인할 수 있습니다.",
+    "next": true,
+    "purchaseHidden": true
+  },
+  {
+    "flow": "active-download",
+    "dialogClosed": true
+  },
+  {
+    "flow": "unknown",
+    "disabled": true,
+    "followUp": "이용 권한을 확인하지 못했습니다. 다시 확인한 뒤 결제를 시도해 주세요.",
+    "next": true,
+    "overflow": false
+  },
+  {
+    "flow": "revoked",
+    "disabled": false,
+    "followUp": "Test 이용 권한이 해제되었습니다. Test 구매를 다시 확인할 수 있으며 앱 이용 권한과는 별도입니다.",
+    "next": true,
+    "overflow": false
+  },
+  {
+    "flow": "long-email",
+    "disabled": false,
+    "followUp": "Test 구매 흐름을 확인할 수 있습니다. Test 결제는 앱 이용 권한을 제공하지 않습니다.",
+    "next": true,
+    "overflow": false
+  },
+  {
+    "flow": "long-email-dashboard",
+    "overflow": false
+  }
+]

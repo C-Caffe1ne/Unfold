@@ -1,0 +1,45 @@
+{
+  "checks": [
+    {
+      "slug": "magazine",
+      "name": "mobile dialog returns focus to menu",
+      "pass": true,
+      "detail": {
+        "focused": "메뉴 열기",
+        "dialogOpen": false
+      }
+    },
+    {
+      "slug": "canvas",
+      "name": "mobile dialog returns focus to menu",
+      "pass": true,
+      "detail": {
+        "focused": "메뉴 열기",
+        "dialogOpen": false
+      }
+    },
+    {
+      "slug": "journey",
+      "name": "mobile dialog returns focus to menu",
+      "pass": true,
+      "detail": {
+        "focused": "메뉴 열기",
+        "dialogOpen": false
+      }
+    },
+    {
+      "slug": "catalog",
+      "name": "mobile dialog returns focus to menu",
+      "pass": true,
+      "detail": {
+        "focused": "메뉴 열기",
+        "dialogOpen": false
+      }
+    },
+    {
+      "slug": "board",
+      "name": "optional color comparison",
+      "pass": true
+    }
+  ]
+}

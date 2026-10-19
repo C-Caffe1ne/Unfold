@@ -1,0 +1,449 @@
+{
+  "checks": [
+    {
+      "slug": "magazine",
+      "name": "reduced motion respected",
+      "pass": true
+    },
+    {
+      "slug": "magazine",
+      "name": "GLB support",
+      "pass": true
+    },
+    {
+      "slug": "magazine",
+      "name": "removed pet preview absent",
+      "pass": true
+    },
+    {
+      "slug": "magazine",
+      "name": "app gallery tab",
+      "pass": true
+    },
+    {
+      "slug": "magazine",
+      "name": "app gallery keyboard",
+      "pass": true
+    },
+    {
+      "slug": "magazine",
+      "name": "gallery image ratio",
+      "pass": true,
+      "detail": {
+        "rendered": 2.6735967808501857,
+        "natural": 2.673469387755102
+      }
+    },
+    {
+      "slug": "magazine",
+      "name": "gallery wrap",
+      "pass": true
+    },
+    {
+      "slug": "magazine",
+      "name": "purchase info dialog",
+      "pass": true
+    },
+    {
+      "slug": "magazine",
+      "name": "no real charge or checkout",
+      "pass": true
+    },
+    {
+      "slug": "magazine",
+      "name": "dialog Escape focus restore",
+      "pass": true
+    },
+    {
+      "slug": "magazine",
+      "name": "mobile menu opens",
+      "pass": true
+    },
+    {
+      "slug": "magazine",
+      "name": "mobile menu Escape",
+      "pass": true
+    },
+    {
+      "slug": "magazine",
+      "name": "mobile nav opens dialog and closes menu",
+      "pass": true
+    },
+    {
+      "slug": "magazine",
+      "name": "mobile dialog fits",
+      "pass": true
+    },
+    {
+      "slug": "magazine",
+      "name": "mobile dialog returns focus to menu",
+      "pass": true,
+      "detail": {
+        "focused": "메뉴 열기",
+        "dialogOpen": false
+      }
+    },
+    {
+      "slug": "magazine",
+      "name": "GSAP initialized",
+      "pass": true
+    },
+    {
+      "slug": "magazine",
+      "name": "sidebar or heading pin",
+      "pass": true,
+      "detail": {
+        "top": 119.796875,
+        "position": "fixed"
+      }
+    },
+    {
+      "slug": "canvas",
+      "name": "reduced motion respected",
+      "pass": true
+    },
+    {
+      "slug": "canvas",
+      "name": "GLB support",
+      "pass": true
+    },
+    {
+      "slug": "canvas",
+      "name": "removed pet preview absent",
+      "pass": true
+    },
+    {
+      "slug": "canvas",
+      "name": "app gallery tab",
+      "pass": true
+    },
+    {
+      "slug": "canvas",
+      "name": "app gallery keyboard",
+      "pass": true
+    },
+    {
+      "slug": "canvas",
+      "name": "gallery image ratio",
+      "pass": true,
+      "detail": {
+        "rendered": 2.6735395189003435,
+        "natural": 2.673469387755102
+      }
+    },
+    {
+      "slug": "canvas",
+      "name": "gallery wrap",
+      "pass": true
+    },
+    {
+      "slug": "canvas",
+      "name": "purchase info dialog",
+      "pass": true
+    },
+    {
+      "slug": "canvas",
+      "name": "no real charge or checkout",
+      "pass": true
+    },
+    {
+      "slug": "canvas",
+      "name": "dialog Escape focus restore",
+      "pass": true
+    },
+    {
+      "slug": "canvas",
+      "name": "mobile menu opens",
+      "pass": true
+    },
+    {
+      "slug": "canvas",
+      "name": "mobile menu Escape",
+      "pass": true
+    },
+    {
+      "slug": "canvas",
+      "name": "mobile nav opens dialog and closes menu",
+      "pass": true
+    },
+    {
+      "slug": "canvas",
+      "name": "mobile dialog fits",
+      "pass": true
+    },
+    {
+      "slug": "canvas",
+      "name": "mobile dialog returns focus to menu",
+      "pass": true,
+      "detail": {
+        "focused": "메뉴 열기",
+        "dialogOpen": false
+      }
+    },
+    {
+      "slug": "canvas",
+      "name": "GSAP initialized",
+      "pass": true
+    },
+    {
+      "slug": "canvas",
+      "name": "sidebar or heading pin",
+      "pass": true,
+      "detail": {
+        "top": 120.203125,
+        "position": "fixed"
+      }
+    },
+    {
+      "slug": "journey",
+      "name": "reduced motion respected",
+      "pass": true
+    },
+    {
+      "slug": "journey",
+      "name": "GLB support",
+      "pass": true
+    },
+    {
+      "slug": "journey",
+      "name": "removed pet preview absent",
+      "pass": true
+    },
+    {
+      "slug": "journey",
+      "name": "reduced-motion scene selection",
+      "pass": true
+    },
+    {
+      "slug": "journey",
+      "name": "previous scene",
+      "pass": true
+    },
+    {
+      "slug": "journey",
+      "name": "purchase info dialog",
+      "pass": true
+    },
+    {
+      "slug": "journey",
+      "name": "no real charge or checkout",
+      "pass": true
+    },
+    {
+      "slug": "journey",
+      "name": "dialog Escape focus restore",
+      "pass": true
+    },
+    {
+      "slug": "journey",
+      "name": "mobile menu opens",
+      "pass": true
+    },
+    {
+      "slug": "journey",
+      "name": "mobile menu Escape",
+      "pass": true
+    },
+    {
+      "slug": "journey",
+      "name": "mobile nav opens dialog and closes menu",
+      "pass": true
+    },
+    {
+      "slug": "journey",
+      "name": "mobile dialog fits",
+      "pass": true
+    },
+    {
+      "slug": "journey",
+      "name": "mobile dialog returns focus to menu",
+      "pass": true,
+      "detail": {
+        "focused": "메뉴 열기",
+        "dialogOpen": false
+      }
+    },
+    {
+      "slug": "journey",
+      "name": "mobile keyboard scene switch",
+      "pass": true
+    },
+    {
+      "slug": "journey",
+      "name": "GSAP initialized",
+      "pass": true
+    },
+    {
+      "slug": "journey",
+      "name": "horizontal scene moves and pins",
+      "pass": true,
+      "detail": {
+        "x": -1208,
+        "pinned": "fixed",
+        "scene": "true"
+      }
+    },
+    {
+      "slug": "journey",
+      "name": "story exit to supported formats",
+      "pass": true
+    },
+    {
+      "slug": "catalog",
+      "name": "reduced motion respected",
+      "pass": true
+    },
+    {
+      "slug": "catalog",
+      "name": "GLB support",
+      "pass": true
+    },
+    {
+      "slug": "catalog",
+      "name": "removed pet preview absent",
+      "pass": true
+    },
+    {
+      "slug": "catalog",
+      "name": "app gallery tab",
+      "pass": true
+    },
+    {
+      "slug": "catalog",
+      "name": "app gallery keyboard",
+      "pass": true
+    },
+    {
+      "slug": "catalog",
+      "name": "gallery image ratio",
+      "pass": true,
+      "detail": {
+        "rendered": 2.673605088175773,
+        "natural": 2.673469387755102
+      }
+    },
+    {
+      "slug": "catalog",
+      "name": "gallery wrap",
+      "pass": true
+    },
+    {
+      "slug": "catalog",
+      "name": "GLB filter",
+      "pass": true
+    },
+    {
+      "slug": "catalog",
+      "name": "keyboard motion filter",
+      "pass": true
+    },
+    {
+      "slug": "catalog",
+      "name": "all format tiles restored",
+      "pass": true
+    },
+    {
+      "slug": "catalog",
+      "name": "purchase info dialog",
+      "pass": true
+    },
+    {
+      "slug": "catalog",
+      "name": "no real charge or checkout",
+      "pass": true
+    },
+    {
+      "slug": "catalog",
+      "name": "dialog Escape focus restore",
+      "pass": true
+    },
+    {
+      "slug": "catalog",
+      "name": "mobile menu opens",
+      "pass": true
+    },
+    {
+      "slug": "catalog",
+      "name": "mobile menu Escape",
+      "pass": true
+    },
+    {
+      "slug": "catalog",
+      "name": "mobile nav opens dialog and closes menu",
+      "pass": true
+    },
+    {
+      "slug": "catalog",
+      "name": "mobile dialog fits",
+      "pass": true
+    },
+    {
+      "slug": "catalog",
+      "name": "mobile dialog returns focus to menu",
+      "pass": true,
+      "detail": {
+        "focused": "메뉴 열기",
+        "dialogOpen": false
+      }
+    },
+    {
+      "slug": "catalog",
+      "name": "mobile GLB filter",
+      "pass": true
+    },
+    {
+      "slug": "catalog",
+      "name": "GSAP initialized",
+      "pass": true
+    },
+    {
+      "slug": "catalog",
+      "name": "sidebar or heading pin",
+      "pass": true,
+      "detail": {
+        "top": 120.1875,
+        "position": "fixed"
+      }
+    },
+    {
+      "slug": "board",
+      "name": "four separate structures",
+      "pass": true
+    },
+    {
+      "slug": "board",
+      "name": "default grayscale",
+      "pass": true
+    },
+    {
+      "slug": "board",
+      "name": "full-page comparison",
+      "pass": true
+    },
+    {
+      "slug": "board",
+      "name": "mobile comparison",
+      "pass": true
+    },
+    {
+      "slug": "board",
+      "name": "optional color comparison",
+      "pass": true
+    },
+    {
+      "slug": "board",
+      "name": "phone comparison no overflow",
+      "pass": true
+    },
+    {
+      "slug": "all",
+      "name": "no browser script errors",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "errors": [],
+  "passed": 79,
+  "total": 79,
+  "timingNote": "Focus was checked after the native close event; color was checked after the CSS transition."
+}

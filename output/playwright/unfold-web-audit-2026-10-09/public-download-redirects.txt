@@ -1,0 +1,6 @@
+### Result
+[{"path":"/downloads/Unfold-v1.1.1-beta-osx-arm64-notarized-installer.zip","status":302,"location":"https://github.com/C-Caffe1ne/Unfold/releases/download/v1.1.1-beta/Unfold-v1.1.1-beta-osx-arm64-notarized-installer.zip"},{"path":"/downloads/Unfold-v1.1.2-beta-osx-arm64-notarized-installer.zip","status":302,"location":"https://github.com/C-Caffe1ne/Unfold/releases/download/v1.1.2-beta/Unfold-v1.1.2-beta-osx-arm64-notarized-installer.zip"}]
+### Ran Playwright code
+```js
+await (async (page) => { const paths=["/downloads/Unfold-v1.1.1-beta-osx-arm64-notarized-installer.zip","/downloads/Unfold-v1.1.2-beta-osx-arm64-notarized-installer.zip"];const result=[];for(const path of paths){const r=await page.request.get("https://unfoldpet.dokhustudio.com"+path,{maxRedirects:0});result.push({path,status:r.status(),location:r.headers().location});}return result;})(page);
+```

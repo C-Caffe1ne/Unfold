@@ -1,0 +1,98 @@
+{
+  "viewport": [
+    1440,
+    1000
+  ],
+  "documentWidth": 1425,
+  "headings": [
+    {
+      "text": "일시정지,\n펫과 짧은 휴식.",
+      "width": 512,
+      "height": 125,
+      "lineHeight": "62.4px"
+    },
+    {
+      "text": "좋아하는 이미지, 영상등을\n나만의 펫으로",
+      "width": 512,
+      "height": 83,
+      "lineHeight": "41.6px"
+    },
+    {
+      "text": "작업하는 화면 곁에,\n작은 동료 하나",
+      "width": 512,
+      "height": 83,
+      "lineHeight": "41.6px"
+    },
+    {
+      "text": "매일 이어 가지 않아도 괜찮아요",
+      "width": 512,
+      "height": 42,
+      "lineHeight": "41.6px"
+    },
+    {
+      "text": "책상에 어울리는 색으로",
+      "width": 720,
+      "height": 49,
+      "lineHeight": "49.4px"
+    },
+    {
+      "text": "한 번 구매하고 함께 쉬어 가세요",
+      "width": 720,
+      "height": 49,
+      "lineHeight": "49.4px"
+    },
+    {
+      "text": "다음 휴식은, Unfold와 함께",
+      "width": 968,
+      "height": 44,
+      "lineHeight": "44.2px"
+    }
+  ],
+  "navigation": [
+    {
+      "text": "",
+      "width": 130.71875,
+      "height": 36
+    },
+    {
+      "text": "기능",
+      "width": 26.40625,
+      "height": 24
+    },
+    {
+      "text": "테마",
+      "width": 26.40625,
+      "height": 24
+    },
+    {
+      "text": "가격",
+      "width": 26.40625,
+      "height": 24
+    },
+    {
+      "text": "다운로드",
+      "width": 52.8125,
+      "height": 24
+    },
+    {
+      "text": "로그인/회원가입",
+      "width": 0,
+      "height": 0
+    },
+    {
+      "text": "로그인/회원가입",
+      "width": 141.15625,
+      "height": 44
+    },
+    {
+      "text": "",
+      "width": 40,
+      "height": 40
+    },
+    {
+      "text": "",
+      "width": 40,
+      "height": 40
+    }
+  ]
+}

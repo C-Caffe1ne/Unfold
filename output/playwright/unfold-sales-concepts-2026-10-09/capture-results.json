@@ -1,0 +1,165 @@
+{
+  "metrics": [
+    {
+      "slug": "studio",
+      "width": 320,
+      "overflow": -15,
+      "lines": 2,
+      "headingLeft": 20,
+      "headingRight": 290.8125,
+      "heroHeight": 870,
+      "missingImages": []
+    },
+    {
+      "slug": "studio",
+      "width": 390,
+      "overflow": -15,
+      "lines": 2,
+      "headingLeft": 20,
+      "headingRight": 316.859375,
+      "heroHeight": 870,
+      "missingImages": []
+    },
+    {
+      "slug": "studio",
+      "width": 768,
+      "overflow": -15,
+      "lines": 2,
+      "headingLeft": 24,
+      "headingRight": 486.515625,
+      "heroHeight": 840,
+      "missingImages": []
+    },
+    {
+      "slug": "studio",
+      "width": 1440,
+      "overflow": -15,
+      "lines": 2,
+      "headingLeft": 56,
+      "headingRight": 867.09375,
+      "heroHeight": 810,
+      "missingImages": []
+    },
+    {
+      "slug": "night",
+      "width": 320,
+      "overflow": -15,
+      "lines": 2,
+      "headingLeft": 20,
+      "headingRight": 197.640625,
+      "heroHeight": 942.625,
+      "missingImages": []
+    },
+    {
+      "slug": "night",
+      "width": 390,
+      "overflow": -15,
+      "lines": 2,
+      "headingLeft": 20,
+      "headingRight": 236.171875,
+      "heroHeight": 901.53125,
+      "missingImages": []
+    },
+    {
+      "slug": "night",
+      "width": 768,
+      "overflow": -15,
+      "lines": 2,
+      "headingLeft": 24,
+      "headingRight": 292.984375,
+      "heroHeight": 800,
+      "missingImages": []
+    },
+    {
+      "slug": "night",
+      "width": 1440,
+      "overflow": -15,
+      "lines": 2,
+      "headingLeft": 56,
+      "headingRight": 501.28125,
+      "heroHeight": 900,
+      "missingImages": []
+    },
+    {
+      "slug": "club",
+      "width": 320,
+      "overflow": -15,
+      "lines": 2,
+      "headingLeft": 24.96875,
+      "headingRight": 280.03125,
+      "heroHeight": 685,
+      "missingImages": []
+    },
+    {
+      "slug": "club",
+      "width": 390,
+      "overflow": -15,
+      "lines": 2,
+      "headingLeft": 50.21875,
+      "headingRight": 324.765625,
+      "heroHeight": 692.46875,
+      "missingImages": []
+    },
+    {
+      "slug": "club",
+      "width": 768,
+      "overflow": -15,
+      "lines": 2,
+      "headingLeft": 141.4375,
+      "headingRight": 611.546875,
+      "heroHeight": 868.34375,
+      "missingImages": []
+    },
+    {
+      "slug": "club",
+      "width": 1440,
+      "overflow": -15,
+      "lines": 2,
+      "headingLeft": 326.859375,
+      "headingRight": 1098.140625,
+      "heroHeight": 971.0625,
+      "missingImages": []
+    },
+    {
+      "slug": "daylight",
+      "width": 320,
+      "overflow": -15,
+      "lines": 2,
+      "headingLeft": 47.34375,
+      "headingRight": 257.65625,
+      "heroHeight": 830.328125,
+      "missingImages": []
+    },
+    {
+      "slug": "daylight",
+      "width": 390,
+      "overflow": -15,
+      "lines": 2,
+      "headingLeft": 71.296875,
+      "headingRight": 303.6875,
+      "heroHeight": 810,
+      "missingImages": []
+    },
+    {
+      "slug": "daylight",
+      "width": 768,
+      "overflow": -15,
+      "lines": 2,
+      "headingLeft": 233.84375,
+      "headingRight": 519.15625,
+      "heroHeight": 940,
+      "missingImages": []
+    },
+    {
+      "slug": "daylight",
+      "width": 1440,
+      "overflow": -15,
+      "lines": 2,
+      "headingLeft": 460.125,
+      "headingRight": 964.859375,
+      "heroHeight": 984.8125,
+      "missingImages": []
+    }
+  ],
+  "errors": []
+}

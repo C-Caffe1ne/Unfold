@@ -1,0 +1,41 @@
+### Ran Playwright code
+```js
+await (async (page) => {
+ const root='/Users/hwanghyeonseong/Documents/GitHub/Unfold/output/playwright/unfold-sales-concepts-2026-10-09';
+ const checks=[];
+ await page.emulateMedia({reducedMotion:'no-preference'});
+ await page.setViewportSize({width:1440,height:1000});
+ await page.goto('http://127.0.0.1:4188/studio.html');
+ await page.evaluate(()=>document.fonts.ready);
+ await page.waitForFunction(()=>window.__conceptMotion?.triggers()>0);
+ await page.evaluate(()=>window.scrollTo({top:document.querySelector('#showcase').getBoundingClientRect().top+window.scrollY+220,behavior:'instant'}));
+ await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+ const pin=await page.locator('[data-pin]').evaluate(el=>({top:el.getBoundingClientRect().top,position:getComputedStyle(el).position}));
+ checks.push({name:'studio title actually pinned',pass:Math.abs(pin.top-120)<3,detail:pin});
+ await page.screenshot({path:`${root}/studio-motion-showcase.png`});
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await page.goto('http://127.0.0.1:4188/daylight.html');
+ await page.evaluate(()=>document.fonts.ready);
+ const hero=await page.locator('.hero').evaluate(el=>el.getBoundingClientRect().height);
+ checks.push({name:'daylight first screen fits',pass:hero<=1000,detail:hero});
+ await page.setViewportSize({width:1600,height:1500});
+ await page.goto('http://127.0.0.1:4188/');
+ await page.evaluate(()=>document.fonts.ready);
+ await page.locator('img').evaluateAll(images=>Promise.all(images.map(img=>img.decode())));
+ const logo=await page.locator('.top img').evaluate(el=>el.getBoundingClientRect().height);
+ checks.push({name:'board logo proportion',pass:logo<40,detail:logo});
+ await page.screenshot({path:`${root}/four-concepts-board.png`,fullPage:true});
+ await page.getByRole('button',{name:'모바일',exact:true}).click();
+ await page.locator('[data-thumb]').evaluateAll(images=>Promise.all(images.map(img=>img.decode())));
+ await page.screenshot({path:`${root}/four-concepts-mobile-board.png`,fullPage:true});
+ await page.getByRole('button',{name:'데스크톱',exact:true}).click();
+ await page.setViewportSize({width:390,height:844});
+ checks.push({name:'comparison board mobile fits',pass:await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)});
+ await page.screenshot({path:`${root}/comparison-board-phone.png`,fullPage:true});
+ await page.setViewportSize({width:1600,height:1200});
+ await page.evaluate(data=>{window.__conceptFinish=data},{checks});
+})(page);
+```
+### Page
+- Page URL: http://127.0.0.1:4188/
+- Page Title: Unfold 판매 웹 디자인 4가지 시안

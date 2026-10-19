@@ -1,7 +1,10 @@
 # 문서 안내
 
-현재 제품은 `release/mvp`의 **휴식 세션·로컬 회고를 포함한 C#·Avalonia 기반 Cat MVP**다. 아래 문서가 현재
-구현·범위·실행 방법을 설명한다. 과거 Swift 구현과 Garden 실험은 보관 자료다.
+2026년 10월 14일 작업 재개는 **[인계 진입점](HANDOFF.md)**과 [최신 작업트리 문서](../.worktrees/pet-overlay-hover/docs/README.md)를 따른다.
+이 루트는 `release/mvp` / `ce0ccda` / `0.2.2`의 이전 소스다. 최신 개발본은
+`codex/pet-overlay-hover` / `f9953a0` / `1.1.4-beta`, 공개 제품은 `4c64bfc`다.
+아래 문서·개발 실행 안내는 이 루트 체크아웃 당시의 기록이며 최신 앱 지침으로 사용하지 않는다.
+과거 Swift 구현과 Garden 실험은 보관 자료다.
 
 개발 실행은 macOS `bash Scripts/run-desktop.sh`, Windows `./Scripts/run-desktop.ps1`을 사용한다.
 현재 체크아웃의 Release 소스를 빌드하며 기본값은 실행마다 새 임시 데이터 경로다.

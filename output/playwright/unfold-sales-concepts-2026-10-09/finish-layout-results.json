@@ -1,0 +1,26 @@
+{
+  "checks": [
+    {
+      "name": "studio title actually pinned",
+      "pass": true,
+      "detail": {
+        "top": 120.40625,
+        "position": "fixed"
+      }
+    },
+    {
+      "name": "daylight first screen fits",
+      "pass": true,
+      "detail": 984.8125
+    },
+    {
+      "name": "board logo proportion",
+      "pass": true,
+      "detail": 29.734375
+    },
+    {
+      "name": "comparison board mobile fits",
+      "pass": true
+    }
+  ]
+}

@@ -1,0 +1,721 @@
+[
+  {
+    "width": 320,
+    "view": "home",
+    "overflow": false,
+    "heroLines": 2,
+    "faqFullWidth": null,
+    "controls": [
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "nav-toggle",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "motion-toggle",
+        "w": 91.765625,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      }
+    ]
+  },
+  {
+    "width": 320,
+    "view": "pricing",
+    "overflow": false,
+    "heroLines": null,
+    "faqFullWidth": true,
+    "controls": [
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "nav-toggle",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      }
+    ]
+  },
+  {
+    "width": 320,
+    "view": "install",
+    "overflow": false,
+    "heroLines": null,
+    "faqFullWidth": null,
+    "controls": [
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "nav-toggle",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      }
+    ]
+  },
+  {
+    "width": 375,
+    "view": "home",
+    "overflow": false,
+    "heroLines": 2,
+    "faqFullWidth": null,
+    "controls": [
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "nav-toggle",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "motion-toggle",
+        "w": 91.765625,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      }
+    ]
+  },
+  {
+    "width": 375,
+    "view": "pricing",
+    "overflow": false,
+    "heroLines": null,
+    "faqFullWidth": true,
+    "controls": [
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "nav-toggle",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      }
+    ]
+  },
+  {
+    "width": 375,
+    "view": "install",
+    "overflow": false,
+    "heroLines": null,
+    "faqFullWidth": null,
+    "controls": [
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "nav-toggle",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "view": "home",
+    "overflow": false,
+    "heroLines": 2,
+    "faqFullWidth": null,
+    "controls": [
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "nav-toggle",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "motion-toggle",
+        "w": 91.765625,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "view": "pricing",
+    "overflow": false,
+    "heroLines": null,
+    "faqFullWidth": true,
+    "controls": [
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "nav-toggle",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "view": "install",
+    "overflow": false,
+    "heroLines": null,
+    "faqFullWidth": null,
+    "controls": [
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "nav-toggle",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      }
+    ]
+  },
+  {
+    "width": 768,
+    "view": "home",
+    "overflow": false,
+    "heroLines": 2,
+    "faqFullWidth": null,
+    "controls": [
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "nav-toggle",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "motion-toggle",
+        "w": 91.765625,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      }
+    ]
+  },
+  {
+    "width": 768,
+    "view": "pricing",
+    "overflow": false,
+    "heroLines": null,
+    "faqFullWidth": true,
+    "controls": [
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "nav-toggle",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      }
+    ]
+  },
+  {
+    "width": 768,
+    "view": "install",
+    "overflow": false,
+    "heroLines": null,
+    "faqFullWidth": null,
+    "controls": [
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "nav-toggle",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      }
+    ]
+  },
+  {
+    "width": 1050,
+    "view": "home",
+    "overflow": false,
+    "heroLines": 2,
+    "faqFullWidth": null,
+    "controls": [
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "nav-toggle",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "motion-toggle",
+        "w": 91.765625,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      }
+    ]
+  },
+  {
+    "width": 1050,
+    "view": "pricing",
+    "overflow": false,
+    "heroLines": null,
+    "faqFullWidth": true,
+    "controls": [
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "nav-toggle",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      }
+    ]
+  },
+  {
+    "width": 1050,
+    "view": "install",
+    "overflow": false,
+    "heroLines": null,
+    "faqFullWidth": null,
+    "controls": [
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "nav-toggle",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      }
+    ]
+  },
+  {
+    "width": 1100,
+    "view": "home",
+    "overflow": false,
+    "heroLines": 2,
+    "faqFullWidth": null,
+    "controls": [
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "motion-toggle",
+        "w": 91.765625,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      }
+    ]
+  },
+  {
+    "width": 1100,
+    "view": "pricing",
+    "overflow": false,
+    "heroLines": null,
+    "faqFullWidth": true,
+    "controls": [
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      }
+    ]
+  },
+  {
+    "width": 1100,
+    "view": "install",
+    "overflow": false,
+    "heroLines": null,
+    "faqFullWidth": null,
+    "controls": [
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      }
+    ]
+  },
+  {
+    "width": 1440,
+    "view": "home",
+    "overflow": false,
+    "heroLines": 2,
+    "faqFullWidth": null,
+    "controls": [
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "motion-toggle",
+        "w": 91.765625,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      }
+    ]
+  },
+  {
+    "width": 1440,
+    "view": "pricing",
+    "overflow": false,
+    "heroLines": null,
+    "faqFullWidth": true,
+    "controls": [
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      }
+    ]
+  },
+  {
+    "width": 1440,
+    "view": "install",
+    "overflow": false,
+    "heroLines": null,
+    "faqFullWidth": null,
+    "controls": [
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "social-link",
+        "w": 44,
+        "h": 44
+      }
+    ]
+  }
+]

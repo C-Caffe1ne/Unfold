@@ -1,0 +1,12 @@
+### Result
+{"reduced":true,"pet":"/assets/pet-rest.png","toggle":"움직임 재생","scrollBehavior":"auto"}
+### Ran Playwright code
+```js
+await (async (page) => {await page.emulateMedia({reducedMotion:"reduce"});await page.reload();return await page.evaluate(()=>({reduced:matchMedia("(prefers-reduced-motion: reduce)").matches,pet:document.querySelector("#pet-animation").getAttribute("src"),toggle:document.querySelector(".motion-toggle").innerText,scrollBehavior:getComputedStyle(document.documentElement).scrollBehavior}));})(page);
+```
+### Open tabs
+- 0: (current) [Unfold — 잠깐 멈추고, 펫과 함께 쉬어가세요.](https://unfoldpet.dokhustudio.com/)
+- 1: [가격 — Unfold](http://127.0.0.1:4186/#pricing)
+### Page
+- Page URL: https://unfoldpet.dokhustudio.com/
+- Page Title: Unfold — 잠깐 멈추고, 펫과 함께 쉬어가세요.
