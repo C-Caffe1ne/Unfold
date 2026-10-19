@@ -7,6 +7,8 @@ namespace Unfold.Desktop;
 public sealed partial class PetWindow
 {
     private Avalonia.Input.IPointer? interactionPointer;
+    private readonly TopmostKeepAlive topmost = new(TopmostKeepAlive.Interval);
+    private readonly System.Diagnostics.Stopwatch topmostClock = System.Diagnostics.Stopwatch.StartNew();
     internal bool IsClickThrough => clickThrough;
     internal bool PointerOverBody(Point point) => this.TranslatePoint(point, animation) is { } local &&
         animation.OpaqueAt(local, includeEdgeTolerance: false);
@@ -60,6 +62,17 @@ public sealed partial class PetWindow
         {
             if (MacPetWindow.SetClickThrough(this, ignore)) clickThrough = ignore;
         }
+    }
+
+    private void KeepTopmost()
+    {
+        if (!OperatingSystem.IsWindows() || runtime.DiagnosticMode) return;
+        // Raising the pet above its own menu or confirmation would cover them.
+        var eligible = IsVisible && !HasPointerInteraction && ContextMenu?.IsOpen != true && !Overlay.HoldsPlacement;
+        if (!topmost.Due(topmostClock.Elapsed, eligible)) return;
+        WindowsPetWindow.ReassertTopmost(this);
+        if (Overlay.Timer.IsVisible) WindowsPetWindow.ReassertTopmost(Overlay.Timer);
+        if (Overlay.IsVisible) WindowsPetWindow.ReassertTopmost(Overlay);
     }
 
     [StructLayout(LayoutKind.Sequential)] private struct CursorPoint { public int X, Y; }

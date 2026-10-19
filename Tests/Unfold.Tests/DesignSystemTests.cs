@@ -139,7 +139,8 @@ public class DesignSystemTests
         Layout(window);
         string[] controls = ["CustomPetName", "OpenPetBuilderFile", "CustomPetFile_idle", "CustomPetRemove_idle",
             "CustomPetPreview_idle"];
-        foreach (var size in new[] { new Size(1120, 800), new Size(990, 740), new Size(860, 680) })
+        // The settings window minimum is 860×800 since the home pet-size fix.
+        foreach (var size in new[] { new Size(1120, 800), new Size(990, 800), new Size(860, 800) })
         {
             window.Width = size.Width; window.Height = size.Height; Layout(window);
             Assert.Equal(size.Width, window.ClientSize.Width, 0); Assert.Equal(size.Height, window.ClientSize.Height, 0);

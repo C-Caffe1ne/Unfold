@@ -145,6 +145,7 @@ public sealed partial class AppRuntime : IDisposable
     public async Task Start(bool background, bool diagnostic = false)
     {
         DiagnosticMode = diagnostic;
+        if (diagnostic) MotionPreference.Source = static () => false;
         backgroundStart = background;
         purchaseGateEnabled = !diagnostic;
         accountStartupPending = purchaseGateEnabled;

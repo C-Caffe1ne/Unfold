@@ -105,6 +105,32 @@ public class WindowsPetWindowTests
         Assert.Empty(api.Calls);
     }
 
+    [Fact]
+    public void TopmostIsReassertedWithoutMovingResizingOrActivating()
+    {
+        var api = new FakeApi();
+        Assert.True(WindowsPetWindow.ReassertTopmost(1, api));
+        Assert.Equal(["topmost"], api.Calls);
+        Assert.False(WindowsPetWindow.ReassertTopmost(0, api));
+        Assert.Equal(["topmost"], api.Calls);
+        // The click-through refresh keeps Z order; this call must change it.
+        const uint noSize = 0x0001, noMove = 0x0002, noZOrder = 0x0004, noActivate = 0x0010;
+        Assert.Equal(noSize | noMove | noActivate, WindowsPetWindow.TopmostFlags);
+        Assert.Equal(0u, WindowsPetWindow.TopmostFlags & noZOrder);
+    }
+
+    [Fact]
+    public void TopmostKeepAliveRunsAtMostOncePerIntervalWhileEligible()
+    {
+        var keepAlive = new TopmostKeepAlive(TimeSpan.FromSeconds(5));
+        Assert.False(keepAlive.Due(TimeSpan.Zero, eligible: true)); // Showing already applied topmost.
+        Assert.False(keepAlive.Due(TimeSpan.FromSeconds(4.9), eligible: true));
+        Assert.False(keepAlive.Due(TimeSpan.FromSeconds(6), eligible: false)); // Drag, menu or dialog.
+        Assert.True(keepAlive.Due(TimeSpan.FromSeconds(6.1), eligible: true));
+        Assert.False(keepAlive.Due(TimeSpan.FromSeconds(11), eligible: true));
+        Assert.True(keepAlive.Due(TimeSpan.FromSeconds(11.1), eligible: true));
+    }
+
     [AvaloniaFact]
     public void HeadlessAndOtherPlatformsDoNotReachWin32OrShowTheWindow()
     {
@@ -112,9 +138,11 @@ public class WindowsPetWindowTests
         try
         {
             Assert.False(WindowsPetWindow.SetClickThrough(window, true));
+            Assert.False(WindowsPetWindow.ReassertTopmost(window));
             Assert.False(window.IsVisible);
             window.Show();
             Assert.False(WindowsPetWindow.SetClickThrough(window, true));
+            Assert.False(WindowsPetWindow.ReassertTopmost(window));
             window.Hide();
             Assert.False(WindowsPetWindow.SetClickThrough(window, false));
             Assert.False(window.IsVisible);
@@ -153,5 +181,6 @@ public class WindowsPetWindowTests
         }
         public bool InitializeLayer(nint hwnd) => Succeed("layer");
         public bool RefreshStyle(nint hwnd) => Succeed("refresh");
+        public bool PlaceTopmost(nint hwnd) => Succeed("topmost");
     }
 }

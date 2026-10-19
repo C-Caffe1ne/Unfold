@@ -104,15 +104,16 @@ public sealed partial class PetWindow : Window
             CancelCompanionPress();
             if (!HasOriginalBehavior && ActiveAnimation == "pointerDown") _ = RestoreBaseAnimation(InvalidatePlayback());
         };
-        hitTimer.Tick += (_, _) => { UpdateClickThrough(); TickCompanion(); Overlay.UpdateClickThrough(); };
+        hitTimer.Tick += (_, _) => { UpdateClickThrough(); TickCompanion(); Overlay.UpdateClickThrough(); KeepTopmost(); };
         Opened += (_, _) =>
         {
             if (runtime.DiagnosticMode) { Position = new(-32000, -32000); return; }
             var work = Screens.Primary?.WorkingArea ?? new PixelRect(0, 0, 1280, 720);
             Position = runtime.Settings.PetX is int x && runtime.Settings.PetY is int y ? new(x, y) : new(work.Right - (int)(Width * DesktopScaling) - 24, work.Bottom - (int)(Height * DesktopScaling) - 24);
             ClampPosition(); hitTimer.Start();
+            Screens.Changed += OnScreensChanged;
         };
-        Closed += (_, _) => { Overlay.Close(); InvalidatePlayback(); ResetCompanion(); hitTimer.Stop(); animation.Dispose(); };
+        Closed += (_, _) => { Screens.Changed -= OnScreensChanged; Overlay.Close(); InvalidatePlayback(); ResetCompanion(); hitTimer.Stop(); animation.Dispose(); };
     }
     public async Task SetCharacter()
     {
@@ -253,6 +254,16 @@ public sealed partial class PetWindow : Window
         // but do not treat its transparent speech window as part of the pet.
         var top = Math.Clamp(workingArea.Y, bounds.Y, bounds.Bottom);
         return new(bounds.X, top, bounds.Width, bounds.Bottom - top);
+    }
+
+    private void OnScreensChanged(object? sender, EventArgs e) => Dispatcher.UIThread.Post(HandleDisplaysChanged);
+
+    // A disconnected or rescaled monitor can leave the pet outside every work area.
+    // Like other automatic movement, this does not replace the saved manual position.
+    internal void HandleDisplaysChanged()
+    {
+        if (runtime.DiagnosticMode || !IsVisible || down is not null) return;
+        ClampPosition(); Overlay.Reposition();
     }
 
     private void ClampPosition()

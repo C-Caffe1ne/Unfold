@@ -29,6 +29,7 @@ internal sealed class AnimatedCountdown : TemplatedControl, IDisposable
     private string cachedCharacters = "";
 
     public bool AnimationsEnabled { get; set; } = true;
+    internal Func<bool> ReduceMotion { get; set; } = MotionPreference.IsReduced;
     internal IReadOnlyCollection<int> AnimatedDigitIndices => movingDigits;
     internal bool HasDigitMotion => frameTimer.IsEnabled;
     internal int MotionDirection => motionDirection;
@@ -56,7 +57,7 @@ internal sealed class AnimatedCountdown : TemplatedControl, IDisposable
         var current = Text ?? "";
         var wasActive = previouslyActive;
         var animate = AnimationsEnabled && previousSeconds is int prior && prior != seconds &&
-            IsEffectivelyVisible && VisualRoot is not null;
+            IsEffectivelyVisible && VisualRoot is not null && !ReduceMotion();
         var direction = previousSeconds is int oldSeconds && seconds < oldSeconds ? -1 : 1;
         previousSeconds = seconds; previouslyActive = active;
         Opacity = active ? 1 : .55;

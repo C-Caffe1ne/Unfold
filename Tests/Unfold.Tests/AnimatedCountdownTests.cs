@@ -36,6 +36,34 @@ public sealed class AnimatedCountdownTests
     }
 
     [AvaloniaFact]
+    public void OsReduceMotionShowsChangedDigitsWithoutTheRoll()
+    {
+        var reduced = true;
+        using var countdown = new AnimatedCountdown { FontSize = 64, LineHeight = 74, ReduceMotion = () => reduced };
+        var window = new Window { Content = countdown, Width = 400, Height = 180 };
+        window.Show(); Dispatcher.UIThread.RunJobs();
+        try
+        {
+            countdown.UpdateTime(TimeSpan.FromMinutes(1), true);
+            countdown.UpdateTime(TimeSpan.FromSeconds(59), true);
+            Assert.Equal("00:59", countdown.Text);
+            Assert.False(countdown.HasDigitMotion); Assert.Empty(countdown.AnimatedDigitIndices);
+            reduced = false; // The preference is read on each change, not cached per control.
+            countdown.UpdateTime(TimeSpan.FromSeconds(58), true);
+            Assert.True(countdown.HasDigitMotion);
+        }
+        finally { window.Close(); }
+    }
+
+    [Fact]
+    public void HostReduceMotionQueryCompletesWithoutThrowing()
+    {
+        // Exercises the real native signatures on each CI OS; the value is host-specific.
+        _ = MotionPreference.QueryOs();
+        _ = MotionPreference.QueryOs(); // Cached path.
+    }
+
+    [AvaloniaFact]
     public void ResetLongIntervalsAndHiddenControlsDoNotRollThroughIntermediateTimes()
     {
         using var countdown = new AnimatedCountdown { FontSize = 64, LineHeight = 74 };

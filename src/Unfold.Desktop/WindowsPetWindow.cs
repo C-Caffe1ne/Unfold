@@ -10,6 +10,7 @@ internal static class WindowsPetWindow
 {
     internal const uint Transparent = 0x00000020;
     internal const uint Layered = 0x00080000;
+    internal const uint TopmostFlags = 0x0001 | 0x0002 | 0x0010; // No size/move/activation; Z order changes.
     private static readonly NativeApi Native = new();
 
     internal static bool HasNativeHandle(IPlatformHandle? handle) =>
@@ -52,12 +53,21 @@ internal static class WindowsPetWindow
         return false;
     }
 
+    internal static bool ReassertTopmost(Window window) =>
+        OperatingSystem.IsWindows() && HasNativeHandle(window.TryGetPlatformHandle()) &&
+        ReassertTopmost(window.TryGetPlatformHandle()!.Handle, Native);
+
+    // The click-through write keeps WS_EX_TOPMOST set even after another window
+    // lowers this HWND, so the style alone cannot reveal or repair a lost Z order.
+    internal static bool ReassertTopmost(nint hwnd, IInputApi api) => hwnd != 0 && api.PlaceTopmost(hwnd);
+
     internal interface IInputApi
     {
         bool TryGetStyle(nint hwnd, out uint style);
         bool TrySetStyle(nint hwnd, uint style);
         bool InitializeLayer(nint hwnd);
         bool RefreshStyle(nint hwnd);
+        bool PlaceTopmost(nint hwnd);
     }
 
     private sealed class NativeApi : IInputApi
@@ -80,6 +90,7 @@ internal static class WindowsPetWindow
         public bool InitializeLayer(nint hwnd) => SetLayeredWindowAttributes(hwnd, 0, 255, 0x2);
         public bool RefreshStyle(nint hwnd) => SetWindowPos(hwnd, 0, 0, 0, 0, 0,
             0x0001 | 0x0002 | 0x0004 | 0x0010 | 0x0020); // No size/move/Z-order/activation; frame changed.
+        public bool PlaceTopmost(nint hwnd) => SetWindowPos(hwnd, -1, 0, 0, 0, 0, TopmostFlags); // HWND_TOPMOST
     }
 
     [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW", SetLastError = true)]
@@ -94,4 +105,20 @@ internal static class WindowsPetWindow
     private static extern bool SetWindowPos(nint hwnd, nint insertAfter, int x, int y, int width, int height, uint flags);
     [StructLayout(LayoutKind.Sequential)] private struct CursorPoint { public int X, Y; }
     [DllImport("user32.dll")] [return: MarshalAs(UnmanagedType.Bool)] private static extern bool GetCursorPos(out CursorPoint point);
+}
+
+/// <summary>Spaces topmost repairs so they never compete with other topmost apps every frame.</summary>
+internal sealed class TopmostKeepAlive(TimeSpan interval)
+{
+    internal static readonly TimeSpan Interval = TimeSpan.FromSeconds(5);
+    private TimeSpan? last;
+
+    internal bool Due(TimeSpan now, bool eligible)
+    {
+        if (!eligible) return false;
+        if (last is null) { last = now; return false; }
+        if (now - last.Value < interval) return false;
+        last = now;
+        return true;
+    }
 }

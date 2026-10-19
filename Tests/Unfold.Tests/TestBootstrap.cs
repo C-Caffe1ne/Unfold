@@ -9,7 +9,11 @@ namespace Unfold.Tests;
 
 public static class TestBootstrap
 {
-    public static AppBuilder BuildAvaloniaApp() => AppBuilder.Configure<TestApplication>().UseSkia().UseHeadless(new() { UseHeadlessDrawing = false });
+    public static AppBuilder BuildAvaloniaApp()
+    {
+        MotionPreference.Source = static () => false; // CI hosts can disable OS animations.
+        return AppBuilder.Configure<TestApplication>().UseSkia().UseHeadless(new() { UseHeadlessDrawing = false });
+    }
 }
 public sealed class TestApplication : Application
 {
