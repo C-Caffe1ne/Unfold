@@ -7,21 +7,26 @@ v1.2.1 정식 배포: [릴리스 노트](releases/v1.2.1.md) · [배포 검증](
 
 새 세션·다른 IDE에서는 **[작업 인계](HANDOFF.md)**부터 읽는다. 기준 경로, 로컬에만 있는 커밋, 실행·저장 계약, 검증 근거와 다음 확인 순서를 모았다.
 
-현재 제품은 **C#·Avalonia 기반 Unfold Beta**다. 2026-10-14 개발본은 **Beta v1.1.4** (`1.1.4-beta`, HEAD `f9953a0`)이며, 작업 경로는 `/Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover`, 브랜치는 `codex/pet-overlay-hover`다. 원격 HEAD `4a668fd` 이후의 휴식 숫자 전환 수정은 아직 로컬 커밋이다.
-최신 공개 배포본은 `v1.1.4-beta` (제품 소스 `4c64bfc`)다. 집중 검사·Mac 공증·공개 파일 10개와 사용자 요청으로 제외한 앱 OS 진단·설치/업데이트 검사는 [배포 검증](validation/2026-10-14-beta-v1.1.4-release.md)에 기록한다.
+현재 제품은 **C#·Avalonia 기반 Unfold v1.2.1**이다. 2026-10-20 동료 펫 P1 작업의 시작 소스는 `1.2.1`, HEAD `2de478a`이며, 작업 경로는 `/Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover`, 브랜치는 `codex/pet-overlay-hover`다.
+기록된 최신 공개 배포본은 `v1.2.1` (제품 소스 `09c9e72`)이다. 배포 검사와 실제 OS·업데이트 미검증 범위는 [배포 검증](validation/2026-10-20-v1.2.1-release.md)에 있다.
+[동료 펫 P1 실행 계획](plans/2026-10-20-companion-p1.md)의 S1 펫별 크기·즐겨찾기, S2 로컬 라이브러리, S3 선택형 CPU·메모리 정보, S4 미니바 빠른 메뉴를 구현했다. 구현 단계의 Release 빌드와 214개 검사, 후속 포커스 수정의 8개 검사가 통과했다. [실제 macOS QA](validation/2026-10-20-companion-p1-macos.md)와 [포커스 수정·재검증](validation/2026-10-21-favorite-focus.md)까지 완료해 관련 변경을 로컬 커밋으로 정리했다. 버전은 `1.2.1`이며 미푸시·미배포 상태다. Windows·잠자기·장시간 사용은 미검증이다.
 
 ## 현재 사용 안내
 
 | 문서 | 확인할 내용 |
 |---|---|
-| [작업 인계](HANDOFF.md), [이번 최신화 기록](validation/2026-10-14-handoff-refresh.md) | 최신 소스·배포·실행 앱의 구분, IDE 재개, 보존할 변경과 문서 검증 |
+| [작업 인계](HANDOFF.md), [10월 14일 인계 정리 이력](validation/2026-10-14-handoff-refresh.md) | 최신 소스·배포·실행 앱의 구분, IDE 재개, 보존할 변경과 문서 검증 |
 | [MVP 범위](mvp.md) | 현재 기능·제외 범위와 이전 데이터 호환 |
 | [설정·타이머](settings-ui.md), [말풍선·효과음](stretch-notifications.md) | 설정·홈 시간 자동 저장·대사·불투명도·자동 배치 |
 | [펫 관리](pet-packs.md), [GLB 펫](glb-pets.md) | 통합 편집·설치·동작 설정·입력 제한 |
 | [계정](account-screen.md), [이용 코드](access-codes.md) | OS 보안 저장·로그인 복원·구매/무료 권한 |
-| [설치·업데이트](cross-platform.md), [공개 릴리스 노트](releases/v1.1.4-beta.md) | 실제 배포 파일·아키텍처·서명·업데이트 방법 |
+| [설치·업데이트](cross-platform.md), [공개 릴리스 노트](releases/v1.2.1.md) | 실제 배포 파일·아키텍처·서명·업데이트 방법 |
 | [검증 안내](verification.md), [배포 체크리스트](release-checklist.md) | 기록된 검사·OS별 한계와 새 설치본 검사 절차 |
-| [개발 계획](development-plan.md) | 이전 배포 기준과 과거 계획의 구분 |
+| [개발 계획](development-plan.md) | 구현된 MVP, 현재 승인된 후속 작업, 과거 계획·검증의 구분 |
+| [동료 펫 P1 실행 계획](plans/2026-10-20-companion-p1.md) | S1~S4 순서·소유 모듈·수용 기준·집중검사와 OS 미검증 범위 |
+| [동료 펫 P1 구현·검증](validation/2026-10-20-companion-p1.md) | S1~S4 완료, 최종 집중 214개·Release 빌드, 화면 증거와 실제 OS 미검증 범위 |
+| [P1 실제 macOS QA](validation/2026-10-20-companion-p1-macos.md) | 격리 앱의 클릭·키보드·초안·네 모서리 확인과 발견한 포커스 결함 |
+| [즐겨찾기 포커스 수정](validation/2026-10-21-favorite-focus.md) | 카드 유지·제거·빈 목록 포커스, 자동 8개·실제 macOS 재검증, 로그 격리 보완 |
 | [문서 최신화 결과](validation/2026-10-08-docs-refresh.md) | 코드 대조·링크 복구·보존 범위 |
 
 ## 구현·검증 이력

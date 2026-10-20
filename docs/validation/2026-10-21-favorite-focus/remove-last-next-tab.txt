@@ -1,0 +1,2 @@
+There has been no change in the accessibility tree for Window: "Unfold · 휴식 알림 · v1.2.1".
+The focused UI element is 97 button 강아지 적용, ID: PetLibraryApply_puppy-dog

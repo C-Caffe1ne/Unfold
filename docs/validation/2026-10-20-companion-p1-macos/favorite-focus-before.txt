@@ -1,0 +1,2 @@
+There has been no change in the accessibility tree for Window: "Unfold · 휴식 알림 · v1.2.1".
+The focused UI element is 190 button Mochi 즐겨찾기 해제, ID: PetLibraryFavorite_default-cat

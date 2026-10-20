@@ -36,7 +36,10 @@ public sealed partial record AppSettings
             SelectedCharacterId = Read(nameof(SelectedCharacterId), defaults.SelectedCharacterId),
             ShowPet = Read(nameof(ShowPet), defaults.ShowPet),
             ShowPetTimer = Read(nameof(ShowPetTimer), defaults.ShowPetTimer),
+            ShowSystemResources = Read(nameof(ShowSystemResources), defaults.ShowSystemResources),
             PetScalePercent = Read(nameof(PetScalePercent), defaults.PetScalePercent),
+            PetPreferences = fields.TryGetValue(nameof(PetPreferences), out var preferences)
+                ? ReadPetPreferences(preferences, ref damaged) : defaults.PetPreferences,
             BubbleOpacityPercent = Read(nameof(BubbleOpacityPercent), defaults.BubbleOpacityPercent),
             AdvanceDialogue = Read(nameof(AdvanceDialogue), defaults.AdvanceDialogue),
             InvitationDialogue = Read(nameof(InvitationDialogue), defaults.InvitationDialogue),

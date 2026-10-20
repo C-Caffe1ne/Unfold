@@ -1,0 +1,640 @@
+{
+  "pid": 97723,
+  "data": "/private/tmp/unfold-favorite-focus-20261020/profile",
+  "diagnostic": false,
+  "selected": "default-cat",
+  "scale": 100,
+  "sound": true,
+  "resources": false,
+  "windows": [
+    {
+      "type": "SettingsWindow",
+      "title": "Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1",
+      "position": "100, 30",
+      "size": "1120, 800",
+      "scaling": 1,
+      "active": true,
+      "screens": [
+        {
+          "bounds": "0, 0, 1920, 1080",
+          "work": "0, 30, 1920, 1050",
+          "scale": 1
+        }
+      ],
+      "controls": [
+        {
+          "type": "Border",
+          "name": "PART_TransparencyFallback",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 1120, 800",
+          "screen": "100, 30"
+        },
+        {
+          "type": "VisualLayerManager",
+          "name": "PART_VisualLayerManager",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 1120, 800",
+          "screen": "100, 30"
+        },
+        {
+          "type": "ContentPresenter",
+          "name": "PART_ContentPresenter",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 1120, 800",
+          "screen": "100, 30"
+        },
+        {
+          "type": "Border",
+          "name": "SettingsWindowSurface",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 1120, 800",
+          "screen": "100, 30"
+        },
+        {
+          "type": "Border",
+          "name": "SettingsFrame",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 32, 1120, 768",
+          "screen": "100, 62"
+        },
+        {
+          "type": "Grid",
+          "name": "SettingsNavigationRail",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "7, 12, 58, 705",
+          "screen": "138, 82"
+        },
+        {
+          "type": "StackPanel",
+          "name": "SettingsNavigationLinks",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 58, 549",
+          "screen": "138, 82"
+        },
+        {
+          "type": "Button",
+          "name": "SettingsNavTimer",
+          "text": "Avalonia.Controls.StackPanel",
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 58, 64",
+          "screen": "138, 82"
+        },
+        {
+          "type": "ContentPresenter",
+          "name": "PART_ContentPresenter",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 58, 64",
+          "screen": "138, 82"
+        },
+        {
+          "type": "TextBlock",
+          "name": "SettingsNavTimerLabel",
+          "text": "\uD648",
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 28, 54, 14",
+          "screen": "140, 121"
+        },
+        {
+          "type": "Button",
+          "name": "SettingsNavPacks",
+          "text": "Avalonia.Controls.StackPanel",
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 72, 58, 64",
+          "screen": "138, 154"
+        },
+        {
+          "type": "ContentPresenter",
+          "name": "PART_ContentPresenter",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 58, 64",
+          "screen": "138, 154"
+        },
+        {
+          "type": "TextBlock",
+          "name": "SettingsNavPacksLabel",
+          "text": "\uD3AB \uAD00\uB9AC",
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 28, 54, 14",
+          "screen": "140, 193"
+        },
+        {
+          "type": "Button",
+          "name": "SettingsNavReview",
+          "text": "Avalonia.Controls.StackPanel",
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 144, 58, 64",
+          "screen": "138, 226"
+        },
+        {
+          "type": "ContentPresenter",
+          "name": "PART_ContentPresenter",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 58, 64",
+          "screen": "138, 226"
+        },
+        {
+          "type": "TextBlock",
+          "name": "SettingsNavReviewLabel",
+          "text": "\uAE30\uB85D",
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 28, 54, 14",
+          "screen": "140, 265"
+        },
+        {
+          "type": "Button",
+          "name": "SettingsTheme",
+          "text": "Avalonia.Controls.StackPanel",
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 216, 58, 64",
+          "screen": "138, 298"
+        },
+        {
+          "type": "ContentPresenter",
+          "name": "PART_ContentPresenter",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 58, 64",
+          "screen": "138, 298"
+        },
+        {
+          "type": "TextBlock",
+          "name": "SettingsThemeLabel",
+          "text": "\uD14C\uB9C8",
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 28, 54, 14",
+          "screen": "140, 337"
+        },
+        {
+          "type": "Button",
+          "name": "SettingsNavSettings",
+          "text": "Avalonia.Controls.StackPanel",
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 58, 64",
+          "screen": "138, 631"
+        },
+        {
+          "type": "ContentPresenter",
+          "name": "PART_ContentPresenter",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 58, 64",
+          "screen": "138, 631"
+        },
+        {
+          "type": "TextBlock",
+          "name": "SettingsNavSettingsLabel",
+          "text": "\uC124\uC815",
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 28, 54, 14",
+          "screen": "140, 670"
+        },
+        {
+          "type": "Button",
+          "name": "SettingsQuit",
+          "text": "Avalonia.Controls.StackPanel",
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 72, 58, 64",
+          "screen": "138, 703"
+        },
+        {
+          "type": "ContentPresenter",
+          "name": "PART_ContentPresenter",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 58, 64",
+          "screen": "138, 703"
+        },
+        {
+          "type": "TextBlock",
+          "name": "SettingsQuitLabel",
+          "text": "\uC885\uB8CC",
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 24, 54, 14",
+          "screen": "140, 740"
+        },
+        {
+          "type": "TextBlock",
+          "name": "SidebarVersion",
+          "text": "v1.2.1",
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 144, 58, 12",
+          "screen": "138, 775"
+        },
+        {
+          "type": "ContentControl",
+          "name": "SettingsPageHost",
+          "text": "Unfold.Desktop.PetManagementView",
+          "focused": false,
+          "enabled": true,
+          "bounds": "88, 0, 970, 729",
+          "screen": "219, 70"
+        },
+        {
+          "type": "ContentPresenter",
+          "name": "PART_ContentPresenter",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 970, 729",
+          "screen": "219, 70"
+        },
+        {
+          "type": "ContentPresenter",
+          "name": "PART_ContentPresenter",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 970, 729",
+          "screen": "219, 70"
+        },
+        {
+          "type": "ContentPresenter",
+          "name": "PART_ContentPresenter",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 970, 729",
+          "screen": "219, 70"
+        },
+        {
+          "type": "ContentPresenter",
+          "name": "PART_ContentPresenter",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 970, 729",
+          "screen": "219, 70"
+        },
+        {
+          "type": "ScrollViewer",
+          "name": "PageBodyScroll",
+          "text": "Unfold.Desktop.Ui\u002BCenteredBodyDecorator",
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 970, 729",
+          "screen": "219, 70"
+        },
+        {
+          "type": "ScrollContentPresenter",
+          "name": "PART_ContentPresenter",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 970, 729",
+          "screen": "219, 70"
+        },
+        {
+          "type": "CenteredBodyDecorator",
+          "name": "PetPageBody",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 970, 729",
+          "screen": "219, 70"
+        },
+        {
+          "type": "Button",
+          "name": "PetLibraryImport",
+          "text": "\uAC00\uC838\uC624\uAE30",
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 78, 38",
+          "screen": "917, 70"
+        },
+        {
+          "type": "ContentPresenter",
+          "name": "PART_ContentPresenter",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 78, 38",
+          "screen": "917, 70"
+        },
+        {
+          "type": "Button",
+          "name": "PetLibraryCreate",
+          "text": "\uD3AB \uB9CC\uB4E4\uAE30",
+          "focused": false,
+          "enabled": true,
+          "bounds": "86, 0, 81, 38",
+          "screen": "1003, 70"
+        },
+        {
+          "type": "ContentPresenter",
+          "name": "PART_ContentPresenter",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 81, 38",
+          "screen": "1003, 70"
+        },
+        {
+          "type": "TextBox",
+          "name": "PetLibrarySearch",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 58, 760, 38",
+          "screen": "324, 128"
+        },
+        {
+          "type": "ContentPresenter",
+          "name": "PART_ContentPresenter",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 760, 38",
+          "screen": "324, 128"
+        },
+        {
+          "type": "Border",
+          "name": "PART_BorderElement",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 760, 38",
+          "screen": "324, 128"
+        },
+        {
+          "type": "DockPanel",
+          "name": "PART_InnerDockPanel",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "10, 6, 742, 25",
+          "screen": "335, 135"
+        },
+        {
+          "type": "ScrollViewer",
+          "name": "PART_ScrollViewer",
+          "text": "Avalonia.Controls.Panel",
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 742, 25",
+          "screen": "335, 135"
+        },
+        {
+          "type": "ScrollContentPresenter",
+          "name": "PART_ContentPresenter",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 742, 25",
+          "screen": "335, 135"
+        },
+        {
+          "type": "TextBlock",
+          "name": "PART_Placeholder",
+          "text": "\uD3AB \uAC80\uC0C9",
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 742, 25",
+          "screen": "335, 135"
+        },
+        {
+          "type": "TextPresenter",
+          "name": "PART_TextPresenter",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 742, 25",
+          "screen": "335, 135"
+        },
+        {
+          "type": "Panel",
+          "name": "PART_ScrollBarsSeparator",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "742, 25, 0, 0",
+          "screen": "1077, 160"
+        },
+        {
+          "type": "Button",
+          "name": "PetLibraryFilterAll",
+          "text": "\uC804\uCCB4",
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 53, 38",
+          "screen": "324, 186"
+        },
+        {
+          "type": "ContentPresenter",
+          "name": "PART_ContentPresenter",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 53, 38",
+          "screen": "324, 186"
+        },
+        {
+          "type": "Button",
+          "name": "PetLibraryFilterFavorites",
+          "text": "\uC990\uACA8\uCC3E\uAE30",
+          "focused": false,
+          "enabled": true,
+          "bounds": "61, 0, 78, 38",
+          "screen": "385, 186"
+        },
+        {
+          "type": "ContentPresenter",
+          "name": "PART_ContentPresenter",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 78, 38",
+          "screen": "385, 186"
+        },
+        {
+          "type": "Button",
+          "name": "PetLibraryFilterSprite",
+          "text": "2D",
+          "focused": true,
+          "enabled": true,
+          "bounds": "147, 0, 46, 38",
+          "screen": "471, 186"
+        },
+        {
+          "type": "ContentPresenter",
+          "name": "PART_ContentPresenter",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 46, 38",
+          "screen": "471, 186"
+        },
+        {
+          "type": "Button",
+          "name": "PetLibraryFilterModel",
+          "text": "3D",
+          "focused": false,
+          "enabled": true,
+          "bounds": "201, 0, 46, 38",
+          "screen": "525, 186"
+        },
+        {
+          "type": "ContentPresenter",
+          "name": "PART_ContentPresenter",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 46, 38",
+          "screen": "525, 186"
+        },
+        {
+          "type": "TextBlock",
+          "name": "PetLibraryEmpty",
+          "text": "\uAC80\uC0C9 \uACB0\uACFC\uAC00 \uC5C6\uC5B4\uC694.",
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 174, 760, 15",
+          "screen": "324, 244"
+        },
+        {
+          "type": "WrapPanel",
+          "name": "PetLibraryCards",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 209, 760, 0",
+          "screen": "324, 279"
+        },
+        {
+          "type": "Grid",
+          "name": "Root",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 16, 729",
+          "screen": "1173, 70"
+        },
+        {
+          "type": "Border",
+          "name": "VerticalRoot",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 16, 729",
+          "screen": "1173, 70"
+        },
+        {
+          "type": "Rectangle",
+          "name": "TrackRect",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 16, 729",
+          "screen": "1173, 70"
+        },
+        {
+          "type": "RepeatButton",
+          "name": "PART_LineUpButton",
+          "text": "Avalonia.Controls.PathIcon",
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 16, 16",
+          "screen": "1173, 70"
+        },
+        {
+          "type": "ContentPresenter",
+          "name": "PART_ContentPresenter",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 16, 16",
+          "screen": "1173, 70"
+        },
+        {
+          "type": "RepeatButton",
+          "name": "PART_PageUpButton",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 16, 0",
+          "screen": "1173, 86"
+        },
+        {
+          "type": "RepeatButton",
+          "name": "PART_PageDownButton",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 677, 16, 20",
+          "screen": "1173, 763"
+        },
+        {
+          "type": "RepeatButton",
+          "name": "PART_LineDownButton",
+          "text": "Avalonia.Controls.PathIcon",
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 713, 16, 16",
+          "screen": "1173, 783"
+        },
+        {
+          "type": "ContentPresenter",
+          "name": "PART_ContentPresenter",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 16, 16",
+          "screen": "1173, 783"
+        },
+        {
+          "type": "Panel",
+          "name": "PART_ScrollBarsSeparator",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "970, 729, 0, 0",
+          "screen": "1189, 799"
+        },
+        {
+          "type": "Border",
+          "name": "SettingsNativeTitleBar",
+          "text": null,
+          "focused": false,
+          "enabled": true,
+          "bounds": "0, 0, 1120, 32",
+          "screen": "100, 30"
+        }
+      ]
+    }
+  ]
+}

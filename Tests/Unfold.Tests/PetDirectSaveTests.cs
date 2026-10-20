@@ -74,7 +74,7 @@ public class PetDirectSaveTests
         {
             outputRequests++; return Task.FromResult<string?>(null);
         });
-        owner.Content = Ui.PageFrame(owner, page); owner.Show();
+        owner.Content = Ui.PageFrame(owner, page); owner.Show(); PetLibraryTestNavigation.OpenBuilder(owner);
         try
         {
             var save = Find<Button>(owner, "SaveCustomPet");
@@ -125,7 +125,7 @@ public class PetDirectSaveTests
             if (++applications == 1) throw new IOException("Apply failed");
             return Task.CompletedTask;
         }, chooseMedia: () => Task.FromResult<string?>(CustomPetDraftTests.Fixture()));
-        owner.Content = page; owner.Show();
+        owner.Content = page; owner.Show(); PetLibraryTestNavigation.OpenBuilder(owner);
         try
         {
             Find<TextBox>(owner, "CustomPetName").Text = "재시도";
@@ -150,7 +150,7 @@ public class PetDirectSaveTests
         var owner = new Window(); var applications = 0;
         using var page = new PetManagementView(owner, library, _ => { applications++; return Task.CompletedTask; },
             chooseMedia: () => Task.FromResult<string?>(CustomPetDraftTests.Fixture()));
-        owner.Content = page; owner.Show();
+        owner.Content = page; owner.Show(); PetLibraryTestNavigation.OpenBuilder(owner);
         try
         {
             Find<TextBox>(owner, "CustomPetName").Text = "작성 중";

@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Platform.Storage;
+using Avalonia.VisualTree;
 using Unfold.Core;
 
 namespace Unfold.Desktop;
@@ -22,6 +23,7 @@ internal sealed class PetBuilderView : UserControl, IDisposable
     public bool IsBusy => opening || media.IsBusy || glb.IsBusy;
     public bool HasUnsavedChanges => media.HasUnsavedChanges || glb.HasUnsavedChanges;
     public event Action? BusyChanged;
+    public event Action? LibraryChanged;
     public PetBuilderView(Window owner, CharacterLibrary library, Func<CharacterPackage, Task> installed, Func<string, Task> created,
         Func<Task<string?>>? chooseMedia = null, Func<Task<string?>>? chooseOutput = null, Func<string, Task>? removed = null)
     {
@@ -44,10 +46,10 @@ internal sealed class PetBuilderView : UserControl, IDisposable
             existingPets: ManagedPets, openPackage: OpenPackage);
         AttachedToVisualTree += (_, _) => RefreshPets();
         media.BusyChanged += UpdateBusy; glb.BusyChanged += UpdateBusy;
-        media.LibraryChanged += RefreshPets; glb.LibraryChanged += RefreshPets;
+        media.LibraryChanged += LibraryUpdated; glb.LibraryChanged += LibraryUpdated;
         editor.Content = media; Content = editor;
     }
-    private async Task OpenFile()
+    internal async Task OpenFile()
     {
         if (IsBusy || closed) return;
         opening = true; UpdateBusy();
@@ -88,6 +90,14 @@ internal sealed class PetBuilderView : UserControl, IDisposable
         }
         finally { refreshingPets = false; }
         glb.RefreshExisting();
+    }
+    private void LibraryUpdated() { RefreshPets(); LibraryChanged?.Invoke(); }
+    internal void FocusEditor()
+    {
+        if (closed || editor.Content is not Control active) return;
+        var name = active.GetVisualDescendants().OfType<TextBox>().FirstOrDefault(input =>
+            input.Name is "CustomPetName" or "GlbPetName" && input.IsEnabled && input.IsEffectivelyVisible);
+        if (name?.Focus() == true) name.BringIntoView();
     }
     private async Task<string?> PickFile()
     {

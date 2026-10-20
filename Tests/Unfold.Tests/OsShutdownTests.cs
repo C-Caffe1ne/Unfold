@@ -23,7 +23,7 @@ public class OsShutdownTests
         var settings = Assert.IsType<SettingsWindow>(scope.Lifetime.MainWindow);
         settings.GetVisualDescendants().OfType<Button>().Single(button => button.Name == "SettingsNavPacks")
             .RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-        Dispatcher.UIThread.RunJobs();
+        Dispatcher.UIThread.RunJobs(); PetLibraryTestNavigation.OpenBuilder(settings);
         settings.GetVisualDescendants().OfType<TextBox>().Single(input => input.Name == "CustomPetName").Text = "저장하지 않은 펫";
         if (hidden) settings.HideToTray();
         var closed = false;

@@ -164,7 +164,7 @@ public class PetEditingUiTests
         using var page = new PetManagementView(window, library, package => { applied = package; return Task.CompletedTask; }, removed: id => { removed = id; return Task.CompletedTask; });
         try
         {
-            window.Content = Ui.PageFrame(window, page); window.Show(); Dispatcher.UIThread.RunJobs();
+            window.Content = Ui.PageFrame(window, page); window.Show(); PetLibraryTestNavigation.OpenBuilder(window); Dispatcher.UIThread.RunJobs();
             var pets = Find<ComboBox>(window, "MediaExistingPets"); Assert.Equal(saved.Manifest.Id, pets.Items.OfType<CharacterPackage>().Single().Manifest.Id);
             pets.SelectedIndex = 0; await Until(() => !page.IsBusy && Find<TextBox>(window, "CustomPetName").Text == saved.Manifest.Name);
             Assert.False(page.HasUnsavedDraft); Assert.Equal(2, Find<ComboBox>(window, "CustomPetPlayback_click").SelectedIndex);
@@ -190,7 +190,7 @@ public class PetEditingUiTests
         using var page = new PetManagementView(window, library, _ => Task.CompletedTask);
         try
         {
-            window.Content = Ui.PageFrame(window, page); window.Show(); Dispatcher.UIThread.RunJobs();
+            window.Content = Ui.PageFrame(window, page); window.Show(); PetLibraryTestNavigation.OpenBuilder(window); Dispatcher.UIThread.RunJobs();
             var picker = Find<ComboBox>(window, "MediaExistingPets"); Assert.Equal(2, picker.ItemCount);
             picker.SelectedItem = picker.Items.OfType<CharacterPackage>().Single(pet => pet.IsGlb); await Until(() => !page.IsBusy && window.GetVisualDescendants().OfType<GlbPetView>().Any());
             var modelPicker = Find<ComboBox>(window, "GlbExistingPets"); Assert.Equal(2, modelPicker.ItemCount);
@@ -210,7 +210,7 @@ public class PetEditingUiTests
         var window = new Window(); using var page = new PetManagementView(window, library, _ => Task.CompletedTask);
         try
         {
-            window.Content = Ui.PageFrame(window, page); window.Show(); Dispatcher.UIThread.RunJobs();
+            window.Content = Ui.PageFrame(window, page); window.Show(); PetLibraryTestNavigation.OpenBuilder(window); Dispatcher.UIThread.RunJobs();
             var pets = Find<ComboBox>(window, "MediaExistingPets");
             pets.SelectedItem = pets.Items.OfType<CharacterPackage>().Single(pet => pet.Manifest.Id == first.Manifest.Id); await Until(() => !page.IsBusy);
             Find<TextBox>(window, "CustomPetName").Text = "작성 중";
@@ -247,7 +247,7 @@ public class PetEditingUiTests
             var media = PetEditingCoreTests.InstallMedia(runtime.Library, temp.Path); await runtime.Start(true, true); runtime.Stop();
             if (active) await runtime.SelectInstalledCharacter(media);
             var selectedId = runtime.Settings.SelectedCharacterId; runtime.ShowSettings(); var window = (SettingsWindow)lifetime.MainWindow!;
-            Press(window, "SettingsNavPacks"); Dispatcher.UIThread.RunJobs();
+            Press(window, "SettingsNavPacks"); PetLibraryTestNavigation.OpenBuilder(window); Dispatcher.UIThread.RunJobs();
             Find<ComboBox>(window, "MediaExistingPets").SelectedIndex = 0;
             var page = window.GetVisualDescendants().OfType<PetManagementView>().Single(); await Until(() => !page.IsBusy);
             Press(window, "RemoveCustomPet"); Choose(await Dialog(window), "펫 삭제"); await Until(() => !page.IsBusy);

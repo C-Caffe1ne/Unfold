@@ -28,7 +28,7 @@ public class GlbFileManagementTests
             Source = Path.Combine(temp.Path, "first.glb"); File.WriteAllBytes(Source, GlbTests.Fixture(morph: true)); Chosen = Source;
             Library = new(Path.Combine(temp.Path, "library"));
             Page = new(Window, Library, _ => Task.CompletedTask, chooseMedia: () => Task.FromResult<string?>(Chosen), showPageHeaders: false);
-            Window.Content = Ui.PageFrame(Window, Page); Window.Show(); Layout(Window);
+            Window.Content = Ui.PageFrame(Window, Page); Window.Show(); PetLibraryTestNavigation.OpenBuilder(Window); Layout(Window);
         }
         public async Task Open()
         {
@@ -148,7 +148,7 @@ public class GlbFileManagementTests
             var saved = new GlbPetDraft(source).Save(runtime.Library);
             var selected = active ? saved : new GlbPetDraft(source) { Name = "남길 펫" }.Save(runtime.Library);
             await runtime.Start(true, true); runtime.Stop(); await runtime.SelectInstalledCharacter(selected); runtime.ShowSettings();
-            var window = (SettingsWindow)lifetime.MainWindow!; Press(window, "SettingsNavPacks");
+            var window = (SettingsWindow)lifetime.MainWindow!; Press(window, "SettingsNavPacks"); PetLibraryTestNavigation.OpenBuilder(window);
             await Until(() => window.GetVisualDescendants().OfType<PetManagementView>().Any()); Layout(window);
             var choices = Find<ComboBox>(window, "MediaExistingPets");
             choices.SelectedItem = choices.Items.OfType<CharacterPackage>().Single(p => p.Manifest.Id == saved.Manifest.Id);

@@ -1,0 +1,4 @@
+The following is a diff from the previous accessibility tree for Window: "Unfold · 휴식 알림 · v1.2.1" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 93-97
+~										92 text Value: 검색 결과가 없어요., ID: PetLibraryEmpty
+The focused UI element is 45 button 즐겨찾기, 선택됨, ID: PetLibraryFilterFavorites

@@ -30,7 +30,7 @@ public class PetBuilderTests
             Library = new(Path.Combine(temp.Path, "library"));
             Page = new(Window, Library, _ => Task.CompletedTask, chooseMedia: () => Task.FromResult<string?>(FilePath),
                 chooseOutput: () => Task.FromResult<string?>(Output), showPageHeaders: false);
-            Window.Content = Ui.PageFrame(Window, Page); Window.Show(); Layout();
+            Window.Content = Ui.PageFrame(Window, Page); Window.Show(); PetLibraryTestNavigation.OpenBuilder(Window); Layout();
         }
         public T Find<T>(string name) where T : Control => Window.GetVisualDescendants().OfType<T>().Single(c => c.Name == name);
         public void Press(string name) => Find<Button>(name).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));

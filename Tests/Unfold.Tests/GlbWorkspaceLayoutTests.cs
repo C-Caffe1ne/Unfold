@@ -239,6 +239,7 @@ public class GlbWorkspaceLayoutTests
             Assert.Equal(860, window.MinWidth); Assert.Equal(800, window.MinHeight);
             window.Show(); Layout(window);
             Find<Button>(window, "SettingsNavPacks").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            PetLibraryTestNavigation.OpenBuilder(window);
             await Until(() => window.GetVisualDescendants().OfType<PetBuilderView>().Any());
             await Find<PetBuilderView>(window).OpenPackage(package);
             await Until(() => !Find<GlbPetView>(window).IsBusy && !Find<GlbPetView>(window).IsPreviewLoading); Layout(window);

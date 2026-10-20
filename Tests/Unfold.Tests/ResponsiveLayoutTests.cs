@@ -73,7 +73,7 @@ public class ResponsiveLayoutTests
         }
         Press(window, "SettingsNavReview"); AssertNoHorizontalOverflow(window);
         AssertInWindow(Find<Button>(window, "ReviewExport"), window);
-        Press(window, "SettingsNavPacks"); AssertNoHorizontalOverflow(window);
+        Press(window, "SettingsNavPacks"); PetLibraryTestNavigation.OpenBuilder(window); AssertNoHorizontalOverflow(window);
         AssertInWindow(Find<Button>(window, "CreateCustomPetPack"), window);
         Layout(window);
         var name = Find<TextBox>(window, "CustomPetName"); name.Text = "작성 중인 펫";

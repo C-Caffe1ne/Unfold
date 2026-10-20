@@ -235,6 +235,12 @@ public sealed partial class SettingsWindow
         PreferencesEdited();
         return Task.CompletedTask;
     }
+    internal Task OpenPreferencesFromPet() => OpenPreferences();
+    internal async Task OpenLibraryFromPet()
+    {
+        await OpenPetPacks();
+        petPage?.ShowLibrary();
+    }
     private Task OpenReview()
     {
         reviewPage ??= new BreakReviewView(this, runtime.BreakHistory.Review,
@@ -245,7 +251,9 @@ public sealed partial class SettingsWindow
     private Task OpenPetPacks()
     {
         petPage ??= new PetManagementView(this, runtime.Library, runtime.SelectInstalledCharacter,
-            showPageHeaders: false, removed: runtime.RefreshAfterCharacterRemoval);
+            showPageHeaders: false, removed: runtime.RefreshAfterCharacterRemoval,
+            getPets: () => runtime.Characters, selectedId: () => runtime.Selected?.Manifest.Id,
+            isFavorite: id => runtime.Settings.IsPetFavorite(id), setFavorite: runtime.SetPetFavorite);
         ShowPage("pets", petPage);
         return Task.CompletedTask;
     }
@@ -330,7 +338,7 @@ public sealed partial class SettingsWindow
                 "dashboard" => timerControls.Children.OfType<Button>().First(),
                 "settings" => controls.FirstOrDefault(control => control.Name == "BubbleOpacityPercent"),
                 "pets" => controls.OfType<TextBox>().FirstOrDefault(input =>
-                    input.Name is "CustomPetName" or "GlbPetName" && input.IsEnabled && input.IsEffectivelyVisible),
+                    input.Name is "PetLibrarySearch" or "CustomPetName" or "GlbPetName" && input.IsEnabled && input.IsEffectivelyVisible),
                 _ => controls.OfType<Button>().FirstOrDefault(button => button.IsEnabled && button.IsEffectivelyVisible)
             };
             if (target is not null && target.Focus(keyboard ? NavigationMethod.Tab : NavigationMethod.Unspecified))

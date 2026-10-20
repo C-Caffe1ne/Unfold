@@ -14,6 +14,7 @@ public sealed partial record AppSettings
     public string SelectedCharacterId { get; init; } = "default-cat";
     public bool ShowPet { get; init; } = true;
     public bool ShowPetTimer { get; init; } = true;
+    public bool ShowSystemResources { get; init; }
     public int PetScalePercent { get; init; } = 100;
     public BubbleDirection BubbleDirection { get; init; } = BubbleDirection.Top;
     public int BubbleOpacityPercent { get; init; } = 100;
@@ -111,6 +112,7 @@ public sealed partial record AppSettings
             value.IdleMinutes is < 1 or > 60 || value.PetScalePercent is < 50 or > 150 || value.PetScalePercent % 10 != 0 ||
             !CharacterLibrary.SafeId(value.SelectedCharacterId))
             throw new InvalidDataException("Invalid settings values.");
+        ValidatePetPreferences(value.PetPreferences);
         if (value.BubbleOpacityPercent is < 0 or > 100 ||
             !ValidDialogue(value.AdvanceDialogue) || !ValidDialogue(value.InvitationDialogue) ||
             !ValidDialogue(value.RestingDialogue) || !ValidDialogue(value.OvertimeDialogue) || !ValidDialogue(value.CompletedDialogue))

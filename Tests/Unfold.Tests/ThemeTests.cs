@@ -77,7 +77,7 @@ public class ThemeTests
             Assert.Equal(37, interval.Value); Assert.Equal(19, scope.Runtime.Settings.IdleMinutes);
         }
         Assert.Equal(AppTheme.MidnightBlue, AppSettings.Load(scope.Path).Theme); Assert.Equal(19, AppSettings.Load(scope.Path).IdleMinutes);
-        Press(Find<Button>(window, "SettingsNavPacks"));
+        Press(Find<Button>(window, "SettingsNavPacks")); PetLibraryTestNavigation.OpenBuilder(window);
         var preview = Find<Border>(window, "CustomPetPreviewSurface");
         Assert.DoesNotContain(window.GetVisualDescendants().OfType<ComboBox>(), control => control.Name == "PackBackground");
         Assert.DoesNotContain(preview.GetVisualDescendants().OfType<TextBlock>(), text => text.Text?.Contains(".unfoldpet") == true);

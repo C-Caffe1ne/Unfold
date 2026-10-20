@@ -1,0 +1,186 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="eb07780f-5af4-45cf-9fc3-6732734e6b8c" name="@hwanghyeonseong-ui-MacBookAir 2026-10-20 23:52:39" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-20T23:52:39.7921150+09:00" queuing="2026-10-20T23:52:39.7921150+09:00" start="2026-10-20T23:52:35.4438280+09:00" finish="2026-10-20T23:52:41.4205860+09:00" />
+  <TestSettings name="default" id="07954fb5-5d56-4990-aad9-53720d3cfb67">
+    <Deployment runDeploymentRoot="_hwanghyeonseong-ui-MacBookAir_2026-10-20_23_52_39" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="58f61b27-6011-4720-818d-b944dd0c8a9c" testId="d63f5f7e-d7b5-228e-8b9c-942de10c70b0" testName="Unfold.Tests.PetLibraryTests.RemovingFavoriteFocusesTheNextCardOrThePreviousLastCard(index: 2)" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.3131738" startTime="2026-10-20T23:52:40.3859130+09:00" endTime="2026-10-20T23:52:40.6994190+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="58f61b27-6011-4720-818d-b944dd0c8a9c">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.True() Failure
+Expected: True
+Actual:   False</Message>
+          <StackTrace>   at Unfold.Tests.PetLibraryTests.RemovingFavoriteFocusesTheNextCardOrThePreviousLastCard(Int32 index) in /Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover/Tests/Unfold.Tests/PetLibraryTests.cs:line 188
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="f3dee36e-8e76-44a0-bb41-5008e7bff57b" testId="324e9030-5035-5079-80c4-302572e17029" testName="Unfold.Tests.PetLibraryTests.FavoriteCompletionDoesNotTakeFocusBackFromAnotherControl" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.3385381" startTime="2026-10-20T23:52:41.0381270+09:00" endTime="2026-10-20T23:52:41.3774760+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f3dee36e-8e76-44a0-bb41-5008e7bff57b" />
+    <UnitTestResult executionId="bc2c4d05-38e4-4efa-9faf-f0867fa95f85" testId="ffb56d56-d96a-b308-1849-7e9899077d17" testName="Unfold.Tests.PetLibraryTests.RemovingTheOnlyFavoriteFocusesTheFavoritesFilter" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.3110240" startTime="2026-10-20T23:52:39.7595550+09:00" endTime="2026-10-20T23:52:40.0709240+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="bc2c4d05-38e4-4efa-9faf-f0867fa95f85">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.True() Failure
+Expected: True
+Actual:   False</Message>
+          <StackTrace>   at Unfold.Tests.PetLibraryTests.RemovingTheOnlyFavoriteFocusesTheFavoritesFilter() in /Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover/Tests/Unfold.Tests/PetLibraryTests.cs:line 203
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="41bdd143-6ed7-4be1-9217-a7bea2d22710" testId="c4dd968c-a0c7-3792-61c0-0f7d05b80af2" testName="Unfold.Tests.PetLibraryTests.FavoriteKeyboardActivationKeepsFocusAndTabOrderEvenWhenSavingFails(fail: False)" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:01.1455117" startTime="2026-10-20T23:52:38.2353760+09:00" endTime="2026-10-20T23:52:39.3923860+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="41bdd143-6ed7-4be1-9217-a7bea2d22710">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.True() Failure
+Expected: True
+Actual:   False</Message>
+          <StackTrace>   at Unfold.Tests.PetLibraryTests.FavoriteKeyboardActivationKeepsFocusAndTabOrderEvenWhenSavingFails(Boolean fail) in /Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover/Tests/Unfold.Tests/PetLibraryTests.cs:line 168
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="339e1907-7481-4614-8bff-3b11f75a060d" testId="6f09be68-9f16-78a6-a34a-907b6324fcdd" testName="Unfold.Tests.PetLibraryTests.RemovingFavoriteFocusesTheNextCardOrThePreviousLastCard(index: 0)" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.3079554" startTime="2026-10-20T23:52:40.0741140+09:00" endTime="2026-10-20T23:52:40.3824540+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="339e1907-7481-4614-8bff-3b11f75a060d">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.True() Failure
+Expected: True
+Actual:   False</Message>
+          <StackTrace>   at Unfold.Tests.PetLibraryTests.RemovingFavoriteFocusesTheNextCardOrThePreviousLastCard(Int32 index) in /Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover/Tests/Unfold.Tests/PetLibraryTests.cs:line 188
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="d8f7610b-763e-477d-ba82-4be2524429f3" testId="1ff1f527-dba2-a9c7-20e2-b558738c867b" testName="Unfold.Tests.PetLibraryTests.FavoriteKeyboardActivationKeepsFocusAndTabOrderEvenWhenSavingFails(fail: True)" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.3509360" startTime="2026-10-20T23:52:39.4041200+09:00" endTime="2026-10-20T23:52:39.7554930+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d8f7610b-763e-477d-ba82-4be2524429f3">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.True() Failure
+Expected: True
+Actual:   False</Message>
+          <StackTrace>   at Unfold.Tests.PetLibraryTests.FavoriteKeyboardActivationKeepsFocusAndTabOrderEvenWhenSavingFails(Boolean fail) in /Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover/Tests/Unfold.Tests/PetLibraryTests.cs:line 168
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="d640bf0e-e467-448b-924f-45e943bca535" testId="6fb6d57c-fce0-349e-3e04-6a8eaf3a84b2" testName="Unfold.Tests.PetLibraryTests.RemovingFavoriteFocusesTheNextCardOrThePreviousLastCard(index: 1)" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.3280468" startTime="2026-10-20T23:52:40.7024550+09:00" endTime="2026-10-20T23:52:41.0313340+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d640bf0e-e467-448b-924f-45e943bca535">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.True() Failure
+Expected: True
+Actual:   False</Message>
+          <StackTrace>   at Unfold.Tests.PetLibraryTests.RemovingFavoriteFocusesTheNextCardOrThePreviousLastCard(Int32 index) in /Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover/Tests/Unfold.Tests/PetLibraryTests.cs:line 188
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Unfold.Tests.PetLibraryTests.RemovingFavoriteFocusesTheNextCardOrThePreviousLastCard(index: 0)" storage="/users/hwanghyeonseong/developer/github/unfold/.worktrees/pet-overlay-hover/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="6f09be68-9f16-78a6-a34a-907b6324fcdd">
+      <Execution id="339e1907-7481-4614-8bff-3b11f75a060d" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.PetLibraryTests" name="RemovingFavoriteFocusesTheNextCardOrThePreviousLastCard" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.PetLibraryTests.FavoriteKeyboardActivationKeepsFocusAndTabOrderEvenWhenSavingFails(fail: True)" storage="/users/hwanghyeonseong/developer/github/unfold/.worktrees/pet-overlay-hover/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="1ff1f527-dba2-a9c7-20e2-b558738c867b">
+      <Execution id="d8f7610b-763e-477d-ba82-4be2524429f3" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.PetLibraryTests" name="FavoriteKeyboardActivationKeepsFocusAndTabOrderEvenWhenSavingFails" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.PetLibraryTests.RemovingFavoriteFocusesTheNextCardOrThePreviousLastCard(index: 2)" storage="/users/hwanghyeonseong/developer/github/unfold/.worktrees/pet-overlay-hover/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="d63f5f7e-d7b5-228e-8b9c-942de10c70b0">
+      <Execution id="58f61b27-6011-4720-818d-b944dd0c8a9c" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.PetLibraryTests" name="RemovingFavoriteFocusesTheNextCardOrThePreviousLastCard" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.PetLibraryTests.FavoriteKeyboardActivationKeepsFocusAndTabOrderEvenWhenSavingFails(fail: False)" storage="/users/hwanghyeonseong/developer/github/unfold/.worktrees/pet-overlay-hover/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="c4dd968c-a0c7-3792-61c0-0f7d05b80af2">
+      <Execution id="41bdd143-6ed7-4be1-9217-a7bea2d22710" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.PetLibraryTests" name="FavoriteKeyboardActivationKeepsFocusAndTabOrderEvenWhenSavingFails" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.PetLibraryTests.RemovingFavoriteFocusesTheNextCardOrThePreviousLastCard(index: 1)" storage="/users/hwanghyeonseong/developer/github/unfold/.worktrees/pet-overlay-hover/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="6fb6d57c-fce0-349e-3e04-6a8eaf3a84b2">
+      <Execution id="d640bf0e-e467-448b-924f-45e943bca535" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.PetLibraryTests" name="RemovingFavoriteFocusesTheNextCardOrThePreviousLastCard" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.PetLibraryTests.RemovingTheOnlyFavoriteFocusesTheFavoritesFilter" storage="/users/hwanghyeonseong/developer/github/unfold/.worktrees/pet-overlay-hover/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="ffb56d56-d96a-b308-1849-7e9899077d17">
+      <Execution id="bc2c4d05-38e4-4efa-9faf-f0867fa95f85" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.PetLibraryTests" name="RemovingTheOnlyFavoriteFocusesTheFavoritesFilter" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.PetLibraryTests.FavoriteCompletionDoesNotTakeFocusBackFromAnotherControl" storage="/users/hwanghyeonseong/developer/github/unfold/.worktrees/pet-overlay-hover/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="324e9030-5035-5079-80c4-302572e17029">
+      <Execution id="f3dee36e-8e76-44a0-bb41-5008e7bff57b" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.PetLibraryTests" name="FavoriteCompletionDoesNotTakeFocusBackFromAnotherControl" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="d63f5f7e-d7b5-228e-8b9c-942de10c70b0" executionId="58f61b27-6011-4720-818d-b944dd0c8a9c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="324e9030-5035-5079-80c4-302572e17029" executionId="f3dee36e-8e76-44a0-bb41-5008e7bff57b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ffb56d56-d96a-b308-1849-7e9899077d17" executionId="bc2c4d05-38e4-4efa-9faf-f0867fa95f85" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c4dd968c-a0c7-3792-61c0-0f7d05b80af2" executionId="41bdd143-6ed7-4be1-9217-a7bea2d22710" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6f09be68-9f16-78a6-a34a-907b6324fcdd" executionId="339e1907-7481-4614-8bff-3b11f75a060d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1ff1f527-dba2-a9c7-20e2-b558738c867b" executionId="d8f7610b-763e-477d-ba82-4be2524429f3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6fb6d57c-fce0-349e-3e04-6a8eaf3a84b2" executionId="d640bf0e-e467-448b-924f-45e943bca535" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="목록에 없는 결과" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="로드된 모든 결과" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="7" executed="7" passed="1" failed="6" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.12)
+[xUnit.net 00:00:01.15]   Discovering: Unfold.Tests
+[xUnit.net 00:00:01.56]   Discovered:  Unfold.Tests
+[xUnit.net 00:00:02.09]   Starting:    Unfold.Tests
+[xUnit.net 00:00:03.42]       Assert.True() Failure
+[xUnit.net 00:00:03.42]       Expected: True
+[xUnit.net 00:00:03.42]       Actual:   False
+[xUnit.net 00:00:03.42]       Stack Trace:
+[xUnit.net 00:00:03.42]         /Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover/Tests/Unfold.Tests/PetLibraryTests.cs(168,0): at Unfold.Tests.PetLibraryTests.FavoriteKeyboardActivationKeepsFocusAndTabOrderEvenWhenSavingFails(Boolean fail)
+[xUnit.net 00:00:03.42]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:03.77]       Assert.True() Failure
+[xUnit.net 00:00:03.77]       Expected: True
+[xUnit.net 00:00:03.77]       Actual:   False
+[xUnit.net 00:00:03.77]       Stack Trace:
+[xUnit.net 00:00:03.77]         /Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover/Tests/Unfold.Tests/PetLibraryTests.cs(168,0): at Unfold.Tests.PetLibraryTests.FavoriteKeyboardActivationKeepsFocusAndTabOrderEvenWhenSavingFails(Boolean fail)
+[xUnit.net 00:00:03.77]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:04.09]       Assert.True() Failure
+[xUnit.net 00:00:04.09]       Expected: True
+[xUnit.net 00:00:04.09]       Actual:   False
+[xUnit.net 00:00:04.09]       Stack Trace:
+[xUnit.net 00:00:04.09]         /Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover/Tests/Unfold.Tests/PetLibraryTests.cs(203,0): at Unfold.Tests.PetLibraryTests.RemovingTheOnlyFavoriteFocusesTheFavoritesFilter()
+[xUnit.net 00:00:04.09]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:04.40]       Assert.True() Failure
+[xUnit.net 00:00:04.40]       Expected: True
+[xUnit.net 00:00:04.40]       Actual:   False
+[xUnit.net 00:00:04.40]       Stack Trace:
+[xUnit.net 00:00:04.40]         /Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover/Tests/Unfold.Tests/PetLibraryTests.cs(188,0): at Unfold.Tests.PetLibraryTests.RemovingFavoriteFocusesTheNextCardOrThePreviousLastCard(Int32 index)
+[xUnit.net 00:00:04.40]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:04.72]       Assert.True() Failure
+[xUnit.net 00:00:04.72]       Expected: True
+[xUnit.net 00:00:04.72]       Actual:   False
+[xUnit.net 00:00:04.72]       Stack Trace:
+[xUnit.net 00:00:04.72]         /Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover/Tests/Unfold.Tests/PetLibraryTests.cs(188,0): at Unfold.Tests.PetLibraryTests.RemovingFavoriteFocusesTheNextCardOrThePreviousLastCard(Int32 index)
+[xUnit.net 00:00:04.72]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:05.05]       Assert.True() Failure
+[xUnit.net 00:00:05.05]       Expected: True
+[xUnit.net 00:00:05.05]       Actual:   False
+[xUnit.net 00:00:05.05]       Stack Trace:
+[xUnit.net 00:00:05.05]         /Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover/Tests/Unfold.Tests/PetLibraryTests.cs(188,0): at Unfold.Tests.PetLibraryTests.RemovingFavoriteFocusesTheNextCardOrThePreviousLastCard(Int32 index)
+[xUnit.net 00:00:05.05]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:05.40]   Finished:    Unfold.Tests
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="hwanghyeonseong-ui-MacBookAir" outcome="Error" timestamp="2026-10-20T23:52:39.4086570+09:00">
+        <Text>[xUnit.net 00:00:03.42]     Unfold.Tests.PetLibraryTests.FavoriteKeyboardActivationKeepsFocusAndTabOrderEvenWhenSavingFails(fail: False) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="hwanghyeonseong-ui-MacBookAir" outcome="Error" timestamp="2026-10-20T23:52:39.7973460+09:00">
+        <Text>[xUnit.net 00:00:03.77]     Unfold.Tests.PetLibraryTests.FavoriteKeyboardActivationKeepsFocusAndTabOrderEvenWhenSavingFails(fail: True) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="hwanghyeonseong-ui-MacBookAir" outcome="Error" timestamp="2026-10-20T23:52:40.0714870+09:00">
+        <Text>[xUnit.net 00:00:04.09]     Unfold.Tests.PetLibraryTests.RemovingTheOnlyFavoriteFocusesTheFavoritesFilter [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="hwanghyeonseong-ui-MacBookAir" outcome="Error" timestamp="2026-10-20T23:52:40.3832190+09:00">
+        <Text>[xUnit.net 00:00:04.40]     Unfold.Tests.PetLibraryTests.RemovingFavoriteFocusesTheNextCardOrThePreviousLastCard(index: 0) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="hwanghyeonseong-ui-MacBookAir" outcome="Error" timestamp="2026-10-20T23:52:40.7000500+09:00">
+        <Text>[xUnit.net 00:00:04.72]     Unfold.Tests.PetLibraryTests.RemovingFavoriteFocusesTheNextCardOrThePreviousLastCard(index: 2) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="hwanghyeonseong-ui-MacBookAir" outcome="Error" timestamp="2026-10-20T23:52:41.0319390+09:00">
+        <Text>[xUnit.net 00:00:05.05]     Unfold.Tests.PetLibraryTests.RemovingFavoriteFocusesTheNextCardOrThePreviousLastCard(index: 1) [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

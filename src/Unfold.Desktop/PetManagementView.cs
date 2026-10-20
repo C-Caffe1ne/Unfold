@@ -3,6 +3,7 @@ using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Threading;
 using Unfold.Core;
 
 namespace Unfold.Desktop;
@@ -12,19 +13,137 @@ internal sealed class PetManagementView : UserControl, IDisposable
     private readonly Window owner;
     private readonly CharacterLibrary library;
     private readonly Func<CharacterPackage, Task> installed;
-    private readonly PetBuilderView builder;
-    private bool importing, disposed;
-    public bool IsBusy => builder.IsBusy || importing;
-    internal bool HasUnsavedDraft => builder.HasUnsavedChanges;
-    internal Task<bool> CanCloseDraft() => builder.CanCloseDraft();
+    private readonly Func<Task<string?>>? chooseMedia, chooseOutput;
+    private readonly Func<string, Task>? removed;
+    private readonly PetLibraryView libraryView;
+    private readonly ContentControl page = new()
+    { HorizontalContentAlignment = HorizontalAlignment.Stretch, VerticalContentAlignment = VerticalAlignment.Stretch };
+    private PetBuilderView? builder;
+    private Control? editorPage;
+    private Button? back, startNew;
+    private string? appliedId;
+    private bool importing, switching, disposed;
+    public bool IsBusy => builder?.IsBusy == true || importing || switching || libraryView.IsBusy;
+    internal bool HasUnsavedDraft => builder?.HasUnsavedChanges == true;
+    internal async Task<bool> CanCloseDraft()
+    {
+        if (builder is null) return true;
+        ShowEditor();
+        return await builder.CanCloseDraft();
+    }
 
     public PetManagementView(Window owner, CharacterLibrary library, Func<CharacterPackage, Task> installed,
         Func<Task<string?>>? chooseMedia = null,
-        Func<Task<string?>>? chooseOutput = null, bool showPageHeaders = true, Func<string, Task>? removed = null)
+        Func<Task<string?>>? chooseOutput = null, bool showPageHeaders = true, Func<string, Task>? removed = null,
+        Func<IReadOnlyList<CharacterPackage>>? getPets = null, Func<string?>? selectedId = null,
+        Func<string, bool>? isFavorite = null, Func<string, bool, Task>? setFavorite = null)
     {
         this.owner = owner; this.library = library; this.installed = installed;
-        builder = new(owner, library, installed, OpenPack, chooseMedia: chooseMedia, chooseOutput: chooseOutput, removed: removed);
-        Content = builder;
+        this.chooseMedia = chooseMedia; this.chooseOutput = chooseOutput; this.removed = removed;
+        libraryView = new(getPets ?? (() => library.List(loadModels: false)), selectedId ?? (() => appliedId),
+            isFavorite ?? (_ => false), setFavorite, Apply, OpenEditor,
+            package => !package.IsBuiltIn && library.CanManage(package.Manifest.Id), OpenBuilder, Import);
+        libraryView.BusyChanged += UpdateBusy;
+        page.Content = libraryView; Content = page;
+        AttachedToVisualTree += (_, _) => RefreshLibrary();
+    }
+    internal void RefreshLibrary()
+    {
+        if (disposed) return;
+        libraryView.RefreshLibrary(); libraryView.SetDraftAvailable(HasUnsavedDraft);
+    }
+    internal void RefreshSelection()
+    {
+        if (disposed) return;
+        libraryView.RefreshSelection(); libraryView.SetDraftAvailable(HasUnsavedDraft);
+    }
+    private void EnsureBuilder()
+    {
+        if (builder is not null) return;
+        builder = new(owner, library, Apply, OpenPack, chooseMedia: chooseMedia, chooseOutput: chooseOutput, removed: Removed);
+        builder.LibraryChanged += RefreshLibrary; builder.BusyChanged += UpdateBusy;
+        back = Ui.Button(L.T("목록으로"), ShowLibrary); back.Name = "PetLibraryBack";
+        startNew = Ui.AsyncButton(L.T("새로 만들기"), StartNew); startNew.Name = "PetLibraryStartNew";
+        var controls = Ui.Row(back, startNew);
+        var layout = new Grid { RowDefinitions = new("Auto,12,*") };
+        layout.Children.Add(controls); Grid.SetRow(builder, 2); layout.Children.Add(builder);
+        editorPage = layout;
+    }
+    private void ShowEditor()
+    {
+        if (disposed) return;
+        EnsureBuilder(); page.Content = editorPage;
+        FocusEditor();
+    }
+    private void FocusEditor()
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (!disposed && page.Content == editorPage) builder?.FocusEditor();
+        }, DispatcherPriority.Loaded);
+    }
+    internal void ShowLibrary()
+    {
+        if (disposed || builder?.IsBusy == true || importing || switching) return;
+        page.Content = libraryView; RefreshLibrary(); libraryView.FocusSearch();
+    }
+    private Task OpenBuilder()
+    {
+        if (!disposed && builder?.IsBusy != true && !importing && !switching)
+        {
+            if (builder is not null && !HasUnsavedDraft) ResetBuilder();
+            ShowEditor();
+        }
+        return Task.CompletedTask;
+    }
+    private async Task StartNew()
+    {
+        if (disposed || builder?.IsBusy == true || importing || switching) return;
+        switching = true; UpdateBusy();
+        try
+        {
+            if (HasUnsavedDraft && await Ui.Confirm(owner, L.T("저장하지 않은 변경을 버릴까요?"),
+                L.T("저장하지 않은 이름과 행동 설정은 사라져요."), L.T("변경 버리기"), L.T("계속 편집")) != 0) return;
+            if (disposed) return;
+            ResetBuilder(); ShowEditor();
+        }
+        finally { switching = false; if (!disposed) UpdateBusy(); }
+    }
+    private void ResetBuilder()
+    {
+        builder?.Dispose(); builder = null; editorPage = null;
+    }
+    private async Task OpenEditor(CharacterPackage package)
+    {
+        if (disposed || builder?.IsBusy == true || importing || switching) return;
+        ShowEditor();
+        await builder!.OpenPackage(package);
+        FocusEditor();
+    }
+    private async Task Import()
+    {
+        if (disposed || builder?.IsBusy == true || importing || switching) return;
+        EnsureBuilder();
+        await builder!.OpenFile();
+        if (!disposed && builder.HasUnsavedChanges) ShowEditor();
+        RefreshLibrary();
+    }
+    private async Task Apply(CharacterPackage package)
+    {
+        await installed(package);
+        if (disposed) return;
+        appliedId = package.Manifest.Id; RefreshLibrary();
+    }
+    private async Task Removed(string id)
+    {
+        if (removed is not null) await removed(id);
+        if (appliedId == id) appliedId = null;
+        RefreshLibrary();
+    }
+    private void UpdateBusy()
+    {
+        if (back is not null) back.IsEnabled = !IsBusy;
+        if (startNew is not null) startNew.IsEnabled = !IsBusy;
     }
     private async Task OpenPack(string path)
     {
@@ -32,7 +151,7 @@ internal sealed class PetManagementView : UserControl, IDisposable
         importing = true;
         try
         {
-            await PetPackImport.Save(path, library, installed, async (pack, target) =>
+            await PetPackImport.Save(path, library, Apply, async (pack, target) =>
             {
                 var action = target.Action switch
                 {
@@ -44,7 +163,7 @@ internal sealed class PetManagementView : UserControl, IDisposable
                 return !disposed && choice == 0;
             });
         }
-        finally { importing = false; if (!disposed) builder.RefreshPets(); }
+        finally { importing = false; if (!disposed) { builder?.RefreshPets(); RefreshLibrary(); } }
     }
 
     internal static StackPanel Field(string label, Control input)
@@ -73,5 +192,9 @@ internal sealed class PetManagementView : UserControl, IDisposable
         choice.ContainerPrepared += (_, args) => args.Container.Classes.Add(style + "-item");
     }
 
-    public void Dispose() { disposed = true; builder.Dispose(); }
+    public void Dispose()
+    {
+        if (disposed) return;
+        disposed = true; builder?.Dispose(); libraryView.Dispose();
+    }
 }

@@ -1,0 +1,2 @@
+There has been no change in the accessibility tree for Window: "Unfold · 휴식 알림 · v1.2.1".
+The focused UI element is 121 button 홈, Help: 이 페이지로 이동해요., ID: SettingsNavTimer

@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="a84b67a9-0088-4f64-b34c-08251df0fd4f" name="@hwanghyeonseong-ui-MacBookAir 2026-10-20 23:55:55" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-20T23:55:55.7736590+09:00" queuing="2026-10-20T23:55:55.7736590+09:00" start="2026-10-20T23:55:51.7909670+09:00" finish="2026-10-20T23:55:58.9837890+09:00" />
+  <TestSettings name="default" id="6e390fdb-75fd-4114-a011-f8461d72a304">
+    <Deployment runDeploymentRoot="_hwanghyeonseong-ui-MacBookAir_2026-10-20_23_55_55" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="b6633f92-b3f8-454e-84ce-90e72b491f42" testId="6f09be68-9f16-78a6-a34a-907b6324fcdd" testName="Unfold.Tests.PetLibraryTests.RemovingFavoriteFocusesTheNextCardOrThePreviousLastCard(index: 0)" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.5466723" startTime="2026-10-20T23:55:56.6203220+09:00" endTime="2026-10-20T23:55:57.1670640+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b6633f92-b3f8-454e-84ce-90e72b491f42" />
+    <UnitTestResult executionId="dc806e8d-9bd6-449c-b54e-e4c5eb33175d" testId="324e9030-5035-5079-80c4-302572e17029" testName="Unfold.Tests.PetLibraryTests.FavoriteCompletionDoesNotTakeFocusBackFromAnotherControl" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.4559877" startTime="2026-10-20T23:55:58.4436880+09:00" endTime="2026-10-20T23:55:58.9002900+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="dc806e8d-9bd6-449c-b54e-e4c5eb33175d" />
+    <UnitTestResult executionId="cdea4e9e-eb2a-4b01-b914-3468ca349529" testId="15aa9770-a642-6c2a-1232-71ec81360cd6" testName="Unfold.Tests.PetLibraryTests.FailedFavoriteWriteKeepsTheSavedStateAndCanBeRetried" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.4134975" startTime="2026-10-20T23:55:58.0267250+09:00" endTime="2026-10-20T23:55:58.4402650+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="cdea4e9e-eb2a-4b01-b914-3468ca349529" />
+    <UnitTestResult executionId="d1ac604a-360b-4597-a4b9-996d0d9bebfa" testId="6fb6d57c-fce0-349e-3e04-6a8eaf3a84b2" testName="Unfold.Tests.PetLibraryTests.RemovingFavoriteFocusesTheNextCardOrThePreviousLastCard(index: 1)" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.3730080" startTime="2026-10-20T23:55:57.6451380+09:00" endTime="2026-10-20T23:55:58.0181940+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d1ac604a-360b-4597-a4b9-996d0d9bebfa" />
+    <UnitTestResult executionId="182cb5c1-d659-4f0f-a4fb-e35caed2d333" testId="ffb56d56-d96a-b308-1849-7e9899077d17" testName="Unfold.Tests.PetLibraryTests.RemovingTheOnlyFavoriteFocusesTheFavoritesFilter" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.8967582" startTime="2026-10-20T23:55:55.7197770+09:00" endTime="2026-10-20T23:55:56.6165750+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="182cb5c1-d659-4f0f-a4fb-e35caed2d333" />
+    <UnitTestResult executionId="a750ffc7-9aab-440c-b613-5684b4cd9e0c" testId="1ff1f527-dba2-a9c7-20e2-b558738c867b" testName="Unfold.Tests.PetLibraryTests.FavoriteKeyboardActivationKeepsFocusAndTabOrderEvenWhenSavingFails(fail: True)" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.4663870" startTime="2026-10-20T23:55:55.2487980+09:00" endTime="2026-10-20T23:55:55.7152500+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a750ffc7-9aab-440c-b613-5684b4cd9e0c" />
+    <UnitTestResult executionId="3686e098-0713-4e6b-9232-69258ed8b9e4" testId="d63f5f7e-d7b5-228e-8b9c-942de10c70b0" testName="Unfold.Tests.PetLibraryTests.RemovingFavoriteFocusesTheNextCardOrThePreviousLastCard(index: 2)" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:00.4689749" startTime="2026-10-20T23:55:57.1711010+09:00" endTime="2026-10-20T23:55:57.6401190+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3686e098-0713-4e6b-9232-69258ed8b9e4" />
+    <UnitTestResult executionId="bf5725a5-d6e0-48df-bc25-30a1750eb38c" testId="c4dd968c-a0c7-3792-61c0-0f7d05b80af2" testName="Unfold.Tests.PetLibraryTests.FavoriteKeyboardActivationKeepsFocusAndTabOrderEvenWhenSavingFails(fail: False)" computerName="hwanghyeonseong-ui-MacBookAir" duration="00:00:01.0305412" startTime="2026-10-20T23:55:54.2056860+09:00" endTime="2026-10-20T23:55:55.2403010+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="bf5725a5-d6e0-48df-bc25-30a1750eb38c" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Unfold.Tests.PetLibraryTests.RemovingFavoriteFocusesTheNextCardOrThePreviousLastCard(index: 0)" storage="/users/hwanghyeonseong/developer/github/unfold/.worktrees/pet-overlay-hover/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="6f09be68-9f16-78a6-a34a-907b6324fcdd">
+      <Execution id="b6633f92-b3f8-454e-84ce-90e72b491f42" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.PetLibraryTests" name="RemovingFavoriteFocusesTheNextCardOrThePreviousLastCard" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.PetLibraryTests.FavoriteKeyboardActivationKeepsFocusAndTabOrderEvenWhenSavingFails(fail: True)" storage="/users/hwanghyeonseong/developer/github/unfold/.worktrees/pet-overlay-hover/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="1ff1f527-dba2-a9c7-20e2-b558738c867b">
+      <Execution id="a750ffc7-9aab-440c-b613-5684b4cd9e0c" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.PetLibraryTests" name="FavoriteKeyboardActivationKeepsFocusAndTabOrderEvenWhenSavingFails" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.PetLibraryTests.RemovingFavoriteFocusesTheNextCardOrThePreviousLastCard(index: 2)" storage="/users/hwanghyeonseong/developer/github/unfold/.worktrees/pet-overlay-hover/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="d63f5f7e-d7b5-228e-8b9c-942de10c70b0">
+      <Execution id="3686e098-0713-4e6b-9232-69258ed8b9e4" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.PetLibraryTests" name="RemovingFavoriteFocusesTheNextCardOrThePreviousLastCard" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.PetLibraryTests.FavoriteKeyboardActivationKeepsFocusAndTabOrderEvenWhenSavingFails(fail: False)" storage="/users/hwanghyeonseong/developer/github/unfold/.worktrees/pet-overlay-hover/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="c4dd968c-a0c7-3792-61c0-0f7d05b80af2">
+      <Execution id="bf5725a5-d6e0-48df-bc25-30a1750eb38c" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.PetLibraryTests" name="FavoriteKeyboardActivationKeepsFocusAndTabOrderEvenWhenSavingFails" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.PetLibraryTests.RemovingFavoriteFocusesTheNextCardOrThePreviousLastCard(index: 1)" storage="/users/hwanghyeonseong/developer/github/unfold/.worktrees/pet-overlay-hover/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="6fb6d57c-fce0-349e-3e04-6a8eaf3a84b2">
+      <Execution id="d1ac604a-360b-4597-a4b9-996d0d9bebfa" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.PetLibraryTests" name="RemovingFavoriteFocusesTheNextCardOrThePreviousLastCard" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.PetLibraryTests.FailedFavoriteWriteKeepsTheSavedStateAndCanBeRetried" storage="/users/hwanghyeonseong/developer/github/unfold/.worktrees/pet-overlay-hover/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="15aa9770-a642-6c2a-1232-71ec81360cd6">
+      <Execution id="cdea4e9e-eb2a-4b01-b914-3468ca349529" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.PetLibraryTests" name="FailedFavoriteWriteKeepsTheSavedStateAndCanBeRetried" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.PetLibraryTests.RemovingTheOnlyFavoriteFocusesTheFavoritesFilter" storage="/users/hwanghyeonseong/developer/github/unfold/.worktrees/pet-overlay-hover/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="ffb56d56-d96a-b308-1849-7e9899077d17">
+      <Execution id="182cb5c1-d659-4f0f-a4fb-e35caed2d333" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.PetLibraryTests" name="RemovingTheOnlyFavoriteFocusesTheFavoritesFilter" />
+    </UnitTest>
+    <UnitTest name="Unfold.Tests.PetLibraryTests.FavoriteCompletionDoesNotTakeFocusBackFromAnotherControl" storage="/users/hwanghyeonseong/developer/github/unfold/.worktrees/pet-overlay-hover/tests/unfold.tests/bin/release/net10.0/unfold.tests.dll" id="324e9030-5035-5079-80c4-302572e17029">
+      <Execution id="dc806e8d-9bd6-449c-b54e-e4c5eb33175d" />
+      <TestMethod codeBase="/Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Unfold.Tests.PetLibraryTests" name="FavoriteCompletionDoesNotTakeFocusBackFromAnotherControl" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="6f09be68-9f16-78a6-a34a-907b6324fcdd" executionId="b6633f92-b3f8-454e-84ce-90e72b491f42" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="324e9030-5035-5079-80c4-302572e17029" executionId="dc806e8d-9bd6-449c-b54e-e4c5eb33175d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="15aa9770-a642-6c2a-1232-71ec81360cd6" executionId="cdea4e9e-eb2a-4b01-b914-3468ca349529" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6fb6d57c-fce0-349e-3e04-6a8eaf3a84b2" executionId="d1ac604a-360b-4597-a4b9-996d0d9bebfa" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ffb56d56-d96a-b308-1849-7e9899077d17" executionId="182cb5c1-d659-4f0f-a4fb-e35caed2d333" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1ff1f527-dba2-a9c7-20e2-b558738c867b" executionId="a750ffc7-9aab-440c-b613-5684b4cd9e0c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d63f5f7e-d7b5-228e-8b9c-942de10c70b0" executionId="3686e098-0713-4e6b-9232-69258ed8b9e4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c4dd968c-a0c7-3792-61c0-0f7d05b80af2" executionId="bf5725a5-d6e0-48df-bc25-30a1750eb38c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="목록에 없는 결과" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="로드된 모든 결과" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="8" executed="8" passed="8" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.12)
+[xUnit.net 00:00:00.63]   Discovering: Unfold.Tests
+[xUnit.net 00:00:01.26]   Discovered:  Unfold.Tests
+[xUnit.net 00:00:01.77]   Starting:    Unfold.Tests
+[xUnit.net 00:00:06.63]   Finished:    Unfold.Tests
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

@@ -112,7 +112,7 @@ public class UiAuditRegressionTests
     {
         using var scope = new SettingsScope(); var window = scope.Window;
         window.Width = 860; window.Height = 680;
-        Press(window, "SettingsNavPacks"); Layout(window); Layout(window);
+        Press(window, "SettingsNavPacks"); PetLibraryTestNavigation.OpenBuilder(window); Layout(window); Layout(window);
         var scroll = Find<ScrollViewer>(window, "PageBodyScroll");
         var add = Find<Button>(window, "CustomPetFile_idle");
         var point = add.TranslatePoint(default, scroll)!.Value;
@@ -164,7 +164,7 @@ public class UiAuditRegressionTests
         Layout(window); AssertRemoved();
         Press(window, "SettingsNavSettings"); Layout(window); AssertRemoved();
         Press(window, "SettingsNavReview"); Layout(window); AssertRemoved();
-        Press(window, "SettingsNavPacks"); Layout(window); AssertRemoved();
+        Press(window, "SettingsNavPacks"); PetLibraryTestNavigation.OpenBuilder(window); Layout(window); AssertRemoved();
         Layout(window); AssertRemoved();
     }
 
@@ -218,7 +218,7 @@ public class UiAuditRegressionTests
     public async Task SettingsExitReturnsToTheDraftAndCancelPreservesIt()
     {
         using var scope = new SettingsScope(); var window = scope.Window;
-        Press(window, "SettingsNavPacks"); Layout(window);
+        Press(window, "SettingsNavPacks"); PetLibraryTestNavigation.OpenBuilder(window); Layout(window);
         Find<TextBox>(window, "CustomPetName").Text = "작성 중인 친구";
         Press(window, "SettingsNavTimer"); Layout(window);
         var close = window.CanCloseDraft(); Layout(window);
@@ -257,7 +257,7 @@ public class UiAuditRegressionTests
             window.KeyRelease(Key.Enter, RawInputModifiers.None, PhysicalKey.Enter, null);
             Layout(window); Layout(window);
         }
-        EnterPetPage();
+        EnterPetPage(); PetLibraryTestNavigation.OpenBuilder(window);
         if (glb)
         {
             var path = Path.Combine(scope.Root, "focus.glb"); File.WriteAllBytes(path, GlbTests.Fixture(morph: true));

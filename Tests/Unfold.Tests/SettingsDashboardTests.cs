@@ -431,7 +431,7 @@ public class SettingsDashboardTests
             Assert.Equal(displayed, AppSettings.Load(settingsFile).ShowPet);
             Click(window, "HomeOpenPetManagement");
             Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
-            Assert.NotNull(Find<Button>(window, "OpenPetBuilderFile"));
+            Assert.NotNull(Find<Button>(window, "PetLibraryCreate"));
             Assert.Contains("primary", Find<Button>(window, "SettingsNavPacks").Classes);
             Assert.DoesNotContain("primary", Find<Button>(window, "SettingsNavTimer").Classes);
             Assert.Empty(window.OwnedWindows);
@@ -447,7 +447,7 @@ public class SettingsDashboardTests
     }
 
     [AvaloniaFact]
-    public void PetManagementOpensBuilderAndPreservesDraftAcrossSidebarNavigation()
+    public void PetManagementOpensLibraryAndPreservesDraftAcrossSidebarNavigation()
     {
         using var scope = new Scope(); var window = scope.Window;
         Assert.DoesNotContain(window.GetVisualDescendants().OfType<Button>(), button => button.Name == "SettingsInstallPack");
@@ -458,7 +458,8 @@ public class SettingsDashboardTests
         Assert.Empty(window.OwnedWindows); Assert.Contains("primary", nav.Classes);
         AssertNoTabPageHeader(window);
         Assert.DoesNotContain(window.GetVisualDescendants().OfType<TabControl>(), c => c.Name == "PetManagementTabs");
-        Assert.NotNull(Find<Button>(window, "OpenPetBuilderFile"));
+        Assert.NotNull(Find<Button>(window, "PetLibraryCreate"));
+        PetLibraryTestNavigation.OpenBuilder(window);
         AssertNoTabPageHeader(window);
         Find<TextBox>(window, "CustomPetName").Text = "새 친구";
         Click(window, "SettingsNavTimer"); Dispatcher.UIThread.RunJobs();

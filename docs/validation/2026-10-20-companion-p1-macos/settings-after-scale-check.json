@@ -1,0 +1,45 @@
+{
+  "theme": 3,
+  "language": null,
+  "intervalMinutes": 60,
+  "breakDurationMinutes": 1,
+  "idleMinutes": 5,
+  "selectedCharacterId": "default-cat",
+  "showPet": true,
+  "showPetTimer": true,
+  "showSystemResources": true,
+  "petScalePercent": 80,
+  "bubbleDirection": 0,
+  "bubbleOpacityPercent": 100,
+  "advanceDialogue": "5\uBD84 \uB4A4\uC5D0 \uC2A4\uD2B8\uB808\uCE6D\uD574\uC694",
+  "invitationDialogue": "\uC2A4\uD2B8\uB808\uCE6D\uD560 \uC2DC\uAC04\uC774\uC5D0\uC694",
+  "restingDialogue": "\uD568\uAED8 \uC26C\uC5B4 \uAC00\uC694",
+  "overtimeDialogue": "\uC870\uAE08 \uB354 \uC26C\uC5B4\uB3C4 \uC88B\uC544\uC694",
+  "completedDialogue": "\uC2A4\uD2B8\uB808\uCE6D\uC744 \uB9C8\uCCE4\uC5B4\uC694!",
+  "snoozeMinutes": 5,
+  "debugToolsEnabled": false,
+  "reminderSoundsEnabled": true,
+  "reminderVolumePercent": 100,
+  "reminderSoundVolumePercent": 100,
+  "completionSoundVolumePercent": 100,
+  "reminderSoundId": null,
+  "completionSoundId": null,
+  "reminderSoundName": null,
+  "completionSoundName": null,
+  "petX": 1401,
+  "petY": 327,
+  "petPreferences": {
+    "puppy-dog": {
+      "scalePercent": 130,
+      "favorite": true
+    },
+    "default-cat": {
+      "scalePercent": 80,
+      "favorite": true
+    },
+    "custom-07e466b6c55045bbbb6ef66c4910b7ed": {
+      "scalePercent": 100,
+      "favorite": false
+    }
+  }
+}

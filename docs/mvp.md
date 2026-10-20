@@ -6,19 +6,28 @@ A small desktop companion that reminds you to stretch while you work.
 
 Mochi와 잠깐 쉬고, 내 리듬으로 돌아오는 작은 데스크톱 동료.
 
-This document describes the `1.1.4-beta` development source `f9953a0` on
-`codex/pet-overlay-hover`, checked on 2026-10-14.
-The latest public release is **Beta v1.1.4** (`v1.1.4-beta`, source `4c64bfc`).
-The later local commit adds rest countdown digit motion and is not included in that release.
-See the [handoff](HANDOFF.md), [release notes](releases/v1.1.4-beta.md),
-[release verification](validation/2026-10-14-beta-v1.1.4-release.md) and
-[rest countdown checks](validation/2026-10-14-rest-timer-motion.md).
+This document describes the current `1.2.1` working tree, including the companion P1
+changes built from `2de478a` on `codex/pet-overlay-hover`, updated on 2026-10-21.
+The latest recorded public release is **v1.2.1** (product source `09c9e72`).
+See the [handoff](HANDOFF.md), [release notes](releases/v1.2.1.md) and
+[release verification](validation/2026-10-20-v1.2.1-release.md).
 Recheck all worktrees and the latest deployment before implementation;
 `release/mvp` is an older source.
 The application uses C#/.NET 10 and Avalonia. [Product direction](product-direction.md)
 and [development plan](development-plan.md) describe the paid-value hypotheses.
 Account and purchase-access flows exist in the desktop source; their production
 verification is separate from the local break and pet diagnostics.
+
+The approved [companion P1 plan](plans/2026-10-20-companion-p1.md) is implemented:
+per-pet size/favorites, the local thumbnail library, optional CPU/memory hover
+information, and the timer bar's quick menu. The implementation run passed all
+214 focused tests and the Release build, with no failures or skips. A subsequent
+favorite-focus fix passed 8 related tests and actual macOS keyboard verification.
+The work is preserved in a local commit, without push or publication; the version remains `1.2.1`.
+See the [P1 implementation and verification record](validation/2026-10-20-companion-p1.md)
+and [native QA](validation/2026-10-20-companion-p1-macos.md), followed by the
+[focus correction](validation/2026-10-21-favorite-focus.md). Windows, mixed DPI,
+multiple monitors, sleep and long-use behavior remain unverified.
 
 ## Core loop and implemented behavior
 
@@ -33,8 +42,8 @@ observed. Those outcomes are not established by a passing build or animation tes
 
 | Area | Current behavior |
 |---|---|
-| Language | Korean throughout the normal settings, break, review, pet-pack and tray flows. User names and saved history retain their original text. [Language scope](localization.md) |
-| Settings layout | Sidebar order is Home, pet management, review, theme, then Settings and Exit. The home shows the timer and companion; notification sounds, idle time and snooze are in Settings. Pet management is one editor page; opening a file selects the media or GLB editor by extension, without open/create or format tabs. Default 1120×800, minimum 640×560; narrow layouts scroll and preserve editor drafts. [Dashboard guide](settings-ui.md) |
+| Language | Korean, English, Japanese and Simplified Chinese can be selected from Home or Settings. User names and saved history retain their original text. [Language definitions](../src/Unfold.Core/Localization.cs), [language controls](../src/Unfold.Desktop/SettingsWindow.Language.cs) |
+| Settings layout | Sidebar order is Home, pet management, review, theme, then Settings and Exit. The home shows the timer and companion; notification sounds, idle time and snooze are in Settings. Pet management opens the local library; creating or editing enters the existing media/GLB editor. Default 1120×800, minimum 860×800; narrow layouts scroll and preserve editor drafts. [Window definition](../src/Unfold.Desktop/SettingsWindow.cs), [dashboard guide](settings-ui.md) |
 | Timer | The home time card groups the 1–240 minute work interval and 1–10 minute next break duration. Both are editable only while stopped with no active break; valid edits apply and save automatically. Starting before a queued save restores the saved values. Settings notification/idle/snooze preferences save separately and report validation/save errors. Intervals of five minutes or less do not emit an advance warning. |
 | Timer controls | The state badge distinguishes running, paused, stopped, idle-paused, and break-held states. The labelled icon buttons are Play/Pause and Stop. Pause keeps the remaining time. Stop immediately cancels an open or pending invitation without adding a completion and displays the configured full interval with digit motion. Play starts that interval after Stop. |
 | Exit | Sidebar and tray exit ask for confirmation, then retain the unsaved pet-draft guard. Cancel or closing the confirmation leaves the app running. |
@@ -47,19 +56,25 @@ observed. Those outcomes are not established by a passing build or animation tes
 | Duplicate reminder | Keeps the active session and does not replay the due sound or pet reaction. Concurrent preparations are coalesced. |
 | Completion history | Only pressing **완료** after starting adds a local record, including early completion and overtime. New records retain planned seconds and measured active session seconds; summaries use actual seconds when available. Sleep/stalled UI gaps do not accrue time. History is bounded to 2,000 entries; adding a record removes entries older than 90 days. |
 | Review/export | Seven-day counts and recorded rest time, previous-period navigation, and CSV export. The CSV retains planned_seconds and appends actual_seconds (blank for older records). Routine/profile snapshots and local dates are preserved. |
-| Desktop pet | Frameless, topmost, draggable, position-persistent, optionally hidden, and adjustable from 50–150% in 10% steps. Platform-specific transparent-region hit testing is implemented for macOS and Windows. Headless/fake native API checks do not establish actual Windows input behavior. |
+| Desktop pet | Frameless, topmost, draggable, position-persistent, optionally hidden, and adjustable from 50–150% in 10% steps. Size and favorites are saved by character ID; switching restores that pet's size and legacy settings retain their global size as the initial value. Position remains shared. Platform-specific transparent-region hit testing is implemented for macOS and Windows. Headless/fake native API checks do not establish actual Windows input behavior. |
 | Original pet animation | Bundled Mochi, 보리, 강아지, 고슴도치 and 펭귄 retain their original behavior profile and clips. Idle and pointer press/release reactions remain. The third consecutive snooze can trigger sulking. The rest action repeats or holds its terminal pose until completion or Stop. Completion plays once in full, then returns to idle; dragging and menus hold automatic movement. Pointer hover does not interrupt the action. Automatic movement does not overwrite saved manual position. |
-| Pet windows | Pet rendering/input, reminder bubble/tail, and the timer bar use separate transparent windows. The bar below the pet shows Korean current time and timer controls while hovering over the pet or bar, then fades out when leaving both. Click or pickup hides it immediately. The development-only rest countdown animates changed digits; public 1.1.4 retains its earlier text transition. |
+| Pet windows | Pet rendering/input, reminder bubble/tail, and the timer bar use separate transparent windows. The bar below the pet shows local current time in the selected language and timer controls while hovering over the pet or bar, then fades out when leaving both. Click or pickup hides it immediately. The rest countdown animates changed digits. |
+| Optional resource information | Disabled by default. When enabled, two rows below the hover bar show system CPU and used/total physical memory in decimal GB. An active visible session reads immediately, then every five seconds; off, hidden and closed states stop collection. Initial or unavailable CPU and failed readings display `—`. macOS memory includes file cache (total RAM minus free pages); Windows uses total RAM minus available RAM. The Settings tooltip explains the platform definition. |
+| Hover quick menu | The existing bar's menu opens **내 펫**, toggles notification sounds, or opens **설정**. It reuses the settings window and retains editor drafts. Sound changes are saved and merged into an open Settings form without discarding unfinished dialogue text. An open menu retains hover visibility; hiding or picking up the pet closes it. Existing timer controls and right-click Hide Pet remain available. |
 | Optional reactions | Packages may provide invitation, completion, click, pointer and movement reactions. Legacy hover mappings remain readable but are not played. Missing optional clips leave the pet unchanged. Original behavior requires its profile and clip contract; media and GLB authoring use their own supported action lists. |
 | Hidden pet | A hidden pet appears temporarily for a new speech reminder without changing ShowPet. Explicit Hide Pet saves ShowPet=false and suppresses the current reminder without ending its session. Advance/completion notices expire after five seconds. An invitation automatically snoozes once after 30 seconds from its first visible presentation; an active break remains until completion or cancellation. |
 | Character picker | A compact 200px selector lists the five bundled pets and valid characters in the local library. When an old installed pack has a bundled ID, the bundled version appears once and the user's original files remain on disk. |
-| Pet packs | **펫 관리 → 파일 열기…** validates `.unfoldpet`, then shows a save/update confirmation with name and version. The separate pack preview window has been removed. Editor drafts survive navigation. A pack content version lower than the installed version is allowed by the current compatibility policy; invalid data and changed installed files are checked before replacement. [Pack guide](pet-packs.md) |
-| Custom pets | The same file-open action accepts GIF, MP4, PNG, JPG, WEBP and BMP. Assign media to idle, attention, stretch, celebrate, click, pointerDown and pointerUp; idle is required. Export a validated `.unfoldpet`, then confirm saving it to the library. GIF timing is preserved; MP4 up to 10 seconds/128 MiB becomes silent GIF at up to 192px and 12 fps. No background removal. |
+| Local pet library | Pet management shows validated still thumbnails, names, 2D/3D type, the current pet and favorites. Name search combines with All/Favorites/2D/3D filters. Apply changes the active pet; Edit opens an editable installed pet. Built-in pets have no Edit button. Returning to the list retains the draft; Continue editing reopens it, while New confirms discarding unsaved work. Cards use `CharacterPackage.StillImage` without playing animations or decoding GLB models. |
+| Pet packs | **펫 관리 → 가져오기**, or the editor's file-open action, validates `.unfoldpet`, then shows a save/update confirmation with name and version. The separate pack preview window has been removed. Editor drafts survive navigation. A pack content version lower than the installed version is allowed by the current compatibility policy; invalid data and changed installed files are checked before replacement. [Pack guide](pet-packs.md) |
+| Custom pets | The same file-open action accepts GIF, MP4, PNG, JPG/JPEG, WEBP and BMP. Assign media to idle, attention, stretch, celebrate, click, pointerDown and pointerUp; idle is required. With a name and idle media, **저장하고 적용** directly installs and selects a GIF/photo pet without an export dialog. Later saves update the same pet ID; installation or application failure retains the draft for retry. Exporting a validated `.unfoldpet` remains a separate option. GIF timing is preserved; MP4 up to 10 seconds/128 MiB becomes silent GIF at up to 192px and 12 fps. No background removal. [Save implementation](../src/Unfold.Desktop/CustomPetWindow.cs), [direct-save checks](../Tests/Unfold.Tests/PetDirectSaveTests.cs) |
 | GLB pets | Open an embedded GLB model, map supported situations to animation/heading/speed/repeat settings, export or save/apply, and reopen installed GLB pets from the selector. The file-slot trash immediately clears the current model draft while preserving its name, original source file and installed/active pet. **펫 삭제** separately confirms deletion of an installed editable GLB pet and updates runtime selection. [GLB guide](glb-pets.md) |
 | Launch at login | Opt-in Windows registry/macOS LaunchAgent integration. Test it from a published app in its final location. |
 
 These are implementation descriptions, not blanket OS verification claims. See
 [verification](verification.md) for commands, recorded results, and untested behavior.
+The P1 quick menu passed four-language label and keyboard checks. Its headless popup
+is clipped inside the small owner window, so that capture is excluded from normal
+native-menu visual evidence.
 
 ## Scope boundaries
 

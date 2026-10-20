@@ -1,0 +1,13 @@
+{
+  "head": "2de478a7fb4b96bb92148b641c796a885270cf0d",
+  "branch": "codex/pet-overlay-hover",
+  "version": "1.2.1",
+  "data": "/private/tmp/unfold-p1-macos-20261020/profile",
+  "macOS": "26.6.2 25G83 arm64",
+  "screen": "1920x1080, scale 1, working area 0,30,1920,1050",
+  "launch": "Unfold P1 QA.app / Unfold.Tests -> product AppRuntime.Start(background:true, diagnostic:true), then DiagnosticMode=false for native pointer polling. Account/authentication not under test. ShowInDock=true for tool discovery.",
+  "productHashes": {
+    "src/Unfold.Desktop/bin/Release/net10.0/Unfold.dll": "9cb3a3edb862da6d10f720dfaa4e9e915476e5b4a68d82346604e66f171f6659",
+    "src/Unfold.Core/bin/Release/net10.0/Unfold.Core.dll": "e577095afc31d09a803c815ddff6990bd7be194d43fb86889c8804da9662430d"
+  }
+}

@@ -209,6 +209,16 @@ public sealed partial class AppRuntime : IDisposable
         });
         var bundledIds = builtIns.Select(item => item.Manifest.Id).ToHashSet(StringComparer.OrdinalIgnoreCase);
         Characters = builtIns.Concat(users.Where(item => !bundledIds.Contains(item.Manifest.Id))).ToArray();
+        if (!Characters.Any(character => character.Manifest.Id == Settings.SelectedCharacterId) &&
+            Characters.FirstOrDefault() is { } fallback)
+        {
+            var recovered = Settings.WithSelectedCharacter(fallback.Manifest.Id);
+            // A missing/damaged pack must use the fallback pet's size even if the
+            // profile is temporarily read-only. Keep the old preference for recovery.
+            try { recovered.Save(settingsFile); }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException) { AppPaths.Log(error); }
+            Settings = recovered;
+        }
         clips.Clear(); Changed?.Invoke();
     }
     public async Task SelectInstalledCharacter(CharacterPackage character)
@@ -218,9 +228,12 @@ public sealed partial class AppRuntime : IDisposable
     internal async Task RefreshAfterCharacterRemoval(string id)
     {
         await Reload();
-        if (Settings.SelectedCharacterId == id)
-            await UpdateSettings(Settings with { SelectedCharacterId = Selected?.Manifest.Id ?? "default-cat" });
+        var next = Settings.SelectedCharacterId == id
+            ? Settings.WithSelectedCharacter(Selected?.Manifest.Id ?? "default-cat")
+            : Settings;
+        await UpdateSettings(next.WithoutPetPreference(id));
     }
+    internal Task SetPetFavorite(string id, bool favorite) => UpdateSettings(Settings.WithPetFavorite(id, favorite));
     private void Tick()
     {
         if (!AccessAllowed) return;
@@ -271,6 +284,18 @@ public sealed partial class AppRuntime : IDisposable
     public void Reset() { if (!AccessAllowed) return; CancelReminder(); Clock.Reset(monotonic.Elapsed); Changed?.Invoke(); }
     private void CancelReminder() { reminderGeneration++; Reminder.Cancel(); RefreshPetNotice(); }
     public void ShowSettings() { backgroundStart = false; if (accountStartupPending) return; if (!AccessAllowed) { ShowAccount(); return; } if (settingsWindow is null) return; settingsWindow.Show(); settingsWindow.ResumePreview(); settingsWindow.WindowState = WindowState.Normal; if (!DiagnosticMode) settingsWindow.Activate(); TryShowStartupUpdate(); }
+    internal async Task OpenPetLibrary()
+    {
+        ShowSettings();
+        if (AccessAllowed && settingsWindow is { IsVisible: true })
+            await settingsWindow.OpenLibraryFromPet();
+    }
+    internal async Task OpenPetPreferences()
+    {
+        ShowSettings();
+        if (AccessAllowed && settingsWindow is { IsVisible: true })
+            await settingsWindow.OpenPreferencesFromPet();
+    }
     internal static bool HasSeenCurrentAccountWelcome(string path)
     {
         if (!File.Exists(path)) return false;
@@ -356,6 +381,18 @@ public sealed partial class AppRuntime : IDisposable
     private async Task UpdateSettings(AppSettings value, bool hideCurrentNotice)
     {
         if (!AccessAllowed) throw new AccountException(AccountFailure.AuthenticationRequired);
+        // Every selection path (home, import, library and diagnostics) shares the
+        // same preference transition. Persistence must succeed before publishing it.
+        if (value.SelectedCharacterId != Settings.SelectedCharacterId)
+        {
+            var selectedId = value.SelectedCharacterId;
+            value = (value with { SelectedCharacterId = Settings.SelectedCharacterId,
+                PetScalePercent = Settings.PetScalePercent }).WithSelectedCharacter(selectedId);
+            if (!Characters.Any(character => character.Manifest.Id == Settings.SelectedCharacterId))
+                value = value.WithoutPetPreference(Settings.SelectedCharacterId);
+        }
+        else if (value.PetScalePercent != Settings.PetScalePercent)
+            value = value.WithPetScale(value.SelectedCharacterId, value.PetScalePercent);
         var reschedulesTimer = value.IntervalMinutes != Settings.IntervalMinutes;
         value.Save(settingsFile); var changedCharacter = value.SelectedCharacterId != Settings.SelectedCharacterId;
         var hidingPet = hideCurrentNotice || (!value.ShowPet && Settings.ShowPet);

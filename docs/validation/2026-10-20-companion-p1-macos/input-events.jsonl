@@ -1,0 +1,129 @@
+{"time":"2026-10-20T23:08:58.582428+09:00","data":{"kind":"ready","pid":87918}}
+{"time":"2026-10-20T23:09:14.147191+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":"PART_ContentPresenter","point":"67, 156"}}
+{"time":"2026-10-20T23:09:47.646398+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":null,"point":"400, 250"}}
+{"time":"2026-10-20T23:09:47.803533+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":null,"point":"312, 175"}}
+{"time":"2026-10-20T23:09:51.763952+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Tab","source":"PetLibraryFilterFavorites"}}
+{"time":"2026-10-20T23:09:55.41406+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Tab","source":"PetLibraryFilterSprite"}}
+{"time":"2026-10-20T23:09:55.437516+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Space","source":"PetLibraryFilterModel"}}
+{"time":"2026-10-20T23:10:02.133709+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":null,"point":"250.5, 175"}}
+{"time":"2026-10-20T23:10:02.320849+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":"PART_ContentPresenter","point":"592, 117"}}
+{"time":"2026-10-20T23:10:02.386395+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"A","source":"PetLibrarySearch"}}
+{"time":"2026-10-20T23:10:02.396343+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Q","source":"PetLibrarySearch"}}
+{"time":"2026-10-20T23:10:02.434882+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"A","source":"PetLibrarySearch"}}
+{"time":"2026-10-20T23:10:02.481477+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"A","source":"PetLibrarySearch"}}
+{"time":"2026-10-20T23:10:05.917355+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":null,"point":"286.5, 460"}}
+{"time":"2026-10-20T23:10:08.865603+09:00","data":{"kind":"pointer","window":"Window","source":null,"point":"108, 112"}}
+{"time":"2026-10-20T23:10:30.678524+09:00","data":{"kind":"key","window":"Window","key":"A","source":null}}
+{"time":"2026-10-20T23:11:08.090255+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":"PART_ContentPresenter","point":"600, 60"}}
+{"time":"2026-10-20T23:11:17.115812+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":null,"point":"385.5, 460"}}
+{"time":"2026-10-20T23:11:22.516308+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"A","source":"CustomPetName"}}
+{"time":"2026-10-20T23:11:22.532178+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"A","source":"CustomPetName"}}
+{"time":"2026-10-20T23:11:22.559268+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"A","source":"CustomPetName"}}
+{"time":"2026-10-20T23:11:22.560096+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Q","source":"CustomPetName"}}
+{"time":"2026-10-20T23:11:22.568438+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"A","source":"CustomPetName"}}
+{"time":"2026-10-20T23:11:22.56893+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"A","source":"CustomPetName"}}
+{"time":"2026-10-20T23:11:22.570162+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Space","source":"CustomPetName"}}
+{"time":"2026-10-20T23:11:22.584971+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"D","source":"CustomPetName"}}
+{"time":"2026-10-20T23:11:22.58624+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"R","source":"CustomPetName"}}
+{"time":"2026-10-20T23:11:22.586855+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"A","source":"CustomPetName"}}
+{"time":"2026-10-20T23:11:22.587336+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"F","source":"CustomPetName"}}
+{"time":"2026-10-20T23:11:22.587757+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"T","source":"CustomPetName"}}
+{"time":"2026-10-20T23:11:22.588404+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Space","source":"CustomPetName"}}
+{"time":"2026-10-20T23:11:22.601638+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"P","source":"CustomPetName"}}
+{"time":"2026-10-20T23:11:22.60314+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"R","source":"CustomPetName"}}
+{"time":"2026-10-20T23:11:22.603652+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"E","source":"CustomPetName"}}
+{"time":"2026-10-20T23:11:22.604053+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"S","source":"CustomPetName"}}
+{"time":"2026-10-20T23:11:22.604695+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"E","source":"CustomPetName"}}
+{"time":"2026-10-20T23:11:22.605171+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"R","source":"CustomPetName"}}
+{"time":"2026-10-20T23:11:22.605693+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"V","source":"CustomPetName"}}
+{"time":"2026-10-20T23:11:22.606212+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"E","source":"CustomPetName"}}
+{"time":"2026-10-20T23:11:22.617962+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"D","source":"CustomPetName"}}
+{"time":"2026-10-20T23:11:22.646146+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":null,"point":"158, 59"}}
+{"time":"2026-10-20T23:11:26.478296+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":null,"point":"943.5, 59"}}
+{"time":"2026-10-20T23:11:34.477851+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":null,"point":"158, 59"}}
+{"time":"2026-10-20T23:11:38.780648+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"A","source":"PetLibrarySearch"}}
+{"time":"2026-10-20T23:11:38.784733+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"A","source":"PetLibrarySearch"}}
+{"time":"2026-10-20T23:11:38.801106+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Back","source":"PetLibrarySearch"}}
+{"time":"2026-10-20T23:11:54.609561+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":null,"point":"307, 523"}}
+{"time":"2026-10-20T23:11:54.677046+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Tab","source":null}}
+{"time":"2026-10-20T23:12:11.524574+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":"PART_ContentPresenter","point":"462, 117"}}
+{"time":"2026-10-20T23:12:11.583766+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"A","source":"PetLibrarySearch"}}
+{"time":"2026-10-20T23:12:11.584039+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"M","source":"PetLibrarySearch"}}
+{"time":"2026-10-20T23:12:11.600464+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"O","source":"PetLibrarySearch"}}
+{"time":"2026-10-20T23:12:11.602065+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"C","source":"PetLibrarySearch"}}
+{"time":"2026-10-20T23:12:11.603212+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"H","source":"PetLibrarySearch"}}
+{"time":"2026-10-20T23:12:11.604454+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"I","source":"PetLibrarySearch"}}
+{"time":"2026-10-20T23:12:11.617102+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Tab","source":"PetLibrarySearch"}}
+{"time":"2026-10-20T23:12:11.618195+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Tab","source":"PetLibraryFilterAll"}}
+{"time":"2026-10-20T23:12:11.633699+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Tab","source":"PetLibraryFilterFavorites"}}
+{"time":"2026-10-20T23:12:11.650398+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Tab","source":"PetLibraryFilterSprite"}}
+{"time":"2026-10-20T23:12:11.651103+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Tab","source":"PetLibraryFilterModel"}}
+{"time":"2026-10-20T23:12:11.667057+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Tab","source":"PetLibraryFavorite_default-cat"}}
+{"time":"2026-10-20T23:12:15.499123+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Return","source":"PetLibraryApply_default-cat"}}
+{"time":"2026-10-20T23:12:27.210549+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":"PART_ContentPresenter","point":"67, 84"}}
+{"time":"2026-10-20T23:12:33.093257+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":null,"point":"279, 655"}}
+{"time":"2026-10-20T23:12:33.201612+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Left","source":"PetScale"}}
+{"time":"2026-10-20T23:12:33.399208+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Left","source":"PetScale"}}
+{"time":"2026-10-20T23:12:33.45859+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":"Background","point":"280, 729"}}
+{"time":"2026-10-20T23:12:38.033692+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Down","source":null}}
+{"time":"2026-10-20T23:12:38.05005+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Return","source":null}}
+{"time":"2026-10-20T23:12:42.54077+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":null,"point":"227, 655"}}
+{"time":"2026-10-20T23:12:42.599886+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Right","source":"PetScale"}}
+{"time":"2026-10-20T23:12:42.626041+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Right","source":"PetScale"}}
+{"time":"2026-10-20T23:12:42.659466+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Right","source":"PetScale"}}
+{"time":"2026-10-20T23:12:42.683158+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Right","source":"PetScale"}}
+{"time":"2026-10-20T23:12:42.711162+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Right","source":"PetScale"}}
+{"time":"2026-10-20T23:12:42.756782+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":"Background","point":"280, 729"}}
+{"time":"2026-10-20T23:12:42.850234+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Up","source":null}}
+{"time":"2026-10-20T23:12:42.878143+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Return","source":null}}
+{"time":"2026-10-20T23:12:57.040178+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":"PART_ContentPresenter","point":"67, 633"}}
+{"time":"2026-10-20T23:13:03.141828+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":null,"point":"230, 166"}}
+{"time":"2026-10-20T23:13:19.667166+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":"SettingsNotificationCard","point":"700, 250"}}
+{"time":"2026-10-20T23:14:28.206026+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":"SettingsNotificationCard","point":"700, 250"}}
+{"time":"2026-10-20T23:15:15.514974+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":"SettingsNativeTitleBar","point":"500, 16"}}
+{"time":"2026-10-20T23:16:33.635395+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":"PART_ContentPresenter","point":"1378, 390"}}
+{"time":"2026-10-20T23:18:20.465083+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":"PART_ContentPresenter","point":"67, 156"}}
+{"time":"2026-10-20T23:18:25.834176+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Tab","source":"PetLibrarySearch"}}
+{"time":"2026-10-20T23:18:25.85485+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Tab","source":"PetLibraryFilterAll"}}
+{"time":"2026-10-20T23:18:25.871529+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Tab","source":"PetLibraryFilterFavorites"}}
+{"time":"2026-10-20T23:18:25.888269+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Tab","source":"PetLibraryFilterSprite"}}
+{"time":"2026-10-20T23:18:25.889092+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Tab","source":"PetLibraryFilterModel"}}
+{"time":"2026-10-20T23:18:30.950389+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Space","source":"PetLibraryFavorite_default-cat"}}
+{"time":"2026-10-20T23:18:31.400496+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Tab","source":null}}
+{"time":"2026-10-20T23:19:48.382097+09:00","data":{"kind":"pointer","window":"Window","source":null,"point":"90.9744873046875, 105.5440673828125"}}
+{"time":"2026-10-20T23:19:49.483296+09:00","data":{"kind":"pointer","window":"Window","source":null,"point":"71.951171875, 71.53903198242188"}}
+{"time":"2026-10-20T23:19:49.48511+09:00","data":{"kind":"pointer","window":"Window","source":null,"point":"71.951171875, 71.53903198242188"}}
+{"time":"2026-10-20T23:19:51.253329+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD0C0\uC774\uBA38","source":null,"point":"184.5562744140625, 12.9521484375"}}
+{"time":"2026-10-20T23:19:55.018738+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD0C0\uC774\uBA38","source":"PART_ContentPresenter","point":"185.9150390625, 17.032745361328125"}}
+{"time":"2026-10-20T23:20:15.845432+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD0C0\uC774\uBA38","source":null,"point":"187, 15"}}
+{"time":"2026-10-20T23:20:15.846321+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD0C0\uC774\uBA38","source":null,"point":"187, 15"}}
+{"time":"2026-10-20T23:20:26.266852+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD0C0\uC774\uBA38","key":"Down","source":"PetQuickMenu"}}
+{"time":"2026-10-20T23:21:49.931671+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD0C0\uC774\uBA38","key":"Tab","source":"PetQuickMenu"}}
+{"time":"2026-10-20T23:21:49.966569+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD0C0\uC774\uBA38","key":"A","source":"PetTimerToggle"}}
+{"time":"2026-10-20T23:21:49.966886+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD0C0\uC774\uBA38","key":"Tab","source":"PetTimerToggle"}}
+{"time":"2026-10-20T23:21:49.968421+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD0C0\uC774\uBA38","key":"Space","source":"PetQuickMenu"}}
+{"time":"2026-10-20T23:22:32.627253+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD0C0\uC774\uBA38","key":"Tab","source":"PetTimerWindow"}}
+{"time":"2026-10-20T23:22:37.577555+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD0C0\uC774\uBA38","key":"Space","source":"PetQuickMenu"}}
+{"time":"2026-10-20T23:22:49.246337+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":"PART_ContentPresenter","point":"1461, 459"}}
+{"time":"2026-10-20T23:26:00.044775+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":"PART_ContentPresenter","point":"1461, 459"}}
+{"time":"2026-10-20T23:26:36.850779+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD0C0\uC774\uBA38","source":null,"point":"187, 15"}}
+{"time":"2026-10-20T23:26:44.358737+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD0C0\uC774\uBA38","key":"Home","source":"PetQuickMenu"}}
+{"time":"2026-10-20T23:26:44.37353+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD0C0\uC774\uBA38","key":"Return","source":"PetQuickMenu"}}
+{"time":"2026-10-20T23:28:02.208802+09:00","data":{"kind":"pointer","window":"Window","source":null,"point":"77, 93"}}
+{"time":"2026-10-20T23:28:16.550764+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD0C0\uC774\uBA38","source":null,"point":"187, 15"}}
+{"time":"2026-10-20T23:30:30.781914+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":"PART_ContentPresenter","point":"1413.7154541015625, 714.0302124023438"}}
+{"time":"2026-10-20T23:30:56.633907+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Escape","source":"PetLibrarySearch"}}
+{"time":"2026-10-20T23:31:33.226228+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":null,"point":"1799, 162"}}
+{"time":"2026-10-20T23:31:48.76591+09:00","data":{"kind":"key","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","key":"Escape","source":"PetLibrarySearch"}}
+{"time":"2026-10-20T23:32:24.865519+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD0C0\uC774\uBA38","source":null,"point":"187, 15"}}
+{"time":"2026-10-20T23:33:02.160324+09:00","data":{"kind":"pointer","window":"Window","source":null,"point":"77, 93"}}
+{"time":"2026-10-20T23:33:29.182022+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD0C0\uC774\uBA38","source":null,"point":"187, 15"}}
+{"time":"2026-10-20T23:33:57.611282+09:00","data":{"kind":"pointer","window":"Window","source":null,"point":"77, 93"}}
+{"time":"2026-10-20T23:34:15.85819+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD0C0\uC774\uBA38","source":null,"point":"187, 15"}}
+{"time":"2026-10-20T23:35:11.00566+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD0C0\uC774\uBA38","source":null,"point":"187, 13"}}
+{"time":"2026-10-20T23:35:38.023821+09:00","data":{"kind":"pointer","window":"Window","source":null,"point":"77, 93"}}
+{"time":"2026-10-20T23:35:55.489278+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD0C0\uC774\uBA38","source":null,"point":"187, 15"}}
+{"time":"2026-10-20T23:36:59.857734+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":"PART_ContentPresenter","point":"900, 770"}}
+{"time":"2026-10-20T23:37:27.968913+09:00","data":{"kind":"pointer","window":"Unfold \u00B7 \uD734\uC2DD \uC54C\uB9BC \u00B7 v1.2.1","source":"PART_ContentPresenter","point":"67, 955"}}
+{"time":"2026-10-20T23:37:31.929634+09:00","data":{"kind":"pointer","window":"Unfold\uB97C \uC885\uB8CC\uD560\uAE4C\uC694?","source":null,"point":"359.5, 216"}}
+{"time":"2026-10-20T23:37:40.433578+09:00","data":{"kind":"pointer","window":"\uC791\uC131 \uC911\uC778 \uD3AB\uC744 \uC800\uC7A5\uD560\uAE4C\uC694?","source":null,"point":"260.5, 216"}}

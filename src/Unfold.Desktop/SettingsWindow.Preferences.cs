@@ -12,6 +12,7 @@ public sealed partial class SettingsWindow
 {
     private readonly Slider bubbleOpacity = SoundVolumeSlider("BubbleOpacityPercent");
     private readonly CheckBox showPetTimer = new() { Name = "ShowPetTimer", Content = L.T("펫 아래에 타이머 조작 바 표시") };
+    private readonly CheckBox showSystemResources = new() { Name = "ShowSystemResources", Content = L.T("호버 바에 CPU·메모리 표시") };
     private readonly TextBox advanceDialogue = DialogueInput("AdvanceDialogue"), invitationDialogue = DialogueInput("InvitationDialogue"),
         restingDialogue = DialogueInput("RestingDialogue"), overtimeDialogue = DialogueInput("OvertimeDialogue"), completedDialogue = DialogueInput("CompletedDialogue");
     private static TextBox DialogueInput(string name) => new() { Name = name, MaxLength = 120, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch };
@@ -36,10 +37,10 @@ public sealed partial class SettingsWindow
     private long preferencesEditVersion;
     private readonly ReminderSounds importedSounds = new(Path.Combine(AppPaths.DataRoot, "Sounds"));
 
-    private sealed record PreferencesValues(int BubbleOpacity, bool ShowPetTimer, string Advance, string Invitation, string Resting, string Overtime, string Completed, bool SoundsEnabled, int VolumePercent, int DueVolumePercent, int CompletedVolumePercent,
+    private sealed record PreferencesValues(int BubbleOpacity, bool ShowPetTimer, bool ShowSystemResources, string Advance, string Invitation, string Resting, string Overtime, string Completed, bool SoundsEnabled, int VolumePercent, int DueVolumePercent, int CompletedVolumePercent,
         string? DueId, string? CompletedId, string? DueName, string? CompletedName, int Idle, int Snooze, bool DebugTools)
     {
-        public static PreferencesValues From(AppSettings settings) => new(settings.BubbleOpacityPercent, settings.ShowPetTimer, settings.AdvanceDialogue, settings.InvitationDialogue, settings.RestingDialogue, settings.OvertimeDialogue, settings.CompletedDialogue, settings.ReminderSoundsEnabled, settings.ReminderVolumePercent,
+        public static PreferencesValues From(AppSettings settings) => new(settings.BubbleOpacityPercent, settings.ShowPetTimer, settings.ShowSystemResources, settings.AdvanceDialogue, settings.InvitationDialogue, settings.RestingDialogue, settings.OvertimeDialogue, settings.CompletedDialogue, settings.ReminderSoundsEnabled, settings.ReminderVolumePercent,
             settings.ReminderSoundVolumePercent, settings.CompletionSoundVolumePercent,
             settings.ReminderSoundId, settings.CompletionSoundId, settings.ReminderSoundName, settings.CompletionSoundName,
             settings.IdleMinutes, settings.SnoozeMinutes, settings.DebugToolsEnabled);
@@ -50,7 +51,7 @@ public sealed partial class SettingsWindow
         static bool ValidMinutes(NumericUpDown input) => input.Value is decimal number && number is >= 1 and <= 60 &&
             decimal.Truncate(number) == number && decimal.TryParse(input.Text, NumberStyles.Number, CultureInfo.CurrentCulture, out var text) && text == number;
         var idleValid = ValidMinutes(idle); var snoozeValid = ValidMinutes(snooze);
-        value = new((int)Math.Round(bubbleOpacity.Value), showPetTimer.IsChecked == true, advanceDialogue.Text ?? "", invitationDialogue.Text ?? "", restingDialogue.Text ?? "", overtimeDialogue.Text ?? "", completedDialogue.Text ?? "",
+        value = new((int)Math.Round(bubbleOpacity.Value), showPetTimer.IsChecked == true, showSystemResources.IsChecked == true, advanceDialogue.Text ?? "", invitationDialogue.Text ?? "", restingDialogue.Text ?? "", overtimeDialogue.Text ?? "", completedDialogue.Text ?? "",
             soundsEnabled.IsChecked == true, (int)Math.Round(soundVolume.Value),
             (int)Math.Round(dueSoundVolume.Value), (int)Math.Round(completedSoundVolume.Value), dueSoundId, completedSoundId, dueSoundName, completedSoundName,
             idleValid ? (int)idle.Value!.Value : runtime.Settings.IdleMinutes,
@@ -61,6 +62,7 @@ public sealed partial class SettingsWindow
     private void RefreshPreferencesState()
     {
         if (preferencesSections is not null) preferencesSections.IsEnabled = soundImports == 0;
+        showSystemResources.IsEnabled = showPetTimer.IsChecked == true;
     }
 
     private void PreferencesEdited()
@@ -86,6 +88,7 @@ public sealed partial class SettingsWindow
         {
             bubbleOpacity.Value = saved.BubbleOpacity;
             showPetTimer.IsChecked = saved.ShowPetTimer;
+            showSystemResources.IsChecked = saved.ShowSystemResources;
             advanceDialogue.Text = saved.Advance; invitationDialogue.Text = saved.Invitation; restingDialogue.Text = saved.Resting;
             overtimeDialogue.Text = saved.Overtime; completedDialogue.Text = saved.Completed; soundsEnabled.IsChecked = saved.SoundsEnabled;
             soundVolume.Value = saved.VolumePercent;
@@ -112,6 +115,14 @@ public sealed partial class SettingsWindow
         {
             // Runtime refreshes must not erase an in-progress form edit.
             if (TryReadPreferences(out var pending) && pending == observedPreferences) RestorePreferences(saved);
+            else if (saved.SoundsEnabled != observedPreferences.SoundsEnabled)
+            {
+                // A quick-menu sound change is newer than the form's sound value,
+                // even while an incomplete dialogue keeps the other fields as a draft.
+                restoringPreferences = true;
+                try { soundsEnabled.IsChecked = saved.SoundsEnabled; }
+                finally { restoringPreferences = false; }
+            }
             observedPreferences = saved;
         }
         RefreshPreferencesState();
@@ -127,7 +138,8 @@ public sealed partial class SettingsWindow
             // Each edit starts immediately so rapid edits and hiding the window keep the newest value.
             var apply = runtime.UpdateSettings(current with
             {
-                BubbleOpacityPercent = pending.BubbleOpacity, ShowPetTimer = pending.ShowPetTimer, AdvanceDialogue = pending.Advance, InvitationDialogue = pending.Invitation,
+                BubbleOpacityPercent = pending.BubbleOpacity, ShowPetTimer = pending.ShowPetTimer,
+                ShowSystemResources = pending.ShowSystemResources, AdvanceDialogue = pending.Advance, InvitationDialogue = pending.Invitation,
                 RestingDialogue = pending.Resting, OvertimeDialogue = pending.Overtime, CompletedDialogue = pending.Completed, ReminderSoundsEnabled = pending.SoundsEnabled, ReminderVolumePercent = pending.VolumePercent,
                 ReminderSoundVolumePercent = pending.DueVolumePercent, CompletionSoundVolumePercent = pending.CompletedVolumePercent,
                 ReminderSoundId = pending.DueId, CompletionSoundId = pending.CompletedId,

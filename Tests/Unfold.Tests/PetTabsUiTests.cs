@@ -89,7 +89,7 @@ public class PetTabsUiTests
         using var data = new DataScope(); using var lifetime = new ClassicDesktopStyleApplicationLifetime();
         using var runtime = new AppRuntime(lifetime);
         var window = new SettingsWindow(runtime) { Width = 860, Height = 680 };
-        window.Show(); Layout(window); Press(window, "SettingsNavPacks"); Layout(window);
+        window.Show(); Layout(window); Press(window, "SettingsNavPacks"); PetLibraryTestNavigation.OpenBuilder(window); Layout(window);
         Assert.DoesNotContain(window.GetVisualDescendants().OfType<TabControl>(), c => c.Name == "PetManagementTabs");
         try
         {
@@ -130,7 +130,7 @@ public class PetTabsUiTests
         using var data = new DataScope(); var owner = new Window { Width = 860, Height = 680 };
         using var view = new PetManagementView(owner, new CharacterLibrary(Path.Combine(data.Root, "library")),
             _ => Task.CompletedTask, chooseMedia: () => Task.FromResult<string?>(CustomPetDraftTests.Fixture()), showPageHeaders: false);
-        owner.Content = Ui.PageFrame(owner, view); owner.Show(); Layout(owner);
+        owner.Content = Ui.PageFrame(owner, view); owner.Show(); PetLibraryTestNavigation.OpenBuilder(owner); Layout(owner);
         Assert.DoesNotContain(owner.GetVisualDescendants().OfType<TabControl>(), c => c.Name == "PetManagementTabs");
         try
         {

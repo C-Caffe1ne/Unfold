@@ -135,6 +135,7 @@ public class DesignSystemTests
     {
         using var scope = new SettingsScope(); var window = scope.Window;
         Find<Button>(window, "SettingsNavPacks").RaiseEvent(new RoutedEventArgs(Avalonia.Controls.Button.ClickEvent));
+        PetLibraryTestNavigation.OpenBuilder(window);
         Layout(window);
         Layout(window);
         string[] controls = ["CustomPetName", "OpenPetBuilderFile", "CustomPetFile_idle", "CustomPetRemove_idle",

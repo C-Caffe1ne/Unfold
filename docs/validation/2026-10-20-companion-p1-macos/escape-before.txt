@@ -1,0 +1,75 @@
+[
+  {
+    "kCGWindowAlpha" : 1,
+    "kCGWindowBounds" : {
+      "Height" : 122,
+      "Width" : 208,
+      "X" : 1712,
+      "Y" : 177
+    },
+    "kCGWindowIsOnscreen" : true,
+    "kCGWindowLayer" : 3,
+    "kCGWindowMemoryUsage" : 2368,
+    "kCGWindowName" : "Unfold · 타이머",
+    "kCGWindowNumber" : 8446,
+    "kCGWindowOwnerName" : "Unfold P1 QA",
+    "kCGWindowOwnerPID" : 87918,
+    "kCGWindowSharingState" : 1,
+    "kCGWindowStoreType" : 1
+  },
+  {
+    "kCGWindowAlpha" : 1,
+    "kCGWindowBounds" : {
+      "Height" : 154,
+      "Width" : 154,
+      "X" : 1766,
+      "Y" : 30
+    },
+    "kCGWindowIsOnscreen" : true,
+    "kCGWindowLayer" : 3,
+    "kCGWindowMemoryUsage" : 2368,
+    "kCGWindowName" : "Window",
+    "kCGWindowNumber" : 8444,
+    "kCGWindowOwnerName" : "Unfold P1 QA",
+    "kCGWindowOwnerPID" : 87918,
+    "kCGWindowSharingState" : 1,
+    "kCGWindowStoreType" : 1
+  },
+  {
+    "kCGWindowAlpha" : 1,
+    "kCGWindowBounds" : {
+      "Height" : 20,
+      "Width" : 66,
+      "X" : 106,
+      "Y" : 36
+    },
+    "kCGWindowIsOnscreen" : true,
+    "kCGWindowLayer" : 0,
+    "kCGWindowMemoryUsage" : 2368,
+    "kCGWindowName" : "Window",
+    "kCGWindowNumber" : 8618,
+    "kCGWindowOwnerName" : "Unfold P1 QA",
+    "kCGWindowOwnerPID" : 87918,
+    "kCGWindowSharingState" : 1,
+    "kCGWindowStoreType" : 1
+  },
+  {
+    "kCGWindowAlpha" : 1,
+    "kCGWindowBounds" : {
+      "Height" : 800,
+      "Width" : 1820,
+      "X" : 100,
+      "Y" : 30
+    },
+    "kCGWindowIsOnscreen" : true,
+    "kCGWindowLayer" : 0,
+    "kCGWindowMemoryUsage" : 2368,
+    "kCGWindowName" : "Unfold · 휴식 알림 · v1.2.1",
+    "kCGWindowNumber" : 8443,
+    "kCGWindowOwnerName" : "Unfold P1 QA",
+    "kCGWindowOwnerPID" : 87918,
+    "kCGWindowSharingState" : 1,
+    "kCGWindowStoreType" : 1
+  }
+]
+CURSOR 134.5222930908203,805.2393188476562

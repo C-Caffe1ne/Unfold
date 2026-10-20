@@ -1,0 +1,11 @@
+The following is a diff from the previous accessibility tree for Window: "Unfold · 휴식 알림 · v1.2.1" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 104-109
+~												93 button 고슴도치 즐겨찾기 해제, ID: PetLibraryFavorite_hedgehog
+~												94 image PetLibraryThumbnail_hedgehog
+~												95 text 고슴도치
+~												97 button 고슴도치 적용, ID: PetLibraryApply_hedgehog
+~												99 button 보리 즐겨찾기 해제, ID: PetLibraryFavorite_bori-rabbit
+~												100 image PetLibraryThumbnail_bori-rabbit
+~												101 text 보리
+~												103 button 보리 적용, ID: PetLibraryApply_bori-rabbit
+The focused UI element is 93 button 고슴도치 즐겨찾기 해제, ID: PetLibraryFavorite_hedgehog

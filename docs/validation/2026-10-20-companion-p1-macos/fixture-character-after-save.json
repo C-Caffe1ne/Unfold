@@ -1,0 +1,31 @@
+{
+  "id": "custom-07e466b6c55045bbbb6ef66c4910b7ed",
+  "name": "QA draft preserved",
+  "version": 1,
+  "spriteSheet": {
+    "file": "spritesheet.png",
+    "columns": 1,
+    "rows": 1,
+    "frameWidth": 256,
+    "frameHeight": 256
+  },
+  "animations": {
+    "idle": {
+      "frames": [
+        0
+      ],
+      "fps": 1,
+      "gif": null,
+      "loop": true,
+      "pingPong": false,
+      "modelClip": null,
+      "speed": 1,
+      "heading": null,
+      "rotation": null
+    }
+  },
+  "thumbnailSymbol": null,
+  "renderStyle": "smooth",
+  "behaviorProfile": null,
+  "model": null
+}

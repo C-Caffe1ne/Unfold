@@ -1,0 +1,15 @@
+{
+  "head": "2de478a7fb4b96bb92148b641c796a885270cf0d",
+  "version": "1.2.1",
+  "data": "/private/tmp/unfold-favorite-focus-20261020/profile",
+  "pid": 97723,
+  "productDllSha256": "58decfa768e047e897bc61e51b24c3091aaac4c360ee9adc8ba6bb51faddbaf1",
+  "changedExistingFiles": [
+    "Tests/Unfold.Tests/PetLibraryTests.cs",
+    "src/Unfold.Desktop/PetLibraryView.cs"
+  ],
+  "realProfileUnchangedAfterIsolationCorrection": {
+    "settings.json": true,
+    "unfold.log": true
+  }
+}

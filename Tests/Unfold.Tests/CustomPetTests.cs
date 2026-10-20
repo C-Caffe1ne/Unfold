@@ -318,7 +318,7 @@ public class CustomPetWindowTests
         parent.Content = Ui.PageFrame(parent, page);
         try
         {
-            parent.Show(); Dispatcher.UIThread.RunJobs(); parent.UpdateLayout();
+            parent.Show(); PetLibraryTestNavigation.OpenBuilder(parent); Dispatcher.UIThread.RunJobs(); parent.UpdateLayout();
             Assert.DoesNotContain(parent.GetVisualDescendants().OfType<TabControl>(), c => c.Name == "PetManagementTabs");
             Find<TextBox>(parent, "CustomPetName").Text = "새 펫";
             Press(parent, "CustomPetFile_idle"); await Until(() => Find<Button>(parent, "CreateCustomPetPack").IsEnabled);

@@ -206,7 +206,7 @@ public class AppUpdateUiTests
         scope.Runtime.SetUpdateBackend(backend); await scope.Runtime.Start(false, true);
         var settings = Assert.IsType<SettingsWindow>(scope.MainWindow);
         settings.GetVisualDescendants().OfType<Button>().Single(c => c.Name == "SettingsNavPacks").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-        Dispatcher.UIThread.RunJobs();
+        Dispatcher.UIThread.RunJobs(); PetLibraryTestNavigation.OpenBuilder(settings);
         var name = settings.GetVisualDescendants().OfType<TextBox>().Single(c => c.Name == "CustomPetName");
         name.Text = "저장하지 않은 펫";
         var restart = scope.Runtime.RestartForUpdate(); Dispatcher.UIThread.RunJobs();
