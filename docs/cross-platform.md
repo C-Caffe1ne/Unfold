@@ -3,7 +3,7 @@
 Unfold is a C#/.NET 10 and Avalonia stretch reminder with desktop pets. Published
 packages include .NET. Swift, Xcode, and the Piskel web runtime are not required.
 
-This document describes **v1.2.0** (`1.2.0`, tag `v1.2.0`), the stable release.
+This document describes **v1.2.1** (`1.2.1`, tag `v1.2.1`), the stable release.
 It adds four UI languages, initial language selection, automatic 1% GLB element outlines,
 a seamless speech-bubble contour and rest countdown digit motion.
 It includes Mochi (cat), 보리 (rabbit), 강아지 (dog), 고슴도치 (hedgehog)
@@ -18,8 +18,8 @@ store. Restart restores the session and verifies server access without another G
 sign-in or code entry. Logout deletes the stored credential. Network failure preserves it
 for retry but does not grant offline access.
 Windows code signing is pending. Public Mac distribution uses Developer ID signing and
-Apple notarization. See the [release notes](releases/v1.2.0.md)
-and [release verification](validation/2026-10-15-v1.2.0-release.md).
+Apple notarization. See the [release notes](releases/v1.2.1.md)
+and [release verification](validation/2026-10-20-v1.2.1-release.md).
 The release verification records the checks completed for this source and their target-OS limits.
 Beta v1.0.3 and later managed installations can check for updates from the tray/menu bar;
 Beta v1.1.1 and later also provide **설정 → 앱 정보 → 업데이트 확인**.
@@ -74,7 +74,7 @@ and `UNFOLD_NOTARY_PROFILE` to select a local notarytool keychain profile. The b
 script signs all nested native files, submits the app and staples its ticket, then
 creates, notarizes and staples the DMG. Rejection stops packaging. Credentials are
 never stored in the repository. `UNFOLD_NOTARY_LOG_DIR` selects the diagnostic log folder.
-Use the `-notarized-installer.zip` Mac assets for the signed v1.2.0 distribution;
+Use the `-notarized-installer.zip` Mac assets for the signed v1.2.1 distribution;
 the earlier Mac installer ZIPs remain available as historical ad-hoc builds.
 
 ## Visible controls
@@ -314,7 +314,7 @@ these assets without uploading them. On Mac, `bash Scripts/make-macos-bundle.sh 
 creates a fresh bundle, update feed, ZIP and DMG; do not repack an already managed `.app`.
 The Velopack SDK and local `vpk` tool are pinned to 1.2.0.
 
-The v1.2.0 release includes compatibility beta feeds with identical stable package bytes; installed beta clients can migrate, and the new app uses the stable feed.
+Stable releases since v1.2.0 include compatibility beta feeds with identical stable package bytes; installed beta clients can migrate, and the new app uses the stable feed.
 
 Existing Beta v1.0.2 and older apps have no updater. They must install this updater-enabled
 build once after fully quitting the previous process. On Windows the new install and uninstall
