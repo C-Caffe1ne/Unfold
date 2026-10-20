@@ -16,9 +16,10 @@ public sealed class CustomPetWindow : Window
     {
         Title = L.T("Unfold · 커스텀 펫 만들기"); Width = 660; Height = 880; MinWidth = 520; MinHeight = 620;
         Background = Ui.Background; WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        NativeWindowChrome.Configure(this);
         var page = new CustomPetView(this, path => { CreatedPackPath = path; Close(); return Task.CompletedTask; },
             initialPath, chooseMedia, chooseOutput);
-        Content = Ui.PageFrame(this, page, inset: 16);
+        Content = NativeWindowChrome.Host(this, Ui.PageFrame(this, page, inset: 16));
         Closing += (_, e) => { if (page.IsExporting) e.Cancel = true; };
         Closed += (_, _) => page.Dispose();
     }

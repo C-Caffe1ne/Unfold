@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Chrome;
 using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
 using Avalonia.Input;
@@ -13,41 +14,24 @@ namespace Unfold.Tests;
 public class AccountWindowDragTests
 {
     [AvaloniaFact]
-    public void MacDragMovesFromTopPaddingAndStopsOnReleaseOrCaptureLoss()
+    public void HeaderDragIsLeftToTheOsWindowMoveFromTheTopEdge()
     {
-        Assert.SkipUnless(OperatingSystem.IsMacOS(), "macOS uses managed dragging; other platforms use native window movement.");
         var window = new AccountWindow(new(AccountScreenContent.Load(), new FakeAccountService()));
         try
         {
             window.Show(); Layout();
             var region = window.FindControl<Border>("AccountDragRegion")!;
+            // In the extended macOS title bar this role starts AppKit's own move and title bar double-click.
+            Assert.Equal(WindowDecorationsElementRole.TitleBar, WindowDecorationProperties.GetElementRole(region));
             var point = region.TranslatePoint(new Point(region.Bounds.Width / 2, 5), window)!.Value;
             Assert.Same(region, window.InputHitTest(point));
             window.Position = new PixelPoint(100, 200);
             var initial = window.Position;
             window.MouseDown(point, MouseButton.Left);
-            // Matches the native trace: a captured move can omit the held-button flag.
-            window.MouseMove(point + new Vector(120, 60)); Layout();
-            Assert.Equal(new PixelPoint(initial.X + (int)Math.Round(120 * window.DesktopScaling),
-                initial.Y + (int)Math.Round(60 * window.DesktopScaling)), window.Position);
-            var moved = window.Position;
-            window.MouseUp(point, MouseButton.Left);
-            window.MouseMove(point + new Vector(80, 30)); Layout();
-            Assert.Equal(moved, window.Position);
-
-            window.MouseDown(point, MouseButton.Right);
-            window.MouseMove(point + new Vector(80, 30), RawInputModifiers.RightMouseButton); Layout();
-            window.MouseUp(point, MouseButton.Right);
-            Assert.Equal(moved, window.Position);
-
-            IPointer? pointer = null;
-            region.AddHandler(InputElement.PointerPressedEvent, (_, args) => pointer = args.Pointer, RoutingStrategies.Tunnel, true);
-            window.MouseDown(point, MouseButton.Left);
-            Assert.NotNull(pointer);
-            pointer.Capture(null);
-            window.MouseMove(point + new Vector(80, 30), RawInputModifiers.LeftMouseButton); Layout();
-            Assert.Equal(moved, window.Position);
-            window.MouseUp(point, MouseButton.Left);
+            window.MouseMove(point + new Vector(120, 60), RawInputModifiers.LeftMouseButton); Layout();
+            window.MouseUp(point + new Vector(120, 60), MouseButton.Left); Layout();
+            // The app no longer moves the window with its own pointer arithmetic.
+            Assert.Equal(initial, window.Position);
         }
         finally { window.Close(); }
     }

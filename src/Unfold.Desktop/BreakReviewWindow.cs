@@ -25,8 +25,9 @@ public sealed class BreakReviewWindow : Window
     {
         Title = L.T("나의 일주일 · Unfold"); Width = 620; Height = 650; MinWidth = 560; MinHeight = 600;
         Background = Ui.Background; WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        NativeWindowChrome.Configure(this);
         view = new BreakReviewView(this, readHistory, warning, exportReview, currentDay, Close, getToday: getToday);
-        Content = Ui.PageFrame(this, view);
+        Content = NativeWindowChrome.Host(this, Ui.PageFrame(this, view));
     }
 }
 

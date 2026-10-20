@@ -41,7 +41,7 @@ public sealed partial class SettingsWindow : Window, IDisposable
     public SettingsWindow(AppRuntime runtime)
     {
         this.runtime = runtime; Title = L.F("Unfold · 휴식 알림 · {0}", AppRelease.DisplayVersion); Width = 1120; Height = 800; MinWidth = 860; MinHeight = 800;
-        ConfigureNativeWindowControls();
+        NativeWindowChrome.Configure(this);
         Background = DesignSystem.Canvas;
         interval = new NumericUpDown { Name = "ReminderInterval", Minimum = 1, Maximum = 240, Value = runtime.Settings.IntervalMinutes, Increment = 1, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch, FormatString = "0" };
         breakDuration = new NumericUpDown { Name = "BreakDurationMinutes", Minimum = 1, Maximum = 10, Value = runtime.Settings.BreakDurationMinutes, Increment = 1, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch, FormatString = "0" };

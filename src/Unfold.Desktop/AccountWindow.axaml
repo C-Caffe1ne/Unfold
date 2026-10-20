@@ -4,7 +4,7 @@
         x:Class="Unfold.Desktop.AccountWindow" x:DataType="local:AccountScreenModel" x:CompileBindings="True"
         Width="940" Height="620" MinWidth="640" MinHeight="560"
         Title="{Binding Copy.WindowTitle}" WindowStartupLocation="CenterScreen"
-        WindowDecorations="None" Classes="unfold-page">
+        Classes="unfold-page">
   <!-- Layout lives here; copy and display prices live in Assets/Account/entry-screen.json.
        Brushes refer to the same mutable theme tokens as the rest of the desktop app. -->
   <Window.Styles>
@@ -76,6 +76,7 @@
     </Grid>
   </Border>
   <!-- Include the outer top margin as well as the header; no form controls occupy this band. -->
-  <Border Name="AccountDragRegion" Height="90" VerticalAlignment="Top" Background="Transparent" />
+  <Border Name="AccountDragRegion" Height="90" VerticalAlignment="Top" Background="Transparent"
+          WindowDecorationProperties.ElementRole="TitleBar" />
   </Grid>
 </Window>

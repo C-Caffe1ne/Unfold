@@ -23,6 +23,7 @@ internal sealed class UpdateWindow : Window
         this.updates = updates; this.restart = restart;
         Title = L.T("Unfold 업데이트"); Width = 440; MinWidth = 320; MinHeight = 230; SizeToContent = SizeToContent.Height;
         CanResize = false; WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        NativeWindowChrome.Configure(this);
         status.Name = "UpdateStatus"; status.TextWrapping = TextWrapping.Wrap;
         notes.Name = "UpdateReleaseNotes"; notes.TextWrapping = TextWrapping.Wrap;
         releaseNotes.Children.Add(Ui.Text(L.T("변경내용"), DesignSystem.Section));
@@ -50,7 +51,7 @@ internal sealed class UpdateWindow : Window
         content.Children.Add(Ui.Text(L.T("Unfold 업데이트"), DesignSystem.Title));
         content.Children.Add(Ui.Text(L.F("현재 버전 · {0}", AppRelease.DisplayVersion), DesignSystem.Caption));
         content.Children.Add(status); content.Children.Add(releaseNotes); content.Children.Add(progress); content.Children.Add(actions);
-        Content = new Border { Background = DesignSystem.Canvas, Child = content };
+        Content = NativeWindowChrome.Host(this, new Border { Background = DesignSystem.Canvas, Child = content });
         AutomationProperties.SetName(progress, L.T("업데이트 다운로드 진행률"));
         updates.Changed += Changed; Closed += (_, _) => { closed = true; updates.Changed -= Changed; };
         Refresh();

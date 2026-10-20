@@ -35,15 +35,17 @@ internal static partial class SmokeDiagnostics
             var accountScreen = await VerifyAccountScreen(runtime, desktop, directory);
             var settingsLayout = await VerifySettingsLayout(settings, directory);
             await VerifyResponsiveLayout(settings, directory);
-            await VerifyNativeWindowLifecycle(runtime, settings, directory);
+            var settingsChrome = await VerifyNativeWindowLifecycle(runtime, settings, directory);
             var updateDialog = new UpdateWindow(runtime.Updates, runtime.RestartForUpdate);
             AppRuntime.PrepareDiagnosticWindow(updateDialog);
+            object updateChrome;
             try
             {
                 updateDialog.Show(); await Task.Delay(100);
                 Capture(updateDialog, Path.Combine(directory, "app-updates.png"));
                 if (!updateDialog.GetVisualDescendants().OfType<Button>().Any(button => button.Name == "UpdateAction"))
                     throw new InvalidOperationException("App update controls are missing.");
+                updateChrome = VerifyNativeChrome(updateDialog);
             }
             finally { updateDialog.Close(); }
 
@@ -252,7 +254,7 @@ internal static partial class SmokeDiagnostics
                 exportedBreaks = 1, simulatedExportDestination = true,
                 timerPausedApplyWaitSeconds = 1.2, timerStopWaitSeconds = 1.2, timerControlsVerified = true, timerDigitMotionVerified = true,
                 nativeWindowConfigurationVerified = true, windowLifecycleVerified = true, nativeWindowClientFrameVerified = true,
-                nativeCaptionInputVerified = false, timerRefinements,
+                nativeCaptionInputVerified = false, nativeChrome = new { settings = settingsChrome, update = updateChrome }, timerRefinements,
                 appUpdateDialogVerified = true, updaterInstalled = runtime.Updates.State != AppUpdateState.UnsupportedInstall, petSpeechDirectionsVerified = true,
                 petContextMenuVerified = true, petScaleAndDebugPreviewVerified = true, speechTitleOnlyGeometryVerified = true,
                 soundRequestsVerified = true, hiddenPetNoticeVerified = true, stopWhileOpening,
@@ -296,12 +298,13 @@ internal static partial class SmokeDiagnostics
             || quitOrigin.Value.Y + quit.Bounds.Height > window.ClientSize.Height + 1)
             throw new InvalidOperationException("Account quit action is outside the minimum window.");
         Capture(window, Path.Combine(directory, "account-login-minimum.png"));
+        var nativeChrome = VerifyNativeChrome(window);
         window.Close();
         if (window.IsVisible || desktop.MainWindow?.IsVisible != true ||
             !AppRuntime.HasSeenCurrentAccountWelcome(Path.Combine(AppPaths.DataRoot, "account-welcome-seen")))
             throw new InvalidOperationException("Diagnostic account dismissal did not persist.");
         return new { contentLoaded = true, diagnosticDismissal = true, duplicatePrevented = true, noHorizontalOverflow = true, quitAvailable = true,
-            footerBypassRemoved = true,
+            footerBypassRemoved = true, nativeChrome,
             authenticationPerformed = false, paymentPerformed = false };
     }
     private static void VerifySpeechBubble(PetWindow window, string expectedTitle, double expectedHeight, params string[] forbiddenBodyText)
@@ -961,12 +964,39 @@ internal static partial class SmokeDiagnostics
             Press(window, "SettingsNavTimer"); await Task.Delay(80); window.UpdateLayout();
         }
     }
-    private static async Task VerifyNativeWindowLifecycle(AppRuntime runtime, Window window, string directory)
+    /// <summary>OS-drawn title bar controls, the band above content in an extended title bar,
+    /// and on Windows 11 the title bar painted with the theme canvas.</summary>
+    private static object VerifyNativeChrome(Window window)
     {
+        var name = window.GetType().Name;
         if (window.WindowDecorations != WindowDecorations.Full ||
             window.ExtendClientAreaToDecorationsHint != OperatingSystem.IsMacOS() ||
             window.ExtendClientAreaTitleBarHeightHint != -1)
-            throw new InvalidOperationException("The settings window is not configured for OS-native controls.");
+            throw new InvalidOperationException($"{name} is not configured for OS-native controls.");
+        var inset = window.IsExtendedIntoWindowDecorations ? window.WindowDecorationMargin : default;
+        var titleBar = window.GetVisualDescendants().OfType<Border>().Single(item => item.Name?.EndsWith("NativeTitleBar", StringComparison.Ordinal) == true);
+        if (titleBar.Height != inset.Top || WindowDecorationProperties.GetElementRole(titleBar) != WindowDecorationsElementRole.TitleBar)
+            throw new InvalidOperationException($"{name} title bar band does not match the OS title bar.");
+        if (inset.Top > 0)
+        {
+            var hit = window.InputHitTest(new Point(window.ClientSize.Width / 2, inset.Top / 2)) as Control;
+            if (hit is null || WindowDecorationProperties.GetElementRole(hit) != WindowDecorationsElementRole.TitleBar)
+                throw new InvalidOperationException($"{name} extended title bar does not route input to native window dragging.");
+        }
+        object? windowsTitleBar = null;
+        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000))
+        {
+            var paint = NativeWindowChrome.LastTitleBarPaint(window);
+            if (paint is null || paint.CaptionResult != 0 || paint.ThemeResult != 0 ||
+                paint.CaptionColor != NativeWindowChrome.CaptionColor(DesignSystem.Canvas.Color))
+                throw new InvalidOperationException($"{name} did not paint the Windows title bar with the theme canvas.");
+            windowsTitleBar = paint;
+        }
+        return new { extended = window.IsExtendedIntoWindowDecorations, titleBarInset = inset.Top, windowsTitleBar };
+    }
+    private static async Task<object> VerifyNativeWindowLifecycle(AppRuntime runtime, Window window, string directory)
+    {
+        var chrome = VerifyNativeChrome(window);
         if (window.GetVisualDescendants().OfType<Control>().Any(item => item.Name is
             "SettingsWindowControls" or "SettingsWindowControlBar" or "SettingsWindowDragRegion" or
             "SettingsWindowClose" or "SettingsWindowMinimize" or "SettingsWindowMaximize"))
@@ -1013,16 +1043,11 @@ internal static partial class SmokeDiagnostics
             surface.Bounds.Size != window.ClientSize || surface.CornerRadius != default ||
             frame.Margin != inset || frame.BorderThickness != default)
             throw new InvalidOperationException("The native window client area has an incorrect background or title bar inset.");
-        if (inset.Top > 0)
-        {
-            var hit = window.InputHitTest(new Point(window.ClientSize.Width / 2, inset.Top / 2)) as Control;
-            if (hit is null || WindowDecorationProperties.GetElementRole(hit) != WindowDecorationsElementRole.TitleBar)
-                throw new InvalidOperationException("The extended title bar does not route input to native window dragging.");
-        }
         var pixels = ImageCodec.DecodePng(File.ReadAllBytes(path));
         foreach (var (x, y) in new[] { (1, 1), (pixels.Width - 2, 1), (1, pixels.Height - 2), (pixels.Width - 2, pixels.Height - 2) })
             if ((pixels.Pixels[y * pixels.Width + x] >> 24) != 255)
                 throw new InvalidOperationException("The native window client area contains a transparent corner.");
+        return chrome;
     }
 
     private static async Task VerifyActionConfirmations(AppRuntime runtime, Window owner, string directory)

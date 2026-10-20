@@ -72,7 +72,7 @@ public sealed partial class SettingsWindow
         frame.Children.Add(BuildNavigation()); Grid.SetColumn(settingsPageHost, 2); frame.Children.Add(settingsPageHost);
         var content = new Border { Name = "SettingsFrame", Padding = new(31, 8, 31, 31), Child = frame };
         // Fill the client area; the OS owns the outer frame and its corner shape.
-        var surface = new Border { Name = "SettingsWindowSurface", Background = DesignSystem.Canvas, Child = BuildNativeWindowContent(content) };
+        var surface = new Border { Name = "SettingsWindowSurface", Background = DesignSystem.Canvas, Child = NativeWindowChrome.Host(this, content, "SettingsNativeTitleBar") };
         return surface;
     }
 

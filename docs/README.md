@@ -31,6 +31,7 @@ v1.2.0 정식 배포: [릴리스 노트](releases/v1.2.0.md) · [배포 검증](
 
 | 문서 | 역할 |
 |---|---|
+| [일반 창 네이티브 크롬](validation/2026-10-19-native-window-chrome.md) | macOS 계정·업데이트 창 신호등, Windows 11 제목 표시줄 테마 색·제목 숨김, 1,106개 검사와 Windows 미검증 경계 |
 | [최상위 유지·디스플레이 변경·동작 줄이기](validation/2026-10-19-dsh-pet-adoption.md) | Windows 최상위 재적용, 모니터 변경 시 위치 보정, OS 동작 줄이기, MP4 원본 규칙과 1,096개 검사 |
 | [Lemon US$2.99 가격 전환 준비](validation/2026-10-14-lemon-usd-price.md) | 운영 KRW 가격과 USD 스토어의 불일치, 마이그레이션·앱·웹 수정, 44·94·77개 검사와 미적용 운영 순서 |
 | [휴식 타이머 숫자 전환 검증](validation/2026-10-14-rest-timer-motion.md) | 배포 후 로컬 `f9953a0`의 고유 집중 검사 16개, 초기 실패·수정과 전체/OS 미실행 경계 |

@@ -17,8 +17,6 @@ public sealed partial class AccountWindow : Window
     internal AccountScreenModel Model { get; }
     private readonly Bitmap? companion;
     private readonly Bitmap brandLogo, brandLogoLight;
-    private IPointer? movePointer;
-    private PixelPoint moveStart, windowStart;
     public AccountWindow() : this(CreateModel()) { }
     private static AccountScreenModel CreateModel()
     {
@@ -29,6 +27,9 @@ public sealed partial class AccountWindow : Window
         bool requiresPurchase = false, Func<bool>? allowClose = null, Action<AppLanguage>? changeLanguage = null)
     {
         AvaloniaXamlLoader.Load(this);
+        NativeWindowChrome.Configure(this);
+        var layout = (Control)Content!; Content = null;
+        Content = NativeWindowChrome.Host(this, layout);
         Model = model; DataContext = model;
         brandLogo = LoadBrandLogo("logo-lilac-640.png");
         brandLogoLight = LoadBrandLogo("logo-light-640.png");
@@ -65,7 +66,11 @@ public sealed partial class AccountWindow : Window
         };
         Closing += (_, args) =>
         {
-            if (requiresPurchase && !Model.PurchaseReady && allowClose?.Invoke() != true) args.Cancel = true;
+            if (!requiresPurchase || Model.PurchaseReady || allowClose?.Invoke() == true) return;
+            args.Cancel = true;
+            // The title bar close button cannot dismiss the purchase gate; it offers the same quit as the visible button.
+            if (!args.IsProgrammatic && args.CloseReason == WindowCloseReason.WindowClosing && quit is not null)
+                Dispatcher.UIThread.Post(() => _ = quit());
         };
         this.FindControl<Button>("AccountQuit")!.Click += async (_, _) =>
         {
@@ -73,40 +78,15 @@ public sealed partial class AccountWindow : Window
             else await quit();
         };
         if (changeLanguage is not null) ConfigureLanguage(changeLanguage);
-        var dragRegion = this.FindControl<Border>("AccountDragRegion")!;
-        dragRegion.PointerPressed += (_, args) =>
+        this.FindControl<Border>("AccountDragRegion")!.PointerPressed += (_, args) =>
         {
-            if (movePointer is not null || !args.GetCurrentPoint(this).Properties.IsLeftButtonPressed) return;
-            if (OperatingSystem.IsMacOS())
-            {
-                if (WindowState != WindowState.Normal) return;
-                // AppKit's native move request can return without moving an undecorated
-                // window. Use the same desktop-coordinate dragging as the pet window.
-                moveStart = PointerScreenPosition(args); windowStart = Position;
-                movePointer = args.Pointer;
-                args.Pointer.Capture(dragRegion);
-            }
-            else BeginMoveDrag(args);
+            // The extended macOS title bar role already started AppKit's move for this press.
+            if (IsExtendedIntoWindowDecorations || !args.GetCurrentPoint(this).Properties.IsLeftButtonPressed) return;
+            BeginMoveDrag(args);
             args.Handled = true;
         };
-        dragRegion.PointerMoved += (_, args) =>
-        {
-            if (movePointer != args.Pointer) return;
-            // Keep the captured press until release/capture loss; native move events
-            // can omit the held-button modifier even between a matching down and up.
-            var delta = PointerScreenPosition(args) - moveStart;
-            Position = new PixelPoint(windowStart.X + delta.X, windowStart.Y + delta.Y);
-            args.Handled = true;
-        };
-        dragRegion.PointerReleased += (_, args) =>
-        {
-            if (movePointer != args.Pointer || args.InitialPressMouseButton != MouseButton.Left) return;
-            EndMove(); args.Handled = true;
-        };
-        dragRegion.PointerCaptureLost += (_, _) => EndMove();
-        Deactivated += (_, _) => EndMove();
         SizeChanged += (_, _) => Classes.Set("compact", ClientSize.Width < 780);
-        Closed += (_, _) => { EndMove(); Model.Dispose(); companion?.Dispose(); brandLogo.Dispose(); brandLogoLight.Dispose(); };
+        Closed += (_, _) => { Model.Dispose(); companion?.Dispose(); brandLogo.Dispose(); brandLogoLight.Dispose(); };
     }
 
     // The first screen a new user sees, so the language can be chosen before signing in.
@@ -136,19 +116,5 @@ public sealed partial class AccountWindow : Window
     {
         using var asset = AssetLoader.Open(new Uri($"avares://Unfold/Assets/Icons/Brand/{fileName}"));
         return new Bitmap(asset);
-    }
-
-    private PixelPoint PointerScreenPosition(PointerEventArgs args)
-    {
-        var point = args.GetPosition(this);
-        return new PixelPoint(Position.X + (int)Math.Round(point.X * DesktopScaling),
-            Position.Y + (int)Math.Round(point.Y * DesktopScaling));
-    }
-
-    private void EndMove()
-    {
-        var pointer = movePointer;
-        movePointer = null;
-        if (pointer is not null && pointer.Captured == this.FindControl<Border>("AccountDragRegion")) pointer.Capture(null);
     }
 }
