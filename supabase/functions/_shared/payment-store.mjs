@@ -48,6 +48,19 @@ export function createPaymentStore({ url, secretKey, allowLocalGateway = false, 
         p_kind: event.kind, p_currency: order.currency, p_item_price: event.itemPrice, p_subtotal: event.subtotal, p_tax: event.tax,
         p_total: event.total, p_refunded_total: event.refundedTotal }, signal);
     },
+    async storePrice(storeId, productId, variantId, signal) {
+      const rows = await rpc('lemon_store_price', { p_environment: environment, p_store_id: storeId,
+        p_product_id: productId, p_variant_id: variantId }, signal);
+      requirePayment(Array.isArray(rows) && rows.length <= 1, 'payment_store_unavailable', 503);
+      return rows[0] ?? null;
+    },
+    recordStorePurchase(price, event, email, signal) {
+      requirePayment(positiveId(event.providerOrderId));
+      return rpc('record_lemon_store_purchase', { p_environment: environment, p_event_key: event.key,
+        p_provider_order_id: event.providerOrderId, p_kind: event.kind, p_email: email, p_price_id: price.price_id,
+        p_currency: price.currency, p_item_price: event.itemPrice, p_subtotal: event.subtotal, p_tax: event.tax,
+        p_total: event.total, p_refunded_total: event.refundedTotal }, signal);
+    },
   };
 }
 

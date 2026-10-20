@@ -161,6 +161,9 @@ supabase functions serve get-entitlement --env-file supabase/.env
 - 사용자 JWT 대신 Lemon Squeezy의 `X-Signature`를 원문 바이트로 검증한다.
 - `order_created`와 `order_refunded`만 처리하며 다른 이벤트는 확인 응답 후 무시한다.
 - 서버에서 만든 내부 주문과 Store/Product/Variant/통화/원금/세금 별도 조건이 모두 맞아야 반영한다.
+- 내부 주문이 없는 스토어 직접 구매는 카탈로그와 같은 Store/Product/Variant·가격일 때 `lemon_store_purchases`에 기록하고,
+  구매자 이메일의 확인된 Google 계정에 웹훅·로그인·`get_app_access` 때 일반 주문으로 연결한다.
+  [직접 구매 연결](../docs/validation/2026-10-20-lemon-store-purchase.md)
 
 ## 현재 앱 연결
 

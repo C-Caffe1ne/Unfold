@@ -31,6 +31,8 @@ v1.2.1 정식 배포: [릴리스 노트](releases/v1.2.1.md) · [배포 검증](
 
 | 문서 | 역할 |
 |---|---|
+| [Lemon 스토어 직접 구매 → 권한 연결](validation/2026-10-20-lemon-store-purchase.md) | 구매자 이메일의 확인된 Google 계정에 연결, 52개 검사·운영 상품 모의, 운영 마이그레이션·웹훅 v22 적용과 사후 확인 |
+| [Lemon 결제 → 앱 권한 확인](validation/2026-10-20-lemon-entitlement-check.md) | 실제 결제 없이 운영 함수·DB 일치, USD 세 가지 세금 방식의 권한 반영, 스토어 직접 구매 시 권한 미부여 위험 |
 | [v1.2.1 정식 배포](validation/2026-10-20-v1.2.1-release.md) | 서명·공증, 공개 자산 16개·업데이트 피드, Windows CI 제목 표시줄 결과, 웹·노션 패치노트와 미검증 범위 |
 | [macOS 신호등 네이티브 배치](validation/2026-10-20-macos-native-title-bar.md) | 실행 파일 SDK 표기로 AppKit 현재 배치(32pt·14×14·x=9/32/55) 적용, 1,107개 검사와 펫 창 비교 |
 | [일반 창 네이티브 크롬](validation/2026-10-19-native-window-chrome.md) | macOS 계정·업데이트 창 신호등, Windows 11 제목 표시줄 테마 색·제목 숨김, 1,106개 검사와 Windows 미검증 경계 |

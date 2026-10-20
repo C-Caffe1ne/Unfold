@@ -12,6 +12,9 @@ before(async () => {
   db = new PGlite();
   await db.exec(`create role anon; create role authenticated; create role service_role bypassrls;
     create schema auth; create table auth.users(id uuid primary key);
+    create table auth.identities(id uuid primary key default gen_random_uuid(), user_id uuid not null references auth.users(id),
+      provider text not null, provider_id text not null, identity_data jsonb not null,
+      email text generated always as (lower(identity_data->>'email')) stored);
     create function auth.uid() returns uuid language sql stable as
       $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
     grant usage on schema public, auth to anon, authenticated, service_role;`);

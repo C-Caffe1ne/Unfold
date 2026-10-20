@@ -1,6 +1,8 @@
 import { PaymentError, requirePayment, positiveId, boundedBytes, safeFailure, paymentEnvironment, uuidPattern } from './payment-http.mjs';
 import { fromLemonAmount, lemonAmountMicros, toLemonAmount } from './lemon-money.mjs';
 
+const emailPattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+
 export async function verifyLemonSignature(bytes, signature, secret) {
   requirePayment(typeof signature === 'string' && /^[a-f0-9]{64}$/i.test(signature), 'invalid_signature', 401);
   const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['verify']);
@@ -72,6 +74,25 @@ function fact(event, order) {
     itemPrice, subtotal, tax, total, refundedTotal };
 }
 
+// A purchase from the public store page carries no Unfold order. It must match a catalog price
+// exactly; the server then keeps it for the Google account with the buyer's email.
+async function storePurchase(store, environment, event, signal) {
+  const value = event.data?.attributes;
+  const item = value?.first_order_item;
+  const ids = [value?.store_id, item?.product_id, item?.variant_id].map(id => String(id ?? ''));
+  requirePayment(ids.every(positiveId), 'payment_object_mismatch');
+  const price = await store.storePrice(...ids, signal);
+  if (!price) return { received: true, ignored: true };
+  const [storeId, productId, variantId] = ids;
+  const payment = fact(event, { environment, provider_store_id: storeId, provider_product_id: productId,
+    provider_price_id: variantId, currency: price.currency, amount_minor: price.amount_minor });
+  const email = typeof value.user_email === 'string' ? value.user_email.trim().toLowerCase() : '';
+  requirePayment(email.length <= 320 && emailPattern.test(email), 'payment_email_mismatch');
+  const recorded = await store.recordStorePurchase(price, payment, email, signal);
+  requirePayment(typeof recorded === 'boolean', 'payment_store_unavailable', 503);
+  return { received: true, duplicate: !recorded };
+}
+
 export function createLemonWebhookHandler({ store, secret, environment, report = () => {} }) {
   paymentEnvironment(environment);
   if (typeof secret !== 'string' || secret.length < 6 || secret.length > 128) throw new Error('Lemon Squeezy webhook secret required');
@@ -94,11 +115,12 @@ export function createLemonWebhookHandler({ store, secret, environment, report =
       if (!['order_created', 'order_refunded'].includes(eventName)) return reply({ received: true, ignored: true });
       const custom = event.meta?.custom_data;
       const orderId = custom?.order_id;
+      const signal = AbortSignal.timeout(4000);
       if (!uuidPattern.test(orderId ?? '')) {
         requirePayment(custom?.source !== 'unfold-server', 'order_not_ready', 503);
-        return reply({ received: true, ignored: true });
+        stage = 'store';
+        return reply(await storePurchase(store, environment, event, signal));
       }
-      const signal = AbortSignal.timeout(4000);
       stage = 'order';
       const order = await store.find(orderId, signal);
       if (!order) {
