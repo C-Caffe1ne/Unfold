@@ -2,6 +2,7 @@
 
 2026-10-19 · `codex/pet-overlay-hover`, 시작 HEAD `1c585fc`, 프로젝트 `1.2.0`. 커밋하지 않았다.
 이전 계획: [네이티브 창 버튼](../plans/2026-10-05-native-window-controls.md).
+후속: macOS 신호등은 [네이티브 배치 검증](2026-10-20-macos-native-title-bar.md)에서 32pt·x=9/32/55로 바뀌었다. 아래 28pt 값은 변경 전 측정이다.
 
 ## 변경 전 확인
 

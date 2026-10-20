@@ -1,0 +1,158 @@
+[
+  {
+    "buttons" : [
+      {
+        "h" : 14,
+        "w" : 14,
+        "x" : 9,
+        "y" : 9
+      },
+      {
+        "h" : 14,
+        "w" : 14,
+        "x" : 32,
+        "y" : 9
+      },
+      {
+        "h" : 14,
+        "w" : 14,
+        "x" : 55,
+        "y" : 9
+      }
+    ],
+    "cornerRadius" : 16,
+    "style" : "titled",
+    "titlebarHeight" : 32,
+    "windowNumber" : 5444
+  },
+  {
+    "buttons" : [
+      {
+        "h" : 14,
+        "w" : 14,
+        "x" : 9,
+        "y" : 9
+      },
+      {
+        "h" : 14,
+        "w" : 14,
+        "x" : 32,
+        "y" : 9
+      },
+      {
+        "h" : 14,
+        "w" : 14,
+        "x" : 55,
+        "y" : 9
+      }
+    ],
+    "cornerRadius" : 16,
+    "style" : "transparent-fullsize",
+    "titlebarHeight" : 32,
+    "windowNumber" : 5445
+  },
+  {
+    "buttons" : [
+      {
+        "h" : 14,
+        "w" : 14,
+        "x" : 19,
+        "y" : 19
+      },
+      {
+        "h" : 14,
+        "w" : 14,
+        "x" : 42,
+        "y" : 19
+      },
+      {
+        "h" : 14,
+        "w" : 14,
+        "x" : 65,
+        "y" : 19
+      }
+    ],
+    "cornerRadius" : 26,
+    "style" : "toolbar-unified",
+    "titlebarHeight" : 66,
+    "windowNumber" : 5446
+  },
+  {
+    "buttons" : [
+      {
+        "h" : 14,
+        "w" : 14,
+        "x" : 12,
+        "y" : 13
+      },
+      {
+        "h" : 14,
+        "w" : 14,
+        "x" : 35,
+        "y" : 13
+      },
+      {
+        "h" : 14,
+        "w" : 14,
+        "x" : 58,
+        "y" : 13
+      }
+    ],
+    "cornerRadius" : 20,
+    "style" : "toolbar-compact",
+    "titlebarHeight" : 40,
+    "windowNumber" : 5447
+  },
+  {
+    "buttons" : [
+      {
+        "h" : 14,
+        "w" : 14,
+        "x" : 9,
+        "y" : 9
+      },
+      {
+        "h" : 14,
+        "w" : 14,
+        "x" : 32,
+        "y" : 9
+      },
+      {
+        "h" : 14,
+        "w" : 14,
+        "x" : 55,
+        "y" : 9
+      }
+    ],
+    "cornerRadius" : 16,
+    "style" : "toolbar-expanded",
+    "titlebarHeight" : 48,
+    "windowNumber" : 5448
+  },
+  {
+    "buttons" : [
+      {
+        "h" : 14,
+        "w" : 14,
+        "x" : 19,
+        "y" : 19
+      },
+      {
+        "h" : 14,
+        "w" : 14,
+        "x" : 42,
+        "y" : 19
+      },
+      {
+        "h" : 14,
+        "w" : 14,
+        "x" : 65,
+        "y" : 19
+      }
+    ],
+    "cornerRadius" : 26,
+    "style" : "titled-toolbar-unified",
+    "titlebarHeight" : 66,
+    "windowNumber" : 5449
+  }
+]

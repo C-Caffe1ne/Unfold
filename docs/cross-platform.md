@@ -193,6 +193,11 @@ dotnet test Unfold.slnx -c Release --no-restore
 dotnet run --project src/Unfold.Desktop
 ```
 
+macOS builds need the Xcode command line tools (`xcrun vtool`). The build marks the app
+executable with the macOS 26 SDK so AppKit draws its current title bar buttons
+([layout check](validation/2026-10-20-macos-native-title-bar.md)). `dotnet Unfold.dll` runs
+through the `dotnet` host instead and keeps the older 28 pt layout.
+
 On Windows, publish using PowerShell:
 
 ```powershell

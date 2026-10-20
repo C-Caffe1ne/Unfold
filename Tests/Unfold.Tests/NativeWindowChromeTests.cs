@@ -68,6 +68,16 @@ public class NativeWindowChromeTests
         Assert.Equal(3u, NativeWindowChrome.HiddenTitleBarParts);
     }
 
+    [Fact]
+    public void MacAppHostDeclaresTheSdkThatAppKitLaysOutWindowButtonsFor()
+    {
+        Assert.SkipUnless(OperatingSystem.IsMacOS(), "Only macOS builds produce the Mach-O apphost.");
+        // AppKit sizes the title bar and its buttons for the main executable's SDK. The stock .NET
+        // apphost declares an older one, so macOS 26 would draw the previous 28 pt layout.
+        var sdk = MachOSdk(Path.Combine(AppContext.BaseDirectory, "Unfold"));
+        Assert.True(sdk >= new Version(26, 0), $"The apphost declares macOS SDK {sdk}.");
+    }
+
     [AvaloniaFact]
     public async Task OsCloseOnThePurchaseGateOffersTheExistingQuitInsteadOfDoingNothing()
     {
@@ -100,6 +110,28 @@ public class NativeWindowChromeTests
         await Task.Yield(); Layout();
         Assert.False(window.IsVisible);
         Assert.Equal(0, quits);
+    }
+
+    private static Version MachOSdk(string path)
+    {
+        using var reader = new BinaryReader(File.OpenRead(path));
+        Assert.Equal(0xFEEDFACFu, reader.ReadUInt32()); // thin 64-bit Mach-O
+        reader.BaseStream.Position = 16;
+        var commands = reader.ReadUInt32();
+        reader.BaseStream.Position = 32;
+        for (var i = 0; i < commands; i++)
+        {
+            var start = reader.BaseStream.Position;
+            var command = reader.ReadUInt32(); var size = reader.ReadUInt32();
+            if (command == 0x32) // LC_BUILD_VERSION: platform, minos, sdk (xxxx.yy.zz)
+            {
+                reader.BaseStream.Position = start + 16;
+                var sdk = reader.ReadUInt32();
+                return new((int)(sdk >> 16), (int)(sdk >> 8 & 0xFF));
+            }
+            reader.BaseStream.Position = start + size;
+        }
+        throw new InvalidDataException("The apphost has no LC_BUILD_VERSION.");
     }
 
     /// <summary>The platform's close notification (title bar button, Cmd+W, Alt+F4), not <see cref="Window.Close()"/>.</summary>

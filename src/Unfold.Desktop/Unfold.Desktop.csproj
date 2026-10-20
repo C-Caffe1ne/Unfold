@@ -57,4 +57,9 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
+  <!-- macOS draws window title bar buttons for the SDK the apphost declares; see the script. -->
+  <Target Name="DeclareMacOSAppKitSdk" AfterTargets="_CreateAppHost"
+          Condition="$([MSBuild]::IsOSPlatform('OSX')) And ('$(RuntimeIdentifier)' == '' Or $(RuntimeIdentifier.StartsWith('osx'))) And Exists('$(AppHostIntermediatePath)')">
+    <Exec Command="bash &quot;$(MSBuildThisFileDirectory)../../Scripts/declare-macos-appkit-sdk.sh&quot; &quot;$(AppHostIntermediatePath)&quot;" />
+  </Target>
 </Project>
