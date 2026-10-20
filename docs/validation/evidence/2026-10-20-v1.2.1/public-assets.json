@@ -1,0 +1,98 @@
+[
+  {
+    "name": "DokhuStudio.Unfold.Updates-1.2.1-osx-arm64-beta-full.nupkg",
+    "bytes": 80703804,
+    "sha256": "dbd1a30ed28cfd36ff9f83301355e3d37fdf75fdb9a97c52f5685b5e1de96592",
+    "matchesLocal": true
+  },
+  {
+    "name": "DokhuStudio.Unfold.Updates-1.2.1-osx-arm64-stable-full.nupkg",
+    "bytes": 80703804,
+    "sha256": "dbd1a30ed28cfd36ff9f83301355e3d37fdf75fdb9a97c52f5685b5e1de96592",
+    "matchesLocal": true
+  },
+  {
+    "name": "DokhuStudio.Unfold.Updates-1.2.1-osx-x64-beta-full.nupkg",
+    "bytes": 84876763,
+    "sha256": "90228030a58a258047f26a4daf4e7d44de2470f3b8466abfc423a85d7bf96deb",
+    "matchesLocal": true
+  },
+  {
+    "name": "DokhuStudio.Unfold.Updates-1.2.1-osx-x64-stable-full.nupkg",
+    "bytes": 84876763,
+    "sha256": "90228030a58a258047f26a4daf4e7d44de2470f3b8466abfc423a85d7bf96deb",
+    "matchesLocal": true
+  },
+  {
+    "name": "DokhuStudio.Unfold.Updates-1.2.1-win-x64-beta-full.nupkg",
+    "bytes": 85053057,
+    "sha256": "8b922adb924a083705c079a261104f89fc496f27a797b4fffdb305217080731b",
+    "matchesLocal": true
+  },
+  {
+    "name": "DokhuStudio.Unfold.Updates-1.2.1-win-x64-stable-full.nupkg",
+    "bytes": 85053057,
+    "sha256": "8b922adb924a083705c079a261104f89fc496f27a797b4fffdb305217080731b",
+    "matchesLocal": true
+  },
+  {
+    "name": "Unfold-v1.2.1-notarized-ZIP-SHA256SUMS.txt",
+    "bytes": 328,
+    "sha256": "d6abbd9e9fd0cf72f18d84f1f2ba224a5f6143b33a431b75ec21da49bff707b8",
+    "matchesLocal": true
+  },
+  {
+    "name": "Unfold-v1.2.1-osx-arm64-notarized-installer.zip",
+    "bytes": 77603798,
+    "sha256": "41e7a6ea5d35ea82d6c1f441afe24d8158836b284939c882ba8067c843cd7ecf",
+    "matchesLocal": true
+  },
+  {
+    "name": "Unfold-v1.2.1-osx-x64-notarized-installer.zip",
+    "bytes": 81780282,
+    "sha256": "0ba174fe91eef7b0a85b744269c4f1a3551add45a161381ce5f604e2b104b6ca",
+    "matchesLocal": true
+  },
+  {
+    "name": "Unfold-v1.2.1-win-x64-installer.zip",
+    "bytes": 86869658,
+    "sha256": "9aed070197895aca9cb643246354f53f9cd1a65ed4e6405296192ae6fe756728",
+    "matchesLocal": true
+  },
+  {
+    "name": "releases.osx-arm64-beta.json",
+    "bytes": 5979,
+    "sha256": "0a087490e9d743517516d8850037a36c986855d0c63a7cab7ff91f2428524fa1",
+    "matchesLocal": true
+  },
+  {
+    "name": "releases.osx-arm64-stable.json",
+    "bytes": 3508,
+    "sha256": "b86bb56a1bdf5abf3b0008a82f123b33ead17130cb54336b0d74f69953ea825d",
+    "matchesLocal": true
+  },
+  {
+    "name": "releases.osx-x64-beta.json",
+    "bytes": 5977,
+    "sha256": "23f8da00ed5c437d9b2501b00c90781d6f2640bdfb408c73fe605736d2a00f49",
+    "matchesLocal": true
+  },
+  {
+    "name": "releases.osx-x64-stable.json",
+    "bytes": 3506,
+    "sha256": "a691caafbce7310a4103a66c9ca99239d911e8f9b8d2a82be69d2e808b8e3b22",
+    "matchesLocal": true
+  },
+  {
+    "name": "releases.win-x64-beta.json",
+    "bytes": 5992,
+    "sha256": "272e20801d681b89b535747a230ba65a2bfb82e0a4c6626cf67e6f7b8678d013",
+    "matchesLocal": true
+  },
+  {
+    "name": "releases.win-x64-stable.json",
+    "bytes": 3506,
+    "sha256": "95f07284b0a072e91393042859f678bb050020fe12574f007a481bed86c54deb",
+    "matchesLocal": true
+  }
+]

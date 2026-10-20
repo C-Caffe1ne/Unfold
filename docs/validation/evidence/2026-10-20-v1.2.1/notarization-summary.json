@@ -1,0 +1,6 @@
+[
+  {"runtime": "osx-arm64", "target": "app", "id": "2ed4dbf3-31d2-42b8-b47d-34d696f3a158", "status": "Accepted"},
+  {"runtime": "osx-arm64", "target": "dmg", "id": "39503922-9760-4f8f-b534-c8059ad2064f", "status": "Accepted"},
+  {"runtime": "osx-x64", "target": "app", "id": "302aa7c1-f178-464b-9600-472515f0d574", "status": "Accepted"},
+  {"runtime": "osx-x64", "target": "dmg", "id": "fdb455f2-7922-4816-98fa-42338e901091", "status": "Accepted"}
+]

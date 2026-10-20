@@ -1,0 +1,56 @@
+[
+  {
+    "installed": "1.2.0",
+    "channel": "osx-arm64-stable",
+    "found": "1.2.1",
+    "file": "DokhuStudio.Unfold.Updates-1.2.1-osx-arm64-stable-full.nupkg",
+    "size": 80703804,
+    "notes": "# Unfold v1.2.1",
+    "downloaded": "DokhuStudio.Unfold.Updates-1.2.1-osx-arm64-stable-full.nupkg"
+  },
+  {
+    "installed": "1.2.0",
+    "channel": "osx-x64-stable",
+    "found": "1.2.1",
+    "file": "DokhuStudio.Unfold.Updates-1.2.1-osx-x64-stable-full.nupkg",
+    "size": 84876763,
+    "notes": "# Unfold v1.2.1",
+    "downloaded": null
+  },
+  {
+    "installed": "1.2.0",
+    "channel": "win-x64-stable",
+    "found": "1.2.1",
+    "file": "DokhuStudio.Unfold.Updates-1.2.1-win-x64-stable-full.nupkg",
+    "size": 85053057,
+    "notes": "# Unfold v1.2.1",
+    "downloaded": null
+  },
+  {
+    "installed": "1.1.4-beta",
+    "channel": "osx-arm64-beta",
+    "found": "1.2.1",
+    "file": "DokhuStudio.Unfold.Updates-1.2.1-osx-arm64-beta-full.nupkg",
+    "size": 80703804,
+    "notes": "# Unfold v1.2.1",
+    "downloaded": null
+  },
+  {
+    "installed": "1.1.4-beta",
+    "channel": "osx-x64-beta",
+    "found": "1.2.1",
+    "file": "DokhuStudio.Unfold.Updates-1.2.1-osx-x64-beta-full.nupkg",
+    "size": 84876763,
+    "notes": "# Unfold v1.2.1",
+    "downloaded": null
+  },
+  {
+    "installed": "1.1.4-beta",
+    "channel": "win-x64-beta",
+    "found": "1.2.1",
+    "file": "DokhuStudio.Unfold.Updates-1.2.1-win-x64-beta-full.nupkg",
+    "size": 85053057,
+    "notes": "# Unfold v1.2.1",
+    "downloaded": null
+  }
+]

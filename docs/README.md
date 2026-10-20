@@ -1,6 +1,6 @@
 # 문서 안내
 
-v1.2.0 정식 배포: [릴리스 노트](releases/v1.2.0.md) · [배포 검증](validation/2026-10-15-v1.2.0-release.md).
+v1.2.1 정식 배포: [릴리스 노트](releases/v1.2.1.md) · [배포 검증](validation/2026-10-20-v1.2.1-release.md). 이전 v1.2.0: [릴리스 노트](releases/v1.2.0.md) · [배포 검증](validation/2026-10-15-v1.2.0-release.md).
 
 백엔드 관리: [보안 운영 절차](operations/backend-security.md), [적용·검증 결과](validation/2026-10-11-backend-security.md).
 운영 Live 결제의 pending 원인·웹훅 v21 배포·실제 결제 재전송과 앱 권한 조회 결과는 [Live 결제 복구](validation/2026-10-12-live-payment-pending.md)에 기록한다.
@@ -31,6 +31,7 @@ v1.2.0 정식 배포: [릴리스 노트](releases/v1.2.0.md) · [배포 검증](
 
 | 문서 | 역할 |
 |---|---|
+| [v1.2.1 정식 배포](validation/2026-10-20-v1.2.1-release.md) | 서명·공증, 공개 자산 16개·업데이트 피드, Windows CI 제목 표시줄 결과, 웹·노션 패치노트와 미검증 범위 |
 | [macOS 신호등 네이티브 배치](validation/2026-10-20-macos-native-title-bar.md) | 실행 파일 SDK 표기로 AppKit 현재 배치(32pt·14×14·x=9/32/55) 적용, 1,107개 검사와 펫 창 비교 |
 | [일반 창 네이티브 크롬](validation/2026-10-19-native-window-chrome.md) | macOS 계정·업데이트 창 신호등, Windows 11 제목 표시줄 테마 색·제목 숨김, 1,106개 검사와 Windows 미검증 경계 |
 | [최상위 유지·디스플레이 변경·동작 줄이기](validation/2026-10-19-dsh-pet-adoption.md) | Windows 최상위 재적용, 모니터 변경 시 위치 보정, OS 동작 줄이기, MP4 원본 규칙과 1,096개 검사 |
