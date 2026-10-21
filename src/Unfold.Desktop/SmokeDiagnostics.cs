@@ -364,7 +364,9 @@ internal static partial class SmokeDiagnostics
                     Press(window, tab); await Task.Delay(100); window.UpdateLayout();
                     Capture(window, Path.Combine(directory, "theme-" + palette.Id + "-" + file + ".png"));
                 }
+                await OpenPetBuilder(window);
                 Capture(window, Path.Combine(directory, "theme-" + palette.Id + "-builder.png"));
+                await ReturnToPetLibrary(window);
                 verified.Add(palette.Name);
             }
         }
@@ -420,6 +422,7 @@ internal static partial class SmokeDiagnostics
         using var page = new PetManagementView(window, runtime.Library, runtime.SelectInstalledCharacter,
             chooseMedia: () => Task.FromResult<string?>(selectedFile));
         window.Content = Ui.PageFrame(window, page); AppRuntime.PrepareDiagnosticWindow(window); window.Show();
+        await OpenPetBuilder(window);
         async Task Save(string path, string action)
         {
             selectedFile = path; Press(window, "OpenPetBuilderFile"); await Until(() => window.OwnedWindows.Any());
@@ -666,8 +669,12 @@ internal static partial class SmokeDiagnostics
             Press(window, "SettingsNavPacks"); await Task.Delay(100); window.UpdateLayout();
             VerifySettingsPageHeaderRemoved(window);
             if (window.OwnedWindows.Count != 0 || window.GetVisualDescendants().OfType<TabControl>().Any(c => c.Name == "PetManagementTabs") ||
-                window.GetVisualDescendants().OfType<Button>().Any(c => c.Name == "OpenPetPack"))
-                throw new InvalidOperationException("Pet management did not open the builder directly.");
+                window.GetVisualDescendants().OfType<Button>().Any(c => c.Name == "OpenPetPack") ||
+                window.GetVisualDescendants().OfType<PetBuilderView>().Any() ||
+                !window.GetVisualDescendants().OfType<TextBox>().Any(c => c.Name == "PetLibrarySearch"))
+                throw new InvalidOperationException("Pet management did not open the in-window pet library.");
+            Capture(window, Path.Combine(directory, "settings-pet-library-tab.png"));
+            await OpenPetBuilder(window);
             VerifySettingsPageHeaderRemoved(window);
             if (!window.GetVisualDescendants().OfType<Button>().Any(button => button.Name == "OpenPetBuilderFile" && button.IsEnabled) ||
                 window.GetVisualDescendants().OfType<Control>().Any(control => control.Name == "PetBuilderFormat"))
@@ -717,6 +724,7 @@ internal static partial class SmokeDiagnostics
             Capture(window, Path.Combine(directory, "settings-pet-create-minimum-scrolled.png"));
             petName.Text = "";
             await Task.Delay(100); window.UpdateLayout();
+            await ReturnToPetLibrary(window);
             Press(window, "SettingsNavTimer"); await Task.Delay(100); window.UpdateLayout();
             VerifySettingsPageHeaderRemoved(window);
             window.MinWidth = 640; window.MinHeight = 560; window.Width = 860; window.Height = 680;
@@ -799,7 +807,8 @@ internal static partial class SmokeDiagnostics
             Press(window, "SettingsNavTimer"); await Task.Delay(100);
             return new { minimumWidth = window.ClientSize.Width, minimumHeight = window.ClientSize.Height,
                 timerAndPetVisible = true, detailsScrollVerified = true, noHorizontalOverflow = true,
-                inWindowTabsVerified = true, settingsTabVerified = true, homeTimingVerified = true, petManagementBuilderVerified = true,
+                inWindowTabsVerified = true, settingsTabVerified = true, homeTimingVerified = true,
+                petManagementLibraryFirstVerified = true, petManagementBuilderVerified = true,
                 routineProfileEntryRemoved = true,
                 petDraftPreserved = true, petCardAddButtonRemoved = true, petSelectorWidth = picker.Bounds.Width,
                 settingsOptionsScrollRequired, settingsOptionsExtentHeight, settingsOptionsViewportHeight,
@@ -953,9 +962,11 @@ internal static partial class SmokeDiagnostics
             preferences.ScrollToEnd(); await Layout(); Capture(window, Path.Combine(directory, "responsive-settings-bottom.png"));
             Press(window, "SettingsNavReview"); await Layout(); Capture(window, Path.Combine(directory, "responsive-review.png"));
             Press(window, "SettingsNavPacks"); await Layout();
-            await Layout();
+            await Layout(); Capture(window, Path.Combine(directory, "responsive-pet-library.png"));
+            await OpenPetBuilder(window); await Layout();
             var builder = window.GetVisualDescendants().OfType<ScrollViewer>().Single(item => item.Name == "PageBodyScroll");
             builder.ScrollToEnd(); await Layout(); Capture(window, Path.Combine(directory, "responsive-pet-create.png"));
+            await ReturnToPetLibrary(window);
         }
         finally
         {
@@ -1126,6 +1137,23 @@ internal static partial class SmokeDiagnostics
     {
         for (var attempt = 0; attempt < 400 && !ready(); attempt++) await Task.Delay(25);
         if (!ready()) throw new TimeoutException("Pet pack diagnostic did not finish.");
+    }
+    // Pet management opens on the '내 펫' library; the builder is reached through its create button.
+    private static async Task OpenPetBuilder(Window window)
+    {
+        if (!window.GetVisualDescendants().OfType<PetBuilderView>().Any())
+        {
+            Press(window, "PetLibraryCreate"); await Task.Delay(100); window.UpdateLayout();
+        }
+        if (window.GetVisualDescendants().OfType<PetBuilderView>().Count() != 1)
+            throw new InvalidOperationException("The pet library did not open the builder.");
+    }
+    private static async Task ReturnToPetLibrary(Window window)
+    {
+        Press(window, "PetLibraryBack"); await Task.Delay(100); window.UpdateLayout();
+        if (window.GetVisualDescendants().OfType<PetBuilderView>().Any() ||
+            !window.GetVisualDescendants().OfType<TextBox>().Any(control => control.Name == "PetLibrarySearch"))
+            throw new InvalidOperationException("The builder did not return to the pet library.");
     }
     private static void Press(Window window, string label)
     {

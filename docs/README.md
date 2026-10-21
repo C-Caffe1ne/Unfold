@@ -27,6 +27,7 @@ v1.2.1 정식 배포: [릴리스 노트](releases/v1.2.1.md) · [배포 검증](
 | [동료 펫 P1 구현·검증](validation/2026-10-20-companion-p1.md) | S1~S4 완료, 최종 집중 214개·Release 빌드, 화면 증거와 실제 OS 미검증 범위 |
 | [P1 실제 macOS QA](validation/2026-10-20-companion-p1-macos.md) | 격리 앱의 클릭·키보드·초안·네 모서리 확인과 발견한 포커스 결함 |
 | [즐겨찾기 포커스 수정](validation/2026-10-21-favorite-focus.md) | 카드 유지·제거·빈 목록 포커스, 자동 8개·실제 macOS 재검증, 로그 격리 보완 |
+| [smoke 펫 라이브러리 경유](validation/2026-10-21-smoke-pet-library.md) | 라이브러리 → 빌더 이동으로 smoke 진단 복구, macOS 실제 실행 2회 통과, 전체 테스트 결과 미확인 |
 | [문서 최신화 결과](validation/2026-10-08-docs-refresh.md) | 코드 대조·링크 복구·보존 범위 |
 
 ## 구현·검증 이력
