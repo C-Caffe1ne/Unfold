@@ -49,6 +49,7 @@ public sealed partial class CustomPetDraft
         var snapshot = new CustomPetDraft(this);
         foreach (var (key, clip) in clips) snapshot.clips[key] = clip;
         foreach (var (key, mode) in playback) snapshot.playback[key] = mode;
+        foreach (var (key, entry) in processed) snapshot.processed[key] = entry;
         return snapshot;
     }
     private CustomPetDraft(CustomPetDraft original)

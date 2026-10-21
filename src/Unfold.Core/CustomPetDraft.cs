@@ -97,6 +97,11 @@ public sealed partial class CustomPetDraft
     };
     public void SetClip(string action, ImportedPetClip clip)
     {
+        PutClip(action, clip);
+        processed.Remove(action); // A new file starts without the previous file's cleanup.
+    }
+    private void PutClip(string action, ImportedPetClip clip)
+    {
         if (!AvailableActions.Contains(action)) throw new ArgumentException(L.T("지원하지 않는 동작이에요."));
         var others = clips.Where(pair => pair.Key != action).Select(pair => pair.Value).ToArray();
         if (others.Sum(item => item.DecodedBytes) + clip.DecodedBytes > ImageCodec.MaxDecodedAnimationBytes)
@@ -112,7 +117,7 @@ public sealed partial class CustomPetDraft
         if (!AvailableActions.Contains(action) || mode is < 0 or > 2) throw new ArgumentException(L.T("잘못된 재생 설정이에요."));
         playback[action] = mode;
     }
-    public void RemoveClip(string action) { clips.Remove(action); playback.Remove(action); }
+    public void RemoveClip(string action) { clips.Remove(action); playback.Remove(action); processed.Remove(action); }
     public void Export(string name, string outputPath)
     {
         if (string.IsNullOrWhiteSpace(name) || name.Trim().Length > 80)

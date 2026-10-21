@@ -181,7 +181,8 @@ public class CustomPetWindowTests
     {
         using var temp = new TempDirectory();
         var picked = Copy(temp.Path, "first.gif");
-        var window = new CustomPetWindow(picked, () => Task.FromResult<string?>(picked));
+        // Tall enough that the page does not gain or lose a scrollbar when the pending card closes.
+        var window = new CustomPetWindow(picked, () => Task.FromResult<string?>(picked)) { Height = 960 };
         try
         {
             window.Show(); Find<TextBox>(window, "CustomPetName").Text = "테스트 펫";

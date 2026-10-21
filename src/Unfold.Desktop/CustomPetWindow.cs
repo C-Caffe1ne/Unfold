@@ -55,6 +55,10 @@ internal sealed class CustomPetView : UserControl, IDisposable
     private readonly Dictionary<string, Image> thumbnails = [];
     private readonly Dictionary<string, Avalonia.Media.Imaging.Bitmap> thumbnailBitmaps = [];
     private readonly Dictionary<string, ComboBox> playbackMenus = [];
+    private readonly Dictionary<string, CleanupControls> cleanups = [];
+    private bool syncingCleanup;
+    private sealed record CleanupControls(CheckBox Remove, CheckBox Align, Slider Tolerance, TextBlock ToleranceValue,
+        Border Swatch, TextBlock KeyText, Control Options, Avalonia.Threading.DispatcherTimer Debounce);
     private readonly Button assign, create, open, save, editPet, removePet;
     private readonly StackPanel slots = new() { Name = "CustomPetActionSlots", Spacing = 8 };
     private readonly StackPanel previewButtons = new() { Spacing = 8, Orientation = Orientation.Horizontal };
@@ -67,6 +71,7 @@ internal sealed class CustomPetView : UserControl, IDisposable
     private readonly Border previewSurface;
     public bool IsExporting => exporting;
     internal bool IsBusy => busy;
+    internal CustomPetDraft Draft => draft;
     internal bool HasUnsavedChanges => draft.IsEditing ? changed || name.Text != savedName : pendingPath is not null || !string.IsNullOrWhiteSpace(name.Text) || draft.Clips.Count > 0;
     internal string? EditingId => draft.IsEditing ? draft.Id : null;
     public event Action? BusyChanged;
@@ -144,7 +149,8 @@ internal sealed class CustomPetView : UserControl, IDisposable
     private void BuildActionSlots()
     {
         foreach (var bitmap in thumbnailBitmaps.Values) bitmap.Dispose();
-        thumbnailBitmaps.Clear(); thumbnails.Clear(); labels.Clear(); playbackMenus.Clear();
+        foreach (var cleanup in cleanups.Values) cleanup.Debounce.Stop();
+        thumbnailBitmaps.Clear(); thumbnails.Clear(); labels.Clear(); playbackMenus.Clear(); cleanups.Clear();
         actionCards.Clear(); actions.Clear(); replayButtons.Clear(); slots.Children.Clear();
         previewButtons.Children.Clear(); previewButtons.Children.Add(pause);
         foreach (var key in draft.AvailableActions)
@@ -188,10 +194,100 @@ internal sealed class CustomPetView : UserControl, IDisposable
             var fileRow = new Grid { ColumnDefinitions = new("32,8,*,8,Auto") };
             fileRow.Children.Add(thumbnail); Grid.SetColumn(label, 2); fileRow.Children.Add(label);
             Grid.SetColumn(controls, 4); fileRow.Children.Add(controls);
-            var row = Ui.Column(PetManagementView.Field(L.T("파일"), fileRow), PetManagementView.Field(L.T("재생 방식"), menu));
+            var row = Ui.Column(PetManagementView.Field(L.T("파일"), fileRow), PetManagementView.Field(L.T("재생 방식"), menu), BuildCleanup(key));
             var slot = new Border { Name = "CustomPetSlot_" + key, BorderBrush = DesignSystem.Outline,
                 BorderThickness = new Thickness(1), Padding = new Thickness(12), CornerRadius = new CornerRadius(12), Child = row };
             actionCards[key] = slot; slots.Children.Add(slot);
+        }
+    }
+    private Control BuildCleanup(string key)
+    {
+        var remove = new CheckBox { Name = "CustomPetRemoveBackground_" + key, Content = L.T("배경 지우기") };
+        var align = new CheckBox { Name = "CustomPetAlignFeet_" + key, Content = L.T("발 위치 맞춤") };
+        var swatch = new Border { Name = "CustomPetKeyColor_" + key, Width = 20, Height = 20, CornerRadius = new CornerRadius(10),
+            BorderBrush = DesignSystem.Outline, BorderThickness = new Thickness(1), VerticalAlignment = VerticalAlignment.Center };
+        var keyText = Ui.Caption(""); keyText.VerticalAlignment = VerticalAlignment.Center;
+        var keyLabel = Ui.Caption(L.T("배경색")); keyLabel.VerticalAlignment = VerticalAlignment.Center;
+        var keyRow = Ui.Row(keyLabel, swatch, keyText); keyRow.Spacing = 8;
+        var tolerance = new Slider { Name = "CustomPetTolerance_" + key, Minimum = 0, Maximum = 100, Value = ClipProcessing.DefaultTolerance,
+            TickFrequency = 1, IsSnapToTickEnabled = true, HorizontalAlignment = HorizontalAlignment.Stretch };
+        AutomationProperties.SetName(tolerance, L.T("허용 범위"));
+        var value = Ui.Caption(ClipProcessing.DefaultTolerance.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        value.VerticalAlignment = VerticalAlignment.Center; value.TextAlignment = TextAlignment.Right;
+        var toleranceRow = new Grid { ColumnDefinitions = new("*,8,32") };
+        toleranceRow.Children.Add(tolerance); Grid.SetColumn(value, 2); toleranceRow.Children.Add(value);
+        var options = Ui.Column(keyRow, PetManagementView.Field(L.T("허용 범위"), toleranceRow)); options.Spacing = 8;
+        var debounce = new Avalonia.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(350) };
+        debounce.Tick += (_, _) => { if (busy) return; debounce.Stop(); _ = ApplyCleanup(key); };
+        remove.IsCheckedChanged += (_, _) => { options.IsVisible = remove.IsChecked == true; if (!populating && !syncingCleanup) _ = ApplyCleanup(key); };
+        align.IsCheckedChanged += (_, _) => { if (!populating && !syncingCleanup) _ = ApplyCleanup(key); };
+        tolerance.PropertyChanged += (_, e) =>
+        {
+            if (e.Property != Avalonia.Controls.Primitives.RangeBase.ValueProperty) return;
+            value.Text = ((int)tolerance.Value).ToString(System.Globalization.CultureInfo.InvariantCulture);
+            if (populating || syncingCleanup) return;
+            debounce.Stop(); debounce.Start();
+        };
+        cleanups[key] = new(remove, align, tolerance, value, swatch, keyText, options, debounce);
+        options.IsVisible = false;
+        var toggles = new WrapPanel { Orientation = Orientation.Horizontal, ItemSpacing = 16 };
+        toggles.Children.Add(remove); toggles.Children.Add(align);
+        var cleanup = Ui.Column(toggles, options); cleanup.Spacing = 8; cleanup.Name = "CustomPetCleanup_" + key;
+        return cleanup;
+    }
+    internal async Task ApplyCleanup(string key)
+    {
+        if (busy || closed || populating || !cleanups.TryGetValue(key, out var controls) || draft.ProcessingSource(key) is not { } source) return;
+        var current = draft.Processing(key);
+        var remove = controls.Remove.IsChecked == true;
+        // Keep the detected screen color while the background stays removed; a new file detects again.
+        var settings = remove
+            ? new ClipProcessing(true, current.RemoveBackground ? current.KeyColor : PetMediaProcessing.DetectKeyColor(source.Thumbnail),
+                (int)Math.Round(controls.Tolerance.Value), controls.Align.IsChecked == true)
+            : new ClipProcessing(AlignFeet: controls.Align.IsChecked == true);
+        if (settings == current) return;
+        busy = true; preview.SetRunning(false); Refresh();
+        status.Foreground = DesignSystem.Muted; status.Text = L.T("배경을 정리하고 있어요…");
+        try
+        {
+            var result = await PetMediaProcessor.Apply(source, settings, cancellation.Token);
+            if (closed) return;
+            draft.SetProcessedClip(key, source, settings, result);
+            changed = true;
+            var bitmap = Ui.Bitmap(result.Thumbnail);
+            if (thumbnailBitmaps.Remove(key, out var previous)) previous.Dispose();
+            thumbnailBitmaps[key] = bitmap; thumbnails[key].Source = bitmap;
+            status.Text = "";
+            busy = false;
+            await Preview(key);
+        }
+        catch (OperationCanceledException) when (closed) { }
+        catch (Exception error) { ShowError(error); }
+        finally { busy = false; if (!closed) Refresh(); }
+    }
+    private void SyncCleanup()
+    {
+        foreach (var (key, controls) in cleanups)
+        {
+            var settings = draft.Processing(key);
+            // A failed or superseded change returns the controls to what the draft holds.
+            if (!busy)
+            {
+                syncingCleanup = true;
+                try
+                {
+                    if (controls.Remove.IsChecked != settings.RemoveBackground) controls.Remove.IsChecked = settings.RemoveBackground;
+                    if (controls.Align.IsChecked != settings.AlignFeet) controls.Align.IsChecked = settings.AlignFeet;
+                    if (!controls.Debounce.IsEnabled && (int)controls.Tolerance.Value != settings.Tolerance) controls.Tolerance.Value = settings.Tolerance;
+                }
+                finally { syncingCleanup = false; }
+            }
+            var enabled = !busy && draft.Clips.ContainsKey(key);
+            controls.Remove.IsEnabled = controls.Align.IsEnabled = controls.Tolerance.IsEnabled = enabled;
+            controls.Options.IsVisible = controls.Remove.IsChecked == true;
+            var color = settings.RemoveBackground ? settings.KeyColor : 0u;
+            controls.Swatch.Background = new SolidColorBrush(Color.FromUInt32(color));
+            controls.KeyText.Text = settings.RemoveBackground ? $"#{color & 0xFFFFFF:X6}" : "";
         }
     }
     public static async Task<string?> PickMediaFile(Window owner)
@@ -230,6 +326,7 @@ internal sealed class CustomPetView : UserControl, IDisposable
         if (closed) return;
         closed = true; previewGeneration++; owner.PropertyChanged -= OwnerPropertyChanged;
         cancellation.Cancel(); preview.Dispose();
+        foreach (var cleanup in cleanups.Values) cleanup.Debounce.Stop();
         foreach (var bitmap in thumbnailBitmaps.Values) bitmap.Dispose(); thumbnailBitmaps.Clear();
     }
     internal async Task OpenPath(string path)
@@ -478,7 +575,7 @@ internal sealed class CustomPetView : UserControl, IDisposable
         }
         foreach (var button in actions)
             button.IsEnabled = !busy && (button.Name!.StartsWith("CustomPetFile_") || draft.Clips.ContainsKey(button.Name[(button.Name.IndexOf('_') + 1)..]));
-        ShowSelectedAction(); RefreshCardSelection(); BusyChanged?.Invoke();
+        SyncCleanup(); ShowSelectedAction(); RefreshCardSelection(); BusyChanged?.Invoke();
     }
     private void RefreshCardSelection()
     {
