@@ -67,6 +67,7 @@ public sealed partial class PetWindow : Window
         {
             if (down is not null || !e.GetCurrentPoint(animation).Properties.IsLeftButtonPressed || !animation.OpaqueAt(e.GetPosition(animation), includeEdgeTolerance: false)) return;
             down = PointerScreenPosition(e);
+            BeginThrowTracking(down.Value); // Also catches a pet that is still in the air.
             dragAnchor = PetAnchor; pressedAt = Stopwatch.GetTimestamp(); dragging = false;
             BeginCompanionPress();
             if (!HasOriginalBehavior) _ = React("pointerDown");
@@ -77,25 +78,16 @@ public sealed partial class PetWindow : Window
             if (down is not { } start) return;
             var current = PointerScreenPosition(e); var delta = current - start;
             if (Math.Sqrt((double)delta.X * delta.X + (double)delta.Y * delta.Y) >= 5) dragging = true;
-            if (dragging)
-            {
-                StartPointerHold();
-                Position = new(dragAnchor.X + delta.X, dragAnchor.Y + delta.Y);
-            }
+            if (dragging) StartPointerHold();
+            TrackDrag(current, dragging ? new(dragAnchor.X + delta.X, dragAnchor.Y + delta.Y) : null);
         };
         animation.PointerReleased += async (_, e) =>
         {
             if (down is null || e.InitialPressMouseButton != MouseButton.Left) return;
             var clicked = !dragging && Stopwatch.GetElapsedTime(pressedAt).TotalSeconds < PetPose.LiftDelay;
-            down = null; pressedPointer = null; e.Pointer.Capture(null); ClampPosition(); runtime.SavePosition(PetAnchor);
-            var handled = ReleaseCompanionPress(clicked);
-            RefreshSpeech();
-            if (!HasOriginalBehavior && runtime.Selected?.Manifest.Animations.ContainsKey("pointerUp") == true) await React("pointerUp");
-            else
-            {
-                if (!HasOriginalBehavior && ActiveAnimation == "pointerDown") await ResumeMediaPointerReaction(InvalidatePlayback());
-                if (clicked && !handled) await React();
-            }
+            down = null; pressedPointer = null; e.Pointer.Capture(null);
+            if (ReleaseDrag(dragging)) { RefreshSpeech(); return; } // Lands later in AdvanceThrow.
+            await CompleteRelease(clicked);
         };
         animation.PointerCaptureLost += (_, _) =>
         {
@@ -262,7 +254,7 @@ public sealed partial class PetWindow : Window
     // Like other automatic movement, this does not replace the saved manual position.
     internal void HandleDisplaysChanged()
     {
-        if (runtime.DiagnosticMode || !IsVisible || down is not null) return;
+        if (runtime.DiagnosticMode || !IsVisible || down is not null || IsThrown) return;
         ClampPosition(); Overlay.Reposition();
     }
 

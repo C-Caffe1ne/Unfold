@@ -22,7 +22,7 @@ public sealed partial class PetWindow
     private void ResetCompanion()
     {
         down = null; dragging = false; pressedPointer?.Capture(null); pressedPointer = null;
-        walkingSession = originalStretchSession = null; idleSchedule.Reset(); wander.Reset(); CancelCompanionPose();
+        walkingSession = originalStretchSession = null; idleSchedule.Reset(); wander.Reset(); throwMotion.Cancel(); CancelCompanionPose();
         lastCompanionTick = Stopwatch.GetTimestamp();
     }
     internal void BeginCompanionPress()
@@ -129,6 +129,7 @@ public sealed partial class PetWindow
         var now = Stopwatch.GetTimestamp();
         var seconds = Stopwatch.GetElapsedTime(lastCompanionTick, now).TotalSeconds;
         lastCompanionTick = now;
+        AdvanceThrow(seconds);
         AdvanceCompanion(seconds);
     }
     internal void AdvanceCompanion(double seconds)

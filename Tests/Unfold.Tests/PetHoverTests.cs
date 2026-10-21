@@ -63,6 +63,7 @@ public class PetHoverTests
         var size = pet.ClientSize; var start = pet.PetAnchor;
         pet.MouseDown(point, MouseButton.Left); Layout(pet);
         pet.MouseMove(point + new Vector(25, 0)); Layout(pet);
+        for (var tick = 0; tick < 120; tick++) pet.AdvanceThrow(.016); // The drag spring settles on the pointer.
         Assert.Equal(size, pet.ClientSize); Assert.Equal(start.X + 25, pet.PetAnchor.X);
         pet.MouseUp(point, MouseButton.Left); Layout(pet);
         Assert.False(scope.Bubble.IsVisible); Assert.Equal(pet.PetAnchor.X, scope.Runtime.Settings.PetX);
