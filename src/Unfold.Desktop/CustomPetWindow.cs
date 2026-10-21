@@ -56,6 +56,10 @@ internal sealed class CustomPetView : UserControl, IDisposable
     private readonly Dictionary<string, Avalonia.Media.Imaging.Bitmap> thumbnailBitmaps = [];
     private readonly Dictionary<string, ComboBox> playbackMenus = [];
     private readonly Dictionary<string, CleanupControls> cleanups = [];
+    private readonly Dictionary<string, FileListControls> fileLists = [];
+    private sealed record FileListControls(StackPanel Rows, Button Add, Control Order, RadioButton Random, RadioButton Sequence,
+        List<Avalonia.Media.Imaging.Bitmap> Bitmaps, List<ImportedPetClip> Shown);
+    private bool syncingOrder;
     private bool syncingCleanup;
     private sealed record CleanupControls(CheckBox Remove, CheckBox Align, Slider Tolerance, TextBlock ToleranceValue,
         Border Swatch, TextBlock KeyText, Control Options, Avalonia.Threading.DispatcherTimer Debounce);
@@ -150,7 +154,8 @@ internal sealed class CustomPetView : UserControl, IDisposable
     {
         foreach (var bitmap in thumbnailBitmaps.Values) bitmap.Dispose();
         foreach (var cleanup in cleanups.Values) cleanup.Debounce.Stop();
-        thumbnailBitmaps.Clear(); thumbnails.Clear(); labels.Clear(); playbackMenus.Clear(); cleanups.Clear();
+        foreach (var list in fileLists.Values) foreach (var bitmap in list.Bitmaps) bitmap.Dispose();
+        thumbnailBitmaps.Clear(); thumbnails.Clear(); labels.Clear(); playbackMenus.Clear(); cleanups.Clear(); fileLists.Clear();
         actionCards.Clear(); actions.Clear(); replayButtons.Clear(); slots.Children.Clear();
         previewButtons.Children.Clear(); previewButtons.Children.Add(pause);
         foreach (var key in draft.AvailableActions)
@@ -177,9 +182,10 @@ internal sealed class CustomPetView : UserControl, IDisposable
             var remove = Ui.Button("", () =>
             {
                 if (busy || closed) return;
-                draft.RemoveClip(key);
+                draft.RemoveFile(key, 0); // The next file of the action, if any, becomes the first.
                 changed = true;
                 menu.SelectedIndex = draft.Playback(key);
+                if (draft.Clips.TryGetValue(key, out var next)) SetThumbnail(key, next);
                 if (previewAction == key)
                 {
                     ClearPreview();
@@ -194,11 +200,108 @@ internal sealed class CustomPetView : UserControl, IDisposable
             var fileRow = new Grid { ColumnDefinitions = new("32,8,*,8,Auto") };
             fileRow.Children.Add(thumbnail); Grid.SetColumn(label, 2); fileRow.Children.Add(label);
             Grid.SetColumn(controls, 4); fileRow.Children.Add(controls);
-            var row = Ui.Column(PetManagementView.Field(L.T("파일"), fileRow), PetManagementView.Field(L.T("재생 방식"), menu), BuildCleanup(key));
+            var row = Ui.Column(PetManagementView.Field(L.T("파일"), Ui.Column(fileRow, BuildFileList(key))),
+                PetManagementView.Field(L.T("재생 방식"), menu), fileLists[key].Order, BuildCleanup(key));
             var slot = new Border { Name = "CustomPetSlot_" + key, BorderBrush = DesignSystem.Outline,
                 BorderThickness = new Thickness(1), Padding = new Thickness(12), CornerRadius = new CornerRadius(12), Child = row };
             actionCards[key] = slot; slots.Children.Add(slot);
         }
+    }
+    private Control BuildFileList(string key)
+    {
+        var rows = new StackPanel { Name = "CustomPetExtraFiles_" + key, Spacing = 6 };
+        var add = AsyncButton(L.T("다른 파일 추가"), () => AddFile(key)); add.Name = "CustomPetAddFile_" + key;
+        add.HorizontalAlignment = HorizontalAlignment.Left;
+        var group = "CustomPetOrder_" + key + "_" + Guid.NewGuid().ToString("N");
+        var random = new RadioButton { Name = "CustomPetOrderRandom_" + key, Content = L.T("무작위"), GroupName = group };
+        var sequence = new RadioButton { Name = "CustomPetOrderSequence_" + key, Content = L.T("차례대로"), GroupName = group };
+        void Pick(string order)
+        {
+            if (populating || syncingOrder || busy || draft.Order(key) == order || !draft.Clips.ContainsKey(key)) return;
+            draft.SetOrder(key, order); changed = true;
+        }
+        random.IsCheckedChanged += (_, _) => { if (random.IsChecked == true) Pick("random"); };
+        sequence.IsCheckedChanged += (_, _) => { if (sequence.IsChecked == true) Pick("sequence"); };
+        var choices = new WrapPanel { Orientation = Orientation.Horizontal, ItemSpacing = 16 };
+        choices.Children.Add(random); choices.Children.Add(sequence);
+        var order = PetManagementView.Field(L.T("재생 순서"), choices); order.Name = "CustomPetOrder_" + key;
+        fileLists[key] = new(rows, add, order, random, sequence, [], []);
+        var list = Ui.Column(rows, add); list.Spacing = 6;
+        return list;
+    }
+    private void RefreshFileList(string key)
+    {
+        if (!fileLists.TryGetValue(key, out var list)) return;
+        var files = draft.Files(key);
+        // Rebuild rows only when the files change; Refresh runs on every edit.
+        if (!list.Shown.SequenceEqual(files, ReferenceEqualityComparer.Instance)) BuildFileRows(key, list, files);
+        foreach (var button in Avalonia.LogicalTree.LogicalExtensions.GetLogicalDescendants(list.Rows).OfType<Button>()) button.IsEnabled = !busy;
+        list.Rows.IsVisible = files.Count > 1;
+        list.Add.IsEnabled = !busy && files.Count is > 0 and < AnimationDefinition.MaxFiles;
+        list.Order.IsVisible = files.Count > 1;
+        syncingOrder = true;
+        try { list.Random.IsChecked = draft.Order(key) != "sequence"; list.Sequence.IsChecked = draft.Order(key) == "sequence"; }
+        finally { syncingOrder = false; }
+        list.Random.IsEnabled = list.Sequence.IsEnabled = !busy;
+    }
+    private void BuildFileRows(string key, FileListControls list, IReadOnlyList<ImportedPetClip> files)
+    {
+        list.Shown.Clear(); list.Shown.AddRange(files);
+        foreach (var bitmap in list.Bitmaps) bitmap.Dispose();
+        list.Bitmaps.Clear(); list.Rows.Children.Clear();
+        for (var index = 1; index < files.Count; index++)
+        {
+            var slot = index; var file = files[index];
+            var bitmap = Ui.Bitmap(file.Thumbnail); list.Bitmaps.Add(bitmap);
+            var thumbnail = new Image { Width = 32, Height = 40, Stretch = Stretch.Uniform, Source = bitmap };
+            var label = Ui.Caption(file.FileName); label.MaxLines = 1; label.TextTrimming = TextTrimming.CharacterEllipsis;
+            label.VerticalAlignment = VerticalAlignment.Center; ToolTip.SetTip(label, file.FileName);
+            var play = Ui.Button("", () => { if (!busy) _ = Preview(key, slot); });
+            play.Name = $"CustomPetPreviewFile_{key}_{slot}";
+            var remove = Ui.Button("", () =>
+            {
+                if (busy || closed) return;
+                draft.RemoveFile(key, slot); changed = true;
+                if (previewAction == key) ClearPreview();
+                Refresh();
+            });
+            remove.Name = $"CustomPetRemoveFile_{key}_{slot}"; Ui.Danger(remove);
+            ConfigureSlotButton(play, "M8,5 V19 L19,12 Z", L.F("{0} 재생", file.FileName));
+            ConfigureSlotButton(remove, "M8,5 V3 H16 V5 H21 V7 H19 L18,21 H6 L5,7 H3 V5 Z M8,9 H10 V18 H8 Z M14,9 H16 V18 H14 Z", L.F("{0} 삭제", file.FileName));
+            var controls = Ui.Row(play, remove); controls.Spacing = 2;
+            var row = new Grid { ColumnDefinitions = new("32,8,*,8,Auto") };
+            row.Children.Add(thumbnail); Grid.SetColumn(label, 2); row.Children.Add(label);
+            Grid.SetColumn(controls, 4); row.Children.Add(controls);
+            list.Rows.Children.Add(row);
+        }
+    }
+    private void SetThumbnail(string key, ImportedPetClip clip)
+    {
+        var bitmap = Ui.Bitmap(clip.Thumbnail);
+        if (thumbnailBitmaps.Remove(key, out var previous)) previous.Dispose();
+        thumbnailBitmaps[key] = bitmap; thumbnails[key].Source = bitmap;
+    }
+    private async Task AddFile(string key)
+    {
+        if (busy || closed || !draft.Clips.ContainsKey(key)) return;
+        try
+        {
+            var path = await chooseMedia(); if (path is null || closed) return;
+            busy = true; preview.SetRunning(false); Refresh(); status.Foreground = DesignSystem.Muted; status.Text = L.T("파일을 확인하고 있어요…");
+            var clip = await PetMediaImporter.Import(path, cancellation.Token);
+            // A new file joins the action's existing cleanup.
+            var settings = draft.Processing(key);
+            var result = await PetMediaProcessor.Apply(clip, settings, cancellation.Token);
+            if (closed) return;
+            draft.AddFile(key, result, clip);
+            changed = true;
+            status.Text = L.F("{0}에 파일을 넣었어요.", CustomPetDraft.ActionName(key));
+            busy = false;
+            await Preview(key, draft.Files(key).Count - 1);
+        }
+        catch (OperationCanceledException) when (closed) { }
+        catch (Exception error) { ShowError(error); }
+        finally { busy = false; if (!closed) Refresh(); }
     }
     private Control BuildCleanup(string key)
     {
@@ -240,7 +343,7 @@ internal sealed class CustomPetView : UserControl, IDisposable
         if (busy || closed || populating || !cleanups.TryGetValue(key, out var controls) || draft.ProcessingSource(key) is not { } source) return;
         var current = draft.Processing(key);
         var remove = controls.Remove.IsChecked == true;
-        // Keep the detected screen color while the background stays removed; a new file detects again.
+        // Keep the detected screen color while the background stays removed; a new first file detects again.
         var settings = remove
             ? new ClipProcessing(true, current.RemoveBackground ? current.KeyColor : PetMediaProcessing.DetectKeyColor(source.Thumbnail),
                 (int)Math.Round(controls.Tolerance.Value), controls.Align.IsChecked == true)
@@ -250,13 +353,15 @@ internal sealed class CustomPetView : UserControl, IDisposable
         status.Foreground = DesignSystem.Muted; status.Text = L.T("배경을 정리하고 있어요…");
         try
         {
-            var result = await PetMediaProcessor.Apply(source, settings, cancellation.Token);
+            // Every file of the action is cleaned before any of them changes, so a failure leaves the draft as it was.
+            var sources = Enumerable.Range(0, draft.Files(key).Count).Select(index => draft.ProcessingSource(key, index)!).ToArray();
+            var results = new ImportedPetClip[sources.Length];
+            for (var index = 0; index < sources.Length; index++)
+                results[index] = await PetMediaProcessor.Apply(sources[index], settings, cancellation.Token);
             if (closed) return;
-            draft.SetProcessedClip(key, source, settings, result);
+            for (var index = 0; index < sources.Length; index++) draft.SetProcessedClip(key, sources[index], settings, results[index], index);
             changed = true;
-            var bitmap = Ui.Bitmap(result.Thumbnail);
-            if (thumbnailBitmaps.Remove(key, out var previous)) previous.Dispose();
-            thumbnailBitmaps[key] = bitmap; thumbnails[key].Source = bitmap;
+            SetThumbnail(key, results[0]);
             status.Text = "";
             busy = false;
             await Preview(key);
@@ -479,14 +584,14 @@ internal sealed class CustomPetView : UserControl, IDisposable
         catch (Exception error) { ShowError(error); return false; }
         finally { busy = false; if (!closed) Refresh(); }
     }
-    private async Task Preview(string key)
+    private async Task Preview(string key, int index = 0)
     {
-        if (closed || !draft.Clips.TryGetValue(key, out var clip)) return;
+        if (closed || draft.Files(key).ElementAtOrDefault(index) is not { } clip) return;
         var request = ++previewGeneration;
         try
         {
             var frames = await Task.Run(clip.LoadFrames, cancellation.Token);
-            if (!closed && request == previewGeneration && draft.Clips.TryGetValue(key, out var current) && current == clip)
+            if (!closed && request == previewGeneration && draft.Files(key).ElementAtOrDefault(index) == clip)
             {
                 preview.SetFrames(frames, draft.Playback(key) != 0, pixel: draft.PixelPreview, pingPong: draft.Playback(key) == 2);
                 previewAction = key;
@@ -572,6 +677,7 @@ internal sealed class CustomPetView : UserControl, IDisposable
             ToolTip.SetTip(label, clip?.FileName);
             playbackMenus[key].IsEnabled = !busy && clip is not null;
             if (clip is null && thumbnailBitmaps.Remove(key, out var old)) { thumbnails[key].Source = null; old.Dispose(); }
+            RefreshFileList(key);
         }
         foreach (var button in actions)
             button.IsEnabled = !busy && (button.Name!.StartsWith("CustomPetFile_") || draft.Clips.ContainsKey(button.Name[(button.Name.IndexOf('_') + 1)..]));

@@ -7,6 +7,8 @@ public sealed partial class CustomPetDraft
     private readonly CharacterManifest? sourceManifest;
     private readonly Dictionary<string, byte[]> sourceFiles = new(StringComparer.Ordinal);
     private readonly Dictionary<string, ImportedPetClip> sourceClips = new(StringComparer.Ordinal);
+    // Unchanged installed files keep their manifest definition (sheet frames or GIF name).
+    private readonly Dictionary<ImportedPetClip, AnimationDefinition> sourceDefinitions = new(ReferenceEqualityComparer.Instance);
     private readonly string? sourceDirectory;
     private string? expectedRevision;
     private Version contentVersion = new(1, 0, 0);
@@ -24,16 +26,24 @@ public sealed partial class CustomPetDraft
             pair => pair.Value with { Frames = pair.Value.Frames?.ToArray() }, StringComparer.Ordinal) };
         Id = sourceManifest.Id;
         var sheetName = sourceManifest.SpriteSheet.File;
-        foreach (var file in sourceManifest.Animations.Values.Select(value => value.Gif).OfType<string>().Prepend(sheetName).Distinct(StringComparer.Ordinal))
+        foreach (var file in sourceManifest.Animations.Values.SelectMany(value => (value.Variants ?? []).Prepend(value))
+            .Select(value => value.Gif).OfType<string>().Prepend(sheetName).Distinct(StringComparer.Ordinal))
             sourceFiles[file] = ImageCodec.ReadBounded(CharacterLibrary.AssetPath(sourceDirectory, file));
         if (sourceFiles.Sum(pair => (long)pair.Value.Length) > CharacterPack.MaxArchiveBytes - 64 * 1024)
             throw new InvalidDataException(L.T("펫 팩의 파일 용량이 너무 커요."));
         var sheet = ImageCodec.DecodePng(sourceFiles[sheetName]);
-        foreach (var (key, definition) in sourceManifest.Animations)
+        ImportedPetClip Load(AnimationDefinition definition)
         {
             var clip = definition.Gif is { } gif ? ImportedPetClip.FromOwnedGif(gif, sourceFiles[gif])
                 : new ImportedPetClip(sheetName, sourceFiles[sheetName], sourceManifest.SpriteSheet, definition, sheet);
-            clips[key] = sourceClips[key] = clip; playback[key] = definition.PingPong ? 2 : definition.Loop ? 1 : 0;
+            sourceDefinitions[clip] = definition;
+            return clip;
+        }
+        foreach (var (key, definition) in sourceManifest.Animations)
+        {
+            clips[key] = sourceClips[key] = Load(definition); playback[key] = definition.PingPong ? 2 : definition.Loop ? 1 : 0;
+            if (definition.Variants is { Length: > 0 } variants) extras[key] = variants.Select(Load).ToList();
+            if (definition.Order == "sequence") orders[key] = "sequence";
         }
         var metadataPath = CharacterLibrary.AssetPath(sourceDirectory, "pack.json");
         if (File.Exists(metadataPath))
@@ -50,6 +60,9 @@ public sealed partial class CustomPetDraft
         foreach (var (key, clip) in clips) snapshot.clips[key] = clip;
         foreach (var (key, mode) in playback) snapshot.playback[key] = mode;
         foreach (var (key, entry) in processed) snapshot.processed[key] = entry;
+        foreach (var (clip, original) in originals) snapshot.originals[clip] = original;
+        foreach (var (key, more) in extras) snapshot.extras[key] = more.ToList();
+        foreach (var (key, order) in orders) snapshot.orders[key] = order;
         return snapshot;
     }
     private CustomPetDraft(CustomPetDraft original)
@@ -58,6 +71,7 @@ public sealed partial class CustomPetDraft
         expectedRevision = original.expectedRevision; contentVersion = original.contentVersion;
         foreach (var (key, bytes) in original.sourceFiles) sourceFiles[key] = bytes;
         foreach (var (key, clip) in original.sourceClips) sourceClips[key] = clip;
+        foreach (var (clip, definition) in original.sourceDefinitions) sourceDefinitions[clip] = definition;
     }
     public CharacterPackage Save(CharacterLibrary library, string name)
     {
@@ -81,19 +95,24 @@ public sealed partial class CustomPetDraft
         {
             var manifest = sourceManifest!;
             foreach (var (file, bytes) in sourceFiles) AtomicFile.Write(CharacterLibrary.AssetPath(directory, file), bytes);
-            var definitions = new Dictionary<string, AnimationDefinition>(StringComparer.Ordinal);
-            var staticClips = new List<(string Key, ImportedPetClip Clip)>();
-            foreach (var (key, clip) in clips)
+            // Each action's files in order; a null entry is a new still image waiting for a sheet cell.
+            var definitions = new Dictionary<string, AnimationDefinition?[]>(StringComparer.Ordinal);
+            var staticClips = new List<(string Key, int Slot, ImportedPetClip Clip)>();
+            foreach (var key in clips.Keys)
             {
-                AnimationDefinition definition;
-                if (sourceClips.GetValueOrDefault(key) == clip) definition = manifest.Animations[key];
-                else if (clip.IsStillImage) { staticClips.Add((key, clip)); continue; }
-                else
+                var files = Files(key); var entries = new AnimationDefinition?[files.Count];
+                for (var slot = 0; slot < files.Count; slot++)
                 {
-                    var file = $"edited-{Guid.NewGuid():N}.gif"; clip.Write(Path.Combine(directory, file));
-                    definition = new(Gif: file);
+                    var clip = files[slot];
+                    if (sourceDefinitions.TryGetValue(clip, out var unchanged)) entries[slot] = unchanged with { Variants = null, Order = null };
+                    else if (clip.IsStillImage) staticClips.Add((key, slot, clip));
+                    else
+                    {
+                        var file = $"edited-{Guid.NewGuid():N}.gif"; clip.Write(Path.Combine(directory, file));
+                        entries[slot] = new(Gif: file);
+                    }
                 }
-                definitions[key] = definition with { Loop = Playback(key) != 0, PingPong = Playback(key) == 2 };
+                definitions[key] = entries;
             }
             var sprite = manifest.SpriteSheet;
             if (staticClips.Count > 0 || clips["idle"] != sourceClips.GetValueOrDefault("idle"))
@@ -116,18 +135,22 @@ public sealed partial class CustomPetDraft
                 CopyCell(idle, 0, 0, 0, idle.Width, idle.Height);
                 for (var index = 0; index < sprite.Columns * sprite.Rows; index++)
                     CopyCell(source, index + 1, index % sprite.Columns * sprite.FrameWidth, index / sprite.Columns * sprite.FrameHeight, sprite.FrameWidth, sprite.FrameHeight);
-                foreach (var key in definitions.Keys.ToArray())
-                    if (definitions[key].Gif is null) definitions[key] = definitions[key] with { Frames = definitions[key].Frames!.Select(index => index + 1).ToArray() };
+                foreach (var entries in definitions.Values)
+                    for (var slot = 0; slot < entries.Length; slot++)
+                        if (entries[slot] is { Gif: null } entry) entries[slot] = entry with { Frames = entry.Frames!.Select(index => index + 1).ToArray() };
                 for (var index = 0; index < staticClips.Count; index++)
                 {
-                    var (key, clip) = staticClips[index]; var image = clip.Thumbnail; var cell = 1 + sprite.Columns * sprite.Rows + index;
+                    var (key, slot, clip) = staticClips[index]; var image = clip.Thumbnail; var cell = 1 + sprite.Columns * sprite.Rows + index;
                     CopyCell(image, cell, 0, 0, image.Width, image.Height);
-                    definitions[key] = new([cell], 1, Loop: Playback(key) != 0, PingPong: Playback(key) == 2);
+                    definitions[key][slot] = new([cell], 1);
                 }
                 var file = $"edited-{Guid.NewGuid():N}.png";
                 AtomicFile.Write(Path.Combine(directory, file), ImageCodec.EncodePng(sheet)); sprite = new(file, columns, rows, width, height);
             }
-            var updated = manifest with { Name = name, SpriteSheet = sprite, Animations = definitions };
+            var animations = definitions.ToDictionary(pair => pair.Key, pair => WithFiles(
+                pair.Value[0]! with { Loop = Playback(pair.Key) != 0, PingPong = Playback(pair.Key) == 2 },
+                pair.Value.Skip(1).Select(entry => entry!).ToArray(), Order(pair.Key)), StringComparer.Ordinal);
+            var updated = manifest with { Name = name, SpriteSheet = sprite, Animations = animations };
             AtomicFile.Write(Path.Combine(directory, "character.json"), JsonSerializer.SerializeToUtf8Bytes(updated, CharacterLibrary.JsonOptions));
             var archive = Path.Combine(root, "edited.unfoldpet"); CharacterPack.Create(directory, contentVersion.ToString(3), archive);
             AtomicFile.Write(outputPath, ImageCodec.ReadBounded(archive, CharacterPack.MaxArchiveBytes));

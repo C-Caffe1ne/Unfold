@@ -64,6 +64,13 @@ public static partial class L
         ["허용 범위"] = new("Tolerance", "許容範囲", "容差"),
         ["발 위치 맞춤"] = new("Align feet", "足の位置をそろえる", "对齐脚部位置"),
         ["배경을 정리하고 있어요…"] = new("Cleaning up the background…", "背景を整えています…", "正在处理背景…"),
+        // Several files per action
+        ["한 상황에는 파일을 4개까지 넣을 수 있어요."] = new("Each situation can hold up to 4 files.", "1つの状況には4つまでファイルを入れられます。", "每个情境最多可放 4 个文件。"),
+        ["다른 파일 추가"] = new("Add another file", "別のファイルを追加", "添加其他文件"),
+        ["재생 순서"] = new("Play order", "再生順", "播放顺序"),
+        ["무작위"] = new("Random", "ランダム", "随机"),
+        ["차례대로"] = new("In order", "順番に", "按顺序"),
+        ["{0} 재생"] = new("Play {0}", "{0}を再生", "播放 {0}"),
         ["배경을 지우면 빈 프레임이 생겨요. 허용 범위를 낮춰 주세요."] = new("Removing the background leaves an empty frame. Lower the tolerance.", "背景を消すと空のフレームができます。許容範囲を下げてください。", "移除背景后会出现空白帧。请降低容差。"),
         ["배경 지우기에 필요한 변환 도구가 없어요."] = new("The conversion tool needed to remove backgrounds is missing.", "背景を消すための変換ツールがありません。", "缺少移除背景所需的转换工具。"),
         ["배경을 지운 파일을 만들지 못했어요."] = new("Couldn't create the file with the background removed.", "背景を消したファイルを作成できませんでした。", "无法生成已移除背景的文件。"),

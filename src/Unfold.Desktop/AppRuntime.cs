@@ -56,6 +56,7 @@ public sealed partial class AppRuntime : IDisposable
     private readonly DispatcherTimer noticeExpiryTimer = new();
     private TimeSpan? scheduledNoticeExpiry;
     private readonly AnimationClipCache clips = new();
+    private readonly ClipVariantPicker clipVariants = new(Random.Shared);
     private readonly List<CharacterPackage> builtIns = [];
     private TrayIcon? tray;
     private NativeMenuItem? trayStatus, trayPause, trayPet, trayFocusReminder;
@@ -428,12 +429,15 @@ public sealed partial class AppRuntime : IDisposable
     private Task<IReadOnlyList<AnimationFrame>> Clip(CharacterPackage? selected, string key)
     {
         if (selected is null) return Task.FromResult<IReadOnlyList<AnimationFrame>>([]);
-        var cacheKey = $"{selected.DirectoryPath}:{key}";
+        // An action with several files picks one each time it starts playing.
+        var variant = clipVariants.Next($"{selected.DirectoryPath}:{key}", selected.VariantCount(key),
+            selected.Manifest.Animations.GetValueOrDefault(key)?.Order);
+        var cacheKey = variant == 0 ? $"{selected.DirectoryPath}:{key}" : $"{selected.DirectoryPath}:{key}#{variant}";
         // Sharing the in-flight task prevents the pet and settings preview
         // from decoding/uploading the same source independently on startup.
         // Retry a failed decode on the next request. No completion callback may evict
         // a newer task after Reload/character changes have replaced this cache entry.
-        return clips.Get(cacheKey, () => selected.LoadAnimation(key));
+        return clips.Get(cacheKey, () => selected.LoadAnimation(key, variant));
     }
     private async Task UpdatePet()
     {

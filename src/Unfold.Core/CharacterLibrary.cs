@@ -3,7 +3,15 @@ using System.Text.Json;
 namespace Unfold.Core;
 
 public sealed record SheetDefinition(string File, int Columns, int Rows, int FrameWidth, int FrameHeight);
-public sealed record AnimationDefinition(int[]? Frames = null, double? Fps = null, string? Gif = null, bool Loop = true, bool PingPong = false, string? ModelClip = null, double Speed = 1, float? Heading = null, GlbRotation? Rotation = null);
+/// <summary>
+/// One action's clip. <see cref="Variants"/> lists up to three more files for the same action (sprite frames or a GIF);
+/// <see cref="Order"/> is <c>random</c> (default) or <c>sequence</c>. Apps that predate them play only this first file.
+/// </summary>
+public sealed record AnimationDefinition(int[]? Frames = null, double? Fps = null, string? Gif = null, bool Loop = true, bool PingPong = false, string? ModelClip = null, double Speed = 1, float? Heading = null, GlbRotation? Rotation = null,
+    AnimationDefinition[]? Variants = null, string? Order = null)
+{
+    public const int MaxFiles = 4;
+}
 public sealed record CharacterManifest(string Id, string Name, int Version, SheetDefinition SpriteSheet,
     Dictionary<string, AnimationDefinition> Animations, string? ThumbnailSymbol = null, string? RenderStyle = null,
     string? BehaviorProfile = null, GlbDefinition? Model = null);
@@ -71,10 +79,15 @@ public sealed class CharacterPackage
         DirectoryPath = directory; Manifest = manifest; IsBuiltIn = builtIn;
         if (validatedStill is not null) StillImage = validatedStill;
     }
-    public IReadOnlyList<AnimationFrame> LoadAnimation(string key)
+    public int VariantCount(string key) =>
+        IsGlb || !Manifest.Animations.TryGetValue(key, out var definition) ? 1 : 1 + (definition.Variants?.Length ?? 0);
+    public IReadOnlyList<AnimationFrame> LoadAnimation(string key) => LoadAnimation(key, 0);
+    /// <summary>Loads file <paramref name="variant"/> of an action: 0 is the first file, 1.. its <see cref="AnimationDefinition.Variants"/>.</summary>
+    public IReadOnlyList<AnimationFrame> LoadAnimation(string key, int variant)
     {
         if (!Manifest.Animations.TryGetValue(key, out var definition)) definition = Manifest.Animations["idle"];
         if (IsGlb) return Model.CreateAnimation(definition.ModelClip!, Manifest.Model!.ForAnimation(definition), Manifest.Animations["idle"].ModelClip!, definition.Speed);
+        if (variant > 0 && definition.Variants is { } variants && variant <= variants.Length) definition = variants[variant - 1];
         if (definition.Gif is not null)
             return ImageCodec.DecodeGif(ImageCodec.ReadBounded(CharacterLibrary.AssetPath(DirectoryPath, definition.Gif)));
         var sprite = Manifest.SpriteSheet;
@@ -154,6 +167,7 @@ public sealed partial class CharacterLibrary
             if (new FileInfo(path).Length > ImageCodec.MaxFileBytes) throw new InvalidDataException("GLB file exceeds 32 MiB.");
             foreach (var definition in manifest.Animations.Values)
                 if (definition is null || definition.ModelClip is null || !double.IsFinite(definition.Speed) || definition.Speed is < .25 or > 3 || definition.PingPong ||
+                    definition.Variants is not null || definition.Order is not null ||
                     definition.Heading is { } heading && (!float.IsFinite(heading) || heading is < -180 or > 180) ||
                     definition.Rotation is { IsValid: false })
                     throw new InvalidDataException("Invalid GLB animation mapping.");
@@ -162,12 +176,24 @@ public sealed partial class CharacterLibrary
             if (loadModel) _ = package.Model;
             return package;
         }
-        foreach (var animation in manifest.Animations.Values)
+        void ValidateClip(AnimationDefinition? animation)
         {
             if (animation is null) throw new InvalidDataException("Missing animation.");
             if (animation.Gif is not null) { _ = AssetPath(directory, animation.Gif); if (!File.Exists(AssetPath(directory, animation.Gif))) throw new FileNotFoundException("Missing GIF."); }
             else if (animation.Frames is not { Length: > 0 and <= 4096 } || animation.Frames.Any(f => f < 0 || f >= s.Columns * s.Rows) ||
                 animation.Fps is not double fps || !double.IsFinite(fps) || fps is < 1 or > 120) throw new InvalidDataException("Invalid sprite animation.");
+        }
+        foreach (var animation in manifest.Animations.Values)
+        {
+            ValidateClip(animation);
+            if (animation.Order is not (null or "random" or "sequence")) throw new InvalidDataException("Invalid file order.");
+            if (animation.Variants is null) continue;
+            if (animation.Variants.Length is < 1 or >= AnimationDefinition.MaxFiles) throw new InvalidDataException("An action supports at most 4 files.");
+            foreach (var variant in animation.Variants)
+            {
+                ValidateClip(variant);
+                if (variant.Variants is not null || variant.ModelClip is not null || variant.Order is not null) throw new InvalidDataException("Invalid action file.");
+            }
         }
         return package;
     }

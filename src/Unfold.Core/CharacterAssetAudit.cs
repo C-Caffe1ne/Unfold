@@ -51,9 +51,11 @@ public static class CharacterAssetAudit
             {
                 if (!CharacterLibrary.SafeId(key)) errors.Add($"Invalid animation key: {key}");
                 if (definition.Gif is not null) paths.Add(definition.Gif);
+                foreach (var file in definition.Variants ?? []) if (file.Gif is not null) paths.Add(file.Gif);
+                for (var variant = 0; variant < package.VariantCount(key); variant++)
                 try
                 {
-                    var frames = package.LoadAnimation(key);
+                    var frames = package.LoadAnimation(key, variant);
                     var first = frames[0].Image;
                     if (frames is GlbAnimationFrames live)
                     {
@@ -74,7 +76,7 @@ public static class CharacterAssetAudit
                         warnings.Add(L.F("{0}: 동작별 이미지 크기가 달라요. 위치와 크기가 자연스러운지 확인해 주세요.", key));
                     if (OneShots.Contains(key) && duration > 10000) warnings.Add(L.F("{0}: 반응이 10초보다 길어요.", key));
                 }
-                catch (Exception error) when (IsAssetError(error)) { errors.Add($"{key}: {error.Message}"); }
+                catch (Exception error) when (IsAssetError(error)) { errors.Add($"{(variant == 0 ? key : $"{key}#{variant + 1}")}: {error.Message}"); }
             }
             foreach (var path in paths.Order(StringComparer.Ordinal))
             {

@@ -95,19 +95,18 @@ public sealed partial class CustomPetDraft
         "idle" => L.T("기본"), "attention" => L.T("알림"), "stretch" => L.T("휴식"),
         "celebrate" => L.T("휴식 완료"), "click" => L.T("클릭 반응"), "pointerDown" => L.T("마우스 눌림"), "pointerUp" => L.T("마우스 뗌"), _ => GlbPetDraft.ActionName(key)
     };
+    /// <summary>Sets an action's first file. A new file starts without the action's previous cleanup.</summary>
     public void SetClip(string action, ImportedPetClip clip)
     {
+        var previous = clips.GetValueOrDefault(action);
         PutClip(action, clip);
-        processed.Remove(action); // A new file starts without the previous file's cleanup.
+        if (previous is not null) originals.Remove(previous);
+        ResetCleanup(action);
     }
     private void PutClip(string action, ImportedPetClip clip)
     {
         if (!AvailableActions.Contains(action)) throw new ArgumentException(L.T("지원하지 않는 동작이에요."));
-        var others = clips.Where(pair => pair.Key != action).Select(pair => pair.Value).ToArray();
-        if (others.Sum(item => item.DecodedBytes) + clip.DecodedBytes > ImageCodec.MaxDecodedAnimationBytes)
-            throw new InvalidDataException(L.T("펫의 전체 애니메이션이 너무 커요. 이미지 크기나 프레임 수를 줄여 주세요. (최대 128 MiB)"));
-        if (sourceManifest is null && others.Sum(item => (long)item.FileBytes) + clip.FileBytes > CharacterPack.MaxArchiveBytes - ImageCodec.MaxFileBytes - 64 * 1024)
-            throw new InvalidDataException(L.T("펫 팩의 파일 용량이 너무 커요. 더 작은 파일을 선택해 주세요."));
+        CheckBudget(clip, clips.GetValueOrDefault(action));
         clips[action] = clip;
     }
     private readonly Dictionary<string, int> playback = [];
@@ -117,7 +116,12 @@ public sealed partial class CustomPetDraft
         if (!AvailableActions.Contains(action) || mode is < 0 or > 2) throw new ArgumentException(L.T("잘못된 재생 설정이에요."));
         playback[action] = mode;
     }
-    public void RemoveClip(string action) { clips.Remove(action); playback.Remove(action); processed.Remove(action); }
+    /// <summary>Removes every file of an action with its settings.</summary>
+    public void RemoveClip(string action)
+    {
+        foreach (var file in Files(action)) originals.Remove(file);
+        clips.Remove(action); extras.Remove(action); orders.Remove(action); playback.Remove(action); processed.Remove(action);
+    }
     public void Export(string name, string outputPath)
     {
         if (string.IsNullOrWhiteSpace(name) || name.Trim().Length > 80)
@@ -128,14 +132,21 @@ public sealed partial class CustomPetDraft
         var directory = Path.Combine(root, Id); Directory.CreateDirectory(directory);
         try
         {
-            foreach (var (key, clip) in clips.Where(pair => !pair.Value.IsStillImage)) clip.Write(Path.Combine(directory, key + ".gif"));
+            // File n of an action (n ≥ 2) is "{action}-{n}.gif"; still files become sheet cells "{action}#{n}".
+            static string Cell(string key, int index) => index == 0 ? key : $"{key}#{index + 1}";
+            static string GifName(string key, int index) => index == 0 ? key + ".gif" : $"{key}-{index + 1}.gif";
+            var files = clips.Keys.ToDictionary(key => key, Files, StringComparer.Ordinal);
+            foreach (var (key, list) in files)
+                for (var index = 0; index < list.Count; index++)
+                    if (!list[index].IsStillImage) list[index].Write(Path.Combine(directory, GifName(key, index)));
             var cells = new List<(string Key, PixelImage Image)> { ("idle", idle.Thumbnail) };
-            if (clips.Values.Any(clip => clip.IsStillImage))
+            if (AllFiles.Any(clip => clip.IsStillImage))
             {
                 // Keep the existing version-1 sheet/GIF contract; static actions use one sheet frame.
                 if (!idle.IsStillImage) cells[0] = ("idle", ImageCodec.DecodePetImage(ImageCodec.EncodePng(cells[0].Image)));
-                cells.AddRange(clips.Where(pair => pair.Key != "idle" && pair.Value.IsStillImage)
-                    .Select(pair => (pair.Key, pair.Value.Thumbnail)));
+                foreach (var (key, list) in files)
+                    for (var index = 0; index < list.Count; index++)
+                        if (list[index].IsStillImage && (key, index) != ("idle", 0)) cells.Add((Cell(key, index), list[index].Thumbnail));
             }
             var width = cells.Max(cell => cell.Image.Width); var height = cells.Max(cell => cell.Image.Height);
             var sheet = new PixelImage(width * cells.Count, height, new uint[width * cells.Count * height]);
@@ -146,11 +157,14 @@ public sealed partial class CustomPetDraft
                     Array.Copy(image.Pixels, row * image.Width, sheet.Pixels, (y + row) * sheet.Width + x, image.Width);
             }
             AtomicFile.Write(Path.Combine(directory, "spritesheet.png"), ImageCodec.EncodePng(sheet));
+            AnimationDefinition Definition(string key, int index, ImportedPetClip clip) => clip.IsStillImage
+                ? new(Frames: [cells.FindIndex(cell => cell.Key == Cell(key, index))], Fps: 1)
+                : new(Gif: GifName(key, index));
             var manifest = new CharacterManifest(Id, name.Trim(), 1,
                 new("spritesheet.png", cells.Count, 1, width, height),
-                clips.ToDictionary(pair => pair.Key, pair => pair.Value.IsStillImage
-                    ? new AnimationDefinition(Frames: [cells.FindIndex(cell => cell.Key == pair.Key)], Fps: 1, Loop: Playback(pair.Key) != 0, PingPong: Playback(pair.Key) == 2)
-                    : new AnimationDefinition(Gif: pair.Key + ".gif", Loop: Playback(pair.Key) != 0, PingPong: Playback(pair.Key) == 2)),
+                files.ToDictionary(pair => pair.Key, pair => WithFiles(Definition(pair.Key, 0, pair.Value[0])
+                    with { Loop = Playback(pair.Key) != 0, PingPong = Playback(pair.Key) == 2 },
+                    pair.Value.Skip(1).Select((clip, offset) => Definition(pair.Key, offset + 1, clip)).ToArray(), Order(pair.Key))),
                 RenderStyle: "smooth");
             AtomicFile.Write(Path.Combine(directory, "character.json"), JsonSerializer.SerializeToUtf8Bytes(manifest, CharacterLibrary.JsonOptions));
             var archive = Path.Combine(root, "custom.unfoldpet");

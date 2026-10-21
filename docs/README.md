@@ -36,6 +36,7 @@ v1.2.1 정식 배포: [릴리스 노트](releases/v1.2.1.md) · [배포 검증](
 
 | 문서 | 역할 |
 |---|---|
+| [던지기·배경 지우기·행동별 여러 파일](validation/2026-10-21-pet-throw-media.md) | `codex/pet-throw-media`의 세 기능, 1,236개 검사·기존 실패 1건 수정, 시작 커밋에서도 실패하는 macOS 진단과 미관찰 범위 |
 | [Lemon 스토어 직접 구매 → 권한 연결](validation/2026-10-20-lemon-store-purchase.md) | 구매자 이메일의 확인된 Google 계정에 연결, 52개 검사·운영 상품 모의, 운영 마이그레이션·웹훅 v22 적용과 사후 확인 |
 | [Lemon 결제 → 앱 권한 확인](validation/2026-10-20-lemon-entitlement-check.md) | 실제 결제 없이 운영 함수·DB 일치, USD 세 가지 세금 방식의 권한 반영, 스토어 직접 구매 시 권한 미부여 위험 |
 | [v1.2.1 정식 배포](validation/2026-10-20-v1.2.1-release.md) | 서명·공증, 공개 자산 16개·업데이트 피드, Windows CI 제목 표시줄 결과, 웹·노션 패치노트와 미검증 범위 |
