@@ -36,7 +36,7 @@ public class StaticPetMediaTests
         canvas.DrawRect(0, 0, width / 2, height / 2, paint);
         using var data = bitmap.Encode(extension switch
         {
-            ".jpg" or ".jpeg" => SKEncodedImageFormat.Jpeg,
+            ".jpg" or ".jpeg" or ".jfif" => SKEncodedImageFormat.Jpeg,
             ".webp" => SKEncodedImageFormat.Webp, _ => SKEncodedImageFormat.Png
         }, 100);
         return data.ToArray();
@@ -46,6 +46,7 @@ public class StaticPetMediaTests
     [InlineData(".png")]
     [InlineData(".jpg")]
     [InlineData(".jpeg")]
+    [InlineData(".jfif")]
     [InlineData(".webp")]
     [InlineData(".bmp")]
     [InlineData(".JPG")]

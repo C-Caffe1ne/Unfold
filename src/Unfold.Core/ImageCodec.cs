@@ -20,7 +20,8 @@ public static partial class ImageCodec
             throw new InvalidDataException(L.T("PNG, JPG, WEBP 또는 BMP 이미지를 선택해 주세요."));
         if (codec.EncodedFormat == SKEncodedImageFormat.Png && bytes.AsSpan().LastIndexOf(new byte[] { 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }) < 0)
             throw new InvalidDataException(L.T("손상되거나 완전하지 않은 이미지예요."));
-        if (codec.FrameCount > 1) throw new InvalidDataException(L.T("움직이는 이미지는 GIF 또는 MP4로 가져와 주세요."));
+        if (codec.FrameCount > 1 || ApngDecoder.IsAnimated(bytes))
+            throw new InvalidDataException(L.T("움직이는 이미지는 펫 파일 열기로 가져와 주세요."));
         var info = codec.Info;
         if (info.Width is < 1 or > 8192 || info.Height is < 1 or > 8192 || (long)info.Width * info.Height > 16 * 1024 * 1024)
             throw new InvalidDataException(L.T("이미지가 너무 커요. 1,600만 픽셀 이하로 줄여 주세요."));

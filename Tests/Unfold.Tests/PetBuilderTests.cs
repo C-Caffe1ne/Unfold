@@ -44,6 +44,32 @@ public class PetBuilderTests
         for (var i = 0; i < 500 && !ready(); i++) { await Task.Delay(10, TestContext.Current.CancellationToken); Dispatcher.UIThread.RunJobs(); }
         Assert.True(ready());
     }
+    [AvaloniaTheory]
+    [InlineData(".apng")] [InlineData(".png")] [InlineData(".webp")]
+    public async Task AnimatedImageFilesUseTheExistingBuilderAndRetainThePreviousClipOnImportFailure(string extension)
+    {
+        Assert.SkipUnless(AnimatedPetMediaTests.HasVideoTool, "Prepare media tools for animated images.");
+        using var editor = new Editor(); using var files = new TempDirectory();
+        var path = Path.Combine(files.Path, "움직임" + extension);
+        File.WriteAllBytes(path, extension == ".webp" ? AnimatedPetMediaTests.Webp() : AnimatedPetMediaTests.Apng());
+        await editor.Open(path);
+        Assert.Equal(Path.GetFileName(path), editor.Find<TextBlock>("CustomPetLabel_idle").Text);
+        Assert.NotNull(editor.Find<Image>("CustomPetThumbnail_idle").Source);
+        Assert.True(editor.Page.HasUnsavedDraft);
+        var media = editor.Window.GetVisualDescendants().OfType<CustomPetView>().Single();
+        var clip = media.Draft.Clips["idle"]; Assert.Equal(4, clip.FrameCount);
+        var thumbnail = editor.Find<Image>("CustomPetThumbnail_idle").Source;
+        var broken = Path.Combine(files.Path, "broken.apng"); File.WriteAllText(broken, "broken");
+        editor.FilePath = broken; editor.Press("CustomPetFile_idle");
+        await Until(() => editor.Window.OwnedWindows.Any());
+        editor.Window.OwnedWindows.Single().GetVisualDescendants().OfType<Button>()
+            .Single(button => Equals(button.Content, L.T("바꾸기"))).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        await Until(() => !editor.Page.IsBusy && !editor.Window.OwnedWindows.Any()); editor.Layout();
+        Assert.Equal(Path.GetFileName(path), editor.Find<TextBlock>("CustomPetLabel_idle").Text);
+        Assert.Same(clip, media.Draft.Clips["idle"]);
+        Assert.Same(thumbnail, editor.Find<Image>("CustomPetThumbnail_idle").Source);
+    }
+
     [AvaloniaFact]
     public async Task OneBuilderRoutesByExtensionAndKeepsDraftsAcrossNavigation()
     {

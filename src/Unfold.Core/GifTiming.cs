@@ -4,7 +4,7 @@ namespace Unfold.Core;
 public static class GifTiming
 {
     /// <summary>Sets frame <c>i</c>'s Graphic Control Extension delay to <paramref name="centiseconds"/>[i].</summary>
-    public static byte[] RewriteDelays(byte[] gif, IReadOnlyList<int> centiseconds)
+    public static byte[] RewriteDelays(byte[] gif, IReadOnlyList<int> centiseconds, bool clearBetweenFrames = false)
     {
         var data = gif.ToArray();
         if (data.Length < 13 || data[0] != 'G' || data[1] != 'I' || data[2] != 'F') throw new InvalidDataException("Expected a GIF.");
@@ -30,6 +30,8 @@ public static class GifTiming
                     if (pendingDelay is not { } delay || frame >= centiseconds.Count) throw new InvalidDataException("GIF frames do not match their timing.");
                     var value = Math.Clamp(centiseconds[frame], 2, ushort.MaxValue);
                     data[delay] = (byte)value; data[delay + 1] = (byte)(value >> 8);
+                    // Full-canvas frames must clear even when only a later frame uses transparency.
+                    if (clearBetweenFrames) data[delay - 1] = (byte)((data[delay - 1] & ~0x1c) | 0x08);
                     pendingDelay = null; frame++;
                     break;
                 case 0x3B:

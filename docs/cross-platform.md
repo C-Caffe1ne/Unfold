@@ -3,9 +3,9 @@
 Unfold is a C#/.NET 10 and Avalonia stretch reminder with desktop pets. Published
 packages include .NET. Swift, Xcode, and the Piskel web runtime are not required.
 
-This document describes **v1.2.1** (`1.2.1`, tag `v1.2.1`), the stable release.
-It adds four UI languages, initial language selection, automatic 1% GLB element outlines,
-a seamless speech-bubble contour and rest countdown digit motion.
+This document describes **v1.3.0** (`1.3.0`, tag `v1.3.0`), the stable release.
+It adds a searchable pet library, favorites, per-pet sizes, drag-and-throw interactions,
+media cleanup, multi-file actions and animated WebP/APNG plus common video imports.
 It includes Mochi (cat), 보리 (rabbit), 강아지 (dog), 고슴도치 (hedgehog)
 and 펭귄 (penguin). Choose them from Home without installing separate packs.
 When `docs/releases/v<version>.md` exists, packaging includes it as `RELEASE-NOTES.md` in the Windows portable/installed
@@ -18,8 +18,8 @@ store. Restart restores the session and verifies server access without another G
 sign-in or code entry. Logout deletes the stored credential. Network failure preserves it
 for retry but does not grant offline access.
 Windows code signing is pending. Public Mac distribution uses Developer ID signing and
-Apple notarization. See the [release notes](releases/v1.2.1.md)
-and [release verification](validation/2026-10-20-v1.2.1-release.md).
+Apple notarization. See the [release notes](releases/v1.3.0.md)
+and [release verification](validation/2026-10-22-v1.3.0-release.md).
 The release verification records the checks completed for this source and their target-OS limits.
 Beta v1.0.3 and later managed installations can check for updates from the tray/menu bar;
 Beta v1.1.1 and later also provide **설정 → 앱 정보 → 업데이트 확인**.
@@ -74,7 +74,7 @@ and `UNFOLD_NOTARY_PROFILE` to select a local notarytool keychain profile. The b
 script signs all nested native files, submits the app and staples its ticket, then
 creates, notarizes and staples the DMG. Rejection stops packaging. Credentials are
 never stored in the repository. `UNFOLD_NOTARY_LOG_DIR` selects the diagnostic log folder.
-Use the `-notarized-installer.zip` Mac assets for the signed v1.2.1 distribution;
+Use the `-notarized-installer.zip` Mac assets for the signed v1.3.0 distribution;
 the earlier Mac installer ZIPs remain available as historical ad-hoc builds.
 
 ## Visible controls

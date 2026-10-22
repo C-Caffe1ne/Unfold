@@ -121,7 +121,6 @@ public static partial class L
         ["이미지 파일을 읽지 못했어요."] = new("Couldn't read the image file.", "画像ファイルを読み込めませんでした。", "无法读取图片文件。"),
         ["PNG, JPG, WEBP 또는 BMP 이미지를 선택해 주세요."] = new("Choose a PNG, JPG, WEBP, or BMP image.", "PNG、JPG、WEBP、BMPのいずれかの画像を選択してください。", "请选择 PNG、JPG、WEBP 或 BMP 图片。"),
         ["손상되거나 완전하지 않은 이미지예요."] = new("The image is damaged or incomplete.", "破損しているか不完全な画像です。", "图片已损坏或不完整。"),
-        ["움직이는 이미지는 GIF 또는 MP4로 가져와 주세요."] = new("Import animated images as GIF or MP4.", "動く画像はGIFまたはMP4で読み込んでください。", "动态图片请以 GIF 或 MP4 导入。"),
         ["이미지가 너무 커요. 1,600만 픽셀 이하로 줄여 주세요."] = new("The image is too large. Reduce it to 16 million pixels or fewer.", "画像が大きすぎます。1,600万ピクセル以下に縮小してください。", "图片过大。请缩小到 1600 万像素以内。"),
         ["이미지 크기를 조절하지 못했어요."] = new("Couldn't resize the image.", "画像のサイズを調整できませんでした。", "无法调整图片尺寸。"),
         // ReminderSounds
@@ -336,13 +335,18 @@ public static partial class L
         ["펫 {0}"] = new("{0} pet", "ペットを{0}", "{0}宠物"),
         ["펫 관리"] = new("Pets", "ペット管理", "宠物管理"),
         // PetMediaImporter
+        ["움직이는 이미지의 크기나 프레임 수가 너무 커요."] = new("The animated image is too large or has too many frames.", "アニメーション画像が大きすぎるか、フレーム数が多すぎます。", "动态图片过大或帧数过多。"),
+        ["움직이는 이미지의 프레임 시간이 너무 길어요."] = new("An animation frame lasts too long.", "アニメーションのフレーム表示時間が長すぎます。", "动态图片的单帧时长过长。"),
+        ["움직이는 이미지는 펫 파일 열기로 가져와 주세요."] = new("Import animated images through the pet file picker.", "アニメーション画像はペットのファイル選択から読み込んでください。", "请通过宠物文件选择器导入动态图片。"),
+        ["움직이는 이미지를 변환하지 못했어요."] = new("Couldn't convert the animated image.", "アニメーション画像を変換できませんでした。", "无法转换动态图片。"),
+        ["이미지 변환 시간이 초과됐어요. 더 짧거나 작은 파일을 선택해 주세요."] = new("Image conversion timed out. Choose a shorter or smaller file.", "画像の変換がタイムアウトしました。より短いか小さいファイルを選択してください。", "图片转换超时。请选择更短或更小的文件。"),
+        ["지원하는 파일을 선택해 주세요: {0}"] = new("Choose a supported file: {0}", "対応するファイルを選択してください：{0}", "请选择支持的文件：{0}"),
+        ["영상은 128 MiB 이하의 파일을 선택해 주세요."] = new("Choose a video of 128 MiB or less.", "動画は128 MiB以下のファイルを選択してください。", "请选择不超过 128 MiB 的视频。"),
+        ["미디어 변환 도구가 없어요. 변환 도구가 포함된 배포본을 사용해 주세요."] = new("The media converter is missing. Use a build that includes it.", "メディア変換ツールがありません。変換ツールを含む配布版を使用してください。", "缺少媒体转换工具。请使用包含该工具的发行版本。"),
+        ["영상을 읽지 못했어요. 지원하는 코덱의 영상인지 확인해 주세요."] = new("Couldn't read the video. Check that its codec is supported.", "動画を読み込めませんでした。対応するコーデックの動画か確認してください。", "无法读取视频。请确认视频使用受支持的编解码器。"),
+        ["영상 변환 시간이 초과됐어요. 더 짧거나 작은 영상을 선택해 주세요."] = new("Video conversion timed out. Choose a shorter or smaller video.", "動画の変換がタイムアウトしました。より短いか小さい動画を選択してください。", "视频转换超时。请选择更短或更小的视频。"),
+        ["영상은 10초 이하로 선택해 주세요. 파일을 자동으로 자르지는 않아요."] = new("Choose a video of 10 seconds or less. Files aren't trimmed automatically.", "動画は10秒以下を選択してください。ファイルは自動ではカットされません。", "请选择 10 秒以内的视频。文件不会被自动剪切。"),
         ["GIF는 32 MiB 이하의 파일을 선택해 주세요."] = new("Choose a GIF of 32 MiB or less.", "GIFは32 MiB以下のファイルを選択してください。", "请选择 32 MiB 以下的 GIF 文件。"),
-        ["MP4는 128 MiB 이하의 파일을 선택해 주세요."] = new("Choose an MP4 of 128 MiB or less.", "MP4は128 MiB以下のファイルを選択してください。", "请选择 128 MiB 以下的 MP4 文件。"),
-        ["GIF, MP4, PNG, JPG, WEBP 또는 BMP 파일을 선택해 주세요."] = new("Choose a GIF, MP4, PNG, JPG, WEBP, or BMP file.", "GIF、MP4、PNG、JPG、WEBP、BMPのいずれかのファイルを選択してください。", "请选择 GIF、MP4、PNG、JPG、WEBP 或 BMP 文件。"),
-        ["영상 변환 도구가 없는 앱이에요. MP4 지원 배포본을 사용하거나 GIF 파일을 가져와 주세요."] = new("This build has no video converter. Use a build with MP4 support or import a GIF.", "このアプリには動画変換ツールがありません。MP4対応版を使用するか、GIFファイルを読み込んでください。", "此版本没有视频转换工具。请使用支持 MP4 的版本，或导入 GIF 文件。"),
-        ["MP4를 읽지 못했어요. 재생 가능한 영상 파일인지 확인해 주세요."] = new("Couldn't read the MP4. Check that it's a playable video file.", "MP4を読み込めませんでした。再生できる動画ファイルか確認してください。", "无法读取 MP4。请确认它是可播放的视频文件。"),
-        ["영상 변환 시간이 초과됐어요. 더 짧거나 작은 MP4를 선택해 주세요."] = new("Video conversion timed out. Choose a shorter or smaller MP4.", "動画の変換がタイムアウトしました。もっと短いか小さいMP4を選択してください。", "视频转换超时。请选择更短或更小的 MP4。"),
-        ["MP4는 10초 이하의 영상으로 선택해 주세요. 파일을 자동으로 자르지는 않아요."] = new("Choose an MP4 of 10 seconds or less. Files aren't trimmed automatically.", "MP4は10秒以下の動画を選択してください。ファイルは自動ではカットされません。", "请选择 10 秒以内的 MP4。文件不会被自动剪切。"),
         // PetOverlayWindow
         ["Unfold · 펫 타이머"] = new("Unfold · Pet timer", "Unfold・ペットタイマー", "Unfold · 宠物计时器"),
         // PetSpeechBubble

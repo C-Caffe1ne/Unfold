@@ -17,8 +17,10 @@ public static class PetMediaProcessor
     /// <summary>GIF has one-bit transparency; FFmpeg writes per-frame palettes, then each delay is set from the source.
     /// Frames go in as raw BGRA because the bundled LGPL FFmpeg has no PNG decoder.</summary>
     internal static async Task<ImportedPetClip> EncodeGif(string fileName, IReadOnlyList<AnimationFrame> frames,
-        CancellationToken cancellationToken, string? executable = null)
+        CancellationToken cancellationToken, string? executable = null, string? failure = null, string? timeoutMessage = null)
     {
+        failure ??= L.T("배경을 지운 파일을 만들지 못했어요.");
+        timeoutMessage ??= L.T("배경 지우기 시간이 초과됐어요. 더 짧거나 작은 파일을 선택해 주세요.");
         executable ??= PetMediaImporter.FindFFmpeg() ?? throw new InvalidOperationException(L.T("배경 지우기에 필요한 변환 도구가 없어요."));
         var root = Path.Combine(Path.GetTempPath(), "Unfold-clean-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(root);
@@ -32,15 +34,14 @@ public static class PetMediaProcessor
                 "-protocol_whitelist", "file", "-f", "rawvideo", "-pixel_format", "bgra", "-video_size", $"{width}x{height}",
                 "-framerate", "100", "-i", input,
                 "-filter_complex", "split[a][b];[a]palettegen=reserve_transparent=1:stats_mode=single[p];[b][p]paletteuse=new=1:alpha_threshold=128",
-                "-fps_mode", "passthrough", "-loop", "0", "-f", "gif", output },
-                L.T("배경을 지운 파일을 만들지 못했어요."),
-                L.T("배경 지우기 시간이 초과됐어요. 더 짧거나 작은 파일을 선택해 주세요."), cancellationToken);
+                "-fps_mode", "passthrough", "-gifflags", "-offsetting-transdiff", "-loop", "0", "-f", "gif", output },
+                failure, timeoutMessage, cancellationToken);
             var delays = frames.Select(frame => (int)Math.Round(frame.Duration.TotalMilliseconds / 10)).ToArray();
             return await Task.Run(() =>
             {
                 byte[] timed;
-                try { timed = GifTiming.RewriteDelays(ImageCodec.ReadBounded(output), delays); }
-                catch (InvalidDataException error) { throw new InvalidDataException(L.T("배경을 지운 파일을 만들지 못했어요."), error); }
+                try { timed = GifTiming.RewriteDelays(ImageCodec.ReadBounded(output), delays, clearBetweenFrames: true); }
+                catch (InvalidDataException error) { throw new InvalidDataException(failure, error); }
                 return ImportedPetClip.FromGif(fileName, timed);
             }, cancellationToken);
         }

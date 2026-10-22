@@ -1,13 +1,13 @@
 # 문서 안내
 
-v1.2.1 정식 배포: [릴리스 노트](releases/v1.2.1.md) · [배포 검증](validation/2026-10-20-v1.2.1-release.md). 이전 v1.2.0: [릴리스 노트](releases/v1.2.0.md) · [배포 검증](validation/2026-10-15-v1.2.0-release.md).
+v1.3.0: [릴리스 노트](releases/v1.3.0.md) · [배포 검증](validation/2026-10-22-v1.3.0-release.md). 이전 v1.2.0: [릴리스 노트](releases/v1.2.0.md) · [배포 검증](validation/2026-10-15-v1.2.0-release.md).
 
 백엔드 관리: [보안 운영 절차](operations/backend-security.md), [적용·검증 결과](validation/2026-10-11-backend-security.md).
 운영 Live 결제의 pending 원인·웹훅 v21 배포·실제 결제 재전송과 앱 권한 조회 결과는 [Live 결제 복구](validation/2026-10-12-live-payment-pending.md)에 기록한다.
 
 새 세션·다른 IDE에서는 **[작업 인계](HANDOFF.md)**부터 읽는다. 기준 경로, 로컬에만 있는 커밋, 실행·저장 계약, 검증 근거와 다음 확인 순서를 모았다.
 
-현재 제품은 **C#·Avalonia 기반 Unfold v1.2.1**이다. 2026-10-20 동료 펫 P1 작업의 시작 소스는 `1.2.1`, HEAD `2de478a`이며, 작업 경로는 `/Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover`, 브랜치는 `codex/pet-overlay-hover`다.
+현재 배포 준비 제품은 **C#·Avalonia 기반 Unfold v1.3.0**이다. 아래는 이전 개발 기록이다. 2026-10-20 동료 펫 P1 작업의 시작 소스는 `1.2.1`, HEAD `2de478a`이며, 작업 경로는 `/Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover`, 브랜치는 `codex/pet-overlay-hover`다.
 기록된 최신 공개 배포본은 `v1.2.1` (제품 소스 `09c9e72`)이다. 배포 검사와 실제 OS·업데이트 미검증 범위는 [배포 검증](validation/2026-10-20-v1.2.1-release.md)에 있다.
 [동료 펫 P1 실행 계획](plans/2026-10-20-companion-p1.md)의 S1 펫별 크기·즐겨찾기, S2 로컬 라이브러리, S3 선택형 CPU·메모리 정보, S4 미니바 빠른 메뉴를 구현했다. 구현 단계의 Release 빌드와 214개 검사, 후속 포커스 수정의 8개 검사가 통과했다. [실제 macOS QA](validation/2026-10-20-companion-p1-macos.md)와 [포커스 수정·재검증](validation/2026-10-21-favorite-focus.md)까지 완료해 관련 변경을 로컬 커밋으로 정리했다. 버전은 `1.2.1`이며 미푸시·미배포 상태다. Windows·잠자기·장시간 사용은 미검증이다.
 
@@ -175,6 +175,7 @@ v1.2.1 정식 배포: [릴리스 노트](releases/v1.2.1.md) · [배포 검증](
 | [기존 루틴·프로필 호환과 회고](personalization.md) | 제거된 설정 UI의 데이터 보존 경계와 현재 주간 회고/CSV |
 | [펫 리소스 관리](pet-resources.md) | 제작 원장, 런타임 계약, 품질 기준과 검사 명령 |
 | [펫 추가·커스텀 팩 만들기](pet-packs.md) | 이미지·GIF·MP4 동작 배정, 팩 생성·미리보기·설치·업데이트·재설치, ZIP/버전/해시 계약 |
+| [미디어 형식 조사·구현](validation/2026-10-22-media-formats.md) | WebP·APNG 애니메이션, MOV·M4V·WebM·MKV·AVI 가져오기와 제한 |
 | [이미지·MP3 가져오기 검증](validation/2026-09-30-media-import.md) | 정지 이미지·사진·효과음 확장, 464개 검사와 macOS 변환·재생 확인 |
 | [전체·개별 소리 크기 검증](validation/2026-09-30-sound-mixer.md) | 세 슬라이더·개별 미리듣기, 저장 호환성, 474개 검사와 macOS 재생 확인 |
 | [소리 아이콘 검증](validation/2026-09-30-sound-icons.md) | 재생·중지 전환, 세 음량 아이콘, 퍼센트 제거와 최종 477개 검사 |

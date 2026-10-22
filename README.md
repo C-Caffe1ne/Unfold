@@ -1,8 +1,8 @@
 # Unfold
 
-**v1.2.0** · C#/.NET 10 · Avalonia · macOS / Windows
+**v1.3.0** · C#/.NET 10 · Avalonia · macOS / Windows
 
-Stable release: [v1.2.0](https://github.com/C-Caffe1ne/Unfold/releases/tag/v1.2.0) · [changes](docs/releases/v1.2.0.md).
+Stable release: [v1.3.0](https://github.com/C-Caffe1ne/Unfold/releases/tag/v1.3.0) · [changes](docs/releases/v1.3.0.md).
 Read [the handoff](docs/HANDOFF.md) before continuing in another session or IDE.
 
 A small desktop companion that reminds you to stretch while you work.
@@ -39,7 +39,7 @@ Closing Settings keeps Unfold running. Use **Unfold 종료** in the tray menu to
 - A 1–240 minute timer with time adjustment while stopped, automatic saving and animated number changes.
 - Running/paused/stopped controls on Home and beside the pet. Stop resets immediately to the saved interval with a number transition.
 - Four color themes with Lilac as the default, Korean, English, Japanese and Chinese UI with custom SVG icons.
-- Custom pets from GLB, GIF/MP4 or still images, with automatic thin element outlines for GLB, editing and confirmed deletion of installed custom pets.
+- Custom pets from GLB, GIF/WebP/APNG animations, common videos (MP4/MOV/M4V/WebM/MKV/AVI), or still images, with automatic thin element outlines for GLB, editing and confirmed deletion of installed custom pets.
 - WAV/MP3/OGG effects, percentage volume displays and previews that finish naturally.
 - Startup update notices with release notes when a newer version is available.
 - Google sign-in, checkout/purchase-confirmation screens, email display and sign-out.
