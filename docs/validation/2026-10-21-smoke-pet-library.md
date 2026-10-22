@@ -8,7 +8,9 @@
 펫 라이브러리 개편 후 펫 관리는 '내 펫' 라이브러리에서 시작한다. 하지만 진단은 빌더가 바로 열린다고 가정했다.
 이 가정은 이후 단계에도 있었다. 펫 탭에서 진단 앞부분에 열어 둔 빌더가 남아 있다고 보거나, 새 `PetManagementView`가 빌더로 열린다고 봤다.
 
-## 변경 (`src/Unfold.Desktop/SmokeDiagnostics.cs`만)
+## 변경
+
+`src/Unfold.Desktop/SmokeDiagnostics.cs`를 고쳤다. 같은 가정 때문에 실패한 `PurchaseGateTests` 한 줄은 `codex/pet-throw-media`와 동일하게 고쳤다.
 
 - `OpenPetBuilder`·`ReturnToPetLibrary` 도우미를 추가했다. 앱과 같은 `PetLibraryCreate`·`PetLibraryBack` 버튼으로 이동한다. 헤드리스 `PetLibraryTestNavigation.OpenBuilder`와 같은 방식이다.
 - 설정 레이아웃 단계에서는 먼저 창 안에 라이브러리가 열렸는지 확인한다. 빌더가 없고 `PetLibrarySearch`가 있어야 한다. 이 화면을 `settings-pet-library-tab.png`로 캡처한 뒤 빌더를 연다. 초안 정리 후에는 라이브러리로 돌아간다. 보고서에는 `petManagementLibraryFirstVerified` 필드를 추가했다.
@@ -33,9 +35,10 @@
 
 ## 자동 검사
 
-- `dotnet build src/Unfold.Desktop -c Release`: 경고 0개, 오류 0개
-- `dotnet test Unfold.slnx`: 실행을 시작했지만 이 기록을 작성할 때까지 결과를 확인하지 못했다.
-  참고로 같은 기준에서 `PurchaseGateTests`는 라이브러리 개편 전 가정 때문에 실패할 수 있다(`codex/pet-throw-media`에서 수정됨).
-- 솔루션 전체 Release 빌드: 아직 실행하지 않았다.
+- `dotnet test Unfold.slnx`(진단 수정 후): 1,199개 중 **1,198개 통과, 1개 실패**, 5분 16초.
+  실패는 `PurchaseGateTests.LockedQuitDraftGuardUsesAccountModalAndCannotRevealHome`이며, 이 테스트도 펫 관리가 빌더로 바로 열린다고 가정했다.
+- 그 테스트에 `PetLibraryTestNavigation.OpenBuilder(scope.Home)`를 추가한 뒤 `PurchaseGateTests` 11개가 모두 통과했다. 나머지 1,188개는 제품 코드가 같으므로 다시 실행하지 않았다.
+- `dotnet build Unfold.slnx -c Release --no-incremental`: Core·Desktop·Tests 3개 프로젝트, 경고 0개, 오류 0개
+- `git diff --check` 통과
 
 Windows는 미검증이다.
