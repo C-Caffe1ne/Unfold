@@ -17,7 +17,15 @@
 - 전체 `dotnet test Unfold.slnx`: **1,236 통과**, 실패 1. 실패한 `PurchaseGateTests.LockedQuitDraftGuardUsesAccountModalAndCannotRevealHome`은 시작 커밋 `9d01b7d`에서도 같은 이유로 실패했다(펫 관리가 '내 펫' 목록으로 열림). 다른 검사처럼 `PetLibraryTestNavigation.OpenBuilder`를 거치도록 고친 뒤 해당 클래스 11개 통과.
 - 기존 검사 조정: 드래그 직후 위치를 바로 확인하던 호버 검사는 스프링이 자리 잡은 뒤 확인한다. 파일 배정 전후 카드 크기 검사는 스크롤바가 생기지 않도록 창 높이를 960으로 둔다.
 
+## 실제 macOS 진단
+
+macOS `--smoke-test`는 시작 커밋 `9d01b7d`에서도 설정 레이아웃 단계(펫 관리가 만들기 화면을 바로 연다는 이전 단정)에서 실패했다. [진단 수정](2026-10-21-smoke-pet-library.md) `claude/smoke-pet-library-builder`를 2026-10-22에 병합(`72c2686`)한 뒤 다시 실행했다.
+
+- macOS arm64, Release, 새 빈 `UNFOLD_DATA_DIR`: 종료 0, `success: true`, 69초, PNG 115장. `petManagementLibraryFirstVerified`·`petManagementBuilderVerified`·`customPetGifAuthoringVerified` 참.
+- `custom-pet-editor.png`에서 행동 카드의 '다른 파일 추가'(파일 1개라 재생 순서 숨김)와 '배경 지우기'·'발 위치 맞춤'이 카드 안에 잘리지 않고 그려진 것을 확인했다.
+- 병합으로 바뀐 코드는 `SmokeDiagnostics.cs`뿐이라 이를 참조하는 `LocalizationTests`·`PurchaseGateTests` 28개만 다시 실행해 통과했다.
+
 ## 검증 경계
 
-- macOS `--smoke-test`는 시작 커밋 `9d01b7d`에서도 설정 레이아웃 단계(펫 관리가 만들기 화면을 바로 연다는 이전 단정)에서 실패한다. 진단 갱신은 범위 밖이라 되돌렸고, 이번 기능의 실제 창 확인은 진단으로 얻지 못했다.
+- 진단은 던지기, 추가 파일 배정·재생 순서, 배경 정리 실행을 조작하지 않는다. 이 동작은 헤드리스 검사로만 확인했다.
 - 실제 OS의 던지기 손맛·멀티 모니터 경계, Windows 입력, 실제 그린스크린 MP4의 배경 품질은 관찰하지 않았다.
