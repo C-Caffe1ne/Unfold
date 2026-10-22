@@ -1,0 +1,56 @@
+{
+  "commit": "6fe0330e6ce1ed3e595c0a7f226b82426fd91eaf",
+  "success": true,
+  "checks": [
+    {
+      "path": "/",
+      "matchesCommit": true,
+      "sha256": "e906ad68cb45bebb04604c97547644bc75f907e244aa99f33889783d41824fd0"
+    },
+    {
+      "path": "/i18n/en.json",
+      "matchesCommit": true,
+      "sha256": "43bd9fb9fccb4635351aa5293934caf420d604a0fdaddb3092c52588d1acafc0"
+    },
+    {
+      "path": "/i18n/ja.json",
+      "matchesCommit": true,
+      "sha256": "0f5ce9d12df6110ea61feb898cee53bba37cb28b5bf0dc4bfe1cd95f0ab03498"
+    },
+    {
+      "path": "/i18n/zh.json",
+      "matchesCommit": true,
+      "sha256": "7a68d0f15aa904dbbad7f408be0091fb067a7e0d9b2a96fb682764337d5691ca"
+    },
+    {
+      "path": "/downloads/Unfold-v1.2.1-osx-arm64-notarized-installer.zip",
+      "matchesCommit": true,
+      "status": 302,
+      "location": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.2.1/Unfold-v1.2.1-osx-arm64-notarized-installer.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.3.0-osx-arm64-notarized-installer.zip",
+      "matchesCommit": true,
+      "status": 302,
+      "location": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.3.0/Unfold-v1.3.0-osx-arm64-notarized-installer.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.3.0-osx-x64-notarized-installer.zip",
+      "matchesCommit": true,
+      "status": 302,
+      "location": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.3.0/Unfold-v1.3.0-osx-x64-notarized-installer.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.3.0-win-x64-installer.zip",
+      "matchesCommit": true,
+      "status": 302,
+      "location": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.3.0/Unfold-v1.3.0-win-x64-installer.zip"
+    },
+    {
+      "path": "/downloads/Unfold-v1.3.0-notarized-ZIP-SHA256SUMS.txt",
+      "matchesCommit": true,
+      "status": 302,
+      "location": "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.3.0/Unfold-v1.3.0-notarized-ZIP-SHA256SUMS.txt"
+    }
+  ]
+}

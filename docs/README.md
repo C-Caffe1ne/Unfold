@@ -1,15 +1,15 @@
 # 문서 안내
 
-v1.3.0: [릴리스 노트](releases/v1.3.0.md) · [배포 검증](validation/2026-10-22-v1.3.0-release.md). 이전 v1.2.0: [릴리스 노트](releases/v1.2.0.md) · [배포 검증](validation/2026-10-15-v1.2.0-release.md).
+v1.3.0: [릴리스 노트](releases/v1.3.0.md) · [배포 검증](validation/2026-10-22-v1.3.0-release.md). 이전 v1.2.1: [릴리스 노트](releases/v1.2.1.md) · [배포 검증](validation/2026-10-20-v1.2.1-release.md).
 
 백엔드 관리: [보안 운영 절차](operations/backend-security.md), [적용·검증 결과](validation/2026-10-11-backend-security.md).
 운영 Live 결제의 pending 원인·웹훅 v21 배포·실제 결제 재전송과 앱 권한 조회 결과는 [Live 결제 복구](validation/2026-10-12-live-payment-pending.md)에 기록한다.
 
 새 세션·다른 IDE에서는 **[작업 인계](HANDOFF.md)**부터 읽는다. 기준 경로, 로컬에만 있는 커밋, 실행·저장 계약, 검증 근거와 다음 확인 순서를 모았다.
 
-현재 배포 준비 제품은 **C#·Avalonia 기반 Unfold v1.3.0**이다. 아래는 이전 개발 기록이다. 2026-10-20 동료 펫 P1 작업의 시작 소스는 `1.2.1`, HEAD `2de478a`이며, 작업 경로는 `/Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover`, 브랜치는 `codex/pet-overlay-hover`다.
-기록된 최신 공개 배포본은 `v1.2.1` (제품 소스 `09c9e72`)이다. 배포 검사와 실제 OS·업데이트 미검증 범위는 [배포 검증](validation/2026-10-20-v1.2.1-release.md)에 있다.
-[동료 펫 P1 실행 계획](plans/2026-10-20-companion-p1.md)의 S1 펫별 크기·즐겨찾기, S2 로컬 라이브러리, S3 선택형 CPU·메모리 정보, S4 미니바 빠른 메뉴를 구현했다. 구현 단계의 Release 빌드와 214개 검사, 후속 포커스 수정의 8개 검사가 통과했다. [실제 macOS QA](validation/2026-10-20-companion-p1-macos.md)와 [포커스 수정·재검증](validation/2026-10-21-favorite-focus.md)까지 완료해 관련 변경을 로컬 커밋으로 정리했다. 버전은 `1.2.1`이며 미푸시·미배포 상태다. Windows·잠자기·장시간 사용은 미검증이다.
+현재 정식 배포 제품은 **C#·Avalonia 기반 Unfold v1.3.0**이다. 아래는 이전 개발 기록이다. 2026-10-20 동료 펫 P1 작업의 시작 소스는 `1.2.1`, HEAD `2de478a`이며, 작업 경로는 `/Users/hwanghyeonseong/Developer/GitHub/Unfold/.worktrees/pet-overlay-hover`, 브랜치는 `codex/pet-overlay-hover`다.
+당시 최신 공개 배포본은 `v1.2.1` (제품 소스 `09c9e72`)이다. 배포 검사와 실제 OS·업데이트 미검증 범위는 [배포 검증](validation/2026-10-20-v1.2.1-release.md)에 있다.
+[동료 펫 P1 실행 계획](plans/2026-10-20-companion-p1.md)의 S1 펫별 크기·즐겨찾기, S2 로컬 라이브러리, S3 선택형 CPU·메모리 정보, S4 미니바 빠른 메뉴를 구현했다. 구현 단계의 Release 빌드와 214개 검사, 후속 포커스 수정의 8개 검사가 통과했다. [실제 macOS QA](validation/2026-10-20-companion-p1-macos.md)와 [포커스 수정·재검증](validation/2026-10-21-favorite-focus.md)까지 완료해 관련 변경을 로컬 커밋으로 정리했다. P1 구현 단계에는 버전 `1.2.1`의 미푸시·미배포 상태였고, 현재는 v1.3.0에 포함해 배포했다. Windows·잠자기·장시간 사용은 미검증이다.
 
 ## 현재 사용 안내
 

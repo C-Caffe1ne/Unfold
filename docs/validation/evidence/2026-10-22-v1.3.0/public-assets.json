@@ -1,0 +1,103 @@
+{
+  "releaseUrl": "https://github.com/C-Caffe1ne/Unfold/releases/tag/v1.3.0",
+  "publishedAt": "2026-10-22T08:29:49Z",
+  "source": "7b263bbc20042a8c02b192ef0fef5d11ed2947d5",
+  "assets": [
+    {
+      "name": "releases.osx-arm64-stable.json",
+      "bytes": 2088,
+      "sha256": "b7e93f9c358e2ea06a2b6b10af2ef3e6773d55411d52a7f710f0c69979f8fca2",
+      "anonymousDownloadVerified": true
+    },
+    {
+      "name": "DokhuStudio.Unfold.Updates-1.3.0-osx-arm64-stable-full.nupkg",
+      "bytes": 80856691,
+      "sha256": "6b602e96c8695878a33e882a88515f023040ee36f09a1879dbe4e20c9b7d25ed",
+      "anonymousDownloadVerified": true
+    },
+    {
+      "name": "releases.osx-arm64-beta.json",
+      "bytes": 3535,
+      "sha256": "c0e3b6ee691a4161b25c140b40e5ff6f1473c2a5ca6eb5a7acec9ed58eac3a0c",
+      "anonymousDownloadVerified": true
+    },
+    {
+      "name": "DokhuStudio.Unfold.Updates-1.3.0-osx-arm64-beta-full.nupkg",
+      "bytes": 80856691,
+      "sha256": "6b602e96c8695878a33e882a88515f023040ee36f09a1879dbe4e20c9b7d25ed",
+      "anonymousDownloadVerified": true
+    },
+    {
+      "name": "Unfold-v1.3.0-osx-arm64-notarized-installer.zip",
+      "bytes": 77738465,
+      "sha256": "e383cb35c9a77f65af1b3f9a629a78f48e636f98969f7f6035e02f2c6f81cfff",
+      "anonymousDownloadVerified": true
+    },
+    {
+      "name": "releases.osx-x64-stable.json",
+      "bytes": 2086,
+      "sha256": "271de0948edad777ed1326c5395e2be1a237302abb7d5106c258460154bf692d",
+      "anonymousDownloadVerified": true
+    },
+    {
+      "name": "DokhuStudio.Unfold.Updates-1.3.0-osx-x64-stable-full.nupkg",
+      "bytes": 85041891,
+      "sha256": "e84d02a28c915a01dda7290058070c3e70b19fb99c9bd9e847eb5e689239d38c",
+      "anonymousDownloadVerified": true
+    },
+    {
+      "name": "releases.osx-x64-beta.json",
+      "bytes": 3533,
+      "sha256": "3134534937ab9f5520f440141ee7409e105e00fb87378499a4120b8d51a9f0e3",
+      "anonymousDownloadVerified": true
+    },
+    {
+      "name": "DokhuStudio.Unfold.Updates-1.3.0-osx-x64-beta-full.nupkg",
+      "bytes": 85041891,
+      "sha256": "e84d02a28c915a01dda7290058070c3e70b19fb99c9bd9e847eb5e689239d38c",
+      "anonymousDownloadVerified": true
+    },
+    {
+      "name": "Unfold-v1.3.0-osx-x64-notarized-installer.zip",
+      "bytes": 81926094,
+      "sha256": "1fae05fb0b28d11f8e0cadb89ce575862ca8243d09a35fabca24e6e6825a5ca2",
+      "anonymousDownloadVerified": true
+    },
+    {
+      "name": "releases.win-x64-stable.json",
+      "bytes": 2086,
+      "sha256": "5c6daf4a8186c78fd966389323205b34ace2276e57f2af13a3714e79b4f0f2c4",
+      "anonymousDownloadVerified": true
+    },
+    {
+      "name": "DokhuStudio.Unfold.Updates-1.3.0-win-x64-stable-full.nupkg",
+      "bytes": 85211905,
+      "sha256": "be576bda2fa8ddea664c1ea9a5bf4559df943a1ade57d7d59229c2c0bf3716b8",
+      "anonymousDownloadVerified": true
+    },
+    {
+      "name": "releases.win-x64-beta.json",
+      "bytes": 3548,
+      "sha256": "58fdeb42a8223d671b9c0b4af65c789ca4e8bf4f42e743b9ad678e6bd8410e65",
+      "anonymousDownloadVerified": true
+    },
+    {
+      "name": "DokhuStudio.Unfold.Updates-1.3.0-win-x64-beta-full.nupkg",
+      "bytes": 85211905,
+      "sha256": "be576bda2fa8ddea664c1ea9a5bf4559df943a1ade57d7d59229c2c0bf3716b8",
+      "anonymousDownloadVerified": true
+    },
+    {
+      "name": "Unfold-v1.3.0-win-x64-installer.zip",
+      "bytes": 87026694,
+      "sha256": "3080daf2c1f6a5e59cbdf609bb3dc68e9060f5e7a922ad4731a4e02dedb17170",
+      "anonymousDownloadVerified": true
+    },
+    {
+      "name": "Unfold-v1.3.0-notarized-ZIP-SHA256SUMS.txt",
+      "bytes": 328,
+      "sha256": "ad00b38336ef589e2370bd027a20cbf92e2d2667a8146e220d224eee532a7f9a",
+      "anonymousDownloadVerified": true
+    }
+  ]
+}

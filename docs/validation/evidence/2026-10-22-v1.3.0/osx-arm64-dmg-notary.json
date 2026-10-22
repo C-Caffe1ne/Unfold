@@ -1,0 +1,294 @@
+{
+  "logFormatVersion": 1,
+  "jobId": "b059177f-3917-436a-8c62-ceb3ed31b54d",
+  "status": "Accepted",
+  "statusSummary": "Ready for distribution",
+  "statusCode": 0,
+  "archiveFilename": "Unfold-v1.3.0-osx-arm64.tmp.dmg",
+  "uploadDate": "2026-10-22T08:12:29.300Z",
+  "sha256": "15e0102d0845bb900d6cb04a12c7cecb60f0d3fee0f9ad99c82e784e17b2435b",
+  "ticketContents": [
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/Tools/ffmpeg",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "a9423e6f56e7d2c9b7d92ed735edc73b7fade283",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libhostpolicy.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "2ac98ed973240ae48d737f0634a1bfec8424195e",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libSkiaSharp.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "802e334d92025f1a6f60450b7d5ccd0e161b66f5",
+      "arch": "x86_64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libSkiaSharp.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "fb8eec068adfba72fae6209591a7d0682d92fcd0",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libclrgc.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "a596faf2303a7b4319a703c647d3954b38914077",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libhostfxr.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "f312373a430388193b9f4d8e76bd15492f33b1d1",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libcoreclr.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "82fe576b4792518e4367e950338f5bb2c4abdd59",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libSystem.Net.Security.Native.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "b87fd9ab1c6deb17c0b744e609805663cd72f362",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libHarfBuzzSharp.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "694a0e5a17a2f37a0f108332ce56fff9e97aae5d",
+      "arch": "x86_64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libHarfBuzzSharp.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "092bea691de39c55f735ef573b30de8e77f885f1",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libSystem.Globalization.Native.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "710fbacf86d32c28e340120b09c11148376a64b2",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "2c88a6056aeb3a6156ea7cb44f64f580d259705e",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libclrjit.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "d39481c41db6fa60e54a6ec7a730c4443e5972cc",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libSystem.IO.Compression.Native.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "c8ea17a10d078f4a6e43083e5c297d679ac0fb05",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/UpdateMac",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "4af238fc5a9fb1e712947fb57759e79d94a116db",
+      "arch": "x86_64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/UpdateMac",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "350c549e22bb47eebad4e85eab9222dda6f6c794",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libSystem.Native.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "e19d4d9d3c5761bffc962b0c4251d2e628bb4c0b",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libclrgcexp.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "e6ddc9c47dfab175f23daf04deea692b4f7206d2",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libmscordbi.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "12a69adf36cb5bcc26dae5ec070df018bcffce6e",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libAvaloniaNative.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "63aec708ff8d589994cb00483448f3cbb61cf45b",
+      "arch": "x86_64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libAvaloniaNative.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "7ee803c9585945ebc35ab408491db70850675d92",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libmscordaccore.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "5c335355240a0aa30fd1c9e011d75a85cfda8c8c",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libSystem.Security.Cryptography.Native.Apple.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "864ac1a4bf00767c2e60522ec17103de91f10ab9",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libAvaloniaNative.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "63aec708ff8d589994cb00483448f3cbb61cf45b",
+      "arch": "x86_64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libAvaloniaNative.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "7ee803c9585945ebc35ab408491db70850675d92",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libclrgc.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "a596faf2303a7b4319a703c647d3954b38914077",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libclrgcexp.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "e6ddc9c47dfab175f23daf04deea692b4f7206d2",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libclrjit.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "d39481c41db6fa60e54a6ec7a730c4443e5972cc",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libcoreclr.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "82fe576b4792518e4367e950338f5bb2c4abdd59",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libHarfBuzzSharp.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "694a0e5a17a2f37a0f108332ce56fff9e97aae5d",
+      "arch": "x86_64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libHarfBuzzSharp.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "092bea691de39c55f735ef573b30de8e77f885f1",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libhostfxr.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "f312373a430388193b9f4d8e76bd15492f33b1d1",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libhostpolicy.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "2ac98ed973240ae48d737f0634a1bfec8424195e",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libmscordaccore.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "5c335355240a0aa30fd1c9e011d75a85cfda8c8c",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libmscordbi.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "12a69adf36cb5bcc26dae5ec070df018bcffce6e",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libSkiaSharp.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "802e334d92025f1a6f60450b7d5ccd0e161b66f5",
+      "arch": "x86_64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libSkiaSharp.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "fb8eec068adfba72fae6209591a7d0682d92fcd0",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libSystem.Globalization.Native.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "710fbacf86d32c28e340120b09c11148376a64b2",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libSystem.IO.Compression.Native.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "c8ea17a10d078f4a6e43083e5c297d679ac0fb05",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libSystem.Native.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "e19d4d9d3c5761bffc962b0c4251d2e628bb4c0b",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libSystem.Net.Security.Native.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "b87fd9ab1c6deb17c0b744e609805663cd72f362",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/libSystem.Security.Cryptography.Native.Apple.dylib",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "864ac1a4bf00767c2e60522ec17103de91f10ab9",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/Unfold",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "2c88a6056aeb3a6156ea7cb44f64f580d259705e",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/UpdateMac",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "4af238fc5a9fb1e712947fb57759e79d94a116db",
+      "arch": "x86_64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/UpdateMac",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "350c549e22bb47eebad4e85eab9222dda6f6c794",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg/Unfold.app/Contents/MacOS/Tools/ffmpeg",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "a9423e6f56e7d2c9b7d92ed735edc73b7fade283",
+      "arch": "arm64"
+    },
+    {
+      "path": "Unfold-v1.3.0-osx-arm64.tmp.dmg",
+      "digestAlgorithm": "SHA-256",
+      "cdhash": "9ebb5251ff8f7b361b755dbcca0bff00eef1b35e"
+    }
+  ],
+  "issues": null
+}
