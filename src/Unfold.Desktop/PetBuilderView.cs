@@ -22,6 +22,7 @@ internal sealed class PetBuilderView : UserControl, IDisposable
     private bool opening, closed;
     public bool IsBusy => opening || media.IsBusy || glb.IsBusy;
     public bool HasUnsavedChanges => media.HasUnsavedChanges || glb.HasUnsavedChanges;
+    internal string? EditingId => editor.Content == glb ? glb.EditingId : media.EditingId;
     public event Action? BusyChanged;
     public event Action? LibraryChanged;
     public PetBuilderView(Window owner, CharacterLibrary library, Func<CharacterPackage, Task> installed, Func<string, Task> created,
@@ -85,8 +86,7 @@ internal sealed class PetBuilderView : UserControl, IDisposable
         try
         {
             pets.ItemsSource = ManagedPets();
-            var id = editor.Content == glb ? glb.EditingId : media.EditingId;
-            pets.SelectedItem = pets.Items.OfType<CharacterPackage>().FirstOrDefault(package => package.Manifest.Id == id);
+            pets.SelectedItem = pets.Items.OfType<CharacterPackage>().FirstOrDefault(package => package.Manifest.Id == EditingId);
         }
         finally { refreshingPets = false; }
         glb.RefreshExisting();

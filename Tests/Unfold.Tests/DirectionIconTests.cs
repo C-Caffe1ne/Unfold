@@ -56,31 +56,6 @@ public class DirectionIconTests
         }
     }
 
-    [AvaloniaFact]
-    public void ScrollBarUsesMatchingDirectionsWhenOrientationChanges()
-    {
-        var bar = new ScrollBar { Orientation = Orientation.Vertical, Minimum = 0, Maximum = 100, Value = 50,
-            ViewportSize = 10, AllowAutoHide = false, Width = 16, Height = 180 };
-        var window = new Window { Width = 300, Height = 260, Content = bar };
-        try
-        {
-            window.Show(); Layout(window); Check(IconDirection.Up, IconDirection.Down);
-            bar.Orientation = Orientation.Horizontal; bar.Width = 180; bar.Height = 16; Layout(window);
-            Check(IconDirection.Left, IconDirection.Right);
-        }
-        finally { window.Close(); }
-
-        void Check(IconDirection first, IconDirection second)
-        {
-            var before = bar.Value;
-            var up = bar.GetVisualDescendants().OfType<RepeatButton>().Single(b => b.Name == "PART_LineUpButton");
-            var down = bar.GetVisualDescendants().OfType<RepeatButton>().Single(b => b.Name == "PART_LineDownButton");
-            AssertGlyph(up, first); AssertGlyph(down, second);
-            up.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Assert.True(bar.Value < before);
-            down.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Assert.Equal(before, bar.Value);
-        }
-    }
-
     private static DirectionIcon AssertGlyph(Control parent, IconDirection direction)
     {
         var icon = Assert.Single(parent.GetVisualDescendants().OfType<DirectionIcon>());

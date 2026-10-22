@@ -447,6 +447,45 @@ public class SettingsDashboardTests
     }
 
     [AvaloniaFact]
+    public async Task HomePetManagementShortcutEditsTheAppliedPetAndKeepsBuiltInsOnTheLibrary()
+    {
+        using var scope = new Scope(); var window = scope.Window;
+        async Task Until(Func<bool> condition)
+        {
+            for (var i = 0; i < 300 && !condition(); i++)
+            { await Task.Delay(10, TestContext.Current.CancellationToken); Dispatcher.UIThread.RunJobs(); }
+            Dispatcher.UIThread.RunJobs(); window.UpdateLayout(); Assert.True(condition());
+        }
+        PetManagementView Page() => window.GetVisualDescendants().OfType<PetManagementView>().Single();
+        TextBox? Name() => window.GetVisualDescendants().OfType<TextBox>().SingleOrDefault(input => input.Name == "CustomPetName");
+        var media = PetEditingCoreTests.InstallMedia(scope.Runtime.Library, scope.Root);
+        await scope.Runtime.Start(true, true); scope.Runtime.Stop();
+        var builtIn = scope.Runtime.Characters.First(pet => pet.IsBuiltIn);
+
+        // A built-in pet has no editor, so the shortcut keeps opening the library.
+        await scope.Runtime.SelectInstalledCharacter(builtIn);
+        Click(window, "HomeOpenPetManagement"); await Until(() => !Page().IsBusy);
+        Assert.NotNull(Find<Button>(window, "PetLibraryCreate"));
+        Assert.DoesNotContain(window.GetVisualDescendants(), control => control is PetBuilderView);
+        Assert.Contains("primary", Find<Button>(window, "SettingsNavPacks").Classes);
+
+        await scope.Runtime.SelectInstalledCharacter(media);
+        Click(window, "SettingsNavTimer"); Dispatcher.UIThread.RunJobs();
+        Click(window, "HomeOpenPetManagement");
+        await Until(() => Name()?.Text == media.Manifest.Name && !Page().IsBusy);
+        Assert.True(Name()!.IsFocused); Assert.Empty(window.OwnedWindows);
+        Assert.Contains("primary", Find<Button>(window, "SettingsNavPacks").Classes);
+        Assert.False(Page().HasUnsavedDraft);
+
+        // Returning to the same pet keeps its unsaved draft instead of asking to discard it.
+        Name()!.Text = "작성 중";
+        Click(window, "SettingsNavTimer"); Dispatcher.UIThread.RunJobs();
+        Click(window, "HomeOpenPetManagement"); await Until(() => Name() is not null && !Page().IsBusy);
+        Assert.Empty(window.OwnedWindows);
+        Assert.Equal("작성 중", Name()!.Text); Assert.True(Page().HasUnsavedDraft);
+    }
+
+    [AvaloniaFact]
     public void PetManagementOpensLibraryAndPreservesDraftAcrossSidebarNavigation()
     {
         using var scope = new Scope(); var window = scope.Window;

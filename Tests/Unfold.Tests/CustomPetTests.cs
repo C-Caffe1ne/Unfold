@@ -277,7 +277,7 @@ public class CustomPetWindowTests
                 Assert.Equal(size.Height, window.ClientSize.Height, 0);
                 if (PageBodyScrollGeometry.Scroll(window).Extent.Height > PageBodyScrollGeometry.Scroll(window).Viewport.Height + 1)
                     PageBodyScrollGeometry.ClearsScrollBar(window, controls);
-                else PageBodyScrollGeometry.KeepsFullWidthWithoutScrollBar(window);
+                else PageBodyScrollGeometry.ReservesTrackWithoutScrolling(window);
                 Assert.DoesNotContain(window.GetVisualDescendants().OfType<ScrollViewer>(),
                     view => view.Name == "CustomPetActionSlotsScroll");
                 var slots = Find<StackPanel>(window, "CustomPetActionSlots");
@@ -294,15 +294,15 @@ public class CustomPetWindowTests
                 Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
                 if (PageBodyScrollGeometry.Scroll(window).Extent.Height > PageBodyScrollGeometry.Scroll(window).Viewport.Height + 1)
                     PageBodyScrollGeometry.ClearsScrollBar(window, controls);
-                else PageBodyScrollGeometry.KeepsFullWidthWithoutScrollBar(window);
+                else PageBodyScrollGeometry.ReservesTrackWithoutScrolling(window);
                 PageBodyScrollGeometry.Scroll(window).ScrollToHome();
                 Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
             }
-            // A window tall enough to hold the whole form keeps its full width: the gutter
-            // belongs to the scrollbar, not to every page.
+            // A window tall enough to hold the whole form keeps the same body width: the track
+            // stays reserved so nothing moves when the form starts to scroll.
             window.Width = 1400; window.Height = 1600;
             Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
-            PageBodyScrollGeometry.KeepsFullWidthWithoutScrollBar(window);
+            PageBodyScrollGeometry.ReservesTrackWithoutScrolling(window);
             Assert.Equal(CustomPetDraft.Actions.Count, Find<StackPanel>(window, "CustomPetActionSlots").Children.Count);
         }
         finally { window.Close(); }

@@ -2,10 +2,12 @@ using System.Reflection;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls.Presenters;
 using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
@@ -145,7 +147,7 @@ public class PetLibraryTests
         Press(scope.Window, "PetLibraryFavorite_" + scope.Media.Manifest.Id);
         await Until(() => !scope.Page.IsBusy);
         Assert.Empty(scope.Favorites); Assert.True(Find<TextBlock>(scope.Window, "PetLibraryError").IsVisible);
-        Assert.Equal("☆", Find<Button>(scope.Window, "PetLibraryFavorite_" + scope.Media.Manifest.Id).Content);
+        Assert.DoesNotContain("favorite", Find<Button>(scope.Window, "PetLibraryFavorite_" + scope.Media.Manifest.Id).Classes);
         scope.FailFavorite = false;
         Press(scope.Window, "PetLibraryFavorite_" + scope.Media.Manifest.Id); await Until(() => !scope.Page.IsBusy);
         Assert.Contains(scope.Media.Manifest.Id, scope.Favorites);
@@ -153,6 +155,42 @@ public class PetLibraryTests
         var thumbnail = Find<Image>(scope.Window, "PetLibraryThumbnail_" + scope.Media.Manifest.Id);
         Press(scope.Window, "PetLibraryFavorite_" + scope.Media.Manifest.Id); await Until(() => !scope.Page.IsBusy);
         Assert.Empty(Cards(scope.Window)); Assert.Null(thumbnail.Source);
+    }
+
+    [AvaloniaFact]
+    public async Task FavoriteStarHasNoFrameAndItsHoverPreviewStaysLighterThanASavedFavorite()
+    {
+        using var scope = new Scope(); var window = scope.Window;
+        var id = scope.Media.Manifest.Id;
+        var button = Find<Button>(window, "PetLibraryFavorite_" + id);
+        var presenter = button.GetVisualDescendants().OfType<ContentPresenter>().Single(p => p.Name == "PART_ContentPresenter");
+        Avalonia.Controls.Shapes.Path Star(string part) =>
+            button.GetVisualDescendants().OfType<Avalonia.Controls.Shapes.Path>().Single(p => p.Classes.Contains(part));
+        var fill = Star("favorite-fill"); var outline = Star("favorite-outline");
+        void Frameless()
+        {
+            Assert.Equal(0, ((ISolidColorBrush)presenter.BorderBrush!).Color.A);
+            Assert.True(presenter.Background is null || ((ISolidColorBrush)presenter.Background).Color.A == 0);
+        }
+        Frameless(); Assert.Equal(0, fill.Opacity); Assert.Same(DesignSystem.Muted, outline.Stroke);
+
+        var center = button.TranslatePoint(new Point(button.Bounds.Width / 2, button.Bounds.Height / 2), window)!.Value;
+        window.MouseMove(center); Layout(window);
+        Frameless(); Assert.Same(DesignSystem.Accent, fill.Fill); Assert.Same(DesignSystem.Accent, outline.Stroke);
+        var preview = fill.Opacity; Assert.InRange(preview, .2, .5);
+
+        // Saving while the pointer stays on the star switches the light preview to a solid fill.
+        Press(window, "PetLibraryFavorite_" + id); await Until(() => !scope.Page.IsBusy); Layout(window);
+        Assert.Contains(id, scope.Favorites); Assert.Contains("favorite", button.Classes);
+        Frameless(); Assert.Equal(1, fill.Opacity); Assert.Same(DesignSystem.Accent, fill.Fill);
+        window.MouseMove(new Point(1, 1)); Layout(window);
+        Assert.Equal(1, fill.Opacity); Assert.Same(DesignSystem.Accent, outline.Stroke);
+
+        Press(window, "PetLibraryFavorite_" + id); await Until(() => !scope.Page.IsBusy); Layout(window);
+        Assert.Equal(0, fill.Opacity); Assert.Same(DesignSystem.Muted, outline.Stroke);
+        // Without a frame, keyboard focus is what still draws one.
+        Assert.True(button.Focus(NavigationMethod.Tab)); Layout(window);
+        Assert.Same(DesignSystem.Cream, button.BorderBrush); Assert.True(button.BorderThickness.Left > 0);
     }
 
     [AvaloniaTheory]

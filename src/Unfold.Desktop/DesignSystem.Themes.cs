@@ -97,11 +97,10 @@ public static partial class DesignSystem
             "RepeatButtonForeground", "RepeatButtonForegroundPointerOver", "RepeatButtonForegroundPressed",
             "TextControlForeground", "TextControlForegroundPointerOver", "TextControlForegroundFocused",
             "ComboBoxForeground", "ComboBoxForegroundFocused", "ComboBoxForegroundFocusedPressed",
-            "ComboBoxItemForeground", "ComboBoxItemForegroundPointerOver", "ComboBoxItemForegroundPressed",
-            "ScrollBarButtonArrowForeground", "ScrollBarButtonArrowForegroundPointerOver", "ScrollBarButtonArrowForegroundPressed");
+            "ComboBoxItemForeground", "ComboBoxItemForegroundPointerOver", "ComboBoxItemForegroundPressed");
         Set(DisabledText, "ButtonForegroundDisabled", "RepeatButtonForegroundDisabled", "TextControlForegroundDisabled",
             "ComboBoxForegroundDisabled", "ComboBoxDropDownGlyphForegroundDisabled", "ComboBoxItemForegroundDisabled",
-            "ComboBoxItemForegroundSelectedDisabled", "ScrollBarButtonArrowForegroundDisabled");
+            "ComboBoxItemForegroundSelectedDisabled");
         Set(Muted, "ComboBoxDropDownGlyphForeground", "ComboBoxDropDownGlyphForegroundFocused",
             "ComboBoxDropDownGlyphForegroundFocusedPressed");
         Set(Ink, "ComboBoxItemForegroundSelected", "ComboBoxItemForegroundSelectedPointerOver", "ComboBoxItemForegroundSelectedPressed");
