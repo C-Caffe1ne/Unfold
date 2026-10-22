@@ -78,6 +78,23 @@ public sealed class PetMediaProcessingTests
         Assert.InRange((minX + maxX) / 2, 46, 54);
     }
 
+    [Theory]
+    [InlineData(White, Black, 0xFFE6E6E6u)] // A white sticker GIF: white body, black outline, light anti-aliasing.
+    [InlineData(Black, White, 0xFF1A1A1Au)]
+    [InlineData(0xFF808080u, Black, 0xFF8C8C8Cu)]
+    public void NeutralBackdropsClearOnlyTheBackgroundAroundAnOutlinedPet(uint backdrop, uint outline, uint halo)
+    {
+        // The body shares the backdrop color, so only its outline separates it from the background.
+        var frame = Frame(40, 40, backdrop, (10, 10, 20, 20, outline), (12, 12, 16, 16, backdrop), (9, 15, 1, 4, halo));
+        var key = PetMediaProcessing.DetectKeyColor(frame);
+        Assert.Equal(backdrop, key);
+        var image = PetMediaProcessing.Apply([new(frame, TimeSpan.FromSeconds(1))], new(true, key)).Single().Image;
+        Assert.Equal(0u, At(image, 1, 1) >> 24);
+        Assert.Equal(0u, At(image, 9, 16) >> 24); // Anti-aliasing next to the outline goes with the backdrop.
+        Assert.Equal(outline, At(image, 10, 16));
+        Assert.Equal(backdrop, At(image, 20, 20)); // The enclosed body stays.
+    }
+
     [Fact]
     public void RemovingEveryPetPixelFromAFrameIsRejectedWithARecoveryHint()
     {

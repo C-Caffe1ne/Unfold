@@ -11,7 +11,8 @@ public sealed record ClipProcessing(bool RemoveBackground = false, uint KeyColor
 public static class PetMediaProcessing
 {
     // Tolerance 0–100 maps to a CbCr distance; luminance is ignored so screen shadows key out too.
-    private const double ToleranceScale = 1.2, SpillReach = 1.6;
+    // Below NeutralChroma the key is white, black or gray and has no hue of its own to key on.
+    private const double ToleranceScale = 1.2, SpillReach = 1.6, NeutralChroma = 12;
 
     public static int FootMargin(int canvas) => Math.Max(1, (int)Math.Round(canvas * .04));
 
@@ -49,6 +50,7 @@ public static class PetMediaProcessing
     {
         var threshold = Math.Clamp(tolerance, 0, 100) * ToleranceScale;
         var (keyCb, keyCr) = Chroma(key);
+        if (Math.Sqrt(keyCb * keyCb + keyCr * keyCr) < NeutralChroma) return RemoveNeutralBackground(image, key, threshold);
         var (kr, kg, kb) = Channels(key);
         // Spill comes from the key's strongest channel, e.g. green light on a pet's edge.
         var spill = kg >= kr && kg >= kb ? 1 : kb >= kr ? 2 : 0;
@@ -62,6 +64,41 @@ public static class PetMediaProcessing
             pixels[index] = distance <= threshold * SpillReach ? Despill(pixel, spill) : pixel;
         }
         return new(image.Width, image.Height, pixels);
+    }
+
+    /// <summary>White, black and gray pets share their backdrop's missing hue, so brightness counts too and only
+    /// backdrop pixels reachable from the frame edge are cleared. A body enclosed by its outline stays.</summary>
+    private static PixelImage RemoveNeutralBackground(PixelImage image, uint key, double threshold)
+    {
+        var (keyCb, keyCr) = Chroma(key); var keyY = Luma(key);
+        bool Matches(uint pixel)
+        {
+            var (cb, cr) = Chroma(pixel); var dy = Luma(pixel) - keyY;
+            return (cb - keyCb) * (cb - keyCb) + (cr - keyCr) * (cr - keyCr) + dy * dy <= threshold * threshold;
+        }
+        int width = image.Width, height = image.Height;
+        var cleared = new bool[image.Pixels.Length];
+        var queue = new Queue<int>();
+        void Visit(int index)
+        {
+            var pixel = image.Pixels[index];
+            // Already transparent pixels belong to the backdrop and carry the fill through.
+            if (cleared[index] || (pixel >> 24 != 0 && !Matches(pixel))) return;
+            cleared[index] = true; queue.Enqueue(index);
+        }
+        for (var x = 0; x < width; x++) { Visit(x); Visit((height - 1) * width + x); }
+        for (var y = 0; y < height; y++) { Visit(y * width); Visit(y * width + width - 1); }
+        while (queue.TryDequeue(out var index))
+        {
+            var x = index % width;
+            if (x > 0) Visit(index - 1);
+            if (x < width - 1) Visit(index + 1);
+            if (index >= width) Visit(index - width);
+            if (index < cleared.Length - width) Visit(index + width);
+        }
+        var pixels = new uint[image.Pixels.Length];
+        for (var index = 0; index < pixels.Length; index++) pixels[index] = cleared[index] ? 0 : image.Pixels[index];
+        return new(width, height, pixels);
     }
 
     private static uint Despill(uint pixel, int channel)
@@ -108,6 +145,12 @@ public static class PetMediaProcessing
     }
 
     private static (int R, int G, int B) Channels(uint pixel) => ((int)(pixel >> 16) & 255, (int)(pixel >> 8) & 255, (int)pixel & 255);
+
+    private static double Luma(uint pixel)
+    {
+        var (r, g, b) = Channels(pixel);
+        return .299 * r + .587 * g + .114 * b;
+    }
 
     private static (double Cb, double Cr) Chroma(uint pixel)
     {
