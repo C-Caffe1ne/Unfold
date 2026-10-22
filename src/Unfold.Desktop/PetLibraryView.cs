@@ -150,11 +150,11 @@ internal sealed class PetLibraryView : UserControl, IDisposable
             var image = new Image { Name = "PetLibraryThumbnail_" + id, Source = bitmap, Height = 108, Stretch = Stretch.Uniform };
             RenderOptions.SetBitmapInterpolationMode(image, package.Manifest.RenderStyle == "pixel"
                 ? BitmapInterpolationMode.None : BitmapInterpolationMode.HighQuality);
-            var favorite = Ui.Action("☆"); favorite.Name = "PetLibraryFavorite_" + id;
+            var favorite = Ui.Action(""); favorite.Name = "PetLibraryFavorite_" + id; favorite.Content = FavoriteStar();
             var navigation = NavigationMethod.Unspecified;
             favorite.GotFocus += (_, args) => navigation = args.NavigationMethod;
             favorite.Click += async (_, _) => await ToggleFavorite(favorite, id, navigation);
-            Ui.Quiet(favorite); favorite.Width = 38; favorite.Padding = new Thickness(0); favorite.FontSize = 22;
+            favorite.Classes.Add("pet-favorite"); favorite.Width = 38; favorite.Padding = new Thickness(0);
             var applied = Ui.Caption(L.T("적용 중")); applied.Name = "PetLibraryApplied_" + id;
             applied.Foreground = DesignSystem.Success;
             var top = new Grid { ColumnDefinitions = new("*,Auto") };
@@ -189,7 +189,7 @@ internal sealed class PetLibraryView : UserControl, IDisposable
         card.Surface.BorderBrush = selected ? DesignSystem.Accent : DesignSystem.OutlineSubtle;
         card.Apply.IsEnabled = !IsBusy && !selected;
         card.Apply.Classes.Set("primary", !selected);
-        card.Favorite.Content = favorite ? "★" : "☆";
+        card.Favorite.Classes.Set("favorite", favorite);
         var label = favorite ? L.F("{0} 즐겨찾기 해제", card.Package.DisplayName) : L.F("{0} 즐겨찾기 추가", card.Package.DisplayName);
         AutomationProperties.SetName(card.Favorite, label); ToolTip.SetTip(card.Favorite, label);
         card.Favorite.IsEnabled = !IsBusy && setFavorite is not null;
@@ -213,6 +213,16 @@ internal sealed class PetLibraryView : UserControl, IDisposable
         cards.Children.Clear();
         foreach (var card in visibleCards) { card.Image.Source = null; card.Bitmap.Dispose(); }
         visibleCards.Clear();
+    }
+    // An outline over a separate fill, so hover and the saved state can tint the inside differently.
+    private static Panel FavoriteStar()
+    {
+        var star = StreamGeometry.Parse("M12 3 L14.35 9.36 L21.13 9.63 L15.8 13.84 L17.64 20.37 L12 16.6 " +
+            "L6.36 20.37 L8.2 13.84 L2.87 9.63 L9.65 9.36 Z");
+        var fill = new Avalonia.Controls.Shapes.Path { Data = star, Classes = { "favorite-fill" } };
+        var outline = new Avalonia.Controls.Shapes.Path { Data = star, StrokeThickness = 1.6,
+            StrokeJoin = PenLineJoin.Round, Classes = { "favorite-outline" } };
+        return new Panel { Width = 24, Height = 24, IsHitTestVisible = false, Children = { fill, outline } };
     }
     private static PixelImage Thumbnail(PixelImage source)
     {

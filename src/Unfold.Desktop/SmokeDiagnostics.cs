@@ -508,8 +508,8 @@ internal static partial class SmokeDiagnostics
             throw new InvalidOperationException("Custom pet import did not select the pet or changed timer pause.");
     }
     // UI-04: the shared page body reserves the vertical scrollbar's track instead of letting
-    // Fluent paint it over the content. Compare the real right edge of each control with the
-    // scrollbar's left edge; visibility alone does not prove the two do not share pixels.
+    // Fluent paint it over the content, also while nothing scrolls. Compare the real right edge of
+    // each control with the scrollbar's left edge; visibility alone does not prove the two do not share pixels.
     private static void VerifyBodyScrollGutter(Window window, params string[] names)
     {
         var scroll = window.GetVisualDescendants().OfType<ScrollViewer>().Single(view => view.Name == "PageBodyScroll");
@@ -520,12 +520,8 @@ internal static partial class SmokeDiagnostics
         var bar = scroll.GetVisualDescendants().OfType<Avalonia.Controls.Primitives.ScrollBar>()
             .Single(item => item.Orientation == Avalonia.Layout.Orientation.Vertical &&
                 item.GetVisualAncestors().OfType<ScrollViewer>().First() == scroll);
-        if (!bar.IsVisible)
-        {
-            if (Math.Abs(body.Bounds.Width - scroll.Viewport.Width) > 1)
-                throw new InvalidOperationException($"Page body lost width without a scrollbar: {window.Title}.");
-            return;
-        }
+        if (!bar.IsVisible || bar.Bounds.Width <= 0)
+            throw new InvalidOperationException($"Page body does not reserve its scrollbar track: {window.Title}.");
         var barLeft = bar.TranslatePoint(default, window)!.Value.X;
         if (Math.Abs(barLeft - bodyRight - Ui.ScrollGutter) > 1)
             throw new InvalidOperationException($"Page body gutter is {barLeft - bodyRight:0.#}, not {Ui.ScrollGutter}: {window.Title}.");

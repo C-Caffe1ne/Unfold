@@ -19,18 +19,6 @@ public static partial class DesignSystem
             AddDirection(s => s.OfType<ButtonSpinner>().Template().OfType<RepeatButton>().Name(part)
                 .Child().OfType<PathIcon>(), direction);
 
-        foreach (var (orientation, up, down) in new[]
-        {
-            (":vertical", IconDirection.Up, IconDirection.Down),
-            (":horizontal", IconDirection.Left, IconDirection.Right)
-        })
-        {
-            AddDirection(s => s.OfType<ScrollBar>().Class(orientation).Template()
-                .OfType<RepeatButton>().Name("PART_LineUpButton").Child().OfType<PathIcon>(), up);
-            AddDirection(s => s.OfType<ScrollBar>().Class(orientation).Template()
-                .OfType<RepeatButton>().Name("PART_LineDownButton").Child().OfType<PathIcon>(), down);
-        }
-
         void AddDirection(Func<Selector?, Selector> selector, IconDirection direction) => styles.Add(new Style(selector)
         {
             Setters =

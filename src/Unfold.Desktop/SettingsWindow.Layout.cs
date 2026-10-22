@@ -108,7 +108,7 @@ public sealed partial class SettingsWindow
         var petLabel = Label(L.T("함께하는 펫"), Body, Muted);
         var intro = Ui.Column(petLabel, companionName); intro.Spacing = 4; intro.IsHitTestVisible = false;
         intro.Margin = new(0, 0, HomeControlHeight + Space, 0);
-        var managePets = Ui.Quiet(Ui.AsyncButton(L.T("펫 관리"), OpenPetPacks));
+        var managePets = Ui.Quiet(Ui.AsyncButton(L.T("펫 관리"), EditSelectedPet));
         managePets.Name = "HomeOpenPetManagement"; managePets.Content = new NavigationIcon("pet-add");
         managePets.Width = managePets.Height = HomeControlHeight; managePets.Padding = new(0);
         managePets.HorizontalAlignment = HorizontalAlignment.Right; managePets.VerticalAlignment = VerticalAlignment.Top;
@@ -234,6 +234,11 @@ public sealed partial class SettingsWindow
         ShowPage("settings", preferencesPage);
         PreferencesEdited();
         return Task.CompletedTask;
+    }
+    private async Task EditSelectedPet()
+    {
+        await OpenPetPacks();
+        if (runtime.Selected is { } selected) await petPage!.EditPet(selected);
     }
     private Task OpenReview()
     {

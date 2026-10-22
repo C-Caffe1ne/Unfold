@@ -66,13 +66,14 @@ public static partial class Ui
     // Fluent paints the vertical scrollbar on top of the scrolled content, so inputs and buttons
     // that stretch to the right edge end up underneath it. Turning auto-hide off reserves the
     // track in the template; the left margin then keeps a full gutter between that track and the
-    // body. This keeps the native scrollbar drawable on every platform instead of moving it into
-    // a clipped page-frame inset.
+    // body. The track stays reserved while nothing scrolls (the Track hides its thumb), so the
+    // body keeps its width when content grows past the viewport. This keeps the native scrollbar
+    // drawable on every platform instead of moving it into a clipped page-frame inset.
     public static ScrollViewer PageBodyScroll(Control body)
     {
         var scroll = new ScrollViewer { Name = "PageBodyScroll", Content = body, AllowAutoHide = false,
             HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled,
-            VerticalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Auto };
+            VerticalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Visible };
         scroll.TemplateApplied += (_, e) =>
         {
             if (e.NameScope.Find<Avalonia.Controls.Primitives.ScrollBar>("PART_VerticalScrollBar") is { } bar)

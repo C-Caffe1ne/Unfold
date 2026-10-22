@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Diagnostics;
 using Avalonia.Controls.Primitives;
+using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
 using Avalonia.Layout;
 using Avalonia.Media;
@@ -34,8 +35,12 @@ public class ThemeControlColorTests
                 AssertColor(palette.Text, check.Foreground);
                 AssertColor(palette.Text, check.GetVisualDescendants().OfType<TextBlock>().Single().Foreground);
                 AssertColor(palette.Muted, choice.GetVisualDescendants().OfType<DirectionIcon>().Single().Foreground);
-                foreach (var icon in bar.GetVisualDescendants().OfType<DirectionIcon>())
-                    AssertColor(palette.Text, icon.Foreground);
+                var thumb = bar.GetVisualDescendants().OfType<Thumb>().Single();
+                var fill = thumb.GetVisualDescendants().OfType<Border>().First();
+                AssertColor(palette.Line, fill.Background);
+                window.MouseMove(thumb.TranslatePoint(new Point(thumb.Bounds.Width / 2, thumb.Bounds.Height / 2), window)!.Value);
+                Layout(window); AssertColor(palette.Muted, fill.Background);
+                window.MouseMove(new Point(1, 1)); Layout(window); AssertColor(palette.Line, fill.Background);
             }
         }
         finally { window.Close(); DesignSystem.ApplyTheme(AppSettings.DefaultTheme); }

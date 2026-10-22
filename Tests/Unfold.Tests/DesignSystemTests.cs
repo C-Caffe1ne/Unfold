@@ -108,6 +108,80 @@ public class DesignSystemTests
         }
     }
 
+    [AvaloniaTheory]
+    [InlineData(false)] [InlineData(true)]
+    public void ScrollBarsDropLineArrowsAndKeepARoundedThumbInEitherOrientation(bool autoHide)
+    {
+        var bar = new ScrollBar { Orientation = Orientation.Vertical, Minimum = 0, Maximum = 100, Value = 50, ViewportSize = 10,
+            AllowAutoHide = autoHide, Height = 180, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
+        var window = new Window { Width = 300, Height = 260, Content = bar };
+        try
+        {
+            window.Show(); Layout(window); Check();
+            bar.Orientation = Orientation.Horizontal; bar.Width = 180; bar.Height = double.NaN; bar.Value = 50; Layout(window); Check();
+        }
+        finally { window.Close(); }
+
+        void Check()
+        {
+            var vertical = bar.Orientation == Orientation.Vertical;
+            Assert.Empty(bar.GetVisualDescendants().OfType<DirectionIcon>());
+            Assert.DoesNotContain(bar.GetVisualDescendants().OfType<RepeatButton>(),
+                button => button.Name is "PART_LineUpButton" or "PART_LineDownButton" && button.IsVisible);
+            var track = bar.GetVisualDescendants().OfType<Track>().Single(); var thumb = track.Thumb!;
+            Assert.Equal(vertical ? bar.Bounds.Height : bar.Bounds.Width, vertical ? track.Bounds.Height : track.Bounds.Width, .5);
+            Assert.Equal(DesignSystem.ScrollBarSize, vertical ? bar.Bounds.Width : bar.Bounds.Height, .5);
+            Thickness(DesignSystem.ScrollThumbSize);
+            window.MouseMove(bar.TranslatePoint(new Point(bar.Bounds.Width / 2, bar.Bounds.Height / 2), window)!.Value); Layout(window);
+            Thickness(DesignSystem.ScrollThumbHoverSize);
+            window.MouseMove(new Point(299, 259)); Layout(window);
+            Thickness(DesignSystem.ScrollThumbSize);
+            // Without arrows the start of the track still pages back.
+            var before = bar.Value; var start = bar.TranslatePoint(new Point(4, 4), window)!.Value;
+            window.MouseDown(start, MouseButton.Left); window.MouseUp(start, MouseButton.Left); Layout(window);
+            Assert.True(bar.Value < before, $"{bar.Orientation}: {bar.Value} did not page back from {before}.");
+            window.MouseMove(new Point(299, 259)); Layout(window);
+
+            void Thickness(double size)
+            {
+                Assert.Equal(size, vertical ? thumb.Bounds.Width : thumb.Bounds.Height, .5);
+                Assert.True((vertical ? thumb.Bounds.Height : thumb.Bounds.Width) >= DesignSystem.ScrollThumbMinLength - .5);
+                // Fluent eases the radius; the styled value is what it settles on.
+                Assert.Equal(new CornerRadius(size / 2), thumb.GetBaseValue(TemplatedControl.CornerRadiusProperty).Value);
+                Assert.Null(thumb.RenderTransform);
+                var origin = thumb.TranslatePoint(default, bar)!.Value;
+                Assert.Equal((DesignSystem.ScrollBarSize - size) / 2, vertical ? origin.X : origin.Y, .5);
+            }
+        }
+    }
+
+    [AvaloniaFact]
+    public void PageBodyKeepsItsWidthWhenItsContentStartsOrStopsScrolling()
+    {
+        var filler = new Border { Height = 100 };
+        var field = new TextBox { HorizontalAlignment = HorizontalAlignment.Stretch };
+        var body = Ui.Column(field, filler);
+        var scroll = Ui.PageBodyScroll(body);
+        var window = new Window { Width = 400, Height = 300, Content = scroll };
+        try
+        {
+            window.Show(); Layout(window);
+            var bar = scroll.GetVisualDescendants().OfType<ScrollBar>().Single(item => item.Orientation == Orientation.Vertical &&
+                item.GetVisualAncestors().OfType<ScrollViewer>().First() == scroll);
+            var thumb = bar.GetVisualDescendants().OfType<Thumb>().Single();
+            Assert.False(thumb.IsVisible);
+            var width = field.Bounds.Width; var origin = field.TranslatePoint(default, window);
+            Assert.Equal(window.ClientSize.Width - bar.Bounds.Width - Ui.ScrollGutter, body.Bounds.Width, .5);
+            foreach (var height in new[] { 1000d, 100d, 1000d })
+            {
+                filler.Height = height; Layout(window);
+                Assert.Equal(height > 300, thumb.IsVisible);
+                Assert.Equal(width, field.Bounds.Width, .5); Assert.Equal(origin, field.TranslatePoint(default, window));
+            }
+        }
+        finally { window.Close(); }
+    }
+
     [AvaloniaFact]
     public void TheBodyScrollBarReservesItsTrackInsteadOfCoveringPageControls()
     {
@@ -159,12 +233,12 @@ public class DesignSystemTests
             if (pageScroll.Extent.Height > pageScroll.Viewport.Height + 1)
                 PageBodyScrollGeometry.ClearsScrollBar(window, controls);
             else
-                PageBodyScrollGeometry.KeepsFullWidthWithoutScrollBar(window);
+                PageBodyScrollGeometry.ReservesTrackWithoutScrolling(window);
             pageScroll.ScrollToEnd(); Layout(window);
             if (pageScroll.Extent.Height > pageScroll.Viewport.Height + 1)
                 PageBodyScrollGeometry.ClearsScrollBar(window, controls);
             else
-                PageBodyScrollGeometry.KeepsFullWidthWithoutScrollBar(window);
+                PageBodyScrollGeometry.ReservesTrackWithoutScrolling(window);
             pageScroll.ScrollToHome(); Layout(window);
         }
     }
@@ -519,7 +593,7 @@ internal static class PageBodyScrollGeometry
         return Right(actions, window);
     }
 
-    /// <summary>The scrollbar is shown, it stays inside the page frame, and every named control stops a full gutter before its track.</summary>
+    /// <summary>The scrollbar track is laid out inside the page frame, and every named control stops a full gutter before it.</summary>
     internal static void ClearsScrollBar(Window window, params string[] names)
     {
         var scroll = Scroll(window); var bar = VerticalBar(scroll); var body = (Control)scroll.Content!;
@@ -544,18 +618,15 @@ internal static class PageBodyScrollGeometry
         }
     }
 
-    /// <summary>Without a scrollbar the body ends with the pinned actions; the gutter is not a permanent inset.</summary>
-    internal static void KeepsFullWidthWithoutScrollBar(Window window)
+    /// <summary>With nothing to scroll the track stays reserved and only its thumb hides, so the body keeps its scrolling width.</summary>
+    internal static void ReservesTrackWithoutScrolling(Window window)
     {
-        var scroll = Scroll(window); var body = (Control)scroll.Content!;
-        Assert.False(VerticalBar(scroll).IsVisible, $"{window.Title} {window.ClientSize}: the body still scrolls.");
-        Assert.Equal(PageRight(window), Right(body, window), 1);
+        var scroll = Scroll(window);
+        Assert.True(scroll.Extent.Height <= scroll.Viewport.Height + 1, $"{window.Title} {window.ClientSize}: the body still scrolls.");
+        Assert.False(VerticalBar(scroll).GetVisualDescendants().OfType<Thumb>().Single().IsVisible);
+        ClearsScrollBar(window);
     }
 
     /// <summary>Whichever way the page is sized, the body and the scrollbar never share pixels.</summary>
-    internal static void NeverOverlapsScrollBar(Window window, params string[] names)
-    {
-        if (VerticalBar(Scroll(window)).IsVisible) ClearsScrollBar(window, names);
-        else KeepsFullWidthWithoutScrollBar(window);
-    }
+    internal static void NeverOverlapsScrollBar(Window window, params string[] names) => ClearsScrollBar(window, names);
 }

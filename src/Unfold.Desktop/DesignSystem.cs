@@ -61,6 +61,7 @@ public static partial class DesignSystem
         ApplyFluentPalette(app, fluent, Themes.Single(item => item.Id == CurrentTheme));
         app.Styles.Add(fluent);
         InstallControlForegroundResources(app);
+        InstallScrollBarResources(app);
         var styles = new Styles();
         styles.Add(new Style(s => s.OfType<TemplatedControl>()) { Setters =
         { new Setter(TemplatedControl.FontFamilyProperty, new DynamicResourceExtension(TextFontKey)) }});
@@ -272,6 +273,7 @@ public static partial class DesignSystem
         AddChoiceStyles(styles, "pet-preview-choice", PetPreviewOptionWidth);
         AddThumbHoverSliderStyles(styles);
         AddDirectionStyles(styles);
+        AddScrollBarStyles(styles);
         styles.Add(new Style(s => s.OfType<Button>().Class("settings-reset")) { Setters =
         { new Setter(TemplatedControl.BackgroundProperty, Brushes.Transparent), new Setter(TemplatedControl.ForegroundProperty, Muted) }});
         AddPetCardStyles(styles);
@@ -380,6 +382,31 @@ public static partial class DesignSystem
                 new Setter(ContentPresenter.BorderBrushProperty, state == ":focus-visible" ? Cream : Brushes.Transparent),
                 new Setter(ContentPresenter.BorderThicknessProperty, new Thickness(1))
             }});
+        // The library favorite is a bare star: only keyboard focus draws a frame around it.
+        styles.Add(new Style(s => s.OfType<Button>().Class("pet-favorite")) { Setters =
+        { new Setter(TemplatedControl.BackgroundProperty, Brushes.Transparent) }});
+        foreach (var state in new[] { ":pointerover", ":pressed", ":disabled" })
+            styles.Add(new Style(s => s.OfType<Button>().Class("unfold-action").Class("pet-favorite").Class(state)
+                .Template().OfType<ContentPresenter>().Name("PART_ContentPresenter"))
+            { Setters = { new Setter(ContentPresenter.BackgroundProperty, Brushes.Transparent) } });
+        // Hover previews a light fill; a saved favorite stays solid, also while hovered.
+        static Selector Star(Selector? selector, string? state, string part)
+        {
+            var button = selector.OfType<Button>().Class("pet-favorite");
+            return (state is null ? button : button.Class(state)).Descendant().OfType<Avalonia.Controls.Shapes.Path>().Class(part);
+        }
+        foreach (var (state, opacity, stroke) in new (string?, double, IBrush)[]
+        { (null, 0, Muted), (":pointerover", .32, Accent), ("favorite", 1, Accent) })
+        {
+            styles.Add(new Style(s => Star(s, state, "favorite-fill")) { Setters =
+            { new Setter(Avalonia.Controls.Shapes.Shape.FillProperty, Accent), new Setter(Visual.OpacityProperty, opacity) }});
+            styles.Add(new Style(s => Star(s, state, "favorite-outline")) { Setters =
+            { new Setter(Avalonia.Controls.Shapes.Shape.StrokeProperty, stroke) }});
+        }
+        styles.Add(new Style(s => Star(s, ":disabled", "favorite-fill")) { Setters =
+        { new Setter(Avalonia.Controls.Shapes.Shape.FillProperty, DisabledText) }});
+        styles.Add(new Style(s => Star(s, ":disabled", "favorite-outline")) { Setters =
+        { new Setter(Avalonia.Controls.Shapes.Shape.StrokeProperty, DisabledText) }});
     }
 
     private static Color ColorOf(IBrush brush) => ((ISolidColorBrush)brush).Color;

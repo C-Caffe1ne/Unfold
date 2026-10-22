@@ -41,8 +41,7 @@ internal sealed class PetManagementView : UserControl, IDisposable
         this.owner = owner; this.library = library; this.installed = installed;
         this.chooseMedia = chooseMedia; this.chooseOutput = chooseOutput; this.removed = removed;
         libraryView = new(getPets ?? (() => library.List(loadModels: false)), selectedId ?? (() => appliedId),
-            isFavorite ?? (_ => false), setFavorite, Apply, OpenEditor,
-            package => !package.IsBuiltIn && library.CanManage(package.Manifest.Id), OpenBuilder, Import);
+            isFavorite ?? (_ => false), setFavorite, Apply, OpenEditor, CanEdit, OpenBuilder, Import);
         libraryView.BusyChanged += UpdateBusy;
         page.Content = libraryView; Content = page;
         AttachedToVisualTree += (_, _) => RefreshLibrary();
@@ -112,6 +111,15 @@ internal sealed class PetManagementView : UserControl, IDisposable
     private void ResetBuilder()
     {
         builder?.Dispose(); builder = null; editorPage = null;
+    }
+    private bool CanEdit(CharacterPackage package) => !package.IsBuiltIn && library.CanManage(package.Manifest.Id);
+    /// <summary>Opens the editor for the pet in use. A pet that cannot be edited leaves the page as it is.</summary>
+    internal async Task EditPet(CharacterPackage package)
+    {
+        if (disposed || !CanEdit(package)) return;
+        // Its open draft, saved or not, is already that pet; reopening would ask to discard it.
+        if (builder?.EditingId == package.Manifest.Id) { ShowEditor(); return; }
+        await OpenEditor(package);
     }
     private async Task OpenEditor(CharacterPackage package)
     {
