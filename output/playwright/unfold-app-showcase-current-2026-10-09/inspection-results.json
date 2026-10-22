@@ -1,0 +1,415 @@
+{
+  "checks": [
+    {
+      "name": "theme plum selection and feature capture sync",
+      "pass": true,
+      "detail": {
+        "pressed": [
+          "plum"
+        ],
+        "visible": [
+          "theme-plum"
+        ],
+        "synchronized": true
+      }
+    },
+    {
+      "name": "plum / home real capture",
+      "pass": true,
+      "detail": {
+        "pressed": [
+          "home"
+        ],
+        "src": "http://127.0.0.1:4190/assets/themes/plum/home.png",
+        "href": "http://127.0.0.1:4190/assets/themes/plum/home.png",
+        "complete": true
+      }
+    },
+    {
+      "name": "plum / custom-pet real capture",
+      "pass": true,
+      "detail": {
+        "pressed": [
+          "custom-pet"
+        ],
+        "src": "http://127.0.0.1:4190/assets/themes/plum/custom-pet.png",
+        "href": "http://127.0.0.1:4190/assets/themes/plum/custom-pet.png",
+        "complete": true
+      }
+    },
+    {
+      "name": "plum / speech real capture",
+      "pass": true,
+      "detail": {
+        "pressed": [
+          "speech"
+        ],
+        "src": "http://127.0.0.1:4190/assets/themes/plum/speech.png",
+        "href": "http://127.0.0.1:4190/assets/themes/plum/speech.png",
+        "complete": true
+      }
+    },
+    {
+      "name": "plum / review real capture",
+      "pass": true,
+      "detail": {
+        "pressed": [
+          "review"
+        ],
+        "src": "http://127.0.0.1:4190/assets/themes/plum/review.png",
+        "href": "http://127.0.0.1:4190/assets/themes/plum/review.png",
+        "complete": true
+      }
+    },
+    {
+      "name": "theme oat selection and feature capture sync",
+      "pass": true,
+      "detail": {
+        "pressed": [
+          "oat"
+        ],
+        "visible": [
+          "theme-oat"
+        ],
+        "synchronized": true
+      }
+    },
+    {
+      "name": "oat / home real capture",
+      "pass": true,
+      "detail": {
+        "pressed": [
+          "home"
+        ],
+        "src": "http://127.0.0.1:4190/assets/themes/oat/home.png",
+        "href": "http://127.0.0.1:4190/assets/themes/oat/home.png",
+        "complete": true
+      }
+    },
+    {
+      "name": "oat / custom-pet real capture",
+      "pass": true,
+      "detail": {
+        "pressed": [
+          "custom-pet"
+        ],
+        "src": "http://127.0.0.1:4190/assets/themes/oat/custom-pet.png",
+        "href": "http://127.0.0.1:4190/assets/themes/oat/custom-pet.png",
+        "complete": true
+      }
+    },
+    {
+      "name": "oat / speech real capture",
+      "pass": true,
+      "detail": {
+        "pressed": [
+          "speech"
+        ],
+        "src": "http://127.0.0.1:4190/assets/themes/oat/speech.png",
+        "href": "http://127.0.0.1:4190/assets/themes/oat/speech.png",
+        "complete": true
+      }
+    },
+    {
+      "name": "oat / review real capture",
+      "pass": true,
+      "detail": {
+        "pressed": [
+          "review"
+        ],
+        "src": "http://127.0.0.1:4190/assets/themes/oat/review.png",
+        "href": "http://127.0.0.1:4190/assets/themes/oat/review.png",
+        "complete": true
+      }
+    },
+    {
+      "name": "theme sage selection and feature capture sync",
+      "pass": true,
+      "detail": {
+        "pressed": [
+          "sage"
+        ],
+        "visible": [
+          "theme-sage"
+        ],
+        "synchronized": true
+      }
+    },
+    {
+      "name": "sage / home real capture",
+      "pass": true,
+      "detail": {
+        "pressed": [
+          "home"
+        ],
+        "src": "http://127.0.0.1:4190/assets/themes/sage/home.png",
+        "href": "http://127.0.0.1:4190/assets/themes/sage/home.png",
+        "complete": true
+      }
+    },
+    {
+      "name": "sage / custom-pet real capture",
+      "pass": true,
+      "detail": {
+        "pressed": [
+          "custom-pet"
+        ],
+        "src": "http://127.0.0.1:4190/assets/themes/sage/custom-pet.png",
+        "href": "http://127.0.0.1:4190/assets/themes/sage/custom-pet.png",
+        "complete": true
+      }
+    },
+    {
+      "name": "sage / speech real capture",
+      "pass": true,
+      "detail": {
+        "pressed": [
+          "speech"
+        ],
+        "src": "http://127.0.0.1:4190/assets/themes/sage/speech.png",
+        "href": "http://127.0.0.1:4190/assets/themes/sage/speech.png",
+        "complete": true
+      }
+    },
+    {
+      "name": "sage / review real capture",
+      "pass": true,
+      "detail": {
+        "pressed": [
+          "review"
+        ],
+        "src": "http://127.0.0.1:4190/assets/themes/sage/review.png",
+        "href": "http://127.0.0.1:4190/assets/themes/sage/review.png",
+        "complete": true
+      }
+    },
+    {
+      "name": "theme midnight selection and feature capture sync",
+      "pass": true,
+      "detail": {
+        "pressed": [
+          "midnight"
+        ],
+        "visible": [
+          "theme-midnight"
+        ],
+        "synchronized": true
+      }
+    },
+    {
+      "name": "midnight / home real capture",
+      "pass": true,
+      "detail": {
+        "pressed": [
+          "home"
+        ],
+        "src": "http://127.0.0.1:4190/assets/themes/midnight/home.png",
+        "href": "http://127.0.0.1:4190/assets/themes/midnight/home.png",
+        "complete": true
+      }
+    },
+    {
+      "name": "midnight / custom-pet real capture",
+      "pass": true,
+      "detail": {
+        "pressed": [
+          "custom-pet"
+        ],
+        "src": "http://127.0.0.1:4190/assets/themes/midnight/custom-pet.png",
+        "href": "http://127.0.0.1:4190/assets/themes/midnight/custom-pet.png",
+        "complete": true
+      }
+    },
+    {
+      "name": "midnight / speech real capture",
+      "pass": true,
+      "detail": {
+        "pressed": [
+          "speech"
+        ],
+        "src": "http://127.0.0.1:4190/assets/themes/midnight/speech.png",
+        "href": "http://127.0.0.1:4190/assets/themes/midnight/speech.png",
+        "complete": true
+      }
+    },
+    {
+      "name": "midnight / review real capture",
+      "pass": true,
+      "detail": {
+        "pressed": [
+          "review"
+        ],
+        "src": "http://127.0.0.1:4190/assets/themes/midnight/review.png",
+        "href": "http://127.0.0.1:4190/assets/themes/midnight/review.png",
+        "complete": true
+      }
+    },
+    {
+      "name": "next gallery wraps to timer",
+      "pass": true
+    },
+    {
+      "name": "previous gallery wraps to records",
+      "pass": true
+    },
+    {
+      "name": "lightbox opens with selected capture",
+      "pass": true
+    },
+    {
+      "name": "lightbox close restores focus and scroll",
+      "pass": true
+    },
+    {
+      "name": "lightbox Escape closes",
+      "pass": true
+    },
+    {
+      "name": "lightbox backdrop closes",
+      "pass": true
+    },
+    {
+      "name": "Windows panel selected",
+      "pass": true
+    },
+    {
+      "name": "OS arrow key activates and focuses macOS",
+      "pass": true
+    },
+    {
+      "name": "OS End selects Windows",
+      "pass": true
+    },
+    {
+      "name": "OS Home selects macOS",
+      "pass": true
+    },
+    {
+      "name": "download links preserve the 3 current v1.1.2 release assets",
+      "pass": true,
+      "detail": [
+        "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.1.2-beta/Unfold-v1.1.2-beta-osx-arm64-notarized-installer.zip",
+        "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.1.2-beta/Unfold-v1.1.2-beta-osx-x64-notarized-installer.zip",
+        "https://github.com/C-Caffe1ne/Unfold/releases/download/v1.1.2-beta/Unfold-v1.1.2-beta-win-x64-installer.zip"
+      ]
+    },
+    {
+      "name": "FAQ opens with current Beta conditions",
+      "pass": true
+    },
+    {
+      "name": "FAQ keyboard closes",
+      "pass": true
+    },
+    {
+      "name": "mobile navigation opens",
+      "pass": true
+    },
+    {
+      "name": "mobile menu Escape restores toggle focus",
+      "pass": true
+    },
+    {
+      "name": "mobile section navigation closes menu and focuses target",
+      "pass": true
+    },
+    {
+      "name": "mobile outside click closes menu",
+      "pass": true
+    },
+    {
+      "name": "mobile plum theme occupies full row",
+      "pass": true,
+      "detail": {
+        "left": 20,
+        "right": 355,
+        "width": 335,
+        "height": 266.84375,
+        "overflow": 0
+      }
+    },
+    {
+      "name": "mobile oat theme occupies full row",
+      "pass": true,
+      "detail": {
+        "left": 20,
+        "right": 355,
+        "width": 335,
+        "height": 266.84375,
+        "overflow": 0
+      }
+    },
+    {
+      "name": "mobile sage theme occupies full row",
+      "pass": true,
+      "detail": {
+        "left": 20,
+        "right": 355,
+        "width": 335,
+        "height": 266.84375,
+        "overflow": 0
+      }
+    },
+    {
+      "name": "mobile midnight theme occupies full row",
+      "pass": true,
+      "detail": {
+        "left": 20,
+        "right": 355,
+        "width": 335,
+        "height": 266.84375,
+        "overflow": 0
+      }
+    },
+    {
+      "name": "reload restores page top",
+      "pass": true
+    },
+    {
+      "name": "desktop runs pinning and text scrubbing",
+      "pass": true,
+      "detail": [
+        {
+          "pin": true,
+          "scrub": false
+        },
+        {
+          "pin": false,
+          "scrub": true
+        }
+      ]
+    },
+    {
+      "name": "desktop feature heading actually pins",
+      "pass": true
+    },
+    {
+      "name": "reduced motion removes scroll pinning and scrubbing",
+      "pass": true,
+      "detail": 0
+    },
+    {
+      "name": "source feature and sale state constraints",
+      "pass": true,
+      "detail": {
+        "features": 3,
+        "featureBodyCopy": true,
+        "removed": false,
+        "beta": "Beta v1.1.2",
+        "testing": true
+      }
+    },
+    {
+      "name": "browser has no JavaScript errors or failed resources",
+      "pass": true,
+      "detail": {
+        "errors": [],
+        "failed": []
+      }
+    }
+  ],
+  "errors": [],
+  "failed": [],
+  "passed": 47,
+  "total": 47
+}

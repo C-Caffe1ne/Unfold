@@ -1,0 +1,100 @@
+### Open tabs
+- 0: [Unfold — 잠깐 멈추고, 펫과 함께 쉬어가세요.](https://unfoldpet.dokhustudio.com/)
+- 1: (current) [다운로드 — Unfold](http://127.0.0.1:4186/#install)
+### Page
+- Page URL: http://127.0.0.1:4186/#install
+- Page Title: 다운로드 — Unfold
+### Snapshot
+```yaml
+- generic [active] [ref=f1e1]:
+  - link "본문으로 건너뛰기" [ref=f1e2] [cursor=pointer]:
+    - /url: "#main"
+  - banner [ref=f1e3]:
+    - generic [ref=f1e4]:
+      - link [ref=f1e5] [cursor=pointer]:
+        - /url: "#home"
+        - img "Unfold" [ref=f1e6]
+      - generic [ref=f1e7]:
+        - generic [ref=f1e8]:
+          - link "X에서 Unfold 보기 (새 탭)" [ref=f1e9] [cursor=pointer]:
+            - /url: https://x.com/unfold_pet
+          - link "Instagram에서 Unfold 보기 (새 탭)" [ref=f1e10] [cursor=pointer]:
+            - /url: https://www.instagram.com/unfold_pet
+        - button "메뉴 열기" [ref=f1e11] [cursor=pointer]: ☰
+  - main [ref=f1e12]:
+    - text: ✓ ✓ ✓
+    - region [ref=f1e13]:
+      - generic [ref=f1e15]:
+        - heading "Unfold 다운로드" [level=1] [ref=f1e16]
+        - paragraph [ref=f1e17]: Beta v1.1.1
+        - tablist "운영체제 선택" [ref=f1e18]:
+          - tab "macOS" [selected] [ref=f1e19] [cursor=pointer]
+          - tab "Windows" [ref=f1e20] [cursor=pointer]
+        - tabpanel "macOS" [ref=f1e21]:
+          - generic [ref=f1e22]:
+            - link "Apple Silicon용 다운로드" [ref=f1e23] [cursor=pointer]:
+              - /url: /downloads/Unfold-v1.1.1-beta-osx-arm64-notarized-installer.zip
+            - link "Intel Mac용 다운로드" [ref=f1e24] [cursor=pointer]:
+              - /url: /downloads/Unfold-v1.1.1-beta-osx-x64-notarized-installer.zip
+          - paragraph [ref=f1e25]: Apple Developer ID 서명과 공증을 완료했습니다.
+    - text: ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓
+  - contentinfo [ref=f1e26]:
+    - generic [ref=f1e27]:
+      - generic [ref=f1e28]:
+        - generic [ref=f1e29]:
+          - link [ref=f1e30] [cursor=pointer]:
+            - /url: "#home"
+            - img "Unfold" [ref=f1e31]
+          - paragraph [ref=f1e32]: 책상에서 오래 일하는 사람을 위한 데스크톱 휴식 동료입니다.
+          - generic [ref=f1e33]:
+            - link "X에서 Unfold 보기 (새 탭)" [ref=f1e34] [cursor=pointer]:
+              - /url: https://x.com/unfold_pet
+            - link "Instagram에서 Unfold 보기 (새 탭)" [ref=f1e35] [cursor=pointer]:
+              - /url: https://www.instagram.com/unfold_pet
+        - generic [ref=f1e36]:
+          - heading "제품" [level=3] [ref=f1e37]
+          - list [ref=f1e38]:
+            - listitem [ref=f1e39]:
+              - link "기능" [ref=f1e40] [cursor=pointer]:
+                - /url: "#features"
+            - listitem [ref=f1e41]:
+              - link "가격" [ref=f1e42] [cursor=pointer]:
+                - /url: "#pricing"
+            - listitem [ref=f1e43]:
+              - link "변경 이력" [ref=f1e44] [cursor=pointer]:
+                - /url: "#changelog"
+        - generic [ref=f1e45]:
+          - heading "도움말" [level=3] [ref=f1e46]
+          - list [ref=f1e47]:
+            - listitem [ref=f1e48]:
+              - link "다운로드" [ref=f1e49] [cursor=pointer]:
+                - /url: "#install"
+            - listitem [ref=f1e50]:
+              - link "macOS 다운로드" [ref=f1e51] [cursor=pointer]:
+                - /url: "#mac"
+            - listitem [ref=f1e52]:
+              - link "Windows 다운로드" [ref=f1e53] [cursor=pointer]:
+                - /url: "#windows"
+        - generic [ref=f1e54]:
+          - heading "계정·약관" [level=3] [ref=f1e55]
+          - list [ref=f1e56]:
+            - listitem [ref=f1e57]:
+              - link "로그인/회원가입" [ref=f1e58] [cursor=pointer]:
+                - /url: "#login"
+            - listitem [ref=f1e59]:
+              - link "프라이버시" [ref=f1e60] [cursor=pointer]:
+                - /url: "#privacy"
+            - listitem [ref=f1e61]:
+              - link "이용약관" [ref=f1e62] [cursor=pointer]:
+                - /url: "#terms"
+            - listitem [ref=f1e63]:
+              - link "환불 정책" [ref=f1e64] [cursor=pointer]:
+                - /url: "#refund"
+      - generic [ref=f1e65]:
+        - paragraph [ref=f1e66]: © 2026 Unfold
+        - paragraph [ref=f1e67]: Windows 10 이상 · macOS 13 이상
+      - paragraph [ref=f1e68]:
+        - text: DOKHU(도쿠) · 대표 이현준 · 사업자등록번호 317-29-01908 · (46593) 부산광역시 북구 덕천로 72 ·
+        - link "dokhubooks@gmail.com" [ref=f1e69] [cursor=pointer]:
+          - /url: mailto:dokhubooks@gmail.com
+```

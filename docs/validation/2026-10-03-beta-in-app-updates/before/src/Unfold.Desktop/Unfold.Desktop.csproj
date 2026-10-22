@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <AssemblyName>Unfold</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Version>1.0.2-beta</Version>
+    <ApplicationIcon>../../Art/Brand/unfold-lilac-v1/desktop/unfold.ico</ApplicationIcon>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <MediaRuntimeIdentifier Condition="'$(RuntimeIdentifier)' != ''">$(RuntimeIdentifier)</MediaRuntimeIdentifier>
+    <MediaRuntimeIdentifier Condition="'$(MediaRuntimeIdentifier)' == ''">$(NETCoreSdkRuntimeIdentifier)</MediaRuntimeIdentifier>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="../../Assets/Fonts/LICENSE.txt" Link="Licenses/NoonnuBasicGothic.txt"
+             CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="../../Assets/Licenses/*.txt" Link="Licenses/%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <InternalsVisibleTo Include="Unfold.Tests" />
+    <ProjectReference Include="../Unfold.Core/Unfold.Core.csproj" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.2" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.2" />
+    <PackageReference Include="Svg.Controls.Avalonia" Version="12.0.0.17" />
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="../../Assets/Fonts/NoonnuBasicGothicRegular.otf" Link="Assets/Fonts/NoonnuBasicGothicRegular.otf" />
+    <AvaloniaResource Include="../../Assets/Icons/Navigation/*.svg" Link="Assets/Icons/Navigation/%(Filename)%(Extension)" />
+    <AvaloniaResource Include="../../Assets/Icons/Directions/*.svg" Link="Assets/Icons/Directions/%(Filename)%(Extension)" />
+    <AvaloniaResource Include="../../Assets/Icons/Google/*.svg" Link="Assets/Icons/Google/%(Filename)%(Extension)" />
+    <AvaloniaResource Include="../../Assets/Icons/Playback/*.svg" Link="Assets/Icons/Playback/%(Filename)%(Extension)" />
+    <AvaloniaResource Include="../../Assets/Icons/Sound/*.svg" Link="Assets/Icons/Sound/%(Filename)%(Extension)" />
+    <AvaloniaResource Include="../../Art/Brand/unfold-lilac-v1/desktop/unfold.ico" Link="Assets/Icons/Brand/unfold.ico" />
+    <AvaloniaResource Include="../../Art/Brand/unfold-lilac-v1/png/app-icon/unfold-64.png" Link="Assets/Icons/Brand/unfold-64.png" />
+    <AvaloniaResource Include="../../Art/Brand/unfold-lilac-v1/png/logo/logo-lilac-640.png" Link="Assets/Icons/Brand/logo-lilac-640.png" />
+    <AvaloniaResource Include="../../Art/Brand/unfold-lilac-v1/png/logo/logo-light-640.png" Link="Assets/Icons/Brand/logo-light-640.png" />
+    <EmbeddedResource Include="../../Assets/Account/entry-screen.json" LogicalName="Unfold.Account.entry-screen.json" />
+    <Content Include="../../Assets/Account/*">
+      <Link>Assets/Account/%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="../../web/assets/pet-rest.png">
+      <Link>Assets/Account/companion.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="../../.tools/media-lgpl/$(MediaRuntimeIdentifier)/*">
+      <Link>Tools/%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="../../Assets/Characters/**/*">
+      <Link>Assets/Characters/%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+</Project>

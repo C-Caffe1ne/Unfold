@@ -1,0 +1,6 @@
+### Result
+{"reduced":false,"pet":"/assets/pet-stretch.webp","toggle":"움직임 멈추기"}
+### Ran Playwright code
+```js
+await (async (page) => {await page.emulateMedia({reducedMotion:"no-preference"});await page.reload();return await page.evaluate(()=>({reduced:matchMedia("(prefers-reduced-motion: reduce)").matches,pet:document.querySelector("#pet-animation").getAttribute("src"),toggle:document.querySelector(".motion-toggle").innerText}));})(page);
+```

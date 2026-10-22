@@ -1,0 +1,1102 @@
+--- a/Tests/Unfold.Tests/SettingsPreferencesTests.cs
++++ b/Tests/Unfold.Tests/SettingsPreferencesTests.cs
+@@ -18,7 +18,7 @@
+ public class SettingsPreferencesTests
+ {
+     [AvaloniaFact]
+-    public void MasterAndIndividualVolumeDraftsArePreviewedSavedAndCancelledTogether()
++    public void MasterAndIndividualVolumesApplyImmediatelyAndPreviewThePersistedMix()
+     {
+         using var scope = new Scope(); var window = scope.Window;
+         var master = Find<Slider>(window, "ReminderVolumePercent");
+@@ -27,19 +27,14 @@
+         var previews = new List<(ReminderSound Sound, int Master, int Due, int Completed)>();
+         window.PlaySoundPreview = (sound, settings, _) =>
+         { previews.Add((sound, settings.ReminderVolumePercent, settings.ReminderSoundVolumePercent, settings.CompletionSoundVolumePercent)); return Task.CompletedTask; };
+-        due.Value = 25; Assert.True(Find<Button>(window, "SavePreferences").IsEnabled);
+-        due.Value = 100; Assert.False(Find<Button>(window, "SavePreferences").IsEnabled);
+         master.Value = 50; due.Value = 25; completed.Value = 80;
+         Assert.Equal(SoundVolumeGlyph.Low, Find<SoundVolumeIcon>(window, "ReminderSoundVolumeIcon").Glyph);
+         Assert.Equal(SoundVolumeGlyph.High, Find<SoundVolumeIcon>(window, "CompletionSoundVolumeIcon").Glyph);
+         Press(window, "PreviewDueSound"); Press(window, "PreviewCompletionSound");
+         Assert.Equal(new[] { (ReminderSound.Due, 50, 25, 80), (ReminderSound.Completed, 50, 25, 80) }, previews);
+-        Assert.Equal(100, scope.Runtime.Settings.ReminderSoundVolumePercent);
+-        Press(window, "CancelPreferences"); Assert.Equal(100, master.Value); Assert.Equal(100, due.Value); Assert.Equal(100, completed.Value);
+-        master.Value = 50; due.Value = 25; completed.Value = 80; Press(window, "SavePreferences");
+         var saved = AppSettings.Load(Path.Combine(scope.Root, "settings.json"));
+         Assert.Equal(50, saved.ReminderVolumePercent); Assert.Equal(25, saved.ReminderSoundVolumePercent); Assert.Equal(80, saved.CompletionSoundVolumePercent);
+-        completed.Value = 0; Press(window, "CancelPreferences"); Assert.Equal(80, completed.Value); Assert.False(Find<Button>(window, "SavePreferences").IsEnabled);
++        completed.Value = 0; Assert.Equal(0, scope.Runtime.Settings.CompletionSoundVolumePercent);
+     }
+ 
+     [AvaloniaFact]
+@@ -76,7 +71,7 @@
+                 slider.Value = value; Layout(window);
+                 Assert.Equal(glyph, icon.Glyph);
+             }
+-            slider.Value = 0; Press(window, "CancelPreferences"); Assert.Equal(SoundVolumeGlyph.High, icon.Glyph);
++            slider.Value = 0; slider.Value = 100; Layout(window); Assert.Equal(SoundVolumeGlyph.High, icon.Glyph);
+         }
+         var card = Find<Border>(window, "SettingsNotificationCard");
+         Assert.DoesNotContain(card.GetVisualDescendants().OfType<TextBlock>(), text => text.Text?.Contains('%') == true);
+@@ -96,7 +91,7 @@
+         Assert.False(dueIcon.IsPlaying); Assert.False(completedIcon.IsPlaying);
+         Press(window, "PreviewDueSound"); Assert.True(dueIcon.IsPlaying); Assert.False(completedIcon.IsPlaying);
+         Assert.Equal("스트레칭 알림 미리듣기 중지", AutomationProperties.GetName(due));
+-        Assert.False(Find<Button>(window, "SavePreferences").IsEnabled);
++        Assert.DoesNotContain(window.GetVisualDescendants().OfType<Button>(), button => button.Name is "SavePreferences" or "CancelPreferences");
+         Press(window, "PreviewDueSound"); Assert.False(dueIcon.IsPlaying);
+         Assert.True(requests[0].Token.IsCancellationRequested); Assert.Single(requests);
+         requests[0].Completion.SetResult(); Layout(window);
+@@ -113,7 +108,7 @@
+     }
+ 
+     [AvaloniaFact]
+-    public void FailedPlaybackRestoresThePlayIconAndKeepsTheDraft()
++    public void FailedPlaybackRestoresThePlayIconAndKeepsTheAppliedVolume()
+     {
+         using var scope = new Scope(); var window = scope.Window;
+         Find<Slider>(window, "ReminderSoundVolumePercent").Value = 25;
+@@ -122,7 +117,7 @@
+         Assert.False(Assert.IsType<SoundPreviewIcon>(Find<Button>(window, "PreviewDueSound").Content).IsPlaying);
+         Assert.True(Find<TextBlock>(window, "PreferencesStatus").IsVisible);
+         Assert.Equal(25, Find<Slider>(window, "ReminderSoundVolumePercent").Value);
+-        Assert.True(Find<Button>(window, "SavePreferences").IsEnabled);
++        Assert.Equal(25, scope.Runtime.Settings.ReminderSoundVolumePercent);
+     }
+ 
+     [AvaloniaFact]
+@@ -159,144 +154,115 @@
+     }
+ 
+     [AvaloniaFact]
+-    public void VolumeIsDraftedPreviewedCancelledAndSavedWithTheOtherNotificationSettings()
++    public void RapidVolumeChangesPersistTheLatestValueAcrossNavigationAndHiding()
+     {
+         using var scope = new Scope(); var window = scope.Window;
+         var volume = Find<Slider>(window, "ReminderVolumePercent");
+-        var icon = Find<SoundVolumeIcon>(window, "ReminderVolumeIcon");
+-        var save = Find<Button>(window, "SavePreferences");
+-        Assert.Equal(0, volume.Minimum); Assert.Equal(100, volume.Maximum); Assert.Equal(100, volume.Value);
++        Assert.Equal(0, volume.Minimum); Assert.Equal(100, volume.Maximum);
+         Assert.Equal("전체 소리, 퍼센트", AutomationProperties.GetName(volume));
+-        Assert.False(save.IsEnabled);
+-        var previews = new List<(ReminderSound Sound, int Volume)>();
+-        window.PlaySoundPreview = (sound, settings, _) =>
+-        { previews.Add((sound, settings.ReminderVolumePercent)); return Task.CompletedTask; };
+-        volume.Value = 37;
+-        Assert.Equal(SoundVolumeGlyph.Low, icon.Glyph); Assert.True(save.IsEnabled);
+-        Assert.Equal(100, scope.Runtime.Settings.ReminderVolumePercent);
+-        Press(window, "PreviewDueSound"); Press(window, "PreviewCompletionSound");
+-        Assert.Equal(new[] { (ReminderSound.Due, 37), (ReminderSound.Completed, 37) }, previews);
+-        Assert.Equal(100, scope.Runtime.Settings.ReminderVolumePercent);
+-        Press(window, "SettingsNavTimer"); Press(window, "SettingsNavSettings");
+-        Assert.Equal(37, volume.Value);
+-        Press(window, "CancelPreferences");
+-        Assert.Equal(100, volume.Value); Assert.Equal(SoundVolumeGlyph.High, icon.Glyph); Assert.False(save.IsEnabled);
+-        volume.Value = 0; Press(window, "SavePreferences");
+-        Assert.False(save.IsEnabled);
+-        Assert.Equal(0, scope.Runtime.Settings.ReminderVolumePercent);
+-        Assert.Equal(0, AppSettings.Load(Path.Combine(scope.Root, "settings.json")).ReminderVolumePercent);
+-        volume.Value = 100; Press(window, "CancelPreferences");
+-        Assert.Equal(0, volume.Value); Assert.Equal(SoundVolumeGlyph.Muted, icon.Glyph); Assert.False(save.IsEnabled);
+-    }
+-
+-    [AvaloniaFact]
+-    public void SaveTracksTheWholeFormAndCancelRestoresTheLastSave()
+-    {
+-        using var scope = new Scope(); var window = scope.Window;
+-        var save = Find<Button>(window, "SavePreferences");
++        for (var value = 0; value <= 100; value++) volume.Value = value;
++        volume.Value = 37; window.HideToTray();
++        Assert.Equal(37, scope.Runtime.Settings.ReminderVolumePercent);
++        Assert.Equal(37, AppSettings.Load(Path.Combine(scope.Root, "settings.json")).ReminderVolumePercent);
++        window.Show(); Press(window, "SettingsNavTimer"); Press(window, "SettingsNavSettings");
++        Assert.Equal(37, volume.Value); Assert.Empty(window.OwnedWindows);
++        Assert.DoesNotContain(window.GetVisualDescendants().OfType<Button>(), button => button.Name is "SavePreferences" or "CancelPreferences");
++    }
++
++    [AvaloniaFact]
++    public void NotificationAndTimerPreferencesApplyWithoutChangingTheHomeTimingDraft()
++    {
++        using var scope = new Scope(); var window = scope.Window;
+         var direction = Find<ComboBox>(window, "BubbleDirection");
+         var sounds = Find<CheckBox>(window, "ReminderSoundsEnabled");
+         var idle = Find<NumericUpDown>(window, "ReminderIdle");
+         var snooze = Find<NumericUpDown>(window, "SnoozeMinutes");
+-        Assert.False(save.IsEnabled);
+-        direction.SelectedItem = BubbleDirection.Right; Assert.True(save.IsEnabled);
+-        direction.SelectedItem = BubbleDirection.Top; Assert.False(save.IsEnabled);
+-        sounds.IsChecked = false; idle.Value = 8; snooze.Value = 12;
+-        Assert.True(save.IsEnabled); Assert.True(scope.Runtime.Settings.ReminderSoundsEnabled);
+-        Press(window, "SavePreferences");
+-        Assert.False(save.IsEnabled);
++        direction.SelectedItem = BubbleDirection.Right; sounds.IsChecked = false; idle.Value = 8; snooze.Value = 12;
+         var persisted = AppSettings.Load(Path.Combine(scope.Root, "settings.json"));
+-        Assert.False(persisted.ReminderSoundsEnabled); Assert.Equal(8, persisted.IdleMinutes); Assert.Equal(12, persisted.SnoozeMinutes);
+-        idle.Value = 20; direction.SelectedItem = BubbleDirection.Bottom; sounds.IsChecked = true;
+-        Press(window, "SettingsNavTimer"); Press(window, "SettingsNavSettings");
+-        Assert.Equal(20, idle.Value); Assert.True(save.IsEnabled);
+-        Press(window, "CancelPreferences");
+-        Assert.Equal(8, idle.Value); Assert.Equal(12, snooze.Value); Assert.False(sounds.IsChecked);
+-        Assert.Equal(BubbleDirection.Top, direction.SelectedItem); Assert.False(save.IsEnabled);
+-        Assert.False(Find<TextBlock>(window, "PreferencesStatus").IsVisible);
+-    }
+-
+-    [AvaloniaFact]
+-    public void SaveFailurePreservesBothSectionsAndAllowsRetry()
++        Assert.Equal(BubbleDirection.Right, persisted.BubbleDirection); Assert.False(persisted.ReminderSoundsEnabled);
++        Assert.Equal(8, persisted.IdleMinutes); Assert.Equal(12, persisted.SnoozeMinutes);
++        Press(window, "SettingsNavTimer");
++        Find<NumericUpDown>(window, "BreakDurationMinutes").Value = 3;
++        Press(window, "SettingsNavSettings"); idle.Value = 20;
++        Assert.Equal(20, scope.Runtime.Settings.IdleMinutes); Assert.Equal(1, scope.Runtime.Settings.BreakDurationMinutes);
++        Press(window, "SettingsNavTimer"); Assert.Equal(3, Find<NumericUpDown>(window, "BreakDurationMinutes").Value);
++    }
++
++    [AvaloniaFact]
++    public void FailedAutomaticSavePreservesEditorsAndRetriesOnTheNextEdit()
+     {
+         using var scope = new Scope(); var window = scope.Window;
+         var path = Path.Combine(scope.Root, "settings.json"); Directory.CreateDirectory(path);
+         Find<ComboBox>(window, "BubbleDirection").SelectedItem = BubbleDirection.Left;
+         Find<NumericUpDown>(window, "ReminderIdle").Value = 17;
+-        Find<Slider>(window, "ReminderVolumePercent").Value = 23;
+-        Press(window, "SavePreferences");
+-        Assert.True(Find<Button>(window, "SavePreferences").IsEnabled);
++        var volume = Find<Slider>(window, "ReminderVolumePercent"); volume.Value = 23;
++        Assert.Contains("저장하지 못했어요", Find<TextBlock>(window, "PreferencesStatus").Text);
+         Assert.True(Find<TextBlock>(window, "PreferencesStatus").IsVisible);
+-        Assert.Contains("저장하지 못했어요", Find<TextBlock>(window, "PreferencesStatus").Text);
+-        Assert.Equal(BubbleDirection.Top, scope.Runtime.Settings.BubbleDirection);
+-        Assert.Equal(5, scope.Runtime.Settings.IdleMinutes);
+-        Assert.Equal(100, scope.Runtime.Settings.ReminderVolumePercent);
+-        Assert.Equal(23, Find<Slider>(window, "ReminderVolumePercent").Value);
+-        Assert.Equal(17, Find<NumericUpDown>(window, "ReminderIdle").Value);
+-        Assert.Equal(BubbleDirection.Left, Find<ComboBox>(window, "BubbleDirection").SelectedItem);
+-        Directory.Delete(path); Press(window, "SavePreferences");
+-        Assert.Equal(17, AppSettings.Load(path).IdleMinutes);
+-        Assert.Equal(23, AppSettings.Load(path).ReminderVolumePercent);
++        Assert.Equal(BubbleDirection.Top, scope.Runtime.Settings.BubbleDirection); Assert.Equal(5, scope.Runtime.Settings.IdleMinutes);
++        Assert.Equal(100, scope.Runtime.Settings.ReminderVolumePercent); Assert.Equal(23, volume.Value);
++        Directory.Delete(path); volume.Value = 24;
++        Assert.Equal(17, AppSettings.Load(path).IdleMinutes); Assert.Equal(24, AppSettings.Load(path).ReminderVolumePercent);
+         Assert.Equal(BubbleDirection.Left, scope.Runtime.Settings.BubbleDirection);
+-        Assert.False(Find<Button>(window, "SavePreferences").IsEnabled);
+         Assert.False(Find<TextBlock>(window, "PreferencesStatus").IsVisible);
+     }
+ 
+     [AvaloniaFact]
+-    public void InvalidRawNumberTextCannotSaveAndCancelRepairsTheEditor()
++    public void InvalidNumbersKeepTheLastValidValueWhileOtherSettingsApply()
+     {
+         using var scope = new Scope(); var window = scope.Window;
+         var idle = Find<NumericUpDown>(window, "ReminderIdle");
++        foreach (var invalid in new[] { "", "abc", "2.5" })
++        {
++            idle.Text = invalid; Layout(window);
++            Assert.Equal(5, scope.Runtime.Settings.IdleMinutes);
++            Assert.True(Find<TextBlock>(window, "PreferencesStatus").IsVisible);
++        }
+         Find<ComboBox>(window, "BubbleDirection").SelectedItem = BubbleDirection.Left;
+-        foreach (var invalid in new[] { "", "abc", "2.5" })
+-        {
+-            idle.Text = invalid; Layout(window);
+-            Assert.False(Find<Button>(window, "SavePreferences").IsEnabled);
+-            Press(window, "SavePreferences"); Assert.Equal(BubbleDirection.Top, scope.Runtime.Settings.BubbleDirection);
+-        }
+-        Press(window, "CancelPreferences");
+-        Assert.Equal(5, idle.Value); Assert.Equal("5", idle.Text);
+-        Assert.False(Find<Button>(window, "SavePreferences").IsEnabled);
+-        idle.Value = 9; Assert.True(Find<Button>(window, "SavePreferences").IsEnabled);
+-    }
+-
+-    [AvaloniaFact]
+-    public async Task ImportLocksSaveAndCancelUntilTheResultIsKnown()
+-    {
+-        using var scope = new Scope(); var window = scope.Window;
+-        var selectedFile = new TaskCompletionSource<string?>();
+-        window.ChooseSoundFile = _ => selectedFile.Task;
++        Assert.Equal(BubbleDirection.Left, scope.Runtime.Settings.BubbleDirection); Assert.Equal(5, scope.Runtime.Settings.IdleMinutes);
++        idle.Value = 9; idle.Text = "9"; Layout(window);
++        Assert.Equal(9, AppSettings.Load(Path.Combine(scope.Root, "settings.json")).IdleMinutes);
++        Assert.False(Find<TextBlock>(window, "PreferencesStatus").IsVisible);
++    }
++
++    [AvaloniaFact]
++    public void ValidTypedMinutesApplyBeforeLeavingTheField()
++    {
++        using var scope = new Scope();
++        Find<NumericUpDown>(scope.Window, "ReminderIdle").Text = "14";
++        Find<NumericUpDown>(scope.Window, "SnoozeMinutes").Text = "7";
++        Layout(scope.Window);
++        var saved = AppSettings.Load(Path.Combine(scope.Root, "settings.json"));
++        Assert.Equal(14, saved.IdleMinutes); Assert.Equal(7, saved.SnoozeMinutes);
++    }
++
++    [AvaloniaFact]
++    public async Task CancelledImportKeepsPreviouslyAppliedSettings()
++    {
++        using var scope = new Scope(); var window = scope.Window;
++        var selectedFile = new TaskCompletionSource<string?>(); window.ChooseSoundFile = _ => selectedFile.Task;
+         Find<NumericUpDown>(window, "ReminderIdle").Value = 11;
+-        Press(window, "ImportDueSound");
+-        Assert.False(Find<Button>(window, "SavePreferences").IsEnabled);
+-        Assert.False(Find<Button>(window, "CancelPreferences").IsEnabled);
+-        selectedFile.SetResult(null);
+-        await Until(() => Find<Button>(window, "CancelPreferences").IsEnabled);
+-        Assert.True(Find<Button>(window, "SavePreferences").IsEnabled);
+-        Assert.Equal(11, Find<NumericUpDown>(window, "ReminderIdle").Value);
+-        Press(window, "CancelPreferences"); Assert.False(Find<Button>(window, "SavePreferences").IsEnabled);
+-    }
+-
+-    [AvaloniaFact]
+-    public async Task CancelRestoresImportedSoundsAndPreviewDoesNotDirtyTheForm()
++        Press(window, "ImportDueSound"); Assert.False(Find<StackPanel>(window, "SettingsPreferencesSections").IsEnabled);
++        selectedFile.SetResult(null); await Until(() => Find<Button>(window, "ImportDueSound").IsEnabled);
++        Assert.True(Find<StackPanel>(window, "SettingsPreferencesSections").IsEnabled);
++        Assert.Equal(11, scope.Runtime.Settings.IdleMinutes); Assert.Null(scope.Runtime.Settings.ReminderSoundId);
++    }
++
++    [AvaloniaFact]
++    public async Task ImportedSoundsAndResetApplyImmediatelyAndStopPlayback()
+     {
+         using var scope = new Scope(); var window = scope.Window;
+         var path = Path.Combine(scope.Root, "완료 알림 원본.wav"); File.WriteAllBytes(path, ReminderSounds.Default(ReminderSound.Completed));
+         window.ChooseSoundFile = _ => Task.FromResult<string?>(path);
+         CancellationToken playing = default;
+         window.PlaySoundPreview = (_, _, token) => { playing = token; return Task.Delay(Timeout.Infinite, token); };
+-        Press(window, "PreviewDueSound"); Assert.False(Find<Button>(window, "SavePreferences").IsEnabled);
+-        Press(window, "CancelPreferences"); Assert.True(playing.IsCancellationRequested);
+-        Press(window, "ImportCompletionSound"); await Until(() => Find<Button>(window, "CancelPreferences").IsEnabled);
+-        Assert.True(Find<Button>(window, "SavePreferences").IsEnabled);
+-        Assert.Null(scope.Runtime.Settings.CompletionSoundId);
+-        Press(window, "CancelPreferences"); Assert.Equal("기본 효과음", Find<TextBlock>(window, "CompletionSoundName").Text);
+-        Press(window, "ImportCompletionSound"); await Until(() => Find<Button>(window, "CancelPreferences").IsEnabled);
+-        Press(window, "SavePreferences"); var savedId = scope.Runtime.Settings.CompletionSoundId;
+-        Assert.NotNull(savedId);
+-        Press(window, "ResetCompletionSound"); Assert.True(Find<Button>(window, "SavePreferences").IsEnabled);
+-        Press(window, "CancelPreferences"); Assert.Equal("완료 알림 원본.wav", Find<TextBlock>(window, "CompletionSoundName").Text);
+-        Assert.Equal(savedId, scope.Runtime.Settings.CompletionSoundId); Assert.False(Find<Button>(window, "SavePreferences").IsEnabled);
++        Press(window, "PreviewDueSound"); Press(window, "ImportCompletionSound");
++        await Until(() => scope.Runtime.Settings.CompletionSoundId is not null);
++        Assert.True(playing.IsCancellationRequested);
++        Assert.Equal("완료 알림 원본.wav", AppSettings.Load(Path.Combine(scope.Root, "settings.json")).CompletionSoundName);
++        var id = scope.Runtime.Settings.CompletionSoundId;
++        Press(window, "ResetCompletionSound"); Assert.Null(scope.Runtime.Settings.CompletionSoundId);
++        Assert.Equal("기본 효과음", Find<TextBlock>(window, "CompletionSoundName").Text);
++        Assert.False(File.Exists(Path.Combine(scope.Root, "Sounds", id + ".wav"))); Assert.True(File.Exists(path));
+     }
+ 
+     [AvaloniaFact]
+--- a/Tests/Unfold.Tests/Mp3SoundTests.cs
++++ b/Tests/Unfold.Tests/Mp3SoundTests.cs
+@@ -57,16 +57,16 @@
+ {
+     public static bool HasMediaTool => PetMediaImporter.FindFFmpeg() is not null;
+     [AvaloniaFact(Skip = "Prepare media tools to run native MP3 conversion.", SkipUnless = nameof(HasMediaTool), SkipType = typeof(Mp3SoundSettingsTests))]
+-    public async Task BothNotificationMp3SlotsCanBePreviewedSavedReopenedAndCancelled()
++    public async Task BothNotificationMp3SlotsApplyImmediatelyAndCanBePreviewedAndReopened()
+     {
+         using var scope = new Scope(); var window = scope.Window;
+         var source = Path.Combine(scope.Root, "알림 테스트.mp3"); File.Copy(Mp3SoundImporterTests.Fixture(), source);
+         window.ChooseSoundFile = _ => Task.FromResult<string?>(source);
+         foreach (var button in new[] { "ImportDueSound", "ImportCompletionSound" })
+-        { scope.Click(button); await Until(() => scope.Find<Button>("CancelPreferences").IsEnabled); }
++        { scope.Click(button); await Until(() => scope.Find<Button>(button).IsEnabled); }
+         Assert.Equal("알림 테스트.mp3", scope.Find<TextBlock>("DueSoundName").Text);
+         Assert.Equal("알림 테스트.mp3", scope.Find<TextBlock>("CompletionSoundName").Text);
+-        Assert.Null(scope.Runtime.Settings.ReminderSoundId); Assert.True(scope.Find<Button>("SavePreferences").IsEnabled);
++        Assert.NotNull(scope.Runtime.Settings.ReminderSoundId);
+         var previews = new List<ReminderSound>();
+         window.PlaySoundPreview = (kind, settings, _) =>
+         {
+@@ -77,13 +77,12 @@
+         };
+         scope.Click("PreviewDueSound"); scope.Click("PreviewCompletionSound");
+         Assert.Equal(new[] { ReminderSound.Due, ReminderSound.Completed }, previews);
+-        scope.Click("SavePreferences"); File.Delete(source);
++        File.Delete(source);
+         var saved = AppSettings.Load(Path.Combine(scope.Root, "settings.json"));
+         Assert.Equal(saved.ReminderSoundId, saved.CompletionSoundId); Assert.Equal("알림 테스트.mp3", saved.ReminderSoundName);
+         Assert.Equal("알림 테스트.mp3", saved.CompletionSoundName);
+         var imported = new ReminderSounds(scope.Sounds).Resolve(ReminderSound.Due, saved.ReminderSoundId, true);
+-        scope.Click("ResetDueSound"); scope.Click("ResetCompletionSound"); scope.Click("CancelPreferences");
+-        Assert.True(File.Exists(imported)); Assert.Equal("알림 테스트.mp3", scope.Find<TextBlock>("CompletionSoundName").Text);
++        Assert.True(File.Exists(imported));
+         window.HideToTray(); window.Dispose();
+         using var reopened = new SettingsWindow(scope.Runtime); reopened.Show(); Dispatcher.UIThread.RunJobs();
+         reopened.GetVisualDescendants().OfType<Button>().Single(c => c.Name == "SettingsNavSettings")
+@@ -92,20 +91,20 @@
+         Assert.Equal("알림 테스트.mp3", name.Text); reopened.HideToTray();
+     }
+     [AvaloniaFact(Skip = "Prepare media tools to run native MP3 conversion.", SkipUnless = nameof(HasMediaTool), SkipType = typeof(Mp3SoundSettingsTests))]
+-    public async Task FailedMp3ReplacementKeepsSavedSoundAndCancelledDraftIsRemoved()
++    public async Task FailedMp3ReplacementKeepsSavedSoundAndResetRemovesOnlyImportedCopies()
+     {
+         using var scope = new Scope(); scope.Window.ChooseSoundFile = _ => Task.FromResult<string?>(Mp3SoundImporterTests.Fixture());
+-        scope.Click("ImportDueSound"); await Until(() => scope.Find<Button>("CancelPreferences").IsEnabled); scope.Click("SavePreferences");
++        scope.Click("ImportDueSound"); await Until(() => scope.Find<Button>("ImportDueSound").IsEnabled);
+         var saved = scope.Runtime.Settings.ReminderSoundId; Assert.NotNull(saved);
+         scope.Window.ChooseSoundFile = _ => Task.FromResult<string?>(Mp3SoundImporterTests.Fixture("sound-too-long.mp3"));
+-        scope.Click("ImportDueSound"); await Until(() => scope.Find<Button>("CancelPreferences").IsEnabled);
++        scope.Click("ImportDueSound"); await Until(() => scope.Find<Button>("ImportDueSound").IsEnabled);
+         Assert.Contains("30초", scope.Find<TextBlock>("PreferencesStatus").Text);
+         Assert.Equal(saved, scope.Runtime.Settings.ReminderSoundId); Assert.Equal("sound-short.mp3", scope.Find<TextBlock>("DueSoundName").Text);
+         Assert.Single(Directory.GetFiles(scope.Sounds, "*.wav"));
+-        scope.Click("ResetDueSound"); scope.Click("SavePreferences"); Assert.Empty(Directory.GetFiles(scope.Sounds, "*.wav"));
++        scope.Click("ResetDueSound"); Assert.Empty(Directory.GetFiles(scope.Sounds, "*.wav"));
+         scope.Window.ChooseSoundFile = _ => Task.FromResult<string?>(Mp3SoundImporterTests.Fixture());
+-        scope.Click("ImportCompletionSound"); await Until(() => scope.Find<Button>("CancelPreferences").IsEnabled);
+-        Assert.Single(Directory.GetFiles(scope.Sounds, "*.wav")); scope.Click("CancelPreferences"); Assert.Empty(Directory.GetFiles(scope.Sounds, "*.wav"));
++        scope.Click("ImportCompletionSound"); await Until(() => scope.Find<Button>("ImportCompletionSound").IsEnabled);
++        Assert.Single(Directory.GetFiles(scope.Sounds, "*.wav")); scope.Click("ResetCompletionSound"); Assert.Empty(Directory.GetFiles(scope.Sounds, "*.wav"));
+     }
+     public static bool IsWindows => OperatingSystem.IsWindows();
+     [AvaloniaFact(Skip = "POSIX process cancellation probe.", SkipWhen = nameof(IsWindows), SkipType = typeof(Mp3SoundSettingsTests))]
+@@ -122,7 +121,7 @@
+             scope.Window.ChooseSoundFile = _ => Task.FromResult<string?>(Mp3SoundImporterTests.Fixture());
+             scope.Click("ImportDueSound"); await Until(() => File.Exists(marker) && new FileInfo(marker).Length > 0);
+             var processId = int.Parse(File.ReadAllText(marker));
+-            scope.Window.Dispose(); await Until(() => scope.Find<Button>("CancelPreferences").IsEnabled);
++            scope.Window.Dispose(); await Until(() => scope.Find<Button>("ImportDueSound").IsEnabled);
+             Assert.Empty(Directory.Exists(scope.Sounds) ? Directory.GetFiles(scope.Sounds, "*.wav") : []);
+             Assert.Throws<ArgumentException>(() => System.Diagnostics.Process.GetProcessById(processId));
+         }
+--- a/Tests/Unfold.Tests/SettingsDashboardTests.cs
++++ b/Tests/Unfold.Tests/SettingsDashboardTests.cs
+@@ -193,8 +193,8 @@
+         Assert.Equal(12, idle.Value); Assert.Equal(9, snooze.Value);
+         window.Width = 1120; window.Height = 800; Dispatcher.UIThread.RunJobs();
+         Assert.Equal(12, idle.Value); Assert.Equal(9, snooze.Value);
+-        Assert.Equal(5, scope.Runtime.Settings.IdleMinutes);
+-        Click(window, "SavePreferences"); Dispatcher.UIThread.RunJobs();
++        Assert.Equal(12, scope.Runtime.Settings.IdleMinutes);
++        Dispatcher.UIThread.RunJobs();
+         var loaded = AppSettings.Load(Path.Combine(scope.Root, "settings.json"));
+         Assert.Equal(12, loaded.IdleMinutes); Assert.Equal(9, loaded.SnoozeMinutes); Assert.Equal(3, loaded.BreakDurationMinutes);
+         Assert.Equal(legacyRoutine.Id, loaded.BreakRoutineId);
+@@ -203,27 +203,20 @@
+     }
+ 
+     [AvaloniaFact]
+-    public void PreferencesActionsStayBelowTheScrollableBodyAtBothWindowSizes()
++    public void PreferencesBodyUsesTheAvailableHeightWithoutSaveOrCancelActions()
+     {
+         using var scope = new Scope(); var window = scope.Window;
+         Click(window, "SettingsNavSettings"); Dispatcher.UIThread.RunJobs();
+-        foreach (var size in new[] { new Size(1120, 800), new Size(860, 680) })
++        foreach (var size in new[] { new Size(1120, 800), new Size(860, 680), new Size(640, 560) })
+         {
+             window.Width = size.Width; window.Height = size.Height; Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
++            var page = Find<Grid>(window, "SettingsPreferencesPage");
+             var scroll = Find<ScrollViewer>(window, "SettingsPreferencesScroll");
+-            var save = Find<Button>(window, "SavePreferences"); var cancel = Find<Button>(window, "CancelPreferences");
+-            var saveOrigin = save.TranslatePoint(default, window)!.Value;
+-            var cancelOrigin = cancel.TranslatePoint(default, window)!.Value;
+-            var bodyOrigin = scroll.TranslatePoint(default, window)!.Value;
+-            Assert.True(saveOrigin.Y >= bodyOrigin.Y + scroll.Bounds.Height);
+-            Assert.True(saveOrigin.Y + save.Bounds.Height <= window.ClientSize.Height);
+-            Assert.True(cancelOrigin.X + cancel.Bounds.Width < saveOrigin.X);
+-            Assert.Equal(cancelOrigin.Y, saveOrigin.Y);
++            Assert.Equal(page.Bounds.Height, scroll.Bounds.Height);
++            Assert.DoesNotContain(page.GetVisualDescendants().OfType<Button>(), button => button.Name is "SavePreferences" or "CancelPreferences");
+             scroll.ScrollToEnd(); Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+-            Assert.Equal(saveOrigin, save.TranslatePoint(default, window)!.Value);
+             Assert.True(scroll.Extent.Width <= scroll.Viewport.Width + 1);
+         }
+-        Assert.DoesNotContain(window.GetVisualDescendants().OfType<Button>(), button => button.Content as string == "적용");
+     }
+ 
+     [AvaloniaFact]
+@@ -357,15 +350,15 @@
+         Click(window, "SettingsNavSettings"); Dispatcher.UIThread.RunJobs();
+         Find<ComboBox>(window, "BubbleDirection").SelectedItem = BubbleDirection.Right;
+         Find<CheckBox>(window, "ReminderSoundsEnabled").IsChecked = false;
+-        Assert.Equal(BubbleDirection.Top, scope.Runtime.Settings.BubbleDirection);
++        Assert.Equal(BubbleDirection.Right, scope.Runtime.Settings.BubbleDirection);
+         Find<NumericUpDown>(window, "SnoozeMinutes").Value = 12;
+-        Click(window, "SavePreferences"); Dispatcher.UIThread.RunJobs();
++        Dispatcher.UIThread.RunJobs();
+         var settings = AppSettings.Load(Path.Combine(scope.Root, "settings.json"));
+         Assert.Equal(BubbleDirection.Right, settings.BubbleDirection); Assert.Equal(12, settings.SnoozeMinutes);
+         Assert.False(settings.ReminderSoundsEnabled); Assert.Equal(remaining, scope.Runtime.Clock.Remaining);
+         Assert.False(scope.Runtime.Clock.Paused);
+         Find<NumericUpDown>(window, "SnoozeMinutes").Value = 2.5m;
+-        Click(window, "SavePreferences"); Dispatcher.UIThread.RunJobs();
++        Dispatcher.UIThread.RunJobs();
+         Assert.Equal(12, scope.Runtime.Settings.SnoozeMinutes);
+     }
+ 
+@@ -379,8 +372,8 @@
+         Assert.False(toggle.IsChecked); Assert.False(firstPreview.IsEffectivelyVisible);
+ 
+         toggle.IsChecked = true; Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+-        Assert.True(firstPreview.IsEffectivelyVisible); Assert.True(Find<Button>(window, "SavePreferences").IsEnabled);
+-        Click(window, "SavePreferences"); Dispatcher.UIThread.RunJobs();
++        Assert.True(firstPreview.IsEffectivelyVisible);
++        Dispatcher.UIThread.RunJobs();
+         Assert.True(scope.Runtime.Settings.DebugToolsEnabled);
+         Assert.True(AppSettings.Load(Path.Combine(scope.Root, "settings.json")).DebugToolsEnabled);
+ 
+--- a/Tests/Unfold.Tests/SettingsNavigationGuardTests.cs
++++ b/Tests/Unfold.Tests/SettingsNavigationGuardTests.cs
+@@ -17,107 +17,81 @@
+ public class SettingsNavigationGuardTests
+ {
+     [AvaloniaTheory]
+-    [InlineData("저장", 9, false)]
+-    [InlineData("저장 안 함", 5, false)]
+-    [InlineData("취소", 5, true)]
+-    public async Task ChangedSettingsWaitForTheSelectedSaveDecision(string choice, int savedIdle, bool stays)
+-    {
+-        using var scope = new Scope(); var window = scope.Window;
+-        var page = Find<ContentControl>(window, "SettingsPageHost").Content;
+-        var idle = Find<NumericUpDown>(window, "ReminderIdle"); idle.Value = 9;
+-        Press(window, "SettingsNavReview"); var dialog = await Dialog(window);
+-        Assert.Same(page, Find<ContentControl>(window, "SettingsPageHost").Content);
+-        Assert.Contains(dialog.GetVisualDescendants().OfType<TextBlock>(), text => text.Text == "변경된 설정이 있어요. 저장하시겠어요?");
+-        var buttons = dialog.GetVisualDescendants().OfType<Button>().ToArray();
+-        Assert.Equal(new[] { "저장", "저장 안 함", "취소" }, buttons.Select(button => button.Content));
+-        var actions = Assert.IsType<WrapPanel>(buttons[0].Parent);
+-        Assert.Equal(HorizontalAlignment.Center, actions.HorizontalAlignment);
+-        var left = buttons[0].TranslatePoint(default, dialog)!.Value.X;
+-        var right = buttons[^1].TranslatePoint(default, dialog)!.Value.X + buttons[^1].Bounds.Width;
+-        Assert.InRange(Math.Abs((left + right) / 2 - dialog.ClientSize.Width / 2), 0, 1);
+-        Choice(dialog, choice); await Until(() => window.OwnedWindows.Count == 0);
+-        Assert.Equal(savedIdle, scope.Runtime.Settings.IdleMinutes);
+-        if (stays) { Assert.Same(page, Find<ContentControl>(window, "SettingsPageHost").Content); Assert.Equal(9, idle.Value); }
+-        else
+-        {
+-            await Until(() => Find<ContentControl>(window, "SettingsPageHost").Content != page);
+-            Press(window, "SettingsNavSettings"); Assert.Equal(savedIdle, idle.Value);
+-            Assert.False(Find<Button>(window, "SavePreferences").IsEnabled);
+-        }
+-    }
+-
+-    [AvaloniaTheory]
+     [InlineData("SettingsNavTimer")]
+     [InlineData("SettingsNavPacks")]
+     [InlineData("SettingsNavReview")]
+-    public async Task EveryPageTransitionIsGuardedButSavedSettingsMoveWithoutAModal(string destination)
+-    {
+-        using var scope = new Scope(); var window = scope.Window;
+-        var page = Find<ContentControl>(window, "SettingsPageHost").Content;
+-        Find<Slider>(window, "ReminderVolumePercent").Value = 37;
+-        Press(window, destination); Choice(await Dialog(window), "취소");
+-        await Until(() => window.OwnedWindows.Count == 0);
+-        Assert.Same(page, Find<ContentControl>(window, "SettingsPageHost").Content);
+-        Press(window, "SavePreferences"); Press(window, destination);
+-        await Until(() => Find<ContentControl>(window, "SettingsPageHost").Content != page);
+-        Assert.Empty(window.OwnedWindows); Assert.Equal(37, scope.Runtime.Settings.ReminderVolumePercent);
+-    }
+-
+-    [AvaloniaFact]
+-    public async Task InvalidInputAndStorageFailureKeepTheDraftOnTheSettingsPage()
+-    {
+-        using var scope = new Scope(); var window = scope.Window;
+-        var page = Find<ContentControl>(window, "SettingsPageHost").Content;
+-        var idle = Find<NumericUpDown>(window, "ReminderIdle"); idle.Text = "";
+-        Press(window, "SettingsNavTimer"); Choice(await Dialog(window), "저장");
+-        await Until(() => window.OwnedWindows.Count == 0);
+-        Assert.Same(page, Find<ContentControl>(window, "SettingsPageHost").Content);
+-        Assert.True(Find<TextBlock>(window, "PreferencesStatus").IsVisible);
+-        idle.Value = 9; idle.Text = "9";
+-        Directory.CreateDirectory(Path.Combine(scope.Root, "settings.json"));
+-        Press(window, "SettingsNavPacks"); Choice(await Dialog(window), "저장");
+-        await Until(() => window.OwnedWindows.Count == 0);
+-        Assert.Same(page, Find<ContentControl>(window, "SettingsPageHost").Content);
+-        Assert.Equal(5, scope.Runtime.Settings.IdleMinutes); Assert.Equal(9, idle.Value);
+-        Assert.True(Find<Button>(window, "SavePreferences").IsEnabled);
+-        Assert.Contains("저장하지 못", Find<TextBlock>(window, "PreferencesStatus").Text);
+-    }
+-
+-    [AvaloniaFact]
+-    public async Task DuplicateNavigationAndEscapeDoNotDiscardTheDraftOrOpenAnotherModal()
++    public void EveryPageTransitionAppliesEditsWithoutOpeningAModal(string destination)
+     {
+         using var scope = new Scope(); var window = scope.Window;
+         var page = Find<ContentControl>(window, "SettingsPageHost").Content;
+         Find<NumericUpDown>(window, "ReminderIdle").Value = 9;
+-        Press(window, "SettingsNavTimer"); Press(window, "SettingsNavReview"); Press(window, "SettingsNavPacks");
+-        var dialog = await Dialog(window); Assert.Single(window.OwnedWindows);
+-        dialog.KeyPress(Key.Escape, RawInputModifiers.None, PhysicalKey.Escape, "");
+-        await Until(() => window.OwnedWindows.Count == 0);
+-        Assert.Same(page, Find<ContentControl>(window, "SettingsPageHost").Content);
+-        Assert.Equal(9, Find<NumericUpDown>(window, "ReminderIdle").Value);
++        Find<Slider>(window, "ReminderVolumePercent").Value = 37;
++        Press(window, destination);
++        Assert.NotSame(page, Find<ContentControl>(window, "SettingsPageHost").Content); Assert.Empty(window.OwnedWindows);
++        var saved = AppSettings.Load(Path.Combine(scope.Root, "settings.json"));
++        Assert.Equal(9, saved.IdleMinutes); Assert.Equal(37, saved.ReminderVolumePercent);
++        Press(window, "SettingsNavSettings"); Assert.Equal(9, Find<NumericUpDown>(window, "ReminderIdle").Value);
+     }
+ 
+     [AvaloniaFact]
+-    public async Task NavigationWaitsForSoundImportAndDiscardRemovesItsUnsavedFile()
++    public void InvalidInputDoesNotBlockNavigationOrChangeTheSavedValue()
++    {
++        using var scope = new Scope(); var window = scope.Window;
++        var page = Find<ContentControl>(window, "SettingsPageHost").Content;
++        Find<NumericUpDown>(window, "ReminderIdle").Text = "";
++        Press(window, "SettingsNavReview"); Assert.NotSame(page, Find<ContentControl>(window, "SettingsPageHost").Content);
++        Assert.Empty(window.OwnedWindows); Assert.Equal(5, scope.Runtime.Settings.IdleMinutes);
++    }
++
++    [AvaloniaFact]
++    public void StorageFailureDoesNotBlockNavigationAndReopeningRetriesTheEdit()
++    {
++        using var scope = new Scope(); var window = scope.Window;
++        var path = Path.Combine(scope.Root, "settings.json"); Directory.CreateDirectory(path);
++        Find<NumericUpDown>(window, "ReminderIdle").Value = 9;
++        Assert.True(Find<TextBlock>(window, "PreferencesStatus").IsVisible);
++        Press(window, "SettingsNavTimer"); Assert.Empty(window.OwnedWindows); Assert.Equal(5, scope.Runtime.Settings.IdleMinutes);
++        Directory.Delete(path); Press(window, "SettingsNavSettings");
++        Assert.Equal(9, AppSettings.Load(path).IdleMinutes); Assert.False(Find<TextBlock>(window, "PreferencesStatus").IsVisible);
++    }
++
++    [AvaloniaFact]
++    public void RepeatedNavigationDoesNotOpenSettingsModals()
++    {
++        using var scope = new Scope(); var window = scope.Window;
++        Find<NumericUpDown>(window, "ReminderIdle").Value = 9;
++        foreach (var destination in new[] { "SettingsNavTimer", "SettingsNavReview", "SettingsNavPacks", "SettingsNavSettings" }) Press(window, destination);
++        Assert.Empty(window.OwnedWindows); Assert.Equal(9, scope.Runtime.Settings.IdleMinutes);
++    }
++
++    [AvaloniaFact]
++    public async Task NavigationDuringAnImportDoesNotDiscardTheResult()
+     {
+         using var scope = new Scope(); var window = scope.Window;
+         var page = Find<ContentControl>(window, "SettingsPageHost").Content;
+         var selected = new TaskCompletionSource<string?>(); window.ChooseSoundFile = _ => selected.Task;
+         Press(window, "ImportDueSound"); Press(window, "SettingsNavTimer");
+-        Assert.Empty(window.OwnedWindows); Assert.Same(page, Find<ContentControl>(window, "SettingsPageHost").Content);
++        Assert.NotSame(page, Find<ContentControl>(window, "SettingsPageHost").Content); Assert.Empty(window.OwnedWindows);
+         var sound = Path.Combine(scope.Root, "sound.wav"); File.WriteAllBytes(sound, ReminderSounds.Default(ReminderSound.Due));
+-        selected.SetResult(sound); await Until(() => Find<Button>(window, "SavePreferences").IsEnabled);
+-        var sounds = Path.Combine(scope.Root, "Sounds"); Assert.Single(Directory.GetFiles(sounds, "*.wav"));
+-        Press(window, "SettingsNavTimer"); Choice(await Dialog(window), "저장 안 함");
+-        await Until(() => Find<ContentControl>(window, "SettingsPageHost").Content != page);
+-        Assert.Empty(Directory.GetFiles(sounds, "*.wav")); Assert.Null(scope.Runtime.Settings.ReminderSoundId);
++        selected.SetResult(sound); await Until(() => scope.Runtime.Settings.ReminderSoundId is not null);
++        var saved = AppSettings.Load(Path.Combine(scope.Root, "settings.json")); Assert.NotNull(saved.ReminderSoundId);
++        Assert.True(File.Exists(Path.Combine(scope.Root, "Sounds", saved.ReminderSoundId + ".wav")));
++    }
++
++    [AvaloniaFact]
++    public void SavedPreferencesSurviveDisposalAndReopening()
++    {
++        using var scope = new Scope();
++        Find<NumericUpDown>(scope.Window, "SnoozeMinutes").Value = 13;
++        Find<CheckBox>(scope.Window, "ReminderSoundsEnabled").IsChecked = false;
++        scope.Window.HideToTray(); scope.Window.Dispose();
++        using var reopened = new AppRuntime(new ClassicDesktopStyleApplicationLifetime());
++        Assert.Equal(13, reopened.Settings.SnoozeMinutes); Assert.False(reopened.Settings.ReminderSoundsEnabled);
+     }
+ 
+     private static T Find<T>(Control root, string name) where T : Control => root.GetVisualDescendants().OfType<T>().Single(c => c.Name == name);
+     private static void Layout() { Dispatcher.UIThread.RunJobs(); AvaloniaHeadlessPlatform.ForceRenderTimerTick(); }
+     private static void Press(Window window, string name) { Find<Button>(window, name).RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Layout(); }
+-    private static void Choice(Window dialog, string text) { dialog.GetVisualDescendants().OfType<Button>().Single(b => Equals(b.Content, text)).RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Layout(); }
+-    private static async Task<Window> Dialog(Window window) { await Until(() => window.OwnedWindows.Count != 0); return Assert.Single(window.OwnedWindows); }
+     private static async Task Until(Func<bool> ready)
+     {
+         for (var i = 0; i < 200; i++) { Layout(); if (ready()) return; await Task.Delay(10, TestContext.Current.CancellationToken); }
+--- a/Tests/Unfold.Tests/SoundCleanupTests.cs
++++ b/Tests/Unfold.Tests/SoundCleanupTests.cs
+@@ -13,53 +13,48 @@
+ public class SoundCleanupTests
+ {
+     [AvaloniaFact]
+-    public async Task CancelAndReplacementRemoveOnlyUnusedCopies()
++    public async Task ResetAndReplacementRemoveOnlyUnusedCopies()
+     {
+         using var scope = new Scope();
+         var first = await scope.Import("ImportDueSound", ReminderSound.Due);
+         var second = await scope.Import("ImportDueSound", ReminderSound.Completed);
+         Assert.False(File.Exists(first)); Assert.True(File.Exists(second));
+-        scope.Click("CancelPreferences"); Assert.False(File.Exists(second));
++        scope.Click("ResetDueSound"); Assert.False(File.Exists(second));
+         Assert.True(File.Exists(scope.Source(ReminderSound.Due))); Assert.True(File.Exists(scope.Source(ReminderSound.Completed)));
+     }
+ 
+     [AvaloniaFact]
+-    public async Task SharedSavedSoundSurvivesResetAndCancelUntilBothReferencesAreSavedAway()
++    public async Task SharedSoundSurvivesUntilBothReferencesAreReset()
+     {
+         using var scope = new Scope();
+         var shared = await scope.Import("ImportDueSound", ReminderSound.Due);
+-        await scope.Import("ImportCompletionSound", ReminderSound.Due); scope.Click("SavePreferences");
++        await scope.Import("ImportCompletionSound", ReminderSound.Due);
+         Assert.Equal(scope.Runtime.Settings.ReminderSoundId, scope.Runtime.Settings.CompletionSoundId);
+-        scope.Click("ResetDueSound"); scope.Click("SavePreferences"); Assert.True(File.Exists(shared));
+-        scope.Click("ResetCompletionSound"); Assert.True(File.Exists(shared));
+-        scope.Click("CancelPreferences"); Assert.True(File.Exists(shared));
+-        scope.Click("ResetCompletionSound"); scope.Click("SavePreferences"); Assert.False(File.Exists(shared));
++        scope.Click("ResetDueSound"); Assert.True(File.Exists(shared));
++        scope.Click("ResetCompletionSound"); Assert.False(File.Exists(shared));
+     }
+ 
+     [AvaloniaFact]
+-    public async Task FailedSaveKeepsSavedAndDraftFilesAndCancelKeepsOnlySaved()
++    public async Task FailedAutomaticSaveKeepsTheSavedFileAndDisposalRemovesOnlyTheUnappliedReplacement()
+     {
+         using var scope = new Scope();
+-        var saved = await scope.Import("ImportDueSound", ReminderSound.Due); scope.Click("SavePreferences");
+-        var draft = await scope.Import("ImportDueSound", ReminderSound.Completed);
++        var saved = await scope.Import("ImportDueSound", ReminderSound.Due);
+         var settingsPath = Path.Combine(scope.Root, "settings.json"); File.Delete(settingsPath); Directory.CreateDirectory(settingsPath);
+-        scope.Click("SavePreferences"); Assert.True(scope.Find<TextBlock>("PreferencesStatus").IsVisible);
+-        Assert.True(File.Exists(saved)); Assert.True(File.Exists(draft));
+-        scope.Click("CancelPreferences"); Assert.True(File.Exists(saved)); Assert.False(File.Exists(draft));
++        var pending = await scope.Import("ImportDueSound", ReminderSound.Completed);
++        Assert.True(scope.Find<TextBlock>("PreferencesStatus").IsVisible);
++        Assert.True(File.Exists(saved)); Assert.True(File.Exists(pending));
++        scope.Window.Dispose(); Assert.True(File.Exists(saved)); Assert.False(File.Exists(pending));
+     }
+ 
+     [AvaloniaFact]
+-    public async Task CancelledNavigationAndHidingRetainTheDraftAndDisposalDiscardsIt()
++    public async Task NavigationHidingAndDisposalKeepTheAutomaticallySavedSound()
+     {
+-        using var scope = new Scope(); var draft = await scope.Import("ImportDueSound", ReminderSound.Due);
+-        scope.Click("SettingsNavTimer");
+-        await Until(() => scope.Window.OwnedWindows.Count != 0);
+-        Assert.Single(scope.Window.OwnedWindows).GetVisualDescendants().OfType<Button>().Single(button => Equals(button.Content, "취소"))
+-            .RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+-        await Until(() => scope.Window.OwnedWindows.Count == 0);
+-        scope.Window.HideToTray(); Assert.True(File.Exists(draft));
+-        scope.Window.Show(); scope.Click("SettingsNavSettings"); Assert.True(scope.Find<Button>("SavePreferences").IsEnabled);
+-        scope.Window.Dispose(); Assert.False(File.Exists(draft));
++        using var scope = new Scope(); var saved = await scope.Import("ImportDueSound", ReminderSound.Due);
++        scope.Click("SettingsNavTimer"); Assert.Empty(scope.Window.OwnedWindows);
++        scope.Window.HideToTray(); Assert.True(File.Exists(saved));
++        scope.Window.Show(); scope.Click("SettingsNavSettings");
++        Assert.NotNull(scope.Runtime.Settings.ReminderSoundId);
++        scope.Window.Dispose(); Assert.True(File.Exists(saved));
+     }
+ 
+     [AvaloniaFact]
+@@ -96,7 +91,7 @@
+         public async Task<string> Import(string button, ReminderSound kind)
+         {
+             Window.ChooseSoundFile = _ => Task.FromResult<string?>(Source(kind)); Click(button);
+-            await Until(() => Find<Button>("CancelPreferences").IsEnabled);
++            await Until(() => Find<Button>(button).IsEnabled);
+             var id = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(Source(kind))));
+             var path = Path.Combine(Sounds, id + ".wav"); Assert.True(File.Exists(path)); return path;
+         }
+--- a/Tests/Unfold.Tests/NotificationLayoutTests.cs
++++ b/Tests/Unfold.Tests/NotificationLayoutTests.cs
+@@ -48,7 +48,7 @@
+     }
+ 
+     [AvaloniaFact]
+-    public void ResizingNotificationRowsPreservesDraftAndReturnsToTheWideLayout()
++    public void ResizingNotificationRowsPreservesAppliedValuesAndReturnsToTheWideLayout()
+     {
+         using var scope = new Scope(); var window = scope.Window;
+         var card = Find<Border>(window, "SettingsNotificationCard");
+@@ -60,12 +60,12 @@
+             card.Width = width; Layout(window);
+             Assert.Equal(BubbleDirection.Right, direction.SelectedItem); Assert.Equal(42, volume.Value);
+             Assert.Equal(SoundVolumeGlyph.Low, Find<SoundVolumeIcon>(window, "ReminderVolumeIcon").Glyph);
+-            Assert.True(Find<Button>(window, "SavePreferences").IsEnabled);
++            Assert.Equal(42, scope.Runtime.Settings.ReminderVolumePercent);
+             Assert.Equal(width < 528 ? 2 : 0, Grid.GetRow(direction));
+             AssertRightAligned(Find<Grid>(window, "BubbleDirectionRow"), direction);
+         }
+-        Assert.Equal(BubbleDirection.Top, scope.Runtime.Settings.BubbleDirection);
+-        Assert.Equal(100, scope.Runtime.Settings.ReminderVolumePercent);
++        Assert.Equal(BubbleDirection.Right, scope.Runtime.Settings.BubbleDirection);
++        Assert.Equal(42, scope.Runtime.Settings.ReminderVolumePercent);
+     }
+ 
+     private static void AssertRightAligned(Control row, Control editor)
+--- a/Tests/Unfold.Tests/TimerControlTests.cs
++++ b/Tests/Unfold.Tests/TimerControlTests.cs
+@@ -124,7 +124,7 @@
+         var settingsControls = scope.Window.GetVisualDescendants().OfType<NumericUpDown>().ToArray();
+         settingsControls.Single(input => input.Name == "ReminderIdle").Value = 12;
+         settingsControls.Single(input => input.Name == "SnoozeMinutes").Value = 9;
+-        Press(scope.Window, "SavePreferences"); Dispatcher.UIThread.RunJobs();
++        Dispatcher.UIThread.RunJobs();
+         Assert.Equal(12, scope.Runtime.Settings.IdleMinutes); Assert.Equal(9, scope.Runtime.Settings.SnoozeMinutes);
+         Assert.Equal(12, settingsControls.Single(input => input.Name == "ReminderIdle").Value);
+     }
+--- a/Tests/Unfold.Tests/UiAuditRegressionTests.cs
++++ b/Tests/Unfold.Tests/UiAuditRegressionTests.cs
+@@ -166,7 +166,7 @@
+     }
+ 
+     [AvaloniaFact]
+-    public async Task SoundsArePendingUntilApplyAndPreviewCancelsPreviousPlayback()
++    public async Task SoundsApplyAfterImportAndPreviewCancelsPreviousPlayback()
+     {
+         using var scope = new SettingsScope(); var window = scope.Window;
+         var path = Path.Combine(scope.Root, "내 알림.wav"); File.WriteAllBytes(path, ReminderSounds.Default(ReminderSound.Due));
+@@ -175,18 +175,17 @@
+         window.PlaySoundPreview = (_, _, token) => { tokens.Add(token); return Task.Delay(Timeout.Infinite, token); };
+         Press(window, "SettingsNavSettings"); Layout(window);
+         Press(window, "ImportDueSound"); await Until(() => Find<Button>(window, "ImportDueSound").IsEnabled);
+-        Assert.Null(scope.Runtime.Settings.ReminderSoundId);
++        Assert.NotNull(scope.Runtime.Settings.ReminderSoundId);
+         Assert.Equal("내 알림.wav", Find<TextBlock>(window, "DueSoundName").Text);
+-        Assert.True(Find<Button>(window, "SavePreferences").IsEnabled);
+         Assert.False(Find<TextBlock>(window, "PreferencesStatus").IsVisible);
+         Press(window, "PreviewDueSound"); Assert.True(Assert.IsType<SoundPreviewIcon>(Find<Button>(window, "PreviewDueSound").Content).IsPlaying);
+         Press(window, "PreviewCompletionSound"); Assert.True(tokens[0].IsCancellationRequested); Assert.False(tokens[1].IsCancellationRequested);
+         Assert.False(Assert.IsType<SoundPreviewIcon>(Find<Button>(window, "PreviewDueSound").Content).IsPlaying);
+         Assert.True(Assert.IsType<SoundPreviewIcon>(Find<Button>(window, "PreviewCompletionSound").Content).IsPlaying);
+-        Press(window, "SavePreferences"); Assert.NotNull(scope.Runtime.Settings.ReminderSoundId);
++        Assert.NotNull(scope.Runtime.Settings.ReminderSoundId);
+         Assert.Equal("내 알림.wav", AppSettings.Load(Path.Combine(scope.Root, "settings.json")).ReminderSoundName);
+-        Press(window, "ResetDueSound"); Assert.NotNull(scope.Runtime.Settings.ReminderSoundId); Assert.True(tokens[1].IsCancellationRequested);
+-        Press(window, "SavePreferences"); Assert.Null(scope.Runtime.Settings.ReminderSoundId);
++        Press(window, "ResetDueSound"); Assert.Null(scope.Runtime.Settings.ReminderSoundId); Assert.True(tokens[1].IsCancellationRequested);
++        Assert.Null(scope.Runtime.Settings.ReminderSoundId);
+         window.PlaySoundPreview = (_, _, _) => throw new IOException("device unavailable");
+         Press(window, "PreviewDueSound"); Assert.Equal(DesignSystem.Error, Find<TextBlock>(window, "PreferencesStatus").Foreground);
+         window.PlaySoundPreview = (_, _, token) => { tokens.Add(token); return Task.Delay(Timeout.Infinite, token); };
+--- a/Tests/Unfold.Tests/ThemeTests.cs
++++ b/Tests/Unfold.Tests/ThemeTests.cs
+@@ -73,9 +73,8 @@
+             // The default choice does not need to write a new file.
+             Assert.Equal(palette.Id, AppSettings.Load(scope.Path).Theme);
+             Assert.True(scope.Runtime.Clock.Paused); Assert.Equal(19, idle.Value);
+-            Assert.Equal(37, interval.Value); Assert.True(Find<Button>(window, "SavePreferences").IsEnabled);
++            Assert.Equal(37, interval.Value); Assert.Equal(19, scope.Runtime.Settings.IdleMinutes);
+         }
+-        Press(Find<Button>(window, "SavePreferences"));
+         Assert.Equal(AppTheme.MidnightBlue, AppSettings.Load(scope.Path).Theme); Assert.Equal(19, AppSettings.Load(scope.Path).IdleMinutes);
+         Press(Find<Button>(window, "SettingsNavPacks"));
+         var preview = Find<Border>(window, "PackPreviewSurface");
+--- a/Tests/Unfold.Tests/ResponsiveLayoutTests.cs
++++ b/Tests/Unfold.Tests/ResponsiveLayoutTests.cs
+@@ -6,6 +6,7 @@
+ using Avalonia.Threading;
+ using Avalonia.VisualTree;
+ using Unfold.Desktop;
++using Unfold.Core;
+ 
+ namespace Unfold.Tests;
+ 
+@@ -70,13 +71,11 @@
+         {
+             window.Width = width; window.Height = 560; Layout(window);
+             Assert.Same(volume, Find<Slider>(window, "ReminderVolumePercent")); Assert.Equal(37, volume.Value);
+-            Assert.True(Find<Button>(window, "SavePreferences").IsEnabled);
++            Assert.Equal(37, AppSettings.Load(Path.Combine(AppPaths.DataRoot, "settings.json")).ReminderVolumePercent);
+             AssertNoHorizontalOverflow(window);
+-            AssertInWindow(Find<Button>(window, "SavePreferences"), window);
+             var scroll = Find<ScrollViewer>(window, "SettingsPreferencesScroll");
+             scroll.ScrollToEnd(); Layout(window); AssertInWindow(Find<CheckBox>(window, "DebugToolsEnabled"), window);
+         }
+-        Press(window, "SavePreferences");
+         Press(window, "SettingsNavReview"); AssertNoHorizontalOverflow(window);
+         AssertInWindow(Find<Button>(window, "ReviewExport"), window);
+         Press(window, "SettingsNavPacks"); AssertNoHorizontalOverflow(window);
+--- a/src/Unfold.Desktop/Ui.cs
++++ b/src/Unfold.Desktop/Ui.cs
+@@ -212,8 +212,6 @@
+ 
+     public static Task<int> Confirm(Window owner, string title, string message, params string[] choices) =>
+         Confirm(owner, title, message, false, choices);
+-    internal static Task<int> ConfirmSettingsChanges(Window owner) =>
+-        Confirm(owner, "설정 변경", "변경된 설정이 있어요. 저장하시겠어요?", true, ["저장", "저장 안 함", "취소"]);
+     private static async Task<int> Confirm(Window owner, string title, string message, bool centered, string[] choices)
+     {
+         var dialog = ModalWindow(title, 460);
+--- a/src/Unfold.Desktop/SettingsWindow.Preferences.cs
++++ b/src/Unfold.Desktop/SettingsWindow.Preferences.cs
+@@ -21,8 +21,6 @@
+     private readonly SoundVolumeIcon completedSoundVolumeIcon = new() { Name = "CompletionSoundVolumeIcon" };
+     private static Slider SoundVolumeSlider(string name) => new() { Name = name, Minimum = 0, Maximum = 100,
+         TickFrequency = 1, IsSnapToTickEnabled = true, SmallChange = 1, LargeChange = 10, Value = 100, Classes = { "thumb-hover-slider" } };
+-    private readonly Button preferencesSave = new() { Name = "SavePreferences", Content = "저장", Classes = { "unfold-action", "primary" }, IsEnabled = false };
+-    private readonly Button preferencesCancel = new() { Name = "CancelPreferences", Content = "취소", Classes = { "unfold-action", "quiet" } };
+     private readonly TextBlock preferencesStatus = new() { Name = "PreferencesStatus", IsVisible = false,
+         FontSize = DesignSystem.Caption, Foreground = DesignSystem.Error, TextWrapping = TextWrapping.Wrap };
+     private StackPanel? preferencesSections;
+@@ -30,7 +28,8 @@
+     private string? dueSoundId, completedSoundId, dueSoundName, completedSoundName;
+     private Action? refreshSoundNames;
+     private int soundImports;
+-    private bool savingPreferences, restoringPreferences, preferencesNavigationPending;
++    private bool restoringPreferences;
++    private long preferencesEditVersion;
+     private readonly ReminderSounds importedSounds = new(Path.Combine(AppPaths.DataRoot, "Sounds"));
+ 
+     private sealed record PreferencesValues(BubbleDirection Direction, bool SoundsEnabled, int VolumePercent, int DueVolumePercent, int CompletedVolumePercent,
+@@ -44,31 +43,29 @@
+ 
+     private bool TryReadPreferences(out PreferencesValues? value)
+     {
+-        value = null;
+         static bool ValidMinutes(NumericUpDown input) => input.Value is decimal number && number is >= 1 and <= 60 &&
+             decimal.Truncate(number) == number && decimal.TryParse(input.Text, NumberStyles.Number, CultureInfo.CurrentCulture, out var text) && text == number;
+-        if (bubbleDirection.SelectedItem is not BubbleDirection direction || !ValidMinutes(idle) || !ValidMinutes(snooze)) return false;
+-        value = new(direction, soundsEnabled.IsChecked == true, (int)Math.Round(soundVolume.Value),
++        var idleValid = ValidMinutes(idle); var snoozeValid = ValidMinutes(snooze);
++        value = new(bubbleDirection.SelectedItem is BubbleDirection direction ? direction : runtime.Settings.BubbleDirection,
++            soundsEnabled.IsChecked == true, (int)Math.Round(soundVolume.Value),
+             (int)Math.Round(dueSoundVolume.Value), (int)Math.Round(completedSoundVolume.Value), dueSoundId, completedSoundId, dueSoundName, completedSoundName,
+-            (int)idle.Value!.Value, (int)snooze.Value!.Value, debugToolsEnabled.IsChecked == true);
+-        return true;
++            idleValid ? (int)idle.Value!.Value : runtime.Settings.IdleMinutes,
++            snoozeValid ? (int)snooze.Value!.Value : runtime.Settings.SnoozeMinutes, debugToolsEnabled.IsChecked == true);
++        return idleValid && snoozeValid && bubbleDirection.SelectedItem is BubbleDirection;
+     }
+ 
+     private void RefreshPreferencesState()
+     {
+-        var busy = savingPreferences || soundImports > 0;
+-        preferencesSave.IsEnabled = !busy && TryReadPreferences(out var pending) && pending != PreferencesValues.From(runtime.Settings);
+-        preferencesCancel.IsEnabled = !busy;
+-        if (preferencesSections is not null) preferencesSections.IsEnabled = !busy;
++        if (preferencesSections is not null) preferencesSections.IsEnabled = soundImports == 0;
+     }
+ 
+     private void PreferencesEdited()
+     {
+-        if (updating || restoringPreferences) return;
++        if (updating || restoringPreferences || observedPreferences is null || disposed || soundImports > 0) return;
+         preferencesStatus.IsVisible = false;
+-        if (observedPreferences is not null && !TryReadPreferences(out _))
++        if (!TryReadPreferences(out var pending))
+             ShowPreferencesError("자리 비움과 다시 알림 시간은 1~60분의 정수로 입력해 주세요.");
+-        RefreshPreferencesState();
++        _ = ApplyPreferences(pending!, ++preferencesEditVersion);
+     }
+ 
+     private void ShowPreferencesError(string message)
+@@ -112,20 +109,15 @@
+         RefreshPreferencesState();
+     }
+ 
+-    private async Task<bool> SavePreferences()
++    private async Task ApplyPreferences(PreferencesValues pending, long version)
+     {
+-        if (savingPreferences || soundImports > 0) return false;
+-        if (!TryReadPreferences(out var pending) || pending is null)
+-        {
+-            ShowPreferencesError("자리 비움과 다시 알림 시간은 1~60분의 정수로 입력해 주세요.");
+-            return false;
+-        }
+-        if (pending == PreferencesValues.From(runtime.Settings)) return true;
+-        savingPreferences = true; preferencesStatus.IsVisible = false; RefreshPreferencesState();
++        if (pending == PreferencesValues.From(runtime.Settings)) return;
+         try
+         {
+             var current = runtime.Settings;
+-            await runtime.UpdateSettings(current with
++            // UpdateSettings persists and sets Settings before its asynchronous pet refresh.
++            // Each edit starts immediately so rapid edits and hiding the window keep the newest value.
++            var apply = runtime.UpdateSettings(current with
+             {
+                 BubbleDirection = pending.Direction, ReminderSoundsEnabled = pending.SoundsEnabled, ReminderVolumePercent = pending.VolumePercent,
+                 ReminderSoundVolumePercent = pending.DueVolumePercent, CompletionSoundVolumePercent = pending.CompletedVolumePercent,
+@@ -135,33 +127,15 @@
+                 ActiveProfileId = pending.Idle == current.IdleMinutes ? current.ActiveProfileId : null
+             });
+             observedPreferences = PreferencesValues.From(runtime.Settings);
+-            return true;
++            await apply;
+         }
+         catch (Exception error)
+         {
+-            AppPaths.Log(error); ShowPreferencesError("설정을 저장하지 못했어요. " + Ui.ErrorText(error));
+-            return false;
++            AppPaths.Log(error);
++            if (!disposed && version == preferencesEditVersion)
++                ShowPreferencesError("설정을 저장하지 못했어요. " + Ui.ErrorText(error));
+         }
+-        finally { savingPreferences = false; RefreshPreferencesState(); CleanupImportedSounds(); }
+-    }
+-
+-    private async Task<bool> CanLeavePreferences()
+-    {
+-        if (selectedPage != "settings") return true;
+-        if (preferencesNavigationPending || savingPreferences || soundImports > 0) return false;
+-        if (TryReadPreferences(out var pending) && pending == PreferencesValues.From(runtime.Settings)) return true;
+-        preferencesNavigationPending = true;
+-        try
+-        {
+-            var choice = await Ui.ConfirmSettingsChanges(this);
+-            if (disposed || !IsVisible) return false;
+-            if (choice == 0) return await SavePreferences();
+-            if (choice != 1) return false;
+-            stopSoundPreview?.Invoke();
+-            RestorePreferences(PreferencesValues.From(runtime.Settings));
+-            return true;
+-        }
+-        finally { preferencesNavigationPending = false; }
++        finally { CleanupImportedSounds(); }
+     }
+ 
+     private void CleanupImportedSounds()
+@@ -173,27 +147,6 @@
+         importedSounds.RemoveUnused(retained, AppPaths.Log);
+     }
+ 
+-    private Control BuildPreferencesFooter()
+-    {
+-        foreach (var button in new[] { preferencesCancel, preferencesSave })
+-        {
+-            button.Width = DesignSystem.SettingsActionWidth; button.Height = DesignSystem.SettingsControlHeight;
+-        }
+-        AutomationProperties.SetName(preferencesSave, "설정 저장");
+-        AutomationProperties.SetName(preferencesCancel, "설정 변경 취소");
+-        preferencesSave.Click += async (_, _) => await SavePreferences();
+-        preferencesCancel.Click += (_, _) =>
+-        {
+-            if (savingPreferences || soundImports > 0) return;
+-            stopSoundPreview?.Invoke(); RestorePreferences(PreferencesValues.From(runtime.Settings));
+-        };
+-        var actions = Ui.Row(preferencesCancel, preferencesSave);
+-        actions.HorizontalAlignment = HorizontalAlignment.Right;
+-        var footer = new Grid { Name = "SettingsPreferencesFooter", ColumnDefinitions = new("*,24,Auto"), Margin = new(0, 24, 0, 0) };
+-        footer.Children.Add(preferencesStatus); Grid.SetColumn(actions, 2); footer.Children.Add(actions);
+-        return footer;
+-    }
+-
+     private static TextBlock SettingsHeading(string text) => new() { Text = text, FontSize = DesignSystem.Section,
+         FontWeight = FontWeight.SemiBold, Foreground = DesignSystem.Cream };
+     private static TextBlock SettingsLabel(string text) => new() { Text = text, FontSize = DesignSystem.Body,
+--- a/src/Unfold.Desktop/SmokeDiagnostics.cs
++++ b/src/Unfold.Desktop/SmokeDiagnostics.cs
+@@ -872,32 +872,32 @@
+     private static async Task<object> VerifyPreferencesStyling(Window window, string directory)
+     {
+         T Find<T>(string name) where T : Control => window.GetVisualDescendants().OfType<T>().Single(control => control.Name == name);
+-        var save = Find<Button>("SavePreferences"); var cancel = Find<Button>("CancelPreferences");
++        if (window.GetVisualDescendants().OfType<Button>().Any(button => button.Name is "SavePreferences" or "CancelPreferences"))
++            throw new InvalidOperationException("Preferences still show Save or Cancel actions.");
+         var scroll = Find<ScrollViewer>("SettingsPreferencesScroll");
+         var idle = Find<NumericUpDown>("ReminderIdle"); var oldIdle = idle.Value;
+         var choice = Find<ComboBox>("BubbleDirection");
+-        if (save.IsEnabled) throw new InvalidOperationException("The unchanged preferences form enabled Save.");
+         foreach (var size in new[] { new Size(860, 680), new Size(1120, 800) })
+         {
+             window.Width = size.Width; window.Height = size.Height; await Task.Delay(100); window.UpdateLayout();
+             scroll.ScrollToHome(); await Task.Delay(50); window.UpdateLayout();
+-            var top = scroll.TranslatePoint(default, window)!.Value;
+-            var action = save.TranslatePoint(default, window)!.Value;
+-            if (action.Y < top.Y + scroll.Bounds.Height || action.Y + save.Bounds.Height > window.ClientSize.Height ||
+-                action.X + save.Bounds.Width > window.ClientSize.Width || cancel.TranslatePoint(default, window)!.Value.X >= action.X)
+-                throw new InvalidOperationException("Preferences actions are clipped or not pinned below the body.");
++            if (scroll.Bounds.Height != Find<Grid>("SettingsPreferencesPage").Bounds.Height)
++                throw new InvalidOperationException("Removed preferences actions still reserve space.");
+             scroll.ScrollToEnd(); await Task.Delay(50); window.UpdateLayout();
+-            if (save.TranslatePoint(default, window)!.Value != action || scroll.Extent.Width > scroll.Viewport.Width + 1)
+-                throw new InvalidOperationException("Preferences actions moved with the body or it overflowed horizontally.");
++            if (scroll.Extent.Width > scroll.Viewport.Width + 1)
++                throw new InvalidOperationException("Preferences overflow horizontally.");
+             scroll.ScrollToHome(); await Task.Delay(50); window.UpdateLayout();
+             Capture(window, Path.Combine(directory, size.Width == 860 ? "settings-options-minimum.png" : "settings-options-default.png"));
+         }
+         window.Width = 860; window.Height = 680; await Task.Delay(100); window.UpdateLayout();
+         idle.Value = oldIdle == 60 ? 59 : oldIdle + 1;
+-        if (!save.IsEnabled) throw new InvalidOperationException("Editing preferences did not enable Save.");
+-        Capture(window, Path.Combine(directory, "settings-options-dirty.png"));
+-        Press(window, "CancelPreferences");
+-        if (save.IsEnabled || idle.Value != oldIdle) throw new InvalidOperationException("Cancel did not restore saved preferences.");
++        await Task.Delay(80);
++        if (AppSettings.Load(Path.Combine(AppPaths.DataRoot, "settings.json")).IdleMinutes != (int)idle.Value!.Value)
++            throw new InvalidOperationException("Edited preferences did not persist immediately.");
++        Capture(window, Path.Combine(directory, "settings-options-applied.png"));
++        Press(window, "SettingsNavReview");
++        if (window.OwnedWindows.Count != 0) throw new InvalidOperationException("Navigation still prompts to save settings.");
++        Press(window, "SettingsNavSettings"); idle.Value = oldIdle; await Task.Delay(80);
+         choice.IsDropDownOpen = true; await Task.Delay(150); window.UpdateLayout();
+         try
+         {
+@@ -908,7 +908,7 @@
+             image.Render(surface); image.Save(Path.Combine(directory, "settings-direction-popup.png"), PngBitmapEncoderOptions.Default);
+         }
+         finally { choice.IsDropDownOpen = false; }
+-        return new { pinnedActions = true, dirtySave = true, cancelRestores = true, dropdownCaptured = true };
++        return new { automaticApply = true, saveCancelRemoved = true, navigationWithoutModal = true, dropdownCaptured = true };
+     }
+     private static bool PackSaved(Window window) =>
+         !window.GetVisualDescendants().OfType<Button>().Single(button => button.Name == "InstallPetPack").IsEnabled &&
+--- a/src/Unfold.Desktop/SettingsWindow.Layout.cs
++++ b/src/Unfold.Desktop/SettingsWindow.Layout.cs
+@@ -220,31 +220,32 @@
+     { Text = text, FontSize = Section, FontWeight = FontWeight.SemiBold, Foreground = Cream,
+         VerticalAlignment = VerticalAlignment.Center };
+ 
+-    private async Task OpenDashboard()
+-    {
+-        if (!await CanLeavePreferences()) return;
++    private Task OpenDashboard()
++    {
+         if (dashboardPage is not null) ShowPage("dashboard", dashboardPage);
+         timerControls.Children.OfType<Button>().First().Focus();
++        return Task.CompletedTask;
+     }
+     private Task OpenPreferences()
+     {
+         preferencesPage ??= BuildPreferencesPage();
+         ShowPage("settings", preferencesPage);
++        PreferencesEdited();
+         return Task.CompletedTask;
+     }
+-    private async Task OpenReview()
+-    {
+-        if (!await CanLeavePreferences()) return;
++    private Task OpenReview()
++    {
+         reviewPage ??= new BreakReviewView(this, runtime.BreakHistory.Review,
+             () => runtime.BreakHistoryError, showHeader: false);
+         reviewPage.Refresh(); ShowPage("review", reviewPage);
+-    }
+-    private async Task OpenPetPacks()
+-    {
+-        if (!await CanLeavePreferences()) return;
++        return Task.CompletedTask;
++    }
++    private Task OpenPetPacks()
++    {
+         petPage ??= new PetManagementView(this, runtime.Library, runtime.SelectInstalledCharacter,
+             showPageHeaders: false);
+         ShowPage("pets", petPage);
++        return Task.CompletedTask;
+     }
+ 
+     private Control BuildPreferencesPage()
+@@ -255,7 +256,8 @@
+         var scroll = Ui.PageBodyScroll(body); scroll.Name = "SettingsPreferencesScroll";
+         var page = new Grid { Name = "SettingsPreferencesPage", RowDefinitions = new("*,Auto") };
+         page.Children.Add(scroll);
+-        var footer = BuildPreferencesFooter(); Grid.SetRow(footer, 1); page.Children.Add(footer);
++        preferencesStatus.Margin = new(0, 24, 0, 0);
++        Grid.SetRow(preferencesStatus, 1); page.Children.Add(preferencesStatus);
+         RestorePreferences(PreferencesValues.From(runtime.Settings));
+         return page;
+     }
+--- a/src/Unfold.Desktop/SettingsWindow.Notifications.cs
++++ b/src/Unfold.Desktop/SettingsWindow.Notifications.cs
+@@ -131,6 +131,7 @@
+             var import = Ui.AsyncButton("파일 가져오기", async () =>
+             {
+                 soundImports++; RefreshPreferencesState();
++                var imported = false;
+                 try
+                 {
+                     string? path;
+@@ -148,11 +149,11 @@
+                     var fileName = Path.GetFileName(path);
+                     if (kind == ReminderSound.Due) { dueSoundId = id; dueSoundName = fileName; }
+                     else { completedSoundId = id; completedSoundName = fileName; }
+-                    RefreshLabel(); PreferencesEdited();
++                    RefreshLabel(); imported = true;
+                 }
+                 catch (OperationCanceledException) when (disposed) { }
+                 catch (Exception error) { if (!disposed) ShowPreferencesError(error is InvalidDataException ? error.Message : "효과음을 가져오지 못했어요."); AppPaths.Log(error); }
+-                finally { soundImports--; RefreshPreferencesState(); CleanupImportedSounds(); }
++                finally { soundImports--; RefreshPreferencesState(); if (imported) PreferencesEdited(); CleanupImportedSounds(); }
+             });
+             import.Name = kind == ReminderSound.Due ? "ImportDueSound" : "ImportCompletionSound";
+             import.Width = DesignSystem.SettingsImportWidth;

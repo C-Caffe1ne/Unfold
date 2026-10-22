@@ -1,0 +1,50 @@
+[
+  {
+    "file": "index.html",
+    "status": 200,
+    "sha256": "bfa0c860bc3ce7eee78da0a3ca93201dfd5a5e7d3dd4f2a07a27ad7dd4b23bd9",
+    "matches": true
+  },
+  {
+    "file": "styles/main.css",
+    "status": 200,
+    "sha256": "2f1a834027e5776a920875646fac5e0e4f8f1ec52cf0eb7a395c3d09a64b1809",
+    "matches": true
+  },
+  {
+    "file": "styles/pages.css",
+    "status": 200,
+    "sha256": "e955163f284943fb33027374115b354176f096bd88209a73e207b45013e342be",
+    "matches": true
+  },
+  {
+    "file": "styles/account.css",
+    "status": 200,
+    "sha256": "1177fe5775289035c46fd01b0b2a99518245f183c4744da078cc0b068cea4b56",
+    "matches": true
+  },
+  {
+    "file": "scripts/main.js",
+    "status": 200,
+    "sha256": "3e804ff35dd709f9e372cd073320775a8ae2511cdad1e8ad40b461d3ff0693f6",
+    "matches": true
+  },
+  {
+    "file": "scripts/router.js",
+    "status": 200,
+    "sha256": "2fa3379e363d81d08b9cacb56383c671451b97116721ea05fa97962c2d4853ec",
+    "matches": true
+  },
+  {
+    "file": "scripts/account-ui.js",
+    "status": 200,
+    "sha256": "2791af733099e77ed954ae88051156edd5b8ea2fed005576ffed007d8d68a864",
+    "matches": true
+  },
+  {
+    "file": "scripts/theme.js",
+    "status": 200,
+    "sha256": "74848730afd267d24c4af501cb7fb0ab195daeeb006c88bb3a5575170551f781",
+    "matches": true
+  }
+]

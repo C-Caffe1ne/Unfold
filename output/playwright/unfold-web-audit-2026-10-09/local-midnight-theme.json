@@ -1,0 +1,36 @@
+{
+  "theme": "midnight",
+  "assets": [
+    {
+      "kind": "home",
+      "path": "/assets/themes/midnight/home.png"
+    },
+    {
+      "kind": "home",
+      "path": "/assets/themes/midnight/home.png"
+    },
+    {
+      "kind": "custom-pet",
+      "path": "/assets/themes/midnight/custom-pet.png"
+    },
+    {
+      "kind": "custom-pet",
+      "path": "/assets/themes/midnight/custom-pet.png"
+    },
+    {
+      "kind": "speech",
+      "path": "/assets/themes/midnight/speech.png"
+    },
+    {
+      "kind": "review",
+      "path": "/assets/themes/midnight/review.png"
+    },
+    {
+      "kind": "review",
+      "path": "/assets/themes/midnight/review.png"
+    }
+  ],
+  "selected": [
+    "밤의 버터"
+  ]
+}

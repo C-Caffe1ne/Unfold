@@ -1,0 +1,11 @@
+{
+  "baseVersion": "1.0.2-beta",
+  "source": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+  "assemblySha256": "63b8f071922d69cd3225d611a5ba35101ff003af3a915c7b4c19f68aa39667d3",
+  "distribution": "local-framework-dependent",
+  "timerStopLabel": "중지",
+  "customWindowControls": true,
+  "roundedWindow": true,
+  "outerCornerRadius": 32,
+  "settingsImmediateApply": true
+}

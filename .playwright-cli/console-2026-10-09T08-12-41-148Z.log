@@ -1,0 +1,4 @@
+[  871063ms] [INFO] Autofocus processing was blocked because a document already has a focused element. @ http://127.0.0.1:4186/?qa=unknown#pricing:0
+[  871246ms] [INFO] Autofocus processing was blocked because a document already has a focused element. @ http://127.0.0.1:4186/?qa=revoked#pricing:0
+[  871418ms] [INFO] Autofocus processing was blocked because a document already has a focused element. @ http://127.0.0.1:4186/?qa=long-email#pricing:0
+[  984123ms] [INFO] Autofocus processing was blocked because a document's URL has a fragment '#install'. @ http://127.0.0.1:4186/#install:0

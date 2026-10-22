@@ -1,0 +1,24 @@
+[20:46:44 INF] Velopack CLI 1.2.0, for distributing applications.
+[20:46:44 INF] Beginning to package Velopack release 1.0.3-beta.
+[20:46:44 INF] Releases Directory: /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/artifacts/mac-signing-retry
+[20:46:44 INF] Starting: Pre-process steps
+[20:46:45 FTL] Junction / symlink path already exists and overwrite parameter is false.
+System.IO.IOException: Junction / symlink path already exists and overwrite parameter is false.
+   at Velopack.Util.SymbolicLink.Create(String linkPath, String targetPath, Boolean overwrite, Boolean relative) in ./lib-csharp/Util/SymbolicLink.cs:line 29
+   at Velopack.Packaging.Unix.Commands.OsxPackCommandRunner.PreprocessPackDir(Action`1 progress, String packDir) in ./vpk/Velopack.Packaging.Unix/Commands/OsxPackCommandRunner.cs:line 62
+   at Velopack.Packaging.PackageBuilder`1.<>c__DisplayClass26_1.<<Run>b__1>d.MoveNext() in ./vpk/Velopack.Packaging/PackageBuilder.cs:line 117
+--- End of stack trace from previous location ---
+   at Velopack.Vpk.Logging.BasicConsole.Progress.RunTask(String name, Func`2 fn) in ./vpk/Velopack.Vpk/Logging/BasicConsole.cs:line 60
+   at Velopack.Packaging.PackageBuilder`1.<>c__DisplayClass26_0.<<Run>b__0>d.MoveNext() in ./vpk/Velopack.Packaging/PackageBuilder.cs:line 113
+--- End of stack trace from previous location ---
+   at Velopack.Vpk.Logging.BasicConsole.ExecuteProgressAsync(Func`2 action) in ./vpk/Velopack.Vpk/Logging/BasicConsole.cs:line 26
+   at Velopack.Packaging.PackageBuilder`1.Run(T options) in ./vpk/Velopack.Packaging/PackageBuilder.cs:line 110
+   at Velopack.Vpk.ProgramCommandExtensions.<>c__DisplayClass3_0`2.<<Add>b__0>d.MoveNext() in ./vpk/Velopack.Vpk/Program.cs:line 269
+Traceback (most recent call last):
+  File "/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/Scripts/package-updates.py", line 116, in <module>
+    main()
+  File "/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/Scripts/package-updates.py", line 70, in main
+    subprocess.run(command, cwd=root, check=True)
+  File "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py", line 528, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/.tools/vpk/vpk', '[osx]', 'pack', '--skip-updates', '--yes', '--packId', 'DokhuStudio.Unfold.Updates', '--packTitle', 'Unfold', '--packAuthors', 'Dokhu Studio', '--packVersion', '1.0.3-beta', '--packDir', '/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-uz71slgd/Unfold.app', '--mainExe', 'Unfold', '--runtime', 'osx-arm64', '--channel', 'osx-arm64-beta', '--outputDir', '/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/artifacts/mac-signing-retry', '--releaseNotes', '/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/docs/releases/v1.0.3-beta.md', '--icon', '/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/Art/Brand/unfold-lilac-v1/desktop/unfold.icns', '--noInst', '--signEntitlements', '/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/Packaging/Unfold.Desktop.entitlements', '--signAppIdentity', '-']' returned non-zero exit status 255.

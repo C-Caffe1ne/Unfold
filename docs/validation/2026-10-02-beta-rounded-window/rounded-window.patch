@@ -1,0 +1,146 @@
+--- a/Tests/Unfold.Tests/WindowControlTests.cs
++++ b/Tests/Unfold.Tests/WindowControlTests.cs
+@@ -28,9 +28,11 @@
+         window.WindowState = WindowState.Normal;
+         Press(window, "SettingsWindowMaximize");
+         Assert.Equal(WindowState.Maximized, window.WindowState);
++        Assert.Equal(new CornerRadius(0), Find<Border>(window, "SettingsWindowSurface").CornerRadius);
+         Assert.Equal("복원", AutomationProperties.GetName(Find<Button>(window, "SettingsWindowMaximize")));
+         Press(window, "SettingsWindowMaximize");
+         Assert.Equal(WindowState.Normal, window.WindowState);
++        Assert.Equal(DesignSystem.FrameRadius, Find<Border>(window, "SettingsWindowSurface").CornerRadius);
+         Assert.Equal("최대화", AutomationProperties.GetName(Find<Button>(window, "SettingsWindowMaximize")));
+         var paused = scope.Runtime.Clock.Paused;
+         var stopped = scope.Runtime.Clock.Stopped;
+@@ -71,6 +73,27 @@
+     }
+ 
+     [AvaloniaFact]
++    public void RoundedOuterSurfaceReplacesTheInnerFrameAndKeepsContentBounds()
++    {
++        using var scope = new Scope();
++        var window = scope.Window;
++        var surface = Find<Border>(window, "SettingsWindowSurface");
++        var frame = Find<Border>(window, "SettingsFrame");
++        Assert.True(surface.ClipToBounds);
++        Assert.Equal(DesignSystem.FrameRadius, surface.CornerRadius);
++        Assert.Equal(new Thickness(0), frame.BorderThickness);
++        Assert.Null(frame.BorderBrush);
++        foreach (var size in new[] { new Size(1120, 800), new Size(860, 680), new Size(640, 560) })
++        {
++            window.Width = size.Width; window.Height = size.Height; Layout(window);
++            Assert.Equal(window.ClientSize, surface.Bounds.Size);
++            var card = Find<Border>(window, "SettingsTimerCard");
++            Assert.Equal(31, card.TranslatePoint(default, window)!.Value.Y);
++            Assert.Equal(216, card.Bounds.Height);
++        }
++    }
++
++    [AvaloniaFact]
+     public void MacHeaderDragMovesTheWindowAndStopsOnReleaseAndCaptureLoss()
+     {
+         Assert.SkipUnless(OperatingSystem.IsMacOS(), "macOS uses managed dragging.");
+@@ -104,7 +127,12 @@
+ 
+     private static T Find<T>(Window window, string name) where T : Control => window.GetVisualDescendants().OfType<T>().Single(item => item.Name == name);
+     private static void Press(Window window, string name) { Find<Button>(window, name).RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Layout(window); }
+-    private static void Layout(Window window) { Dispatcher.UIThread.RunJobs(); window.UpdateLayout(); }
++    private static void Layout(Window window)
++    {
++        Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
++        // Hit testing uses the rendered scene, which can lag a headless layout pass.
++        AvaloniaHeadlessPlatform.ForceRenderTimerTick();
++    }
+ 
+     private sealed class Scope : IDisposable
+     {
+--- a/Tests/Unfold.Tests/ThemeTests.cs
++++ b/Tests/Unfold.Tests/ThemeTests.cs
+@@ -66,7 +66,8 @@
+             Choose(window, palette.Id);
+             Assert.Same(page, host.Content); Assert.Same(surface, Find<Border>(window, "SettingsTimerSettingsCard").Background);
+             Assert.Equal(Color.Parse(palette.Surface), ((ISolidColorBrush)surface!).Color);
+-            Assert.Equal(Color.Parse(palette.Canvas), ((ISolidColorBrush)window.Background!).Color);
++            Assert.Equal(Colors.Transparent, ((ISolidColorBrush)window.Background!).Color);
++            Assert.Equal(Color.Parse(palette.Canvas), ((ISolidColorBrush)Find<Border>(window, "SettingsWindowSurface").Background!).Color);
+             Assert.Equal(palette.IsDark ? ThemeVariant.Dark : ThemeVariant.Light, window.ActualThemeVariant);
+             Assert.Equal(palette.Id, scope.Runtime.Settings.Theme);
+             // The default choice does not need to write a new file.
+--- a/src/Unfold.Desktop/SettingsWindow.cs
++++ b/src/Unfold.Desktop/SettingsWindow.cs
+@@ -41,10 +41,13 @@
+     public SettingsWindow(AppRuntime runtime)
+     {
+         this.runtime = runtime; Title = $"Unfold · 휴식 알림 · {AppRelease.DisplayVersion}"; Width = 1120; Height = 800; MinWidth = 640; MinHeight = 560;
++        // Keep native edge resizing; transparent client rendering defines the visible outline.
+         WindowDecorations = WindowDecorations.BorderOnly;
+         ExtendClientAreaToDecorationsHint = true;
+         ExtendClientAreaTitleBarHeightHint = 0;
+-        Background = Ui.Background;
++        TransparencyLevelHint = [WindowTransparencyLevel.Transparent];
++        TransparencyBackgroundFallback = DesignSystem.Canvas;
++        Background = Brushes.Transparent;
+         interval = new NumericUpDown { Name = "ReminderInterval", Minimum = 5, Maximum = 240, Value = runtime.Settings.IntervalMinutes, Increment = 1, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch, FormatString = "0" };
+         breakDuration = new NumericUpDown { Name = "BreakDurationMinutes", Minimum = 1, Maximum = 10, Value = runtime.Settings.BreakDurationMinutes, Increment = 1, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch, FormatString = "0" };
+         idle = new NumericUpDown { Name = "ReminderIdle", Minimum = 1, Maximum = 60, Value = runtime.Settings.IdleMinutes, Increment = 1, MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch, FormatString = "0" };
+--- a/src/Unfold.Desktop/SmokeDiagnostics.cs
++++ b/src/Unfold.Desktop/SmokeDiagnostics.cs
+@@ -236,7 +236,7 @@
+                 savedCustomRoutines = runtime.Settings.AdditionalRoutines.Count + (runtime.Settings.CustomRoutine is null ? 0 : 1),
+                 workProfiles = runtime.Settings.WorkProfiles.Count, exportedBreaks = 1, simulatedExportDestination = true,
+                 timerPausedApplyWaitSeconds = 1.2, timerStopWaitSeconds = 1.2, timerControlsVerified = true, timerDigitMotionVerified = true,
+-                windowControlsVerified = true, petSpeechDirectionsVerified = true,
++                windowControlsVerified = true, roundedWindowVerified = true, petSpeechDirectionsVerified = true,
+                 petContextMenuVerified = true, petScaleAndDebugPreviewVerified = true, speechTitleOnlyGeometryVerified = true,
+                 soundRequestsVerified = true, hiddenPetNoticeVerified = true, stopWhileOpening,
+                 petPackInstallUpdateRepairVerified = true, simulatedPackPicker = true, settingsLayout, weeklyReview, reviewLayout, themes,
+@@ -974,6 +974,19 @@
+         if (controls.Children.Count != 3 || !window.IsVisible)
+             throw new InvalidOperationException("The settings window did not restore its three window controls.");
+         Capture(window, Path.Combine(directory, "window-controls.png"));
++        var surface = window.GetVisualDescendants().OfType<Border>().Single(item => item.Name == "SettingsWindowSurface");
++        var frame = window.GetVisualDescendants().OfType<Border>().Single(item => item.Name == "SettingsFrame");
++        if (window.ActualTransparencyLevel != WindowTransparencyLevel.Transparent ||
++            surface.Bounds.Size != window.ClientSize || surface.CornerRadius != DesignSystem.FrameRadius ||
++            !surface.ClipToBounds || frame.BorderThickness != default)
++            throw new InvalidOperationException("The rounded window surface or borderless content frame was not applied.");
++        Capture(window, Path.Combine(directory, "rounded-window.png"));
++        var pixels = ImageCodec.DecodePng(File.ReadAllBytes(Path.Combine(directory, "rounded-window.png")));
++        foreach (var (x, y) in new[] { (1, 1), (pixels.Width - 2, 1), (1, pixels.Height - 2), (pixels.Width - 2, pixels.Height - 2) })
++            if ((pixels.Pixels[y * pixels.Width + x] >> 24) != 0)
++                throw new InvalidOperationException("A rounded window corner is still opaque.");
++        if ((pixels.Pixels[pixels.Width / 2] >> 24) == 0)
++            throw new InvalidOperationException("The rounded window surface is missing its background.");
+     }
+ 
+     private static async Task VerifyActionConfirmations(AppRuntime runtime, Window owner, string directory)
+--- a/src/Unfold.Desktop/SettingsWindow.Layout.cs
++++ b/src/Unfold.Desktop/SettingsWindow.Layout.cs
+@@ -32,7 +32,7 @@
+ 
+     private Control BuildDashboard()
+     {
+-        Background = DesignSystem.Canvas;
++        Background = Brushes.Transparent;
+         Classes.Add("unfold-page");
+         var main = new Grid { Name = "SettingsMain", RowDefinitions = new($"{HomeTimerHeight},{Inset},*") };
+         main.Children.Add(BuildTimerCard());
+@@ -73,8 +73,16 @@
+         var layout = new Grid { RowDefinitions = new("24,*") };
+         layout.Children.Add(BuildWindowControls()); Grid.SetRow(frame, 1); layout.Children.Add(frame);
+         // Use the existing top inset for window controls; keep the page's content bounds.
+-        return new Border { Name = "SettingsFrame", Margin = new(16, 4, 16, 16), Padding = new(14, 2, 14, 14), CornerRadius = new(32),
+-            Background = Shell, BorderBrush = Outline, BorderThickness = new(1), Child = layout };
++        var content = new Border { Name = "SettingsFrame", Margin = new(16, 4, 16, 16), Padding = new(15, 3, 15, 15),
++            Background = Brushes.Transparent, Child = layout };
++        var surface = new Border { Name = "SettingsWindowSurface", Background = DesignSystem.Canvas, CornerRadius = FrameRadius,
++            ClipToBounds = true, Child = content };
++        PropertyChanged += (_, args) =>
++        {
++            if (args.Property == WindowStateProperty)
++                surface.CornerRadius = WindowState is WindowState.Maximized or WindowState.FullScreen ? new(0) : FrameRadius;
++        };
++        return surface;
+     }
+ 
+     private Border BuildNavigation()

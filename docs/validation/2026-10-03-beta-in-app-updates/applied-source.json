@@ -1,0 +1,28 @@
+{
+  "source": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+  "baseCommit": "37c6de354ceb390500d4bcb586bde1a74d16e205",
+  "version": "1.0.3-beta",
+  "ownedFiles": {
+    ".config/dotnet-tools.json": "856ee19c2a99232bcdd3f49b8a1065edfbfd7db37d889f692bff24aa73e9db31",
+    ".github/workflows/desktop.yml": "a9cd20a9f51fcd434cdf1cf0c6f9cba2a2f1a07967bf25680dbba067e6fc0e12",
+    "Scripts/package-updates.py": "f65e4af827c844256a48d1f28d70278d36ed46cf64523b752ea1b3c4d97732d9",
+    "Scripts/make-macos-bundle.sh": "6459e828e7f584542dc40444c9e65210522f43e96a90255b2364225b820dc876",
+    "Scripts/verify-windows-installer.ps1": "db998f7d83eed7e9525c754df52ce29c87c54b53f266e11dd58566d5fdcddc23",
+    "docs/cross-platform.md": "e170d350e9c07d0b1f2bcd631e3c9cac4a8af70f181481a0926bcb59a843cc13",
+    "docs/releases/v1.0.3-beta.md": "cadcecdf83b76cf8bce1be1d9084b9bf0d38c6f1e82bb74b56d08dd43e1ebbb0",
+    "src/Unfold.Desktop/Unfold.Desktop.csproj": "1f2674c8eb6b7c3876075854cec15790ac65c5dca101458b1272a0c049de87cf",
+    "src/Unfold.Desktop/packages.lock.json": "097a490ad12e343734bdc8bd943fa38366051d9be2214fc65c14570ede0e3961",
+    "src/Unfold.Desktop/AppUpdates.cs": "11c077bd3993b56246e564456bc6d871d73ba17808cf22d124b7e9b55cec80ca",
+    "src/Unfold.Desktop/UpdateWindow.cs": "0c2fec0141ccf6bbd2a3eeaf3142cde022bf0b275dc8dbad357364d90f82aea2",
+    "src/Unfold.Desktop/AppRuntime.Updates.cs": "bc91a62ed1f669001ef7b78d668f54aa0a3a65e7ea2f7d1aa004f807a42504fd",
+    "src/Unfold.Desktop/AppRuntime.cs": "91448669d663d58027b0f80074a2f55b63e3ba4e33b92c57291a9e9dce2a0af8",
+    "src/Unfold.Desktop/Program.cs": "8d183137d713b9a80c79307a258eba802e568d18c6afe37b29d3bfbe936f08b5",
+    "src/Unfold.Desktop/PlatformServices.cs": "a22dd4d0fb8efef174bd2a8809fdf11b02e361eefa673e2ff4684230795e688d",
+    "src/Unfold.Desktop/SmokeDiagnostics.cs": "9d8c1bed6c382ce96d5f117468af4bc01b1e32f6fc08d7d94a2f1213151eb547",
+    "Tests/Unfold.Tests/AppUpdateTests.cs": "058c01220f678d62c43a42fdb2fb352b4c949910fea459b32bfa9c0db3512a18",
+    "Tests/Unfold.Tests/AppUpdateUiTests.cs": "1a088c770783e970fd05a3487c1a09d3839126c0610ce512c811257dbbb3e7dd",
+    "Tests/Unfold.Tests/packages.lock.json": "9327aae221f5c1205f56a2fb7d062d68f1fbc424c8119e0f091b46a34aa9538b",
+    "Scripts/sign-macos-app.sh": "4645b80a7821f67397a1cb71c9a9eab3e61730378b80736a35dfc50834e67936"
+  },
+  "unownedInputsPreserved": 1051
+}

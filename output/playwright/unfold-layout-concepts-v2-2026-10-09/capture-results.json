@@ -1,0 +1,165 @@
+{
+  "metrics": [
+    {
+      "slug": "magazine",
+      "width": 320,
+      "overflow": -15,
+      "headingLines": 3,
+      "headingLeft": 20,
+      "headingRight": 155.8125,
+      "missingImages": [],
+      "motionTriggers": 0
+    },
+    {
+      "slug": "magazine",
+      "width": 390,
+      "overflow": -15,
+      "headingLines": 3,
+      "headingLeft": 20,
+      "headingRight": 194.234375,
+      "missingImages": [],
+      "motionTriggers": 0
+    },
+    {
+      "slug": "magazine",
+      "width": 768,
+      "overflow": -15,
+      "headingLines": 3,
+      "headingLeft": 48,
+      "headingRight": 355.375,
+      "missingImages": [],
+      "motionTriggers": 0
+    },
+    {
+      "slug": "magazine",
+      "width": 1440,
+      "overflow": -15,
+      "headingLines": 3,
+      "headingLeft": 48,
+      "headingRight": 390.25,
+      "missingImages": [],
+      "motionTriggers": 0
+    },
+    {
+      "slug": "canvas",
+      "width": 320,
+      "overflow": -15,
+      "headingLines": 2,
+      "headingLeft": 20,
+      "headingRight": 161.484375,
+      "missingImages": [],
+      "motionTriggers": 0
+    },
+    {
+      "slug": "canvas",
+      "width": 390,
+      "overflow": -15,
+      "headingLines": 2,
+      "headingLeft": 20,
+      "headingRight": 161.484375,
+      "missingImages": [],
+      "motionTriggers": 0
+    },
+    {
+      "slug": "canvas",
+      "width": 768,
+      "overflow": -15,
+      "headingLines": 2,
+      "headingLeft": 100,
+      "headingRight": 265.0625,
+      "missingImages": [],
+      "motionTriggers": 0
+    },
+    {
+      "slug": "canvas",
+      "width": 1440,
+      "overflow": -15,
+      "headingLines": 2,
+      "headingLeft": 1119,
+      "headingRight": 1298.21875,
+      "missingImages": [],
+      "motionTriggers": 0
+    },
+    {
+      "slug": "journey",
+      "width": 320,
+      "overflow": -15,
+      "headingLines": 2,
+      "headingLeft": 20,
+      "headingRight": 161.484375,
+      "missingImages": [],
+      "motionTriggers": 0
+    },
+    {
+      "slug": "journey",
+      "width": 390,
+      "overflow": -15,
+      "headingLines": 2,
+      "headingLeft": 20,
+      "headingRight": 185.546875,
+      "missingImages": [],
+      "motionTriggers": 0
+    },
+    {
+      "slug": "journey",
+      "width": 768,
+      "overflow": -15,
+      "headingLines": 2,
+      "headingLeft": 40,
+      "headingRight": 296.765625,
+      "missingImages": [],
+      "motionTriggers": 0
+    },
+    {
+      "slug": "journey",
+      "width": 1440,
+      "overflow": -15,
+      "headingLines": 2,
+      "headingLeft": 65,
+      "headingRight": 442.28125,
+      "missingImages": [],
+      "motionTriggers": 0
+    },
+    {
+      "slug": "catalog",
+      "width": 320,
+      "overflow": -15,
+      "headingLines": 2,
+      "headingLeft": 20,
+      "headingRight": 194.515625,
+      "missingImages": [],
+      "motionTriggers": 0
+    },
+    {
+      "slug": "catalog",
+      "width": 390,
+      "overflow": -15,
+      "headingLines": 2,
+      "headingLeft": 20,
+      "headingRight": 232.6875,
+      "missingImages": [],
+      "motionTriggers": 0
+    },
+    {
+      "slug": "catalog",
+      "width": 768,
+      "overflow": -15,
+      "headingLines": 2,
+      "headingLeft": 45,
+      "headingRight": 330.0625,
+      "missingImages": [],
+      "motionTriggers": 0
+    },
+    {
+      "slug": "catalog",
+      "width": 1440,
+      "overflow": -15,
+      "headingLines": 2,
+      "headingLeft": 45,
+      "headingRight": 404.4375,
+      "missingImages": [],
+      "motionTriggers": 0
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,4 @@
+{
+  "success": false,
+  "error": "System.InvalidOperationException: Button was disabled: TimerStop\n   at Unfold.Desktop.SmokeDiagnostics.Press(Window window, String label) in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/src/Unfold.Desktop/SmokeDiagnostics.cs:line 1003\n   at Unfold.Desktop.SmokeDiagnostics.VerifyActionConfirmations(AppRuntime runtime, Window owner, String directory) in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/src/Unfold.Desktop/SmokeDiagnostics.cs:line 960\n   at Unfold.Desktop.SmokeDiagnostics.Run(AppRuntime runtime, IClassicDesktopStyleApplicationLifetime desktop) in /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/src/Unfold.Desktop/SmokeDiagnostics.cs:line 35"
+}

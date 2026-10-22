@@ -1,0 +1,19 @@
+### Result
+{"metrics":[{"width":320,"overflow":0,"headingLines":2,"headingWithinViewport":true,"brokenImages":[],"sections":["home","features","themes","pricing-overview","purchase-details","install"]},{"width":390,"overflow":0,"headingLines":2,"headingWithinViewport":true,"brokenImages":[],"sections":["home","features","themes","pricing-overview","purchase-details","install"]},{"width":600,"overflow":0,"headingLines":2,"headingWithinViewport":true,"brokenImages":[],"sections":["home","features","themes","pricing-overview","purchase-details","install"]},{"width":768,"overflow":0,"headingLines":2,"headingWithinViewport":true,"brokenImages":[],"sections":["home","features","themes","pricing-overview","purchase-details","install"]},{"width":1100,"overflow":0,"headingLines":2,"headingWithinViewport":true,"brokenImages":[],"sections":["home","features","themes","pricing-overview","purchase-details","install"]},{"width":1440,"overflow":0,"headingLines":2,"headingWithinViewport":true,"brokenImages":[],"sections":["home","features","themes","pricing-overview","purchase-details","install"]},{"width":1920,"overflow":0,"headingLines":2,"headingWithinViewport":true,"brokenImages":[],"sections":["home","features","themes","pricing-overview","purchase-details","install"]}],"errors":[],"failed":[]}
+### Ran Playwright code
+```js
+await (async(page)=>{
+const root='/Users/hwanghyeonseong/Documents/GitHub/Unfold/output/playwright/unfold-app-showcase-current-2026-10-09';
+const errors=[],failed=[],metrics=[];page.on('pageerror',e=>errors.push(String(e)));page.on('response',r=>{if(r.status()>=400)failed.push({url:r.url(),status:r.status()})});
+await page.emulateMedia({reducedMotion:'reduce'});
+for(const width of [320,390,600,768,1100,1440,1920]){
+ await page.setViewportSize({width,height:width<=600?844:1000});await page.goto('http://127.0.0.1:4190/app-showcase.html');await page.evaluate(()=>document.fonts.ready);
+ await page.locator('img').evaluateAll(items=>{items.forEach(img=>img.loading='eager');return Promise.all(items.map(img=>img.decode().catch(()=>{})))});
+ metrics.push(await page.evaluate(width=>{const h=document.querySelector('h1'),ys=new Set(),rects=[],walker=document.createTreeWalker(h,NodeFilter.SHOW_TEXT);let n;while(n=walker.nextNode())for(let i=0;i<n.length;i++){if(!n.textContent[i].trim())continue;const r=document.createRange();r.setStart(n,i);r.setEnd(n,i+1);for(const b of r.getClientRects())if(b.width){ys.add(Math.round(b.top));rects.push(b)}}return {width,overflow:Math.max(0,document.documentElement.scrollWidth-document.documentElement.clientWidth),headingLines:ys.size,headingWithinViewport:rects.every(r=>r.left>=0&&r.right<=innerWidth),brokenImages:[...document.images].filter(i=>i.hasAttribute('src')&&(!i.complete||!i.naturalWidth)).map(i=>i.src),sections:[...document.querySelectorAll('main>section')].map(s=>s.id)}},width));
+ if(width===1440||width===390){await page.screenshot({path:`${root}/showcase-${width===1440?'desktop':'mobile'}.png`});await page.screenshot({path:`${root}/showcase-${width===1440?'desktop':'mobile'}-full.png`,fullPage:true})}
+}
+await page.setViewportSize({width:1440,height:1000});await page.emulateMedia({reducedMotion:'no-preference'});await page.goto('http://127.0.0.1:4190/app-showcase.html');await page.evaluate(()=>document.fonts.ready);await page.screenshot({path:`${root}/showcase-desktop-motion.png`});
+return {metrics,errors,failed};
+})(page);
+```
+

@@ -1,0 +1,14 @@
+{
+  "source": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+  "baseCommit": "37c6de354ceb390500d4bcb586bde1a74d16e205",
+  "version": "1.0.2-beta",
+  "ownedFiles": {
+    "Tests/Unfold.Tests/WindowControlTests.cs": "4b47a63639ec6fa76b669d97b885c8ef44b03a5d10565dc83c7e308d177b5100",
+    "Tests/Unfold.Tests/ThemeTests.cs": "a42b9c57884e1997c28b155c2c1b42dc2eb8d2fdec093679a9b924ca78640be3",
+    "src/Unfold.Desktop/SettingsWindow.cs": "2ca88ed11d6a569a1dce67f94ce1a0ac64e6449f8e81310f28b2f8faf0e7652a",
+    "src/Unfold.Desktop/SmokeDiagnostics.cs": "1cda0eeeef06ecd0f96def6b7f9ee9dd92989763939acfcf8eef0a4d3ca9aee0",
+    "src/Unfold.Desktop/SettingsWindow.Layout.cs": "97251ddb99ae972f28bb9139304acd2a2c13a8130b9199ca3a8adcf2383a1b74"
+  },
+  "unownedTrackedChangesPreserved": true,
+  "smokeDataDirectory": "/tmp/Unfold-beta-rounded-window-final-smoke-laxKIL"
+}

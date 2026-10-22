@@ -1,0 +1,8 @@
+### Result
+undefined
+### Ran Playwright code
+```js
+await page.evaluate('() => (window.__layoutCapture)');
+```
+### Page
+- Page URL: about:blank

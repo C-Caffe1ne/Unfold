@@ -1,0 +1,164 @@
+- generic [ref=f2e1]:
+  - link "본문으로 건너뛰기" [ref=f2e2] [cursor=pointer]:
+    - /url: "#main"
+  - banner [ref=f2e3]:
+    - generic [ref=f2e4]:
+      - link [ref=f2e5] [cursor=pointer]:
+        - /url: "#home"
+        - img "Unfold" [ref=f2e6]
+      - navigation "주요 메뉴" [ref=f2e7]:
+        - link "기능" [ref=f2e8] [cursor=pointer]:
+          - /url: "#features"
+        - link "테마" [ref=f2e9] [cursor=pointer]:
+          - /url: "#themes"
+        - link "가격" [ref=f2e10] [cursor=pointer]:
+          - /url: "#pricing-overview"
+        - link "다운로드" [ref=f2e11] [cursor=pointer]:
+          - /url: "#install"
+      - generic [ref=f2e12]:
+        - link "로그인/회원가입" [ref=f2e13] [cursor=pointer]:
+          - /url: "#login"
+        - generic [ref=f2e14]:
+          - link "X에서 Unfold 보기 (새 탭)" [ref=f2e15] [cursor=pointer]:
+            - /url: https://x.com/unfold_pet
+          - link "Instagram에서 Unfold 보기 (새 탭)" [ref=f2e16] [cursor=pointer]:
+            - /url: https://www.instagram.com/unfold_pet
+  - main [ref=f2e17]:
+    - region [ref=f2e18]:
+      - generic [ref=f2e20]:
+        - generic [ref=f2e21]:
+          - generic [ref=f2e22]: 데스크톱 휴식 알림 펫
+          - heading [level=1] [ref=f2e23]:
+            - text: 일시정지,
+            - emphasis [ref=f2e24]: 펫
+            - text: 과 짧은 휴식.
+          - paragraph [ref=f2e25]: 집중하는 사이, 굽은 목과 어깨를 다시 펼 수 있도록 나만의 펫이 알려 줍니다. 잠깐 멈추고, 펫과 함께 쉬어가세요.
+          - generic [ref=f2e26]:
+            - link "Unfold 둘러보기" [ref=f2e27] [cursor=pointer]:
+              - /url: "#features"
+            - link "다운로드" [ref=f2e28] [cursor=pointer]:
+              - /url: "#install"
+          - paragraph [ref=f2e29]: Windows 10 이상 · macOS 13 이상
+        - generic [ref=f2e30]:
+          - link "타이머 화면 크게 보기" [ref=f2e31]:
+            - /url: /assets/themes/sage/home.png
+            - 'img "Unfold 타이머: 다음 휴식까지 남은 시간, Mochi와 시간 설정" [ref=f2e32]'
+            - generic [aria-hidden] [ref=f2e33]: 화면 크게 보기 ↗
+          - generic [ref=f2e34]:
+            - img "기지개를 켜며 휴식을 함께하는 고양이 Mochi" [ref=f2e35]
+            - button "움직임 멈추기" [ref=f2e36] [cursor=pointer]
+          - paragraph [ref=f2e37]: 현재 개발 버전의 앱 화면
+      - generic [ref=f2e39]:
+        - article [ref=f2e40]:
+          - generic [ref=f2e41]:
+            - generic [ref=f2e42]: 나만의 펫
+            - heading "좋아하는 이미지, 영상등을 나만의 펫으로" [level=2] [ref=f2e43]: 좋아하는 이미지, 영상등을나만의 펫으로
+            - paragraph [ref=f2e44]: 반려동물 영상이나 직접 만든 GIF를 펫으로 불러오세요. 쉬는 모습부터 시작해, 휴식을 알리거나 클릭했을 때의 반응도 더할 수 있습니다.
+            - list [ref=f2e45]:
+              - listitem [ref=f2e46]: ✓ GIF·MP4 파일 지원, 변환은 내 컴퓨터에서
+              - listitem [ref=f2e47]: ✓ 기본 동작 하나로 시작하고, 최대 다섯 가지 행동 설정
+              - listitem [ref=f2e48]: ✓ 완성한 펫은 파일로 저장하고 다시 불러오기
+          - figure "펫 추가 → 펫 팩 만들기 · 파일을 선택하기 전 화면" [ref=f2e49]:
+            - link "펫 만들기 화면 크게 보기" [ref=f2e50]:
+              - /url: /assets/themes/sage/custom-pet.png
+              - 'img "펫 팩 만들기: 이름 입력과 다섯 가지 행동별 파일 선택" [ref=f2e51]'
+              - generic [aria-hidden] [ref=f2e52]: 화면 크게 보기 ↗
+        - article [ref=f2e54]:
+          - generic [ref=f2e55]:
+            - generic [ref=f2e56]: 어디서 일하든
+            - heading "작업하는 화면 곁에, 작은 동료 하나" [level=2] [ref=f2e57]: 작업하는 화면 곁에,작은 동료 하나
+            - paragraph [ref=f2e58]: Unfold는 컴퓨터에 설치해 사용하는 독립 실행 앱입니다. 설정 창을 닫아도 펫은 곁에 남아 다음 휴식을 알려 줍니다.
+          - figure "지금 쉬거나, 5분 뒤로 미루거나. 선택은 내 페이스대로." [ref=f2e59]:
+            - 'img "Mochi의 휴식 알림: 스트레칭할 시간이에요. 5분 뒤에 또는 휴식 시작을 선택할 수 있습니다." [ref=f2e60]'
+        - article [ref=f2e62]:
+          - generic [ref=f2e63]:
+            - generic [ref=f2e64]: 부담 없이
+            - heading "매일 이어 가지 않아도 괜찮아요" [level=2] [ref=f2e65]
+            - paragraph [ref=f2e66]: 바쁜 날엔 쉬어 가는 걸 잊을 수도 있죠. 며칠 건너뛰어도 펫은 그대로입니다. 연속 달성에 대한 부담 없이, 내가 쉬어 간 순간을 돌아보세요.
+          - figure "테스트용 휴식 기록이 포함된 화면" [ref=f2e67]:
+            - link "휴식 기록 화면 크게 보기" [ref=f2e68]:
+              - /url: /assets/themes/sage/review.png
+              - 'img "휴식 기록: 지난 7일의 완료 횟수, 기록된 시간과 CSV 내보내기" [ref=f2e69]'
+              - generic [aria-hidden] [ref=f2e70]: 화면 크게 보기 ↗
+      - generic [ref=f2e73]:
+        - generic [ref=f2e74]:
+          - generic [ref=f2e75]: 네 가지 테마
+          - heading "책상에 어울리는 색으로" [level=2] [ref=f2e76]
+          - paragraph [ref=f2e77]: 마음에 드는 색을 골라 보세요. 앱 미리보기와 이 페이지에 함께 적용됩니다.
+        - generic [ref=f2e78]:
+          - group "앱 테마 미리보기 선택" [ref=f2e79]:
+            - button "유연한 라일락" [ref=f2e80] [cursor=pointer]
+            - button "다정한 오트" [ref=f2e82] [cursor=pointer]
+            - button "숨 고르는 숲" [active] [pressed] [ref=f2e84] [cursor=pointer]
+            - button "밤의 버터" [ref=f2e86] [cursor=pointer]
+          - link "선택한 테마 화면 크게 보기" [ref=f2e88]:
+            - /url: https://unfoldpet.dokhustudio.com/assets/themes/sage/home.png
+            - img "숨 고르는 숲 테마가 적용된 Unfold 화면" [ref=f2e149]
+            - generic [aria-hidden] [ref=f2e90]: 화면 크게 보기 ↗
+      - generic [ref=f2e92]:
+        - generic [ref=f2e93]:
+          - generic [ref=f2e94]: 가격
+          - heading "한 번 구매하고 함께 쉬어 가세요" [level=2] [ref=f2e95]
+          - paragraph [ref=f2e96]: 현재는 테스트 결제만 제공하며, 정식 판매는 준비 중입니다.
+        - generic [ref=f2e98]:
+          - generic [ref=f2e99]: 일회성 구매
+          - generic [ref=f2e100]: 4,900원
+          - link "테스트 구매하기" [ref=f2e102] [cursor=pointer]:
+            - /url: "#login"
+          - link "Beta 다운로드" [ref=f2e103] [cursor=pointer]:
+            - /url: "#install"
+      - generic [ref=f2e106]:
+        - heading "다음 휴식은, Unfold와 함께" [level=2] [ref=f2e107]
+        - paragraph [ref=f2e108]: 테스터용 Beta를 다운로드할 수 있습니다.정식 판매 일정은 이 사이트에서 안내하겠습니다.
+        - link "출시 준비 안내" [ref=f2e109] [cursor=pointer]:
+          - /url: "#pricing"
+    - text: ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓
+  - contentinfo [ref=f2e110]:
+    - generic [ref=f2e111]:
+      - generic [ref=f2e112]:
+        - generic [ref=f2e113]:
+          - link [ref=f2e114] [cursor=pointer]:
+            - /url: "#home"
+            - img "Unfold" [ref=f2e115]
+          - paragraph [ref=f2e116]: 책상에서 오래 일하는 사람을 위한 데스크톱 휴식 동료입니다.
+          - generic [ref=f2e117]:
+            - link "X에서 Unfold 보기 (새 탭)" [ref=f2e118] [cursor=pointer]:
+              - /url: https://x.com/unfold_pet
+            - link "Instagram에서 Unfold 보기 (새 탭)" [ref=f2e119] [cursor=pointer]:
+              - /url: https://www.instagram.com/unfold_pet
+        - generic [ref=f2e120]:
+          - heading "제품" [level=3] [ref=f2e121]
+          - list [ref=f2e122]:
+            - listitem [ref=f2e123]:
+              - link "기능" [ref=f2e124] [cursor=pointer]:
+                - /url: "#features"
+            - listitem [ref=f2e125]:
+              - link "가격" [ref=f2e126] [cursor=pointer]:
+                - /url: "#pricing"
+            - listitem [ref=f2e127]:
+              - link "변경 이력" [ref=f2e128] [cursor=pointer]:
+                - /url: "#changelog"
+        - generic [ref=f2e129]:
+          - heading "도움말" [level=3] [ref=f2e130]
+          - list [ref=f2e131]:
+            - listitem [ref=f2e132]:
+              - link "다운로드" [ref=f2e133] [cursor=pointer]:
+                - /url: "#install"
+            - listitem [ref=f2e134]:
+              - link "macOS 다운로드" [ref=f2e135] [cursor=pointer]:
+                - /url: "#mac"
+            - listitem [ref=f2e136]:
+              - link "Windows 다운로드" [ref=f2e137] [cursor=pointer]:
+                - /url: "#windows"
+        - generic [ref=f2e138]:
+          - heading "계정" [level=3] [ref=f2e139]
+          - list [ref=f2e140]:
+            - listitem [ref=f2e141]:
+              - link "로그인/회원가입" [ref=f2e142] [cursor=pointer]:
+                - /url: "#login"
+            - listitem [ref=f2e143]:
+              - link "프라이버시" [ref=f2e144] [cursor=pointer]:
+                - /url: "#privacy"
+      - generic [ref=f2e145]:
+        - paragraph [ref=f2e146]: © 2026 Unfold
+        - paragraph [ref=f2e147]: Windows 10 이상 · macOS 13 이상

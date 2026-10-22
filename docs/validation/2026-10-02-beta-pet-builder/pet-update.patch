@@ -1,0 +1,985 @@
+--- a/src/Unfold.Desktop/CustomPetWindow.cs
++++ b/src/Unfold.Desktop/CustomPetWindow.cs
+@@ -44,6 +44,9 @@
+     private readonly Dictionary<string, TextBlock> labels = [];
+     private readonly Dictionary<string, Border> actionCards = [];
+     private readonly List<Button> actions = [];
++    private readonly Dictionary<string, Image> thumbnails = [];
++    private readonly Dictionary<string, Avalonia.Media.Imaging.Bitmap> thumbnailBitmaps = [];
++    private readonly Dictionary<string, ComboBox> playbackMenus = [];
+     private readonly Button assign, create;
+     private readonly Border pendingCard;
+     private string? pendingPath;
+@@ -67,70 +70,50 @@
+         AutomationProperties.SetName(action, "가져온 파일에 적용할 동작"); AutomationProperties.SetName(name, "커스텀 펫 이름");
+         status.Name = "CustomPetStatus"; pending.Name = "CustomPetPending";
+         assign = AsyncButton("동작에 넣기", AssignPending); assign.Name = "AssignPetMedia";
+-        var slots = new WrapPanel
+-        {
+-            Name = "CustomPetActionSlots",
+-            Orientation = Orientation.Horizontal,
+-            ItemWidth = DesignSystem.PetActionWidth,
+-            ItemHeight = DesignSystem.PetActionHeight,
+-            ItemSpacing = DesignSystem.Space,
+-            LineSpacing = DesignSystem.Space,
+-            ItemsAlignment = WrapPanelItemsAlignment.Start
+-        };
+-        for (var index = 0; index < CustomPetDraft.Actions.Count; index++)
+-        {
+-            var key = CustomPetDraft.Actions[index];
+-            var label = Ui.Caption("파일 없음"); label.Name = "CustomPetLabel_" + key; labels[key] = label;
+-            var select = AsyncButton("파일 선택…", () => SelectFile(key)); select.Name = "CustomPetFile_" + key;
+-            var remove = Ui.Button("제거", () =>
++        var slots = new StackPanel { Name = "CustomPetActionSlots", Spacing = 8 };
++        foreach (var key in CustomPetDraft.Actions)
++        {
++            var thumbnail = new Image { Name = "CustomPetThumbnail_" + key, Width = 32, Height = 40, Stretch = Stretch.Uniform };
++            thumbnails[key] = thumbnail;
++            var label = Ui.Caption("파일 없음"); label.Name = "CustomPetLabel_" + key;
++            label.MaxLines = 1; label.TextTrimming = TextTrimming.CharacterEllipsis;
++            label.VerticalAlignment = VerticalAlignment.Center; labels[key] = label;
++            var heading = Ui.Text(CustomPetDraft.ActionName(key), 12);
++            heading.VerticalAlignment = VerticalAlignment.Center;
++            var menu = new ComboBox { Name = "CustomPetPlayback_" + key, ItemsSource = new[] { "한 번", "반복", "핑퐁" },
++                SelectedIndex = draft.Playback(key), Width = 74, MinHeight = 32, Height = 32, FontSize = 12 };
++            AutomationProperties.SetName(menu, CustomPetDraft.ActionName(key) + " 반복 설정");
++            playbackMenus[key] = menu;
++            menu.SelectionChanged += async (_, _) =>
++            {
++                if (menu.SelectedIndex < 0) return;
++                draft.SetPlayback(key, menu.SelectedIndex);
++                if (previewAction == key) await Preview(key);
++            };
++            var play = AsyncButton("", () => Preview(key)); play.Name = "CustomPetPreview_" + key;
++            var select = AsyncButton("", () => SelectFile(key)); select.Name = "CustomPetFile_" + key;
++            var remove = Ui.Button("", () =>
+             {
+                 draft.RemoveClip(key);
++                menu.SelectedIndex = draft.Playback(key);
+                 if (previewAction == key)
+                 {
+                     previewGeneration++; previewAction = null; preview.SetFrames([], true);
+                     previewHint.IsVisible = false; previewLabel.Text = "";
+                 }
+                 Refresh();
+-            });
+-            remove.Name = "CustomPetRemove_" + key;
+-            var play = AsyncButton("", () => Preview(key)); play.Name = "CustomPetPreview_" + key;
+-            play.Classes.Add("pet-action-preview");
+-            play.HorizontalAlignment = HorizontalAlignment.Stretch; play.VerticalAlignment = VerticalAlignment.Stretch;
+-            AutomationProperties.SetName(select, CustomPetDraft.ActionName(key) + " 파일 선택");
+-            AutomationProperties.SetName(remove, CustomPetDraft.ActionName(key) + " 파일 제거");
+-            AutomationProperties.SetName(play, CustomPetDraft.ActionName(key) + " 미리보기");
+-            ConfigureSlotButton(select, "M11,4 H13 V11 H20 V13 H13 V20 H11 V13 H4 V11 H11 Z",
+-                CustomPetDraft.ActionName(key) + " 파일 선택");
+-            ConfigureSlotButton(remove,
+-                "M8,5 V3 H16 V5 H21 V7 H19 L18,21 H6 L5,7 H3 V5 Z M8,9 H10 V18 H8 Z M14,9 H16 V18 H14 Z",
+-                CustomPetDraft.ActionName(key) + " 파일 제거");
+-            Ui.Danger(remove);
+-            actions.AddRange([select, remove, play]);
+-            var heading = Ui.Text(CustomPetDraft.ActionName(key), DesignSystem.Body);
+-            heading.FontWeight = FontWeight.SemiBold;
+-            var requirement = Ui.Caption(key == "idle" ? "필수 · 반복" : "선택 · 한 번");
+-            label.MaxLines = 2; label.TextTrimming = TextTrimming.CharacterEllipsis;
+-            var controls = Ui.Row(select, remove); controls.Spacing = 4;
+-            controls.Name = "CustomPetActions_" + key;
+-            controls.HorizontalAlignment = HorizontalAlignment.Right; controls.VerticalAlignment = VerticalAlignment.Bottom;
+-            controls.Margin = new Thickness(10);
+-            var copy = Ui.Column(heading, requirement, label); copy.Spacing = 3;
+-            copy.Margin = new Thickness(10, 10, 10, 46); copy.IsHitTestVisible = false;
+-            label.Margin = new Thickness(0, 6, 0, 0);
+-            // The full-card button and file actions are siblings: file clicks never bubble through preview.
+-            var slotContent = new Grid();
+-            slotContent.Children.Add(play); slotContent.Children.Add(copy); slotContent.Children.Add(controls);
+-            var slot = new Border
+-            {
+-                Name = "CustomPetSlot_" + key,
+-                Background = DesignSystem.Raised,
+-                BorderBrush = DesignSystem.Outline,
+-                BorderThickness = new Thickness(1),
+-                CornerRadius = new CornerRadius(18),
+-                Child = slotContent
+-            };
+-            actionCards[key] = slot;
+-            slots.Children.Add(slot);
++            }); remove.Name = "CustomPetRemove_" + key;
++            ConfigureSlotButton(play, "M7,4 L20,12 L7,20 Z", CustomPetDraft.ActionName(key) + " 미리보기");
++            ConfigureSlotButton(select, "M11,4 H13 V11 H20 V13 H13 V20 H11 V13 H4 V11 H11 Z", CustomPetDraft.ActionName(key) + " 파일추가");
++            ConfigureSlotButton(remove, "M8,5 V3 H16 V5 H21 V7 H19 L18,21 H6 L5,7 H3 V5 Z M8,9 H10 V18 H8 Z M14,9 H16 V18 H14 Z", CustomPetDraft.ActionName(key) + " 삭제");
++            Ui.Danger(remove); actions.AddRange([play, select, remove]);
++            var controls = Ui.Row(play, select, remove); controls.Spacing = 2; controls.Name = "CustomPetActions_" + key;
++            var row = new Grid { ColumnDefinitions = new("32,6,72,6,*,6,74,6,100"), Margin = new Thickness(8) };
++            Control[] cells = [thumbnail, heading, label, menu, controls];
++            for (var i = 0; i < cells.Length; i++) { Grid.SetColumn(cells[i], i * 2); row.Children.Add(cells[i]); }
++            var slot = new Border { Name = "CustomPetSlot_" + key, Background = DesignSystem.Raised,
++                BorderBrush = DesignSystem.Outline, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(12), Child = row };
++            actionCards[key] = slot; slots.Children.Add(slot);
+         }
+         create = AsyncButton("펫 팩 만들기…", () => Export()); create.Name = "CreateCustomPetPack"; Ui.Primary(create);
+         create.Height = DesignSystem.PetControlHeight;
+@@ -174,7 +157,7 @@
+         var actionHeader = new Grid { ColumnDefinitions = new("*") };
+         actionHeader.Children.Add(actionHeading);
+         var actionGroup = Ui.Column(actionHeader, slots);
+-        var body = Ui.Column(identity, pendingCard, previewSurface, actionGroup);
++        var body = Ui.Column(pendingCard, previewSurface, identity, actionGroup);
+         body.Spacing = DesignSystem.Inset;
+         var footer = new Grid { ColumnDefinitions = new("*,20,Auto") };
+         status.VerticalAlignment = VerticalAlignment.Center;
+@@ -214,6 +197,7 @@
+         if (closed) return;
+         closed = true; previewGeneration++; owner.PropertyChanged -= OwnerPropertyChanged;
+         cancellation.Cancel(); preview.Dispose();
++        foreach (var bitmap in thumbnailBitmaps.Values) bitmap.Dispose(); thumbnailBitmaps.Clear();
+     }
+     private async Task AssignPending()
+     {
+@@ -270,6 +254,9 @@
+             var clip = await PetMediaImporter.Import(path, cancellation.Token);
+             if (closed) return false;
+             draft.SetClip(key, clip);
++            var bitmap = Ui.Bitmap(clip.LoadFrames()[0].Image);
++            if (thumbnailBitmaps.Remove(key, out var previous)) previous.Dispose();
++            thumbnailBitmaps[key] = bitmap; thumbnails[key].Source = bitmap;
+             status.Foreground = DesignSystem.Muted; status.Text = CustomPetDraft.ActionName(key) + "에 파일을 넣었어요.";
+             await Preview(key); return true;
+         }
+@@ -286,7 +273,7 @@
+             var frames = await Task.Run(clip.LoadFrames, cancellation.Token);
+             if (!closed && request == previewGeneration && draft.Clips.TryGetValue(key, out var current) && current == clip)
+             {
+-                preview.SetFrames(frames, key == "idle", pixel: false);
++                preview.SetFrames(frames, draft.Playback(key) != 0, pixel: false, pingPong: draft.Playback(key) == 2);
+                 previewAction = key;
+                 previewHint.IsVisible = false;
+                 previewLabel.Text = "미리보기 · " + CustomPetDraft.ActionName(key);
+@@ -308,7 +295,7 @@
+             status.Text = "펫 팩을 만들고 검증하고 있어요…";
+             // Keep the draft intact until the archive has been written and validated.
+             var snapshot = new CustomPetDraft();
+-            foreach (var (key, clip) in draft.Clips) snapshot.SetClip(key, clip);
++            foreach (var (key, clip) in draft.Clips) { snapshot.SetClip(key, clip); snapshot.SetPlayback(key, draft.Playback(key)); }
+             await Task.Run(() => snapshot.Export(petName, path));
+             if (closed) return false;
+             ResetDraft();
+@@ -324,7 +311,7 @@
+     {
+         previewGeneration++; previewAction = null; preview.SetFrames([], true);
+         previewHint.IsVisible = false; previewLabel.Text = "";
+-        foreach (var key in CustomPetDraft.Actions) draft.RemoveClip(key);
++        foreach (var key in CustomPetDraft.Actions) { draft.RemoveClip(key); playbackMenus[key].SelectedIndex = draft.Playback(key); }
+         pendingPath = null; pending.Text = ""; action.SelectedIndex = 0; name.Text = "";
+         Refresh();
+     }
+@@ -339,7 +326,7 @@
+         var canSave = !string.IsNullOrWhiteSpace(name.Text) && draft.Clips.ContainsKey("idle") && pendingPath is null;
+         var choice = await Ui.Confirm(owner, "작성 중인 펫을 저장할까요?",
+             canSave ? "저장하지 않고 종료하면 작성 중인 이름과 행동 배정이 사라져요." :
+-                "펫 이름과 필수 ‘쉬는 모습’을 넣고 가져온 파일을 배정하면 저장할 수 있어요. 계속 작성하거나 초안을 버릴 수 있어요.",
++                "펫 이름과 필수 ‘기본’을 넣고 가져온 파일을 배정하면 저장할 수 있어요. 계속 작성하거나 초안을 버릴 수 있어요.",
+             canSave ? "저장하고 종료" : "계속 작성", "버리기", "취소");
+         if (choice == 1) return true;
+         return choice == 0 && canSave && await Export(showCreated: false);
+@@ -352,8 +339,13 @@
+         assign.IsEnabled = !busy && pendingPath is not null;
+         create.IsEnabled = !busy && !string.IsNullOrWhiteSpace(name.Text) && draft.Clips.ContainsKey("idle");
+         foreach (var (key, label) in labels)
+-            label.Text = draft.Clips.TryGetValue(key, out var clip)
+-                ? $"{clip.Width} × {clip.Height}px\n{clip.FrameCount}프레임 · {clip.Duration.TotalSeconds:0.##}초" : "파일 없음";
++        {
++            var clip = draft.Clips.GetValueOrDefault(key);
++            label.Text = clip?.FileName ?? "파일 없음";
++            ToolTip.SetTip(label, clip?.FileName);
++            playbackMenus[key].IsEnabled = !busy;
++            if (clip is null && thumbnailBitmaps.Remove(key, out var old)) { thumbnails[key].Source = null; old.Dispose(); }
++        }
+         foreach (var button in actions)
+             button.IsEnabled = !busy && (button.Name!.StartsWith("CustomPetFile_") || draft.Clips.ContainsKey(button.Name[(button.Name.LastIndexOf('_') + 1)..]));
+         RefreshCardSelection();
+--- a/src/Unfold.Desktop/PetPackWindow.cs
++++ b/src/Unfold.Desktop/PetPackWindow.cs
+@@ -111,9 +111,9 @@
+     }
+     private static string ClipName(string? key) => key switch
+     {
+-        "idle" => "쉬는 모습", "attention" => "휴식 안내", "stretch" => "스트레칭",
++        "idle" => "기본", "attention" => "알림", "stretch" => "휴식",
+         "celebrate" => "휴식 완료", "click" => "클릭 반응", "sleep" => "잠자기",
+-        "look" => "두리번거리기", "yawn" => "하품", "sulk" => "삐지기", "walk" => "걷기", _ => key ?? ""
++        "look" => "두리번거리기", "yawn" => "하품", "sulk" => "삐지기", "walk" => "걷기", "hover" => "마우스 호버", "pointerDown" => "마우스 눌림", "pointerUp" => "마우스 뗌", _ => key ?? ""
+     };
+     private void UpdatePlayback()
+     {
+@@ -194,11 +194,11 @@
+         {
+             var frames = await Task.Run(() => current.Character.LoadAnimation(key));
+             if (closed || request != generation || pack != current) return;
+-            preview.SetFrames(frames, current.Character.Manifest.Animations[key].Loop, current.Character.Manifest.RenderStyle == "pixel", current.Character.HasOriginalBehavior);
++            preview.SetFrames(frames, current.Character.Manifest.Animations[key].Loop, current.Character.Manifest.RenderStyle == "pixel", current.Character.HasOriginalBehavior, current.Character.Manifest.Animations[key].PingPong);
+             previewReady = true;
+             status.Foreground = DesignSystem.Muted;
+-            playbackStatus.Text = returnTo is not null ? "쉬는 모습" :
+-                $"{ClipName(key)} · {frames.Sum(frame => frame.Duration.TotalSeconds):0.###}초 · {(current.Character.Manifest.Animations[key].Loop ? "반복" : "1회")}";
++            playbackStatus.Text = returnTo is not null ? "기본" :
++                $"{ClipName(key)} · {frames.Sum(frame => frame.Duration.TotalSeconds):0.###}초 · {(current.Character.Manifest.Animations[key].PingPong ? "핑퐁" : current.Character.Manifest.Animations[key].Loop ? "반복" : "한 번")}";
+         }
+         catch (Exception error) { AppPaths.Log(error); if (!closed && request == generation) { previewReady = false; status.Foreground = DesignSystem.Error; status.Text = "미리보기를 재생하지 못했어요. " + Ui.ErrorText(error); install.IsEnabled = false; } }
+         finally { if (!closed && request == generation) { loadingPreview = false; UpdatePlayback(); } }
+--- a/src/Unfold.Desktop/SmokeDiagnostics.cs
++++ b/src/Unfold.Desktop/SmokeDiagnostics.cs
+@@ -436,13 +436,12 @@
+             Press(window, "CustomPetFile_click"); await Until(() => Create().IsEnabled);
+             Press(window, "CustomPetPreview_idle");
+             await Until(() => window.GetVisualDescendants().OfType<TextBlock>()
+-                .Single(text => text.Name == "CustomPetPreviewAction").Text == "미리보기 · 쉬는 모습");
++                .Single(text => text.Name == "CustomPetPreviewAction").Text == "미리보기 · 기본");
+             window.UpdateLayout();
+             var selectedCard = window.GetVisualDescendants().OfType<Border>().Single(card => card.Name == "CustomPetSlot_idle");
+             var cardPreview = window.GetVisualDescendants().OfType<Button>().Single(button => button.Name == "CustomPetPreview_idle");
+-            if (selectedCard.BorderBrush != DesignSystem.Cream || cardPreview.Content is PathIcon ||
+-                Math.Abs(cardPreview.Bounds.Width - selectedCard.Bounds.Width + 2) > 1)
+-                throw new InvalidOperationException("The selected action does not use a full-card preview control.");
++            if (selectedCard.BorderBrush != DesignSystem.Cream || cardPreview.Content is not PathIcon)
++                throw new InvalidOperationException("The selected action does not use a row preview button.");
+             Capture(window, Path.Combine(directory, "custom-pet-editor.png"));
+             VerifyBodyScrollGutter(window, PetBuilderControls);
+             VerifyPetActionCards(window, expectWrap: true);
+@@ -604,13 +603,11 @@
+     {
+         if (window.GetVisualDescendants().OfType<ScrollViewer>().Any(view => view.Name == "CustomPetActionSlotsScroll"))
+             throw new InvalidOperationException("The pet action cards still use a horizontal scrollbar.");
+-        var slots = window.GetVisualDescendants().OfType<WrapPanel>()
++        var slots = window.GetVisualDescendants().OfType<StackPanel>()
+             .Single(panel => panel.Name == "CustomPetActionSlots");
+         var rows = slots.Children.Select(card => Math.Round(card.Bounds.Y, 1)).Distinct().Count();
+-        if (expectWrap && rows <= 1)
+-            throw new InvalidOperationException("The pet action cards did not wrap at a narrow window size.");
+-        if (!expectWrap && rows != 1)
+-            throw new InvalidOperationException("The five pet action cards do not fit on one row.");
++        if (rows != CustomPetDraft.Actions.Count)
++            throw new InvalidOperationException("The pet actions do not form eight separate rows.");
+         foreach (var card in slots.Children)
+             if (card.Bounds.X < -.5 || card.Bounds.Right > slots.Bounds.Width + .5)
+                 throw new InvalidOperationException($"The pet action card {card.Name} overflows horizontally.");
+@@ -684,13 +681,13 @@
+             {
+                 var add = window.GetVisualDescendants().OfType<Button>().Single(control => control.Name == "CustomPetFile_" + key);
+                 var location = add.TranslatePoint(default, petScroll)!.Value;
+-                if (location.Y < 0 || location.Y + add.Bounds.Height > petScroll.Viewport.Height + 1)
+-                    throw new InvalidOperationException($"The {key} action needs scrolling at the minimum settings size.");
++                if (location.X < 0 || location.X + add.Bounds.Width > petScroll.Viewport.Width + 1)
++                    throw new InvalidOperationException($"The {key} action overflows the row horizontally.");
+             }
+             VerifyBodyScrollGutter(window, PetBuilderControls);
+             petScroll.ScrollToEnd(); await Task.Delay(100); window.UpdateLayout();
+             VerifyBodyScrollGutter(window, PetBuilderControls);
+-            var lastSlot = window.GetVisualDescendants().OfType<Button>().Single(control => control.Name == "CustomPetFile_click");
++            var lastSlot = window.GetVisualDescendants().OfType<Button>().Single(control => control.Name == "CustomPetFile_pointerUp");
+             var lastSlotOrigin = lastSlot.TranslatePoint(default, window)!.Value;
+             if (lastSlotOrigin.Y < 0 || lastSlotOrigin.Y + lastSlot.Bounds.Height > window.ClientSize.Height)
+                 throw new InvalidOperationException("The last pet action cannot be reached by scrolling.");
+--- a/src/Unfold.Desktop/PetWindow.cs
++++ b/src/Unfold.Desktop/PetWindow.cs
+@@ -81,6 +81,7 @@
+             down = PointerScreenPosition(e);
+             dragAnchor = PetAnchor; pressedAt = Stopwatch.GetTimestamp(); dragging = false;
+             BeginCompanionPress();
++            if (!HasOriginalBehavior) _ = React("pointerDown");
+             pressedPointer = e.Pointer; e.Pointer.Capture(animation); e.Handled = true;
+         };
+         animation.PointerMoved += (_, e) =>
+@@ -102,13 +103,20 @@
+             down = null; pressedPointer = null; e.Pointer.Capture(null); ClampPosition(); runtime.SavePosition(PetAnchor);
+             var handled = ReleaseCompanionPress(clicked);
+             UpdateHover(PetPoint(e.GetPosition(this))); RefreshSpeech();
+-            if (clicked && !handled) await React();
++            if (!HasOriginalBehavior && runtime.Selected?.Manifest.Animations.ContainsKey("pointerUp") == true) await React("pointerUp");
++            else
++            {
++                if (!HasOriginalBehavior && ActiveAnimation == "pointerDown") await RestoreBaseAnimation(InvalidatePlayback());
++                if (clicked && !handled) await React();
++            }
+         };
+         animation.PointerCaptureLost += (_, _) =>
+         {
+             if (down is null) return;
+             down = null; pressedPointer = null; dragging = false;
+-            CancelCompanionPress(); UpdateHover(null);
++            CancelCompanionPress();
++            if (!HasOriginalBehavior && ActiveAnimation == "pointerDown") _ = RestoreBaseAnimation(InvalidatePlayback());
++            UpdateHover(null);
+         };
+         hitTimer.Tick += (_, _) => { UpdateClickThrough(); TickCompanion(); };
+         Opened += (_, _) =>
+@@ -137,7 +145,7 @@
+         character = selected; ActiveAnimation = "idle";
+         if (selected?.HasOriginalBehavior == true && runtime.Reminder.Notice == PetNotice.Resting)
+             originalStretchSession = runtime.Reminder.Session;
+-        animation.SetFrames(frames, true, selected?.Manifest.RenderStyle == "pixel", selected?.HasOriginalBehavior == true);
++        animation.SetFrames(frames, selected?.Manifest.Animations["idle"].Loop ?? true, selected?.Manifest.RenderStyle == "pixel", selected?.HasOriginalBehavior == true, selected?.Manifest.Animations["idle"].PingPong == true);
+     }
+     internal void ShowReminderFallback(CharacterPackage selected)
+     {
+@@ -178,7 +186,8 @@
+             {
+                 var frames = await runtime.Clip(key); if (current != generation) return;
+                 animation.SetRunning(true);
+-                animation.SetFrames(frames, false, selected.Manifest.RenderStyle == "pixel", selected.HasOriginalBehavior);
++                var definition = selected.Manifest.Animations[key];
++                animation.SetFrames(frames, !selected.HasOriginalBehavior && definition.Loop, selected.Manifest.RenderStyle == "pixel", selected.HasOriginalBehavior, definition.PingPong);
+                 await completed.Task.WaitAsync(cancellation.Token);
+                 if (current != generation) return;
+                 if (selected.HasOriginalBehavior && key == "stretch" && session is not null &&
+@@ -278,6 +287,11 @@
+             (hoveringPet || animation.OpaqueAt(local));
+         if (hoveringPet == hovered) return;
+         hoveringPet = hovered;
++        if (!HasOriginalBehavior && !runtime.PresentedReminder.HasNotice)
++        {
++            if (hovered) _ = React("hover");
++            else if (ActiveAnimation == "hover") _ = RestoreBaseAnimation(InvalidatePlayback());
++        }
+         // Finish the current pointer dispatch before changing its window coordinates.
+         Dispatcher.UIThread.Post(() => { if (IsVisible) RefreshSpeech(); }, DispatcherPriority.Background);
+     }
+@@ -292,9 +306,17 @@
+     [DllImport("user32.dll")] [return: MarshalAs(UnmanagedType.Bool)] private static extern bool GetCursorPos(out CursorPoint point);
+     [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW")] private static extern nint GetWindowLong(nint hwnd, int index);
+     [DllImport("user32.dll", EntryPoint = "SetWindowLongPtrW")] private static extern nint SetWindowLong(nint hwnd, int index, nint value);
++    internal static bool HasWindowsHandle(Avalonia.Platform.IPlatformHandle? handle) =>
++        handle is { HandleDescriptor: "HWND" } && handle.Handle != 0;
++
+     private void UpdateClickThrough()
+     {
+         if (!OperatingSystem.IsWindows() || down is not null) return;
++        // Only native Windows surfaces may poll the OS pointer or mutate styles.
++        // Headless surfaces route synthetic input independently of the desktop cursor.
++        var handle = TryGetPlatformHandle();
++        if (!HasWindowsHandle(handle)) return;
++        var hwnd = handle!.Handle;
+         if (!GetCursorPos(out var point)) return;
+         var cursor = new PixelPoint(point.X, point.Y);
+         // A click-through window may not receive Enter until the pointer moves again.
+@@ -302,7 +324,6 @@
+         var onBubble = bubble.IsVisible && bubble.IsHitTestVisible && new Rect(bubble.Bounds.Size).Contains(bubble.PointToClient(cursor));
+         var ignore = !onBubble && !animation.OpaqueAt(animation.PointToClient(cursor));
+         if (ignore == clickThrough) return;
+-        if (TryGetPlatformHandle()?.Handle is not nint hwnd || hwnd == 0) return;
+         var style = (long)GetWindowLong(hwnd, -20);
+         SetWindowLong(hwnd, -20, (nint)(ignore ? style | 0x20 : style & ~0x20)); clickThrough = ignore;
+     }
+--- a/src/Unfold.Desktop/PetWindow.Companion.cs
++++ b/src/Unfold.Desktop/PetWindow.Companion.cs
+@@ -69,7 +69,7 @@
+             if (current != generation || !IsVisible) return;
+             reacting = false; ActiveAnimation = key;
+             animation.SetRunning(true);
+-            animation.SetFrames(frames, true, selected?.Manifest.RenderStyle == "pixel", selected?.HasOriginalBehavior == true);
++            animation.SetFrames(frames, selected?.Manifest.Animations.GetValueOrDefault(key)?.Loop ?? true, selected?.Manifest.RenderStyle == "pixel", selected?.HasOriginalBehavior == true, selected?.Manifest.Animations.GetValueOrDefault(key)?.PingPong == true);
+             if (key != "walk") wander.Reset();
+         }
+         catch (Exception error)
+--- a/src/Unfold.Desktop/AnimationView.cs
++++ b/src/Unfold.Desktop/AnimationView.cs
+@@ -47,11 +47,11 @@
+         AttachedToVisualTree += (_, _) => { if (running && NeedsTimer) { elapsed.Start(); timer.Start(); } };
+         DetachedFromVisualTree += (_, _) => { elapsed.Stop(); timer.Stop(); };
+     }
+-    public void SetFrames(IReadOnlyList<AnimationFrame> clip, bool repeat, bool pixel = true, bool alignCompanion = false)
++    public void SetFrames(IReadOnlyList<AnimationFrame> clip, bool repeat, bool pixel = true, bool alignCompanion = false, bool pingPong = false)
+     {
+         if (disposed) return;
+         timer.Stop(); foreach (var bitmap in bitmaps) bitmap.Dispose();
+-        frames = clip; bitmaps = frames.Select(f => Ui.Bitmap(f.Image)).ToArray(); loop = repeat;
++        frames = pingPong && clip.Count > 2 ? clip.Concat(clip.Skip(1).Take(clip.Count - 2).Reverse()).ToArray() : clip; bitmaps = frames.Select(f => Ui.Bitmap(f.Image)).ToArray(); loop = repeat;
+         frameOffsets = alignCompanion ? frames.Select(frame => CompanionOffset(frame.Image)).ToArray() : [];
+         totalMs = frames.Sum(f => f.Duration.TotalMilliseconds); index = 0; completed = false;
+         RenderOptions.SetBitmapInterpolationMode(this, pixel ? BitmapInterpolationMode.None : BitmapInterpolationMode.HighQuality);
+--- a/src/Unfold.Core/CharacterLibrary.cs
++++ b/src/Unfold.Core/CharacterLibrary.cs
+@@ -5,7 +5,7 @@
+ namespace Unfold.Core;
+ 
+ public sealed record SheetDefinition(string File, int Columns, int Rows, int FrameWidth, int FrameHeight);
+-public sealed record AnimationDefinition(int[]? Frames = null, double? Fps = null, string? Gif = null, bool Loop = true);
++public sealed record AnimationDefinition(int[]? Frames = null, double? Fps = null, string? Gif = null, bool Loop = true, bool PingPong = false);
+ public sealed record CharacterManifest(string Id, string Name, int Version, SheetDefinition SpriteSheet,
+     Dictionary<string, AnimationDefinition> Animations, string? ThumbnailSymbol = null, string? RenderStyle = null,
+     string? BehaviorProfile = null);
+--- a/src/Unfold.Core/CustomPetDraft.cs
++++ b/src/Unfold.Core/CustomPetDraft.cs
+@@ -44,14 +44,14 @@
+ 
+ public sealed class CustomPetDraft
+ {
+-    public static IReadOnlyList<string> Actions { get; } = Array.AsReadOnly(new[] { "idle", "attention", "stretch", "celebrate", "click" });
++    public static IReadOnlyList<string> Actions { get; } = Array.AsReadOnly(new[] { "idle", "attention", "stretch", "celebrate", "click", "hover", "pointerDown", "pointerUp" });
+     private readonly Dictionary<string, ImportedPetClip> clips = [];
+     public string Id { get; } = "custom-" + Guid.NewGuid().ToString("N");
+     public IReadOnlyDictionary<string, ImportedPetClip> Clips => new System.Collections.ObjectModel.ReadOnlyDictionary<string, ImportedPetClip>(clips);
+     public static string ActionName(string key) => key switch
+     {
+-        "idle" => "쉬는 모습", "attention" => "휴식 안내", "stretch" => "스트레칭",
+-        "celebrate" => "휴식 완료", "click" => "클릭 반응", _ => key
++        "idle" => "기본", "attention" => "알림", "stretch" => "휴식",
++        "celebrate" => "휴식 완료", "click" => "클릭 반응", "hover" => "마우스 호버", "pointerDown" => "마우스 눌림", "pointerUp" => "마우스 뗌", _ => key
+     };
+     public void SetClip(string action, ImportedPetClip clip)
+     {
+@@ -63,12 +63,19 @@
+             throw new InvalidDataException("펫 팩의 파일 용량이 너무 커요. 더 작은 파일을 선택해 주세요.");
+         clips[action] = clip;
+     }
+-    public void RemoveClip(string action) => clips.Remove(action);
++    private readonly Dictionary<string, int> playback = [];
++    public int Playback(string action) => playback.GetValueOrDefault(action, action == "idle" ? 1 : 0);
++    public void SetPlayback(string action, int mode)
++    {
++        if (!Actions.Contains(action) || mode is < 0 or > 2) throw new ArgumentException("잘못된 재생 설정이에요.");
++        playback[action] = mode;
++    }
++    public void RemoveClip(string action) { clips.Remove(action); playback.Remove(action); }
+     public void Export(string name, string outputPath)
+     {
+         if (string.IsNullOrWhiteSpace(name) || name.Trim().Length > 80)
+             throw new ArgumentException("펫 이름을 1~80자로 입력해 주세요.");
+-        if (!clips.TryGetValue("idle", out var idle)) throw new InvalidDataException("필수 동작인 ‘쉬는 모습’에 파일을 넣어 주세요.");
++        if (!clips.TryGetValue("idle", out var idle)) throw new InvalidDataException("필수 동작인 ‘기본’에 파일을 넣어 주세요.");
+         var root = Path.Combine(Path.GetTempPath(), "Unfold-custom-" + Guid.NewGuid().ToString("N"));
+         var directory = Path.Combine(root, Id); Directory.CreateDirectory(directory);
+         try
+@@ -94,8 +101,8 @@
+             var manifest = new CharacterManifest(Id, name.Trim(), 1,
+                 new("spritesheet.png", cells.Count, 1, width, height),
+                 clips.ToDictionary(pair => pair.Key, pair => pair.Value.IsStillImage
+-                    ? new AnimationDefinition(Frames: [cells.FindIndex(cell => cell.Key == pair.Key)], Fps: 1, Loop: pair.Key == "idle")
+-                    : new AnimationDefinition(Gif: pair.Key + ".gif", Loop: pair.Key == "idle")),
++                    ? new AnimationDefinition(Frames: [cells.FindIndex(cell => cell.Key == pair.Key)], Fps: 1, Loop: Playback(pair.Key) != 0, PingPong: Playback(pair.Key) == 2)
++                    : new AnimationDefinition(Gif: pair.Key + ".gif", Loop: Playback(pair.Key) != 0, PingPong: Playback(pair.Key) == 2)),
+                 RenderStyle: "smooth");
+             AtomicFile.Write(Path.Combine(directory, "character.json"), JsonSerializer.SerializeToUtf8Bytes(manifest, CharacterLibrary.JsonOptions));
+             var archive = Path.Combine(root, "custom.unfoldpet");
+--- a/src/Unfold.Core/CharacterAssetAudit.cs
++++ b/src/Unfold.Core/CharacterAssetAudit.cs
+@@ -49,8 +49,8 @@
+             foreach (var (key, definition) in package.Manifest.Animations.OrderBy(item => item.Key, StringComparer.Ordinal))
+             {
+                 if (!CharacterLibrary.SafeId(key)) errors.Add($"Invalid animation key: {key}");
+-                if (key == "idle" && !definition.Loop) errors.Add("The idle animation must loop.");
+-                if (OneShots.Contains(key) && definition.Loop) errors.Add($"The {key} event must not loop.");
++                if (package.HasOriginalBehavior && key == "idle" && !definition.Loop) errors.Add("The idle animation must loop.");
++                if (package.HasOriginalBehavior && OneShots.Contains(key) && definition.Loop) errors.Add($"The {key} event must not loop.");
+                 if (package.HasPointerArt && (key is "pickup" or "land") && definition.Loop) errors.Add($"The {key} event must not loop.");
+                 if (package.HasPointerArt && key == "held" && !definition.Loop) errors.Add("The held animation must loop.");
+                 if (definition.Gif is not null) paths.Add(definition.Gif);
+--- a/Tests/Unfold.Tests/PetHoverTests.cs
++++ b/Tests/Unfold.Tests/PetHoverTests.cs
+@@ -16,6 +16,25 @@
+ [Collection("Timer settings")]
+ public class PetHoverTests
+ {
++    [Theory]
++    [InlineData("HWND", 1, true)]
++    [InlineData("HWND", 0, false)]
++    [InlineData("Headless", 1, false)]
++    [InlineData("NSWindow", 1, false)]
++    public void CursorPollingRequiresANonzeroWindowsNativeHandle(string descriptor, int value, bool expected)
++    {
++        Assert.Equal(expected, PetWindow.HasWindowsHandle(new Avalonia.Platform.PlatformHandle((nint)value, descriptor)));
++        Assert.False(PetWindow.HasWindowsHandle(null));
++    }
++
++    [AvaloniaFact]
++    public async Task HeadlessPetNeverQualifiesForNativeCursorPolling()
++    {
++        using var scope = new Scope(); await scope.Load();
++        Assert.False(PetWindow.HasWindowsHandle(scope.Pet.TryGetPlatformHandle()));
++        scope.Hover(); Assert.True(scope.Bubble.IsVisible);
++    }
++
+     [AvaloniaFact]
+     public void TimeAndCountdownRefreshAndShowPausedStoppedAndIdleStates()
+     {
+--- a/Tests/Unfold.Tests/StaticPetMediaTests.cs
++++ b/Tests/Unfold.Tests/StaticPetMediaTests.cs
+@@ -122,10 +122,16 @@
+             draft.SetClip(action, action == (gifIdle ? "idle" : "click")
+                 ? ImportedPetClip.FromGif("motion.gif", File.ReadAllBytes(CustomPetDraftTests.Fixture()))
+                 : ImportedPetClip.FromImage("photo.png", Image(".png", 20 + index * 4, 10 + index * 2)));
++        draft.SetPlayback("idle", 0); draft.SetPlayback("attention", 2);
++        draft.SetPlayback("hover", 1); draft.SetPlayback("pointerUp", 2);
+         var output = Path.Combine(temp.Path, "mixed.unfoldpet"); draft.Export("혼합 펫", output);
+         using var pack = CharacterPack.Open(output);
+         var installed = new CharacterLibrary(Path.Combine(temp.Path, "Characters")).Install(pack, null);
+         Assert.Empty(pack.Audit.Errors); Assert.Equal(1, installed.Manifest.Version);
++        Assert.False(installed.Manifest.Animations["idle"].Loop);
++        Assert.True(installed.Manifest.Animations["attention"].PingPong);
++        Assert.True(installed.Manifest.Animations["hover"].Loop);
++        Assert.True(installed.Manifest.Animations["pointerUp"].PingPong);
+         foreach (var (action, clip) in draft.Clips)
+         {
+             var actual = installed.LoadAnimation(action); Assert.Equal(clip.FrameCount, actual.Count);
+@@ -171,11 +177,14 @@
+         {
+             window.Show(); Find<TextBox>("CustomPetName").Text = "사진 펫"; Press("AssignPetMedia");
+             await Until(() => Find<Button>("CreateCustomPetPack").IsEnabled);
+-            Assert.Equal("24 × 12px\n1프레임 · 1초", Find<TextBlock>("CustomPetLabel_idle").Text);
+-            Assert.DoesNotContain("사진", Find<TextBlock>("CustomPetLabel_idle").Text);
++            Assert.Equal("사진.jpeg", Find<TextBlock>("CustomPetLabel_idle").Text);
++            Assert.Equal("사진.jpeg", ToolTip.GetTip(Find<TextBlock>("CustomPetLabel_idle")));
++            Assert.NotNull(Find<Image>("CustomPetThumbnail_idle").Source);
++            Find<ComboBox>("CustomPetPlayback_idle").SelectedIndex = 2;
+             Press("CustomPetPreview_idle"); File.Delete(path); Press("CreateCustomPetPack");
+             await Until(() => window.CreatedPackPath is not null);
+             using var pack = CharacterPack.Open(output); Assert.Single(pack.Character.LoadAnimation("idle")); Assert.Empty(pack.Audit.Errors);
++            Assert.True(pack.Character.Manifest.Animations["idle"].PingPong);
+         }
+         finally { window.Close(); }
+     }
+--- a/Tests/Unfold.Tests/OriginalCompanionTests.cs
++++ b/Tests/Unfold.Tests/OriginalCompanionTests.cs
+@@ -451,7 +451,7 @@
+         Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
+         pet.ReleaseCompanionPress(true); pet.AdvanceCompanion(.2);
+         Assert.Equal(PetPose.Neutral, pet.PetView.Pose);
+-        Assert.Equal(new[] { "idle", "attention", "stretch", "celebrate", "click" }, CustomPetDraft.Actions);
++        Assert.Equal(new[] { "idle", "attention", "stretch", "celebrate", "click", "hover", "pointerDown", "pointerUp" }, CustomPetDraft.Actions);
+         scope.Runtime.Stop(); await scope.Runtime.ShowReminder(); scope.Runtime.StartBreak();
+         await Until(() => pet.ActiveAnimation == "idle"); Assert.False(pet.IsRoaming);
+         Assert.Equal("idle", pet.ActiveAnimation);
+--- a/Tests/Unfold.Tests/CustomPetTests.cs
++++ b/Tests/Unfold.Tests/CustomPetTests.cs
+@@ -14,13 +14,13 @@
+     internal static string Fixture(string name = "pet-motion.gif") => Path.Combine(AppContext.BaseDirectory, "Fixtures", name);
+     private static ImportedPetClip Clip() => ImportedPetClip.FromGif("my pet.gif", File.ReadAllBytes(Fixture()));
+     [Fact]
+-    public void FiveActionsExportReopenInstallAndPreserveGifTimingAndPixels()
++    public void EightActionsExportReopenInstallAndPreserveGifTimingAndPixels()
+     {
+         using var temp = new TempDirectory(); var draft = new CustomPetDraft(); var clip = Clip();
+         foreach (var action in CustomPetDraft.Actions) draft.SetClip(action, clip);
+         var output = Path.Combine(temp.Path, "보리.unfoldpet"); draft.Export("나의 보리", output);
+         using var pack = CharacterPack.Open(output);
+-        Assert.Equal("나의 보리", pack.Character.Manifest.Name); Assert.Equal(5, pack.Character.Manifest.Animations.Count);
++        Assert.Equal("나의 보리", pack.Character.Manifest.Name); Assert.Equal(8, pack.Character.Manifest.Animations.Count);
+         var library = new CharacterLibrary(Path.Combine(temp.Path, "library")); Assert.Empty(library.List());
+         var installed = library.Install(pack, null);
+         foreach (var key in CustomPetDraft.Actions)
+@@ -33,6 +33,27 @@
+             { Assert.Equal(source[i].Duration, actual[i].Duration); Assert.Equal(source[i].Image.Pixels, actual[i].Image.Pixels); }
+         }
+         Assert.Equal("Reinstall", library.InspectInstall(pack).Action);
++    }
++    [Fact]
++    public void PlaybackModesSurviveExportAndInstallation()
++    {
++        using var temp = new TempDirectory(); var draft = new CustomPetDraft();
++        foreach (var key in CustomPetDraft.Actions) draft.SetClip(key, Clip());
++        draft.SetPlayback("idle", 0); draft.SetPlayback("attention", 2); draft.SetPlayback("stretch", 1); draft.SetPlayback("click", 1); draft.SetPlayback("hover", 1); draft.SetPlayback("pointerUp", 2);
++        var path = Path.Combine(temp.Path, "modes.unfoldpet"); draft.Export("재생 설정", path);
++        using var pack = CharacterPack.Open(path);
++        var library = new CharacterLibrary(Path.Combine(temp.Path, "library"));
++        var installed = library.Install(pack, null);
++        Assert.False(installed.Manifest.Animations["idle"].Loop);
++        Assert.True(installed.Manifest.Animations["hover"].Loop);
++        Assert.True(installed.Manifest.Animations["attention"].PingPong);
++        Assert.True(installed.Manifest.Animations["stretch"].Loop);
++        Assert.True(installed.Manifest.Animations["click"].Loop);
++        Assert.True(installed.Manifest.Animations["pointerUp"].Loop);
++        Assert.True(installed.Manifest.Animations["pointerUp"].PingPong);
++        Assert.False(installed.Manifest.Animations["pointerDown"].Loop);
++        draft.RemoveClip("pointerUp"); Assert.Equal(0, draft.Playback("pointerUp"));
++        Assert.Throws<ArgumentException>(() => draft.SetPlayback("idle", 3));
+     }
+     [Fact]
+     public void RequiredIdleNameAndFailedExportPreserveExistingDestination()
+@@ -117,11 +138,9 @@
+         Dispatcher.UIThread.RunJobs(); return dialog;
+     }
+     private static string Label(Window window, string key) => Find<TextBlock>(window, "CustomPetLabel_" + key).Text ?? "";
+-    private static void AssertClipMetadataOnly(string label)
+-    {
+-        Assert.Matches(@"^\d+ × \d+px\n\d+프레임 · \d+(?:\.\d+)?초$", label);
+-        Assert.DoesNotContain(".gif", label);
+-        Assert.DoesNotContain(".mp4", label);
++    private static void AssertClipFilename(string label)
++    {
++        Assert.EndsWith(".gif", label);
+     }
+     // The imported file is consumed and the picker moved in the same synchronous step,
+     // so this note is the signal that the whole assignment finished.
+@@ -171,30 +190,30 @@
+             var emptySlotSize = idleSlot.Bounds.Size;
+             Press(window, "AssignPetMedia"); await Assigned(window);
+             window.UpdateLayout();
+-            AssertClipMetadataOnly(Label(window, "idle"));
++            AssertClipFilename(Label(window, "idle"));
+             Assert.Equal(emptySlotSize.Width, idleSlot.Bounds.Width, 1);
+             Assert.Equal(emptySlotSize.Height, idleSlot.Bounds.Height, 1);
+             picked = Copy(temp.Path, "second.gif");
+             Press(window, "CustomPetFile_idle");
+             var confirm = await Dialog(window);
+-            Assert.Contains("쉬는 모습", confirm.Title);
++            Assert.Contains("기본", confirm.Title);
+             Assert.Contains(confirm.GetVisualDescendants().OfType<TextBlock>(),
+                 text => (text.Text ?? "").Contains("first.gif") && (text.Text ?? "").Contains("second.gif"));
+             Assert.True(Choice(confirm, "취소").IsFocused); Assert.False(Choice(confirm, "바꾸기").IsDefault);
+             Choice(confirm, "취소").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+             await Until(() => !window.OwnedWindows.Any() && Find<Button>(window, "CustomPetFile_idle").IsEnabled);
+-            AssertClipMetadataOnly(Label(window, "idle"));
++            AssertClipFilename(Label(window, "idle"));
+             Assert.True(Find<Button>(window, "CreateCustomPetPack").IsEnabled);
+             Assert.True(Find<Button>(window, "CustomPetPreview_idle").IsEnabled);
+             // Closing the confirmation with its titlebar is also a cancel.
+             Press(window, "CustomPetFile_idle"); (await Dialog(window)).Close();
+             await Until(() => !window.OwnedWindows.Any() && Find<Button>(window, "CustomPetFile_idle").IsEnabled);
+-            AssertClipMetadataOnly(Label(window, "idle"));
++            AssertClipFilename(Label(window, "idle"));
+             Assert.True(Find<Button>(window, "CreateCustomPetPack").IsEnabled);
+             Press(window, "CustomPetFile_stretch");
+             await Until(() => Find<Button>(window, "CustomPetRemove_stretch").IsEnabled);
+-            AssertClipMetadataOnly(Label(window, "stretch"));
+-            AssertClipMetadataOnly(Label(window, "idle"));
++            AssertClipFilename(Label(window, "stretch"));
++            AssertClipFilename(Label(window, "idle"));
+         }
+         finally { foreach (var owned in window.OwnedWindows.ToArray()) owned.Close(); window.Close(); }
+     }
+@@ -211,7 +230,7 @@
+             picked = Path.Combine(temp.Path, "broken.gif"); File.WriteAllText(picked, "broken");
+             Press(window, "CustomPetFile_idle"); await Answer(window, "바꾸기");
+             await Until(() => Find<TextBlock>(window, "CustomPetStatus").Foreground == DesignSystem.Error);
+-            AssertClipMetadataOnly(Label(window, "idle"));
++            AssertClipFilename(Label(window, "idle"));
+             Assert.True(Find<Button>(window, "CreateCustomPetPack").IsEnabled);
+             Assert.True(Find<Button>(window, "CustomPetPreview_idle").IsEnabled);
+         }
+@@ -259,7 +278,7 @@
+                 PageBodyScrollGeometry.ClearsScrollBar(window, controls);
+                 Assert.DoesNotContain(window.GetVisualDescendants().OfType<ScrollViewer>(),
+                     view => view.Name == "CustomPetActionSlotsScroll");
+-                var slots = Find<WrapPanel>(window, "CustomPetActionSlots");
++                var slots = Find<StackPanel>(window, "CustomPetActionSlots");
+                 var pageScroll = PageBodyScrollGeometry.Scroll(window);
+                 Assert.True(pageScroll.Extent.Width <= pageScroll.Viewport.Width + 1);
+                 var slotRows = slots.Children.Select(card => Math.Round(card.Bounds.Y, 1)).Distinct().Count();
+@@ -281,8 +300,7 @@
+             window.Width = 1400; window.Height = 1600;
+             Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+             PageBodyScrollGeometry.KeepsFullWidthWithoutScrollBar(window);
+-            Assert.Single(Find<WrapPanel>(window, "CustomPetActionSlots").Children
+-                .Select(card => Math.Round(card.Bounds.Y, 1)).Distinct());
++            Assert.Equal(8, Find<StackPanel>(window, "CustomPetActionSlots").Children.Count);
+         }
+         finally { window.Close(); }
+     }
+@@ -301,11 +319,11 @@
+             parent.Show(); Press(parent, "OpenPetPack"); await Until(() => Find<Button>(parent, "PausePackPreview").IsEnabled);
+             var tabs = Find<TabControl>(parent, "PetManagementTabs");
+             tabs.SelectedIndex = 1; Dispatcher.UIThread.RunJobs(); parent.UpdateLayout();
+-            Assert.Equal(5, Find<ComboBox>(parent, "CustomPetAction").ItemCount);
++            Assert.Equal(8, Find<ComboBox>(parent, "CustomPetAction").ItemCount);
+             Assert.DoesNotContain(parent.GetVisualDescendants().OfType<Button>(), button => button.Name == "ImportPetMedia");
+             Assert.DoesNotContain(parent.GetVisualDescendants().OfType<ScrollViewer>(),
+                 view => view.Name == "CustomPetActionSlotsScroll");
+-            Assert.True(Find<WrapPanel>(parent, "CustomPetActionSlots").Children
++            Assert.True(Find<StackPanel>(parent, "CustomPetActionSlots").Children
+                 .Select(card => Math.Round(card.Bounds.Y, 1)).Distinct().Count() > 1);
+             Assert.Empty(parent.OwnedWindows);
+             tabs.SelectedIndex = 0; Dispatcher.UIThread.RunJobs();
+--- a/Tests/Unfold.Tests/DesignSystemTests.cs
++++ b/Tests/Unfold.Tests/DesignSystemTests.cs
+@@ -170,8 +170,8 @@
+                 Assert.DoesNotContain(window.GetVisualDescendants().OfType<Button>(), button => button.Name == "ImportPetMedia");
+                 var slotOrigins = CustomPetDraft.Actions.Select(key =>
+                     Find<Border>(window, "CustomPetSlot_" + key).TranslatePoint(default, window)!.Value).ToArray();
+-                Assert.All(slotOrigins, origin => Assert.InRange(Math.Abs(origin.Y - slotOrigins[0].Y), 0, .5));
+-                for (var index = 1; index < slotOrigins.Length; index++) Assert.True(slotOrigins[index].X > slotOrigins[index - 1].X);
++                Assert.All(slotOrigins, origin => Assert.InRange(Math.Abs(origin.X - slotOrigins[0].X), 0, .5));
++                for (var index = 1; index < slotOrigins.Length; index++) Assert.True(slotOrigins[index].Y > slotOrigins[index - 1].Y);
+                 var preview = Find<Border>(window, "CustomPetPreviewSurface");
+                 var previewOrigin = preview.TranslatePoint(default, window)!.Value;
+                 Assert.True(previewOrigin.Y + preview.Bounds.Height < slotOrigins[0].Y);
+@@ -181,7 +181,7 @@
+                 {
+                     var remove = Find<Button>(window, "CustomPetRemove_" + key);
+                     var removeOrigin = remove.TranslatePoint(default, window)!.Value;
+-                    Assert.True(removeOrigin.Y + remove.Bounds.Height <= bodyOrigin.Y + bodyScroll.Viewport.Height + .5,
++                    Assert.True(removeOrigin.X + remove.Bounds.Width <= bodyOrigin.X + bodyScroll.Viewport.Width + .5,
+                         $"{key} action controls are clipped in the default settings layout.");
+                 }
+             }
+--- a/Tests/Unfold.Tests/UiAuditRegressionTests.cs
++++ b/Tests/Unfold.Tests/UiAuditRegressionTests.cs
+@@ -98,9 +98,9 @@
+             Press(owner, "CustomPetFile_stretch"); await Until(() => !view.IsBusy);
+             var hint = Find<TextBlock>(owner, "CustomPetPreviewHint");
+             Assert.False(hint.IsVisible);
+-            Assert.Contains("스트레칭", Find<TextBlock>(owner, "CustomPetPreviewAction").Text);
++            Assert.Contains("휴식", Find<TextBlock>(owner, "CustomPetPreviewAction").Text);
+             Press(owner, "CustomPetRemove_idle"); Assert.False(hint.IsVisible);
+-            Assert.Contains("스트레칭", Find<TextBlock>(owner, "CustomPetPreviewAction").Text);
++            Assert.Contains("휴식", Find<TextBlock>(owner, "CustomPetPreviewAction").Text);
+             Press(owner, "CustomPetRemove_stretch"); Assert.False(hint.IsVisible);
+         }
+         finally { owner.Close(); }
+--- a/Tests/Unfold.Tests/PetSaveResetTests.cs
++++ b/Tests/Unfold.Tests/PetSaveResetTests.cs
+@@ -79,7 +79,7 @@
+                 Assert.Equal("stretch", action.SelectedItem);
+                 Assert.Equal(originalMetadata, Find<TextBlock>(owner, "CustomPetLabel_idle").Text);
+                 Assert.Equal(originalPending, Find<TextBlock>(owner, "CustomPetPending").Text);
+-                Assert.Contains("쉬는 모습", Find<TextBlock>(owner, "CustomPetPreviewAction").Text);
++                Assert.Contains("기본", Find<TextBlock>(owner, "CustomPetPreviewAction").Text);
+                 Assert.True(Find<Button>(owner, "AssignPetMedia").IsEnabled);
+                 Assert.True(Find<Button>(owner, "CreateCustomPetPack").IsEnabled);
+             }
+--- a/Tests/Unfold.Tests/PetTabsUiTests.cs
++++ b/Tests/Unfold.Tests/PetTabsUiTests.cs
+@@ -32,7 +32,7 @@
+     }
+ 
+     [AvaloniaFact]
+-    public async Task WholeCardPreviewUsesPointerAndKeyboardWithoutInterceptingFileActions()
++    public async Task RowPreviewUsesPointerAndKeyboardWithoutInterceptingFileActions()
+     {
+         using var data = new DataScope(); var picks = 0;
+         var owner = new Window { Width = 860, Height = 680 };
+@@ -48,32 +48,32 @@
+             foreach (var key in CustomPetDraft.Actions)
+             {
+                 var preview = Find<Button>(owner, "CustomPetPreview_" + key);
+-                Assert.IsNotType<PathIcon>(preview.Content);
+-                Assert.Equal(2, Find<StackPanel>(owner, "CustomPetActions_" + key).Children.Count);
++                Assert.IsType<PathIcon>(preview.Content);
++                Assert.Equal(3, Find<StackPanel>(owner, "CustomPetActions_" + key).Children.Count);
+             }
+             Click(owner, Find<Button>(owner, "CustomPetFile_idle"));
+-            await Until(() => !view.IsBusy && Selected().Contains("쉬는 모습"));
++            await Until(() => !view.IsBusy && Selected().Contains("기본"));
+             Assert.Equal(1, picks); Assert.Equal(0, idleClicks);
+             Click(owner, Find<Button>(owner, "CustomPetFile_stretch"));
+-            await Until(() => !view.IsBusy && Selected().Contains("스트레칭"));
++            await Until(() => !view.IsBusy && Selected().Contains("휴식"));
+             Assert.Equal(2, picks);
+-            Click(owner, Find<Border>(owner, "CustomPetSlot_idle"), new Point(14, 14));
+-            await Until(() => Selected().Contains("쉬는 모습"));
++            Click(owner, idlePreview);
++            await Until(() => Selected().Contains("기본"));
+             Assert.Equal(1, idleClicks); Assert.Equal(2, picks);
+             Assert.Equal(DesignSystem.Cream, Find<Border>(owner, "CustomPetSlot_idle").BorderBrush);
+-            Click(owner, Find<Border>(owner, "CustomPetSlot_attention"), new Point(14, 14));
+-            Assert.Contains("쉬는 모습", Selected()); Assert.Equal(2, picks);
++            Press(owner, "CustomPetPreview_attention");
++            Assert.Contains("기본", Selected()); Assert.Equal(2, picks);
+             stretchPreview.Focus();
+             owner.KeyPress(Key.Enter, RawInputModifiers.None, PhysicalKey.Enter, null);
+             owner.KeyRelease(Key.Enter, RawInputModifiers.None, PhysicalKey.Enter, null);
+-            await Until(() => Selected().Contains("스트레칭"));
++            await Until(() => Selected().Contains("휴식"));
+             idlePreview.Focus();
+             owner.KeyPress(Key.Space, RawInputModifiers.None, PhysicalKey.Space, " ");
+             owner.KeyRelease(Key.Space, RawInputModifiers.None, PhysicalKey.Space, " ");
+-            await Until(() => Selected().Contains("쉬는 모습"));
++            await Until(() => Selected().Contains("기본"));
+             var beforeRemove = idleClicks;
+             Click(owner, Find<Button>(owner, "CustomPetRemove_stretch"));
+-            Assert.Contains("쉬는 모습", Selected()); Assert.False(stretchPreview.IsEnabled);
++            Assert.Contains("기본", Selected()); Assert.False(stretchPreview.IsEnabled);
+             Assert.Equal(beforeRemove, idleClicks); Assert.Equal(2, picks);
+             Click(owner, Find<Button>(owner, "CustomPetRemove_idle"));
+             Assert.False(Find<TextBlock>(owner, "CustomPetPreviewHint").IsVisible);
+@@ -83,7 +83,7 @@
+     }
+ 
+     [AvaloniaFact]
+-    public void MinimumSettingsWindowShowsAllFiveCardsAndKeepsTheCreateActionPinned()
++    public void SettingsWindowScrollsEightRowsAndKeepsTheCreateActionPinned()
+     {
+         using var data = new DataScope(); using var lifetime = new ClassicDesktopStyleApplicationLifetime();
+         using var runtime = new AppRuntime(lifetime);
+@@ -95,20 +95,20 @@
+             foreach (var dimensions in new[] { new Size(860, 680), new Size(1120, 800) })
+             {
+                 window.Width = dimensions.Width; window.Height = dimensions.Height; Layout(window);
+-                var slots = Find<WrapPanel>(window, "CustomPetActionSlots");
++                var slots = Find<StackPanel>(window, "CustomPetActionSlots");
+                 var scroll = Find<ScrollViewer>(window, "PageBodyScroll");
+-                Assert.Single(slots.Children.Select(card => Math.Round(card.Bounds.Y, 1)).Distinct());
++                Assert.Equal(8, slots.Children.Count);
+                 Assert.True(scroll.Extent.Width <= scroll.Viewport.Width + 1);
+                 foreach (var key in CustomPetDraft.Actions)
+                 {
+                     var add = Find<Button>(window, "CustomPetFile_" + key);
+                     var location = add.TranslatePoint(default, scroll)!.Value;
+-                    Assert.InRange(location.Y, 0, scroll.Viewport.Height - add.Bounds.Height);
++                    Assert.True(location.Y >= 0);
+                     Assert.True(location.X + add.Bounds.Width <= scroll.Viewport.Width);
+                 }
+                 var geometry = slots.Children.Select(card => card.Bounds).ToArray();
+                 foreach (var key in CustomPetDraft.Actions)
+-                    Find<TextBlock>(window, "CustomPetLabel_" + key).Text = "2048 × 2048px\n512프레임 · 999.99초";
++                    Find<TextBlock>(window, "CustomPetLabel_" + key).Text = "very-long-filename-that-must-be-trimmed.gif";
+                 Layout(window); Assert.Equal(geometry, slots.Children.Select(card => card.Bounds).ToArray());
+                 var create = Find<Button>(window, "CreateCustomPetPack");
+                 var before = create.TranslatePoint(default, window)!.Value;
+@@ -122,7 +122,7 @@
+     }
+ 
+     [AvaloniaFact]
+-    public async Task ImportedMetadataDoesNotResizeCardsAndSelectionSurvivesTabChanges()
++    public async Task ImportedFilenameDoesNotResizeCardsAndSelectionSurvivesTabChanges()
+     {
+         using var data = new DataScope(); var owner = new Window { Width = 860, Height = 680 };
+         using var view = new PetManagementView(owner, new CharacterLibrary(Path.Combine(data.Root, "library")),
+@@ -137,12 +137,12 @@
+             await Until(() => Find<Button>(owner, "CreateCustomPetPack").IsEnabled); Layout(owner);
+             Assert.Equal(before, card.Bounds);
+             var label = Find<TextBlock>(owner, "CustomPetLabel_idle").Text;
+-            Assert.Contains("프레임", label); Assert.Contains("초", label); Assert.Contains("px", label);
+-            Assert.DoesNotContain(".gif", label);
++            Assert.EndsWith(".gif", label);
++            Assert.Equal(label, ToolTip.GetTip(Find<TextBlock>(owner, "CustomPetLabel_idle")));
+             tabs.SelectedIndex = 0; Layout(owner); tabs.SelectedIndex = 1; Layout(owner);
+             Assert.Equal("카드 선택 유지", Find<TextBox>(owner, "CustomPetName").Text);
+             Assert.Equal(DesignSystem.Cream, card.BorderBrush);
+-            Assert.Contains("쉬는 모습", Find<TextBlock>(owner, "CustomPetPreviewAction").Text);
++            Assert.Contains("기본", Find<TextBlock>(owner, "CustomPetPreviewAction").Text);
+         }
+         finally { owner.Close(); }
+     }
+--- a/docs/pet-packs.md
++++ b/docs/pet-packs.md
+@@ -20,14 +20,12 @@
+ ### 이미지·GIF·MP4에서 커스텀 펫 만들기
+ 
+ 1. **펫 추가 → 펫 팩 만들기** 탭에서 펫 이름을 입력한다.
+-2. 아래 한 줄의 다섯 행동 카드에서 **＋**를 눌러 해당 행동에 사용할 PNG·JPG/JPEG·WEBP·BMP 이미지 또는 GIF·MP4를
+-   고른다.
+-3. **파일이 있는 행동 카드**를 누르면 가운데 영역에서 해당 행동을 미리본다.
+-   선택된 카드는 밝은 테두리와 미리보기 아래 행동명으로 표시한다. 빈 카드는 미리보기를 바꾸지 않는다.
+-   카드 우측 하단의 **＋ 파일 선택·교체**, **휴지통 제거**는 카드 선택과 독립적으로 작동한다.
+-   같은 파일을 여러 동작에 사용할 수도 있다. 이미 파일이 있는 동작은 기존 파일명과 새 파일명을
+-   보여 주는 확인 창에서 교체를 승인해야 한다. 취소하거나 교체 파일 검사가 실패하면 이전 파일을
+-   유지한다. 파일 배정에 성공하면 아직 비어 있는 다음 동작을 자동으로 선택한다.
++2. **행동별 파일** 위의 펫 이름을 입력하고, 원하는 행동 행에서 **파일추가(＋)**를 눌러 PNG·JPG·JPEG·GIF 또는 MP4를 고른다.
++3. 각 행은 썸네일 → 행동 → 파일명 → 반복 설정 → 미리보기·파일추가·삭제 순서다.
++   긴 파일명은 말줄임으로 표시하며 마우스를 올리면 툴팁에서 전체 이름을 볼 수 있다.
++   **미리보기(▶)**로 해당 행동을 재생한다. 파일 교체 전에는 기존·새 파일명을 확인하며,
++   취소하거나 파일 검사가 실패하면 기존 파일과 설정을 유지한다.
++   **한 번 / 반복 / 핑퐁**을 행동별로 선택하며, 핑퐁은 끝 프레임에서 내부 프레임을 역순으로 재생한다.
+ 4. **펫 팩 만들기…**로 `.unfoldpet` 파일을 저장한다. 이때 설치되지는 않는다.
+ 5. 자동으로 전환되는 **펫 팩 열기** 탭에서 미리본 뒤 **저장**을 누른다. 성공 후 미리보기와 선택을 초기화하고 저장 결과를 표시한다.
+ 
+@@ -35,18 +33,24 @@
+ 앱 종료 후에는 저장한 `.unfoldpet` 파일만 남는다. **펫 팩 만들기…**는 매번 새 ID의 팩을
+ 생성하며, 저장 성공 후 이름·행동 배정·미리보기를 빈 초안으로 초기화한다. 저장 취소·실패 시에는 초안을 유지한다.
+ 사이드바·트레이 종료 시 미저장 초안이 있으면 저장·버리기·취소를 확인한다. 저장 취소나 실패 시 앱을 계속 열어 둔다.
+-펫 이름은 320×40px, 행동 카드는 128×148px 고정 크기다. 파일명은 생략하고 크기·프레임·시간만 두 줄로 표시한다.
+-설정 창 860×680 이상에서는 다섯 카드와 추가 버튼이 한 줄에 보인다. 최소 640×560을 비롯한 더 좁은 창에서는 줄바꿈한다.
+-가로 스크롤은 사용하지 않으며, 작은 높이에서는 미리보기를 272px에서 156px로 줄인다.
+-미리보기 아래에 현재 행동을 표시한다. 다른 행동 파일을 제거해도 현재 미리보기는 유지된다.
++펫 이름은 행동별 파일 섹션 바로 위에 배치한다. 행동 행은 세로로 쌓이고 본문에서 스크롤한다.
++파일명은 한 줄로 표시하며, 하단 만들기 버튼은 고정한다. 다른 행동을 삭제해도 현재 미리보기는 유지한다.
+ 
+-| 동작 | 파일 필요 여부 | 실행 방식 |
++| 동작 | 파일 필요 여부 | 실행 시점 / 기본 재생 설정 |
+ |---|---|---|
+-| 쉬는 모습 | 필수 | 평상시에 반복 |
+-| 휴식 안내 | 선택 | 휴식 초대가 뜨면 한 번 |
+-| 스트레칭 | 선택 | 휴식을 시작하면 한 번 |
+-| 휴식 완료 | 선택 | 완료를 확인하면 한 번 |
+-| 클릭 반응 | 선택 | 펫을 클릭하면 한 번 |
++| 기본 | 필수 | 평상시 / 반복 |
++| 알림 | 선택 | 휴식 초대 / 한 번 |
++| 휴식 | 선택 | 휴식 시작 / 한 번 |
++| 휴식 완료 | 선택 | 완료 확인 / 한 번 |
++| 클릭 반응 | 선택 | 펫 클릭 / 한 번 |
++| 마우스 호버 | 선택 | 펫 위 진입 / 한 번 |
++| 마우스 눌림 | 선택 | 왼쪽 버튼 누름 / 한 번 |
++| 마우스 뗌 | 선택 | 왼쪽 버튼 해제 / 한 번 |
++
++반복 설정은 팩에 저장되며 만들기·열기 미리보기와 커스텀 펫 런타임에 적용한다.
++반복 반응은 다음 행동이 시작될 때까지 유지한다. 호버 반복은 포인터가 떠나면 기본으로 돌아간다.
++마우스 뗌 파일이 있으면 해당 반응이 클릭 반응보다 우선한다.
++기존 팩의 행동 ID는 유지하며 새 재생 설정이 없는 팩의 기본 재생 계약도 유지한다.
+ 
+ 선택 동작이 없으면 현재 동작을 유지한다. 원본 파일은 수정하지 않고, 가져올 때의 파일
+ 내용을 보관한다. 새 팩에는 고유 ID와 내용 버전 `1.0.0`을 부여하므로 기존 펫을 덮어쓰지 않는다.
+--- /dev/null
++++ b/Tests/Unfold.Tests/CustomPetInteractionTests.cs
+@@ -0,0 +1,74 @@
++using System.Text.Json;
++using System.Reflection;
++using Avalonia;
++using Avalonia.Controls;
++using Avalonia.Controls.ApplicationLifetimes;
++using Avalonia.Headless;
++using Avalonia.Headless.XUnit;
++using Avalonia.Input;
++using Avalonia.Threading;
++using Unfold.Core;
++using Unfold.Desktop;
++
++namespace Unfold.Tests;
++
++[Collection("Timer settings")]
++public class CustomPetInteractionTests
++{
++    [AvaloniaFact]
++    public void PingPongKeepsEndpointsOnceAndReversesInteriorFramesWithTheirTiming()
++    {
++        using var view = new AnimationView();
++        var frames = Enumerable.Range(0, 4).Select(i => new AnimationFrame(
++            new PixelImage(1, 1, [0xFF000000u + (uint)i]), TimeSpan.FromMilliseconds(20 + i * 10))).ToArray();
++        view.SetFrames(frames, true, pingPong: true);
++        var actual = (IReadOnlyList<AnimationFrame>)typeof(AnimationView).GetField("frames", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(view)!;
++        Assert.Equal(new[] { 0, 1, 2, 3, 2, 1 }, actual.Select(frame => (int)(frame.Image.Pixels[0] & 255)));
++        Assert.Equal(new[] { 20d, 30, 40, 50, 40, 30 }, actual.Select(frame => frame.Duration.TotalMilliseconds));
++        view.SetFrames(frames, false);
++        Assert.Equal(4, ((IReadOnlyList<AnimationFrame>)typeof(AnimationView).GetField("frames", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(view)!).Count);
++    }
++
++    [AvaloniaFact]
++    public async Task CustomPointerClipsRespondToHoverPressReleaseAndHoverExit()
++    {
++        using var temp = new TempDirectory();
++        var previous = Environment.GetEnvironmentVariable("UNFOLD_DATA_DIR");
++        Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", temp.Path);
++        using var lifetime = new ClassicDesktopStyleApplicationLifetime();
++        using var runtime = new AppRuntime(lifetime);
++        try
++        {
++            var document = new PixelDocument(16, 16) { Name = "포인터 펫" };
++            Array.Fill(document.Layers[0].Frames[0], 0xFFFFFFFFu);
++            var package = runtime.Library.Save(document);
++            var manifest = package.Manifest with { Animations = CustomPetDraft.Actions.ToDictionary(key => key,
++                key => new AnimationDefinition([0, 0], 10, Loop: true)) };
++            AtomicFile.Write(Path.Combine(package.DirectoryPath, "character.json"), JsonSerializer.SerializeToUtf8Bytes(manifest, CharacterLibrary.JsonOptions));
++            await runtime.Reload(); runtime.Stop();
++            await runtime.UpdateSettings(runtime.Settings with { SelectedCharacterId = package.Manifest.Id, ShowPet = true, ReminderSoundsEnabled = false, BubbleDirection = BubbleDirection.Bottom });
++            var pet = runtime.ActivePet!; pet.Position = new(500, 400); Layout(pet);
++            Point Center() => pet.PetView.TranslatePoint(new(96, 96), pet)!.Value;
++            pet.MouseMove(Center()); await Until(() => pet.ActiveAnimation == "hover");
++            pet.MouseMove(new(-10, -10)); await Until(() => pet.ActiveAnimation == "idle");
++            pet.MouseMove(Center()); await Until(() => pet.ActiveAnimation == "hover");
++            pet.MouseDown(Center(), MouseButton.Left); await Until(() => pet.ActiveAnimation == "pointerDown");
++            pet.MouseUp(Center(), MouseButton.Left); await Until(() => pet.ActiveAnimation == "pointerUp");
++            pet.HidePet(); Assert.False(pet.IsVisible);
++            var noRelease = manifest with { Animations = new(manifest.Animations) };
++            noRelease.Animations.Remove("pointerUp"); noRelease.Animations.Remove("click");
++            AtomicFile.Write(Path.Combine(package.DirectoryPath, "character.json"), JsonSerializer.SerializeToUtf8Bytes(noRelease, CharacterLibrary.JsonOptions));
++            await runtime.Reload(); await runtime.UpdateSettings(runtime.Settings with { ShowPet = true }); Layout(pet);
++            pet.MouseMove(Center()); await Until(() => pet.ActiveAnimation == "hover");
++            pet.MouseDown(Center(), MouseButton.Left); await Until(() => pet.ActiveAnimation == "pointerDown");
++            pet.MouseUp(Center(), MouseButton.Left); await Until(() => pet.ActiveAnimation == "idle");
++        }
++        finally { Environment.SetEnvironmentVariable("UNFOLD_DATA_DIR", previous); }
++    }
++    private static void Layout(Window window) { Dispatcher.UIThread.RunJobs(); window.UpdateLayout(); }
++    private static async Task Until(Func<bool> condition)
++    {
++        for (var i = 0; i < 300 && !condition(); i++) { await Task.Delay(10, TestContext.Current.CancellationToken); Dispatcher.UIThread.RunJobs(); }
++        Assert.True(condition());
++    }
++}

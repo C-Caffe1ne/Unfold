@@ -1,0 +1,76 @@
+### Result
+{"checks":[{"slug":"magazine","name":"reduced motion respected","pass":true},{"slug":"magazine","name":"GLB support","pass":true},{"slug":"magazine","name":"removed pet preview absent","pass":true},{"slug":"magazine","name":"app gallery tab","pass":true},{"slug":"magazine","name":"app gallery keyboard","pass":true},{"slug":"magazine","name":"gallery image ratio","pass":true,"detail":{"rendered":2.6735967808501857,"natural":2.673469387755102}},{"slug":"magazine","name":"gallery wrap","pass":true},{"slug":"magazine","name":"purchase info dialog","pass":true},{"slug":"magazine","name":"no real charge or checkout","pass":true},{"slug":"magazine","name":"dialog Escape focus restore","pass":true},{"slug":"magazine","name":"mobile menu opens","pass":true},{"slug":"magazine","name":"mobile menu Escape","pass":true},{"slug":"magazine","name":"mobile nav opens dialog and closes menu","pass":true},{"slug":"magazine","name":"mobile dialog fits","pass":true},{"slug":"magazine","name":"mobile dialog returns focus to menu","pass":false},{"slug":"magazine","name":"GSAP initialized","pass":true},{"slug":"magazine","name":"sidebar or heading pin","pass":true,"detail":{"top":119.796875,"position":"fixed"}},{"slug":"canvas","name":"reduced motion respected","pass":true},{"slug":"canvas","name":"GLB support","pass":true},{"slug":"canvas","name":"removed pet preview absent","pass":true},{"slug":"canvas","name":"app gallery tab","pass":true},{"slug":"canvas","name":"app gallery keyboard","pass":true},{"slug":"canvas","name":"gallery image ratio","pass":true,"detail":{"rendered":2.6735395189003435,"natural":2.673469387755102}},{"slug":"canvas","name":"gallery wrap","pass":true},{"slug":"canvas","name":"purchase info dialog","pass":true},{"slug":"canvas","name":"no real charge or checkout","pass":true},{"slug":"canvas","name":"dialog Escape focus restore","pass":true},{"slug":"canvas","name":"mobile menu opens","pass":true},{"slug":"canvas","name":"mobile menu Escape","pass":true},{"slug":"canvas","name":"mobile nav opens dialog and closes menu","pass":true},{"slug":"canvas","name":"mobile dialog fits","pass":true},{"slug":"canvas","name":"mobile dialog returns focus to menu","pass":false},{"slug":"canvas","name":"GSAP initialized","pass":true},{"slug":"canvas","name":"sidebar or heading pin","pass":true,"detail":{"top":120.203125,"position":"fixed"}},{"slug":"journey","name":"reduced motion respected","pass":true},{"slug":"journey","name":"GLB support","pass":true},{"slug":"journey","name":"removed pet preview absent","pass":true},{"slug":"journey","name":"reduced-motion scene selection","pass":true},{"slug":"journey","name":"previous scene","pass":true},{"slug":"journey","name":"purchase info dialog","pass":true},{"slug":"journey","name":"no real charge or checkout","pass":true},{"slug":"journey","name":"dialog Escape focus restore","pass":true},{"slug":"journey","name":"mobile menu opens","pass":true},{"slug":"journey","name":"mobile menu Escape","pass":true},{"slug":"journey","name":"mobile nav opens dialog and closes menu","pass":true},{"slug":"journey","name":"mobile dialog fits","pass":true},{"slug":"journey","name":"mobile dialog returns focus to menu","pass":false},{"slug":"journey","name":"mobile keyboard scene switch","pass":true},{"slug":"journey","name":"GSAP initialized","pass":true},{"slug":"journey","name":"horizontal scene moves and pins","pass":true,"detail":{"x":-1208,"pinned":"fixed","scene":"true"}},{"slug":"journey","name":"story exit to supported formats","pass":true},{"slug":"catalog","name":"reduced motion respected","pass":true},{"slug":"catalog","name":"GLB support","pass":true},{"slug":"catalog","name":"removed pet preview absent","pass":true},{"slug":"catalog","name":"app gallery tab","pass":true},{"slug":"catalog","name":"app gallery keyboard","pass":true},{"slug":"catalog","name":"gallery image ratio","pass":true,"detail":{"rendered":2.673605088175773,"natural":2.673469387755102}},{"slug":"catalog","name":"gallery wrap","pass":true},{"slug":"catalog","name":"GLB filter","pass":true},{"slug":"catalog","name":"keyboard motion filter","pass":true},{"slug":"catalog","name":"all format tiles restored","pass":true},{"slug":"catalog","name":"purchase info dialog","pass":true},{"slug":"catalog","name":"no real charge or checkout","pass":true},{"slug":"catalog","name":"dialog Escape focus restore","pass":true},{"slug":"catalog","name":"mobile menu opens","pass":true},{"slug":"catalog","name":"mobile menu Escape","pass":true},{"slug":"catalog","name":"mobile nav opens dialog and closes menu","pass":true},{"slug":"catalog","name":"mobile dialog fits","pass":true},{"slug":"catalog","name":"mobile dialog returns focus to menu","pass":false},{"slug":"catalog","name":"mobile GLB filter","pass":true},{"slug":"catalog","name":"GSAP initialized","pass":true},{"slug":"catalog","name":"sidebar or heading pin","pass":true,"detail":{"top":120.1875,"position":"fixed"}},{"slug":"board","name":"four separate structures","pass":true},{"slug":"board","name":"default grayscale","pass":true},{"slug":"board","name":"full-page comparison","pass":true},{"slug":"board","name":"mobile comparison","pass":true},{"slug":"board","name":"optional color comparison","pass":false},{"slug":"board","name":"phone comparison no overflow","pass":true},{"slug":"all","name":"no browser script errors","pass":true,"detail":[]}],"errors":[],"passed":74,"total":79}
+### Ran Playwright code
+```js
+await (async (page) => {
+ const root='/Users/hwanghyeonseong/Documents/GitHub/Unfold/output/playwright/unfold-layout-concepts-v2-2026-10-09';const checks=[];const errors=[];
+ const check=(slug,name,pass,detail)=>checks.push({slug,name,pass:Boolean(pass),detail});
+ page.on('pageerror',error=>errors.push(String(error)));
+ for(const slug of ['magazine','canvas','journey','catalog']){
+  await page.emulateMedia({reducedMotion:'reduce'});await page.setViewportSize({width:1440,height:1000});await page.goto(`http://127.0.0.1:4189/${slug}.html`);await page.evaluate(()=>document.fonts.ready);await page.waitForFunction(()=>window.__layoutMotion);
+  check(slug,'reduced motion respected',await page.evaluate(()=>window.__layoutMotion.triggers()===0));
+  const copy=await page.locator('body').innerText();check(slug,'GLB support',copy.includes('3D(GLB)'));check(slug,'removed pet preview absent',!copy.includes('펫 미리보기')&&!copy.includes('펫 팩 확인'));
+  if(slug!=='journey'){
+   await page.getByRole('button',{name:'휴식 기록',exact:true}).click();check(slug,'app gallery tab',await page.locator('[data-shot-title]').innerText()==='휴식 기록');
+   await page.getByRole('button',{name:'휴식 알림',exact:true}).focus();await page.keyboard.press('Enter');await page.locator('[data-screen]').evaluate(img=>img.decode());
+   check(slug,'app gallery keyboard',await page.locator('[data-shot-title]').innerText()==='휴식 알림');
+   const ratio=await page.locator('[data-screen]').evaluate(img=>{const r=img.getBoundingClientRect();return{rendered:r.width/r.height,natural:img.naturalWidth/img.naturalHeight}});check(slug,'gallery image ratio',Math.abs(ratio.rendered-ratio.natural)<.01,ratio);
+   await page.getByRole('button',{name:'다음 앱 화면',exact:true}).click();check(slug,'gallery wrap',await page.locator('[data-shot-title]').innerText()==='타이머');
+  }else{
+   await page.locator('[data-scene="2"]').click();await page.waitForFunction(()=>document.querySelector('.journey-window').scrollLeft>2000);
+   check(slug,'reduced-motion scene selection',await page.locator('[data-scene="2"]').getAttribute('aria-pressed')==='true');
+   await page.locator('[data-journey-prev]').click();check(slug,'previous scene',await page.locator('[data-scene="1"]').getAttribute('aria-pressed')==='true');
+  }
+  if(slug==='catalog'){
+   await page.locator('[data-filter="glb"]').click();check(slug,'GLB filter',await page.locator('.format-tile:visible').count()===1&&await page.locator('[data-selected-format]').innerText()==='3D(GLB)');
+   await page.locator('[data-filter="motion"]').focus();await page.keyboard.press('Enter');check(slug,'keyboard motion filter',await page.locator('.format-tile:visible').count()===2&&await page.locator('[data-filter="motion"]').getAttribute('aria-pressed')==='true');
+   await page.locator('[data-filter="all"]').click();check(slug,'all format tiles restored',await page.locator('.format-tile:visible').count()===4);
+  }
+  await page.locator('[data-buy]').last().click();check(slug,'purchase info dialog',await page.locator('dialog').evaluate(el=>el.open));
+  check(slug,'no real charge or checkout',await page.locator('dialog').innerText().then(text=>text.includes('실제 청구되지 않으며')&&text.includes('결제를 진행하지 않습니다')));
+  await page.keyboard.press('Escape');check(slug,'dialog Escape focus restore',await page.evaluate(()=>!document.querySelector('dialog').open&&document.activeElement.hasAttribute('data-buy')));
+  await page.setViewportSize({width:390,height:844});await page.goto(`http://127.0.0.1:4189/${slug}.html`);await page.waitForFunction(()=>window.__layoutMotion);
+  await page.getByRole('button',{name:'메뉴 열기',exact:true}).click();check(slug,'mobile menu opens',await page.locator('#nav-links').isVisible()&&await page.locator('.menu-toggle').getAttribute('aria-expanded')==='true');
+  await page.keyboard.press('Escape');check(slug,'mobile menu Escape',await page.locator('.menu-toggle').getAttribute('aria-expanded')==='false'&&await page.locator('.menu-toggle').getAttribute('aria-label')==='메뉴 열기');
+  await page.getByRole('button',{name:'메뉴 열기',exact:true}).click();await page.locator('#nav-links [data-buy]').click();
+  check(slug,'mobile nav opens dialog and closes menu',await page.locator('dialog').evaluate(el=>el.open)&&!await page.locator('#nav-links').isVisible());
+  const fits=await page.locator('dialog').evaluate(el=>{const r=el.getBoundingClientRect();return r.left>=0&&r.right<=window.innerWidth&&el.scrollWidth<=el.clientWidth});check(slug,'mobile dialog fits',fits);
+  await page.getByRole('button',{name:'구매 안내 닫기',exact:true}).click();check(slug,'mobile dialog returns focus to menu',await page.evaluate(()=>document.activeElement.classList.contains('menu-toggle')));
+  if(slug==='catalog'){
+   await page.locator('[data-filter="glb"]').click();check(slug,'mobile GLB filter',await page.locator('.format-tile:visible').count()===1);await page.screenshot({path:`${root}/catalog-mobile-glb.png`});
+  }
+  if(slug==='journey'){
+   await page.locator('[data-scene="3"]').focus();await page.keyboard.press('Enter');await page.waitForFunction(()=>document.querySelector('.journey-window').scrollLeft>800);
+   check(slug,'mobile keyboard scene switch',await page.locator('[data-scene="3"]').getAttribute('aria-pressed')==='true');await page.screenshot({path:`${root}/journey-mobile-record.png`});
+  }
+  await page.emulateMedia({reducedMotion:'no-preference'});await page.setViewportSize({width:1440,height:1000});await page.goto(`http://127.0.0.1:4189/${slug}.html`);await page.evaluate(()=>document.fonts.ready);await page.waitForFunction(()=>window.__layoutMotion?.triggers()>0);
+  check(slug,'GSAP initialized',await page.evaluate(()=>window.__layoutMotion.triggers()>0));
+  if(slug==='journey'){
+   await page.locator('[data-scene="1"]').click();await page.waitForFunction(()=>{const x=new DOMMatrix(getComputedStyle(document.querySelector('.journey-track')).transform).m41;return x< -1200});
+   const motion=await page.evaluate(()=>({x:new DOMMatrix(getComputedStyle(document.querySelector('.journey-track')).transform).m41,pinned:getComputedStyle(document.querySelector('.journey-stage')).position,scene:document.querySelector('[data-scene="1"]').getAttribute('aria-pressed')}));
+   check(slug,'horizontal scene moves and pins',motion.x< -1200&&motion.pinned==='fixed'&&motion.scene==='true',motion);
+   await page.screenshot({path:`${root}/journey-desktop-timer.png`});await page.locator('[data-scene="2"]').click();await page.waitForFunction(()=>new DOMMatrix(getComputedStyle(document.querySelector('.journey-track')).transform).m41< -2400);await page.screenshot({path:`${root}/journey-desktop-break.png`});
+   await page.locator('#nav-links a[href="#formats"]').click();await page.waitForFunction(()=>document.querySelector('#formats').getBoundingClientRect().top<150);
+   check(slug,'story exit to supported formats',new URL(page.url()).hash==='#formats');
+  }else{
+   const target=await page.locator('[data-pin]').evaluate(el=>el.getBoundingClientRect().top+window.scrollY+100);
+   await page.evaluate(y=>window.scrollTo({top:y,behavior:'instant'}),target);await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+   const pin=await page.locator('[data-pin]').evaluate(el=>({top:el.getBoundingClientRect().top,position:getComputedStyle(el).position}));
+   check(slug,'sidebar or heading pin',Math.abs(pin.top-120)<5&&pin.position==='fixed',pin);await page.screenshot({path:`${root}/${slug}-motion.png`});
+  }
+ }
+ await page.emulateMedia({reducedMotion:'reduce'});await page.setViewportSize({width:1600,height:1450});await page.goto('http://127.0.0.1:4189/');await page.evaluate(()=>document.fonts.ready);await page.locator('img').evaluateAll(images=>Promise.all(images.map(img=>img.decode())));
+ check('board','four separate structures',await page.locator('.concept').count()===4);check('board','default grayscale',await page.locator('[data-thumb]').first().evaluate(el=>getComputedStyle(el).filter==='grayscale(1)'));
+ await page.screenshot({path:`${root}/four-layouts-board.png`,fullPage:true});
+ await page.getByRole('button',{name:'전체 구성',exact:true}).click();await page.locator('[data-thumb]').evaluateAll(images=>Promise.all(images.map(img=>img.decode())));check('board','full-page comparison',await page.locator('[data-thumb]').evaluateAll(images=>images.every(img=>img.src.endsWith('-full.png'))));await page.screenshot({path:`${root}/four-layouts-full-board.png`,fullPage:true});
+ await page.getByRole('button',{name:'모바일',exact:true}).click();await page.locator('[data-thumb]').evaluateAll(images=>Promise.all(images.map(img=>img.decode())));check('board','mobile comparison',await page.locator('[data-thumb]').evaluateAll(images=>images.every(img=>img.src.endsWith('-mobile.png'))));await page.screenshot({path:`${root}/four-layouts-mobile-board.png`,fullPage:true});
+ await page.getByLabel('색상 표시', {exact:true}).check();check('board','optional color comparison',await page.locator('[data-thumb]').first().evaluate(el=>getComputedStyle(el).filter==='none'));
+ await page.getByRole('button',{name:'첫 화면',exact:true}).click();await page.locator('[data-thumb]').evaluateAll(images=>Promise.all(images.map(img=>img.decode())));await page.screenshot({path:`${root}/four-layouts-color-board.png`,fullPage:true});
+ await page.getByLabel('색상 표시',{exact:true}).uncheck();await page.setViewportSize({width:390,height:844});check('board','phone comparison no overflow',await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+ check('all','no browser script errors',errors.length===0,errors);
+ return {checks,errors,passed:checks.filter(c=>c.pass).length,total:checks.length};
+})(page);
+```
+### Page
+- Page URL: http://127.0.0.1:4189/
+- Page Title: Unfold · 서로 다른 네 가지 웹 구조

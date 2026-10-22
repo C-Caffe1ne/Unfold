@@ -1,0 +1,6 @@
+### Result
+[{"width":320,"clientWidth":305,"scrollWidth":305,"overflow":false,"heroLines":2},{"width":375,"clientWidth":360,"scrollWidth":360,"overflow":false,"heroLines":2},{"width":390,"clientWidth":375,"scrollWidth":375,"overflow":false,"heroLines":2},{"width":768,"clientWidth":753,"scrollWidth":753,"overflow":false,"heroLines":2},{"width":1050,"clientWidth":1035,"scrollWidth":1035,"overflow":false,"heroLines":2},{"width":1100,"clientWidth":1085,"scrollWidth":1085,"overflow":false,"heroLines":2},{"width":1440,"clientWidth":1425,"scrollWidth":1425,"overflow":false,"heroLines":2}]
+### Ran Playwright code
+```js
+await (async (page) => { const out=[]; for (const width of [320,375,390,768,1050,1100,1440]) { await page.setViewportSize({width,height:844}); out.push(await page.evaluate(() => ({width:innerWidth,clientWidth:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth,heroLines:Math.round(document.querySelector(".hero-title").clientHeight/parseFloat(getComputedStyle(document.querySelector(".hero-title")).lineHeight))}))); } return out; })(page);
+```

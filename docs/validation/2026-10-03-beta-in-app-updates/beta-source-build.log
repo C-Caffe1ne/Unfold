@@ -1,0 +1,13 @@
+  복원할 프로젝트를 확인하는 중...
+  /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/src/Unfold.Desktop/Unfold.Desktop.csproj을(를) 125밀리초 동안 복원했습니다.
+  /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/src/Unfold.Core/Unfold.Core.csproj을(를) 122밀리초 동안 복원했습니다.
+  /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/Unfold.Tests.csproj을(를) 127밀리초 동안 복원했습니다.
+  Unfold.Core -> /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/src/Unfold.Core/bin/Release/net10.0/Unfold.Core.dll
+  Unfold.Desktop -> /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/src/Unfold.Desktop/bin/Release/net10.0/Unfold.dll
+  Unfold.Tests -> /Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold/Tests/Unfold.Tests/bin/Release/net10.0/Unfold.Tests.dll
+
+빌드했습니다.
+    경고 0개
+    오류 0개
+
+경과 시간: 00:00:05.09

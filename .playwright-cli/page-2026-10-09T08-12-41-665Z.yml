@@ -1,0 +1,177 @@
+- generic [active] [ref=e1]:
+  - link "본문으로 건너뛰기" [ref=e2] [cursor=pointer]:
+    - /url: "#main"
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - link [ref=e5] [cursor=pointer]:
+        - /url: "#home"
+        - img "Unfold" [ref=e6]
+      - navigation "주요 메뉴" [ref=e7]:
+        - link "기능" [ref=e8] [cursor=pointer]:
+          - /url: "#features"
+        - link "테마" [ref=e9] [cursor=pointer]:
+          - /url: "#themes"
+        - link "가격" [ref=e10] [cursor=pointer]:
+          - /url: "#pricing-overview"
+        - link "다운로드" [ref=e11] [cursor=pointer]:
+          - /url: "#install"
+      - generic [ref=e12]:
+        - link "로그인/회원가입" [ref=e13] [cursor=pointer]:
+          - /url: "#login"
+        - generic [ref=e14]:
+          - link "X에서 Unfold 보기 (새 탭)" [ref=e15] [cursor=pointer]:
+            - /url: https://x.com/unfold_pet
+          - link "Instagram에서 Unfold 보기 (새 탭)" [ref=e16] [cursor=pointer]:
+            - /url: https://www.instagram.com/unfold_pet
+  - main [ref=e17]:
+    - region [ref=e18]:
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - generic [ref=e22]: 데스크톱 휴식 알림 펫
+          - heading [level=1] [ref=e23]:
+            - text: 일시정지,
+            - emphasis [ref=e24]: 펫
+            - text: 과 짧은 휴식.
+          - paragraph [ref=e25]: 집중하는 사이, 굽은 목과 어깨를 다시 펼 수 있도록 나만의 펫이 알려 줍니다. 잠깐 멈추고, 펫과 함께 쉬어가세요.
+          - generic [ref=e26]:
+            - link "Unfold 둘러보기" [ref=e27] [cursor=pointer]:
+              - /url: "#features"
+            - link "다운로드" [ref=e28] [cursor=pointer]:
+              - /url: "#install"
+          - paragraph [ref=e29]: Windows 10 이상 · macOS 13 이상Beta는 발급된 이용 코드를 받은 테스터가 사용할 수 있습니다.
+        - generic [ref=e30]:
+          - link "타이머 화면 크게 보기" [ref=e31]:
+            - /url: /assets/themes/plum/home.png
+            - 'img "Unfold 타이머: 다음 휴식까지 남은 시간, Mochi와 시간 설정" [ref=e32]'
+            - generic [aria-hidden] [ref=e33]: 화면 크게 보기 ↗
+          - generic [ref=e34]:
+            - img "기지개를 켜며 휴식을 함께하는 고양이 Mochi" [ref=e35]
+            - button "움직임 멈추기" [ref=e36] [cursor=pointer]
+          - paragraph [ref=e37]: Unfold 홈 화면
+      - generic [ref=e39]:
+        - article [ref=e40]:
+          - generic [ref=e41]:
+            - generic [ref=e42]: 나만의 펫
+            - heading "좋아하는 이미지와 영상으로 나만의 펫을" [level=2] [ref=e43]: 좋아하는 이미지와 영상으로나만의 펫을
+            - paragraph [ref=e44]: 이미지·GIF·MP4로 만든 2D 펫은 최대 다섯 가지 행동을 설정할 수 있고, GLB 펫은 모델에 포함된 애니메이션 중 최대 세 가지를 선택할 수 있습니다.
+            - list [ref=e45]:
+              - listitem [ref=e46]: ✓ 2D 이미지·GIF·MP4와 3D GLB 파일 지원
+              - listitem [ref=e47]: ✓ 2D 펫은 최대 다섯 행동, GLB 펫은 최대 세 애니메이션
+              - listitem [ref=e48]: ✓ 이름·행동 파일·반복 설정을 편집하고 펫 팩으로 저장
+          - figure "v1.1.2 펫 관리 · 저장된 펫의 행동과 파일을 편집하는 화면" [ref=e49]:
+            - link "펫 만들기 화면 크게 보기" [ref=e50]:
+              - /url: /assets/themes/plum/custom-pet.png
+              - 'img "펫 관리: 이름 입력과 행동별 파일 선택" [ref=e51]'
+              - generic [aria-hidden] [ref=e52]: 화면 크게 보기 ↗
+        - article [ref=e54]:
+          - generic [ref=e56]:
+            - generic [ref=e57]: 어디서 일하든
+            - heading "작업하는 화면 곁에, 작은 동료 하나" [level=2] [ref=e58]: 작업하는 화면 곁에,작은 동료 하나
+            - paragraph [ref=e59]: Unfold는 컴퓨터에 설치해 사용하는 독립 실행 앱입니다. 설정 창을 닫아도 펫은 곁에 남아 다음 휴식을 알려 줍니다.
+          - figure "지금 쉬거나, 5분 뒤로 미루거나. 선택은 내 페이스대로." [ref=e60]:
+            - 'img "Mochi의 휴식 알림: 스트레칭할 시간이에요. 5분 뒤에 또는 휴식 시작을 선택할 수 있습니다." [ref=e61]'
+        - article [ref=e63]:
+          - generic [ref=e64]:
+            - generic [ref=e65]: 부담 없이
+            - heading "매일 이어 가지 않아도 괜찮아요" [level=2] [ref=e66]
+            - paragraph [ref=e67]: 바쁜 날엔 쉬어 가는 걸 잊을 수도 있죠. 며칠 건너뛰어도 펫은 그대로입니다. 연속 달성에 대한 부담 없이, 내가 쉬어 간 순간을 돌아보세요.
+          - figure "테스트용 휴식 기록이 포함된 화면" [ref=e68]:
+            - link "휴식 기록 화면 크게 보기" [ref=e69]:
+              - /url: /assets/themes/plum/review.png
+              - 'img "휴식 기록: 지난 7일의 완료 횟수, 기록된 시간과 CSV 내보내기" [ref=e70]'
+              - generic [aria-hidden] [ref=e71]: 화면 크게 보기 ↗
+      - generic [ref=e74]:
+        - generic [ref=e75]:
+          - generic [ref=e76]: 네 가지 테마
+          - heading "책상에 어울리는 색으로" [level=2] [ref=e77]
+          - paragraph [ref=e78]: 마음에 드는 색을 골라 보세요. 앱 미리보기와 이 페이지에 함께 적용됩니다.
+        - generic [ref=e79]:
+          - group "앱 테마 미리보기 선택" [ref=e80]:
+            - button "유연한 라일락" [pressed] [ref=e81] [cursor=pointer]
+            - button "다정한 오트" [ref=e83] [cursor=pointer]
+            - button "숨 고르는 숲" [ref=e85] [cursor=pointer]
+            - button "밤의 버터" [ref=e87] [cursor=pointer]
+          - link "선택한 테마 화면 크게 보기" [ref=e89]:
+            - /url: http://127.0.0.1:4186/assets/themes/plum/home.png
+            - img "유연한 라일락 테마가 적용된 Unfold 화면" [ref=e90]
+            - generic [aria-hidden] [ref=e91]: 화면 크게 보기 ↗
+      - generic [ref=e93]:
+        - generic [ref=e94]:
+          - generic [ref=e95]: 가격
+          - heading "한 번 구매하고 함께 쉬어 가세요" [level=2] [ref=e96]
+          - paragraph [ref=e97]: 현재 웹 결제는 Test입니다. 실제 청구나 앱 Live 이용 권한은 제공하지 않습니다.
+        - generic [ref=e99]:
+          - generic [ref=e100]: Test 기준가 · 정식 판매 전
+          - generic [ref=e101]: 4,900원
+          - paragraph [ref=e103]: Test 화면의 기준가 · 세금 별도실제 청구 없음 · 정식 판매 전
+          - link "Test 결제 확인" [ref=e104] [cursor=pointer]:
+            - /url: "#login"
+          - link "Beta 다운로드" [ref=e105] [cursor=pointer]:
+            - /url: "#install"
+          - link "구매·이용 조건 자세히 보기" [ref=e106] [cursor=pointer]:
+            - /url: "#purchase-details"
+      - generic [ref=e109]:
+        - heading "다음 휴식은, Unfold와 함께" [level=2] [ref=e110]
+        - paragraph [ref=e111]: Beta v1.1.2 설치 파일을 내려받을 수 있습니다.이용 코드를 받은 테스터가 사용할 수 있습니다.
+        - link "가격 보기" [ref=e112] [cursor=pointer]:
+          - /url: "#pricing"
+    - text: ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓
+  - contentinfo [ref=e113]:
+    - generic [ref=e114]:
+      - generic [ref=e115]:
+        - generic [ref=e116]:
+          - link [ref=e117] [cursor=pointer]:
+            - /url: "#home"
+            - img "Unfold" [ref=e118]
+          - paragraph [ref=e119]: 책상에서 오래 일하는 사람을 위한 데스크톱 휴식 동료입니다.
+          - generic [ref=e120]:
+            - link "X에서 Unfold 보기 (새 탭)" [ref=e121] [cursor=pointer]:
+              - /url: https://x.com/unfold_pet
+            - link "Instagram에서 Unfold 보기 (새 탭)" [ref=e122] [cursor=pointer]:
+              - /url: https://www.instagram.com/unfold_pet
+        - generic [ref=e123]:
+          - heading "제품" [level=3] [ref=e124]
+          - list [ref=e125]:
+            - listitem [ref=e126]:
+              - link "기능" [ref=e127] [cursor=pointer]:
+                - /url: "#features"
+            - listitem [ref=e128]:
+              - link "가격" [ref=e129] [cursor=pointer]:
+                - /url: "#pricing"
+            - listitem [ref=e130]:
+              - link "변경 이력" [ref=e131] [cursor=pointer]:
+                - /url: "#changelog"
+        - generic [ref=e132]:
+          - heading "도움말" [level=3] [ref=e133]
+          - list [ref=e134]:
+            - listitem [ref=e135]:
+              - link "다운로드" [ref=e136] [cursor=pointer]:
+                - /url: "#install"
+            - listitem [ref=e137]:
+              - link "macOS 다운로드" [ref=e138] [cursor=pointer]:
+                - /url: "#mac"
+            - listitem [ref=e139]:
+              - link "Windows 다운로드" [ref=e140] [cursor=pointer]:
+                - /url: "#windows"
+        - generic [ref=e141]:
+          - heading "계정·약관" [level=3] [ref=e142]
+          - list [ref=e143]:
+            - listitem [ref=e144]:
+              - link "로그인/회원가입" [ref=e145] [cursor=pointer]:
+                - /url: "#login"
+            - listitem [ref=e146]:
+              - link "프라이버시" [ref=e147] [cursor=pointer]:
+                - /url: "#privacy"
+            - listitem [ref=e148]:
+              - link "이용약관" [ref=e149] [cursor=pointer]:
+                - /url: "#terms"
+            - listitem [ref=e150]:
+              - link "환불 정책" [ref=e151] [cursor=pointer]:
+                - /url: "#refund"
+      - generic [ref=e152]:
+        - paragraph [ref=e153]: © 2026 Unfold
+        - paragraph [ref=e154]: Windows 10 이상 · macOS 13 이상
+      - paragraph [ref=e155]:
+        - text: DOKHU(도쿠) · 대표 이현준 · 사업자등록번호 317-29-01908 · (46593) 부산광역시 북구 덕천로 72 ·
+        - link "dokhubooks@gmail.com" [ref=e156] [cursor=pointer]:
+          - /url: mailto:dokhubooks@gmail.com

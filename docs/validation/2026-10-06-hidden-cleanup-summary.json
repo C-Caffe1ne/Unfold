@@ -1,0 +1,25 @@
+{
+  "recoveredAllocatedBytes": 20537208832,
+  "rootSizes": {
+    "before": {
+      "/Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold": 6007619584,
+      "/Users/hwanghyeonseong/Documents/GitHub/Unfold": 15438548992,
+      "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold": 18552074240
+    },
+    "after": {
+      "/Users/hwanghyeonseong/.codex/worktrees/beta-v1-1-0/Unfold": 5021499392,
+      "/Users/hwanghyeonseong/Documents/GitHub/Unfold": 8073912320,
+      "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold": 6365622272
+    }
+  },
+  "removedEntries": 153,
+  "logicalRemovedBytes": 20512959280,
+  "categories": {
+    "Finder metadata": 420072,
+    "old generated app copy": 7741598953,
+    "rebuildable output": 12640134258,
+    "download cache": 130805997
+  },
+  "inventoryFiles": 34679,
+  "hiddenInventoryFiles": 6161
+}

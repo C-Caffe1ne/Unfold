@@ -1,0 +1,11 @@
+{
+  "source": "/Users/hwanghyeonseong/.codex/worktrees/6bca/Unfold",
+  "version": "1.0.2-beta",
+  "files": {
+    "Tests/Unfold.Tests/WindowControlTests.cs": "c2fce400e0537510eb676c6ca710ad50c4328bf4a37aecb1846298318814deda",
+    "src/Unfold.Desktop/SettingsWindow.Chrome.cs": "cf2042dbed7e2cc0d32edbda99b4fb92208a1b72353e1e2993fa9efa518e96b8",
+    "src/Unfold.Desktop/SettingsWindow.cs": "847e86a41c86612f3ae3483bb726fde5a2859ec2460745970eb961c172075d5f",
+    "src/Unfold.Desktop/SmokeDiagnostics.cs": "76b5ced0b11eae35a532d7740e2d142b7bda7470e753bd6c0e29fac08c435dc8",
+    "src/Unfold.Desktop/SettingsWindow.Layout.cs": "c741b445841923228c13623cffe999837a6cce858bc3d711250f8127a20a93d4"
+  }
+}

@@ -1,0 +1,9 @@
+### Result
+{"before":{"height":1000,"scrollY":0,"stage":{"x":0,"y":180,"width":1425,"height":910,"top":180,"right":1425,"bottom":1090,"left":0},"button":{"x":126.265625,"y":1014,"width":88.140625,"height":76,"top":1014,"right":214.40625,"bottom":1090,"left":126.265625},"transform":"matrix(1, 0, 0, 1, 0, 0)"},"after":{"height":1000,"scrollY":0,"stage":{"x":0,"y":180,"width":1425,"height":910,"top":180,"right":1425,"bottom":1090,"left":0},"button":{"x":126.265625,"y":1014,"width":88.140625,"height":76,"top":1014,"right":214.40625,"bottom":1090,"left":126.265625},"transform":"matrix(1, 0, 0, 1, 0, 0)"}}
+### Ran Playwright code
+```js
+await (async (page) => { await page.emulateMedia({reducedMotion:"no-preference"}); await page.setViewportSize({width:1440,height:1000}); await page.goto("http://127.0.0.1:4189/journey.html"); await page.evaluate(()=>document.fonts.ready); await page.waitForFunction(()=>window.__layoutMotion?.triggers()>0); await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))); const measure=()=>page.evaluate(()=>({height:innerHeight,scrollY,stage:document.querySelector(".journey-stage").getBoundingClientRect().toJSON(),button:document.querySelector("[data-scene=\"1\"]").getBoundingClientRect().toJSON(),transform:getComputedStyle(document.querySelector(".journey-stage")).transform})); const before=await measure(); await page.locator("[data-scene=\"1\"]").scrollIntoViewIfNeeded(); const after=await measure(); await page.screenshot({path:"/Users/hwanghyeonseong/Documents/GitHub/Unfold/output/playwright/unfold-layout-concepts-v2-2026-10-09/journey-pin-debug.png"}); return {before,after}; })(page);
+```
+### Page
+- Page URL: http://127.0.0.1:4189/journey.html
+- Page Title: Pause journey | Unfold 구조 시안

@@ -1,0 +1,5 @@
+  복원할 프로젝트를 확인하는 중...
+  /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Core/Unfold.Core.csproj을(를) 135밀리초 동안 복원했습니다.
+  /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/Unfold.Desktop.csproj을(를) 137밀리초 동안 복원했습니다.
+  Unfold.Core -> /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Core/bin/Release/net10.0/Unfold.Core.dll
+/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/Program.cs(14,9): error CA1416: 이 호출 사이트에는 모든 플랫폼에서 연결할 수 있습니다. 'VelopackApp.OnBeforeUninstallFastCallback(VelopackHook)'은(는) 'windows'에서만 지원됩니다. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1416) [/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/Unfold.Desktop.csproj]

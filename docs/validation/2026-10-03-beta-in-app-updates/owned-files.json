@@ -1,0 +1,22 @@
+[
+  ".config/dotnet-tools.json",
+  ".github/workflows/desktop.yml",
+  "Scripts/package-updates.py",
+  "Scripts/make-macos-bundle.sh",
+  "Scripts/verify-windows-installer.ps1",
+  "docs/cross-platform.md",
+  "docs/releases/v1.0.3-beta.md",
+  "src/Unfold.Desktop/Unfold.Desktop.csproj",
+  "src/Unfold.Desktop/packages.lock.json",
+  "src/Unfold.Desktop/AppUpdates.cs",
+  "src/Unfold.Desktop/UpdateWindow.cs",
+  "src/Unfold.Desktop/AppRuntime.Updates.cs",
+  "src/Unfold.Desktop/AppRuntime.cs",
+  "src/Unfold.Desktop/Program.cs",
+  "src/Unfold.Desktop/PlatformServices.cs",
+  "src/Unfold.Desktop/SmokeDiagnostics.cs",
+  "Tests/Unfold.Tests/AppUpdateTests.cs",
+  "Tests/Unfold.Tests/AppUpdateUiTests.cs",
+  "Tests/Unfold.Tests/packages.lock.json",
+  "Scripts/sign-macos-app.sh"
+]

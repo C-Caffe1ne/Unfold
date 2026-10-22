@@ -1,0 +1,417 @@
+{
+  "results": [
+    {
+      "width": 320,
+      "view": "home",
+      "title": "Unfold — 내가 고른 펫과 잠깐 쉬어가세요.",
+      "overflow": -15,
+      "heading": "내가 고른 펫과,잠깐 쉬어가세요.",
+      "headingLines": 2,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 320,
+      "view": "pricing",
+      "title": "가격과 이용 조건 — Unfold",
+      "overflow": -15,
+      "heading": "Beta 다운로드와 테스트 결제 안내",
+      "headingLines": 2,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 320,
+      "view": "install",
+      "title": "다운로드 — Unfold",
+      "overflow": -15,
+      "heading": "Unfold 다운로드",
+      "headingLines": 1,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 375,
+      "view": "home",
+      "title": "Unfold — 내가 고른 펫과 잠깐 쉬어가세요.",
+      "overflow": -15,
+      "heading": "내가 고른 펫과,잠깐 쉬어가세요.",
+      "headingLines": 2,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 375,
+      "view": "pricing",
+      "title": "가격과 이용 조건 — Unfold",
+      "overflow": -15,
+      "heading": "Beta 다운로드와 테스트 결제 안내",
+      "headingLines": 2,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 375,
+      "view": "install",
+      "title": "다운로드 — Unfold",
+      "overflow": -15,
+      "heading": "Unfold 다운로드",
+      "headingLines": 1,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 390,
+      "view": "home",
+      "title": "Unfold — 내가 고른 펫과 잠깐 쉬어가세요.",
+      "overflow": -15,
+      "heading": "내가 고른 펫과,잠깐 쉬어가세요.",
+      "headingLines": 2,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 390,
+      "view": "pricing",
+      "title": "가격과 이용 조건 — Unfold",
+      "overflow": -15,
+      "heading": "Beta 다운로드와 테스트 결제 안내",
+      "headingLines": 2,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 390,
+      "view": "install",
+      "title": "다운로드 — Unfold",
+      "overflow": -15,
+      "heading": "Unfold 다운로드",
+      "headingLines": 1,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 768,
+      "view": "home",
+      "title": "Unfold — 내가 고른 펫과 잠깐 쉬어가세요.",
+      "overflow": -15,
+      "heading": "내가 고른 펫과,잠깐 쉬어가세요.",
+      "headingLines": 2,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 768,
+      "view": "pricing",
+      "title": "가격과 이용 조건 — Unfold",
+      "overflow": -15,
+      "heading": "Beta 다운로드와 테스트 결제 안내",
+      "headingLines": 1,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 768,
+      "view": "install",
+      "title": "다운로드 — Unfold",
+      "overflow": -15,
+      "heading": "Unfold 다운로드",
+      "headingLines": 1,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 1050,
+      "view": "home",
+      "title": "Unfold — 내가 고른 펫과 잠깐 쉬어가세요.",
+      "overflow": -15,
+      "heading": "내가 고른 펫과,잠깐 쉬어가세요.",
+      "headingLines": 2,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 1050,
+      "view": "pricing",
+      "title": "가격과 이용 조건 — Unfold",
+      "overflow": -15,
+      "heading": "Beta 다운로드와 테스트 결제 안내",
+      "headingLines": 1,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 1050,
+      "view": "install",
+      "title": "다운로드 — Unfold",
+      "overflow": -15,
+      "heading": "Unfold 다운로드",
+      "headingLines": 1,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 1100,
+      "view": "home",
+      "title": "Unfold — 내가 고른 펫과 잠깐 쉬어가세요.",
+      "overflow": -15,
+      "heading": "내가 고른 펫과,잠깐 쉬어가세요.",
+      "headingLines": 2,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 1100,
+      "view": "pricing",
+      "title": "가격과 이용 조건 — Unfold",
+      "overflow": -15,
+      "heading": "Beta 다운로드와 테스트 결제 안내",
+      "headingLines": 1,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 1100,
+      "view": "install",
+      "title": "다운로드 — Unfold",
+      "overflow": -15,
+      "heading": "Unfold 다운로드",
+      "headingLines": 1,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 1440,
+      "view": "home",
+      "title": "Unfold — 내가 고른 펫과 잠깐 쉬어가세요.",
+      "overflow": -15,
+      "heading": "내가 고른 펫과,잠깐 쉬어가세요.",
+      "headingLines": 2,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 1440,
+      "view": "pricing",
+      "title": "가격과 이용 조건 — Unfold",
+      "overflow": -15,
+      "heading": "Beta 다운로드와 테스트 결제 안내",
+      "headingLines": 1,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 1440,
+      "view": "install",
+      "title": "다운로드 — Unfold",
+      "overflow": -15,
+      "heading": "Unfold 다운로드",
+      "headingLines": 1,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 320,
+      "view": "dashboard",
+      "title": "내 계정 — Unfold",
+      "overflow": -15,
+      "heading": "내 Unfold 계정",
+      "headingLines": 1,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 320,
+      "view": "privacy",
+      "title": "프라이버시 — Unfold",
+      "overflow": -15,
+      "heading": "프라이버시",
+      "headingLines": 1,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 320,
+      "view": "terms",
+      "title": "이용약관 — Unfold",
+      "overflow": -15,
+      "heading": "이용약관",
+      "headingLines": 1,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 320,
+      "view": "refund",
+      "title": "환불 정책 — Unfold",
+      "overflow": -15,
+      "heading": "환불 정책",
+      "headingLines": 1,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 320,
+      "view": "changelog",
+      "title": "변경 이력 — Unfold",
+      "overflow": -15,
+      "heading": "변경 이력",
+      "headingLines": 1,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 320,
+      "view": "not-found",
+      "title": "페이지를 찾을 수 없어요 — Unfold",
+      "overflow": 0,
+      "heading": "페이지를 찾을 수 없어요",
+      "headingLines": 1,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 390,
+      "view": "dashboard",
+      "title": "내 계정 — Unfold",
+      "overflow": -15,
+      "heading": "내 Unfold 계정",
+      "headingLines": 1,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 390,
+      "view": "privacy",
+      "title": "프라이버시 — Unfold",
+      "overflow": -15,
+      "heading": "프라이버시",
+      "headingLines": 1,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 390,
+      "view": "terms",
+      "title": "이용약관 — Unfold",
+      "overflow": -15,
+      "heading": "이용약관",
+      "headingLines": 1,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 390,
+      "view": "refund",
+      "title": "환불 정책 — Unfold",
+      "overflow": -15,
+      "heading": "환불 정책",
+      "headingLines": 1,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 390,
+      "view": "changelog",
+      "title": "변경 이력 — Unfold",
+      "overflow": -15,
+      "heading": "변경 이력",
+      "headingLines": 1,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 390,
+      "view": "not-found",
+      "title": "페이지를 찾을 수 없어요 — Unfold",
+      "overflow": 0,
+      "heading": "페이지를 찾을 수 없어요",
+      "headingLines": 1,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 1440,
+      "view": "dashboard",
+      "title": "내 계정 — Unfold",
+      "overflow": -15,
+      "heading": "내 Unfold 계정",
+      "headingLines": 1,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 1440,
+      "view": "privacy",
+      "title": "프라이버시 — Unfold",
+      "overflow": -15,
+      "heading": "프라이버시",
+      "headingLines": 1,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 1440,
+      "view": "terms",
+      "title": "이용약관 — Unfold",
+      "overflow": -15,
+      "heading": "이용약관",
+      "headingLines": 1,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 1440,
+      "view": "refund",
+      "title": "환불 정책 — Unfold",
+      "overflow": -15,
+      "heading": "환불 정책",
+      "headingLines": 1,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 1440,
+      "view": "changelog",
+      "title": "변경 이력 — Unfold",
+      "overflow": -15,
+      "heading": "변경 이력",
+      "headingLines": 1,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    },
+    {
+      "width": 1440,
+      "view": "not-found",
+      "title": "페이지를 찾을 수 없어요 — Unfold",
+      "overflow": 0,
+      "heading": "페이지를 찾을 수 없어요",
+      "headingLines": 1,
+      "extraFeatureDescriptions": 0,
+      "removedFeatureReferences": 0
+    }
+  ],
+  "themes": [
+    {
+      "theme": "oat",
+      "current": "oat",
+      "mismatched": 0
+    },
+    {
+      "theme": "sage",
+      "current": "sage",
+      "mismatched": 0
+    },
+    {
+      "theme": "midnight",
+      "current": "midnight",
+      "mismatched": 0
+    },
+    {
+      "theme": "plum",
+      "current": "plum",
+      "mismatched": 0
+    }
+  ],
+  "failures": []
+}

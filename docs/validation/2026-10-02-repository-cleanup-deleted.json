@@ -1,0 +1,282 @@
+[
+  {
+    "path": ".build",
+    "bytes": 886814237,
+    "files": 8380
+  },
+  {
+    "path": ".swiftpm",
+    "bytes": 452,
+    "files": 1
+  },
+  {
+    "path": "Unfold.xcodeproj",
+    "bytes": 37770,
+    "files": 2
+  },
+  {
+    "path": "build",
+    "bytes": 8343009,
+    "files": 121
+  },
+  {
+    "path": ".tools/media-downloads",
+    "bytes": 79146408,
+    "files": 3
+  },
+  {
+    "path": "artifacts/Unfold-v0.1.1-osx-arm64.tar.gz",
+    "bytes": 51984756,
+    "files": 1
+  },
+  {
+    "path": "artifacts/Unfold-v0.1.1-osx-arm64.zip",
+    "bytes": 52330215,
+    "files": 1
+  },
+  {
+    "path": "artifacts/Unfold-v0.1.1-osx-x64.tar.gz",
+    "bytes": 54872529,
+    "files": 1
+  },
+  {
+    "path": "artifacts/Unfold-v0.1.1-osx-x64.zip",
+    "bytes": 55215326,
+    "files": 1
+  },
+  {
+    "path": "artifacts/Unfold-v0.1.1-win-x64.zip",
+    "bytes": 81588515,
+    "files": 1
+  },
+  {
+    "path": "artifacts/Unfold-v0.2.0-osx-arm64.tar.gz",
+    "bytes": 64625288,
+    "files": 1
+  },
+  {
+    "path": "artifacts/Unfold-v0.2.0-osx-arm64.zip",
+    "bytes": 64969141,
+    "files": 1
+  },
+  {
+    "path": "artifacts/Unfold-v0.2.0-osx-x64.tar.gz",
+    "bytes": 68497014,
+    "files": 1
+  },
+  {
+    "path": "artifacts/Unfold-v0.2.0-osx-x64.zip",
+    "bytes": 68847884,
+    "files": 1
+  },
+  {
+    "path": "artifacts/Unfold-v0.2.0-win-x64.zip",
+    "bytes": 96326725,
+    "files": 1
+  },
+  {
+    "path": "artifacts/Unfold-v0.2.1-osx-arm64.tar.gz",
+    "bytes": 69389393,
+    "files": 1
+  },
+  {
+    "path": "artifacts/Unfold-v0.2.1-osx-arm64.zip",
+    "bytes": 69738671,
+    "files": 1
+  },
+  {
+    "path": "artifacts/Unfold-v0.2.1-osx-x64.tar.gz",
+    "bytes": 73281643,
+    "files": 1
+  },
+  {
+    "path": "artifacts/Unfold-v0.2.1-osx-x64.zip",
+    "bytes": 73631600,
+    "files": 1
+  },
+  {
+    "path": "artifacts/Unfold-v0.2.1-win-x64.zip",
+    "bytes": 100944612,
+    "files": 1
+  },
+  {
+    "path": "artifacts/Unfold.app",
+    "bytes": 167188715,
+    "files": 243
+  },
+  {
+    "path": "artifacts/osx-arm64",
+    "bytes": 167660928,
+    "files": 238
+  },
+  {
+    "path": "artifacts/osx-x64",
+    "bytes": 161967607,
+    "files": 238
+  },
+  {
+    "path": "artifacts/win-x64",
+    "bytes": 265673614,
+    "files": 245
+  },
+  {
+    "path": "Tests/Unfold.Tests/bin",
+    "bytes": 1274174155,
+    "files": 472
+  },
+  {
+    "path": "Tests/Unfold.Tests/obj",
+    "bytes": 2636588,
+    "files": 52
+  },
+  {
+    "path": "src/Unfold.Core/bin",
+    "bytes": 480652,
+    "files": 6
+  },
+  {
+    "path": "src/Unfold.Core/obj",
+    "bytes": 762570,
+    "files": 36
+  },
+  {
+    "path": "src/Unfold.Desktop/bin",
+    "bytes": 1797498167,
+    "files": 914
+  },
+  {
+    "path": "src/Unfold.Desktop/obj",
+    "bytes": 83904021,
+    "files": 202
+  },
+  {
+    "path": "tools/Unfold.MediaSetup/bin",
+    "bytes": 150146,
+    "files": 5
+  },
+  {
+    "path": "tools/Unfold.MediaSetup/obj",
+    "bytes": 209080,
+    "files": 20
+  },
+  {
+    "path": "artifacts/probes/pet-ghost/bin",
+    "bytes": 619006035,
+    "files": 90
+  },
+  {
+    "path": "artifacts/probes/pet-ghost/obj",
+    "bytes": 381658,
+    "files": 23
+  },
+  {
+    "path": "artifacts/releases/v0.2.1/win-x64",
+    "bytes": 270742381,
+    "files": 253
+  },
+  {
+    "path": "artifacts/releases/v0.2.2/win-x64",
+    "bytes": 270783557,
+    "files": 253
+  },
+  {
+    "path": "artifacts/validation/2026-09-23-hover-click/Unfold Hover QA.app",
+    "bytes": 621438845,
+    "files": 98
+  },
+  {
+    "path": "artifacts/validation/2026-09-23-mac-pet/Unfold Space QA.app",
+    "bytes": 621428790,
+    "files": 97
+  },
+  {
+    "path": "artifacts/validation/2026-09-27-hover-jump/Unfold Pointer QA.app",
+    "bytes": 800,
+    "files": 2
+  },
+  {
+    "path": "artifacts/releases/v0.2.1/verify-osx-arm64/Unfold.app",
+    "bytes": 167142226,
+    "files": 243
+  },
+  {
+    "path": "artifacts/releases/v0.2.1/verify-osx-x64/Unfold.app",
+    "bytes": 161952905,
+    "files": 243
+  },
+  {
+    "path": "artifacts/releases/v0.2.2/metadata-check/bin",
+    "bytes": 148249,
+    "files": 5
+  },
+  {
+    "path": "artifacts/releases/v0.2.2/metadata-check/obj",
+    "bytes": 207269,
+    "files": 20
+  },
+  {
+    "path": "artifacts/releases/v0.2.2/verify-osx-arm64/Unfold.app",
+    "bytes": 167188715,
+    "files": 243
+  },
+  {
+    "path": "artifacts/releases/v0.2.2/verify-osx-x64/Unfold.app",
+    "bytes": 161993762,
+    "files": 243
+  },
+  {
+    "path": "artifacts/validation/2026-09-23-hover-click/native-harness/obj",
+    "bytes": 367310,
+    "files": 22
+  },
+  {
+    "path": "artifacts/validation/2026-09-23-mac-pet/native-harness/bin",
+    "bytes": 621428182,
+    "files": 96
+  },
+  {
+    "path": "artifacts/validation/2026-09-23-mac-pet/native-harness/obj",
+    "bytes": 376000,
+    "files": 23
+  },
+  {
+    "path": "artifacts/validation/2026-09-23-pet-hover/native-harness/bin",
+    "bytes": 621431702,
+    "files": 96
+  },
+  {
+    "path": "artifacts/validation/2026-09-23-pet-hover/native-harness/obj",
+    "bytes": 376402,
+    "files": 23
+  },
+  {
+    "path": "artifacts/validation/2026-09-23-preview-sound/native-harness/bin",
+    "bytes": 621443754,
+    "files": 96
+  },
+  {
+    "path": "artifacts/validation/2026-09-23-preview-sound/native-harness/obj",
+    "bytes": 383142,
+    "files": 23
+  },
+  {
+    "path": "artifacts/validation/2026-09-23-reminder-recovery/native-harness/bin",
+    "bytes": 621436150,
+    "files": 96
+  },
+  {
+    "path": "artifacts/validation/2026-09-23-reminder-recovery/native-harness/obj",
+    "bytes": 379862,
+    "files": 23
+  },
+  {
+    "path": "artifacts/validation/2026-09-27-hover-jump/native-harness/bin",
+    "bytes": 622964145,
+    "files": 97
+  },
+  {
+    "path": "artifacts/validation/2026-09-27-hover-jump/native-harness/obj",
+    "bytes": 379994,
+    "files": 23
+  }
+]

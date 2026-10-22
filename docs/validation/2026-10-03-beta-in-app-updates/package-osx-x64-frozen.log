@@ -1,0 +1,105 @@
+Media tools ready: /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/.tools/media-lgpl/osx-x64
+  복원할 프로젝트를 확인하는 중...
+  /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Core/Unfold.Core.csproj을(를) 128밀리초 동안 복원했습니다.
+  /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/Unfold.Desktop.csproj을(를) 130밀리초 동안 복원했습니다.
+  Unfold.Core -> /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Core/bin/Release/net10.0/Unfold.Core.dll
+  Unfold.Desktop -> /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/src/Unfold.Desktop/bin/Release/net10.0/osx-x64/Unfold.dll
+  Unfold.Desktop -> /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/artifacts/osx-x64/
+'vpk' 도구(버전 '1.2.0')가 복원되었습니다. 사용 가능한 명령: vpk
+
+복원했습니다.
+/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/createdump: replacing existing signature
+/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libcoreclr.dylib: replacing existing signature
+/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libSystem.Native.dylib: replacing existing signature
+/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libHarfBuzzSharp.dylib: replacing existing signature
+/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libAvaloniaNative.dylib: replacing existing signature
+/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libSystem.IO.Compression.Native.dylib: replacing existing signature
+/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libclrgcexp.dylib: replacing existing signature
+/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libSkiaSharp.dylib: replacing existing signature
+/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libSystem.Globalization.Native.dylib: replacing existing signature
+/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libSystem.Security.Cryptography.Native.Apple.dylib: replacing existing signature
+/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libmscordaccore.dylib: replacing existing signature
+/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libhostfxr.dylib: replacing existing signature
+/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libSystem.Net.Security.Native.dylib: replacing existing signature
+/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libmscordbi.dylib: replacing existing signature
+/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libhostpolicy.dylib: replacing existing signature
+/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libclrjit.dylib: replacing existing signature
+/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libclrgc.dylib: replacing existing signature
+/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app: replacing existing signature
+--prepared:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/createdump
+--validated:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/createdump
+--prepared:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libSystem.Native.dylib
+--validated:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libSystem.Native.dylib
+--prepared:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libHarfBuzzSharp.dylib
+--validated:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libHarfBuzzSharp.dylib
+--prepared:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libSystem.IO.Compression.Native.dylib
+--validated:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libSystem.IO.Compression.Native.dylib
+--prepared:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libAvaloniaNative.dylib
+--validated:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libAvaloniaNative.dylib
+--prepared:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libcoreclr.dylib
+--prepared:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libclrgcexp.dylib
+--validated:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libcoreclr.dylib
+--validated:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libclrgcexp.dylib
+--prepared:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libSystem.Globalization.Native.dylib
+--validated:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libSystem.Globalization.Native.dylib
+--prepared:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libSystem.Security.Cryptography.Native.Apple.dylib
+--validated:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libSystem.Security.Cryptography.Native.Apple.dylib
+--prepared:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libhostfxr.dylib
+--validated:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libhostfxr.dylib
+--prepared:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libSystem.Net.Security.Native.dylib
+--validated:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libSystem.Net.Security.Native.dylib
+--prepared:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libmscordaccore.dylib
+--validated:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libmscordaccore.dylib
+--prepared:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libhostpolicy.dylib
+--validated:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libhostpolicy.dylib
+--prepared:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libmscordbi.dylib
+--validated:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libmscordbi.dylib
+--prepared:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libclrgc.dylib
+--validated:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libclrgc.dylib
+--prepared:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libclrjit.dylib
+--validated:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libclrjit.dylib
+--prepared:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libSkiaSharp.dylib
+--validated:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/libSkiaSharp.dylib
+--prepared:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/Tools/ffmpeg
+--validated:/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app/Contents/MacOS/Tools/ffmpeg
+/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app: valid on disk
+/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-update-pack-5ypqua1l/Unfold.app: satisfies its Designated Requirement
+[21:30:32 INF] Velopack CLI 1.2.0, for distributing applications.
+[21:30:33 INF] Beginning to package Velopack release 1.0.3-beta.
+[21:30:33 INF] Releases Directory: /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/artifacts/update-releases/osx-x64
+[21:30:33 INF] Starting: Pre-process steps
+[21:30:33 INF] Complete: Pre-process steps
+[21:30:33 INF] Starting: Code-sign application
+[21:30:33 WRN] Package will not be signed or notarized. Missing the --signAppIdentity and --notaryProfile options.
+[21:30:33 INF] Complete: Code-sign application
+[21:30:33 INF] Starting: Building portable package
+[21:30:33 INF] Starting: Building release 1.0.3-beta
+[21:30:36 INF] Complete: Building release 1.0.3-beta
+[21:30:39 INF] Complete: Building portable package
+[21:30:39 INF] Starting: Post-process steps
+[21:30:39 INF] Complete: Post-process steps
+[21:30:39 INF] Finished in 00:00:06.6410410.
+/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-local-update-sign-mkgyj2ox/Unfold.app/Contents/MacOS/UpdateMac: replacing existing signature
+/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-local-update-sign-mkgyj2ox/Unfold.app: replacing existing signature
+/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/artifacts/update-releases/osx-x64/releases.osx-x64-beta.json
+created: /private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/artifacts/Unfold-v1.0.3-beta-osx-x64.tmp.dmg
+Protective Master Boot Record(MBR : 0) 체크섬 처리 중…
+Protective Master Boot Record(MBR : : 확인됨 CRC32 $FC866F98
+GPT Header(Primary GPT Header : 1) 체크섬 처리 중…
+  GPT Header(Primary GPT Header : 1): 확인됨 CRC32 $AE9048F8
+GPT Partition Data(Primary GPT Table : 2) 체크섬 처리 중…
+GPT Partition Data(Primary GPT Table: 확인됨 CRC32 $CEDFCE97
+(Apple_Free : 3) 체크섬 처리 중…
+                    (Apple_Free : 3): 확인됨 CRC32 $00000000
+disk image(Apple_HFS : 4) 체크섬 처리 중…
+           disk image(Apple_HFS : 4): 확인됨 CRC32 $B540250D
+(Apple_Free : 5) 체크섬 처리 중…
+                    (Apple_Free : 5): 확인됨 CRC32 $00000000
+GPT Partition Data(Backup GPT Table : 6) 체크섬 처리 중…
+GPT Partition Data(Backup GPT Table : 확인됨 CRC32 $CEDFCE97
+GPT Header(Backup GPT Header : 7) 체크섬 처리 중…
+   GPT Header(Backup GPT Header : 7): 확인됨 CRC32 $354535C1
+확인됨 CRC32 $65BD8CBB
+hdiutil: verify: checksum of "/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/artifacts/Unfold-v1.0.3-beta-osx-x64.tmp.dmg" is VALID
+/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/artifacts/Unfold-v1.0.3-beta-osx-x64.dmg
+/private/var/folders/r6/7hjm96zd53g3dfxkbbb9jbnh0000gn/T/unfold-inapp-updates-2026-10-03-r4ct5xp2/artifacts/Unfold.app
