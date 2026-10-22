@@ -2,13 +2,8 @@ using Avalonia.Threading;
 
 namespace Unfold.Desktop;
 
-internal enum SystemMemoryAccounting
-{
-    IncludesFileCache,
-    ExcludesAvailableMemory
-}
-
-internal readonly record struct SystemMemoryUsage(ulong UsedBytes, ulong TotalBytes, SystemMemoryAccounting Accounting);
+/// <summary>Physical memory in use, excluding memory the system can hand out at once.</summary>
+internal readonly record struct SystemMemoryUsage(ulong UsedBytes, ulong TotalBytes);
 internal readonly record struct CpuTimeCounters(ulong Idle, ulong Total);
 internal readonly record struct SystemResourceReading(CpuTimeCounters? Cpu, SystemMemoryUsage? Memory);
 internal sealed record SystemResourceSnapshot(double? CpuPercent, SystemMemoryUsage? Memory, DateTimeOffset SampledAt)

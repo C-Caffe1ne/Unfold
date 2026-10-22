@@ -47,8 +47,7 @@ public sealed partial class SettingsWindow
         showSystemResources.FontSize = DesignSystem.Body;
         showSystemResources.IsCheckedChanged += (_, _) => PreferencesEdited();
         ToolTip.SetTip(showSystemResources, L.T("마우스를 올린 동안 시스템 전체 사용량을 5초마다 표시해요.") + "\n" +
-            (OperatingSystem.IsMacOS() ? L.T("물리 메모리 점유량 · 파일 캐시 포함")
-                : L.T("물리 메모리 사용량 · 즉시 사용 가능한 메모리 제외")));
+            L.T("물리 메모리 사용량 · 즉시 사용 가능한 메모리 제외"));
         var bubbleFields = Ui.Column(showPetTimer, showSystemResources, NotificationSettingRow("BubbleOpacityRow", opacityLabel, opacityControls),
             DialogueRow(L.T("사전 알림"), advanceDialogue), DialogueRow(L.T("휴식 초대"), invitationDialogue),
             DialogueRow(L.T("휴식 중"), restingDialogue), DialogueRow(L.T("휴식 시간 초과"), overtimeDialogue),

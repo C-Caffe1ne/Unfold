@@ -285,18 +285,6 @@ public sealed partial class AppRuntime : IDisposable
     public void Reset() { if (!AccessAllowed) return; CancelReminder(); Clock.Reset(monotonic.Elapsed); Changed?.Invoke(); }
     private void CancelReminder() { reminderGeneration++; Reminder.Cancel(); RefreshPetNotice(); }
     public void ShowSettings() { backgroundStart = false; if (accountStartupPending) return; if (!AccessAllowed) { ShowAccount(); return; } if (settingsWindow is null) return; settingsWindow.Show(); settingsWindow.ResumePreview(); settingsWindow.WindowState = WindowState.Normal; if (!DiagnosticMode) settingsWindow.Activate(); TryShowStartupUpdate(); }
-    internal async Task OpenPetLibrary()
-    {
-        ShowSettings();
-        if (AccessAllowed && settingsWindow is { IsVisible: true })
-            await settingsWindow.OpenLibraryFromPet();
-    }
-    internal async Task OpenPetPreferences()
-    {
-        ShowSettings();
-        if (AccessAllowed && settingsWindow is { IsVisible: true })
-            await settingsWindow.OpenPreferencesFromPet();
-    }
     internal static bool HasSeenCurrentAccountWelcome(string path)
     {
         if (!File.Exists(path)) return false;

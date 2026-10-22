@@ -47,9 +47,9 @@ internal sealed class NativeSystemResourceSource : ISystemResourceSource
                 host_statistics64(host, HostVmInfo64, out var vm, ref vmCount) == 0 &&
                 vmCount >= MacVmRev1Count)
             {
-                // free_count already includes speculative pages. All other physical RAM,
-                // including file cache, counts as occupied; this is not memory pressure.
-                memory = MacMemory(total, vm.FreeCount, (ulong)pageSize);
+                // Activity Monitor's "Memory Used": app memory, wired and compressed pages.
+                // File cache stays available, matching the Windows definition.
+                memory = MacMemory(total, vm.InternalCount, vm.PurgeableCount, vm.WireCount, vm.CompressorCount, (ulong)pageSize);
             }
             return new(cpu, memory);
         }
@@ -77,16 +77,19 @@ internal sealed class NativeSystemResourceSource : ISystemResourceSource
         return new(cpu, memory);
     }
 
-    internal static SystemMemoryUsage? MacMemory(ulong total, uint freePages, ulong pageSize)
+    internal static SystemMemoryUsage? MacMemory(ulong total, uint internalPages, uint purgeablePages,
+        uint wiredPages, uint compressorPages, ulong pageSize)
     {
-        if (total == 0 || pageSize == 0 || freePages > ulong.MaxValue / pageSize) return null;
-        var free = freePages * pageSize;
-        return free <= total ? new(total - free, total, SystemMemoryAccounting.IncludesFileCache) : null;
+        if (total == 0 || pageSize == 0) return null;
+        // Purgeable pages are app memory the system may discard, so they count as available.
+        var pages = (ulong)internalPages - Math.Min(purgeablePages, internalPages) + wiredPages + compressorPages;
+        if (pages > ulong.MaxValue / pageSize) return null;
+        var used = pages * pageSize;
+        return used <= total ? new(used, total) : null;
     }
 
     internal static SystemMemoryUsage? WindowsMemory(ulong total, ulong available) =>
-        total > 0 && available <= total
-            ? new(total - available, total, SystemMemoryAccounting.ExcludesAvailableMemory) : null;
+        total > 0 && available <= total ? new(total - available, total) : null;
 
     internal static (int Cpu, int Vm, int WindowsMemory) NativeStructureSizes =>
         (Marshal.SizeOf<MacCpuTicks>(), Marshal.SizeOf<MacVmStatistics>(), Marshal.SizeOf<MemoryStatusEx>());
@@ -104,8 +107,15 @@ internal sealed class NativeSystemResourceSource : ISystemResourceSource
 
     // Request the stable revision-1 prefix, not the growing struct in the newest SDK.
     // mach/host_info.h: HOST_VM_INFO64_REV1_COUNT = offsetof(swapped_count) / sizeof(integer_t).
+    // Offsets follow struct vm_statistics64 in mach/vm_statistics.h.
     [StructLayout(LayoutKind.Explicit, Size = 152)]
-    private struct MacVmStatistics { [FieldOffset(0)] public uint FreeCount; }
+    private struct MacVmStatistics
+    {
+        [FieldOffset(12)] public uint WireCount;
+        [FieldOffset(88)] public uint PurgeableCount;
+        [FieldOffset(128)] public uint CompressorCount;
+        [FieldOffset(140)] public uint InternalCount;
+    }
 
     [StructLayout(LayoutKind.Sequential)]
     private struct FileTime

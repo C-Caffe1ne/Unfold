@@ -6,13 +6,9 @@ public static partial class L
     private static readonly Dictionary<string, Translation> Table = new(StringComparer.Ordinal)
     {
         // Pet library
-        ["빠른 메뉴"] = new("Quick menu", "クイックメニュー", "快捷菜单"),
-        ["알림 소리 끄기"] = new("Mute reminder sounds", "通知音をオフ", "关闭提醒声音"),
-        ["알림 소리 켜기"] = new("Enable reminder sounds", "通知音をオン", "开启提醒声音"),
         ["호버 바에 CPU·메모리 표시"] = new("Show CPU and memory in the hover bar", "ホバーバーにCPUとメモリを表示", "在悬停栏显示 CPU 和内存"),
         ["마우스를 올린 동안 시스템 전체 사용량을 5초마다 표시해요."] = new("Show system-wide usage every 5 seconds while hovering.", "マウスを重ねている間、システム全体の使用量を5秒ごとに表示します。", "悬停时每 5 秒显示系统整体使用量。"),
         ["메모리"] = new("Memory", "メモリ", "内存"),
-        ["물리 메모리 점유량 · 파일 캐시 포함"] = new("Occupied physical memory · includes file cache", "物理メモリ占有量 · ファイルキャッシュを含む", "物理内存占用量 · 包含文件缓存"),
         ["물리 메모리 사용량 · 즉시 사용 가능한 메모리 제외"] = new("Used physical memory · excludes available memory", "物理メモリ使用量 · 使用可能なメモリを除く", "物理内存使用量 · 不含可用内存"),
         ["측정 준비 중이거나 사용할 수 없어요."] = new("Waiting for a sample or unavailable.", "測定準備中、または取得できません。", "等待采样或无法获取。"),
         ["적용"] = new("Apply", "適用", "应用"),

@@ -235,12 +235,6 @@ public sealed partial class SettingsWindow
         PreferencesEdited();
         return Task.CompletedTask;
     }
-    internal Task OpenPreferencesFromPet() => OpenPreferences();
-    internal async Task OpenLibraryFromPet()
-    {
-        await OpenPetPacks();
-        petPage?.ShowLibrary();
-    }
     private Task OpenReview()
     {
         reviewPage ??= new BreakReviewView(this, runtime.BreakHistory.Review,

@@ -6,7 +6,7 @@ namespace Unfold.Tests;
 public class SystemResourceMonitorTests
 {
     private static readonly SystemMemoryUsage Memory =
-        new(512_000_000, 1_024_000_000, SystemMemoryAccounting.IncludesFileCache);
+        new(512_000_000, 1_024_000_000);
     private static readonly TimeSpan TestInterval = TimeSpan.FromMilliseconds(10);
 
     [Fact]
@@ -194,7 +194,7 @@ public class SystemResourceMonitorTests
         var source = new TestSource((call, _) =>
         {
             clock.Advance(TimeSpan.FromSeconds(5));
-            return Reading(call) with { Memory = new(20, 10, SystemMemoryAccounting.IncludesFileCache) };
+            return Reading(call) with { Memory = new(20, 10) };
         });
         using var monitor = new SystemResourceMonitor(source, TestInterval, action => action(), () => clock.Now);
         monitor.SetActive(true, true);
@@ -205,16 +205,18 @@ public class SystemResourceMonitorTests
     }
 
     [Fact]
-    public void MemoryDefinitionsKeepCacheAccountingAndRejectInvalidNativeValues()
+    public void MemoryDefinitionsLeaveCacheAvailableAndRejectInvalidNativeValues()
     {
-        var mac = NativeSystemResourceSource.MacMemory(16_384, 1, 4_096);
-        Assert.Equal(new SystemMemoryUsage(12_288, 16_384, SystemMemoryAccounting.IncludesFileCache), mac);
+        // App memory (internal minus purgeable) + wired + compressed, as Activity Monitor's "Memory Used".
+        var mac = NativeSystemResourceSource.MacMemory(65_536, internalPages: 6, purgeablePages: 2, wiredPages: 3, compressorPages: 1, 4_096);
+        Assert.Equal(new SystemMemoryUsage(32_768, 65_536), mac);
+        Assert.Equal(new SystemMemoryUsage(4_096, 65_536), NativeSystemResourceSource.MacMemory(65_536, 1, 5, 1, 0, 4_096));
         var windows = NativeSystemResourceSource.WindowsMemory(16_384, 8_192);
-        Assert.Equal(new SystemMemoryUsage(8_192, 16_384, SystemMemoryAccounting.ExcludesAvailableMemory), windows);
-        Assert.Null(NativeSystemResourceSource.MacMemory(0, 0, 4096));
-        Assert.Null(NativeSystemResourceSource.MacMemory(100, 1, 0));
-        Assert.Null(NativeSystemResourceSource.MacMemory(100, 1, 4096));
-        Assert.Null(NativeSystemResourceSource.MacMemory(ulong.MaxValue, 2, ulong.MaxValue));
+        Assert.Equal(new SystemMemoryUsage(8_192, 16_384), windows);
+        Assert.Null(NativeSystemResourceSource.MacMemory(0, 0, 0, 0, 0, 4096));
+        Assert.Null(NativeSystemResourceSource.MacMemory(100, 1, 0, 0, 0, 0));
+        Assert.Null(NativeSystemResourceSource.MacMemory(100, 1, 0, 0, 0, 4096));
+        Assert.Null(NativeSystemResourceSource.MacMemory(ulong.MaxValue, 2, 0, 0, 0, ulong.MaxValue));
         Assert.Null(NativeSystemResourceSource.WindowsMemory(0, 0));
         Assert.Null(NativeSystemResourceSource.WindowsMemory(100, 101));
     }
@@ -240,8 +242,7 @@ public class SystemResourceMonitorTests
         Assert.NotNull(before.Memory); Assert.NotNull(after.Memory);
         var memory = Assert.IsType<SystemMemoryUsage>(after.Memory);
         Assert.True(memory.TotalBytes > 0);
-        Assert.InRange(memory.UsedBytes, 0UL, memory.TotalBytes);
-        Assert.Equal(SystemMemoryAccounting.IncludesFileCache, memory.Accounting);
+        Assert.InRange(memory.UsedBytes, 1UL, memory.TotalBytes);
         var percent = SystemResourceMonitor.CpuPercent(before.Cpu, after.Cpu, beforeTime, afterTime, TimeSpan.FromSeconds(15));
         Assert.InRange(Assert.IsType<double>(percent), 0d, 100d);
     }

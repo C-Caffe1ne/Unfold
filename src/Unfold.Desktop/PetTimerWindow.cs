@@ -25,15 +25,11 @@ internal sealed class PetTimerWindow : Window
     private readonly TimerControls controls;
     private readonly Border timerBar;
     private readonly Grid body;
-    private readonly StackPanel resources;
+    private readonly Grid resources;
     private readonly TextBlock cpuValue = ResourceValue("PetCpuValue"), memoryValue = ResourceValue("PetMemoryValue");
+    private readonly ProgressBar cpuGauge = ResourceGauge("PetCpuGauge"), memoryGauge = ResourceGauge("PetMemoryGauge");
     private readonly TextBlock memoryLabel = ResourceLabel(L.T("메모리"));
     private readonly SystemResourceMonitor resourceMonitor;
-    private readonly Button quickMenuButton;
-    private readonly ContextMenu quickMenu = new();
-    private readonly MenuItem libraryItem = new() { Name = "PetQuickLibrary" },
-        soundItem = new() { Name = "PetQuickSound" }, settingsItem = new() { Name = "PetQuickSettings" };
-    private bool quickActionPending;
     private IPointer? interactionPointer;
     private bool pointerOverTimer;
     private Rect? suppressedPetArea;
@@ -41,8 +37,7 @@ internal sealed class PetTimerWindow : Window
     private bool closed;
     internal double HoverOpacity => timerBar.Opacity;
     internal bool IsClickThrough { get; private set; }
-    internal bool HoldsPlacement => pointerOverTimer || HasCapture || quickMenu.IsOpen;
-    internal ContextMenu QuickMenu => quickMenu;
+    internal bool HoldsPlacement => pointerOverTimer || HasCapture;
     private bool HasCapture => interactionPointer?.Captured is Visual captured && TopLevel.GetTopLevel(captured) == this;
 
     internal PetTimerWindow(PetWindow pet, AppRuntime runtime, SystemResourceMonitor? resourceMonitor = null)
@@ -56,30 +51,16 @@ internal sealed class PetTimerWindow : Window
         TransparencyLevelHint = [WindowTransparencyLevel.Transparent];
         ShowInTaskbar = false; ShowActivated = false; Topmost = true;
         controls = new(runtime.TogglePause, () => _ = runtime.RequestStop(), compact: true);
-        quickMenuButton = Ui.Quiet(Ui.Button("⋯", OpenQuickMenu));
-        quickMenuButton.Name = "PetQuickMenu"; quickMenuButton.Width = 28; quickMenuButton.Height = 24;
-        quickMenuButton.MinWidth = quickMenuButton.MinHeight = 0;
-        quickMenuButton.Padding = new Thickness(0); quickMenuButton.FontSize = 18;
-        quickMenuButton.VerticalAlignment = VerticalAlignment.Center;
-        var heading = new Grid { ColumnDefinitions = new("28,*,28") };
-        Grid.SetColumn(currentTime, 1); heading.Children.Add(currentTime);
-        Grid.SetColumn(quickMenuButton, 2); heading.Children.Add(quickMenuButton);
-        quickMenu.Items.Add(libraryItem); quickMenu.Items.Add(soundItem); quickMenu.Items.Add(settingsItem);
-        quickMenu.Placement = PlacementMode.Bottom;
-        libraryItem.Click += async (_, _) => await RunQuickAction(runtime.OpenPetLibrary);
-        soundItem.Click += async (_, _) => await RunQuickAction(() =>
-            runtime.UpdateSettings(runtime.Settings with { ReminderSoundsEnabled = !runtime.Settings.ReminderSoundsEnabled }));
-        settingsItem.Click += async (_, _) => await RunQuickAction(runtime.OpenPetPreferences);
-        quickMenu.Opened += (_, _) => { UpdateHover(false, true, elapsed.Elapsed); UpdateClickThrough(); };
-        quickMenu.Closed += (_, _) => UpdateClickThrough();
         var row = new Grid { ColumnDefinitions = new("*,8,Auto") };
         row.Children.Add(countdown); Grid.SetColumn(controls, 2); row.Children.Add(controls);
         body = new Grid { RowDefinitions = new("18,4,44,0") };
-        body.Children.Add(heading); Grid.SetRow(row, 2); body.Children.Add(row);
-        resources = new StackPanel { Name = "PetSystemResources", Spacing = 2, Margin = new Thickness(2, 4, 2, 0), IsVisible = false };
+        body.Children.Add(currentTime); Grid.SetRow(row, 2); body.Children.Add(row);
+        // One grid keeps both gauges the same width whatever the localized label lengths are.
+        resources = new Grid { Name = "PetSystemResources", ColumnDefinitions = new("Auto,*,Auto"), RowDefinitions = new("Auto,Auto"),
+            ColumnSpacing = 8, RowSpacing = 2, Margin = new Thickness(2, 4, 2, 0), IsVisible = false };
         memoryLabel.Name = "PetMemoryLabel";
-        resources.Children.Add(ResourceRow(ResourceLabel("CPU"), cpuValue));
-        resources.Children.Add(ResourceRow(memoryLabel, memoryValue));
+        AddResourceRow(0, ResourceLabel("CPU"), cpuGauge, cpuValue);
+        AddResourceRow(1, memoryLabel, memoryGauge, memoryValue);
         Grid.SetRow(resources, 3); body.Children.Add(resources);
         timerBar = new Border { Name = "PetTimerBar", Width = TimerWidth, Height = TimerHeight, Opacity = 0,
             Padding = new Thickness(6, 5), Background = DesignSystem.Shell, BorderBrush = DesignSystem.Outline,
@@ -94,64 +75,61 @@ internal sealed class PetTimerWindow : Window
         PropertyChanged += (_, e) =>
         {
             if (e.Property != IsVisibleProperty) return;
-            if (!IsVisible) quickMenu.Close();
             UpdateResourceActivity();
         };
-        Closed += (_, _) => { closed = true; quickMenu.Close(); reveal.Reset(); countdown.Dispose(); this.resourceMonitor.Dispose(); };
-    }
-    private void RefreshQuickMenu()
-    {
-        var label = L.T("빠른 메뉴");
-        AutomationProperties.SetName(quickMenuButton, label); ToolTip.SetTip(quickMenuButton, label);
-        libraryItem.Header = L.T("내 펫");
-        soundItem.Header = runtime.Settings.ReminderSoundsEnabled ? L.T("알림 소리 끄기") : L.T("알림 소리 켜기");
-        settingsItem.Header = L.T("설정");
-    }
-    private void OpenQuickMenu()
-    {
-        if (closed || HoverOpacity <= 0 || quickActionPending) return;
-        RefreshQuickMenu();
-        if (quickMenu.IsOpen) quickMenu.Close(); else quickMenu.Open(quickMenuButton);
-    }
-    private async Task RunQuickAction(Func<Task> action)
-    {
-        if (closed || quickActionPending) return;
-        quickActionPending = true; quickMenuButton.IsEnabled = false; quickMenu.Close();
-        try { await action(); }
-        catch (Exception error) { AppPaths.Log(error); if (!closed) await Ui.Error(pet, error); }
-        finally
-        {
-            quickActionPending = false;
-            if (!closed) { quickMenuButton.IsEnabled = true; RefreshQuickMenu(); }
-        }
+        Closed += (_, _) => { closed = true; reveal.Reset(); countdown.Dispose(); this.resourceMonitor.Dispose(); };
     }
 
+    // Load levels from low to high: blue, green, orange, red. Each fill keeps 3:1 against the Raised track.
+    private static readonly (double Below, string Light, string Dark)[] GaugeLevels =
+    [
+        (30, "#2563D9", "#6EA8FE"), (60, "#1F8A4C", "#4CC38A"), (85, "#C2610C", "#F5A04A"),
+        (double.PositiveInfinity, "#D13438", "#FF7B7B")
+    ];
     private static TextBlock ResourceValue(string name) => new() { Name = name, Text = "—", FontSize = 12,
-        LineHeight = 16, Foreground = DesignSystem.Cream, TextAlignment = TextAlignment.Right };
+        LineHeight = 16, MinWidth = 32, Foreground = DesignSystem.Cream, TextAlignment = TextAlignment.Right };
     private static TextBlock ResourceLabel(string text) => new()
         { Text = text, FontSize = 12, LineHeight = 16, Foreground = DesignSystem.Cream };
-    private static Grid ResourceRow(TextBlock label, TextBlock value)
+    private static ProgressBar ResourceGauge(string name)
     {
-        var row = new Grid { ColumnDefinitions = new("Auto,8,*") };
-        row.Children.Add(label);
-        Grid.SetColumn(value, 2); row.Children.Add(value);
-        return row;
+        var gauge = new ProgressBar { Name = name, Minimum = 0, Maximum = 100, Height = 6, MinHeight = 6, MinWidth = 0,
+            CornerRadius = new CornerRadius(3), Background = DesignSystem.Raised, Foreground = new SolidColorBrush(),
+            VerticalAlignment = VerticalAlignment.Center };
+        // The percentage beside it already names the value.
+        AutomationProperties.SetAccessibilityView(gauge, AccessibilityView.Raw);
+        return gauge;
     }
-    internal static string FormatCpu(double? value) => value is { } percent ? $"{percent:0}%" : "—";
-    internal static string FormatMemory(SystemMemoryUsage? value) => value is { } memory
-        ? $"{memory.UsedBytes / 1_000_000_000d:0.0} / {memory.TotalBytes / 1_000_000_000d:0.0} GB" : "—";
+    private void AddResourceRow(int row, TextBlock label, ProgressBar gauge, TextBlock value)
+    {
+        foreach (var (control, column) in new (Control, int)[] { (label, 0), (gauge, 1), (value, 2) })
+        { Grid.SetRow(control, row); Grid.SetColumn(control, column); resources.Children.Add(control); }
+    }
+    internal static string FormatPercent(double? value) => value is { } percent ? $"{percent:0}%" : "—";
+    internal static double? MemoryPercent(SystemMemoryUsage? value) =>
+        value is { } memory ? memory.UsedBytes * 100d / memory.TotalBytes : null;
+    internal static Color GaugeColor(double percent, bool dark)
+    {
+        // Match the shown whole percentage so the color never disagrees with the text.
+        var shown = Math.Round(percent, MidpointRounding.AwayFromZero);
+        var level = GaugeLevels.First(level => shown < level.Below);
+        return Color.Parse(dark ? level.Dark : level.Light);
+    }
+    private static void ShowUsage(ProgressBar gauge, TextBlock value, double? percent, bool dark)
+    {
+        value.Text = FormatPercent(percent);
+        gauge.Value = percent ?? 0;
+        if (percent is { } load) ((SolidColorBrush)gauge.Foreground!).Color = GaugeColor(load, dark);
+    }
     private void RefreshResources()
     {
         if (closed) return;
         var sample = resourceMonitor.Current;
         memoryLabel.Text = L.T("메모리");
-        cpuValue.Text = FormatCpu(sample.CpuPercent); memoryValue.Text = FormatMemory(sample.Memory);
-        var memoryMeaning = sample.Memory?.Accounting switch
-        {
-            SystemMemoryAccounting.IncludesFileCache => L.T("물리 메모리 점유량 · 파일 캐시 포함"),
-            SystemMemoryAccounting.ExcludesAvailableMemory => L.T("물리 메모리 사용량 · 즉시 사용 가능한 메모리 제외"),
-            _ => L.T("측정 준비 중이거나 사용할 수 없어요.")
-        };
+        var dark = DesignSystem.Themes.Single(theme => theme.Id == DesignSystem.CurrentTheme).IsDark;
+        ShowUsage(cpuGauge, cpuValue, sample.CpuPercent, dark);
+        ShowUsage(memoryGauge, memoryValue, MemoryPercent(sample.Memory), dark);
+        var memoryMeaning = sample.Memory is null ? L.T("측정 준비 중이거나 사용할 수 없어요.")
+            : L.T("물리 메모리 사용량 · 즉시 사용 가능한 메모리 제외");
         AutomationProperties.SetName(cpuValue, $"CPU {cpuValue.Text}");
         AutomationProperties.SetName(memoryValue, $"{memoryMeaning}: {memoryValue.Text}");
     }
@@ -179,7 +157,6 @@ internal sealed class PetTimerWindow : Window
     {
         if (closed) return;
         Title = L.T("Unfold · 타이머");
-        RefreshQuickMenu();
         RefreshResourceLayout();
         RefreshTime(); controls.Refresh(runtime.Clock, runtime.Reminder.HasNotice);
         if (!pet.IsVisible || !runtime.Settings.ShowPetTimer)
@@ -214,7 +191,6 @@ internal sealed class PetTimerWindow : Window
     {
         if (closed || !IsVisible || !pet.IsVisible || !runtime.Settings.ShowPetTimer) return;
         var wasVisible = HoverOpacity > 0;
-        timerHovered |= quickMenu.IsOpen;
         reveal.Update(petHovered, timerHovered, now, pet.HasPointerInteraction);
         if (!reveal.IsSuppressed) suppressedPetArea = null;
         pointerOverTimer = timerHovered && reveal.Opacity > 0;
@@ -224,7 +200,6 @@ internal sealed class PetTimerWindow : Window
     }
     internal void SuppressForPetInteraction()
     {
-        quickMenu.Close();
         var body = pet.InteractiveScreenBounds;
         suppressedPetArea = new Rect(new Point((body.X - pet.Position.X) / pet.DesktopScaling,
             (body.Y - pet.Position.Y) / pet.DesktopScaling),
@@ -240,7 +215,7 @@ internal sealed class PetTimerWindow : Window
     {
         if (closed || !IsVisible || HoverOpacity <= 0) return false;
         if (HasCapture) return true;
-        return controls.Children.OfType<Button>().Append(quickMenuButton).Any(button => button.IsEffectivelyVisible &&
+        return controls.Children.OfType<Button>().Any(button => button.IsEffectivelyVisible &&
             button.TranslatePoint(default, this) is { } origin && new Rect(origin, button.Bounds.Size).Contains(point));
     }
     internal void UpdateClickThrough()
@@ -255,7 +230,7 @@ internal sealed class PetTimerWindow : Window
         UpdateHover(hasPetPoint && PointerOverPetForReveal(petPoint), overTimer || HasCapture || keyboard, elapsed.Elapsed);
         if (elapsed.Elapsed - lastTimeRefresh >= TimeSpan.FromSeconds(1))
         { RefreshTime(); lastTimeRefresh = elapsed.Elapsed; }
-        var ignore = !quickMenu.IsOpen && !AcceptsPointerAt(point);
+        var ignore = !AcceptsPointerAt(point);
         if (OperatingSystem.IsWindows())
         { if (WindowsPetWindow.SetClickThrough(this, ignore)) IsClickThrough = ignore; }
         else if (ignore != IsClickThrough && MacPetWindow.SetClickThrough(this, ignore)) IsClickThrough = ignore;

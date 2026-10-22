@@ -6,6 +6,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
@@ -58,8 +59,7 @@ public class PetSystemResourcesUiTests
             Assert.False(resources.IsChecked); Assert.True(resources.IsEnabled);
             var help = Assert.IsType<string>(ToolTip.GetTip(resources));
             Assert.Contains(L.T("마우스를 올린 동안 시스템 전체 사용량을 5초마다 표시해요."), help);
-            Assert.Contains(OperatingSystem.IsMacOS() ? L.T("물리 메모리 점유량 · 파일 캐시 포함")
-                : L.T("물리 메모리 사용량 · 즉시 사용 가능한 메모리 제외"), help);
+            Assert.Contains(L.T("물리 메모리 사용량 · 즉시 사용 가능한 메모리 제외"), help);
             resources.IsChecked = true;
             await Until(() => scope.Runtime.Settings.ShowSystemResources);
             Assert.True(AppSettings.Load(scope.SettingsPath).ShowSystemResources);
@@ -93,14 +93,14 @@ public class PetSystemResourcesUiTests
         timer.Refresh(); Layout(timer);
         Reveal(timer, 2000);
         await Until(() => Find<TextBlock>(timer, "PetCpuValue").Text == "80%");
-        Assert.Equal(PetTimerWindow.FormatMemory(Source.Memory), Find<TextBlock>(timer, "PetMemoryValue").Text);
+        Assert.Equal("78%", Find<TextBlock>(timer, "PetMemoryValue").Text);
         Assert.True(source.Calls >= 2);
 
         Leave(timer, 3000); await AssertStopped(scope);
         var before = source.Calls;
         Reveal(timer, 4000); await Until(() => source.Calls > before);
         await scope.SetResources(false); await AssertStopped(scope);
-        Assert.False(Find<StackPanel>(timer, "PetSystemResources").IsVisible);
+        Assert.False(Find<Grid>(timer, "PetSystemResources").IsVisible);
         before = source.Calls;
         await scope.SetResources(true);
         await Until(() => source.Calls > before);
@@ -120,15 +120,22 @@ public class PetSystemResourcesUiTests
         Reveal(timer, 0);
         await Until(() => Find<TextBlock>(timer, "PetCpuValue").Text == "80%");
         Layout(timer);
-        var resources = Find<StackPanel>(timer, "PetSystemResources");
+        var resources = Find<Grid>(timer, "PetSystemResources");
         Assert.True(resources.IsEffectivelyVisible); Assert.True(resources.Bounds.Height > 0);
-        foreach (var text in resources.GetVisualDescendants().OfType<TextBlock>())
+        foreach (var part in resources.Children)
         {
-            Assert.True(text.Bounds.Width > 0 && text.Bounds.Height > 0);
-            var center = text.TranslatePoint(new Point(text.Bounds.Width / 2, text.Bounds.Height / 2), timer)!.Value;
+            Assert.True(part.Bounds.Width > 0 && part.Bounds.Height > 0);
+            var center = part.TranslatePoint(new Point(part.Bounds.Width / 2, part.Bounds.Height / 2), timer)!.Value;
             Assert.False(timer.AcceptsPointerAt(center));
             Assert.InRange(center.Y, 78, 122);
         }
+        var cpu = Find<ProgressBar>(timer, "PetCpuGauge"); var memory = Find<ProgressBar>(timer, "PetMemoryGauge");
+        Assert.Equal((80d, 78.125), (cpu.Value, memory.Value));
+        Assert.Equal(cpu.Bounds.Width, memory.Bounds.Width); Assert.Equal(cpu.Bounds.X, memory.Bounds.X);
+        var dark = DesignSystem.Themes.Single(theme => theme.Id == DesignSystem.CurrentTheme).IsDark;
+        Assert.Equal(PetTimerWindow.GaugeColor(80, dark), Assert.IsType<SolidColorBrush>(cpu.Foreground).Color);
+        // The bar keeps only the pause/resume and stop controls.
+        Assert.All(timer.GetVisualDescendants().OfType<Button>(), button => Assert.NotNull(button.FindAncestorOfType<TimerControls>()));
         var toggle = Find<Button>(timer, "PetTimerToggle");
         Assert.True(timer.AcceptsPointerAt(toggle.TranslatePoint(new Point(5, 5), timer)!.Value));
         Assert.Equal(anchor, pet.Position); Assert.Equal(clientSize, pet.ClientSize); Assert.Equal(petBounds, pet.PetView.Bounds);
@@ -145,19 +152,30 @@ public class PetSystemResourcesUiTests
     }
 
     [Fact]
-    public void MissingMeasurementsStayUnknownAndMemoryUsesDecimalGigabytes()
+    public void MissingMeasurementsStayUnknownAndMemoryShowsItsShare()
     {
         var previous = CultureInfo.CurrentCulture;
         try
         {
             CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
-            Assert.Equal("—", PetTimerWindow.FormatCpu(null));
-            Assert.Equal("—", PetTimerWindow.FormatMemory(null));
-            Assert.Equal("13%", PetTimerWindow.FormatCpu(12.6));
-            Assert.Equal("0%", PetTimerWindow.FormatCpu(0));
-            Assert.Equal("12.5 / 16.0 GB", PetTimerWindow.FormatMemory(Source.Memory));
+            Assert.Equal("—", PetTimerWindow.FormatPercent(null));
+            Assert.Null(PetTimerWindow.MemoryPercent(null));
+            Assert.Equal("13%", PetTimerWindow.FormatPercent(12.6));
+            Assert.Equal("0%", PetTimerWindow.FormatPercent(0));
+            Assert.Equal("78%", PetTimerWindow.FormatPercent(PetTimerWindow.MemoryPercent(Source.Memory)));
         }
         finally { CultureInfo.CurrentCulture = previous; }
+    }
+
+    [Theory]
+    [InlineData(0, "#2563D9", "#6EA8FE")] [InlineData(29.4, "#2563D9", "#6EA8FE")]
+    [InlineData(29.5, "#1F8A4C", "#4CC38A")] [InlineData(59, "#1F8A4C", "#4CC38A")]
+    [InlineData(60, "#C2610C", "#F5A04A")] [InlineData(84.4, "#C2610C", "#F5A04A")]
+    [InlineData(84.5, "#D13438", "#FF7B7B")] [InlineData(100, "#D13438", "#FF7B7B")]
+    public void GaugeColorRisesFromBlueThroughGreenAndOrangeToRedWithTheShownPercent(double percent, string light, string dark)
+    {
+        Assert.Equal(Color.Parse(light), PetTimerWindow.GaugeColor(percent, dark: false));
+        Assert.Equal(Color.Parse(dark), PetTimerWindow.GaugeColor(percent, dark: true));
     }
 
     [AvaloniaFact]
@@ -174,7 +192,7 @@ public class PetSystemResourcesUiTests
         Assert.Same(label, Find<TextBlock>(timer, "PetMemoryLabel"));
         Assert.Equal("Memory", label.Text);
         var value = Find<TextBlock>(timer, "PetMemoryValue");
-        Assert.Contains(L.T("물리 메모리 점유량 · 파일 캐시 포함"), AutomationProperties.GetName(value));
+        Assert.Contains(L.T("물리 메모리 사용량 · 즉시 사용 가능한 메모리 제외"), AutomationProperties.GetName(value));
         Assert.Contains(value.Text!, AutomationProperties.GetName(value));
         Assert.False(timer.AcceptsPointerAt(label.TranslatePoint(new Point(5, 5), timer)!.Value));
     }
@@ -229,8 +247,7 @@ public class PetSystemResourcesUiTests
 
     private sealed class Source : ISystemResourceSource
     {
-        internal static readonly SystemMemoryUsage Memory =
-            new(12_500_000_000, 16_000_000_000, SystemMemoryAccounting.IncludesFileCache);
+        internal static readonly SystemMemoryUsage Memory = new(12_500_000_000, 16_000_000_000);
         private int calls;
         public int Calls => Volatile.Read(ref calls);
         public SystemResourceReading Read(CancellationToken cancellationToken)
