@@ -149,16 +149,49 @@ public sealed class PetMediaProcessingTests
     }
 
     public static bool HasVideoTool => PetMediaImporter.FindFFmpeg() is not null;
+    public static bool HasBundledVideoTool => BundledVideoTool() is not null;
+
+    // The app ships this LGPL build, which lacks codecs a developer's own FFmpeg on PATH may have.
+    private static string? BundledVideoTool()
+    {
+        var name = OperatingSystem.IsWindows() ? "ffmpeg.exe" : "ffmpeg";
+        for (var directory = new DirectoryInfo(AppContext.BaseDirectory); directory is not null; directory = directory.Parent)
+        {
+            var path = Path.Combine(directory.FullName, ".tools", "media-lgpl", System.Runtime.InteropServices.RuntimeInformation.RuntimeIdentifier, name);
+            if (File.Exists(path)) return path;
+        }
+        return null;
+    }
 
     [Fact(Skip = "Prepare media tools to run native GIF encoding.", SkipUnless = nameof(HasVideoTool), SkipType = typeof(PetMediaProcessingTests))]
-    public async Task AnimatedClipsKeepTransparencyBetweenFramesAndTheirTiming()
+    public Task AnimatedClipsKeepTransparencyBetweenFramesAndTheirTiming() => EncodesAMovingBox(executable: null);
+
+    [Fact(Skip = "Prepare .tools/media-lgpl to run the bundled GIF encoder.", SkipUnless = nameof(HasBundledVideoTool), SkipType = typeof(PetMediaProcessingTests))]
+    public Task TheBundledVideoToolEncodesKeyedFrames() => EncodesAMovingBox(BundledVideoTool());
+
+    [Fact(Skip = "Prepare media tools to run native GIF encoding.", SkipUnless = nameof(HasVideoTool), SkipType = typeof(PetMediaProcessingTests))]
+    public async Task FramesOfDifferentSizesShareTheLargestCanvas()
+    {
+        AnimationFrame[] frames =
+        [
+            new(Frame(32, 32, 0, (2, 2, 8, 8, White)), TimeSpan.FromMilliseconds(100)),
+            new(Frame(48, 40, 0, (30, 30, 8, 8, White)), TimeSpan.FromMilliseconds(100))
+        ];
+        var result = await PetMediaProcessor.EncodeGif("mixed.gif", frames, TestContext.Current.CancellationToken, BundledVideoTool());
+        var decoded = result.LoadFrames();
+        Assert.All(decoded, frame => Assert.Equal((48, 40), (frame.Image.Width, frame.Image.Height)));
+        Assert.NotEqual(0u, At(decoded[0].Image, 5, 5) >> 24); Assert.Equal(0u, At(decoded[0].Image, 40, 35) >> 24);
+        Assert.NotEqual(0u, At(decoded[1].Image, 33, 33) >> 24);
+    }
+
+    private static async Task EncodesAMovingBox(string? executable)
     {
         // A white box moves across a green screen; the old position must not linger after keying.
         int[] delays = [80, 90, 80, 250];
         var frames = Enumerable.Range(0, 4).Select(k => new AnimationFrame(
             Frame(64, 64, Green, (4 + k * 12, 20, 16, 16, White)), TimeSpan.FromMilliseconds(delays[k]))).ToArray();
         var keyed = PetMediaProcessing.Apply(frames, new(true, Green));
-        var result = await PetMediaProcessor.EncodeGif("walk.mp4", keyed, TestContext.Current.CancellationToken);
+        var result = await PetMediaProcessor.EncodeGif("walk.mp4", keyed, TestContext.Current.CancellationToken, executable);
         Assert.Equal("walk.mp4", result.FileName); Assert.False(result.IsStillImage);
         var decoded = result.LoadFrames();
         Assert.Equal(4, decoded.Count);
